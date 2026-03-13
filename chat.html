@@ -2,55 +2,54 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <title>KAIFMANIA CHAT 🔥</title>
+    <title>KAIFMANIA 🔥</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { margin: 0; background: #000; color: white; font-family: Arial; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        /* ყველაფერი გიგანტურია */
+        body { margin: 0; background: #000; color: white; font-family: 'Arial Black', sans-serif; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
         
         header { 
-            background: #000; padding: 10px 20px; text-align: center; border-bottom: 2px solid red; 
-            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 15px red;
+            background: #000; padding: 20px; border-bottom: 5px solid red; 
+            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 0 30px red;
         }
 
-        .menu-btn { background: red; color: white; border: none; padding: 10px 20px; cursor: pointer; font-weight: bold; border-radius: 5px; font-size: 16px; }
+        /* მენიუს ღილაკი - უზარმაზარი */
+        .menu-btn { background: red; color: white; border: none; padding: 20px 40px; cursor: pointer; font-weight: bold; border-radius: 10px; font-size: 28px; }
 
-        /* მარცხენა მენიუ - ბოლომდე ჩამოსული სვეტი */
+        /* მარცხენა მენიუ - ბოლომდე და განიერი */
         #sideMenu { 
-            position: fixed; left: -280px; top: 0; width: 280px; height: 100%; 
-            background: #080808; border-right: 2px solid red; transition: 0.4s ease; z-index: 100;
+            position: fixed; left: -400px; top: 0; width: 400px; height: 100%; 
+            background: #050505; border-right: 5px solid red; transition: 0.3s; z-index: 100;
             display: flex; flex-direction: column; overflow-y: auto;
         }
         #sideMenu.active { left: 0; }
 
+        /* ოთახების ასოები */
         .room-link { 
-            padding: 18px 25px; color: white; text-decoration: none; border-bottom: 1px solid #1a1a1a; 
-            cursor: pointer; transition: 0.2s; font-size: 15px; text-transform: uppercase;
+            padding: 25px; color: white; text-decoration: none; border-bottom: 2px solid #222; 
+            cursor: pointer; font-size: 24px; text-transform: uppercase; font-weight: 900;
         }
-        .room-link:hover { background: #200; color: red; padding-left: 35px; }
+        .room-link:hover { background: red; }
 
-        /* ჩატის არე */
-        #chat-container { flex: 1; display: flex; flex-direction: column; position: relative; }
-        #room-title { padding: 12px; background: #111; color: red; text-align: center; font-weight: bold; border-bottom: 1px solid #222; letter-spacing: 1px; }
-        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
-        .msg { padding: 4px 0; border-bottom: 1px solid #111; }
-        .u-name { color: red; font-weight: bold; margin-right: 10px; text-shadow: 0 0 5px rgba(255,0,0,0.3); }
+        /* ჩატის დაფა */
+        #room-title { padding: 20px; background: #111; color: red; text-align: center; font-size: 30px; border-bottom: 3px solid #333; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; gap: 20px; font-size: 26px; }
+        .u-name { color: red; font-weight: bold; margin-right: 15px; }
 
-        /* საწერი ველი */
-        .input-area { background: #000; padding: 20px; display: flex; gap: 12px; border-top: 2px solid #200; }
-        input { flex: 1; background: #0a0a0a; border: 1px solid #333; border-radius: 25px; padding: 14px 20px; color: white; outline: none; font-size: 15px; }
-        input:focus { border-color: red; }
-        button#sendBtn { background: red; color: white; border: none; border-radius: 25px; padding: 0 30px; cursor: pointer; font-weight: bold; }
-        
-        /* მენიუს დახურვის ღილაკი შიგნით */
-        .close-menu { padding: 20px; text-align: right; color: red; font-weight: bold; cursor: pointer; border-bottom: 2px solid red; }
+        /* საწერი ველი - გიგანტური */
+        .input-area { background: #000; padding: 30px; display: flex; gap: 20px; border-top: 5px solid #200; }
+        input { flex: 1; background: #0a0a0a; border: 3px solid #555; border-radius: 40px; padding: 25px; color: white; outline: none; font-size: 24px; }
+        button#sendBtn { background: red; color: white; border: none; border-radius: 40px; padding: 0 50px; cursor: pointer; font-size: 24px; font-weight: bold; }
+
+        .close-menu { padding: 30px; text-align: right; color: red; font-size: 35px; cursor: pointer; border-bottom: 5px solid red; }
     </style>
 </head>
 <body>
 
 <header>
     <button class="menu-btn" onclick="toggleMenu()">☰ ოთახები</button>
-    <h2 style="margin:0; letter-spacing: 3px;">KAIFMANIA</h2>
-    <div style="width: 80px;"></div>
+    <h2 style="margin:0; font-size: 35px; color: white; text-shadow: 0 0 15px red;">KAIFMANIA</h2>
+    <div style="width: 100px;"></div>
 </header>
 
 <div id="sideMenu">
@@ -69,11 +68,11 @@
     <div class="room-link" onclick="changeRoom('ადმინისტრაცია')">🛠 ადმინისტრაცია</div>
     <div class="room-link" onclick="changeRoom('დახმარება')">🆘 დახმარება</div>
     <div class="room-link" onclick="changeRoom('ფორუმი')">📝 ფორუმი</div>
-    <div class="room-link" onclick="location.href='index.html'" style="color: #888;">🚪 გასვლა</div>
+    <div class="room-link" onclick="location.href='index.html'" style="color: #444;">🚪 გასვლა</div>
 </div>
 
 <div id="chat-container">
-    <div id="room-title">ოთახი: კაფე-ბარი</div>
+    <div id="room-title">კაფე-ბარი</div>
     <div id="chat-box"></div>
     <div class="input-area">
         <input type="text" id="msgInput" placeholder="დაწერე რამე..." autocomplete="off">
@@ -92,7 +91,7 @@
 
     async function changeRoom(roomName) {
         currentRoom = roomName;
-        document.getElementById("room-title").innerText = "ოთახი: " + roomName;
+        document.getElementById("room-title").innerText = roomName;
         toggleMenu(); 
         loadMsgs();
     }
@@ -116,7 +115,10 @@
         input.value = '';
     }
 
-    _s.channel('chat').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, loadMsgs).subscribe();
+    _s.channel('any').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (p) => {
+        if(p.new.room === currentRoom) loadMsgs();
+    }).subscribe();
+
     loadMsgs();
     document.getElementById("msgInput").addEventListener("keyup", (e) => { if (e.key === "Enter") sendMsg(); });
 </script>
