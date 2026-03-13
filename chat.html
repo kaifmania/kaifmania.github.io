@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <title>KAIFMANIA CHAT 🔥</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { margin: 0; background: #000; color: white; font-family: Arial; display: flex; flex-direction: column; height: 100vh; overflow: hidden; }
+        
+        /* ზედა პანელი */
+        header { 
+            background: #000; padding: 15px; text-align: center; border-bottom: 2px solid red; 
+            display: flex; justify-content: space-between; align-items: center; padding: 10px 20px;
+        }
+        .menu-btn { background: red; color: white; border: none; padding: 8px 15px; cursor: pointer; font-weight: bold; border-radius: 5px; }
+
+        /* ოთახების მენიუ (მარჯვნივ) */
+        #sideMenu { 
+            position: fixed; right: -250px; top: 0; width: 250px; height: 100%; 
+            background: #0a0a0a; border-left: 2px solid red; transition: 0.3s; z-index: 100;
+            display: flex; flex-direction: column; padding-top: 60px;
+        }
+        #sideMenu.active { right: 0; }
+        .room-link { 
+            padding: 15px 20px; color: white; text-decoration: none; border-bottom: 1px solid #222; 
+            cursor: pointer; transition: 0.2s; font-size: 14px;
+        }
+        .room-link:hover { background: #200; color: red; }
+
+        /* ჩატის დაფა */
+        #chat-container { flex: 1; display: flex; flex-direction: column; }
+        #room-title { padding: 10px; background: #111; color: red; text-align: center; font-weight: bold; border-bottom: 1px solid #222; }
+        #chat-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 8px; }
+        .msg { font-size: 15px; }
+        .u-name { color: red; font-weight: bold; margin-right: 8px; }
+
+        /* საწერი ველი */
+        .input-area { background: #000; padding: 15px; display: flex; gap: 10px; border-top: 1px solid #222; }
+        input { flex: 1; background: #0d0d0d; border: 1px solid #333; border-radius: 20px; padding: 12px; color: white; outline: none; }
+        button#sendBtn { background: red; color: white; border: none; border-radius: 20px; padding: 10px 20px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div style="width: 80px;"></div> <h2 style="margin:0; font-size: 20px;">KAIFMANIA 🔥</h2>
+    <button class="menu-btn" onclick="toggleMenu()">ოთახები ☰</button>
+</header>
+
+<div id="sideMenu">
+    <div class="room-link" onclick="changeRoom('კაფე-ბარი')">☕ კაფე-ბარი</div>
+    <div class="room-link" onclick="changeRoom('ვიპ საუბრები')">💎 ვიპ საუბრები</div>
+    <div class="room-link" onclick="changeRoom('გამოძიება')">🔍 გამოძიება</div>
+    <div class="room-link" onclick="changeRoom('შიფროგრამა')">📟 შიფროგრამა</div>
+    <div class="room-link" onclick="changeRoom('ვიქტორინა')">❓ ვიქტორინა</div>
+    <div class="room-link" onclick="changeRoom('ჩამოხრჩობანა')">💀 ჩამოხრჩობანა</div>
+    <div class="room-link" onclick="changeRoom('მაფიის ღამე')">🌑 მაფიის ღამე</div>
+    <div class="room-link" onclick="changeRoom('ჯოკერი')">🃏 ჯოკერი</div>
+    <div class="room-link" onclick="changeRoom('ნარდი')">🎲 ნარდი</div>
+    <div class="room-link" onclick="changeRoom('მუსიკა')">🎵 მუსიკა</div>
+    <div class="room-link" onclick="changeRoom('იუმორი')">😂 იუმორი</div>
+    <div class="room-link" onclick="changeRoom('ადმინისტრაცია')">🛠 ადმინისტრაცია</div>
+    <div class="room-link" onclick="changeRoom('დახმარება')">🆘 დახმარება</div>
+    <div class="room-link" onclick="changeRoom('ფორუმი')">📝 ფორუმი</div>
+    <div class="room-link" onclick="location.href='index.html'">🚪 გასვლა</div>
+</div>
+
+<div id="chat-container">
+    <div id="room-title">ოთახი: კაფე-ბარი</div>
+    <div id="chat-box"></div>
+    <div class="input-area">
+        <input type="text" id="msgInput" placeholder="დაწერე რამე..." autocomplete="off">
+        <button id="sendBtn" onclick="sendMsg()">გაგზავნა</button>
+    </div>
+</div>
+
+<script>
+    const _s = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_eQZDSu_Jy1gWmXJFF800Pw_TP2kBRLI");
+    const myNick = localStorage.getItem('nickname');
+    let currentRoom = "კაფე-ბარი";
+
+    if (!myNick) { window.location.href = "index.html"; }
+
+    function toggleMenu() { document.getElementById("sideMenu").classList.toggle("active"); }
+
+    async function changeRoom(roomName) {
+        currentRoom = roomName;
+        document.getElementById("room-title").innerText = "ოთახი: " + roomName;
+        toggleMenu(); // მენიუს აკეცვა
+        loadMsgs();   // მესიჯების თავიდან ჩატვირთვა ამ ოთახისთვის
+    }
+
+    async function loadMsgs() {
+        const { data } = await _s.from('messages').select('*').eq('room', currentRoom).order('created_at', { ascending: true });
+        const box = document.getElementById('chat-box');
+        box.innerHTML = '';
+        if (data) {
+            data.forEach(m => {
+                box.innerHTML += `<div class="msg"><span class="u-name">${m.username}:</span><span>${m.text}</span></div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+    }
+
+    async function sendMsg() {
+        const input = document.getElementById('msgInput');
+        if (!input.value.trim()) return;
+        await _s.from('messages').insert([{ username: myNick, text: input.value.trim(), room: currentRoom }]);
+        input.value = '';
+    }
+
+    _s.channel('chat').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, loadMsgs).subscribe();
+    loadMsgs();
+    document.getElementById("msgInput").addEventListener("keyup", (e) => { if (e.key === "Enter") sendMsg(); });
+</script>
+</body>
+</html>
