@@ -6,46 +6,44 @@
     <title>OLD MAFIA - ჩატი</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        /* ძირითადი სტილები შენი ძველი კოდიდან */
         body { margin: 0; font-family: sans-serif; background: #0b0000; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar { background: black; padding: 12px; display: flex; align-items: center; border-bottom: 2px solid #500; position: relative; z-index: 3001; }
-        .menu-btn { cursor: pointer; font-size: 25px; color: red; margin-right: 15px; flex-shrink: 0; }
         
+        /* ზედა პანელი */
+        .topbar { background: black; padding: 12px; display: flex; align-items: center; border-bottom: 1px solid #500; z-index: 3001; }
+        .menu-btn { cursor: pointer; font-size: 25px; color: red; margin-right: 15px; }
+
         /* გვერდითა მენიუ */
         .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #070000; box-shadow: 2px 0 15px red; transition: 0.3s ease; z-index: 4000; display: flex; flex-direction: column; border-right: 1px solid red; }
         .sidebar.active { left: 0; }
         .sidebar-header { padding: 30px 15px; text-align: center; background: #1a0000; border-bottom: 1px solid red; }
-        .sidebar-header img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid red; object-fit: cover; margin-bottom: 10px; cursor: pointer; }
-        
-        /* ჩატის არე */
-        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #050000; }
-        .msg-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid red; cursor: pointer; object-fit: cover; }
-        .bubble { background: #1a0000; border: 1px solid #333; padding: 8px 12px; border-radius: 4px 15px 15px 15px; max-width: 80%; position: relative; }
-        .m-nick { font-weight: bold; color: #ff4d4d; font-size: 12px; margin-bottom: 3px; display: flex; align-items: center; }
-        .m-time { color: #666; font-size: 10px; margin-left: 8px; }
-        .del-msg { color: #444; cursor: pointer; font-size: 11px; margin-left: auto; padding-left: 10px; }
+        .sidebar-header img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid red; object-fit: cover; }
 
-        /* ქვედა პანელი და ლურჯი თვითმფრინავი */
+        .rooms-list { flex: 1; overflow-y: auto; padding: 10px; }
+        .room-item { padding: 10px; background: #111; border: 1px solid #222; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 5px; color: #ccc; }
+        .room-item:hover { background: #300; border-color: red; color: white; }
+
+        /* ჩატის არე */
+        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #050000; }
+        .msg-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px; }
+        .msg-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid red; }
+        .bubble { background: #1a0000; border: 1px solid #333; padding: 8px 12px; border-radius: 4px 15px 15px 15px; max-width: 80%; }
+        .m-nick { font-weight: bold; color: #ff4d4d; font-size: 12px; display: flex; align-items: center; gap: 8px; }
+        .m-time { color: #555; font-size: 10px; }
+
+        /* ქვედა პანელი და ლურჯი რეაქტიული თვითმფრინავი */
         .input-zone { background: black; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; position: relative; }
         .input-zone input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; }
         
-        .send-btn { 
-            background: none; border: none; cursor: pointer; transition: 0.3s; 
-            display: flex; align-items: center; justify-content: center;
-        }
+        .send-btn { background: none; border: none; cursor: pointer; transition: 0.3s; display: flex; align-items: center; }
         .send-btn:hover { transform: scale(1.1) rotate(-10deg); }
-        .send-btn svg { width: 35px; height: 35px; fill: #0084ff; filter: drop-shadow(0 0 8px #0084ff); }
+        .send-btn svg { width: 38px; height: 38px; fill: #007bff; filter: drop-shadow(0 0 8px #007bff); }
 
-        /* სმაილების ბოქსი */
-        #emoji-box { position: absolute; bottom: 80px; left: 10px; background: #111; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 9999; border-radius: 15px; max-height: 250px; overflow-y: auto; width: 220px; border: 2px solid red; padding: 10px; box-shadow: 0 0 20px red; }
-        #emoji-box img { width: 40px; height: 40px; cursor: pointer; transition: 0.2s; object-fit: contain; }
+        /* სმაილების ბლოკი */
+        #emoji-box { position: absolute; bottom: 80px; left: 10px; background: #111; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 9999; border-radius: 15px; padding: 10px; border: 2px solid red; box-shadow: 0 0 15px red; }
+        #emoji-box img { width: 35px; height: 35px; cursor: pointer; }
 
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3500; }
         .overlay.active { display: block; }
-        
-        .room-item { padding: 12px; background: #111; border: 1px solid #222; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 5px; color: #ccc; }
-        .room-item:hover { background: #300; border-color: red; color: white; }
     </style>
 </head>
 <body>
@@ -54,23 +52,31 @@
 
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <img id="my-avatar-img" src="https://i.ibb.co/v3m6y6R/avatar.png">
-        <div id="my-nick-label" style="font-weight:bold; color:red;">...</div>
-        <div id="my-status-label" style="font-size: 11px; color: gold; margin-bottom: 10px;">მომხმარებელი 🌱</div>
+        <img id="my-avatar" src="https://i.ibb.co/v3m6y6R/avatar.png">
+        <div id="my-nick" style="color: red; font-weight: bold; margin-top: 10px;">...</div>
     </div>
-    <div class="rooms-list" style="flex:1; overflow-y:auto; padding:10px;">
-        <div class="room-item" onclick="changeRoom('☕️ კაფე-ბარი')">☕️ კაფე-ბარი</div>
-        <div class="room-item" onclick="changeRoom('💎 ვიპ საუბრები')">💎 ვიპ საუბრები</div>
-        <div class="room-item" onclick="changeRoom('🕴 მაფიის ღამე')">🕴 მაფიის ღამე</div>
-        <div class="room-item" onclick="changeRoom('🕵️ გამოძიება')">🕵️ გამოძიება</div>
-        <div class="room-item" onclick="changeRoom('🎵 მუსიკა')">🎵 მუსიკა</div>
+    <div class="rooms-list">
+        <div class="room-item" onclick="changeRoom('Room 1')">🚪 Room 1</div>
+        <div class="room-item" onclick="changeRoom('Room 2')">🚪 Room 2</div>
+        <div class="room-item" onclick="changeRoom('Room 3')">🚪 Room 3</div>
+        <div class="room-item" onclick="changeRoom('Room 4')">🚪 Room 4</div>
+        <div class="room-item" onclick="changeRoom('Room 5')">🚪 Room 5</div>
+        <div class="room-item" onclick="changeRoom('Room 6')">🚪 Room 6</div>
+        <div class="room-item" onclick="changeRoom('Room 7')">🚪 Room 7</div>
+        <div class="room-item" onclick="changeRoom('Room 8')">🚪 Room 8</div>
+        <div class="room-item" onclick="changeRoom('Room 9')">🚪 Room 9</div>
+        <div class="room-item" onclick="changeRoom('Room 10')">🚪 Room 10</div>
+        <div class="room-item" onclick="changeRoom('Room 11')">🚪 Room 11</div>
+        <div class="room-item" onclick="changeRoom('Room 12')">🚪 Room 12</div>
+        <div class="room-item" onclick="changeRoom('Room 13')">🚪 Room 13</div>
+        <div class="room-item" onclick="changeRoom('Room 14')">🚪 Room 14</div>
     </div>
-    <div style="padding:15px; text-align:center; color:red; cursor:pointer;" onclick="logout()">🚪 გასვლა</div>
+    <div style="padding:15px; text-align:center; color:red; cursor:pointer;" onclick="location.reload()">🚪 გასვლა</div>
 </div>
 
 <div class="topbar">
     <div class="menu-btn" onclick="toggleMenu()">☰</div>
-    <div id="room-name" style="font-weight:bold; color: red; flex: 1; text-align: center;">☕️ კაფე-ბარი</div>
+    <div id="room-name" style="color: red; flex: 1; text-align: center; font-weight: bold;">Room 1</div>
 </div>
 
 <div class="chat-area" id="chat"></div>
@@ -88,13 +94,15 @@
 </div>
 
 <script>
-    const _supabase = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_eQZDSu_Jy1gWmXJFF800Pw_TP2kBRLI");
-    let myNick = localStorage.getItem('nickname') || "სტუმარი";
-    let currentRoom = "☕️ კაფე-ბარი";
+    // ჩაწერე შენი ახალი Supabase მონაცემები აქ:
+    const _supabase = supabase.createClient("შენი_URL", "შენი_KEY");
 
-    function toggleMenu() { 
-        document.getElementById('sidebar').classList.toggle('active'); 
-        document.getElementById('overlay').classList.toggle('active'); 
+    let myNick = localStorage.getItem('nickname') || "სტუმარი";
+    let currentRoom = "Room 1";
+
+    function toggleMenu() {
+        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
     }
 
     async function toggleEmojiPicker() {
@@ -102,11 +110,11 @@
         if (box.innerHTML === "") {
             const { data: files } = await _supabase.storage.from('emojis').list();
             files?.forEach(file => {
-                const { data: urlData } = _supabase.storage.from('emojis').getPublicUrl(file.name);
+                const { data: url } = _supabase.storage.from('emojis').getPublicUrl(file.name);
                 const img = document.createElement('img');
-                img.src = urlData.publicUrl;
+                img.src = url.publicUrl;
                 img.onclick = () => {
-                    document.getElementById("msg-input").value += ` ${img.outerHTML} `;
+                    document.getElementById('msg-input').value += ` <img src="${img.src}" style="width:25px;"> `;
                     box.style.display = 'none';
                 };
                 box.appendChild(img);
@@ -115,40 +123,43 @@
         box.style.display = (box.style.display === 'grid') ? 'none' : 'grid';
     }
 
-    async function init() {
-        document.getElementById('my-nick-label').innerText = myNick;
-        loadMessages();
-        _supabase.channel('msgs').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
-    }
-
     async function loadMessages() {
         const { data: msgs } = await _supabase.from('messages').select('*').eq('room_name', currentRoom).order('created_at', { ascending: true });
-        const chatDiv = document.getElementById("chat");
-        chatDiv.innerHTML = "";
+        const chat = document.getElementById('chat');
+        chat.innerHTML = "";
         msgs?.forEach(m => {
             const time = new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-            chatDiv.innerHTML += `
+            chat.innerHTML += `
                 <div class="msg-container">
-                    <img src="https://i.ibb.co/v3m6y6R/avatar.png" class="msg-avatar">
+                    <img src="${m.avatar_url}" class="msg-avatar">
                     <div class="bubble">
-                        <div class="m-nick">${m.user_nam}<span class="m-time">${time}</span></div>
-                        <div style="font-size:14px;">${m.text}</div>
+                        <div class="m-nick">${m.user_nam} <span class="m-time">${time}</span></div>
+                        <div style="font-size:14px; margin-top:3px;">${m.text}</div>
                     </div>
                 </div>`;
         });
-        chatDiv.scrollTop = chatDiv.scrollHeight;
+        chat.scrollTop = chat.scrollHeight;
     }
 
     async function sendMsg() {
-        const i = document.getElementById("msg-input");
+        const i = document.getElementById('msg-input');
         if (!i.value.trim()) return;
         await _supabase.from('messages').insert([{ user_nam: myNick, text: i.value, room_name: currentRoom }]);
         i.value = "";
     }
 
-    function changeRoom(n) { currentRoom = n; document.getElementById('room-name').innerText = n; toggleMenu(); loadMessages(); }
-    function logout() { localStorage.removeItem('nickname'); location.reload(); }
-    window.onload = init;
+    function changeRoom(name) {
+        currentRoom = name;
+        document.getElementById('room-name').innerText = name;
+        toggleMenu();
+        loadMessages();
+    }
+
+    window.onload = () => {
+        document.getElementById('my-nick').innerText = myNick;
+        loadMessages();
+        _supabase.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
+    };
 </script>
 </body>
 </html>
