@@ -42,7 +42,6 @@
     </style>
 </head>
 <body>
-
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -107,6 +106,7 @@
 </div>
 
 <script>
+    // ახალი Supabase მონაცემები
     const S_URL = "https://ftfciebnywbondaiarnc.supabase.co";
     const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkdmphd3JwbHZ2bGRianBmY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzE1NDIsImV4cCI6MjA4OTAwNzU0Mn0.QEySoKfVHF1b4dV5TAH5vgQQKQMAgdETzQm3P9p3H8A";
     
@@ -126,21 +126,17 @@
         const box = document.getElementById('emoji-box');
         if (box.innerHTML === "") {
             const { data: files, error } = await _supabase.storage.from('emojis').list();
-            if (error) { console.error("Emoji error:", error); return; }
+            if (error) { console.error("სმაილების შეცდომა:", error); return; }
             if (files && files.length > 0) {
-                box.style.padding = "10px";
-                box.style.border = "2px solid red";
-                box.style.boxShadow = "0 0 20px red";
+                box.style.padding = "10px"; box.style.border = "2px solid red"; box.style.boxShadow = "0 0 20px red";
                 files.forEach(file => {
                     const { data: urlData } = _supabase.storage.from('emojis').getPublicUrl(file.name);
-                    const emojiUrl = urlData.publicUrl;
                     const img = document.createElement('img');
-                    img.src = emojiUrl;
+                    img.src = urlData.publicUrl;
                     img.onclick = () => {
                         const input = document.getElementById("msg-input");
-                        input.value += ` <img src="${emojiUrl}" style="width:30px; vertical-align:middle;"> `;
-                        input.focus();
-                        box.style.display = 'none';
+                        input.value += ` <img src="${urlData.publicUrl}" style="width:30px; vertical-align:middle;"> `;
+                        input.focus(); box.style.display = 'none';
                     };
                     box.appendChild(img);
                 });
@@ -165,13 +161,21 @@
     async function loadMessages() {
         const { data: msgs } = await _supabase.from('messages').select('*').eq('room_name', currentRoom).order('created_at', { ascending: true });
         const { data: profs } = await _supabase.from('profiles').select('*');
-        const chatDiv = document.getElementById("chat");
-        chatDiv.innerHTML = "";
+        const chatDiv = document.getElementById("chat"); chatDiv.innerHTML = "";
         msgs?.forEach(m => {
             const p = profs?.find(u => u.username.toLowerCase() === (m.user_nam || "").toLowerCase());
             chatDiv.innerHTML += `<div class="msg-container"><img src="${p?.avatar_url || 'https://i.ibb.co/v3m6y6R/avatar.png'}" class="msg-avatar" onclick="openMenu('${m.user_nam}')"><div class="bubble"><div class="m-nick"><span onclick="openMenu('${m.user_nam}')" style="cursor:pointer">${m.user_nam}</span><span class="m-time">${formatTime(m.created_at)}</span>${(myRole === "Owner") ? `<span class="del-msg" onclick="deleteMsg('${m.id}')">🗑️</span>` : ''}</div><div style="font-size:14px; word-break: break-word;">${m.text}</div></div></div>`;
         });
         chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    async function sendMsg() {
+        const i = document.getElementById("msg-input");
+        if (!i.value.trim()) return;
+        const textToSend = i.value;
+        i.value = "";
+        // აქ user_nam და room_name ზუსტად ემთხვევა ბაზას
+        await _supabase.from('messages').insert([{ user_nam: myNick, text: textToSend, room_name: currentRoom }]);
     }
 
     async function openMenu(n) {
@@ -185,14 +189,6 @@
             document.getElementById('adminOptions').style.display = (myRole === "Owner" && n.toLowerCase() !== myNick.toLowerCase()) ? "block" : "none";
             document.getElementById('userModal').style.display = "flex";
         }
-    }
-
-    async function sendMsg() {
-        const i = document.getElementById("msg-input");
-        if (!i.value.trim()) return;
-        const textToSend = i.value;
-        i.value = "";
-        await _supabase.from('messages').insert([{ user_nam: myNick, text: textToSend, room_name: currentRoom }]);
     }
 
     function changeRoom(n) { currentRoom = n; document.getElementById('room-name').innerText = n; toggleMenu(); loadMessages(); }
