@@ -31,4 +31,74 @@
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="topbar"><div class="burger" onclick="toggleMenu()">☰</div><div class="title" id="room-title">☕️ კაფე-ბარი</div></div>
 
-<div class="
+<div class="side-menu" id="sideMenu">
+    <div class="menu-item" onclick="changeRoom('☕️ კაფე-ბარი')">☕️ კაფე-ბარი</div>
+    <div class="menu-item" onclick="changeRoom('🕵️ მაფია')">🕵️ მაფია</div>
+    <div class="menu-item" onclick="changeRoom('💬 ზოგადი')">💬 ზოგადი</div>
+</div>
+
+<div class="chat-area" id="chat"></div>
+
+<div class="input-zone">
+    <input type="text" id="msgInput" placeholder="დაწერე მესიჯი..." onkeypress="if(event.key==='Enter') send()">
+    <button class="btn" onclick="send()">
+        <svg viewBox="0 0 24 24" width="32" height="32"><path fill="red" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+    </button>
+</div>
+
+<script>
+    const S_URL = "https://ftfciebnywbondaiarnc.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkdmphd3JwbHZ2bGRianBmY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzE1NDIsImV4cCI6MjA4OTAwNzU0Mn0.QEySoKfVHF1b4dV5TAH5vgQQKQMAgdETzQm3P9p3H8A";
+
+    const _supabase = supabase.createClient(S_URL, S_KEY);
+
+    let room = "☕️ კაფე-ბარი";
+    let nick = "სტუმარი_" + Math.floor(Math.random() * 1000);
+
+    function toggleMenu() {
+        document.getElementById('sideMenu').classList.toggle('active');
+        document.getElementById('overlay').classList.toggle('active');
+    }
+
+    async function load() {
+        const { data } = await _supabase.from('messages').select('*').eq('room_id', room).order('created_at', { ascending: true });
+        const c = document.getElementById('chat');
+        c.innerHTML = "";
+        data?.forEach(m => {
+            const av = `https://ui-avatars.com/api/?name=${m.user_name}&background=red&color=fff`;
+            c.innerHTML += `
+                <div class="m-wrap">
+                    <img src="${av}" class="m-avatar">
+                    <div class="m-body">
+                        <div class="m-user">${m.user_name}</div>
+                        <div>${m.text}</div>
+                    </div>
+                </div>`;
+        });
+        c.scrollTop = c.scrollHeight;
+    }
+
+    async function send() {
+        const i = document.getElementById('msgInput');
+        const val = i.value.trim();
+        if (!val) return;
+        i.value = "";
+        await _supabase.from('messages').insert([{ user_name: nick, text: val, room_id: room }]);
+    }
+
+    function changeRoom(n) {
+        room = n;
+        document.getElementById('room-title').innerText = n;
+        toggleMenu();
+        load();
+    }
+
+    window.onload = () => {
+        load();
+        _supabase.channel('any').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (p) => {
+            if (p.new.room_id === room) load();
+        }).subscribe();
+    };
+</script>
+</body>
+</html>
