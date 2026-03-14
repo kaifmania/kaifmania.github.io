@@ -7,42 +7,29 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body { margin: 0; font-family: sans-serif; background: #000; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        
-        /* ზედა ზოლი */
-        .topbar { background: #000; height: 60px; display: flex; align-items: center; border-bottom: 2px solid red; z-index: 2000; padding: 0 15px; position: relative; }
-        .burger { font-size: 35px; color: red; cursor: pointer; user-select: none; padding: 5px; }
+        .topbar { background: #000; height: 60px; display: flex; align-items: center; border-bottom: 2px solid red; padding: 0 15px; z-index: 1001; }
+        .burger { font-size: 30px; color: red; cursor: pointer; padding: 10px; }
         .title { flex: 1; text-align: center; color: red; font-size: 20px; font-weight: bold; text-shadow: 0 0 10px red; }
 
-        /* მენიუ მარცხნივ - სვეტად */
         .side-menu { 
-            position: fixed; top: 0; left: -280px; width: 260px; height: 100vh;
+            position: fixed; top: 0; left: -280px; width: 250px; height: 100vh;
             background: #0a0000; border-right: 2px solid red;
-            transition: 0.3s ease; z-index: 3000; 
-            display: flex; flex-direction: column; padding: 20px 10px; overflow-y: auto;
+            transition: 0.3s ease; z-index: 2000; 
+            display: flex; flex-direction: column; padding: 70px 15px 20px; overflow-y: auto;
         }
         .side-menu.active { left: 0; }
-        .close-btn { align-self: flex-end; color: red; font-size: 30px; cursor: pointer; margin-bottom: 10px; }
-
-        .menu-item { 
-            padding: 12px; margin: 5px 0; background: #150000; border: 1px solid #333; 
-            border-radius: 8px; cursor: pointer; text-align: left; color: #ccc; transition: 0.2s;
-        }
+        .menu-item { padding: 12px; margin: 4px 0; background: #150000; border: 1px solid #333; border-radius: 8px; cursor: pointer; text-align: left; color: #ccc; font-size: 14px; }
         .menu-item:hover { background: red; color: white; }
 
-        /* ჩატის ზონა */
         .chat-area { flex: 1; overflow-y: auto; padding: 20px; background: #050000; display: flex; flex-direction: column; gap: 10px; }
         .msg { background: #111; padding: 10px; border-radius: 8px; border-left: 3px solid red; align-self: flex-start; max-width: 85%; word-wrap: break-word; }
         .u { font-weight: bold; color: red; font-size: 12px; margin-bottom: 3px; }
 
-        /* ქვედა პანელი */
-        .input-zone { background: #000; padding: 10px 15px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; z-index: 100; }
+        .input-zone { background: #000; padding: 10px 15px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; }
         input { flex: 1; padding: 12px 20px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; font-size: 16px; }
+        .plane-btn { background: none; border: none; cursor: pointer; }
         
-        .plane-btn { background: none; border: none; cursor: pointer; width: 50px; height: 50px; display: flex; align-items: center; justify-content: center; }
-        .plane-btn svg { width: 45px; height: 45px; }
-
-        /* შავი ფონი როცა მენიუ ღიაა */
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.75); z-index: 2500; }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 1500; }
         .overlay.active { display: block; }
     </style>
 </head>
@@ -56,7 +43,6 @@
 </div>
 
 <div class="side-menu" id="sideMenu">
-    <div class="close-btn" onclick="toggleMenu()">×</div>
     <div class="menu-item" onclick="changeRoom('☕️ კაფე-ბარი')">☕️ კაფე-ბარი</div>
     <div class="menu-item" onclick="changeRoom('💎 VIP')">💎 VIP</div>
     <div class="menu-item" onclick="changeRoom('🔍 გამოძიება')">🔍 გამოძიება</div>
@@ -77,9 +63,9 @@
 <div class="input-zone">
     <input type="text" id="msgInput" placeholder="დაწერე მესიჯი..." onkeypress="if(event.key==='Enter') send()">
     <button class="plane-btn" onclick="send()">
-        <svg viewBox="0 0 24 24">
-            <path fill="white" d="M21,16L21,14L13,9L13,3.5A1.5,1.5 0 0,0 11.5,2A1.5,1.5 0 0,0 10,3.5V9L2,14V16L10,13.5V19L8,20.5V22L11.5,21L15,22V20.5L13,19V13.5L21,16Z"/>
-            <path fill="red" d="M10,9V3.5A1.5,1.5 0 0,1 11.5,2A1.5,1.5 0 0,1 13,3.5V9L11.5,10L10,9M10,19L11.5,18L13,19V13.5L11.5,12.5L10,13.5V19Z"/>
+        <svg viewBox="0 0 24 24" width="35" height="35">
+            <path fill="white" d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+            <path fill="red" d="M12 12l-10 2 0-4 10-2z" opacity="0.6"/>
         </svg>
     </button>
 </div>
@@ -87,7 +73,7 @@
 <script>
     const _supabase = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_TdfzZOd_1s6B7rDNfhwn6Q_mU4ecdkn");
     let room = "☕️ კაფე-ბარი";
-    let nick = localStorage.getItem('nickname') || "User";
+    let nick = localStorage.getItem('nickname') || "მარიამი";
 
     function toggleMenu() {
         document.getElementById('sideMenu').classList.toggle('active');
@@ -95,12 +81,16 @@
     }
 
     async function load() {
-        const { data, error } = await _supabase.from('messages').select('*').eq('room_name', room).order('created_at', { ascending: true });
-        if(error) console.log(error);
+        const { data } = await _supabase
+            .from('messages')
+            .select('*')
+            .eq('room_id', room) 
+            .order('created_at', { ascending: true });
+
         const c = document.getElementById('chat');
         c.innerHTML = "";
         data?.forEach(m => { 
-            c.innerHTML += `<div class="msg"><div class="u">${m.user_nam}</div>${m.text}</div>`; 
+            c.innerHTML += `<div class="msg"><div class="u">${m.user_name}</div>${m.text}</div>`; 
         });
         c.scrollTop = c.scrollHeight;
     }
@@ -110,8 +100,12 @@
         const val = i.value.trim();
         if (!val) return;
         i.value = "";
-        const { error } = await _supabase.from('messages').insert([{ user_nam: nick, text: val, room_name: room }]);
-        if(error) alert("ვერ გაიგზავნა!");
+
+        const { error } = await _supabase
+            .from('messages')
+            .insert([{ user_name: nick, text: val, room_id: room }]);
+
+        if(error) alert("შეცდომა: " + error.message);
         load();
     }
 
