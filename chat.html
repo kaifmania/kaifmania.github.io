@@ -28,24 +28,9 @@
         .input-zone { background: black; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; position: relative; }
         .input-zone input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; }
         .send-btn { background: red; border: none; width: 45px; height: 45px; border-radius: 50%; color: white; cursor: pointer; }
-
-        #emoji-box { 
-            position: absolute; 
-            bottom: 80px; 
-            left: 10px; 
-            background: #111; 
-            display: none; 
-            grid-template-columns: repeat(4, 1fr); 
-            gap: 10px; 
-            z-index: 9999; 
-            border-radius: 15px; 
-            max-height: 250px; 
-            overflow-y: auto; 
-            width: 220px;
-        }
+        #emoji-box { position: absolute; bottom: 80px; left: 10px; background: #111; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 9999; border-radius: 15px; max-height: 250px; overflow-y: auto; width: 220px; }
         #emoji-box img { width: 40px; height: 40px; cursor: pointer; transition: 0.2s; object-fit: contain; }
         #emoji-box img:hover { transform: scale(1.2); }
-
         .modal { display: none; position: fixed; z-index: 5000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
         .modal-content { background: #0a0000; border: 2px solid red; padding: 25px; border-radius: 20px; width: 280px; text-align: center; }
         .modal-btn { display: block; width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #500; background: #200; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
@@ -57,6 +42,7 @@
     </style>
 </head>
 <body>
+
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
@@ -90,7 +76,6 @@
 </div>
 
 <div class="chat-area" id="chat"></div>
-
 <div id="emoji-box"></div>
 
 <div class="input-zone">
@@ -122,7 +107,11 @@
 </div>
 
 <script>
-    const _supabase = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_eQZDSu_Jy1gWmXJFF800Pw_TP2kBRLI");
+    const S_URL = "https://ftfciebnywbondaiarnc.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkdmphd3JwbHZ2bGRianBmY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzE1NDIsImV4cCI6MjA4OTAwNzU0Mn0.QEySoKfVHF1b4dV5TAH5vgQQKQMAgdETzQm3P9p3H8A";
+    
+    const _supabase = supabase.createClient(S_URL, S_KEY);
+
     let myNick = (localStorage.getItem('nickname') || "User").trim();
     let myRole = "Member";
     let currentRoom = "☕ კაფე-ბარი";
@@ -133,29 +122,18 @@
     function formatTime(t) { if (!t) return ""; const d = new Date(t); return d.getHours().toString().padStart(2,'0')+":"+d.getMinutes().toString().padStart(2,'0'); }
     function getRoleName(r) { if (r==="Owner") return "დამფუძნებელი 👑"; if (r==="Admin") return "ადმინისტრატორი 🛡️"; if (r==="Banned") return "დაბლოკილი 🚫"; return "მომხმარებელი 🌱"; }
 
-    // --- აი ეს ფუნქცია შეიცვალა სრულიად ავტომატურით ---
     async function toggleEmojiPicker() {
         const box = document.getElementById('emoji-box');
-        
         if (box.innerHTML === "") {
-            // ვიღებთ სმაილების ფაილების სიას Storage-დან
             const { data: files, error } = await _supabase.storage.from('emojis').list();
-            
-            if (error) {
-                console.error("ვერ მოხერხდა სმაილების წამოღება:", error);
-                return;
-            }
-
+            if (error) { console.error("Emoji error:", error); return; }
             if (files && files.length > 0) {
                 box.style.padding = "10px";
                 box.style.border = "2px solid red";
                 box.style.boxShadow = "0 0 20px red";
-
                 files.forEach(file => {
-                    // თითოეული ფაილისთვის ვიღებთ მის პირდაპირ ლინკს
                     const { data: urlData } = _supabase.storage.from('emojis').getPublicUrl(file.name);
                     const emojiUrl = urlData.publicUrl;
-
                     const img = document.createElement('img');
                     img.src = emojiUrl;
                     img.onclick = () => {
@@ -168,10 +146,8 @@
                 });
             }
         }
-        
         box.style.display = (box.style.display === 'grid') ? 'none' : 'grid';
     }
-    // ---------------------------------------------------
 
     async function init() {
         const { data: prof } = await _supabase.from('profiles').select('*').ilike('username', myNick).maybeSingle();
@@ -189,9 +165,10 @@
     async function loadMessages() {
         const { data: msgs } = await _supabase.from('messages').select('*').eq('room_name', currentRoom).order('created_at', { ascending: true });
         const { data: profs } = await _supabase.from('profiles').select('*');
-        const chatDiv = document.getElementById("chat"); chatDiv.innerHTML = "";
+        const chatDiv = document.getElementById("chat");
+        chatDiv.innerHTML = "";
         msgs?.forEach(m => {
-            const p = profs?.find(u => u.username.toLowerCase() === m.user_nam.toLowerCase());
+            const p = profs?.find(u => u.username.toLowerCase() === (m.user_nam || "").toLowerCase());
             chatDiv.innerHTML += `<div class="msg-container"><img src="${p?.avatar_url || 'https://i.ibb.co/v3m6y6R/avatar.png'}" class="msg-avatar" onclick="openMenu('${m.user_nam}')"><div class="bubble"><div class="m-nick"><span onclick="openMenu('${m.user_nam}')" style="cursor:pointer">${m.user_nam}</span><span class="m-time">${formatTime(m.created_at)}</span>${(myRole === "Owner") ? `<span class="del-msg" onclick="deleteMsg('${m.id}')">🗑️</span>` : ''}</div><div style="font-size:14px; word-break: break-word;">${m.text}</div></div></div>`;
         });
         chatDiv.scrollTop = chatDiv.scrollHeight;
@@ -211,9 +188,11 @@
     }
 
     async function sendMsg() {
-        const i = document.getElementById("msg-input"); if (!i.value.trim()) return;
-        await _supabase.from('messages').insert([{ user_nam: myNick, text: i.value, room_name: currentRoom }]);
+        const i = document.getElementById("msg-input");
+        if (!i.value.trim()) return;
+        const textToSend = i.value;
         i.value = "";
+        await _supabase.from('messages').insert([{ user_nam: myNick, text: textToSend, room_name: currentRoom }]);
     }
 
     function changeRoom(n) { currentRoom = n; document.getElementById('room-name').innerText = n; toggleMenu(); loadMessages(); }
