@@ -13,46 +13,64 @@
             font-family: 'Arial', sans-serif; 
             color: white; 
             display: flex; 
+            flex-direction: column;
             overflow: hidden;
         }
 
-        /* მუდმივი გვერდითა მენიუ (არ იკეცება) */
-        .side-nav {
-            width: 200px;
+        /* ზედა პანელი, საიდანაც მენიუ ჩამოდის */
+        .top-header {
+            height: 60px;
             background: #0d0d0d;
-            border-right: 2px solid red;
-            display: flex;
-            flex-direction: column;
-            padding: 15px 0;
-            flex-shrink: 0;
-            box-shadow: 5px 0 15px rgba(255, 0, 0, 0.2);
-        }
-
-        .side-nav h2 {
-            color: red;
-            text-align: center;
-            font-size: 18px;
-            text-shadow: 0 0 10px red;
-            margin-bottom: 20px;
-        }
-
-        .side-nav a {
-            color: #ccc;
-            text-decoration: none;
-            padding: 10px 20px;
-            font-size: 13px;
-            transition: 0.3s;
-            border-left: 3px solid transparent;
+            border-bottom: 2px solid red;
             display: flex;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            cursor: pointer;
+            z-index: 1001;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
         }
 
-        .side-nav a:hover, .side-nav a.active {
-            background: rgba(255, 0, 0, 0.1);
+        .top-header h1 {
+            color: red;
+            font-size: 20px;
+            text-shadow: 0 0 10px red;
+            margin: 0;
+        }
+
+        /* ჩამოსაშლელი მენიუ (ზემოდან) */
+        .drop-nav {
+            position: fixed;
+            top: -100%; /* თავიდან დამალულია */
+            left: 0;
+            width: 100%;
+            background: rgba(13, 13, 13, 0.95);
+            border-bottom: 3px solid red;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+            padding: 20px;
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 1000;
+            box-sizing: border-box;
+        }
+
+        .drop-nav.active { top: 60px; }
+
+        .drop-nav a {
+            color: #ccc;
+            text-decoration: none;
+            padding: 12px;
+            border: 1px solid #222;
+            border-radius: 8px;
+            text-align: center;
+            font-size: 13px;
+            transition: 0.3s;
+        }
+
+        .drop-nav a:hover {
+            background: red;
             color: white;
-            border-left: 3px solid red;
-            text-shadow: 0 0 5px red;
+            box-shadow: 0 0 15px red;
         }
 
         /* ჩატის კონტეინერი */
@@ -64,51 +82,51 @@
             position: relative;
         }
 
-        /* ოთახის სახელი ზემოთ */
-        .room-header {
-            padding: 15px;
-            background: rgba(13, 13, 13, 0.8);
-            border-bottom: 1px solid #222;
+        /* ოთახის სახელი ფონზე */
+        .room-indicator {
+            position: absolute;
+            top: 20px;
+            width: 100%;
             text-align: center;
             color: red;
             font-weight: bold;
-            text-shadow: 0 0 8px red;
+            text-shadow: 0 0 10px red;
+            opacity: 0.8;
+            font-size: 24px;
         }
 
         #chatDisplay {
             flex-grow: 1;
             padding: 20px;
             overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
+            margin-top: 40px;
         }
 
         .message-row {
+            margin-bottom: 15px;
             background: rgba(255, 255, 255, 0.05);
-            padding: 10px 15px;
-            border-radius: 12px;
+            padding: 10px;
+            border-radius: 10px;
+            border-left: 3px solid red;
             max-width: 80%;
-            align-self: flex-start;
-            border-left: 2px solid red;
         }
 
-        .msg-author { color: red; font-weight: bold; font-size: 13px; display: block; }
-        .msg-time { font-size: 10px; color: #555; float: right; margin-top: 5px; }
+        .msg-author { color: red; font-weight: bold; font-size: 13px; }
+        .msg-time { font-size: 10px; color: #555; float: right; }
 
-        /* საწერი პანელი */
-        .input-bar {
+        /* ქვედა პანელი */
+        .input-area {
             padding: 15px;
-            background: #0a0a0a;
+            background: #0d0d0d;
             display: flex;
-            align-items: center;
             gap: 10px;
+            align-items: center;
             border-top: 1px solid #222;
         }
 
         #messageInput {
             flex-grow: 1;
-            background: #151515;
+            background: #1a1a1a;
             border: 1px solid #333;
             border-radius: 20px;
             padding: 12px 20px;
@@ -116,31 +134,34 @@
             outline: none;
         }
 
-        /* ნამდვილი ლურჯი რეაქტიული თვითმფრინავი */
+        /* ნამდვილი ლურჯი რეაქტიული თვითმფრინავის ღილაკი */
         .send-btn {
             background: none;
             border: none;
             cursor: pointer;
             transition: 0.3s;
+            display: flex;
+            align-items: center;
         }
 
-        .send-btn:hover { transform: scale(1.1) rotate(-10deg); }
+        .send-btn:hover { transform: scale(1.2) rotate(-10deg); }
 
         .send-btn svg {
-            width: 35px;
-            height: 35px;
-            fill: #0084ff; /* ლურჯი */
-            filter: drop-shadow(0 0 10px #0084ff);
+            width: 40px;
+            height: 40px;
+            fill: #00aaff; /* ნამდვილი ლურჯი */
+            filter: drop-shadow(0 0 10px #00aaff);
         }
-
-        .logout { color: #555 !important; margin-top: auto; border: none !important; }
     </style>
 </head>
 <body>
 
-    <nav class="side-nav">
-        <h2>კაიფმანია 😎</h2>
-        <a href="#" onclick="selectRoom('☕ კაფე-ბარი')" class="active">☕ კაფე-ბარი</a>
+    <div class="top-header" onclick="toggleMenu()">
+        <h1>კაიფმანია 😎🔥</h1>
+    </div>
+
+    <nav id="dropNav" class="drop-nav">
+        <a href="#" onclick="selectRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</a>
         <a href="#" onclick="selectRoom('💎 VIP')">💎 VIP</a>
         <a href="#" onclick="selectRoom('🔍 გამოძიება')">🔍 გამოძიება</a>
         <a href="#" onclick="selectRoom('🔐 შიფროგრამა')">🔐 შიფროგრამა</a>
@@ -151,18 +172,19 @@
         <a href="#" onclick="selectRoom('🎲 ნარდი')">🎲 ნარდი</a>
         <a href="#" onclick="selectRoom('🎵 მუსიკა')">🎵 მუსიკა</a>
         <a href="#" onclick="selectRoom('🛡️ ადმინი')">🛡️ ადმინი</a>
-        <a href="#" onclick="logout()" class="logout">🚪 გასვლა</a>
+        <a href="#" onclick="logout()" style="color:red">🚪 გასვლა</a>
     </nav>
 
     <div class="chat-container">
-        <div id="roomTitle" class="room-header">კაფე-ბარი</div>
+        <div id="roomTitle" class="room-indicator">კაფე-ბარი</div>
         <div id="chatDisplay"></div>
 
-        <div class="input-bar">
+        <div class="input-area">
             <input type="text" id="messageInput" placeholder="დაწერე შეტყობინება..." onkeyup="if(event.key==='Enter') sendMessage()">
             <button class="send-btn" onclick="sendMessage()">
                 <svg viewBox="0 0 24 24">
-                    <path d="M21.5 11L4 2.25a.75.75 0 00-1.08.88L5.5 12l-2.58 8.87a.75.75 0 001.08.88L21.5 13a1.17 1.17 0 000-2zM5.31 19.33L7.38 12H15a.75.75 0 000-1.5H7.38L5.31 4.67 19.14 12z"></path>
+                    <path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.27c-.31.17-.69.17-1 0L3.53 17.38c-.32-.17-.53-.5-.53-.88V9.26c0-.38.21-.71.53-.88l7.97-4.27c.31-.17.69-.17 1 0l7.97 4.27c.32.17.53.5.53.88v7.24z" opacity=".2"/>
+                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
                 </svg>
             </button>
         </div>
@@ -171,19 +193,14 @@
     <script>
         const myNick = localStorage.getItem('nickname') || "სტუმარი";
 
-        function selectRoom(name) {
-            // ცვლის სათაურს ზემოთ
-            document.getElementById("roomTitle").innerText = name;
-            
-            // ასუფთავებს ჩატს
-            document.getElementById("chatDisplay").innerHTML = "";
+        function toggleMenu() {
+            document.getElementById("dropNav").classList.toggle("active");
+        }
 
-            // მენიუს გააქტიურება
-            const links = document.querySelectorAll('.side-nav a');
-            links.forEach(link => {
-                link.classList.remove('active');
-                if(link.innerText.includes(name)) link.classList.add('active');
-            });
+        function selectRoom(name) {
+            document.getElementById("roomTitle").innerText = name;
+            document.getElementById("chatDisplay").innerHTML = "";
+            toggleMenu(); // არჩევის შემდეგ მენიუ ისევ მაღლა ადის
         }
 
         function sendMessage() {
@@ -197,7 +214,7 @@
             const msgDiv = document.createElement("div");
             msgDiv.className = "message-row";
             msgDiv.innerHTML = `
-                <span class="msg-author">${myNick}</span>
+                <span class="msg-author">${myNick}:</span>
                 <span class="msg-text">${inp.value}</span>
                 <span class="msg-time">${time}</span>
             `;
