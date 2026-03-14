@@ -3,118 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>კაიფმანია - ჩატი</title>
+    <title>OLD MAFIA - ჩატი</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { 
-            margin: 0; height: 100vh; background: #000; 
-            font-family: 'Arial', sans-serif; color: white; 
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-
-        /* ზედა პანელი */
-        .header {
-            height: 60px; background: #0d0d0d; border-bottom: 2px solid red;
-            display: flex; align-items: center; justify-content: center;
-            cursor: pointer; z-index: 1001; position: relative;
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
-        }
-
-        .header h1 { color: red; font-size: 22px; text-shadow: 0 0 10px red; margin: 0; }
-
-        /* ჩამოსაშლელი მენიუ (Dropdown) */
-        .nav-menu {
-            position: fixed; top: -100%; left: 0; width: 100%;
-            background: rgba(10, 10, 10, 0.98); border-bottom: 3px solid red;
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 10px; padding: 25px; transition: 0.5s ease-in-out;
-            z-index: 1000; box-sizing: border-box;
-        }
-
-        .nav-menu.active { top: 60px; }
-
-        .nav-menu a {
-            color: #ccc; text-decoration: none; padding: 12px;
-            border: 1px solid #333; border-radius: 8px; text-align: center;
-            font-size: 13px; transition: 0.3s;
-        }
-
-        .nav-menu a:hover { background: red; color: white; box-shadow: 0 0 15px red; }
-
+        /* ძირითადი სტილები შენი ძველი კოდიდან */
+        body { margin: 0; font-family: sans-serif; background: #0b0000; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        .topbar { background: black; padding: 12px; display: flex; align-items: center; border-bottom: 2px solid #500; position: relative; z-index: 3001; }
+        .menu-btn { cursor: pointer; font-size: 25px; color: red; margin-right: 15px; flex-shrink: 0; }
+        
+        /* გვერდითა მენიუ */
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #070000; box-shadow: 2px 0 15px red; transition: 0.3s ease; z-index: 4000; display: flex; flex-direction: column; border-right: 1px solid red; }
+        .sidebar.active { left: 0; }
+        .sidebar-header { padding: 30px 15px; text-align: center; background: #1a0000; border-bottom: 1px solid red; }
+        .sidebar-header img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid red; object-fit: cover; margin-bottom: 10px; cursor: pointer; }
+        
         /* ჩატის არე */
-        .chat-container {
-            flex-grow: 1; display: flex; flex-direction: column;
-            background: radial-gradient(circle, #1a0000 0%, #000 100%);
-            position: relative; padding: 20px;
-        }
+        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #050000; }
+        .msg-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px; }
+        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid red; cursor: pointer; object-fit: cover; }
+        .bubble { background: #1a0000; border: 1px solid #333; padding: 8px 12px; border-radius: 4px 15px 15px 15px; max-width: 80%; position: relative; }
+        .m-nick { font-weight: bold; color: #ff4d4d; font-size: 12px; margin-bottom: 3px; display: flex; align-items: center; }
+        .m-time { color: #666; font-size: 10px; margin-left: 8px; }
+        .del-msg { color: #444; cursor: pointer; font-size: 11px; margin-left: auto; padding-left: 10px; }
 
-        #roomIndicator {
-            text-align: center; color: red; font-weight: bold;
-            font-size: 28px; text-shadow: 0 0 15px red; margin-bottom: 10px;
-        }
-
-        #chatBox {
-            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
-        }
-
-        .msg { background: rgba(255, 255, 255, 0.05); padding: 10px 15px; border-radius: 12px; border-left: 3px solid red; align-self: flex-start; }
-        .msg-nick { color: red; font-weight: bold; font-size: 13px; margin-right: 10px; }
-        .msg-time { color: #555; font-size: 10px; margin-left: 10px; }
-
-        /* საწერი ველი */
-        .input-bar {
-            height: 70px; background: #0d0d0d; display: flex;
-            align-items: center; padding: 0 20px; gap: 15px; border-top: 1px solid #222;
-        }
-
-        #messageInput {
-            flex-grow: 1; background: #1a1a1a; border: 1px solid #333;
-            border-radius: 25px; padding: 12px 20px; color: white; outline: none;
-        }
-
-        /* ნამდვილი ლურჯი Jet თვითმფრინავი */
-        .jet-btn {
-            background: none; border: none; cursor: pointer; transition: 0.3s;
+        /* ქვედა პანელი და ლურჯი თვითმფრინავი */
+        .input-zone { background: black; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; position: relative; }
+        .input-zone input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; }
+        
+        .send-btn { 
+            background: none; border: none; cursor: pointer; transition: 0.3s; 
             display: flex; align-items: center; justify-content: center;
         }
+        .send-btn:hover { transform: scale(1.1) rotate(-10deg); }
+        .send-btn svg { width: 35px; height: 35px; fill: #0084ff; filter: drop-shadow(0 0 8px #0084ff); }
 
-        .jet-btn:hover { transform: scale(1.2) translateX(5px); }
-        .jet-btn:active { transform: scale(0.9) translateY(-5px); }
+        /* სმაილების ბოქსი */
+        #emoji-box { position: absolute; bottom: 80px; left: 10px; background: #111; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 9999; border-radius: 15px; max-height: 250px; overflow-y: auto; width: 220px; border: 2px solid red; padding: 10px; box-shadow: 0 0 20px red; }
+        #emoji-box img { width: 40px; height: 40px; cursor: pointer; transition: 0.2s; object-fit: contain; }
 
-        .jet-btn svg {
-            width: 45px; height: 45px; fill: #008cff;
-            filter: drop-shadow(0 0 10px #008cff);
-        }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3500; }
+        .overlay.active { display: block; }
+        
+        .room-item { padding: 12px; background: #111; border: 1px solid #222; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 5px; color: #ccc; }
+        .room-item:hover { background: #300; border-color: red; color: white; }
     </style>
 </head>
 <body>
 
-    <div class="header" onclick="toggleMenu()">
-        <h1>კაიფმანია 😎🔥</h1>
+<div class="overlay" id="overlay" onclick="toggleMenu()"></div>
+
+<div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+        <img id="my-avatar-img" src="https://i.ibb.co/v3m6y6R/avatar.png">
+        <div id="my-nick-label" style="font-weight:bold; color:red;">...</div>
+        <div id="my-status-label" style="font-size: 11px; color: gold; margin-bottom: 10px;">მომხმარებელი 🌱</div>
     </div>
-
-    <nav id="navMenu" class="nav-menu">
-        <a href="#" onclick="changeRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</a>
-        <a href="#" onclick="changeRoom('💎 VIP')">💎 VIP</a>
-        <a href="#" onclick="changeRoom('🔍 გამოძიება')">🔍 გამოძიება</a>
-        <a href="#" onclick="changeRoom('🔐 შიფროგრამა')">🔐 შიფროგრამა</a>
-        <a href="#" onclick="changeRoom('❓ ვიქტორინა')">❓ ვიქტორინა</a>
-        <a href="#" onclick="changeRoom('🪢 ჩამოხრჩობანა')">🪢 ჩამოხრჩობანა</a>
-        <a href="#" onclick="changeRoom('🕵️ მაფია')">🕵️ მაფია</a>
-        <a href="#" onclick="changeRoom('🃏 ჯოკერი')">🃏 ჯოკერი</a>
-        <a href="#" onclick="changeRoom('🎲 ნარდი')">🎲 ნარდი</a>
-        <a href="#" onclick="changeRoom('🎵 მუსიკა')">🎵 მუსიკა</a>
-        <a href="#" onclick="changeRoom('🛡️ ადმინი')">🛡️ ადმინი</a>
-        <a href="#" onclick="location.href='index.html'" style="color:red">🚪 გასვლა</a>
-    </nav>
-
-    <div class="chat-container">
-        <div id="roomIndicator">☕ კაფე-ბარი</div>
-        <div id="chatBox"></div>
+    <div class="rooms-list" style="flex:1; overflow-y:auto; padding:10px;">
+        <div class="room-item" onclick="changeRoom('☕️ კაფე-ბარი')">☕️ კაფე-ბარი</div>
+        <div class="room-item" onclick="changeRoom('💎 ვიპ საუბრები')">💎 ვიპ საუბრები</div>
+        <div class="room-item" onclick="changeRoom('🕴 მაფიის ღამე')">🕴 მაფიის ღამე</div>
+        <div class="room-item" onclick="changeRoom('🕵️ გამოძიება')">🕵️ გამოძიება</div>
+        <div class="room-item" onclick="changeRoom('🎵 მუსიკა')">🎵 მუსიკა</div>
     </div>
+    <div style="padding:15px; text-align:center; color:red; cursor:pointer;" onclick="logout()">🚪 გასვლა</div>
+</div>
 
-    <div class="input-bar">
-        <input type="text" id="messageInput" placeholder="დაწერე შეტყობინება..." onkeyup="if(event.key==='Enter') sendMsg()">
-        <button class="jet-btn" onclick="sendMsg()">
-            <svg viewBox="0 0 24 24">
-                <path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.27c-.31.17-.69.17-1 0L3.53 17.38c-.32-.17-.53-.5-.53-.88V9.26c0-.38.21-.71.53-.88l7.97-4.27c.31-.17.69-.17 1 0l7.97 4.27c.
+<div class="topbar">
+    <div class="menu-btn" onclick="toggleMenu()">☰</div>
+    <div id="room-name" style="font-weight:bold; color: red; flex: 1; text-align: center;">☕️ კაფე-ბარი</div>
+</div>
+
+<div class="chat-area" id="chat"></div>
+
+<div id="emoji-box"></div>
+
+<div class="input-zone">
+    <button onclick="toggleEmojiPicker()" style="background:none; border:none; font-size:22px; cursor:pointer;">😊</button>
+    <input type="text" id="msg-input" placeholder="დაწერე მესიჯი..." onkeypress="if(event.key==='Enter') sendMsg()">
+    <button class="send-btn" onclick="sendMsg()">
+        <svg viewBox="0 0 24 24">
+            <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
+        </svg>
+    </button>
+</div>
+
+<script>
+    const _supabase = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_eQZDSu_Jy1gWmXJFF800Pw_TP2kBRLI");
+    let myNick = localStorage.getItem('nickname') || "სტუმარი";
+    let currentRoom = "☕️ კაფე-ბარი";
+
+    function toggleMenu() { 
+        document.getElementById('sidebar').classList.toggle('active'); 
+        document.getElementById('overlay').classList.toggle('active'); 
+    }
+
+    async function toggleEmojiPicker() {
+        const box = document.getElementById('emoji-box');
+        if (box.innerHTML === "") {
+            const { data: files } = await _supabase.storage.from('emojis').list();
+            files?.forEach(file => {
+                const { data: urlData } = _supabase.storage.from('emojis').getPublicUrl(file.name);
+                const img = document.createElement('img');
+                img.src = urlData.publicUrl;
+                img.onclick = () => {
+                    document.getElementById("msg-input").value += ` ${img.outerHTML} `;
+                    box.style.display = 'none';
+                };
+                box.appendChild(img);
+            });
+        }
+        box.style.display = (box.style.display === 'grid') ? 'none' : 'grid';
+    }
+
+    async function init() {
+        document.getElementById('my-nick-label').innerText = myNick;
+        loadMessages();
+        _supabase.channel('msgs').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
+    }
+
+    async function loadMessages() {
+        const { data: msgs } = await _supabase.from('messages').select('*').eq('room_name', currentRoom).order('created_at', { ascending: true });
+        const chatDiv = document.getElementById("chat");
+        chatDiv.innerHTML = "";
+        msgs?.forEach(m => {
+            const time = new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+            chatDiv.innerHTML += `
+                <div class="msg-container">
+                    <img src="https://i.ibb.co/v3m6y6R/avatar.png" class="msg-avatar">
+                    <div class="bubble">
+                        <div class="m-nick">${m.user_nam}<span class="m-time">${time}</span></div>
+                        <div style="font-size:14px;">${m.text}</div>
+                    </div>
+                </div>`;
+        });
+        chatDiv.scrollTop = chatDiv.scrollHeight;
+    }
+
+    async function sendMsg() {
+        const i = document.getElementById("msg-input");
+        if (!i.value.trim()) return;
+        await _supabase.from('messages').insert([{ user_nam: myNick, text: i.value, room_name: currentRoom }]);
+        i.value = "";
+    }
+
+    function changeRoom(n) { currentRoom = n; document.getElementById('room-name').innerText = n; toggleMenu(); loadMessages(); }
+    function logout() { localStorage.removeItem('nickname'); location.reload(); }
+    window.onload = init;
+</script>
+</body>
+</html>
