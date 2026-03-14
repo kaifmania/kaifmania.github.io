@@ -7,227 +7,114 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body { 
-            margin: 0; 
-            height: 100vh; 
-            background: #000; 
-            font-family: 'Arial', sans-serif; 
-            color: white; 
-            display: flex; 
-            flex-direction: column;
-            overflow: hidden;
+            margin: 0; height: 100vh; background: #000; 
+            font-family: 'Arial', sans-serif; color: white; 
+            display: flex; flex-direction: column; overflow: hidden;
         }
 
-        /* ზედა პანელი, საიდანაც მენიუ ჩამოდის */
-        .top-header {
-            height: 60px;
-            background: #0d0d0d;
-            border-bottom: 2px solid red;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            z-index: 1001;
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.3);
+        /* ზედა პანელი */
+        .header {
+            height: 60px; background: #0d0d0d; border-bottom: 2px solid red;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; z-index: 1001; position: relative;
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
         }
 
-        .top-header h1 {
-            color: red;
-            font-size: 20px;
-            text-shadow: 0 0 10px red;
-            margin: 0;
+        .header h1 { color: red; font-size: 22px; text-shadow: 0 0 10px red; margin: 0; }
+
+        /* ჩამოსაშლელი მენიუ (Dropdown) */
+        .nav-menu {
+            position: fixed; top: -100%; left: 0; width: 100%;
+            background: rgba(10, 10, 10, 0.98); border-bottom: 3px solid red;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 10px; padding: 25px; transition: 0.5s ease-in-out;
+            z-index: 1000; box-sizing: border-box;
         }
 
-        /* ჩამოსაშლელი მენიუ (ზემოდან) */
-        .drop-nav {
-            position: fixed;
-            top: -100%; /* თავიდან დამალულია */
-            left: 0;
-            width: 100%;
-            background: rgba(13, 13, 13, 0.95);
-            border-bottom: 3px solid red;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-            padding: 20px;
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            box-sizing: border-box;
+        .nav-menu.active { top: 60px; }
+
+        .nav-menu a {
+            color: #ccc; text-decoration: none; padding: 12px;
+            border: 1px solid #333; border-radius: 8px; text-align: center;
+            font-size: 13px; transition: 0.3s;
         }
 
-        .drop-nav.active { top: 60px; }
+        .nav-menu a:hover { background: red; color: white; box-shadow: 0 0 15px red; }
 
-        .drop-nav a {
-            color: #ccc;
-            text-decoration: none;
-            padding: 12px;
-            border: 1px solid #222;
-            border-radius: 8px;
-            text-align: center;
-            font-size: 13px;
-            transition: 0.3s;
-        }
-
-        .drop-nav a:hover {
-            background: red;
-            color: white;
-            box-shadow: 0 0 15px red;
-        }
-
-        /* ჩატის კონტეინერი */
+        /* ჩატის არე */
         .chat-container {
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
+            flex-grow: 1; display: flex; flex-direction: column;
             background: radial-gradient(circle, #1a0000 0%, #000 100%);
-            position: relative;
+            position: relative; padding: 20px;
         }
 
-        /* ოთახის სახელი ფონზე */
-        .room-indicator {
-            position: absolute;
-            top: 20px;
-            width: 100%;
-            text-align: center;
-            color: red;
-            font-weight: bold;
-            text-shadow: 0 0 10px red;
-            opacity: 0.8;
-            font-size: 24px;
+        #roomIndicator {
+            text-align: center; color: red; font-weight: bold;
+            font-size: 28px; text-shadow: 0 0 15px red; margin-bottom: 10px;
         }
 
-        #chatDisplay {
-            flex-grow: 1;
-            padding: 20px;
-            overflow-y: auto;
-            margin-top: 40px;
+        #chatBox {
+            flex-grow: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
         }
 
-        .message-row {
-            margin-bottom: 15px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 10px;
-            border-radius: 10px;
-            border-left: 3px solid red;
-            max-width: 80%;
-        }
+        .msg { background: rgba(255, 255, 255, 0.05); padding: 10px 15px; border-radius: 12px; border-left: 3px solid red; align-self: flex-start; }
+        .msg-nick { color: red; font-weight: bold; font-size: 13px; margin-right: 10px; }
+        .msg-time { color: #555; font-size: 10px; margin-left: 10px; }
 
-        .msg-author { color: red; font-weight: bold; font-size: 13px; }
-        .msg-time { font-size: 10px; color: #555; float: right; }
-
-        /* ქვედა პანელი */
-        .input-area {
-            padding: 15px;
-            background: #0d0d0d;
-            display: flex;
-            gap: 10px;
-            align-items: center;
-            border-top: 1px solid #222;
+        /* საწერი ველი */
+        .input-bar {
+            height: 70px; background: #0d0d0d; display: flex;
+            align-items: center; padding: 0 20px; gap: 15px; border-top: 1px solid #222;
         }
 
         #messageInput {
-            flex-grow: 1;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 20px;
-            padding: 12px 20px;
-            color: white;
-            outline: none;
+            flex-grow: 1; background: #1a1a1a; border: 1px solid #333;
+            border-radius: 25px; padding: 12px 20px; color: white; outline: none;
         }
 
-        /* ნამდვილი ლურჯი რეაქტიული თვითმფრინავის ღილაკი */
-        .send-btn {
-            background: none;
-            border: none;
-            cursor: pointer;
-            transition: 0.3s;
-            display: flex;
-            align-items: center;
+        /* ნამდვილი ლურჯი Jet თვითმფრინავი */
+        .jet-btn {
+            background: none; border: none; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center;
         }
 
-        .send-btn:hover { transform: scale(1.2) rotate(-10deg); }
+        .jet-btn:hover { transform: scale(1.2) translateX(5px); }
+        .jet-btn:active { transform: scale(0.9) translateY(-5px); }
 
-        .send-btn svg {
-            width: 40px;
-            height: 40px;
-            fill: #00aaff; /* ნამდვილი ლურჯი */
-            filter: drop-shadow(0 0 10px #00aaff);
+        .jet-btn svg {
+            width: 45px; height: 45px; fill: #008cff;
+            filter: drop-shadow(0 0 10px #008cff);
         }
     </style>
 </head>
 <body>
 
-    <div class="top-header" onclick="toggleMenu()">
+    <div class="header" onclick="toggleMenu()">
         <h1>კაიფმანია 😎🔥</h1>
     </div>
 
-    <nav id="dropNav" class="drop-nav">
-        <a href="#" onclick="selectRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</a>
-        <a href="#" onclick="selectRoom('💎 VIP')">💎 VIP</a>
-        <a href="#" onclick="selectRoom('🔍 გამოძიება')">🔍 გამოძიება</a>
-        <a href="#" onclick="selectRoom('🔐 შიფროგრამა')">🔐 შიფროგრამა</a>
-        <a href="#" onclick="selectRoom('❓ ვიქტორინა')">❓ ვიქტორინა</a>
-        <a href="#" onclick="selectRoom('🪢 ჩამოხრჩობანა')">🪢 ჩამოხრჩობანა</a>
-        <a href="#" onclick="selectRoom('🕵️ მაფია')">🕵️ მაფია</a>
-        <a href="#" onclick="selectRoom('🃏 ჯოკერი')">🃏 ჯოკერი</a>
-        <a href="#" onclick="selectRoom('🎲 ნარდი')">🎲 ნარდი</a>
-        <a href="#" onclick="selectRoom('🎵 მუსიკა')">🎵 მუსიკა</a>
-        <a href="#" onclick="selectRoom('🛡️ ადმინი')">🛡️ ადმინი</a>
-        <a href="#" onclick="logout()" style="color:red">🚪 გასვლა</a>
+    <nav id="navMenu" class="nav-menu">
+        <a href="#" onclick="changeRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</a>
+        <a href="#" onclick="changeRoom('💎 VIP')">💎 VIP</a>
+        <a href="#" onclick="changeRoom('🔍 გამოძიება')">🔍 გამოძიება</a>
+        <a href="#" onclick="changeRoom('🔐 შიფროგრამა')">🔐 შიფროგრამა</a>
+        <a href="#" onclick="changeRoom('❓ ვიქტორინა')">❓ ვიქტორინა</a>
+        <a href="#" onclick="changeRoom('🪢 ჩამოხრჩობანა')">🪢 ჩამოხრჩობანა</a>
+        <a href="#" onclick="changeRoom('🕵️ მაფია')">🕵️ მაფია</a>
+        <a href="#" onclick="changeRoom('🃏 ჯოკერი')">🃏 ჯოკერი</a>
+        <a href="#" onclick="changeRoom('🎲 ნარდი')">🎲 ნარდი</a>
+        <a href="#" onclick="changeRoom('🎵 მუსიკა')">🎵 მუსიკა</a>
+        <a href="#" onclick="changeRoom('🛡️ ადმინი')">🛡️ ადმინი</a>
+        <a href="#" onclick="location.href='index.html'" style="color:red">🚪 გასვლა</a>
     </nav>
 
     <div class="chat-container">
-        <div id="roomTitle" class="room-indicator">კაფე-ბარი</div>
-        <div id="chatDisplay"></div>
-
-        <div class="input-area">
-            <input type="text" id="messageInput" placeholder="დაწერე შეტყობინება..." onkeyup="if(event.key==='Enter') sendMessage()">
-            <button class="send-btn" onclick="sendMessage()">
-                <svg viewBox="0 0 24 24">
-                    <path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.27c-.31.17-.69.17-1 0L3.53 17.38c-.32-.17-.53-.5-.53-.88V9.26c0-.38.21-.71.53-.88l7.97-4.27c.31-.17.69-.17 1 0l7.97 4.27c.32.17.53.5.53.88v7.24z" opacity=".2"/>
-                    <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-                </svg>
-            </button>
-        </div>
+        <div id="roomIndicator">☕ კაფე-ბარი</div>
+        <div id="chatBox"></div>
     </div>
 
-    <script>
-        const myNick = localStorage.getItem('nickname') || "სტუმარი";
-
-        function toggleMenu() {
-            document.getElementById("dropNav").classList.toggle("active");
-        }
-
-        function selectRoom(name) {
-            document.getElementById("roomTitle").innerText = name;
-            document.getElementById("chatDisplay").innerHTML = "";
-            toggleMenu(); // არჩევის შემდეგ მენიუ ისევ მაღლა ადის
-        }
-
-        function sendMessage() {
-            const inp = document.getElementById("messageInput");
-            const chat = document.getElementById("chatDisplay");
-            if (inp.value.trim() === "") return;
-
-            const now = new Date();
-            const time = now.getHours().toString().padStart(2, '0') + ":" + now.getMinutes().toString().padStart(2, '0');
-
-            const msgDiv = document.createElement("div");
-            msgDiv.className = "message-row";
-            msgDiv.innerHTML = `
-                <span class="msg-author">${myNick}:</span>
-                <span class="msg-text">${inp.value}</span>
-                <span class="msg-time">${time}</span>
-            `;
-            
-            chat.appendChild(msgDiv);
-            chat.scrollTop = chat.scrollHeight;
-            inp.value = "";
-        }
-
-        function logout() {
-            localStorage.clear();
-            window.location.href = "index.html";
-        }
-    </script>
-</body>
-</html>
+    <div class="input-bar">
+        <input type="text" id="messageInput" placeholder="დაწერე შეტყობინება..." onkeyup="if(event.key==='Enter') sendMsg()">
+        <button class="jet-btn" onclick="sendMsg()">
+            <svg viewBox="0 0 24 24">
+                <path d="M21 16.5c0 .38-.21.71-.53.88l-7.97 4.27c-.31.17-.69.17-1 0L3.53 17.38c-.32-.17-.53-.5-.53-.88V9.26c0-.38.21-.71.53-.88l7.97-4.27c.31-.17.69-.17 1 0l7.97 4.27c.
