@@ -65,11 +65,12 @@
 </div>
 
 <script>
-const S_URL = "https://gdvejawrplvvldbjpfcgx.supabase.co";
-  const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkdmphd3JwbHZ2bGRianBmY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzE1NDIsImV4cCI6MjA4OTAwNzU0Mn0.QEySoKfVHF1b4dV5TAH5vgQQKQMAgdETzQm3P9p3H8A";
-  const _supabase = supabase.createClient(S_URL, S_KEY);
+    // მონაცემები შენი პროექტიდან
+    const S_URL = "https://gdvejawrplvvldbjpfcgx.supabase.co";
+    const S_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkdmphd3JwbHZ2bGRianBmY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzE1NDIsImV4cCI6MjA4OTAwNzU0Mn0.QEySoKfVHF1b4dV5TAH5vgQQKQMAgdETzQm3P9p3H8A";
+    const _supabase = supabase.createClient(S_URL, S_KEY);
 
-    let myNick = (localStorage.getItem('nickname') || "User").trim();
+    let myNick = (localStorage.getItem('nickname') || "მოთამაშე").trim();
     let currentRoom = "☕ კაფე-ბარი";
 
     function toggleMenu() { 
@@ -80,18 +81,21 @@ const S_URL = "https://gdvejawrplvvldbjpfcgx.supabase.co";
     async function init() {
         document.getElementById('my-nick-label').innerText = myNick;
         loadMessages();
-        _supabase.channel('room1').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-            if(payload.new.room_name === currentRoom) loadMessages();
+        
+        // Realtime განახლება
+        _supabase.channel('any').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, () => {
+            loadMessages();
         }).subscribe();
     }
 
     async function loadMessages() {
-        const { data: msgs, error } = await _supabase.from('messages')
+        const { data: msgs, error } = await _supabase
+            .from('messages')
             .select('*')
             .eq('room_name', currentRoom)
             .order('created_at', { ascending: true });
 
-        if (error) { console.log("ჩატვირთვის შეცდომა:", error.message); return; }
+        if (error) { console.error("შეცდომა ჩატვირთვისას:", error.message); return; }
 
         const chatDiv = document.getElementById("chat");
         chatDiv.innerHTML = "";
@@ -99,9 +103,9 @@ const S_URL = "https://gdvejawrplvvldbjpfcgx.supabase.co";
         msgs?.forEach(m => {
             chatDiv.innerHTML += `
                 <div class="msg-container">
-                    <img src="https://i.ibb.co/v3m6y6R/avatar.png" class="msg-avatar">
+                    <img src="${m.avatar_url || 'https://i.ibb.co/v3m6y6R/avatar.png'}" class="msg-avatar">
                     <div class="bubble">
-                        <div class="m-nick">${m.user_nam}</div>
+                        <div class="m-nick">${m.user_name}</div>
                         <div style="font-size:14px; word-break: break-word;">${m.text}</div>
                     </div>
                 </div>`;
@@ -114,15 +118,20 @@ const S_URL = "https://gdvejawrplvvldbjpfcgx.supabase.co";
         const txt = i.value.trim();
         if (!txt) return;
         
-        i.value = ""; // ეგრევე ვასუფთავებთ ინპუტს
+        i.value = ""; 
 
         const { error } = await _supabase.from('messages').insert([
-            { user_nam: myNick, text: txt, room_name: currentRoom }
+            { 
+                user_name: myNick, 
+                text: txt, 
+                room_name: currentRoom,
+                avatar_url: "https://i.ibb.co/v3m6y6R/avatar.png"
+            }
         ]);
 
         if (error) {
             alert("ბაზაში ვერ ჩაიწერა: " + error.message);
-            i.value = txt; // თუ ვერ გაიგზავნა, ტექსტი დააბრუნოს
+            i.value = txt; 
         }
     }
 
