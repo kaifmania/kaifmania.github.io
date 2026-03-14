@@ -6,7 +6,7 @@
     <title>OLD MAFIA</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        body { margin: 0; font-family: sans-serif; background: #000; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { margin: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #000; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .topbar { background: #000; height: 60px; display: flex; align-items: center; border-bottom: 2px solid red; padding: 0 15px; flex-shrink: 0; z-index: 1001; }
         .burger { font-size: 30px; color: red; cursor: pointer; padding: 10px; }
         .title { flex: 1; text-align: center; color: red; font-size: 18px; font-weight: bold; text-shadow: 0 0 10px red; }
@@ -62,7 +62,7 @@
     );
 
     let room = "☕️ კაფე-ბარი";
-    let nick = localStorage.getItem('nickname') || "მარიამი";
+    let nick = "მოთამაშე"; 
     let avatar = `https://ui-avatars.com/api/?name=${nick}&background=red&color=fff`;
 
     function toggleMenu() {
@@ -71,14 +71,7 @@
     }
 
     async function load() {
-        const { data, error } = await _supabase
-            .from('messages')
-            .select('*')
-            .eq('room_id', room)
-            .order('created_at', { ascending: true });
-
-        if (error) return;
-
+        const { data } = await _supabase.from('messages').select('*').eq('room_id', room).order('created_at', { ascending: true });
         const c = document.getElementById('chat');
         c.innerHTML = "";
         data?.forEach(m => {
@@ -88,7 +81,7 @@
                     <img src="${userAvatar}" class="m-avatar">
                     <div class="m-body">
                         <div class="m-user">${m.user_name}</div>
-                        <div style="font-size:14px;">${m.text}</div>
+                        <div>${m.text}</div>
                     </div>
                 </div>`;
         });
@@ -100,12 +93,7 @@
         const val = i.value.trim();
         if (!val) return;
         i.value = "";
-
-        const { error } = await _supabase
-            .from('messages')
-            .insert([{ user_name: nick, text: val, room_id: room, avatar_url: avatar }]);
-        
-        if (error) console.error(error.message);
+        await _supabase.from('messages').insert([{ user_name: nick, text: val, room_id: room, avatar_url: avatar }]);
     }
 
     function changeRoom(n) {
@@ -117,15 +105,9 @@
 
     window.onload = () => {
         load();
-        // აი ეს ნაწილი აჩენს მესიჯებს ეკრანზე მაშინვე
-        _supabase
-            .channel('messages_realtime')
-            .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
-                if (payload.new.room_id === room) {
-                    load();
-                }
-            })
-            .subscribe();
+        _supabase.channel('messages').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (p) => {
+            if(p.new.room_id === room) load();
+        }).subscribe();
     };
 </script>
 </body>
