@@ -9,40 +9,40 @@
         body { margin: 0; font-family: sans-serif; background: #0b0000; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         
         /* ზედა პანელი */
-        .topbar { background: black; padding: 12px; display: flex; align-items: center; border-bottom: 1px solid #500; z-index: 3001; }
-        .menu-btn { cursor: pointer; font-size: 25px; color: red; margin-right: 15px; }
+        .topbar { background: black; padding: 12px; display: flex; align-items: center; border-bottom: 2px solid #500; z-index: 4001; position: relative; }
+        .topbar h1 { flex: 1; text-align: center; color: red; font-size: 18px; margin: 0; cursor: pointer; text-shadow: 0 0 10px red; }
 
-        /* გვერდითა მენიუ */
-        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #070000; box-shadow: 2px 0 15px red; transition: 0.3s ease; z-index: 4000; display: flex; flex-direction: column; border-right: 1px solid red; }
-        .sidebar.active { left: 0; }
-        .sidebar-header { padding: 30px 15px; text-align: center; background: #1a0000; border-bottom: 1px solid red; }
-        .sidebar-header img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid red; object-fit: cover; }
+        /* ჩამოსაშლელი მენიუ (მაღლიდან) */
+        .top-menu { 
+            position: fixed; top: -100%; left: 0; width: 100%; 
+            background: rgba(10, 0, 0, 0.95); border-bottom: 2px solid red; 
+            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1); z-index: 4000; 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); 
+            gap: 10px; padding: 20px; box-sizing: border-box;
+            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.3);
+        }
+        .top-menu.active { top: 50px; } /* ჩამოდის ბარის ქვემოთ */
 
-        .rooms-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .room-item { padding: 10px; background: #111; border: 1px solid #222; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 5px; color: #ccc; }
-        .room-item:hover { background: #300; border-color: red; color: white; }
+        .room-item { padding: 10px; background: #111; border: 1px solid #333; border-radius: 8px; cursor: pointer; font-size: 12px; text-align: center; color: #ccc; transition: 0.3s; }
+        .room-item:hover { background: red; color: white; box-shadow: 0 0 10px red; }
 
         /* ჩატის არე */
-        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #050000; }
-        .msg-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px; }
-        .msg-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid red; }
-        .bubble { background: #1a0000; border: 1px solid #333; padding: 8px 12px; border-radius: 4px 15px 15px 15px; max-width: 80%; }
-        .m-nick { font-weight: bold; color: #ff4d4d; font-size: 12px; display: flex; align-items: center; gap: 8px; }
-        .m-time { color: #555; font-size: 10px; }
+        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: radial-gradient(circle, #150000 0%, #000 100%); }
+        .msg-container { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 5px; animation: fadeIn 0.3s; }
+        .bubble { background: #1a0000; border: 1px solid #333; padding: 10px; border-radius: 4px 15px 15px 15px; max-width: 80%; }
+        .m-nick { font-weight: bold; color: #ff4d4d; font-size: 12px; margin-bottom: 4px; }
+        .m-time { color: #555; font-size: 9px; margin-left: 10px; }
 
         /* ქვედა პანელი და ლურჯი რეაქტიული თვითმფრინავი */
-        .input-zone { background: black; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; position: relative; }
+        .input-zone { background: black; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; }
         .input-zone input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; }
         
-        .send-btn { background: none; border: none; cursor: pointer; transition: 0.3s; display: flex; align-items: center; }
-        .send-btn:hover { transform: scale(1.1) rotate(-10deg); }
-        .send-btn svg { width: 38px; height: 38px; fill: #007bff; filter: drop-shadow(0 0 8px #007bff); }
+        .send-btn { background: none; border: none; cursor: pointer; transition: 0.3s; }
+        .send-btn svg { width: 35px; height: 35px; fill: #0084ff; filter: drop-shadow(0 0 8px #0084ff); }
+        .send-btn:active { transform: scale(0.9) translateX(5px); }
 
-        /* სმაილების ბლოკი */
-        #emoji-box { position: absolute; bottom: 80px; left: 10px; background: #111; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 9999; border-radius: 15px; padding: 10px; border: 2px solid red; box-shadow: 0 0 15px red; }
-        #emoji-box img { width: 35px; height: 35px; cursor: pointer; }
-
-        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3500; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 3999; }
         .overlay.active { display: block; }
     </style>
 </head>
@@ -50,41 +50,32 @@
 
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 
-<div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-        <img id="my-avatar" src="https://i.ibb.co/v3m6y6R/avatar.png">
-        <div id="my-nick" style="color: red; font-weight: bold; margin-top: 10px;">...</div>
-    </div>
-    <div class="rooms-list">
-        <div class="room-item" onclick="changeRoom('Room 1')">🚪 Room 1</div>
-        <div class="room-item" onclick="changeRoom('Room 2')">🚪 Room 2</div>
-        <div class="room-item" onclick="changeRoom('Room 3')">🚪 Room 3</div>
-        <div class="room-item" onclick="changeRoom('Room 4')">🚪 Room 4</div>
-        <div class="room-item" onclick="changeRoom('Room 5')">🚪 Room 5</div>
-        <div class="room-item" onclick="changeRoom('Room 6')">🚪 Room 6</div>
-        <div class="room-item" onclick="changeRoom('Room 7')">🚪 Room 7</div>
-        <div class="room-item" onclick="changeRoom('Room 8')">🚪 Room 8</div>
-        <div class="room-item" onclick="changeRoom('Room 9')">🚪 Room 9</div>
-        <div class="room-item" onclick="changeRoom('Room 10')">🚪 Room 10</div>
-        <div class="room-item" onclick="changeRoom('Room 11')">🚪 Room 11</div>
-        <div class="room-item" onclick="changeRoom('Room 12')">🚪 Room 12</div>
-        <div class="room-item" onclick="changeRoom('Room 13')">🚪 Room 13</div>
-        <div class="room-item" onclick="changeRoom('Room 14')">🚪 Room 14</div>
-    </div>
-    <div style="padding:15px; text-align:center; color:red; cursor:pointer;" onclick="location.reload()">🚪 გასვლა</div>
+<div class="topbar">
+    <div style="color:red; font-size:20px; cursor:pointer;" onclick="toggleMenu()">☰</div>
+    <h1 id="room-title" onclick="toggleMenu()">☕️ Room 1</h1>
 </div>
 
-<div class="topbar">
-    <div class="menu-btn" onclick="toggleMenu()">☰</div>
-    <div id="room-name" style="color: red; flex: 1; text-align: center; font-weight: bold;">Room 1</div>
-</div>
+<nav class="top-menu" id="topMenu">
+    <div class="room-item" onclick="changeRoom('Room 1')">Room 1</div>
+    <div class="room-item" onclick="changeRoom('Room 2')">Room 2</div>
+    <div class="room-item" onclick="changeRoom('Room 3')">Room 3</div>
+    <div class="room-item" onclick="changeRoom('Room 4')">Room 4</div>
+    <div class="room-item" onclick="changeRoom('Room 5')">Room 5</div>
+    <div class="room-item" onclick="changeRoom('Room 6')">Room 6</div>
+    <div class="room-item" onclick="changeRoom('Room 7')">Room 7</div>
+    <div class="room-item" onclick="changeRoom('Room 8')">Room 8</div>
+    <div class="room-item" onclick="changeRoom('Room 9')">Room 9</div>
+    <div class="room-item" onclick="changeRoom('Room 10')">Room 10</div>
+    <div class="room-item" onclick="changeRoom('Room 11')">Room 11</div>
+    <div class="room-item" onclick="changeRoom('Room 12')">Room 12</div>
+    <div class="room-item" onclick="changeRoom('Room 13')">Room 13</div>
+    <div class="room-item" onclick="changeRoom('Room 14')">Room 14</div>
+    <div class="room-item" style="color:red; border-color:red;" onclick="location.reload()">🚪 გასვლა</div>
+</nav>
 
 <div class="chat-area" id="chat"></div>
 
-<div id="emoji-box"></div>
-
 <div class="input-zone">
-    <button onclick="toggleEmojiPicker()" style="background:none; border:none; font-size:22px; cursor:pointer;">😊</button>
     <input type="text" id="msg-input" placeholder="დაწერე მესიჯი..." onkeypress="if(event.key==='Enter') sendMsg()">
     <button class="send-btn" onclick="sendMsg()">
         <svg viewBox="0 0 24 24">
@@ -94,33 +85,14 @@
 </div>
 
 <script>
-    // ჩაწერე შენი ახალი Supabase მონაცემები აქ:
-    const _supabase = supabase.createClient("შენი_URL", "შენი_KEY");
+    const _supabase = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_TdfzZOd_1s6B7rDNfhwn6Q_mU4ecdkn");
 
     let myNick = localStorage.getItem('nickname') || "სტუმარი";
     let currentRoom = "Room 1";
 
     function toggleMenu() {
-        document.getElementById('sidebar').classList.toggle('active');
+        document.getElementById('topMenu').classList.toggle('active');
         document.getElementById('overlay').classList.toggle('active');
-    }
-
-    async function toggleEmojiPicker() {
-        const box = document.getElementById('emoji-box');
-        if (box.innerHTML === "") {
-            const { data: files } = await _supabase.storage.from('emojis').list();
-            files?.forEach(file => {
-                const { data: url } = _supabase.storage.from('emojis').getPublicUrl(file.name);
-                const img = document.createElement('img');
-                img.src = url.publicUrl;
-                img.onclick = () => {
-                    document.getElementById('msg-input').value += ` <img src="${img.src}" style="width:25px;"> `;
-                    box.style.display = 'none';
-                };
-                box.appendChild(img);
-            });
-        }
-        box.style.display = (box.style.display === 'grid') ? 'none' : 'grid';
     }
 
     async function loadMessages() {
@@ -131,10 +103,9 @@
             const time = new Date(m.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
             chat.innerHTML += `
                 <div class="msg-container">
-                    <img src="${m.avatar_url}" class="msg-avatar">
                     <div class="bubble">
                         <div class="m-nick">${m.user_nam} <span class="m-time">${time}</span></div>
-                        <div style="font-size:14px; margin-top:3px;">${m.text}</div>
+                        <div style="font-size:14px;">${m.text}</div>
                     </div>
                 </div>`;
         });
@@ -150,15 +121,14 @@
 
     function changeRoom(name) {
         currentRoom = name;
-        document.getElementById('room-name').innerText = name;
+        document.getElementById('room-title').innerText = "☕️ " + name;
         toggleMenu();
         loadMessages();
     }
 
     window.onload = () => {
-        document.getElementById('my-nick').innerText = myNick;
         loadMessages();
-        _supabase.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
+        _supabase.channel('chat').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
     };
 </script>
 </body>
