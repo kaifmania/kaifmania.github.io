@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>კაიფმანია - პანელი</title>
+    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <style>
+        body { 
+            margin: 0; 
+            height: 100vh; 
+            background: radial-gradient(circle, #220000 0%, #000 80%); 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            color: white;
+            overflow: hidden;
+        }
+
+        /* ჰამბურგერ ღილაკი */
+        .menu-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 8px;
+            transition: 0.3s;
+        }
+
+        .menu-btn:hover { background: rgba(255, 0, 0, 0.1); }
+
+        .menu-btn span {
+            width: 30px;
+            height: 3px;
+            background: red;
+            box-shadow: 0 0 10px red;
+            border-radius: 2px;
+            transition: 0.3s;
+        }
+
+        /* გვერდითა მენიუ */
+        .side-menu {
+            position: fixed;
+            left: -300px;
+            top: 0;
+            width: 280px;
+            height: 100%;
+            background: #0a0a0a;
+            border-right: 2px solid red;
+            box-shadow: 5px 0 30px rgba(255, 0, 0, 0.3);
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            z-index: 999;
+            padding-top: 80px;
+            overflow-y: auto;
+        }
+
+        .side-menu.active { left: 0; }
+
+        .menu-header {
+            text-align: center;
+            color: red;
+            font-weight: bold;
+            font-size: 22px;
+            text-shadow: 0 0 15px red;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
+
+        nav a {
+            display: block;
+            padding: 14px 25px;
+            color: #bbb;
+            text-decoration: none;
+            font-size: 16px;
+            transition: 0.3s;
+            border-left: 4px solid transparent;
+        }
+
+        nav a:hover {
+            background: rgba(255, 0, 0, 0.1);
+            color: white;
+            border-left: 4px solid red;
+            text-shadow: 0 0 8px red;
+            padding-left: 35px;
+        }
+
+        hr { border: 0; border-top: 1px solid #222; margin: 15px 20px; }
+
+        .logout { color: #ff4d4d !important; font-weight: bold; }
+        .logout:hover { background: rgba(255, 0, 0, 0.2) !important; }
+
+        /* მთავარი კონტენტი */
+        .main-content {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            transition: 0.4s;
+        }
+
+        #roomTitle {
+            font-size: 3rem;
+            margin: 0;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px red;
+            color: white;
+        }
+
+        .user-info {
+            position: fixed;
+            top: 25px;
+            right: 25px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        .user-info span { color: red; font-weight: bold; }
+
+        /* მობილურისთვის ოპტიმიზაცია */
+        @media (max-width: 480px) {
+            #roomTitle { font-size: 2rem; }
+            .side-menu { width: 80%; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="user-info">მოგესალმები, <span id="displayNick">სტუმარი</span></div>
+
+    <div class="menu-btn" onclick="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+
+    <div id="sideMenu" class="side-menu">
+        <div class="menu-header">კაიფმანია 😎</div>
+        <nav>
+            <a href="#" onclick="selectRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</a>
+            <a href="#" onclick="selectRoom('💎 ვიპ საუბრები')">💎 ვიპ საუბრები</a>
+            <a href="#" onclick="selectRoom('🔍 გამოძიება')">🔍 გამოძიება</a>
+            <a href="#" onclick="selectRoom('🔐 შიფროგრამა')">🔐 შიფროგრამა</a>
+            <a href="#" onclick="selectRoom('❓ ვიქტორინა')">❓ ვიქტორინა</a>
+            <a href="#" onclick="selectRoom('🪢 ჩამოხრჩობანა')">🪢 ჩამოხრჩობანა</a>
+            <a href="#" onclick="selectRoom('🕵️ მაფიის ღამე')">🕵️ მაფიის ღამე</a>
+            <a href="#" onclick="selectRoom('🃏 ჯოკერი')">🃏 ჯოკერი</a>
+            <a href="#" onclick="selectRoom('🎲 ნარდი')">🎲 ნარდი</a>
+            <a href="#" onclick="selectRoom('🎵 მუსიკა')">🎵 მუსიკა</a>
+            <a href="#" onclick="selectRoom('😂 იუმორი')">😂 იუმორი</a>
+            <hr>
+            <a href="#" onclick="selectRoom('🛡️ ადმინისტრაცია')">🛡️ ადმინისტრაცია</a>
+            <a href="#" onclick="selectRoom('ℹ️ დახმარება')">ℹ️ დახმარება</a>
+            <a href="#" onclick="selectRoom('📝 ფორუმი')">📝 ფორუმი</a>
+            <a href="#" onclick="logout()" class="logout">🚪 გასვლა</a>
+        </nav>
+    </div>
+
+    <div class="main-content">
+        <h1 id="roomTitle">აირჩიე ოთახი</h1>
+        <p id="statusMsg" style="color: #666; margin-top: 20px;">გახსენი მენიუ მარცხენა ზედა კუთხიდან</p>
+    </div>
+
+    <script>
+        // ნიკნეიმის გამოჩენა localStorage-დან
+        const userNick = localStorage.getItem('nickname');
+        if (userNick) {
+            document.getElementById("displayNick").innerText = userNick;
+        } else {
+            // თუ იუზერი ისე მოხვდა აქ რომ არ შესულა, ვაბრუნებთ უკან
+            window.location.href = "index.html"; 
+        }
+
+        // მენიუს გაღება-დაკეტვა
+        function toggleMenu() {
+            document.getElementById("sideMenu").classList.toggle("active");
+        }
+
+        // ოთახის არჩევა
+        function selectRoom(roomName) {
+            document.getElementById("roomTitle").innerText = roomName;
+            document.getElementById("statusMsg").innerText = "თქვენ იმყოფებით " + roomName + " ოთახში";
+            
+            // მენიუს ავტომატური დაკეცვა არჩევის შემდეგ
+            toggleMenu();
+
+            // აქ შეგიძლია ჩასვა ლოგიკა, რომელიც კონკრეტულ ჩატს ჩატვირთავს
+            console.log("ოთახი შეიცვალა:", roomName);
+        }
+
+        // გასვლა
+        function logout() {
+            if(confirm("ნამდვილად გსურთ გასვლა?")) {
+                localStorage.clear();
+                window.location.href = "index.html";
+            }
+        }
+
+        // ეკრანზე დაჭერისას მენიუს დაკეტვა (თუ მენიუ ღიაა)
+        document.addEventListener('click', function(event) {
+            const menu = document.getElementById("sideMenu");
+            const btn = document.querySelector(".menu-btn");
+            if (menu.classList.contains("active") && !menu.contains(event.target) && !btn.contains(event.target)) {
+                toggleMenu();
+            }
+        });
+    </script>
+
+</body>
+</html>
