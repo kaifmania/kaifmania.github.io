@@ -9,7 +9,7 @@
         body { 
             margin: 0; 
             height: 100vh; 
-            background: #050505; 
+            background: #000; 
             font-family: 'Arial', sans-serif; 
             color: white; 
             overflow: hidden;
@@ -17,263 +17,207 @@
             flex-direction: column;
         }
 
-        /* ზედა პანელი და ჰამბურგერი */
-        .top-bar {
-            height: 60px;
+        /* ჰორიზონტალური მენიუ ზემოთ */
+        .top-nav {
             background: #0d0d0d;
             border-bottom: 2px solid red;
             display: flex;
             align-items: center;
-            padding: 0 20px;
-            justify-content: space-between;
-            z-index: 1001;
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.2);
+            padding: 0 15px;
+            overflow-x: auto; /* თუ ბევრია, გვერდზე დასქროლოს */
+            white-space: nowrap;
+            height: 50px;
+            scrollbar-width: none; /* Firefox-ისთვის */
+            box-shadow: 0 0 15px red;
+            z-index: 10;
         }
 
-        .menu-toggle {
-            cursor: pointer;
-            color: red;
-            font-weight: bold;
-            text-shadow: 0 0 10px red;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
+        .top-nav::-webkit-scrollbar { display: none; } /* Chrome-სთვის */
 
-        /* ჩამოსაშლელი მენიუ (ზემოდან) */
-        .drop-menu {
-            position: fixed;
-            top: -100%; /* თავიდან დამალულია ზემოთ */
-            left: 0;
-            width: 100%;
-            background: #0d0d0d;
-            border-bottom: 3px solid red;
-            transition: 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            padding: 20px;
-            gap: 10px;
-            box-sizing: border-box;
-        }
-
-        .drop-menu.active { top: 60px; } /* ჩამოდის ბარის ქვემოთ */
-
-        .drop-menu a {
-            padding: 12px;
+        .top-nav a {
             color: #ccc;
             text-decoration: none;
-            text-align: center;
-            border: 1px solid #222;
-            border-radius: 8px;
+            padding: 10px 15px;
+            font-size: 13px;
+            border-radius: 5px;
             transition: 0.3s;
-            font-size: 14px;
+            margin-right: 5px;
         }
 
-        .drop-menu a:hover {
-            background: red;
+        .top-nav a:hover, .top-nav a.active {
+            background: rgba(255, 0, 0, 0.2);
             color: white;
-            box-shadow: 0 0 15px red;
+            text-shadow: 0 0 5px red;
         }
 
-        /* საწერი დაფა და ჩატის არე */
-        .main-container {
+        /* ჩატის კონტეინერი - მთლიან ეკრანზე */
+        .chat-container {
             flex-grow: 1;
             display: flex;
             flex-direction: column;
-            padding: 20px;
-            box-sizing: border-box;
-            max-width: 900px;
-            margin: 0 auto;
-            width: 100%;
+            background: radial-gradient(circle, #1a0000 0%, #000 100%);
+            position: relative;
         }
 
-        #roomHeader {
-            text-align: center;
-            color: red;
-            text-shadow: 0 0 10px red;
-            margin-bottom: 15px;
-        }
-
-        /* ჩატის ისტორია */
+        /* მესიჯების ველი */
         #chatDisplay {
             flex-grow: 1;
-            background: rgba(20, 20, 20, 0.8);
-            border: 1px solid #333;
-            border-radius: 15px;
-            padding: 15px;
+            padding: 20px;
             overflow-y: auto;
-            margin-bottom: 15px;
-            box-shadow: inset 0 0 10px #000;
-        }
-
-        /* მესიჯის სტრიქონის სტილი */
-        .message-row {
-            margin-bottom: 12px;
-            word-wrap: break-word;
-            line-height: 1.4;
-            padding: 5px 10px;
-            background: rgba(255, 255, 255, 0.03);
-            border-radius: 8px;
-        }
-
-        /* ნიკნეიმის სტილი */
-        .msg-author {
-            color: red;
-            font-weight: bold;
-            margin-right: 8px;
-            text-shadow: 0 0 5px rgba(255, 0, 0, 0.3);
-        }
-
-        /* მესიჯის ტექსტი */
-        .msg-text {
-            color: #eee;
-        }
-
-        /* საათის სტილი */
-        .msg-time {
-            font-size: 11px;
-            color: #666;
-            margin-left: 10px;
-            float: right; /* დროს გადაიტანს მარჯვენა მხარეს */
-            margin-top: 4px;
-        }
-
-        /* საწერი დაფა (Input area) */
-        .input-area {
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            background: #111;
-            padding: 10px;
-            border-radius: 15px;
-            border: 1px solid red;
+        }
+
+        .message-row {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 10px 15px;
+            border-radius: 12px;
+            max-width: 80%;
+            align-self: flex-start;
+            border-left: 3px solid red;
+            position: relative;
+        }
+
+        .msg-author { color: red; font-weight: bold; font-size: 14px; margin-bottom: 3px; display: block; }
+        .msg-text { font-size: 15px; line-height: 1.4; color: #eee; }
+        .msg-time { font-size: 10px; color: #555; margin-left: 10px; vertical-align: bottom; }
+
+        /* ქვედა საწერი პანელი */
+        .input-bar {
+            background: #0d0d0d;
+            padding: 15px;
+            display: flex;
             align-items: center;
+            gap: 10px;
+            border-top: 1px solid #222;
         }
 
         #messageInput {
             flex-grow: 1;
-            background: transparent;
-            border: none;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            border-radius: 25px;
+            padding: 12px 20px;
             color: white;
-            padding: 10px;
             outline: none;
             font-size: 16px;
         }
 
-        /* თვითმფრინავი ღილაკი */
+        #messageInput:focus { border-color: red; box-shadow: 0 0 5px red; }
+
+        /* "ნამდვილი" თვითმფრინავის ღილაკი */
         .send-btn {
-            background: transparent;
+            background: none;
             border: none;
             cursor: pointer;
-            padding: 5px;
-            transition: 0.3s;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: 0.3s;
         }
 
-        .send-btn:hover { transform: scale(1.1); }
+        .send-btn:hover { transform: scale(1.1) rotate(-10deg); }
 
         .send-btn svg {
+            width: 35px;
+            height: 35px;
             fill: red;
-            filter: drop-shadow(0 0 5px red);
-            width: 24px;
-            height: 24px;
+            filter: drop-shadow(0 0 8px red);
         }
 
-        .logout-btn { color: #555; font-size: 12px; cursor: pointer; }
+        /* ოთახის სათაური (წყალნიშანივით ფონზე) */
+        .room-bg-title {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 10vw;
+            color: rgba(255, 0, 0, 0.03);
+            font-weight: bold;
+            pointer-events: none;
+            z-index: 0;
+            text-transform: uppercase;
+        }
     </style>
 </head>
 <body>
 
-<div class="top-bar">
-    <div class="menu-toggle" onclick="toggleMenu()">
-        ☰ <span>მენიუ</span>
+    <nav class="top-nav">
+        <a href="#" onclick="selectRoom('კაფე-ბარი')">☕ კაფე-ბარი</a>
+        <a href="#" onclick="selectRoom('ვიპ საუბრები')">💎 VIP</a>
+        <a href="#" onclick="selectRoom('გამოძიება')">🔍 გამოძიება</a>
+        <a href="#" onclick="selectRoom('შიფროგრამა')">🔐 შიფროგრამა</a>
+        <a href="#" onclick="selectRoom('ვიქტორინა')">❓ ვიქტორინა</a>
+        <a href="#" onclick="selectRoom('ჩამოხრჩობანა')">🪢 ჩამოხრჩობანა</a>
+        <a href="#" onclick="selectRoom('მაფია')">🕵️ მაფია</a>
+        <a href="#" onclick="selectRoom('ჯოკერი')">🃏 ჯოკერი</a>
+        <a href="#" onclick="selectRoom('ნარდი')">🎲 ნარდი</a>
+        <a href="#" onclick="selectRoom('მუსიკა')">🎵 მუსიკა</a>
+        <a href="#" onclick="selectRoom('ადმინისტრაცია')">🛡️ ადმინი</a>
+        <a href="#" onclick="logout()" style="color: #666;">🚪 გასვლა</a>
+    </nav>
+
+    <div class="chat-container">
+        <div id="roomWatermark" class="room-bg-title">კაფე-ბარი</div>
+        
+        <div id="chatDisplay">
+            </div>
+
+        <div class="input-bar">
+            <input type="text" id="messageInput" placeholder="დაწერე შეტყობინება..." onkeyup="if(event.key==='Enter') sendMessage()">
+            <button class="send-btn" onclick="sendMessage()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M3.4 20.4l17.45-7.48c.81-.35.81-1.49 0-1.84L3.4 3.6c-.66-.29-1.39.2-1.39.91L2 9.12c0 .5.37.93.87.99L17 12 2.87 13.88c-.5.07-.87.5-.87 1l.01 4.61c0 .71.73 1.2 1.39.91z"></path>
+                </svg>
+            </button>
+        </div>
     </div>
-    <div id="userLabel" style="font-size: 14px;">👤 <span id="nickSpan">...</span></div>
-    <div class="logout-btn" onclick="logout()">გასვლა</div>
-</div>
 
-<div id="dropMenu" class="drop-menu">
-    <a href="#" onclick="selectRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</a>
-    <a href="#" onclick="selectRoom('💎 ვიპ საუბრები')">💎 ვიპ საუბრები</a>
-    <a href="#" onclick="selectRoom('🔍 გამოძიება')">🔍 გამოძიება</a>
-    <a href="#" onclick="selectRoom('🔐 შიფროგრამა')">🔐 შიფროგრამა</a>
-    <a href="#" onclick="selectRoom('❓ ვიქტორინა')">❓ ვიქტორინა</a>
-    <a href="#" onclick="selectRoom('🪢 ჩამოხრჩობანა')">🪢 ჩამოხრჩობანა</a>
-    <a href="#" onclick="selectRoom('🕵️ მაფიის ღამე')">🕵️ მაფიის ღამე</a>
-    <a href="#" onclick="selectRoom('🃏 ჯოკერი')">🃏 ჯოკერი</a>
-    <a href="#" onclick="selectRoom('🎲 ნარდი')">🎲 ნარდი</a>
-    <a href="#" onclick="selectRoom('🎵 მუსიკა')">🎵 მუსიკა</a>
-    <a href="#" onclick="selectRoom('😂 იუმორი')">😂 იუმორი</a>
-    <a href="#" onclick="selectRoom('🛡️ ადმინისტრაცია')">🛡️ ადმინისტრაცია</a>
-</div>
+    <script>
+        // ნიკის ამოღება
+        const myNick = localStorage.getItem('nickname') || "სტუმარი";
 
-<div class="main-container">
-    <h2 id="roomHeader">აირჩიე ოთახი</h2>
-    
-    <div id="chatDisplay">
-        <p style="color: #444; text-align: center;">აირჩიეთ ოთახი მენიუდან საუბრის დასაწყებად</p>
-    </div>
+        function selectRoom(name) {
+            document.getElementById("roomWatermark").innerText = name;
+            // ოთახის შეცვლისას ჩატი რომ გასუფთავდეს (სანამ ბაზას მივაბამთ)
+            document.getElementById("chatDisplay").innerHTML = "";
+            
+            // აქტიური კლასის მინიჭება მენიუსთვის
+            const links = document.querySelectorAll('.top-nav a');
+            links.forEach(link => {
+                if(link.innerText.includes(name)) link.classList.add('active');
+                else link.classList.remove('active');
+            });
+        }
 
-    <div class="input-area">
-        <input type="text" id="messageInput" placeholder="დაწერე რამე..." onkeyup="if(event.key==='Enter') sendMessage()">
-        <button class="send-btn" onclick="sendMessage()">
-            <svg viewBox="0 0 24 24">
-                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"></path>
-            </svg>
-        </button>
-    </div>
-</div>
+        function sendMessage() {
+            const inp = document.getElementById("messageInput");
+            const chat = document.getElementById("chatDisplay");
+            
+            if (inp.value.trim() === "") return;
 
-<script>
-    const nick = localStorage.getItem('nickname');
-    if (!nick) window.location.href = "index.html";
-    document.getElementById('nickSpan').innerText = nick;
+            const now = new Date();
+            const time = now.getHours().toString().padStart(2, '0') + ":" + 
+                         now.getMinutes().toString().padStart(2, '0');
 
-    function toggleMenu() {
-        document.getElementById("dropMenu").classList.toggle("active");
-    }
+            const msgDiv = document.createElement("div");
+            msgDiv.className = "message-row";
+            
+            msgDiv.innerHTML = `
+                <span class="msg-author">${myNick}</span>
+                <span class="msg-text">${inp.value} <span class="msg-time">${time}</span></span>
+            `;
+            
+            chat.appendChild(msgDiv);
+            chat.scrollTop = chat.scrollHeight;
+            inp.value = "";
+        }
 
-    function selectRoom(name) {
-        document.getElementById("roomHeader").innerText = name;
-        document.getElementById("chatDisplay").innerHTML = `<p style='color:red; text-align:center;'>თქვენ შეხვედით ${name}-ში</p>`;
-        toggleMenu(); // არჩევის შემდეგ მენიუ იკეცება (ზემოთ ადის)
-    }
-
-    function sendMessage() {
-        const inp = document.getElementById("messageInput");
-        const chat = document.getElementById("chatDisplay");
-        
-        if (inp.value.trim() === "") return;
-
-        // დროის ობიექტის შექმნა
-        const now = new Date();
-        const timeStr = now.getHours().toString().padStart(2, '0') + ":" + 
-                        now.getMinutes().toString().padStart(2, '0');
-
-        // მესიჯის ელემენტის შექმნა
-        const msgDiv = document.createElement("div");
-        msgDiv.className = "message-row"; // დავამატეთ კლასი სტილისთვის
-        
-        msgDiv.innerHTML = `
-            <span class="msg-author">${nick}:</span> 
-            <span class="msg-text">${inp.value}</span>
-            <span class="msg-time">${timeStr}</span>
-        `;
-        
-        chat.appendChild(msgDiv);
-        
-        // სქროლი ავტომატურად ქვემოთ
-        chat.scrollTop = chat.scrollHeight; 
-        inp.value = "";
-    }
-
-    function logout() {
-        localStorage.clear();
-        location.reload();
-    }
-</script>
-
+        function logout() {
+            localStorage.clear();
+            window.location.href = "index.html";
+        }
+    </script>
 </body>
 </html>
