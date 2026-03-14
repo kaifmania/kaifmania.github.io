@@ -7,29 +7,23 @@
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body { margin: 0; font-family: sans-serif; background: #0b0000; color: white; height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
-        .topbar { background: black; padding: 12px; display: flex; align-items: center; border-bottom: 1px solid #500; position: relative; z-index: 3001; }
-        .menu-btn { cursor: pointer; font-size: 25px; color: red; margin-right: 15px; flex-shrink: 0; }
-        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #070000; box-shadow: 2px 0 15px red; transition: 0.3s ease; z-index: 4000; display: flex; flex-direction: column; border-right: 1px solid red; }
+        .topbar { background: black; padding: 12px; display: flex; align-items: center; border-bottom: 1px solid #500; }
+        .menu-btn { cursor: pointer; font-size: 25px; color: red; margin-right: 15px; }
+        .sidebar { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: #070000; box-shadow: 2px 0 15px red; transition: 0.3s; z-index: 4000; display: flex; flex-direction: column; border-right: 1px solid red; }
         .sidebar.active { left: 0; }
-        .sidebar-header { padding: 30px 15px; text-align: center; background: #1a0000; border-bottom: 1px solid red; }
-        .sidebar-header img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid red; object-fit: cover; margin-bottom: 10px; cursor: pointer; transition: 0.3s; }
-        #my-daily-status { font-size: 12px; color: #0f0; cursor: pointer; border: 1px dashed #444; padding: 5px; border-radius: 4px; display: inline-block; margin-top: 5px; }
+        .sidebar-header { padding: 20px; text-align: center; border-bottom: 1px solid red; }
+        .sidebar-header img { width: 60px; height: 60px; border-radius: 50%; border: 2px solid red; }
         .rooms-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .room-item { padding: 12px; background: #111; border: 1px solid #222; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 5px; color: #ccc; }
-        .room-item:hover { background: #300; border-color: red; color: white; }
-        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #050000; }
-        .msg-container { display: flex; align-items: flex-start; gap: 10px; }
-        .msg-avatar { width: 40px; height: 40px; border-radius: 50%; border: 1.5px solid red; cursor: pointer; object-fit: cover; }
-        .bubble { background: #1a0000; border: 1px solid #333; padding: 8px 12px; border-radius: 4px 15px 15px 15px; max-width: 80%; position: relative; }
-        .m-nick { font-weight: bold; color: #ff4d4d; font-size: 12px; margin-bottom: 3px; display: flex; align-items: center; }
-        .del-msg { color: #444; cursor: pointer; font-size: 11px; margin-left: auto; padding-left: 10px; }
-        .input-zone { background: black; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #222; align-items: center; position: relative; }
-        .input-zone input { flex: 1; padding: 12px; border-radius: 25px; border: 1px solid #333; background: #111; color: white; outline: none; }
-        .send-btn { background: red; border: none; width: 45px; height: 45px; border-radius: 50%; color: white; cursor: pointer; }
-        #emoji-box { position: absolute; bottom: 80px; left: 10px; background: #111; display: none; grid-template-columns: repeat(4, 1fr); gap: 10px; z-index: 9999; border: 2px solid red; border-radius: 15px; padding: 10px; max-height: 250px; overflow-y: auto; width: 220px; }
-        .modal { display: none; position: fixed; z-index: 5000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); align-items: center; justify-content: center; }
-        .modal-content { background: #0a0000; border: 2px solid red; padding: 25px; border-radius: 20px; width: 280px; text-align: center; }
-        .modal-btn { display: block; width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #500; background: #200; color: white; border-radius: 5px; cursor: pointer; font-weight: bold; }
+        .room-item { padding: 10px; background: #111; margin-bottom: 5px; border-radius: 5px; cursor: pointer; color: #ccc; font-size: 14px; }
+        .room-item:hover { background: #300; border-color: red; }
+        .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 10px; background: #050000; }
+        .msg-container { display: flex; align-items: flex-start; gap: 8px; }
+        .msg-avatar { width: 35px; height: 35px; border-radius: 50%; border: 1px solid red; }
+        .bubble { background: #1a0000; border: 1px solid #333; padding: 8px 12px; border-radius: 10px; max-width: 80%; }
+        .m-nick { font-weight: bold; color: #ff4d4d; font-size: 11px; margin-bottom: 2px; }
+        .input-zone { background: black; padding: 12px; display: flex; gap: 10px; border-top: 1px solid #222; }
+        .input-zone input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid #333; background: #111; color: white; outline: none; }
+        .send-btn { background: red; border: none; padding: 0 20px; border-radius: 20px; color: white; cursor: pointer; font-weight: bold; }
         .overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 3500; }
         .overlay.active { display: block; }
     </style>
@@ -39,11 +33,8 @@
 <div class="overlay" id="overlay" onclick="toggleMenu()"></div>
 <div class="sidebar" id="sidebar">
     <div class="sidebar-header">
-        <input type="file" id="avatar-uploader" style="display:none" accept="image/*" onchange="processAvatar(this)">
-        <img id="my-avatar-img" src="https://i.ibb.co/v3m6y6R/avatar.png" onclick="document.getElementById('avatar-uploader').click()">
-        <div id="my-nick-label" style="font-weight:bold; color:red;">...</div>
-        <div id="my-status-label" style="font-size: 11px; color: gold; margin-bottom: 10px;">...</div>
-        <div id="my-daily-status" onclick="updateDailyStatus()">💬 სტატუსი</div>
+        <img id="my-avatar-img" src="https://i.ibb.co/v3m6y6R/avatar.png">
+        <div id="my-nick-label" style="font-weight:bold; color:red; margin-top:5px;">...</div>
     </div>
     <div class="rooms-list">
         <div class="room-item" onclick="changeRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</div>
@@ -59,7 +50,6 @@
         <div class="room-item" onclick="changeRoom('😂 იუმორი')">😂 იუმორი</div>
         <div class="room-item" onclick="changeRoom('🛠 ადმინისტრაცია')">🛠 ადმინისტრაცია</div>
     </div>
-    <div style="padding:15px; text-align:center; color:red; cursor:pointer;" onclick="logout()">🚪 გასვლა</div>
 </div>
 
 <div class="topbar">
@@ -68,26 +58,10 @@
 </div>
 
 <div class="chat-area" id="chat"></div>
-<div id="emoji-box"></div>
 
 <div class="input-zone">
-    <button onclick="toggleEmojiPicker()" style="background:none; border:none; font-size:22px; cursor:pointer;">😊</button>
     <input type="text" id="msg-input" placeholder="დაწერე მესიჯი..." onkeypress="if(event.key==='Enter') sendMsg()">
-    <button class="send-btn" onclick="sendMsg()">✈</button>
-</div>
-
-<div id="userModal" class="modal">
-    <div class="modal-content">
-        <img id="targetAvatar" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid red;">
-        <h3 id="targetName" style="color:red; margin: 10px 0;"></h3>
-        <p id="targetStatusLabel" style="font-size:12px; color:gold;"></p>
-        <button class="modal-btn" onclick="window.location.href='inbox.html?to='+selectedUser">✉ PM (მიწერა)</button>
-        <div id="adminOptions" style="display:none; border-top: 1px solid #333; padding-top: 10px;">
-            <button class="modal-btn" onclick="setRole('Admin')">🛡️ ადმინი</button>
-            <button class="modal-btn" style="color:red;" onclick="setRole('Banned')">🚫 ბლოკი</button>
-        </div>
-        <button class="modal-btn" style="background:#333" onclick="closeModal()">დახურვა</button>
-    </div>
+    <button class="send-btn" onclick="sendMsg()">გაგზავნა</button>
 </div>
 
 <script>
@@ -96,40 +70,38 @@
     const _supabase = supabase.createClient(S_URL, S_KEY);
 
     let myNick = (localStorage.getItem('nickname') || "User").trim();
-    let myRole = "Member";
     let currentRoom = "☕ კაფე-ბარი";
-    let selectedUser = "";
 
-    function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); document.getElementById('overlay').classList.toggle('active'); }
-    function closeModal() { document.getElementById('userModal').style.display = "none"; }
+    function toggleMenu() { 
+        document.getElementById('sidebar').classList.toggle('active'); 
+        document.getElementById('overlay').classList.toggle('active'); 
+    }
 
     async function init() {
-        const { data: prof } = await _supabase.from('profiles').select('*').ilike('username', myNick).maybeSingle();
-        if (prof) {
-            myRole = prof.role || "Member";
-            document.getElementById('my-nick-label').innerText = prof.username;
-            document.getElementById('my-status-label').innerText = myRole;
-            document.getElementById('my-avatar-img').src = prof.avatar_url || "https://i.ibb.co/v3m6y6R/avatar.png";
-        }
+        document.getElementById('my-nick-label').innerText = myNick;
         loadMessages();
-        _supabase.channel('messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
+        _supabase.channel('room1').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, (payload) => {
+            if(payload.new.room_name === currentRoom) loadMessages();
+        }).subscribe();
     }
 
     async function loadMessages() {
-        const { data: msgs } = await _supabase.from('messages').select('*').eq('room_name', currentRoom).order('created_at', { ascending: true });
-        const { data: profs } = await _supabase.from('profiles').select('*');
-        const chatDiv = document.getElementById("chat"); chatDiv.innerHTML = "";
+        const { data: msgs, error } = await _supabase.from('messages')
+            .select('*')
+            .eq('room_name', currentRoom)
+            .order('created_at', { ascending: true });
+
+        if (error) { console.log("ჩატვირთვის შეცდომა:", error.message); return; }
+
+        const chatDiv = document.getElementById("chat");
+        chatDiv.innerHTML = "";
         
         msgs?.forEach(m => {
-            const p = profs?.find(u => u.username === m.user_nam);
             chatDiv.innerHTML += `
                 <div class="msg-container">
-                    <img src="${p?.avatar_url || 'https://i.ibb.co/v3m6y6R/avatar.png'}" class="msg-avatar" onclick="openProfile('${m.user_nam}')">
+                    <img src="https://i.ibb.co/v3m6y6R/avatar.png" class="msg-avatar">
                     <div class="bubble">
-                        <div class="m-nick">
-                            <span onclick="openProfile('${m.user_nam}')" style="cursor:pointer">${m.user_nam}</span>
-                            ${(myRole === 'Admin' || myRole === 'Owner') ? `<span class="del-msg" onclick="deleteMsg('${m.id}')">🗑️</span>` : ''}
-                        </div>
+                        <div class="m-nick">${m.user_nam}</div>
                         <div style="font-size:14px; word-break: break-word;">${m.text}</div>
                     </div>
                 </div>`;
@@ -139,49 +111,26 @@
 
     async function sendMsg() {
         const i = document.getElementById("msg-input");
-        if (!i.value.trim()) return;
-        const txt = i.value; i.value = "";
-        // აქ შეგნებულად არ ვწერ avatar_url-ს, რომ ბაზამ არ დაბლოკოს
-        await _supabase.from('messages').insert([{ user_nam: myNick, text: txt, room_name: currentRoom }]);
-    }
+        const txt = i.value.trim();
+        if (!txt) return;
+        
+        i.value = ""; // ეგრევე ვასუფთავებთ ინპუტს
 
-    async function openProfile(n) {
-        selectedUser = n;
-        const { data: p } = await _supabase.from('profiles').select('*').ilike('username', n).maybeSingle();
-        if (p) {
-            document.getElementById('targetName').innerText = p.username;
-            document.getElementById('targetAvatar').src = p.avatar_url || 'https://i.ibb.co/v3m6y6R/avatar.png';
-            document.getElementById('targetStatusLabel').innerText = p.role;
-            document.getElementById('adminOptions').style.display = (myRole === 'Admin' || myRole === 'Owner') ? 'block' : 'none';
-            document.getElementById('userModal').style.display = 'flex';
+        const { error } = await _supabase.from('messages').insert([
+            { user_nam: myNick, text: txt, room_name: currentRoom }
+        ]);
+
+        if (error) {
+            alert("ბაზაში ვერ ჩაიწერა: " + error.message);
+            i.value = txt; // თუ ვერ გაიგზავნა, ტექსტი დააბრუნოს
         }
     }
 
-    async function setRole(r) { await _supabase.from('profiles').update({ role: r }).eq('username', selectedUser); alert('როლი შეიცვალა'); closeModal(); }
-    async function deleteMsg(id) { if(confirm('წავშალოთ?')) await _supabase.from('messages').delete().eq('id', id); }
-    function changeRoom(n) { currentRoom = n; document.getElementById('room-name').innerText = n; toggleMenu(); loadMessages(); }
-    function logout() { localStorage.removeItem('nickname'); location.reload(); }
-    
-    // სმაილების ჩატვირთვა
-    async function toggleEmojiPicker() {
-        const box = document.getElementById('emoji-box');
-        if (box.innerHTML === "") {
-            const { data: files } = await _supabase.storage.from('emojis').list();
-            if (files) {
-                files.forEach(file => {
-                    const { data } = _supabase.storage.from('emojis').getPublicUrl(file.name);
-                    const img = document.createElement('img');
-                    img.src = data.publicUrl;
-                    img.style.width = "40px"; img.style.cursor = "pointer";
-                    img.onclick = () => {
-                        document.getElementById("msg-input").value += ` <img src="${data.publicUrl}" style="width:30px; vertical-align:middle;"> `;
-                        box.style.display = 'none';
-                    };
-                    box.appendChild(img);
-                });
-            }
-        }
-        box.style.display = (box.style.display === 'grid') ? 'none' : 'grid';
+    function changeRoom(n) { 
+        currentRoom = n; 
+        document.getElementById('room-name').innerText = n; 
+        toggleMenu(); 
+        loadMessages(); 
     }
 
     window.onload = init;
