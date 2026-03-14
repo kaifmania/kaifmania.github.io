@@ -15,7 +15,7 @@
         .sidebar-header img { width: 70px; height: 70px; border-radius: 50%; border: 2px solid red; object-fit: cover; margin-bottom: 10px; cursor: pointer; transition: 0.3s; }
         #my-daily-status { font-size: 12px; color: #0f0; cursor: pointer; border: 1px dashed #444; padding: 5px; border-radius: 4px; display: inline-block; margin-top: 5px; }
         .rooms-list { flex: 1; overflow-y: auto; padding: 10px; }
-        .room-item { padding: 12px; background: #111; border: 1px solid #222; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 5px; color: #ccc; transition: 0.2s; }
+        .room-item { padding: 12px; background: #111; border: 1px solid #222; border-radius: 5px; cursor: pointer; font-size: 14px; margin-bottom: 5px; color: #ccc; }
         .room-item:hover { background: #300; border-color: red; color: white; }
         .chat-area { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 12px; background: #050000; }
         .msg-container { display: flex; align-items: flex-start; gap: 10px; }
@@ -43,7 +43,7 @@
         <img id="my-avatar-img" src="https://i.ibb.co/v3m6y6R/avatar.png" onclick="document.getElementById('avatar-uploader').click()">
         <div id="my-nick-label" style="font-weight:bold; color:red;">...</div>
         <div id="my-status-label" style="font-size: 11px; color: gold; margin-bottom: 10px;">...</div>
-        <div id="my-daily-status" onclick="updateDailyStatus()">💬 სტატუსის შეცვლა</div>
+        <div id="my-daily-status" onclick="updateDailyStatus()">💬 სტატუსი</div>
     </div>
     <div class="rooms-list">
         <div class="room-item" onclick="changeRoom('☕ კაფე-ბარი')">☕ კაფე-ბარი</div>
@@ -59,7 +59,7 @@
         <div class="room-item" onclick="changeRoom('😂 იუმორი')">😂 იუმორი</div>
         <div class="room-item" onclick="changeRoom('🛠 ადმინისტრაცია')">🛠 ადმინისტრაცია</div>
     </div>
-    <div style="padding:15px; text-align:center; color:red; cursor:pointer; font-weight:bold; border-top: 1px solid #300;" onclick="logout()">🚪 გასვლა</div>
+    <div style="padding:15px; text-align:center; color:red; cursor:pointer;" onclick="logout()">🚪 გასვლა</div>
 </div>
 
 <div class="topbar">
@@ -81,10 +81,10 @@
         <img id="targetAvatar" src="" style="width:80px; height:80px; border-radius:50%; border:2px solid red;">
         <h3 id="targetName" style="color:red; margin: 10px 0;"></h3>
         <p id="targetStatusLabel" style="font-size:12px; color:gold;"></p>
-        <button class="modal-btn" onclick="window.location.href='inbox.html?to='+selectedUser">✉ პირადი მესიჯი (PM)</button>
+        <button class="modal-btn" onclick="window.location.href='inbox.html?to='+selectedUser">✉ PM (მიწერა)</button>
         <div id="adminOptions" style="display:none; border-top: 1px solid #333; padding-top: 10px;">
-            <button class="modal-btn" onclick="setRole('Admin')">🛡️ ადმინისტრატორი</button>
-            <button class="modal-btn" style="color:red;" onclick="setRole('Banned')">🚫 დაბლოკვა</button>
+            <button class="modal-btn" onclick="setRole('Admin')">🛡️ ადმინი</button>
+            <button class="modal-btn" style="color:red;" onclick="setRole('Banned')">🚫 ბლოკი</button>
         </div>
         <button class="modal-btn" style="background:#333" onclick="closeModal()">დახურვა</button>
     </div>
@@ -112,7 +112,7 @@
             document.getElementById('my-avatar-img').src = prof.avatar_url || "https://i.ibb.co/v3m6y6R/avatar.png";
         }
         loadMessages();
-        _supabase.channel('chat').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
+        _supabase.channel('messages').on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, () => loadMessages()).subscribe();
     }
 
     async function loadMessages() {
@@ -141,6 +141,7 @@
         const i = document.getElementById("msg-input");
         if (!i.value.trim()) return;
         const txt = i.value; i.value = "";
+        // აქ შეგნებულად არ ვწერ avatar_url-ს, რომ ბაზამ არ დაბლოკოს
         await _supabase.from('messages').insert([{ user_nam: myNick, text: txt, room_name: currentRoom }]);
     }
 
@@ -156,17 +157,33 @@
         }
     }
 
-    async function setRole(r) {
-        await _supabase.from('profiles').update({ role: r }).eq('username', selectedUser);
-        alert('როლი განახლდა!'); closeModal();
-    }
-
-    async function deleteMsg(id) {
-        if(confirm('წავშალოთ მესიჯი?')) await _supabase.from('messages').delete().eq('id', id);
-    }
-
+    async function setRole(r) { await _supabase.from('profiles').update({ role: r }).eq('username', selectedUser); alert('როლი შეიცვალა'); closeModal(); }
+    async function deleteMsg(id) { if(confirm('წავშალოთ?')) await _supabase.from('messages').delete().eq('id', id); }
     function changeRoom(n) { currentRoom = n; document.getElementById('room-name').innerText = n; toggleMenu(); loadMessages(); }
     function logout() { localStorage.removeItem('nickname'); location.reload(); }
+    
+    // სმაილების ჩატვირთვა
+    async function toggleEmojiPicker() {
+        const box = document.getElementById('emoji-box');
+        if (box.innerHTML === "") {
+            const { data: files } = await _supabase.storage.from('emojis').list();
+            if (files) {
+                files.forEach(file => {
+                    const { data } = _supabase.storage.from('emojis').getPublicUrl(file.name);
+                    const img = document.createElement('img');
+                    img.src = data.publicUrl;
+                    img.style.width = "40px"; img.style.cursor = "pointer";
+                    img.onclick = () => {
+                        document.getElementById("msg-input").value += ` <img src="${data.publicUrl}" style="width:30px; vertical-align:middle;"> `;
+                        box.style.display = 'none';
+                    };
+                    box.appendChild(img);
+                });
+            }
+        }
+        box.style.display = (box.style.display === 'grid') ? 'none' : 'grid';
+    }
+
     window.onload = init;
 </script>
 </body>
