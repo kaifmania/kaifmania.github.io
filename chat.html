@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KAIFMANIA - CHAT</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { background: #000; color: white; font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
+        
+        /* მარცხენა პანელი */
+        .sidebar { width: 280px; background: #050000; border-right: 3px solid #ff0000; display: flex; flex-direction: column; padding: 10px; box-shadow: 5px 0 20px rgba(255, 0, 0, 0.4); }
+        
+        .profile-section { text-align: center; padding: 15px; margin-bottom: 10px; border-bottom: 2px solid #300; }
+        .u-ava { width: 90px; height: 90px; border-radius: 50%; border: 3px solid #ff0000; object-fit: cover; box-shadow: 0 0 15px #ff0000; cursor: pointer; }
+        .u-nick { display: block; color: #ff0000; font-size: 22px; font-weight: bold; margin-top: 8px; text-shadow: 2px 2px 5px #000; }
+        .u-role { display: block; color: gold; font-size: 13px; font-weight: bold; margin-top: 2px; }
+
+        /* ოთახების სია - გასწორებული სქროლით */
+        .room-list { flex: 1; overflow-y: auto; margin-top: 15px; padding-right: 5px; }
+        .room-list::-webkit-scrollbar { width: 5px; }
+        .room-list::-webkit-scrollbar-thumb { background: #ff0000; border-radius: 10px; }
+
+        .room { width: 100%; padding: 14px; background: #0a0a0a; border: 1px solid #200; color: #fff; text-align: left; margin-bottom: 6px; cursor: pointer; border-radius: 8px; font-size: 15px; transition: 0.3s; box-shadow: inset 0 0 10px #000; }
+        .room:hover { background: #200; border-color: #ff0000; transform: scale(1.02); }
+        .room.active { background: #300; border: 1px solid #ff0000; box-shadow: 0 0 10px #ff0000; font-weight: bold; }
+
+        /* ჩატი */
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: #000; }
+        .header { padding: 15px; border-bottom: 2px solid #ff0000; color: #ff0000; text-align: center; font-size: 16px; font-weight: bold; background: #050000; }
+        #msg-box { flex: 1; overflow-y: auto; padding: 20px; display: flex; flex-direction: column; gap: 10px; background: radial-gradient(circle, #0a0000 0%, #000 100%); }
+        
+        .m-wrap { background: rgba(15, 0, 0, 0.8); padding: 12px; border-radius: 12px; border-left: 4px solid #ff0000; max-width: 80%; box-shadow: 3px 3px 10px #000; }
+        .m-nick { color: #ff0000; font-weight: bold; text-decoration: none; font-size: 14px; display: block; margin-bottom: 5px; }
+        .m-text { color: #fff; font-size: 15px; }
+
+        /* ქვედა ზოლი თვითმფრინავით */
+        .input-bar { padding: 15px; display: flex; gap: 10px; background: #050000; border-top: 2px solid #200; }
+        input { flex: 1; padding: 12px; background: #111; border: 1px solid #444; color: white; border-radius: 10px; outline: none; font-size: 15px; }
+        input:focus { border-color: #ff0000; }
+        .btn-send { background: #ff0000; color: #000; border: none; padding: 10px 25px; border-radius: 10px; font-size: 20px; cursor: pointer; transition: 0.2s; box-shadow: 0 0 10px #ff0000; }
+        .btn-send:hover { transform: scale(1.1); background: #fff; }
+
+        .btn-exit { color: #555; background: none; border: none; padding: 10px; cursor: pointer; font-weight: bold; }
+        .btn-exit:hover { color: #ff0000; }
+    </style>
+</head>
+<body>
+
+<div class="sidebar">
+    <div class="profile-section">
+        <img id="my-ava" src="https://i.ibb.co/v3m6y6R/avatar.png" class="u-ava" onclick="location.href='profile.html'">
+        <span id="my-nick" class="u-nick">...</span>
+        <span id="my-role" class="u-role">...</span>
+    </div>
+
+    <div class="room-list">
+        <div class="room active">☕ კაფე-ბარი</div>
+        <div class="room">💎 ვიპ საუბრები</div>
+        <div class="room">🧛 მაფიის ღამე</div>
+        <div class="room">🕵️ გამოძიება</div>
+        <div class="room">🔐 შიფროგრამა</div>
+        <div class="room">❓ ვიქტორინა</div>
+        <div class="room">😵 ჩამოხრჩობანა</div>
+        <div class="room">🃏 კარტი</div>
+        <div class="room">🎰 კაზინო</div>
+        <div class="room">⚔️ დუელი</div>
+        <div class="room">🏰 ციხესიმაგრე</div>
+        <div class="room">🎤 კარაოკე</div>
+    </div>
+    
+    <button class="btn-exit" onclick="localStorage.clear(); location.href='index.html'">🚪 გასვლა</button>
+</div>
+
+<div class="chat-main">
+    <div class="header">KAIFMANIA - ოთახი: კაფე-ბარი</div>
+    <div id="msg-box"></div>
+    <div class="input-bar">
+        <input type="text" id="m-inp" placeholder="დაწერე რამე...">
+        <button class="btn-send" onclick="send()">✈️</button>
+    </div>
+</div>
+
+<script>
+    const _s = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_eQZDSu_Jy1gWmXJFF800Pw_TP2kBRLI");
+    const myNick = localStorage.getItem('nickname');
+
+    async function loadProfile() {
+        if (!myNick) return;
+        const { data: p } = await _s.from('profiles').select('*').eq('username', myNick).maybeSingle();
+        if (p) {
+            document.getElementById('my-nick').innerText = p.username;
+            document.getElementById('my-role').innerText = p.role || 'Member';
+            if (p.avatar_url) document.getElementById('my-ava').src = p.avatar_url;
+            if (p.role === 'Owner') document.getElementById('my-role').style.color = 'gold';
+        }
+    }
+
+    async function fetchMessages() {
+        const { data: msgs } = await _s.from('messages').select('*').order('created_at', { ascending: true }).limit(50);
+        const box = document.getElementById('msg-box');
+        box.innerHTML = '';
+        if (msgs) {
+            msgs.forEach(m => {
+                box.innerHTML += `<div class="m-wrap">
+                    <a href="profile.html?user=${m.username}" class="m-nick">${m.username}</a>
+                    <span class="m-text">${m.text}</span>
+                </div>`;
+            });
+            box.scrollTop = box.scrollHeight;
+        }
+    }
+
+    async function send() {
+        const inp = document.getElementById('m-inp');
+        if (!inp.value.trim()) return;
+        await _s.from('messages').insert([{ username: myNick, text: inp.value.trim() }]);
+        inp.value = '';
+        fetchMessages();
+    }
+
+    _s.channel('chat').on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'messages' }, fetchMessages).subscribe();
+
+    window.onload = () => { loadProfile(); fetchMessages(); }
+    document.getElementById('m-inp').onkeypress = (e) => { if (e.key === "Enter") send(); };
+</script>
+
+</body>
+</html>
