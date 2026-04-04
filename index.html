@@ -2,88 +2,170 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>კაიფმანია - შესვლა</title>
-    <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+    <title>კაიფმანია</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { margin: 0; height: 100vh; display: flex; justify-content: center; align-items: center; background: radial-gradient(circle, #330000 0%, #000 70%); font-family: Arial; overflow: hidden; }
-        .card-wrapper { position: relative; width: 350px; }
-        /* წითელი ნათება უკანა ფონზე */
-        .card-wrapper::before { content: ""; position: absolute; inset: 0; background: red; border-radius: 30px; transform: rotate(-4deg); box-shadow: 0 0 80px red; z-index: 0; }
-        /* მთავარი შავი ბარათი - გადახრილი */
-        .card { position: relative; background: #0d0d0d; padding: 40px 25px; border-radius: 30px; transform: rotate(-2deg); z-index: 1; text-align: center; border: 1px solid #222; }
-        h1 { color: white; text-shadow: 0 0 20px red; margin-bottom: 25px; }
-        input { width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 12px; border: none; background: #1a1a1a; color: white; box-sizing: border-box; outline: none; border: 1px solid #333; }
-        button { width: 100%; padding: 14px; border: none; border-radius: 20px; background: red; color: white; font-weight: bold; margin-bottom: 12px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        button:hover { background: darkred; transform: scale(1.05); }
+        body {
+            background: radial-gradient(circle, #330000 0%, #000 70%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            margin: 0;
+        }
+        .card {
+            background: #0d0d0d;
+            padding: 40px;
+            border-radius: 30px;
+            text-align: center;
+            border: 2px solid red;
+            width: 350px;
+            transform: rotate(2deg) skew(-2deg);
+            transition: transform 0.3s ease;
+            box-shadow: 10px 10px 20px rgba(0,0,0,0.5);
+        }
+        .card:hover {
+            transform: rotate(0deg) skew(0deg);
+            box-shadow: 0px 0px 30px rgba(255,0,0,0.3);
+        }
+        h1 { 
+            color: white; 
+            text-shadow: 0 0 10px red; 
+            margin-bottom: 30px;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            background: #1a1a1a;
+            border: 1px solid #333;
+            color: white;
+            border-radius: 12px;
+            box-sizing: border-box;
+        }
+        button {
+            background: red;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 16px;
+        }
+        button:hover { background: darkred; }
         .hidden { display: none; }
-        #message { color: white; margin-top: 10px; min-height: 20px; font-size: 13px; }
-        .back-link { color: #888; cursor: pointer; font-size: 12px; display: block; margin-top: 10px; text-decoration: underline; }
+        #message { color: #ff6666; margin-top: 15px; }
+        .back-link { color: #888; cursor: pointer; margin-top: 15px; display: inline-block; }
     </style>
 </head>
 <body>
 
-<div class="card-wrapper">
-    <div class="card">
-        <h1>კაიფმანია 😎🔥</h1>
-        
-        <div id="mainButtons">
-            <button onclick="showForm('reg')">რეგისტრაცია</button>
-            <button onclick="showForm('log')">შესვლა</button>
-        </div>
-
-        <div id="formSection" class="hidden">
-            <input type="text" id="nickname" placeholder="ნიკნეიმი">
-            <input type="password" id="password" placeholder="პაროლი">
-            <button id="submitBtn" onclick="handleAuth()">გაგზავნა</button>
-            <span class="back-link" onclick="location.reload()">უკან დაბრუნება</span>
-        </div>
-
-        <p id="message"></p>
+<div class="card">
+    <h1>🔥 კაიფმანია 🔥</h1>
+    
+    <div id="mainButtons">
+        <button onclick="showForm('reg')">📝 რეგისტრაცია</button>
+        <button onclick="showForm('log')">🔑 შესვლა</button>
     </div>
+    
+    <div id="formSection" class="hidden">
+        <input type="email" id="email" placeholder="ელ. ფოსტა">
+        <input type="text" id="nickname" placeholder="ნიკნეიმი">
+        <input type="password" id="password" placeholder="პაროლი (მინ 6 სიმბოლო)">
+        <button id="submitBtn" onclick="handleAuth()">✅ გაგზავნა</button>
+        <div class="back-link" onclick="location.reload()">◀ უკან</div>
+    </div>
+    
+    <p id="message"></p>
 </div>
 
 <script>
-    // Supabase-თან კავშირი
-    const _s = supabase.createClient("https://ftfciebnywbondaiarnc.supabase.co", "sb_publishable_eQZDSu_Jy1gWmXJFF800Pw_TP2kBRLI");
-    let mode = "";
+const supabase = supabase.createClient(
+    "https://ccfvjcqleadastnvlcww.supabase.co",
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjZnZqY3FsZWFkYXN0bnZsY3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDkxMzgsImV4cCI6MjA5MDg4NTEzOH0.oKjo8U6G2ND_rX8h88iNjqGl5UCaQVx_ZiKYcQfSa6s"
+);
 
-    function showForm(m) {
-        mode = m;
-        document.getElementById("mainButtons").classList.add("hidden");
-        document.getElementById("formSection").classList.remove("hidden");
-        document.getElementById("submitBtn").innerText = (m === 'reg') ? "რეგისტრაცია" : "შესვლა";
+let mode = "";
+
+async function checkUser() {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+        window.location.href = "chat.html";
     }
+}
+checkUser();
 
-    async function handleAuth() {
-        const nick = document.getElementById("nickname").value.trim();
-        const pass = document.getElementById("password").value.trim();
-        const msg = document.getElementById("message");
+function showForm(m) {
+    mode = m;
+    document.getElementById("mainButtons").classList.add("hidden");
+    document.getElementById("formSection").classList.remove("hidden");
+    const btn = document.getElementById("submitBtn");
+    btn.innerText = (m === 'reg') ? "📝 რეგისტრაცია" : "🔑 შესვლა";
+    
+    document.getElementById("nickname").style.display = (m === 'reg') ? "block" : "none";
+    document.getElementById("message").innerText = "";
+}
 
-        if (!nick || !pass) { msg.innerText = "შეავსე ველები!"; return; }
+async function handleAuth() {
+    const email = document.getElementById("email").value.trim();
+    const nick = document.getElementById("nickname").value.trim();
+    const pass = document.getElementById("password").value.trim();
+    const msg = document.getElementById("message");
 
-        if (mode === "reg") {
-            // რეგისტრაცია
-            const { data: user } = await _s.from('profiles').select('username').ilike('username', nick).maybeSingle();
-            if (user) { msg.innerText = "ნიკი დაკავებულია!"; return; }
-
-            const { error } = await _s.from('profiles').insert([{ username: nick, password: pass, role: 'Member' }]);
-            if (!error) { 
-                alert("წარმატებით დარეგისტრირდი! ახლა შედი."); 
-                location.reload(); 
-            } else { msg.innerText = "შეცდომა რეგისტრაციისას!"; }
-        } else {
-            // შესვლა
-            const { data: user, error } = await _s.from('profiles').select('*').ilike('username', nick).maybeSingle();
-            
-            if (user && user.password === pass) {
-                localStorage.setItem('nickname', user.username);
-                window.location.href = "chat.html"; // გადადის ჩატში
-            } else {
-                msg.innerText = "ნიკი ან პაროლი არასწორია!";
+    if (mode === "reg") {
+        if (!email || !nick || !pass) {
+            msg.innerText = "⚠️ შეავსე ყველა ველი!";
+            return;
+        }
+        if (pass.length < 6) {
+            msg.innerText = "⚠️ პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო!";
+            return;
+        }
+        
+        msg.innerText = "🔄 რეგისტრაცია მიმდინარეობს...";
+        
+        const { error } = await supabase.auth.signUp({
+            email: email,
+            password: pass,
+            options: {
+                data: { username: nick }
             }
+        });
+        
+        if (error) {
+            msg.innerText = "❌ " + error.message;
+        } else {
+            msg.innerText = "✅ რეგისტრაცია წარმატებულია!";
+            setTimeout(() => {
+                window.location.href = "chat.html";
+            }, 2000);
+        }
+        
+    } else if (mode === "log") {
+        if (!email || !pass) {
+            msg.innerText = "⚠️ შეავსე ელ.ფოსტა და პაროლი!";
+            return;
+        }
+        
+        msg.innerText = "🔄 შესვლა მიმდინარეობს...";
+        
+        const { error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: pass
+        });
+        
+        if (error) {
+            msg.innerText = "❌ ელ.ფოსტა ან პაროლი არასწორია!";
+        } else {
+            msg.innerText = "✅ წარმატებით შეხვედი!";
+            setTimeout(() => {
+                window.location.href = "chat.html";
+            }, 1500);
         }
     }
+}
 </script>
 </body>
 </html>
