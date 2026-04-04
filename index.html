@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <title>კაიფმანია</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+    <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+    :root {
+        --red: #ff1f1f;
+        --red-dark: #a00;
+        --bg: #070707;
+        --card-bg: #0f0f0f;
+        --border: rgba(255,30,30,0.25);
+        --muted: #555;
+    }
+
+    body {
+        background: var(--bg);
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        font-family: 'Inter', sans-serif;
+        overflow: hidden;
+        position: relative;
+    }
+
+    body::before {
+        content: '';
+        position: fixed;
+        width: 700px; height: 700px;
+        background: radial-gradient(circle, rgba(140,0,0,0.16) 0%, transparent 70%);
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+
+    .scene {
+        position: relative;
+        width: 380px;
+        height: 530px;
+        z-index: 1;
+    }
+
+    .card {
+        position: absolute;
+        width: 360px;
+        background: var(--card-bg);
+        border-radius: 26px;
+        border: 1.5px solid var(--border);
+        padding: 36px 32px;
+        transform-origin: center center;
+        transition: transform 0.5s cubic-bezier(0.34, 1.4, 0.64, 1),
+                    opacity 0.4s ease,
+                    box-shadow 0.4s ease;
+    }
+
+    .card-3 {
+        top: 28px; left: 50%;
+        transform: translateX(-50%) rotate(7deg) translateY(12px);
+        opacity: 0.3;
+        background: #090909;
+        border-color: rgba(255,20,20,0.08);
+        z-index: 1;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.7);
+        pointer-events: none;
+    }
+
+    .card-2 {
+        top: 14px; left: 50%;
+        transform: translateX(-50%) rotate(-4.5deg) translateY(6px);
+        opacity: 0.5;
+        background: #0b0b0b;
+        border-color: rgba(255,20,20,0.15);
+        z-index: 2;
+        box-shadow: 0 14px 50px rgba(0,0,0,0.65);
+        pointer-events: none;
+    }
+
+    .card-1 {
+        top: 0; left: 50%;
+        transform: translateX(-50%) rotate(0deg);
+        opacity: 1;
+        z-index: 3;
+        box-shadow:
+            0 0 0 1px rgba(255,30,30,0.12),
+            0 24px 70px rgba(0,0,0,0.9),
+            0 0 60px rgba(200,0,0,0.07);
+        animation: riseUp 0.65s cubic-bezier(0.22,1,0.36,1) both;
+    }
+
+    .card-1::before {
+        content: '';
+        position: absolute;
+        top: 0; left: 12%; right: 12%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, var(--red), transparent);
+        border-radius: 0 0 3px 3px;
+    }
+
+    .scene:hover .card-3 {
+        transform: translateX(-50%) rotate(11deg) translateY(18px);
+        opacity: 0.4;
+    }
+    .scene:hover .card-2 {
+        transform: translateX(-50%) rotate(-7deg) translateY(10px);
+        opacity: 0.6;
+    }
+
+    @keyframes riseUp {
+        from { opacity: 0; transform: translateX(-50%) translateY(18px) rotate(0deg); }
+        to   { opacity: 1; transform: translateX(-50%) translateY(0)     rotate(0deg); }
+    }
+
+    .logo-wrap { text-align: center; margin-bottom: 26px; }
+
+    .flame {
+        font-size: 36px;
+        display: block;
+        margin-bottom: 6px;
+        animation: flicker 2.5s ease-in-out infinite;
+    }
+
+    @keyframes flicker {
+        0%,100% { filter: drop-shadow(0 0 8px rgba(255,100,0,.8)); }
+        50%      { filter: drop-shadow(0 0 22px rgba(255,40,0,1)) drop-shadow(0 0 40px rgba(255,0,0,.5)); }
+    }
+
+    h1 {
+        font-family: 'Unbounded', sans-serif;
+        font-size: 19px;
+        font-weight: 900;
+        letter-spacing: 3px;
+        text-transform: uppercase;
+        color: #fff;
+        text-shadow: 0 0 20px rgba(255,50,50,0.55);
+    }
+
+    .tagline {
+        color: var(--muted);
+        font-size: 10px;
+        letter-spacing: 4px;
+        text-transform: uppercase;
+        margin-top: 4px;
+    }
+
+    .tabs {
+        display: flex;
+        background: #141414;
+        border-radius: 50px;
+        padding: 4px;
+        margin-bottom: 20px;
+        border: 1px solid #1c1c1c;
+        gap: 3px;
+    }
+
+    .tab {
+        flex: 1;
+        padding: 9px 6px;
+        border-radius: 50px;
+        border: none;
+        background: transparent;
+        color: var(--muted);
+        font-size: 12.5px;
+        font-family: 'Inter', sans-serif;
+        cursor: pointer;
+        transition: all 0.25s;
+        font-weight: 500;
+        box-shadow: none;
+        transform: none;
+        width: auto;
+        margin: 0;
+    }
+
+    .tab:hover { color: #999; background: transparent; transform: none; box-shadow: none; }
+
+    .tab.active {
+        background: linear-gradient(135deg, #a00 0%, var(--red) 100%);
+        color: #fff;
+        box-shadow: 0 4px 14px rgba(180,0,0,0.45);
+    }
+
+    .field {
+        position: relative;
+        margin-bottom: 9px;
+    }
+
+    .field input {
+        width: 100%;
+        padding: 12px 16px 12px 42px;
+        background: #121212;
+        border: 1px solid #1e1e1e;
+        border-radius: 13px;
+        color: #fff;
+        font-size: 13.5px;
+        font-family: 'Inter', sans-serif;
+        outline: none;
+        transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .field input:focus {
+        border-color: rgba(255,40,40,0.45);
+        box-shadow: 0 0 0 3px rgba(255,0,0,0.05);
+    }
+
+    .field input::placeholder { color: #2e2e2e; }
+
+    .icon {
+        position: absolute;
+        left: 14px; top: 50%;
+        transform: translateY(-50%);
+        font-size: 14px;
+        pointer-events: none;
+        opacity: 0.55;
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 13px;
+        margin-top: 8px;
+        background: linear-gradient(135deg, #aa0000 0%, #ff2222 55%, #bb0000 100%);
+        border: none;
+        border-radius: 50px;
+        color: #fff;
+        font-size: 13px;
+        font-weight: 700;
+        font-family: 'Unbounded', sans-serif;
+        letter-spacing: 1px;
+        cursor: pointer;
+        box-shadow: 0 6px 24px rgba(180,0,0,0.5);
+        transition: all 0.2s;
+        transform: none;
+    }
+
+    .btn-submit:hover {
+        box-shadow: 0 8px 32px rgba(255,0,0,0.6);
+        transform: translateY(-1px);
+    }
+
+    #message {
+        margin-top: 12px;
+        font-size: 12px;
+        text-align: center;
+        min-height: 18px;
+        color: #ff5555;
+        transition: color 0.3s;
+    }
+
+    #message.success { color: #44ee88; }
+</style>
+```
+
+</head>
+<body>
+
+<div class="scene">
+    <div class="card card-3"></div>
+    <div class="card card-2"></div>
+
+```
+<div class="card card-1">
+    <div class="logo-wrap">
+        <span class="flame">🔥</span>
+        <h1>კაიფმანია</h1>
+        <p class="tagline">შემოგვიერთდი</p>
+    </div>
+
+    <div class="tabs">
+        <button class="tab active" id="tabReg" onclick="switchTab('reg')">📝 რეგისტრაცია</button>
+        <button class="tab"        id="tabLog" onclick="switchTab('log')">🔑 შესვლა</button>
+    </div>
+
+    <div class="field">
+        <span class="icon">✉️</span>
+        <input type="email" id="email" placeholder="ელ. ფოსტა">
+    </div>
+
+    <div class="field" id="nickField">
+        <span class="icon">😎</span>
+        <input type="text" id="nickname" placeholder="ნიკნეიმი">
+    </div>
+
+    <div class="field">
+        <span class="icon">🔒</span>
+        <input type="password" id="password" placeholder="პაროლი — მინ. 6 სიმბოლო">
+    </div>
+
+    <button class="btn-submit" id="submitBtn" onclick="handleAuth()">📝 დარეგისტრირება</button>
+
+    <p id="message"></p>
+</div>
+```
+
+</div>
+
+<script>
+    const { createClient } = supabase;
+    const sb = createClient(
+        "https://gdvjawrplvvldbjpfcgx.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkdmphd3JwbHZ2bGRianBmY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzE1NDIsImV4cCI6MjA4OTAwNzU0Mn0.QEySoKfVHF1b4dV5TAH5vgQQKQMAgdETzQm3P9p3H8A"
+    );
+
+    let mode = "reg";
+
+    (async () => {
+        const { data: { user } } = await sb.auth.getUser();
+        if (user) window.location.href = "chat.html";
+    })();
+
+    function switchTab(m) {
+        mode = m;
+        document.getElementById("tabReg").classList.toggle("active", m === "reg");
+        document.getElementById("tabLog").classList.toggle("active", m === "log");
+        document.getElementById("nickField").style.display = m === "reg" ? "block" : "none";
+        document.getElementById("submitBtn").innerText = m === "reg" ? "📝 დარეგისტრირება" : "🔑 შესვლა";
+        setMsg("", "");
+    }
+
+    function setMsg(text, cls) {
+        const el = document.getElementById("message");
+        el.innerText = text;
+        el.className = cls;
+    }
+
+    async function handleAuth() {
+        const email = document.getElementById("email").value.trim();
+        const nick  = document.getElementById("nickname").value.trim();
+        const pass  = document.getElementById("password").value.trim();
+
+        if (mode === "reg") {
+            if (!email || !nick || !pass) return setMsg("⚠️ შეავსე ყველა ველი!", "");
+            if (pass.length < 6)          return setMsg("⚠️ პაროლი მინიმუმ 6 სიმბოლო!", "");
+            setMsg("🔄 რეგისტრაცია...", "");
+            const { error } = await sb.auth.signUp({ email, password: pass, options: { data: { username: nick } } });
+            if (error) { setMsg("❌ " + error.message, ""); }
+            else { setMsg("✅ წარმატებული რეგისტრაცია!", "success"); setTimeout(() => location.href = "chat.html", 2000); }
+
+        } else {
+            if (!email || !pass) return setMsg("⚠️ შეავსე ელ.ფოსტა და პაროლი!", "");
+            setMsg("🔄 შესვლა...", "");
+            const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+            if (error) { setMsg("❌ ელ.ფოსტა ან პაროლი არასწორია!", ""); }
+            else { setMsg("✅ წარმატებით შეხვედი!", "success"); setTimeout(() => location.href = "chat.html", 1500); }
+        }
+    }
+</script>
+
+</body>
+</html>
