@@ -28,10 +28,10 @@
         .card:hover {
             transform: rotate(0deg) skew(0deg);
         }
-        h1 { 
-            color: white; 
-            text-shadow: 0 0 10px red; 
-            margin-bottom: 30px; 
+        h1 {
+            color: white;
+            text-shadow: 0 0 10px red;
+            margin-bottom: 30px;
         }
         input {
             width: 100%;
@@ -63,108 +63,72 @@
 
 <div class="card">
     <h1>🔥 კაიფმანია 🔥</h1>
-    
+
     <div id="mainButtons">
         <button onclick="showForm('reg')">📝 რეგისტრაცია</button>
         <button onclick="showForm('log')">🔑 შესვლა</button>
     </div>
-    
+
     <div id="formSection" class="hidden">
         <input type="email" id="email" placeholder="ელ. ფოსტა">
         <input type="text" id="nickname" placeholder="ნიკნეიმი">
-        <input type="password" id="password" placeholder="პაროლი (მინ 6 სიმბოლო)">
+        <input type="password" id="password" placeholder="პაროლი (მინ 6)">
         <button id="submitBtn" onclick="handleAuth()">✅ გაგზავნა</button>
         <div class="back-link" onclick="location.reload()">◀ უკან</div>
     </div>
-    
+
     <p id="message"></p>
 </div>
 
 <script>
-const supabase = supabase.createClient(
-    "https://ccfvjcqleadastnvlcww.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjZnZqY3FsZWFkYXN0bnZsY3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDkxMzgsImV4cCI6MjA5MDg4NTEzOH0.oKjo8U6G2ND_rX8h88iNjqGl5UCaQVx_ZiKYcQfSa6s"
-);
+    const supabase = supabase.createClient(
+        "https://ccfvjcqleadastnvlcww.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjZnZqY3FsZWFkYXN0bnZsY3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDkxMzgsImV4cCI6MjA5MDg4NTEzOH0.oKjo8U6G2ND_rX8h88iNjqGl5UCaQVx_ZiKYcQfSa6s"
+    );
 
-let mode = "";
+    let mode = "";
 
-async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        window.location.href = "chat.html";
+    async function checkUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) window.location.href = "chat.html";
     }
-}
-checkUser();
+    checkUser();
 
-function showForm(m) {
-    mode = m;
-    document.getElementById("mainButtons").classList.add("hidden");
-    document.getElementById("formSection").classList.remove("hidden");
-    const btn = document.getElementById("submitBtn");
-    btn.innerText = (m === 'reg') ? "📝 რეგისტრაცია" : "🔑 შესვლა";
-    
-    document.getElementById("nickname").style.display = (m === 'reg') ? "block" : "none";
-    document.getElementById("message").innerText = "";
-}
+    function showForm(m) {
+        mode = m;
+        document.getElementById("mainButtons").classList.add("hidden");
+        document.getElementById("formSection").classList.remove("hidden");
+        document.getElementById("submitBtn").innerText = (m === 'reg') ? "📝 რეგისტრაცია" : "🔑 შესვლა";
+        document.getElementById("nickname").style.display = (m === 'reg') ? "block" : "none";
+        document.getElementById("message").innerText = "";
+    }
 
-async function handleAuth() {
-    const email = document.getElementById("email").value.trim();
-    const nick = document.getElementById("nickname").value.trim();
-    const pass = document.getElementById("password").value.trim();
-    const msg = document.getElementById("message");
+    async function handleAuth() {
+        const email = document.getElementById("email").value.trim();
+        const nick = document.getElementById("nickname").value.trim();
+        const pass = document.getElementById("password").value.trim();
+        const msg = document.getElementById("message");
 
-    if (mode === "reg") {
-        if (!email || !nick || !pass) {
-            msg.innerText = "⚠️ შეავსე ყველა ველი!";
-            return;
-        }
-        if (pass.length < 6) {
-            msg.innerText = "⚠️ პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო!";
-            return;
-        }
-        
-        msg.innerText = "🔄 რეგისტრაცია მიმდინარეობს...";
-        
-        const { error } = await supabase.auth.signUp({
-            email: email,
-            password: pass,
-            options: {
-                data: { username: nick }
-            }
-        });
-        
-        if (error) {
-            msg.innerText = "❌ " + error.message;
-        } else {
-            msg.innerText = "✅ რეგისტრაცია წარმატებულია!";
-            setTimeout(() => {
-                window.location.href = "chat.html";
-            }, 2000);
-        }
-        
-    } else if (mode === "log") {
-        if (!email || !pass) {
-            msg.innerText = "⚠️ შეავსე ელ.ფოსტა და პაროლი!";
-            return;
-        }
-        
-        msg.innerText = "🔄 შესვლა მიმდინარეობს...";
-        
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: pass
-        });
-        
-        if (error) {
-            msg.innerText = "❌ ელ.ფოსტა ან პაროლი არასწორია!";
-        } else {
-            msg.innerText = "✅ წარმატებით შეხვედი!";
-            setTimeout(() => {
-                window.location.href = "chat.html";
-            }, 1500);
+        if (mode === "reg") {
+            if (!email || !nick || !pass) return msg.innerText = "⚠️ შეავსე ყველა ველი!";
+            if (pass.length < 6) return msg.innerText = "⚠️ პაროლი მინ 6 სიმბოლო!";
+            msg.innerText = "🔄 რეგისტრაცია...";
+            const { error } = await supabase.auth.signUp({
+                email, password: pass,
+                options: { data: { username: nick } }
+            });
+            if (error) msg.innerText = "❌ " + error.message;
+            else msg.innerText = "✅ რეგისტრაცია წარმატებულია!";
+            setTimeout(() => { window.location.href = "chat.html"; }, 2000);
+        } else if (mode === "log") {
+            if (!email || !pass) return msg.innerText = "⚠️ შეავსე ელ.ფოსტა და პაროლი!";
+            msg.innerText = "🔄 შესვლა...";
+            const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+            if (error) msg.innerText = "❌ ელ.ფოსტა ან პაროლი არასწორია!";
+            else msg.innerText = "✅ წარმატებით შეხვედი!";
+            setTimeout(() => { window.location.href = "chat.html"; }, 1500);
         }
     }
-}
 </script>
 </body>
 </html>
