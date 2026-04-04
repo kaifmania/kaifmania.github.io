@@ -5,124 +5,92 @@
     <title>კაიფმანია</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
         body {
-            background: radial-gradient(circle, #330000 0%, #000 100%);
+            background: radial-gradient(circle, #330000 0%, #000 70%);
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            perspective: 1000px;
+            height: 100vh;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
         }
-
-        /* დახრილი ბარათი */
         .card {
-            background: linear-gradient(145deg, #111 0%, #1a1a1a 100%);
-            padding: 40px 35px;
-            border-radius: 20px;
+            background: #0d0d0d;
+            padding: 35px 30px;
+            border-radius: 30px;
             text-align: center;
-            border: 1px solid rgba(255, 0, 0, 0.3);
-            width: 400px;
-            transform: rotateX(5deg) rotateY(-5deg) rotateZ(1deg);
-            transition: all 0.4s ease;
-            box-shadow: 25px 25px 50px rgba(0, 0, 0, 0.6), 0 0 15px rgba(255, 0, 0, 0.2);
-            backdrop-filter: blur(5px);
+            border: 2px solid red;
+            width: 360px;
+            transform: rotate(2deg) skew(-1deg);
+            transition: 0.25s ease;
+            box-shadow: 12px 12px 25px rgba(0,0,0,0.6);
         }
-
         .card:hover {
-            transform: rotateX(0deg) rotateY(0deg) rotateZ(0deg);
-            box-shadow: 0 0 30px rgba(255, 0, 0, 0.4);
-            border-color: rgba(255, 0, 0, 0.7);
+            transform: rotate(0deg) skew(0deg);
+            box-shadow: 0px 0px 28px rgba(255,0,0,0.4);
         }
-
         h1 {
-            color: #fff;
-            text-shadow: 0 0 15px #ff0000, 0 0 5px #ff4444;
-            margin-bottom: 30px;
-            font-size: 32px;
-            letter-spacing: 2px;
-            transform: skew(-3deg);
+            color: white;
+            text-shadow: 0 0 6px red;
+            margin-bottom: 28px;
+            font-size: 30px;
+            letter-spacing: 1px;
         }
-
         input {
             width: 100%;
-            padding: 14px 16px;
-            margin: 12px 0;
-            background: #2a2a2a;
-            border: 1px solid #444;
+            padding: 12px 14px;
+            margin: 10px 0;
+            background: #1e1e1e;
+            border: 1px solid #3a3a3a;
             color: white;
-            border-radius: 30px;
-            font-size: 16px;
-            transition: all 0.3s;
+            border-radius: 40px;
+            font-size: 15px;
+            box-sizing: border-box;
             outline: none;
+            transition: 0.2s;
         }
-
         input:focus {
-            border-color: #ff0000;
-            box-shadow: 0 0 8px rgba(255, 0, 0, 0.5);
-            background: #1f1f1f;
+            border-color: red;
+            background: #2a2a2a;
         }
-
-        input::placeholder {
-            color: #aaa;
-            font-size: 14px;
-        }
-
         button {
-            background: linear-gradient(135deg, #ff0000, #990000);
+            background: red;
             color: white;
-            padding: 12px 25px;
+            padding: 10px 24px;
             border: none;
-            border-radius: 30px;
+            border-radius: 40px;
             cursor: pointer;
-            margin: 15px 8px 5px;
+            margin: 12px 6px 4px;
             font-size: 16px;
             font-weight: bold;
             transition: 0.2s;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
         }
-
         button:hover {
-            transform: scale(1.05);
-            background: linear-gradient(135deg, #ff3333, #cc0000);
-            box-shadow: 0 6px 15px rgba(255, 0, 0, 0.4);
+            background: #b30000;
+            transform: scale(1.02);
         }
-
         .hidden {
             display: none;
         }
-
         #message {
-            color: #ff8888;
-            margin-top: 18px;
-            font-size: 14px;
-            text-shadow: 0 0 2px black;
+            color: #ff8080;
+            margin-top: 16px;
+            font-size: 13px;
         }
-
         .back-link {
             color: #aaa;
             cursor: pointer;
-            margin-top: 18px;
+            margin-top: 16px;
             display: inline-block;
             font-size: 13px;
-            transition: 0.2s;
         }
-
         .back-link:hover {
-            color: #ff6666;
-            transform: translateX(-4px);
+            color: red;
         }
-
         /* მთავარი ღილაკები */
         .main-buttons button {
-            width: 45%;
-            margin: 10px 5px;
+            width: 140px;
+            margin: 8px 8px;
         }
     </style>
 </head>
@@ -130,108 +98,96 @@
 
 <div class="card">
     <h1>🔥 კაიფმანია 🔥</h1>
-    
+
     <div id="mainButtons" class="main-buttons">
         <button onclick="showForm('reg')">📝 რეგისტრაცია</button>
         <button onclick="showForm('log')">🔑 შესვლა</button>
     </div>
-    
+
     <div id="formSection" class="hidden">
-        <input type="email" id="email" placeholder="📧 ელ. ფოსტა" autocomplete="off">
-        <input type="text" id="nickname" placeholder="👤 ნიკნეიმი">
-        <input type="password" id="password" placeholder="🔒 პაროლი (მინ 6 სიმბოლო)">
-        <button id="submitBtn" onclick="handleAuth()">✅ გაგზავნა</button>
-        <div class="back-link" onclick="location.reload()">◀ უკან დაბრუნება</div>
+        <input type="email" id="email" placeholder="ელ. ფოსტა" autocomplete="off">
+        <input type="text" id="nickname" placeholder="ნიკნეიმი">
+        <input type="password" id="password" placeholder="პაროლი (მინ 6)">
+        <button id="submitBtn">✅ გაგზავნა</button>
+        <div class="back-link" onclick="location.reload()">◀ უკან</div>
     </div>
-    
+
     <p id="message"></p>
 </div>
 
 <script>
-const supabase = supabase.createClient(
-    "https://ccfvjcqleadastnvlcww.supabase.co",
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjZnZqY3FsZWFkYXN0bnZsY3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDkxMzgsImV4cCI6MjA5MDg4NTEzOH0.oKjo8U6G2ND_rX8h88iNjqGl5UCaQVx_ZiKYcQfSa6s"
-);
+    const supabase = supabase.createClient(
+        "https://ccfvjcqleadastnvlcww.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNjZnZqY3FsZWFkYXN0bnZsY3d3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzMDkxMzgsImV4cCI6MjA5MDg4NTEzOH0.oKjo8U6G2ND_rX8h88iNjqGl5UCaQVx_ZiKYcQfSa6s"
+    );
 
-let mode = "";
+    let mode = "";
 
-async function checkUser() {
-    const { data: { user } } = await supabase.auth.getUser();
-    if (user) {
-        window.location.href = "chat.html";
+    async function checkUser() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+            window.location.href = "chat.html";
+        }
     }
-}
-checkUser();
+    checkUser();
 
-function showForm(m) {
-    mode = m;
-    document.getElementById("mainButtons").classList.add("hidden");
-    document.getElementById("formSection").classList.remove("hidden");
-    const btn = document.getElementById("submitBtn");
-    btn.innerText = (m === 'reg') ? "📝 რეგისტრაცია" : "🔑 შესვლა";
-    
-    document.getElementById("nickname").style.display = (m === 'reg') ? "block" : "none";
-    document.getElementById("message").innerText = "";
-}
+    function showForm(m) {
+        mode = m;
+        document.getElementById("mainButtons").classList.add("hidden");
+        document.getElementById("formSection").classList.remove("hidden");
+        const btn = document.getElementById("submitBtn");
+        btn.innerText = (m === 'reg') ? "📝 რეგისტრაცია" : "🔑 შესვლა";
+        document.getElementById("nickname").style.display = (m === 'reg') ? "block" : "none";
+        document.getElementById("message").innerText = "";
+        // ჩაამაგრე ღილაკზე მოქმედება
+        btn.onclick = handleAuth;
+    }
 
-async function handleAuth() {
-    const email = document.getElementById("email").value.trim();
-    const nick = document.getElementById("nickname").value.trim();
-    const pass = document.getElementById("password").value.trim();
-    const msg = document.getElementById("message");
+    async function handleAuth() {
+        const email = document.getElementById("email").value.trim();
+        const nick = document.getElementById("nickname").value.trim();
+        const pass = document.getElementById("password").value.trim();
+        const msg = document.getElementById("message");
 
-    if (mode === "reg") {
-        if (!email || !nick || !pass) {
-            msg.innerText = "⚠️ შეავსე ყველა ველი!";
-            return;
-        }
-        if (pass.length < 6) {
-            msg.innerText = "⚠️ პაროლი უნდა იყოს მინიმუმ 6 სიმბოლო!";
-            return;
-        }
-        
-        msg.innerText = "🔄 რეგისტრაცია მიმდინარეობს...";
-        
-        const { error } = await supabase.auth.signUp({
-            email: email,
-            password: pass,
-            options: {
-                data: { username: nick }
+        if (mode === "reg") {
+            if (!email || !nick || !pass) {
+                msg.innerText = "⚠️ შეავსე ყველა ველი!";
+                return;
             }
-        });
-        
-        if (error) {
-            msg.innerText = "❌ " + error.message;
-        } else {
-            msg.innerText = "✅ რეგისტრაცია წარმატებულია! გადამისამართება...";
-            setTimeout(() => {
-                window.location.href = "chat.html";
-            }, 2000);
-        }
-        
-    } else if (mode === "log") {
-        if (!email || !pass) {
-            msg.innerText = "⚠️ შეავსე ელ.ფოსტა და პაროლი!";
-            return;
-        }
-        
-        msg.innerText = "🔄 შესვლა მიმდინარეობს...";
-        
-        const { error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: pass
-        });
-        
-        if (error) {
-            msg.innerText = "❌ ელ.ფოსტა ან პაროლი არასწორია!";
-        } else {
-            msg.innerText = "✅ წარმატებით შეხვედი! გადამისამართება...";
-            setTimeout(() => {
-                window.location.href = "chat.html";
-            }, 1500);
+            if (pass.length < 6) {
+                msg.innerText = "⚠️ პაროლი მინ 6 სიმბოლო!";
+                return;
+            }
+            msg.innerText = "🔄 რეგისტრაცია...";
+            const { error } = await supabase.auth.signUp({
+                email: email,
+                password: pass,
+                options: { data: { username: nick } }
+            });
+            if (error) {
+                msg.innerText = "❌ " + error.message;
+            } else {
+                msg.innerText = "✅ რეგისტრაცია წარმატებულია!";
+                setTimeout(() => { window.location.href = "chat.html"; }, 1800);
+            }
+        } else if (mode === "log") {
+            if (!email || !pass) {
+                msg.innerText = "⚠️ შეავსე ელ.ფოსტა და პაროლი!";
+                return;
+            }
+            msg.innerText = "🔄 შესვლა...";
+            const { error } = await supabase.auth.signInWithPassword({
+                email: email,
+                password: pass
+            });
+            if (error) {
+                msg.innerText = "❌ ელ.ფოსტა ან პაროლი არასწორია!";
+            } else {
+                msg.innerText = "✅ წარმატებით შეხვედი!";
+                setTimeout(() => { window.location.href = "chat.html"; }, 1500);
+            }
         }
     }
-}
 </script>
 </body>
 </html>
