@@ -244,13 +244,6 @@ select.inp{cursor:pointer}
 
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none;animation:mIn .3s ease;white-space:nowrap}
 .hidden{display:none!important}
-
-/* ── QUIZ burst animation ── */
-@keyframes qzBurst{
-  0%{opacity:1;transform:scale(.5) translateY(0)}
-  100%{opacity:0;transform:scale(1.8) translateY(-70px)}
-}
-@media(max-width:480px){#qz-opts{grid-template-columns:1fr!important}}
 </style>
 </head>
 <body class="night">
@@ -301,6 +294,7 @@ select.inp{cursor:pointer}
     </div>
     <div id="messages"></div>
 
+    <!-- EMOJI PANEL — multiple file upload for admin/founder -->
     <div id="emojiPanel">
       <div class="ep-header"><span>სმაილები</span></div>
       <div class="emoji-grid" id="emojiGrid"></div>
@@ -317,8 +311,6 @@ select.inp{cursor:pointer}
     <div class="chat-bar">
       <button class="icon-btn" onclick="toggleEmojiPanel()">😊</button>
       <input id="msgInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}">
-      <!-- ✅ QUIZ BUTTON — მხოლოდ ოთახი 1-ში ჩანს -->
-      <button class="icon-btn" id="quizTriggerBtn" onclick="openQuiz()" style="display:none" title="ვიქტორინა">🌸</button>
       <button class="send-btn" id="mainSendBtn" onclick="sendMessage()">
         <span class="send-plane">✈️</span>
       </button>
@@ -362,9 +354,11 @@ select.inp{cursor:pointer}
       <input class="inp" id="emoComment" placeholder="კომენტარი ემოციაზე...">
       <button class="act-btn success" id="saveProfileBtn" onclick="saveProfile()">✅ შენახვა</button>
 
+      <!-- ====== დამფუძნებლის პანელი ====== -->
       <div id="founderSec" class="hidden">
         <div class="divider"></div>
         <div class="sec-lbl">👑 დამფუძნებლის პანელი</div>
+
         <div class="sec-lbl" style="margin-top:10px">როლის მინიჭება</div>
         <select class="inp" id="roleSelect">
           <option value="member">👤 წევრი</option>
@@ -373,12 +367,14 @@ select.inp{cursor:pointer}
         </select>
         <button class="act-btn" onclick="assignRole()">🎖️ როლის მინიჭება</button>
         <button class="act-btn warn" onclick="removeRole()">🔄 როლის გადახსნა (წევრად)</button>
+
         <div class="sec-lbl">დაბლოკვა / განბლოკვა</div>
         <input class="inp" id="blockReason" placeholder="დაბლოკვის მიზეზი...">
         <button class="act-btn danger" onclick="blockUser()">🚫 დაბლოკვა</button>
         <button class="act-btn success" onclick="unblockUser()">✅ განბლოკვა</button>
       </div>
 
+      <!-- ====== ადმინის პანელი ====== -->
       <div id="adminSec" class="hidden">
         <div class="divider"></div>
         <div class="sec-lbl">🛡️ ადმინის პანელი</div>
@@ -435,51 +431,6 @@ select.inp{cursor:pointer}
     <p style="font-size:14px;color:var(--text2);margin-bottom:14px" id="friendReqTxt"></p>
     <button class="act-btn success" onclick="acceptFriend()">✅ დასტური</button>
     <button class="act-btn danger" onclick="declineFriend()">❌ უარი</button>
-  </div>
-</div>
-
-<!-- ✅ QUIZ MODAL -->
-<div class="overlay" id="quizOverlay" onclick="bgClose(event,'quizOverlay')">
-  <div class="modal" style="max-width:660px;padding:28px 24px">
-    <button class="modal-x" onclick="closeModal('quizOverlay')">✕</button>
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px">
-      <div style="font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent)">🌸 ვიქტორინა</div>
-      <div style="display:flex;align-items:center;gap:6px;background:var(--indigo-f);border:1px solid var(--border);border-radius:100px;padding:5px 14px;font-size:.85rem;font-weight:700;color:var(--accent)">★ <span id="qz-score" style="color:var(--accent)">0</span> ქ.</div>
-    </div>
-    <div style="display:flex;justify-content:space-between;font-size:.75rem;color:var(--text2);margin-bottom:6px">
-      <span id="qz-num">1 / 10</span>
-      <span id="qz-cat-hdr">—</span>
-    </div>
-    <div style="height:4px;background:var(--border);border-radius:100px;overflow:hidden;margin-bottom:22px">
-      <div id="qz-prog" style="height:100%;background:linear-gradient(90deg,var(--indigo2),var(--accent));border-radius:100px;transition:width .5s cubic-bezier(.4,0,.2,1);width:0%"></div>
-    </div>
-    <div style="background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:20px 18px;margin-bottom:16px" id="qz-card">
-      <div id="qz-cat" style="display:inline-block;font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);background:var(--indigo-f);border:1px solid var(--border);border-radius:6px;padding:2px 9px;margin-bottom:12px">—</div>
-      <p id="qz-text" style="font-size:1.08rem;font-weight:600;line-height:1.6;color:var(--text)">—</p>
-    </div>
-    <div id="qz-opts" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px"></div>
-    <div id="qz-fb" style="display:none;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;margin-bottom:14px;font-weight:700;font-size:.88rem"></div>
-    <button id="qz-next" onclick="qzNext()" style="display:none;width:100%;padding:14px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:12px;color:#fff;font-family:'Noto Sans Georgian',sans-serif;font-size:.95rem;font-weight:800;cursor:pointer;box-shadow:0 4px 20px rgba(88,0,184,.35)">შემდეგი →</button>
-    <div id="qz-results" style="display:none;text-align:center">
-      <div id="qz-res-emoji" style="font-size:3.5rem;margin-bottom:12px">🏆</div>
-      <div style="font-family:'Unbounded',sans-serif;font-size:1.1rem;font-weight:800;color:var(--accent);margin-bottom:6px">ვიქტორინა დასრულდა!</div>
-      <p style="color:var(--text2);font-size:.88rem;margin-bottom:22px">შედეგები შენს პროფილზე დაემატა</p>
-      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:22px">
-        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:16px 8px;text-align:center">
-          <b id="qz-r-pts" style="display:block;font-size:1.7rem;font-weight:800;color:var(--accent)">0</b>
-          <span style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">ქულა</span>
-        </div>
-        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:16px 8px;text-align:center">
-          <b id="qz-r-cor" style="display:block;font-size:1.7rem;font-weight:800;color:var(--accent)">0</b>
-          <span style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">სწორი</span>
-        </div>
-        <div style="background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:16px 8px;text-align:center">
-          <b id="qz-r-pct" style="display:block;font-size:1.7rem;font-weight:800;color:var(--accent)">0%</b>
-          <span style="font-size:.7rem;color:var(--text3);text-transform:uppercase;letter-spacing:.08em">სიზუსტე</span>
-        </div>
-      </div>
-      <button onclick="qzRestart()" style="padding:12px 28px;background:var(--indigo-f);border:1.5px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:.9rem;font-weight:700;cursor:pointer">🌸 ხელახლა ცდა</button>
-    </div>
   </div>
 </div>
 
@@ -552,140 +503,6 @@ const ROOMS=[
   {id:11,icon:'🎯',name:'ოთახი 11'},{id:12,icon:'🍀',name:'ოთახი 12'},
 ];
 
-/* ════════════════════════════════════════
-   🌸 QUIZ — კითხვები
-   გააგრძელე id:13-დან 150-მდე
-════════════════════════════════════════ */
-const QZ_QUESTIONS=[
-  {id:1,  category:"გეოგრაფია",   question:"საქართველოს რომელი მთაა ყველაზე მაღალი?",          options:["კაზბეგი","შხარა","ტეთნულდი","უშბა"],                              answer:1},
-  {id:2,  category:"გეოგრაფია",   question:"რომელი მდინარე გაედინება თბილისში?",               options:["რიონი","ალაზანი","მტკვარი","არაგვი"],                              answer:2},
-  {id:3,  category:"გეოგრაფია",   question:"საქართველოს დედაქალაქია?",                         options:["ქუთაისი","ბათუმი","თბილისი","გორი"],                               answer:2},
-  {id:4,  category:"გეოგრაფია",   question:"საქართველოს რომელ რეგიონს ეკუთვნის ბათუმი?",      options:["გურია","სამეგრელო","აჭარა","სამცხე-ჯავახეთი"],                     answer:2},
-  {id:5,  category:"ისტორია",     question:"რომელ წელს მიიღო საქართველომ ქრისტიანობა?",        options:["326","337","327","324"],                                           answer:1},
-  {id:6,  category:"ისტორია",     question:"ვინ იყო საქართველოს პირველი მეფე?",                options:["ფარნავაზი","მირიანი","ვახტანგ გორგასალი","დავით აღმ."],            answer:0},
-  {id:7,  category:"მეცნიერება",  question:"წყლის ქიმიური ფორმულა?",                           options:["CO2","H2O","O2","NaCl"],                                           answer:1},
-  {id:8,  category:"მეცნიერება",  question:"სინათლის სიჩქარე ვაკუუმში?",                       options:["200 000 კმ/წმ","300 000 კმ/წმ","150 000 კმ/წმ","400 000 კმ/წმ"],  answer:1},
-  {id:9,  category:"მეცნიერება",  question:"დედამიწის ბუნებრივი თანამგზავრია?",                options:["მარსი","მთვარე","ვენერა","იუპიტერი"],                               answer:1},
-  {id:10, category:"სპორტი",      question:"ფეხბურთის მსოფლიო ჩემპიონატი რამდენ წელიწადში?",  options:["2","3","4","5"],                                                   answer:2},
-  {id:11, category:"სპორტი",      question:"ოლიმპიური თამაშები რამდენ წელიწადში ერთხელ?",     options:["2","4","3","5"],                                                   answer:1},
-  {id:12, category:"ხელოვნება",   question:"ვინ დახატა „მონა ლიზა"?",                          options:["მიქელანჯელო","რაფაელი","ლეონარდო და ვინჩი","რემბრანდტი"],         answer:2},
-  /* ↓ გააგრძელე აქედან 150-მდე — იგივე სტრუქტურა:
-  {id:13, category:"კატეგორია", question:"კითხვა?", options:["A","B","C","D"], answer:0},
-  */
-];
-
-const QZ_ROOM_ID=1;
-const QZ_PTS=5;
-const QZ_BATCH=10;
-const QZ_LETTERS=['A','B','C','D'];
-let qzState={active:false,batch:[],idx:0,score:0,correct:0,answered:false};
-
-/* ── ვიქტორინის გახსნა ── */
-function openQuiz(){
-  const answeredIds=JSON.parse(localStorage.getItem('qz_'+ME?.id)||'[]');
-  const pool=QZ_QUESTIONS.filter(q=>!answeredIds.includes(q.id));
-  if(!pool.length){toast('🏆 ყველა კითხვას უკვე უპასუხე!');return;}
-  qzState={active:true,batch:[...pool].sort(()=>Math.random()-.5).slice(0,Math.min(QZ_BATCH,pool.length)),idx:0,score:0,correct:0,answered:false};
-  document.getElementById('qz-score').textContent='0';
-  document.getElementById('qz-results').style.display='none';
-  document.getElementById('qz-card').style.display='';
-  document.getElementById('qz-opts').style.display='';
-  document.getElementById('qz-fb').style.display='none';
-  document.getElementById('qz-next').style.display='none';
-  document.getElementById('qz-prog').style.width='0%';
-  openModal('quizOverlay');
-  qzRender();
-}
-
-function qzRender(){
-  const q=qzState.batch[qzState.idx];
-  const total=qzState.batch.length;
-  document.getElementById('qz-num').textContent=(qzState.idx+1)+' / '+total;
-  document.getElementById('qz-cat-hdr').textContent=q.category;
-  document.getElementById('qz-cat').textContent=q.category;
-  document.getElementById('qz-text').textContent=q.question;
-  document.getElementById('qz-prog').style.width=((qzState.idx/total)*100)+'%';
-  document.getElementById('qz-fb').style.display='none';
-  document.getElementById('qz-next').style.display='none';
-  qzState.answered=false;
-  const grid=document.getElementById('qz-opts');
-  grid.innerHTML='';
-  q.options.forEach((opt,i)=>{
-    const btn=document.createElement('button');
-    btn.style.cssText='display:flex;align-items:center;gap:10px;background:var(--indigo-f);border:1.5px solid var(--border);border-radius:11px;padding:12px 14px;cursor:pointer;color:var(--text);font-family:\'Noto Sans Georgian\',sans-serif;font-size:.88rem;text-align:left;transition:border-color .2s,background .2s;width:100%';
-    btn.innerHTML=`<span style="min-width:26px;height:26px;border-radius:7px;background:rgba(138,43,226,.2);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.75rem;color:var(--indigo2);flex-shrink:0">${QZ_LETTERS[i]}</span>${esc(opt)}`;
-    btn.onmouseover=()=>{if(!qzState.answered)btn.style.borderColor='var(--indigo2)';};
-    btn.onmouseout=()=>{if(!qzState.answered)btn.style.borderColor='var(--border)';};
-    btn.onclick=()=>qzAnswer(btn,i,q);
-    grid.appendChild(btn);
-  });
-}
-
-async function qzAnswer(btn,chosen,q){
-  if(qzState.answered)return;
-  qzState.answered=true;
-  const isCorrect=chosen===q.answer;
-  const earned=isCorrect?QZ_PTS:0;
-  document.querySelectorAll('#qz-opts button').forEach((b,i)=>{
-    b.disabled=true;
-    const letter=b.querySelector('span');
-    if(i===q.answer){b.style.borderColor='#86efac';b.style.background='rgba(134,239,172,.12)';if(letter){letter.style.background='#86efac';letter.style.color='#052e16';}}
-    else if(b===btn&&!isCorrect){b.style.borderColor='#fca5a5';b.style.background='rgba(252,165,165,.1)';if(letter){letter.style.background='#fca5a5';letter.style.color='#4c0519';}}
-  });
-  const fb=document.getElementById('qz-fb');
-  fb.style.display='flex';
-  if(isCorrect){
-    qzState.score+=QZ_PTS;qzState.correct+=1;
-    document.getElementById('qz-score').textContent=qzState.score;
-    fb.style.cssText='display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;margin-bottom:14px;font-weight:700;font-size:.88rem;background:rgba(134,239,172,.1);border:1px solid rgba(134,239,172,.3);color:#86efac';
-    fb.textContent='✨ სწორია! +'+QZ_PTS+' ქულა';
-    qzBurst();
-  } else {
-    fb.style.cssText='display:flex;align-items:center;gap:8px;padding:11px 14px;border-radius:12px;margin-bottom:14px;font-weight:700;font-size:.88rem;background:rgba(252,165,165,.1);border:1px solid rgba(252,165,165,.3);color:#fca5a5';
-    fb.textContent='🌧 არასწორი! სწორი: '+q.options[q.answer];
-  }
-  document.getElementById('qz-next').style.display='block';
-  const answeredIds=JSON.parse(localStorage.getItem('qz_'+ME?.id)||'[]');
-  if(!answeredIds.includes(q.id)){answeredIds.push(q.id);localStorage.setItem('qz_'+ME?.id,JSON.stringify(answeredIds));}
-  if(sb&&ME){try{await sb.from('quiz_results').upsert({user_id:ME.id,question_id:q.id,is_correct:isCorrect,points_earned:earned},{onConflict:'user_id,question_id'});}catch(e){console.warn('quiz save:',e);}}
-}
-
-function qzNext(){
-  qzState.idx++;
-  if(qzState.idx>=qzState.batch.length)qzShowResults();
-  else qzRender();
-}
-
-function qzShowResults(){
-  document.getElementById('qz-card').style.display='none';
-  document.getElementById('qz-opts').style.display='none';
-  document.getElementById('qz-fb').style.display='none';
-  document.getElementById('qz-next').style.display='none';
-  document.getElementById('qz-prog').style.width='100%';
-  const pct=Math.round((qzState.correct/qzState.batch.length)*100);
-  document.getElementById('qz-r-pts').textContent=qzState.score;
-  document.getElementById('qz-r-cor').textContent=qzState.correct;
-  document.getElementById('qz-r-pct').textContent=pct+'%';
-  document.getElementById('qz-res-emoji').textContent=pct>=80?'🏆':pct>=50?'🌸':'💜';
-  document.getElementById('qz-results').style.display='block';
-  toast('🌸 +'+qzState.score+' ქულა პროფილს დაემატა!');
-}
-
-function qzRestart(){openQuiz();}
-
-function qzBurst(){
-  const modal=document.querySelector('#quizOverlay .modal');
-  if(!modal)return;
-  const rect=modal.getBoundingClientRect();
-  ['🌸','💜','✨','🌷','⭐','💗'].forEach((em,i)=>{
-    const el=document.createElement('span');
-    el.style.cssText=`position:fixed;pointer-events:none;z-index:99999;font-size:1.3rem;left:${rect.left+Math.random()*rect.width}px;top:${rect.top+rect.height*.4}px;animation:qzBurst .8s ease forwards;animation-delay:${i*.06}s`;
-    el.textContent=em;
-    document.body.appendChild(el);
-    setTimeout(()=>el.remove(),1000);
-  });
-}
-
 function animateSendPlane(btnId){
   const btn=document.getElementById(btnId);
   if(!btn)return;
@@ -732,11 +549,13 @@ async function openProfile(uid){
   const isSelf=uid===ME.id;
   const myRole=MYPROF?.role;
   const viewRole=p?.role;
+
   document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
   document.getElementById('profName').textContent=p?.username||'?';
   const roleEl=document.getElementById('profRole');
   roleEl.textContent=rLabel(viewRole);
   roleEl.className='prof-role '+rClass(viewRole);
+
   if(p?.avatar_url){
     document.getElementById('avImg').src=p.avatar_url;
     document.getElementById('avImg').style.display='block';
@@ -756,11 +575,16 @@ async function openProfile(uid){
   document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';
   selectedEmotion=p?.emotion||'😊';
   document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
+
+  // დამფუძნებელი — ხედავს ყველას პანელს გარდა საკუთარი თავისა
   const showFounder=myRole==='founder'&&!isSelf;
   document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
   if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';
+
+  // ადმინი — მხოლოდ ჩვეულებრივ წევრებს შეუძლია დაბლოკოს, დამფუძნებელს და სხვა ადმინს ვერ ეხება
   const showAdmin=myRole==='admin'&&!isSelf&&viewRole!=='founder'&&viewRole!=='admin';
   document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
+
   document.getElementById('friendBtn').style.display=isSelf?'none':'';
   document.getElementById('dmBtn').style.display=isSelf?'none':'';
   const isFr=myFriends.includes(uid);
@@ -779,7 +603,11 @@ function switchGalleryTab(tab,btn){
 }
 
 async function saveProfile(){
-  const updates={status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value};
+  const updates={
+    status:document.getElementById('statusInp').value,
+    emotion:selectedEmotion,
+    emotion_comment:document.getElementById('emoComment').value
+  };
   await sb.from('profiles').update(updates).eq('id',ME.id);
   MYPROF={...MYPROF,...updates};
   toast('✅ შენახულია!');
@@ -814,12 +642,18 @@ async function uploadAvatar(e){
   e.target.value='';
 }
 
+// ====== ROLE MANAGEMENT (FOUNDER ONLY) ======
+
 async function assignRole(){
   if(MYPROF?.role!=='founder'){toast('❌ მხოლოდ დამფუძნებელს შეუძლია!');return;}
   const target=await loadProf(VIEW_UID);
-  if(target?.role==='founder'&&document.getElementById('roleSelect').value!=='founder'){toast('❌ დამფუძნებლის როლს ვერ ჩამოართმევ!');return;}
+  // დამფუძნებელს ვერ ჩამოართმევ როლს ამ გზით (მხოლოდ roleSelect=founder-ით შეიძლება)
+  if(target?.role==='founder'&&document.getElementById('roleSelect').value!=='founder'){
+    toast('❌ დამფუძნებლის როლს ვერ ჩამოართმევ!');return;
+  }
   await sb.from('profiles').update({role:document.getElementById('roleSelect').value}).eq('id',VIEW_UID);
-  toast('✅ როლი შეიცვალა!');loadAllUsers();
+  toast('✅ როლი შეიცვალა!');
+  loadAllUsers();
 }
 
 async function removeRole(){
@@ -827,8 +661,11 @@ async function removeRole(){
   const target=await loadProf(VIEW_UID);
   if(target?.role==='founder'){toast('❌ დამფუძნებლის როლს ვერ გადახსნი!');return;}
   await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID);
-  toast('✅ როლი გადახსნილია — ახლა წევრია');loadAllUsers();
+  toast('✅ როლი გადახსნილია — ახლა წევრია');
+  loadAllUsers();
 }
+
+// ====== BLOCK / UNBLOCK (FOUNDER) ======
 
 async function blockUser(){
   if(MYPROF?.role!=='founder'){toast('❌ მხოლოდ დამფუძნებელს შეუძლია!');return;}
@@ -845,9 +682,13 @@ async function unblockUser(){
   toast('✅ განბლოკილია!');
 }
 
+// ====== BLOCK / UNBLOCK (ADMIN) — მხოლოდ ჩვეულებრივ წევრებზე ======
+
 async function blockUserAdmin(){
   const target=await loadProf(VIEW_UID);
-  if(target?.role==='founder'||target?.role==='admin'){toast('❌ ამ მომხმარებლის დაბლოკვა არ შეგიძლია!');return;}
+  if(target?.role==='founder'||target?.role==='admin'){
+    toast('❌ ამ მომხმარებლის დაბლოკვა არ შეგიძლია!');return;
+  }
   const r=document.getElementById('blockReasonAdmin').value||'მიზეზი არ არის';
   await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);
   toast('🚫 დაიბლოკა!');closeModal('profileOverlay');
@@ -855,7 +696,9 @@ async function blockUserAdmin(){
 
 async function unblockUserAdmin(){
   const target=await loadProf(VIEW_UID);
-  if(target?.role==='founder'||target?.role==='admin'){toast('❌ ამ მომხმარებლის განბლოკვა არ შეგიძლია!');return;}
+  if(target?.role==='founder'||target?.role==='admin'){
+    toast('❌ ამ მომხმარებლის განბლოკვა არ შეგიძლია!');return;
+  }
   await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);
   toast('✅ განბლოკილია!');
 }
@@ -864,6 +707,7 @@ function rLabel(r){return r==='founder'?'👑 დამფუძნებელ�
 function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member';}
 function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
 
+// ====== GALLERY ======
 async function loadGallery(uid){
   const {data,error}=await sb.from('gallery').select('*').eq('user_id',uid).order('created_at',{ascending:false});
   if(error){console.error('Gallery error:',error);currentGallery=[];}
@@ -880,20 +724,33 @@ function renderGallery(isSelf){
   currentGallery.forEach((photo,idx)=>{
     const item=document.createElement('div');
     item.className='gal-item';
-    item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:14px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
-    item.addEventListener('click',e=>{if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx);});
+    item.innerHTML=`
+      <img src="${photo.url}" alt="" loading="lazy">
+      <div class="gal-overlay">
+        <div style="font-size:14px">${photo.emotion||''}</div>
+        ${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}
+      </div>
+      ${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
+    item.addEventListener('click',e=>{
+      if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx);
+    });
     grid.appendChild(item);
   });
 }
 
 function galFileChosen(e){
-  const file=e.target.files[0];if(!file)return;
-  if(file.size>4*1024*1024){toast('❌ ფოტო ძალიან დიდია! მაქსიმუმი 4MB');e.target.value='';return;}
+  const file=e.target.files[0];
+  if(!file)return;
+  if(file.size>4*1024*1024){
+    toast('❌ ფოტო ძალიან დიდია! მაქსიმუმი 4MB');
+    e.target.value='';return;
+  }
   const reader=new FileReader();
   reader.onload=ev=>{
     galFileData=ev.target.result;
     const prev=document.getElementById('galPreviewImg');
-    prev.src=galFileData;prev.classList.add('show');
+    prev.src=galFileData;
+    prev.classList.add('show');
     document.getElementById('galForm').classList.add('open');
     galSelectedEmo='😊';
     document.querySelectorAll('.gal-emo-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
@@ -922,23 +779,31 @@ async function uploadGalleryPhoto(){
   if(!galFileData){toast('❌ ჯერ ფოტო ამოარჩიე!');return;}
   toast('⏳ იტვირთება...');
   try{
-    const dataToInsert={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};
+    const dataToInsert={
+      user_id:ME.id,
+      url:galFileData,
+      emotion:galSelectedEmo
+    };
     const titleVal=document.getElementById('galTitle').value.trim();
     const commentVal=document.getElementById('galComment').value.trim();
     if(titleVal)dataToInsert.title=titleVal;
     if(commentVal)dataToInsert.comment=commentVal;
     const {error}=await sb.from('gallery').insert(dataToInsert);
     if(error){toast('❌ '+error.message);return;}
-    cancelGalUpload();toast('✅ ფოტო დაემატა!');
+    cancelGalUpload();
+    toast('✅ ფოტო დაემატა!');
     await loadGallery(ME.id);
-  }catch(err){toast('❌ '+err.message);}
+  }catch(err){
+    toast('❌ '+err.message);
+  }
 }
 
 async function deleteGalPhoto(e,id){
   e.stopPropagation();
   if(!confirm('წავშალო?'))return;
   await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);
-  toast('🗑 წაიშალა');loadGallery(ME.id);
+  toast('🗑 წაიშალა');
+  loadGallery(ME.id);
 }
 
 function openPhotoViewer(idx){pvIndex=idx;showPVPhoto();document.getElementById('photoViewer').classList.add('open');}
@@ -974,9 +839,6 @@ function switchRoom(r){
   document.querySelectorAll('.room-item').forEach((el,i)=>el.classList.toggle('active',i===r.id-1));
   loadMessages(r.id);
   document.getElementById('sidebar').classList.remove('mob-open');
-  /* ✅ ვიქტორინის ღილაკი — მხოლოდ ოთახი 1-ში */
-  const qBtn=document.getElementById('quizTriggerBtn');
-  if(qBtn)qBtn.style.display=r.id===QZ_ROOM_ID?'flex':'none';
 }
 
 async function loadMessages(roomId){
@@ -1003,11 +865,13 @@ function appendMsg(m){
   let canDel=false;
   if(myRole==='founder')canDel=true;
   else if(myRole==='admin'&&authorRole!=='founder')canDel=true;
+
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const role=m.profiles?.role;
   const rbadge=role&&role!=='member'?`<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>`:'';
   const avHtml=m.profiles?.avatar_url?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(m.profiles?.emotion||'😊');
   const mineLabel=isMe?'<span style="font-size:9px;color:var(--indigo2);font-weight:600">შენ</span>':'';
+
   const row=document.createElement('div');
   row.className='msg-row';row.id='msg'+m.id;
   row.innerHTML=`
@@ -1030,7 +894,9 @@ function renderContent(s){
   if(!s)return '';
   return s.split(/(\[img:[^\]]+\])/g).map(part=>{
     const match=part.match(/^\[img:(.+)\]$/);
-    if(match)return `<img src="${match[1]}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;vertical-align:middle;margin:0 2px" loading="lazy" onerror="this.style.display='none'">`;
+    if(match){
+      return `<img src="${match[1]}" style="width:32px;height:32px;border-radius:6px;object-fit:cover;vertical-align:middle;margin:0 2px" loading="lazy" onerror="this.style.display='none'">`;
+    }
     return esc(part);
   }).join('');
 }
@@ -1047,6 +913,8 @@ async function delMsg(id){
   if(!confirm('წავშალო?'))return;
   await sb.from('messages').delete().eq('id',id);
 }
+
+// ====== EMOJIS ======
 
 async function loadEmojis(){
   const {data}=await sb.from('settings').select('value').eq('key','custom_emojis').single();
@@ -1083,20 +951,28 @@ function buildEmojiGrid(gridId,inputId,withManage){
 }
 
 function addTextEmoji(){
-  const v=document.getElementById('newEmojiInput').value.trim();if(!v)return;
+  const v=document.getElementById('newEmojiInput').value.trim();
+  if(!v)return;
   customEmojis.push(v);
   document.getElementById('newEmojiInput').value='';
   buildEmojis();saveEmojis();toast('✅ სმაილი დაემატა!');
 }
 
+// მრავლობითი სმაილის ატვირთვა გალერეიდან
 function handleEmojiImages(e){
-  const files=Array.from(e.target.files);if(!files.length)return;
+  const files=Array.from(e.target.files);
+  if(!files.length)return;
   let loaded=0;
   files.forEach(file=>{
     const r=new FileReader();
     r.onload=ev=>{
-      customEmojis.push(ev.target.result);loaded++;
-      if(loaded===files.length){buildEmojis();saveEmojis();toast('✅ '+files.length+' სმაილი დაემატა!');}
+      customEmojis.push(ev.target.result);
+      loaded++;
+      if(loaded===files.length){
+        buildEmojis();
+        saveEmojis();
+        toast('✅ '+files.length+' სმაილი დაემატა!');
+      }
     };
     r.readAsDataURL(file);
   });
@@ -1136,6 +1012,7 @@ function renderUserLists(){
   });
   const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));
   document.getElementById('onlineCnt').textContent=`● ${onlineNow.length} ონლაინი`;
+
   const usEl=document.getElementById('usersListEl');
   if(usEl){
     usEl.innerHTML='';
@@ -1143,6 +1020,7 @@ function renderUserLists(){
     if(admins.length){usEl.appendChild(roleHeader('🛡️','ადმინები'));admins.forEach(u=>usEl.appendChild(makeUserItem(u)));}
     if(members.length){usEl.appendChild(roleHeader('👤','წევრები'));members.forEach(u=>usEl.appendChild(makeUserItem(u)));}
   }
+
   const onEl=document.getElementById('onlineListEl');
   if(onEl){
     onEl.innerHTML='';
@@ -1150,7 +1028,9 @@ function renderUserLists(){
     const onA=admins.filter(u=>isOnline(u.last_seen));
     const onM=members.filter(u=>isOnline(u.last_seen));
     if(!onF.length&&!onA.length&&!onM.length){
-      const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='ახლა არავინ არის ონლაინი';onEl.appendChild(e);
+      const e=document.createElement('div');
+      e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';
+      e.textContent='ახლა არავინ არის ონლაინი';onEl.appendChild(e);
     } else {
       if(onF.length){onEl.appendChild(roleHeader('👑','დამფუძნებლები'));onF.forEach(u=>onEl.appendChild(makeUserItem(u)));}
       if(onA.length){onEl.appendChild(roleHeader('🛡️','ადმინები'));onA.forEach(u=>onEl.appendChild(makeUserItem(u)));}
@@ -1184,7 +1064,9 @@ function makeUserItem(u){
 
 function filterUsers(){
   const q=document.getElementById('userSearch').value.toLowerCase();
-  document.querySelectorAll('#usersListEl .list-item').forEach(el=>{el.style.display=el.dataset.q.includes(q)?'':'none';});
+  document.querySelectorAll('#usersListEl .list-item').forEach(el=>{
+    el.style.display=el.dataset.q.includes(q)?'':'none';
+  });
 }
 
 function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<60000;}
@@ -1200,7 +1082,9 @@ function renderFriends(){
   const el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';
   const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);
   if(!list.length){
-    const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='მეგობრები ჯერ არ გყავს 💜';el.appendChild(e);return;
+    const e=document.createElement('div');
+    e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';
+    e.textContent='მეგობრები ჯერ არ გყავს 💜';el.appendChild(e);return;
   }
   list.forEach(u=>el.appendChild(makeUserItem(u)));
 }
@@ -1256,7 +1140,9 @@ function openDMList(){
 function buildDMUserList(users){
   const el=document.getElementById('dmUserList');el.innerHTML='';
   const filtered=users.filter(u=>u.id!==ME?.id);
-  if(!filtered.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">ვერ მოიძებნა</div>';return;}
+  if(!filtered.length){
+    el.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">ვერ მოიძებნა</div>';return;
+  }
   filtered.forEach(u=>{
     const d=document.createElement('div');d.className='dm-list-item';
     const on=isOnline(u.last_seen);
@@ -1285,11 +1171,13 @@ async function openDM(uid){
   document.getElementById('dmAv').innerHTML=avHtml;
   document.getElementById('dmBox').classList.add('open');
   buildEmojiGrid('dmEmojiGrid','dmInput',false);
+
   const rk=[ME.id,DM_UID].sort().join('_');
   const {data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(50);
   const box=document.getElementById('dmMsgs');box.innerHTML='';
   (data||[]).forEach(m=>appendDMMsg(m));
   box.scrollTop=box.scrollHeight;
+
   if(dmCh)sb.removeChannel(dmCh);
   dmCh=sb.channel('dm'+rk)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
@@ -1354,6 +1242,7 @@ function toggleTheme(){
   document.getElementById('themeBtn').textContent=theme==='night'?'🌙':'☀️';
 }
 
+// 💜🌸 მოძრავი გულები და ყვავილები
 function spawnHearts(){
   const heartsContainer=document.getElementById('hearts');
   if(!heartsContainer)return;
