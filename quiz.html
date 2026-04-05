@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>ვიქტორინა - 150 კითხვა</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: linear-gradient(145deg, #d9b4ff 0%, #c38ef0 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', 'Poppins', system-ui, sans-serif;
+            position: relative;
+            overflow-x: hidden;
+            padding: 20px;
+        }
+
+        /* 💜 მოძრავი გულები და ყვავილები */
+        .floating-emoji {
+            position: fixed;
+            bottom: -50px;
+            font-size: 2rem;
+            pointer-events: none;
+            z-index: 0;
+            animation: floatUp 8s linear forwards;
+            opacity: 0.6;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.8;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* კონტეინერი */
+        .quiz-card {
+            background: rgba(255, 245, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 48px;
+            box-shadow: 0 25px 45px rgba(128, 0, 128, 0.3);
+            width: 100%;
+            max-width: 750px;
+            padding: 25px 28px 35px;
+            border: 2px solid rgba(255, 220, 255, 0.7);
+            transition: 0.3s;
+            z-index: 2;
+            animation: fadeSlide 0.5s ease;
+        }
+
+        @keyframes fadeSlide {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ქულების პანელი */
+        .score-panel {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            background: #7e3bae30;
+            padding: 12px 20px;
+            border-radius: 60px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .score-box {
+            background: #5a2a7a;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: #ffe6ff;
+            font-weight: bold;
+            font-size: 1.3rem;
+        }
+
+        .progress {
+            background: #b77be0;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: #2e003e;
+            font-weight: bold;
+        }
+
+        /* კითხვა */
+        .question-text {
+            font-size: 1.7rem;
+            font-weight: 600;
+            color: #2d1b36;
+            margin: 20px 0 25px;
+            line-height: 1.3;
+            min-height: 90px;
+        }
+
+        /* პასუხების ღილაკები */
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 30px;
+        }
+
+        .option-btn {
+            background: #f3e5ff;
+            border: 2px solid #c9a5f0;
+            padding: 14px 20px;
+            border-radius: 60px;
+            font-size: 1.05rem;
+            font-weight: 500;
+            color: #321c42;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .option-btn:hover {
+            background: #e7d2ff;
+            transform: scale(1.01);
+            border-color: #aa66ff;
+        }
+
+        .correct-feedback {
+            background: #9b59b6;
+            color: white;
+            padding: 12px;
+            border-radius: 60px;
+            text-align: center;
+            margin-bottom: 15px;
+            font-weight: bold;
+            animation: fadePop 0.3s;
+        }
+
+        .wrong-feedback {
+            background: #b0306e;
+            color: #fff0f0;
+        }
+
+        @keyframes fadePop {
+            0% { opacity: 0; transform: scale(0.9);}
+            100% { opacity: 1; transform: scale(1);}
+        }
+
+        .next-btn {
+            background: linear-gradient(95deg, #9b4dff, #d48aff);
+            border: none;
+            padding: 14px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            border-radius: 50px;
+            width: 100%;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 5px;
+        }
+
+        .next-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .finish-box {
+            text-align: center;
+            background: #e6d0ff;
+            padding: 30px;
+            border-radius: 40px;
+        }
+
+        .restart-btn {
+            background: #7d3ac1;
+            margin-top: 20px;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 40px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 0.75rem;
+            color: #4a2c5e;
+        }
+    </style>
+</head>
+<body>
+
+<div class="quiz-card" id="quizApp">
+    <div class="score-panel">
+        <div class="score-box">🏆 ქულა: <span id="totalScore">0</span></div>
+        <div class="progress">📋 კითხვა <span id="currentQNumber">1</span> / <span id="totalQ">150</span></div>
+    </div>
+
+    <div id="dynamicContent">
+        <!-- აქ ჩაიტვირთება კითხვა/დასრულება -->
+    </div>
+    <footer>💜 1vs1 ვიქტორინა · სწორი პასუხი = +5 ქულა</footer>
+</div>
+
+<script>
+    // ------------------------------
+    // 150 კითხვის გენერაცია (რეალური მონაცემები რომ გინდა, ადვილად ჩაამატებ)
+    // ------------------------------
+    function generateQuestions(n) {
+        let qs = [];
+        for (let i = 1; i <= n; i++) {
+            qs.push({
+                id: i,
+                text: `❓ კითხვა ${i}: რომელია საქართველოს დედაქალაქი?`,
+                options: ["თბილისი", "ქუთაისი", "ბათუმი", "რუსთავი"],
+                correct: 0, // ინდექსი 0 -> "თბილისი"
+                // რომ რეალური გინდოდეს, ცალკე JSON ფაილიდან ჩატვირთავ ან აქ ჩაწერ
+            });
+        }
+        // პირველი 10-ის მრავალფეროვნება (რომ არ მოიბეზროს)
+        const extraQuestions = {
+            2: { text: "❓ რომელი პლანეტაა ცნობილი როგორც 'წითელი პლანეტა'?", options: ["მარსი", "ვენერა", "იუპიტერი", "მერკური"], correct: 0 },
+            3: { text: "❓ ვინ დახატა მონა ლიზა?", options: ["ვან გოგი", "პიკასო", "და ვინჩი", "რემბრანდტი"], correct: 2 },
+            4: { text: "❓ რა არის ყველაზე დიდი ოკეანე?", options: ["ატლანტის", "ინდოეთის", "ჩრდილოეთის ყინულოვანი", "წყნარი"], correct: 3 },
+        };
+        for (let key in extraQuestions) {
+            if (qs[key-1]) {
+                qs[key-1].text = extraQuestions[key].text;
+                qs[key-1].options = extraQuestions[key].options;
+                qs[key-1].correct = extraQuestions[key].correct;
+            }
+        }
+        return qs;
+    }
+
+    const TOTAL_QS = 150;
+    let questions = generateQuestions(TOTAL_QS);
+    let currentIndex = 0;          // 0-დან
+    let userScore = 0;
+    let answered = false;
+    let selectedOptionIdx = null;
+
+    // localStorage-დან ქულის წამოღება (პროფილისთვის)
+    function loadScoreFromProfile() {
+        let saved = localStorage.getItem("quizProfileScore");
+        if (saved !== null && !isNaN(parseInt(saved))) {
+            userScore = parseInt(saved);
+        } else {
+            userScore = 0;
+        }
+        updateScoreUI();
+    }
+
+    function saveScoreToProfile() {
+        localStorage.setItem("quizProfileScore", userScore);
+        // დამატებით: თუ გინდა chat.html-ში პროფილზე გამოჩნდეს, იქ წაიკითხავს ამ localStorage-ს
+        console.log("ქულა შენახულია პროფილში:", userScore);
+    }
+
+    function updateScoreUI() {
+        document.getElementById("totalScore").innerText = userScore;
+        saveScoreToProfile();
+    }
+
+    function addPoints(points) {
+        userScore += points;
+        updateScoreUI();
+    }
+
+    function renderCurrentQuestion() {
+        if (currentIndex >= TOTAL_QS) {
+            finishQuiz();
+            return;
+        }
+
+        const q = questions[currentIndex];
+        const container = document.getElementById("dynamicContent");
+        container.innerHTML = `
+            <div class="question-text">${q.text}</div>
+            <div class="options-grid" id="optionsGrid">
+                ${q.options.map((opt, idx) => `<div class="option-btn" data-opt-index="${idx}">${String.fromCharCode(65+idx)}. ${opt}</div>`).join('')}
+            </div>
+            <button class="next-btn" id="nextButton" disabled>➡️ შემდეგი კითხვა</button>
+            <div id="feedbackMsg"></div>
+        `;
+
+        // მოვლენები პასუხებზე
+        const optDivs = document.querySelectorAll(".option-btn");
+        optDivs.forEach(btn => {
+            btn.addEventListener("click", (e) => {
+                if (answered) return;
+                const idx = parseInt(btn.dataset.optIndex);
+                handleAnswer(idx, q.correct, q.options[idx]);
+            });
+        });
+
+        answered = false;
+        selectedOptionIdx = null;
+        document.getElementById("nextButton").disabled = true;
+        document.getElementById("currentQNumber").innerText = currentIndex + 1;
+    }
+
+    function handleAnswer(selectedIdx, correctIdx, selectedText) {
+        if (answered) return;
+        answered = true;
+        const isCorrect = (selectedIdx === correctIdx);
+        const feedbackDiv = document.getElementById("feedbackMsg");
+        
+        if (isCorrect) {
+            addPoints(5);
+            feedbackDiv.innerHTML = `<div class="correct-feedback">✅ მშვენიერია! +5 ქულა ❤️</div>`;
+            // ანიმაცია - მოძრავი გული
+            createFloatingEmoji("💜");
+        } else {
+            const correctAnswerText = questions[currentIndex].options[correctIdx];
+            feedbackDiv.innerHTML = `<div class="correct-feedback wrong-feedback">❌ სამწუხაროდ არასწორია! სწორი პასუხი: ${correctAnswerText} 🌸</div>`;
+            createFloatingEmoji("🌸");
+        }
+
+        // პასუხების გათიშვა ვიზუალურად
+        const allOpts = document.querySelectorAll(".option-btn");
+        allOpts.forEach((btn, idx) => {
+            btn.style.opacity = "0.7";
+            if (idx === correctIdx) {
+                btn.style.background = "#b77be0";
+                btn.style.border = "2px solid #4c1e6e";
+            }
+            if (idx === selectedIdx && idx !== correctIdx) {
+                btn.style.background = "#ffb3c6";
+            }
+        });
+
+        // შემდეგი ღილაკის გააქტიურება
+        const nextBtn = document.getElementById("nextButton");
+        nextBtn.disabled = false;
+        nextBtn.addEventListener("click", goToNext, { once: true });
+    }
+
+    function goToNext() {
+        if (!answered) return;
+        currentIndex++;
+        if (currentIndex < TOTAL_QS) {
+            renderCurrentQuestion();
+        } else {
+            finishQuiz();
+        }
+    }
+
+    function finishQuiz() {
+        const container = document.getElementById("dynamicContent");
+        container.innerHTML = `
+            <div class="finish-box">
+                <h2>🏁 ვიქტორინა დასრულდა!</h2>
+                <p style="font-size:1.8rem; margin:15px 0">🎉 შენი საბოლოო ქულა: ${userScore}</p>
+                <p>✨ სწორი პასუხების რაოდენობა: ${Math.floor(userScore/5)} / ${TOTAL_QS}</p>
+                <button class="restart-btn" id="restartQuiz">🔄 თავიდან დაწყება</button>
+            </div>
+        `;
+        document.getElementById("restartQuiz")?.addEventListener("click", () => {
+            currentIndex = 0;
+            userScore = 0;
+            updateScoreUI();
+            answered = false;
+            renderCurrentQuestion();
+        });
+        document.getElementById("currentQNumber").innerText = TOTAL_QS;
+    }
+
+    // მცურავი გულები/ყვავილები (იასამნისფერი ანიმაციისთვის)
+    function createFloatingEmoji(emoji) {
+        const floatDiv = document.createElement("div");
+        floatDiv.className = "floating-emoji";
+        floatDiv.innerText = emoji;
+        floatDiv.style.left = Math.random() * 90 + "%";
+        floatDiv.style.fontSize = (Math.random() * 1.5 + 1.2) + "rem";
+        floatDiv.style.animationDuration = (Math.random() * 3 + 5) + "s";
+        document.body.appendChild(floatDiv);
+        setTimeout(() => floatDiv.remove(), 8000);
+    }
+
+    // ფონზე მუდმივი ანიმაცია (ყვავილები და გულები)
+    function startBackgroundAnimation() {
+        setInterval(() => {
+            if (Math.random() > 0.7) {
+                const emojis = ["💜", "🌸", "🌺", "💖", "🌷", "💗", "🌼"];
+                const randomEmoji = emojis[Math.floor(Math.random() * emojis.length)];
+                createFloatingEmoji(randomEmoji);
+            }
+        }, 1800);
+    }
+
+    // ინიციალიზაცია
+    function init() {
+        loadScoreFromProfile();
+        document.getElementById("totalQ").innerText = TOTAL_QS;
+        renderCurrentQuestion();
+        startBackgroundAnimation();
+    }
+
+    init();
+</script>
+</body>
+</html>
