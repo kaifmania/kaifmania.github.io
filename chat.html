@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>კაიფმანია - შესვლა / რეგისტრაცია</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #1a0b2e 0%, #2e1a47 50%, #0f0718 100%);
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* იისფერი მოძრავი ფონი */
+        body::before {
+            content: '';
+            position: absolute;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle at 30% 50%, rgba(156, 81, 255, 0.2), transparent 60%);
+            animation: bgMove 18s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        @keyframes bgMove {
+            0%, 100% { transform: translate(-5%, -5%) rotate(0deg); }
+            50% { transform: translate(5%, 5%) rotate(3deg); }
+        }
+
+        .card-3d {
+            perspective: 1200px;
+            width: 100%;
+            max-width: 450px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .container {
+            background: rgba(30, 12, 48, 0.75);
+            backdrop-filter: blur(14px);
+            border-radius: 48px;
+            padding: 40px 32px;
+            width: 100%;
+            box-shadow: 0 25px 45px rgba(0, 0, 0, 0.5), 0 0 0 2px rgba(156, 81, 255, 0.4), 0 0 28px rgba(156, 81, 255, 0.4);
+            transition: all 0.3s ease;
+            animation: gentleFloat 5s ease-in-out infinite;
+        }
+
+        @keyframes gentleFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-6px); }
+        }
+
+        .container:hover {
+            box-shadow: 0 30px 55px rgba(0, 0, 0, 0.6), 0 0 0 2px rgba(188, 112, 255, 0.7), 0 0 38px rgba(156, 81, 255, 0.6);
+        }
+
+        .logo {
+            text-align: center;
+            font-size: 68px;
+            margin-bottom: 10px;
+            filter: drop-shadow(0 0 18px #b77eff);
+            animation: softPulse 2.5s ease-in-out infinite;
+        }
+
+        @keyframes softPulse {
+            0%, 100% { filter: drop-shadow(0 0 12px #b77eff); transform: scale(1); }
+            50% { filter: drop-shadow(0 0 26px #e5aaff); transform: scale(1.03); }
+        }
+
+        h1 {
+            color: #fff;
+            text-align: center;
+            font-size: 30px;
+            margin-bottom: 6px;
+            background: linear-gradient(135deg, #f0e6ff, #cc9eff);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            font-weight: 800;
+        }
+
+        .sub {
+            text-align: center;
+            color: #b48ad4;
+            margin-bottom: 32px;
+            font-size: 14px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        input {
+            width: 100%;
+            padding: 14px 20px;
+            background: rgba(0, 0, 0, 0.45);
+            border: 1.5px solid rgba(156, 81, 255, 0.6);
+            border-radius: 40px;
+            color: white;
+            font-size: 16px;
+            outline: none;
+            transition: 0.25s;
+        }
+
+        input:focus {
+            border-color: #c58aff;
+            box-shadow: 0 0 16px rgba(176, 106, 255, 0.5);
+            background: rgba(0, 0, 0, 0.65);
+        }
+
+        input::placeholder {
+            color: #9b7ab8;
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(105deg, #8b3fe0, #bf7eff);
+            border: none;
+            border-radius: 44px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.25s;
+            margin-top: 12px;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+        }
+
+        button:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 28px rgba(156, 81, 255, 0.6);
+            background: linear-gradient(105deg, #9a4df0, #cc96ff);
+        }
+
+        .switch {
+            text-align: center;
+            margin-top: 26px;
+            color: #c792ff;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .switch span {
+            color: #ffcd7e;
+            font-weight: bold;
+        }
+
+        .switch:hover span {
+            text-decoration: underline;
+        }
+
+        .error, .success {
+            padding: 12px;
+            border-radius: 28px;
+            text-align: center;
+            margin-top: 20px;
+            font-size: 13px;
+            display: none;
+        }
+
+        .error {
+            color: #ffaaaa;
+            background: rgba(255, 70, 70, 0.15);
+            border: 1px solid rgba(255, 100, 100, 0.4);
+        }
+
+        .success {
+            color: #c2ff9e;
+            background: rgba(120, 220, 60, 0.12);
+            border: 1px solid rgba(180, 255, 100, 0.4);
+        }
+
+        /* მოძრავი იისფერი გულები */
+        .floating-hearts {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
+
+        .heart {
+            position: absolute;
+            bottom: -40px;
+            font-size: 22px;
+            opacity: 0.5;
+            animation: floatUp linear infinite;
+            color: #cc88ff;
+        }
+
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            15% { opacity: 0.6; }
+            85% { opacity: 0.3; }
+            100% { transform: translateY(-110vh) rotate(380deg); opacity: 0; }
+        }
+
+        @media (max-width: 480px) {
+            .container { padding: 32px 22px; }
+            .logo { font-size: 56px; }
+            h1 { font-size: 26px; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="floating-hearts" id="hearts"></div>
+
+<div class="card-3d">
+    <div class="container">
+        <div class="logo">💜🔥</div>
+        <h1>კაიფმანია</h1>
+        <div class="sub">შემოგვიერთდი და იკაიფე</div>
+
+        <!-- შესვლის ფორმა -->
+        <div id="loginForm">
+            <div class="input-group">
+                <input type="email" id="loginEmail" placeholder="📧 ელ. ფოსტა" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="password" id="loginPassword" placeholder="🔒 პაროლი" autocomplete="off">
+            </div>
+            <button id="loginBtn">✨ შესვლა ✨</button>
+            <div class="switch" id="showRegister">არ გაქვს ანგარიში? <span>📝 რეგისტრაცია</span></div>
+        </div>
+
+        <!-- რეგისტრაციის ფორმა -->
+        <div id="registerForm" style="display: none;">
+            <div class="input-group">
+                <input type="text" id="regUsername" placeholder="👤 მომხმარებლის სახელი" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="email" id="regEmail" placeholder="📧 ელ. ფოსტა" autocomplete="off">
+            </div>
+            <div class="input-group">
+                <input type="password" id="regPassword" placeholder="🔒 პაროლი (მინ 6 სიმბოლო)" autocomplete="off">
+            </div>
+            <button id="registerBtn">🚀 რეგისტრაცია 🚀</button>
+            <div class="switch" id="showLogin">უკვე გაქვს ანგარიში? <span>🔑 შესვლა</span></div>
+        </div>
+
+        <div id="errorMsg" class="error"></div>
+        <div id="successMsg" class="success"></div>
+    </div>
+</div>
+
+<script>
+    const { createClient } = supabase;
+    const sb = createClient(
+        "https://gdvjawrplvvldbjpfcgx.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdkdmphd3JwbHZ2bGRianBmY2d4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzM0MzE1NDIsImV4cCI6MjA4OTAwNzU0Mn0.QEySoKfVHF1b4dV5TAH5vgQQKQMAgdETzQm3P9p3H8A"
+    );
+
+    // ელემენტები
+    const loginFormDiv = document.getElementById('loginForm');
+    const registerFormDiv = document.getElementById('registerForm');
+    const showRegisterBtn = document.getElementById('showRegister');
+    const showLoginBtn = document.getElementById('showLogin');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const errorDiv = document.getElementById('errorMsg');
+    const successDiv = document.getElementById('successMsg');
+
+    // ველების გასუფთავების ფუნქციები
+    function clearLoginFields() {
+        document.getElementById('loginEmail').value = '';
+        document.getElementById('loginPassword').value = '';
+    }
+
+    function clearRegisterFields() {
+        document.getElementById('regUsername').value = '';
+        document.getElementById('regEmail').value = '';
+        document.getElementById('regPassword').value = '';
+    }
+
+    function showError(msg) {
+        errorDiv.textContent = msg;
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        setTimeout(() => { errorDiv.style.display = 'none'; }, 4000);
+    }
+
+    function showSuccess(msg) {
+        successDiv.textContent = msg;
+        successDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        setTimeout(() => { successDiv.style.display = 'none'; }, 3000);
+    }
+
+    // 🟣 რეგისტრაციის ფორმაზე გადასვლა + ველების გასუფთავება
+    showRegisterBtn.addEventListener('click', () => {
+        loginFormDiv.style.display = 'none';
+        registerFormDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        clearLoginFields();     // ველები იწმინდება
+    });
+    
+    // 🔵 შესვლის ფორმაზე გადასვლა + ველების გასუფთავება
+    showLoginBtn.addEventListener('click', () => {
+        registerFormDiv.style.display = 'none';
+        loginFormDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        successDiv.style.display = 'none';
+        clearRegisterFields();  // რეგისტრაციის ველები იწმინდება
+    });
+
+    // 🟣 შესვლის ღილაკი
+    loginBtn.addEventListener('click', async () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+        
+        if (!email || !password) {
+            showError('📛 გთხოვთ შეიყვანეთ ელ.ფოსტა და პაროლი');
+            return;
+        }
+        
+        const { data, error } = await sb.auth.signInWithPassword({ email, password });
+        
+        if (error) {
+            showError('❌ ' + error.message);
+            return;
+        }
+        
+        showSuccess('✅ წარმატებული შესვლა! გადამისამართება...');
+        setTimeout(() => {
+            window.location.href = 'chat.html';
+        }, 1000);
+    });
+
+    // 🔵 რეგისტრაციის ღილაკი
+    registerBtn.addEventListener('click', async () => {
+        const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+        
+        if (!username || !email || !password) {
+            showError('📛 გთხოვთ შეავსოთ ყველა ველი');
+            return;
+        }
+        
+        if (password.length < 6) {
+            showError('🔒 პაროლი უნდა შეიცავდეს მინიმუმ 6 სიმბოლოს');
+            return;
+        }
+        
+        const { data, error } = await sb.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { username: username }
+            }
+        });
+        
+        if (error) {
+            showError('❌ ' + error.message);
+            return;
+        }
+        
+        if (data.user) {
+            await sb.from('profiles').upsert({ id: data.user.id, username: username, role: 'member', emotion: '😊' });
+            showSuccess('✅ რეგისტრაცია წარმატებულია! გადამისამართება...');
+            setTimeout(() => {
+                window.location.href = 'chat.html';
+            }, 1500);
+        }
+    });
+
+    // თუ უკვე შესულია -> chat.html
+    (async () => {
+        const { data: { user } } = await sb.auth.getUser();
+        if (user) {
+            window.location.href = 'chat.html';
+        }
+    })();
+
+    // 🪻 მოძრავი იისფერი გულები
+    function spawnHearts() {
+        const heartsContainer = document.getElementById('hearts');
+        const icons = ['💜', '💜', '🌸', '💜', '💖', '🌸', '💜', '🌷', '💜'];
+        setInterval(() => {
+            const heart = document.createElement('div');
+            heart.className = 'heart';
+            heart.textContent = icons[Math.floor(Math.random() * icons.length)];
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.fontSize = (0.9 + Math.random() * 1.6) + 'rem';
+            heart.style.animationDuration = (7 + Math.random() * 9) + 's';
+            heartsContainer.appendChild(heart);
+            setTimeout(() => { if(heart && heart.remove) heart.remove(); }, 15000);
+        }, 700);
+    }
+    spawnHearts();
+</script>
+</body>
+</html>
