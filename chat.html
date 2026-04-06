@@ -483,7 +483,7 @@ async function init(){
     return;
   }
   buildRooms();
-  await loadEmojis();       // DB-დან იტვირთება + realtime
+  await loadEmojis();
   buildEmojis();
   spawnHearts();
   switchRoom(ROOMS[0]);
@@ -499,55 +499,17 @@ async function loadProf(uid){
   return data;
 }
 
-// ==================== EMOJI SYSTEM (DB-ზე დაფუძნებული) ====================
+// ==================== EMOJI SYSTEM (FIXED) ====================
 
 async function loadEmojis(){
-  // DB-დან ვტვირთავთ
-  const {data,error}=await sb.from('global_emojis')
-    .select('*')
-    .order('created_at',{ascending:true});
+  const {data,error}=await sb.from('global_emojis').select('*').order('id',{ascending:true});
   if(error){
     console.error('emoji load error:',error);
     customEmojis=[];
-    return;
+  } else {
+    customEmojis=data||[];
   }
-  customEmojis=data||[];
-
-  // Realtime — ახალი სმაილი ყველასთვის გამოჩნდება დაუყოვნებლივ
-  if(emojiCh){sb.removeChannel(emojiCh);}
-  emojiCh=sb.channel('global_emojis_realtime')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},payload=>{
-      // დუბლიკატი არ დავამატოთ
-      if(!customEmojis.find(e=>e.id===payload.new.id)){
-        customEmojis.push(payload.new);
-        buildEmojis();
-      }
-    })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},payload=>{
-      customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);
-      buildEmojis();
-    })
-    .subscribe();
-}
-
-function resizeEmoji(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=reject;
-    reader.onload=(ev)=>{
-      const img=new Image();
-      img.onerror=reject;
-      img.onload=()=>{
-        const canvas=document.createElement('canvas');
-        canvas.width=48;canvas.height=48;
-        const ctx=canvas.getContext('2d');
-        ctx.drawImage(img,0,0,48,48);
-        resolve(canvas.toDataURL('image/webp',0.6));
-      };
-      img.src=ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+  buildEmojis();
 }
 
 async function handleEmojiImages(e){
@@ -559,14 +521,21 @@ async function handleEmojiImages(e){
   let added=0;
   for(const file of files){
     try{
-      const small=await resizeEmoji(file);
-      const {error}=await sb.from('global_emojis')
-        .insert({url:small,created_by:ME.id});
-      if(error){toast('❌ '+error.message);continue;}
+      const reader=new FileReader();
+      const base64=await new Promise((resolve,reject)=>{
+        reader.onload=()=>resolve(reader.result);
+        reader.onerror=reject;
+        reader.readAsDataURL(file);
+      });
+      const {error}=await sb.from('global_emojis').insert({url:base64});
+      if(error){console.error(error);toast('❌ '+error.message);continue;}
       added++;
     }catch(err){toast('❌ '+err.message);}
   }
-  if(added>0)toast('✅ '+added+' სმაილი დაემატა ყველასთვის!');
+  if(added>0){
+    toast('✅ '+added+' სმაილი დაემატა!');
+    await loadEmojis();
+  }
   e.target.value='';
 }
 
@@ -575,22 +544,20 @@ async function addTextEmoji(){
   if(role!=='admin'&&role!=='founder'){toast('❌ მხოლოდ ადმინს/დამფუძნებელს შეუძლია!');return;}
   const v=document.getElementById('newEmojiInput').value.trim();
   if(!v||v.length>6){toast('❌ მაქს 6 სიმბოლო');return;}
-  const {error}=await sb.from('global_emojis')
-    .insert({url:v,created_by:ME.id});
+  const {error}=await sb.from('global_emojis').insert({url:v});
   if(error){toast('❌ '+error.message);return;}
   document.getElementById('newEmojiInput').value='';
-  toast('✅ სმაილი დაემატა ყველასთვის!');
-  // realtime დაამატებს buildEmojis-ს ავტომატურად
+  toast('✅ სმაილი დაემატა!');
+  await loadEmojis();
 }
 
 async function removeEmoji(idx){
   const em=customEmojis[idx];
   if(!em)return;
-  const {error}=await sb.from('global_emojis')
-    .delete().eq('id',em.id);
+  const {error}=await sb.from('global_emojis').delete().eq('id',em.id);
   if(error){toast('❌ '+error.message);return;}
-  toast('🗑 სმაილი წაიშალა ყველასთვის');
-  // realtime წაშლის buildEmojis-ს ავტომატურად
+  toast('🗑 სმაილი წაიშალა!');
+  await loadEmojis();
 }
 
 function buildEmojis(){
@@ -614,10 +581,11 @@ function buildEmojiGrid(gridId,inputId,withManage){
     if(isImg){
       const img=document.createElement('img');
       img.src=em.url;
-      img.style.cssText='width:24px;height:24px;border-radius:4px;object-fit:cover';
+      img.style.cssText='width:28px;height:28px;border-radius:6px;object-fit:cover';
       btn.appendChild(img);
     } else {
       btn.textContent=em.url||'?';
+      btn.style.fontSize='22px';
     }
     if(canManage){
       const del=document.createElement('button');
@@ -630,25 +598,23 @@ function buildEmojiGrid(gridId,inputId,withManage){
       if(e.target.classList&&e.target.classList.contains('em-del'))return;
       const inp=document.getElementById(inputId);
       if(!inp)return;
-      // UUID-ით ვწერთ, არა base64-ით — შეტყობინება მოკლეა
-      inp.value+=isImg?`[emoji:${em.id}]`:em.url;
+      if(isImg){
+        inp.value+='[img:'+em.url+']';
+      } else {
+        inp.value+=em.url;
+      }
       inp.focus();
     };
     grid.appendChild(btn);
   });
 }
 
-// შეტყობინებაში [emoji:UUID] → სურათი
 function renderContent(s){
   if(!s)return '';
-  return s.split(/(\[emoji:[^\]]+\])/g).map(part=>{
-    const m=part.match(/^\[emoji:([^\]]+)\]$/);
-    if(m){
-      const em=customEmojis.find(e=>e.id===m[1]);
-      if(em&&em.url&&em.url.startsWith('data:')){
-        return `<img src="${em.url}" style="width:28px;height:28px;border-radius:5px;object-fit:cover;vertical-align:middle;margin:0 2px" loading="lazy">`;
-      }
-      return em?.url||'🖼️';
+  return s.split(/(\[img:[^\]]+\])/g).map(part=>{
+    const match=part.match(/^\[img:(.+)\]$/);
+    if(match){
+      return `<img src="${match[1]}" style="width:28px;height:28px;border-radius:5px;object-fit:cover;vertical-align:middle;margin:0 2px" loading="lazy">`;
     }
     return esc(part);
   }).join('');
@@ -678,7 +644,7 @@ document.addEventListener('click',e=>{
 function openMyProfile(){openProfile(ME.id);}
 
 async function openProfile(uid){
-  VIEW_UID=uid; // ← პირველი სტრიქონი, ყოველთვის სწორია
+  VIEW_UID=uid;
   const p=await loadProf(uid);
   const isSelf=(uid===ME.id);
   const myRole=MYPROF?.role;
@@ -712,7 +678,6 @@ async function openProfile(uid){
     b.classList.toggle('active',b.textContent===selectedEmotion)
   );
 
-  // დამფუძნებლის სექცია — მხოლოდ სხვების პროფილზე
   const showFounder=(myRole==='founder')&&!isSelf;
   document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
   if(showFounder){
@@ -720,7 +685,6 @@ async function openProfile(uid){
     document.getElementById('blockReason').value='';
   }
 
-  // ადმინის სექცია — მხოლოდ ჩვეულებრივ წევრებზე
   const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');
   document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
   if(showAdmin) document.getElementById('blockReasonAdmin').value='';
@@ -787,7 +751,7 @@ async function uploadAvatar(e){
   e.target.value='';
 }
 
-// ==================== ROLES (FIX) ====================
+// ==================== ROLES ====================
 
 async function assignRole(){
   if(MYPROF?.role!=='founder'){toast('❌ მხოლოდ დამფუძნებელს შეუძლია!');return;}
@@ -797,7 +761,6 @@ async function assignRole(){
   const {error}=await sb.from('profiles').update({role:newRole}).eq('id',VIEW_UID);
   if(error){toast('❌ '+error.message);return;}
   toast('✅ როლი შეიცვალა → '+rLabel(newRole));
-  // UI განახლება
   document.getElementById('profRole').textContent=rLabel(newRole);
   document.getElementById('profRole').className='prof-role '+rClass(newRole);
   await loadAllUsers();
