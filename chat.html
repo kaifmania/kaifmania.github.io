@@ -72,76 +72,17 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .msg-time{font-size:10px;color:var(--text3)}
 .msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .2s;padding:0}
 .msg-bubble:hover .msg-del{opacity:1}
-
-/* ===== ᲒᲐᲣᲛᲯᲝᲑᲔᲡᲔᲑᲣᲚᲘ CHAT BAR ===== */
-.chat-bar{
-  background:var(--panel);
-  border-top:1px solid var(--border);
-  padding:14px 18px;
-  display:flex;
-  align-items:center;
-  gap:10px;
-  flex-shrink:0;
-  position:relative;
-  z-index:2;
-  box-shadow:0 -4px 20px rgba(0,0,0,.2);
-}
-.icon-btn{
-  width:42px;height:42px;
-  border-radius:13px;
-  background:var(--indigo-f);
-  border:1px solid var(--border);
-  font-size:18px;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-  transition:all .2s;
-  box-shadow:0 2px 8px rgba(0,0,0,.15);
-}
+.chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:relative;z-index:2;box-shadow:0 -4px 20px rgba(0,0,0,.2)}
+.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.15)}
 .icon-btn:hover{background:var(--border);transform:scale(1.05)}
-#msgInput{
-  flex:1;
-  background:var(--input-bg);
-  border:1.5px solid var(--border);
-  border-radius:22px;
-  padding:12px 20px;
-  color:var(--text);
-  font-size:14px;
-  font-family:'Noto Sans Georgian',sans-serif;
-  outline:none;
-  transition:border-color .2s, box-shadow .2s;
-  height:46px;
-  box-shadow:0 2px 10px rgba(0,0,0,.1);
-}
-#msgInput:focus{
-  border-color:var(--indigo2);
-  box-shadow:0 0 0 3px var(--indigo-f), 0 2px 10px rgba(0,0,0,.1);
-}
+#msgInput{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:22px;padding:12px 20px;color:var(--text);font-size:14px;font-family:'Noto Sans Georgian',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;height:46px;box-shadow:0 2px 10px rgba(0,0,0,.1)}
+#msgInput:focus{border-color:var(--indigo2);box-shadow:0 0 0 3px var(--indigo-f),0 2px 10px rgba(0,0,0,.1)}
 #msgInput::placeholder{color:var(--text3)}
-.send-btn{
-  width:46px;height:46px;
-  border-radius:50%;
-  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
-  border:none;
-  color:#fff;
-  font-size:20px;
-  cursor:pointer;
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;
-  transition:transform .2s, box-shadow .2s;
-  box-shadow:0 4px 18px rgba(88,0,184,.6), 0 0 0 0 rgba(139,63,245,0);
-  overflow:hidden;
-  position:relative;
-}
-.send-btn:hover{
-  transform:scale(1.1);
-  box-shadow:0 6px 24px rgba(88,0,184,.7), 0 0 20px rgba(139,63,245,.4);
-}
+.send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 18px rgba(88,0,184,.6);overflow:hidden;position:relative}
+.send-btn:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(88,0,184,.7)}
 .send-plane{display:inline-block}
 .send-btn.fly .send-plane{animation:planeShoot .45s ease forwards}
 @keyframes planeShoot{0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}60%{transform:translate(30px,-30px) rotate(-40deg) scale(.8);opacity:.5}100%{transform:translate(60px,-60px) rotate(-45deg) scale(.4);opacity:0}}
-
-/* ===== EMOJI PANEL ===== */
 #emojiPanel{position:absolute;bottom:74px;left:18px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:14px;width:300px;z-index:1000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none}
 #emojiPanel.open{display:block}
 .ep-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:9px;color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:1.5px;text-transform:uppercase}
@@ -318,7 +259,7 @@ select.inp{cursor:pointer}
         <input type="file" id="emojiImgInput" accept="image/*" multiple style="display:none" onchange="handleEmojiImages(event)">
         <button class="ep-upload-btn" onclick="document.getElementById('emojiImgInput').click()">🖼️ გალერეიდან სმაილის დამატება</button>
         <div class="ep-add">
-          <input class="inp" id="newEmojiInput" placeholder="😊" maxlength="2" style="margin:0;text-align:center;font-size:18px;width:55px;flex-shrink:0">
+          <input class="inp" id="newEmojiInput" placeholder="😊" maxlength="6" style="margin:0;text-align:center;font-size:18px;width:55px;flex-shrink:0">
           <button class="ep-add-btn" onclick="addTextEmoji()">+ დამატება</button>
         </div>
       </div>
@@ -330,6 +271,8 @@ select.inp{cursor:pointer}
     </div>
   </div>
 </div>
+
+<!-- პროფილის მოდალი -->
 <div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')">
   <div class="modal">
     <button class="modal-x" onclick="closeModal('profileOverlay')">✕</button>
@@ -364,6 +307,8 @@ select.inp{cursor:pointer}
       </div>
       <input class="inp" id="emoComment" placeholder="კომენტარი ემოციაზე...">
       <button class="act-btn success" id="saveProfileBtn" onclick="saveProfile()">✅ შენახვა</button>
+
+      <!-- დამფუძნებლის პანელი -->
       <div id="founderSec" class="hidden">
         <div class="divider"></div>
         <div class="sec-lbl">👑 დამფუძნებლის პანელი</div>
@@ -380,6 +325,8 @@ select.inp{cursor:pointer}
         <button class="act-btn danger" onclick="blockUser()">🚫 დაბლოკვა</button>
         <button class="act-btn success" onclick="unblockUser()">✅ განბლოკვა</button>
       </div>
+
+      <!-- ადმინის პანელი -->
       <div id="adminSec" class="hidden">
         <div class="divider"></div>
         <div class="sec-lbl">🛡️ ადმინის პანელი</div>
@@ -387,6 +334,7 @@ select.inp{cursor:pointer}
         <button class="act-btn danger" onclick="blockUserAdmin()">🚫 დაბლოკვა</button>
         <button class="act-btn success" onclick="unblockUserAdmin()">✅ განბლოკვა</button>
       </div>
+
       <div class="divider"></div>
       <button class="act-btn" id="friendBtn" onclick="toggleFriend()" style="display:none">➕ მეგობრად დამატება</button>
       <button class="act-btn" id="dmBtn" onclick="openDMfromProfile()" style="display:none">✉️ პირადი შეტყობინება</button>
@@ -426,6 +374,8 @@ select.inp{cursor:pointer}
     </div>
   </div>
 </div>
+
+<!-- მეგობრის მოთხოვნა -->
 <div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')">
   <div class="modal" style="max-width:320px">
     <button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button>
@@ -435,6 +385,8 @@ select.inp{cursor:pointer}
     <button class="act-btn danger" onclick="declineFriend()">❌ უარი</button>
   </div>
 </div>
+
+<!-- DM სია -->
 <div id="dmListOverlay" onclick="bgCloseDMList(event)">
   <div class="dm-list-modal">
     <div class="dm-list-title">✉️ პირადი შეტყობინებები<button class="dm-list-close" onclick="closeDMList()">✕</button></div>
@@ -442,6 +394,8 @@ select.inp{cursor:pointer}
     <div class="dm-list-body" id="dmUserList"></div>
   </div>
 </div>
+
+<!-- DM ბოქსი -->
 <div id="dmBox">
   <div class="dm-head">
     <div class="avatar" style="width:28px;height:28px;font-size:14px;border:2px solid rgba(255,255,255,.3);flex-shrink:0" id="dmAv">👤</div>
@@ -459,6 +413,8 @@ select.inp{cursor:pointer}
     <button class="dm-send" id="dmSendBtn" onclick="sendDM()"><span class="dm-plane">✈️</span></button>
   </div>
 </div>
+
+<!-- ფოტო ვიუერი -->
 <div class="photo-viewer" id="photoViewer" onclick="pvBgClose(event)">
   <button class="pv-close" onclick="closePhotoViewer()">✕</button>
   <img class="pv-img" id="pvImg" src="" alt="">
@@ -474,17 +430,19 @@ select.inp{cursor:pointer}
     <button class="pv-nav-btn" onclick="pvNav(1)">›</button>
   </div>
 </div>
+
 <script>
 const {createClient}=supabase;
 const sb=createClient(
   "https://vjstuyxuhshsouqsnvxp.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
 );
-let ME=null,MYPROF=null,ROOM=1,VIEW_UID=null,DM_UID=null;
-let allUsers=[],myFriends=[],customEmojis=[];
-let selectedEmotion='😊',msgCh=null,dmCh=null,theme='night';
-let galSelectedEmo='😊',galFileData=null;
-let currentGallery=[],pvIndex=0;
+
+let ME=null, MYPROF=null, ROOM=1, VIEW_UID=null, DM_UID=null;
+let allUsers=[], myFriends=[], customEmojis=[];
+let selectedEmotion='😊', msgCh=null, dmCh=null, emojiCh=null, theme='night';
+let galSelectedEmo='😊', galFileData=null;
+let currentGallery=[], pvIndex=0;
 
 const ROOMS=[
   {id:1,icon:'🏠',name:'ოთახი 1'},{id:2,icon:'🎮',name:'ოთახი 2'},
@@ -495,10 +453,6 @@ const ROOMS=[
   {id:11,icon:'🎯',name:'ოთახი 11'},{id:12,icon:'🍀',name:'ოთახი 12'},
 ];
 
-// ===== EMOJI STORAGE KEY სახელები =====
-const EMOJI_STORE_KEY = 'kaif_emojis_v2';
-const EMOJI_IMGS_KEY = 'kaif_emoji_imgs_v2'; // base64 სურათები ცალკე
-
 function animateSendPlane(btnId){
   const btn=document.getElementById(btnId);
   if(!btn)return;
@@ -506,6 +460,7 @@ function animateSendPlane(btnId){
   setTimeout(()=>btn.classList.remove('fly'),500);
 }
 
+// ==================== INIT ====================
 async function init(){
   const {data:{user}}=await sb.auth.getUser();
   if(!user){location.href='index.html';return;}
@@ -528,7 +483,7 @@ async function init(){
     return;
   }
   buildRooms();
-  await loadEmojis();
+  await loadEmojis();       // DB-დან იტვირთება + realtime
   buildEmojis();
   spawnHearts();
   switchRoom(ROOMS[0]);
@@ -544,19 +499,197 @@ async function loadProf(uid){
   return data;
 }
 
+// ==================== EMOJI SYSTEM (DB-ზე დაფუძნებული) ====================
+
+async function loadEmojis(){
+  // DB-დან ვტვირთავთ
+  const {data,error}=await sb.from('global_emojis')
+    .select('*')
+    .order('created_at',{ascending:true});
+  if(error){
+    console.error('emoji load error:',error);
+    customEmojis=[];
+    return;
+  }
+  customEmojis=data||[];
+
+  // Realtime — ახალი სმაილი ყველასთვის გამოჩნდება დაუყოვნებლივ
+  if(emojiCh){sb.removeChannel(emojiCh);}
+  emojiCh=sb.channel('global_emojis_realtime')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},payload=>{
+      // დუბლიკატი არ დავამატოთ
+      if(!customEmojis.find(e=>e.id===payload.new.id)){
+        customEmojis.push(payload.new);
+        buildEmojis();
+      }
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},payload=>{
+      customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);
+      buildEmojis();
+    })
+    .subscribe();
+}
+
+function resizeEmoji(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onerror=reject;
+    reader.onload=(ev)=>{
+      const img=new Image();
+      img.onerror=reject;
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        canvas.width=48;canvas.height=48;
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,48,48);
+        resolve(canvas.toDataURL('image/webp',0.6));
+      };
+      img.src=ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+async function handleEmojiImages(e){
+  const files=Array.from(e.target.files);
+  if(!files.length)return;
+  const role=MYPROF?.role;
+  if(role!=='admin'&&role!=='founder'){toast('❌ მხოლოდ ადმინს/დამფუძნებელს შეუძლია!');return;}
+  toast('⏳ იტვირთება...');
+  let added=0;
+  for(const file of files){
+    try{
+      const small=await resizeEmoji(file);
+      const {error}=await sb.from('global_emojis')
+        .insert({url:small,created_by:ME.id});
+      if(error){toast('❌ '+error.message);continue;}
+      added++;
+    }catch(err){toast('❌ '+err.message);}
+  }
+  if(added>0)toast('✅ '+added+' სმაილი დაემატა ყველასთვის!');
+  e.target.value='';
+}
+
+async function addTextEmoji(){
+  const role=MYPROF?.role;
+  if(role!=='admin'&&role!=='founder'){toast('❌ მხოლოდ ადმინს/დამფუძნებელს შეუძლია!');return;}
+  const v=document.getElementById('newEmojiInput').value.trim();
+  if(!v||v.length>6){toast('❌ მაქს 6 სიმბოლო');return;}
+  const {error}=await sb.from('global_emojis')
+    .insert({url:v,created_by:ME.id});
+  if(error){toast('❌ '+error.message);return;}
+  document.getElementById('newEmojiInput').value='';
+  toast('✅ სმაილი დაემატა ყველასთვის!');
+  // realtime დაამატებს buildEmojis-ს ავტომატურად
+}
+
+async function removeEmoji(idx){
+  const em=customEmojis[idx];
+  if(!em)return;
+  const {error}=await sb.from('global_emojis')
+    .delete().eq('id',em.id);
+  if(error){toast('❌ '+error.message);return;}
+  toast('🗑 სმაილი წაიშალა ყველასთვის');
+  // realtime წაშლის buildEmojis-ს ავტომატურად
+}
+
+function buildEmojis(){
+  buildEmojiGrid('emojiGrid','msgInput',true);
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+}
+
+function buildEmojiGrid(gridId,inputId,withManage){
+  const grid=document.getElementById(gridId);
+  if(!grid)return;
+  grid.innerHTML='';
+  const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);
+  if(withManage){
+    const addSec=document.getElementById('addEmojiSection');
+    if(addSec)addSec.style.display=canManage?'block':'none';
+  }
+  customEmojis.forEach((em,idx)=>{
+    const btn=document.createElement('button');
+    btn.className='em-btn';
+    const isImg=em.url&&em.url.startsWith('data:');
+    if(isImg){
+      const img=document.createElement('img');
+      img.src=em.url;
+      img.style.cssText='width:24px;height:24px;border-radius:4px;object-fit:cover';
+      btn.appendChild(img);
+    } else {
+      btn.textContent=em.url||'?';
+    }
+    if(canManage){
+      const del=document.createElement('button');
+      del.className='em-del vis';
+      del.textContent='✕';
+      del.onclick=(e)=>{e.stopPropagation();removeEmoji(idx);};
+      btn.appendChild(del);
+    }
+    btn.onclick=(e)=>{
+      if(e.target.classList&&e.target.classList.contains('em-del'))return;
+      const inp=document.getElementById(inputId);
+      if(!inp)return;
+      // UUID-ით ვწერთ, არა base64-ით — შეტყობინება მოკლეა
+      inp.value+=isImg?`[emoji:${em.id}]`:em.url;
+      inp.focus();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// შეტყობინებაში [emoji:UUID] → სურათი
+function renderContent(s){
+  if(!s)return '';
+  return s.split(/(\[emoji:[^\]]+\])/g).map(part=>{
+    const m=part.match(/^\[emoji:([^\]]+)\]$/);
+    if(m){
+      const em=customEmojis.find(e=>e.id===m[1]);
+      if(em&&em.url&&em.url.startsWith('data:')){
+        return `<img src="${em.url}" style="width:28px;height:28px;border-radius:5px;object-fit:cover;vertical-align:middle;margin:0 2px" loading="lazy">`;
+      }
+      return em?.url||'🖼️';
+    }
+    return esc(part);
+  }).join('');
+}
+
+function toggleEmojiPanel(){
+  document.getElementById('emojiPanel').classList.toggle('open');
+  document.getElementById('dmEmojiPanel').classList.remove('open');
+}
+
+function toggleDMEmoji(){
+  document.getElementById('dmEmojiPanel').classList.toggle('open');
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+}
+
+document.addEventListener('click',e=>{
+  const p=document.getElementById('emojiPanel');
+  if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))
+    p.classList.remove('open');
+  const dp=document.getElementById('dmEmojiPanel');
+  if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-emoji-btn'))
+    dp.classList.remove('open');
+});
+
+// ==================== PROFILE ====================
+
 function openMyProfile(){openProfile(ME.id);}
 
 async function openProfile(uid){
-  VIEW_UID=uid;  // ← ყოველთვის სეტდება სწორად
+  VIEW_UID=uid; // ← პირველი სტრიქონი, ყოველთვის სწორია
   const p=await loadProf(uid);
-  const isSelf=uid===ME.id;
+  const isSelf=(uid===ME.id);
   const myRole=MYPROF?.role;
   const viewRole=p?.role;
+
   document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
   document.getElementById('profName').textContent=p?.username||'?';
   const roleEl=document.getElementById('profRole');
   roleEl.textContent=rLabel(viewRole);
   roleEl.className='prof-role '+rClass(viewRole);
+
   if(p?.avatar_url){
     document.getElementById('avImg').src=p.avatar_url;
     document.getElementById('avImg').style.display='block';
@@ -575,25 +708,29 @@ async function openProfile(uid){
   document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';
   document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';
   selectedEmotion=p?.emotion||'😊';
-  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
+  document.querySelectorAll('.emo-btn').forEach(b=>
+    b.classList.toggle('active',b.textContent===selectedEmotion)
+  );
 
-  // ===== FIX: Founder Section - ეყრდნობა VIEW_UID-ს =====
-  const showFounder = myRole==='founder' && !isSelf;
+  // დამფუძნებლის სექცია — მხოლოდ სხვების პროფილზე
+  const showFounder=(myRole==='founder')&&!isSelf;
   document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
   if(showFounder){
     document.getElementById('roleSelect').value=viewRole||'member';
     document.getElementById('blockReason').value='';
   }
 
-  // ===== FIX: Admin Section =====
-  const showAdmin = myRole==='admin' && !isSelf && viewRole!=='founder' && viewRole!=='admin';
+  // ადმინის სექცია — მხოლოდ ჩვეულებრივ წევრებზე
+  const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');
   document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
   if(showAdmin) document.getElementById('blockReasonAdmin').value='';
 
   document.getElementById('friendBtn').style.display=isSelf?'none':'';
   document.getElementById('dmBtn').style.display=isSelf?'none':'';
   const isFr=myFriends.includes(uid);
-  document.getElementById('friendBtn').textContent=isFr?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
+  document.getElementById('friendBtn').textContent=
+    isFr?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
+
   document.getElementById('galUploadZone').style.display=isSelf?'':'none';
   switchGalleryTab('info',document.getElementById('gtabInfo'));
   openModal('profileOverlay');
@@ -650,19 +787,20 @@ async function uploadAvatar(e){
   e.target.value='';
 }
 
-// ===== FIX: assignRole — VIEW_UID სწორი გამოყენება =====
+// ==================== ROLES (FIX) ====================
+
 async function assignRole(){
   if(MYPROF?.role!=='founder'){toast('❌ მხოლოდ დამფუძნებელს შეუძლია!');return;}
   if(!VIEW_UID){toast('❌ მომხმარებელი არ არის არჩეული');return;}
+  if(VIEW_UID===ME.id){toast('❌ საკუთარ თავს როლს ვერ შეუცვლი');return;}
   const newRole=document.getElementById('roleSelect').value;
   const {error}=await sb.from('profiles').update({role:newRole}).eq('id',VIEW_UID);
   if(error){toast('❌ '+error.message);return;}
   toast('✅ როლი შეიცვალა → '+rLabel(newRole));
-  loadAllUsers();
-  // განაახლე modal-ში ჩვენება
-  const profRoleEl=document.getElementById('profRole');
-  profRoleEl.textContent=rLabel(newRole);
-  profRoleEl.className='prof-role '+rClass(newRole);
+  // UI განახლება
+  document.getElementById('profRole').textContent=rLabel(newRole);
+  document.getElementById('profRole').className='prof-role '+rClass(newRole);
+  await loadAllUsers();
 }
 
 async function removeRole(){
@@ -673,10 +811,10 @@ async function removeRole(){
   const {error}=await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID);
   if(error){toast('❌ '+error.message);return;}
   toast('✅ როლი გადახსნილია — ახლა წევრია');
-  loadAllUsers();
   document.getElementById('profRole').textContent=rLabel('member');
   document.getElementById('profRole').className='prof-role pr-member';
   document.getElementById('roleSelect').value='member';
+  await loadAllUsers();
 }
 
 async function blockUser(){
@@ -700,9 +838,10 @@ async function unblockUser(){
 }
 
 async function blockUserAdmin(){
+  if(MYPROF?.role!=='admin'){toast('❌ ადმინის უფლება გჭირდება!');return;}
   if(!VIEW_UID)return;
   const target=await loadProf(VIEW_UID);
-  if(target?.role==='founder'||target?.role==='admin'){toast('❌ ამ მომხმარებლის დაბლოკვა არ შეგიძლია!');return;}
+  if(!target||target.role!=='member'){toast('❌ მხოლოდ ჩვეულებრივ წევრს შეგიძლია დაბლოკო!');return;}
   const r=document.getElementById('blockReasonAdmin').value||'მიზეზი არ არის';
   const {error}=await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);
   if(error){toast('❌ '+error.message);return;}
@@ -711,17 +850,26 @@ async function blockUserAdmin(){
 }
 
 async function unblockUserAdmin(){
+  if(MYPROF?.role!=='admin'){toast('❌ ადმინის უფლება გჭირდება!');return;}
   if(!VIEW_UID)return;
   const target=await loadProf(VIEW_UID);
-  if(target?.role==='founder'||target?.role==='admin'){toast('❌ ამ მომხმარებლის განბლოკვა არ შეგიძლია!');return;}
+  if(!target||target.role!=='member'){toast('❌ მხოლოდ ჩვეულებრივ წევრს შეგიძლია განბლოკო!');return;}
   const {error}=await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);
   if(error){toast('❌ '+error.message);return;}
   toast('✅ განბლოკილია!');
 }
 
-function rLabel(r){return r==='founder'?'👑 დამფუძნებელი':r==='admin'?'🛡️ ადმინი':'👤 წევრი';}
-function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member';}
-function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
+function rLabel(r){
+  return r==='founder'?'👑 დამფუძნებელი':r==='admin'?'🛡️ ადმინი':'👤 წევრი';
+}
+function rClass(r){
+  return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member';
+}
+function rbClass(r){
+  return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';
+}
+
+// ==================== GALLERY ====================
 
 async function loadGallery(uid){
   const {data,error}=await sb.from('gallery').select('*').eq('user_id',uid).order('created_at',{ascending:false});
@@ -739,8 +887,15 @@ function renderGallery(isSelf){
   currentGallery.forEach((photo,idx)=>{
     const item=document.createElement('div');
     item.className='gal-item';
-    item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:14px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
-    item.addEventListener('click',e=>{if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx);});
+    item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy">
+      <div class="gal-overlay">
+        <div style="font-size:14px">${photo.emotion||''}</div>
+        ${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}
+      </div>
+      ${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
+    item.addEventListener('click',e=>{
+      if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx);
+    });
     grid.appendChild(item);
   });
 }
@@ -776,8 +931,7 @@ function cancelGalUpload(){
   galFileData=null;
   document.getElementById('galForm').classList.remove('open');
   const prev=document.getElementById('galPreviewImg');
-  prev.src='';
-  prev.classList.remove('show');
+  prev.src='';prev.classList.remove('show');
 }
 
 async function uploadGalleryPhoto(){
@@ -785,10 +939,10 @@ async function uploadGalleryPhoto(){
   toast('⏳ იტვირთება...');
   try{
     const dataToInsert={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};
-    const titleVal=document.getElementById('galTitle').value.trim();
-    const commentVal=document.getElementById('galComment').value.trim();
-    if(titleVal)dataToInsert.title=titleVal;
-    if(commentVal)dataToInsert.comment=commentVal;
+    const t=document.getElementById('galTitle').value.trim();
+    const c=document.getElementById('galComment').value.trim();
+    if(t)dataToInsert.title=t;
+    if(c)dataToInsert.comment=c;
     const {error}=await sb.from('gallery').insert(dataToInsert);
     if(error){toast('❌ '+error.message);return;}
     cancelGalUpload();
@@ -807,8 +961,7 @@ async function deleteGalPhoto(e,id){
 
 function openPhotoViewer(idx){pvIndex=idx;showPVPhoto();document.getElementById('photoViewer').classList.add('open');}
 function showPVPhoto(){
-  const p=currentGallery[pvIndex];
-  if(!p)return;
+  const p=currentGallery[pvIndex];if(!p)return;
   document.getElementById('pvImg').src=p.url;
   document.getElementById('pvTitle').textContent=p.title||'';
   document.getElementById('pvEmo').textContent=p.emotion||'';
@@ -820,6 +973,8 @@ function showPVPhoto(){
 function pvNav(dir){pvIndex=(pvIndex+dir+currentGallery.length)%currentGallery.length;showPVPhoto();}
 function closePhotoViewer(){document.getElementById('photoViewer').classList.remove('open');}
 function pvBgClose(e){if(e.target.id==='photoViewer')closePhotoViewer();}
+
+// ==================== ROOMS & MESSAGES ====================
 
 function buildRooms(){
   const el=document.getElementById('roomList');
@@ -837,21 +992,29 @@ function switchRoom(r){
   ROOM=r.id;
   document.getElementById('roomTitle').textContent=r.name;
   document.getElementById('roomIcon').textContent=r.icon;
-  document.querySelectorAll('.room-item').forEach((el,i)=>el.classList.toggle('active',i===r.id-1));
+  document.querySelectorAll('.room-item').forEach((el,i)=>
+    el.classList.toggle('active',i===r.id-1)
+  );
   loadMessages(r.id);
   document.getElementById('sidebar').classList.remove('mob-open');
 }
 
 async function loadMessages(roomId){
   if(msgCh){sb.removeChannel(msgCh);msgCh=null;}
-  const {data}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('room_id',roomId).order('created_at',{ascending:true}).limit(80);
+  const {data}=await sb.from('messages')
+    .select('*, profiles(username,role,avatar_url,emotion)')
+    .eq('room_id',roomId)
+    .order('created_at',{ascending:true})
+    .limit(80);
   const box=document.getElementById('messages');
   box.innerHTML='';
   (data||[]).forEach(m=>appendMsg(m));
   box.scrollTop=box.scrollHeight;
   msgCh=sb.channel('room'+roomId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room_id=eq.${roomId}`},async payload=>{
-      const {data:msg}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id',payload.new.id).single();
+      const {data:msg}=await sb.from('messages')
+        .select('*, profiles(username,role,avatar_url,emotion)')
+        .eq('id',payload.new.id).single();
       if(msg){appendMsg(msg);box.scrollTop=box.scrollHeight;}
     })
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{
@@ -861,7 +1024,7 @@ async function loadMessages(roomId){
 }
 
 function appendMsg(m){
-  const isMe=m.user_id===ME?.id;
+  const isMe=(m.user_id===ME?.id);
   const myRole=MYPROF?.role;
   const authorRole=m.profiles?.role;
   let canDel=false;
@@ -869,37 +1032,29 @@ function appendMsg(m){
   else if(myRole==='admin'&&authorRole!=='founder')canDel=true;
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const role=m.profiles?.role;
-  const rbadge=role&&role!=='member'?`<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>`:'';
-  const avHtml=m.profiles?.avatar_url?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(m.profiles?.emotion||'😊');
+  const rbadge=role&&role!=='member'
+    ?`<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>`:'';
+  const avHtml=m.profiles?.avatar_url
+    ?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`
+    :(m.profiles?.emotion||'😊');
   const mineLabel=isMe?'<span style="font-size:9px;color:var(--indigo2);font-weight:600">შენ</span>':'';
   const row=document.createElement('div');
   row.className='msg-row';
   row.id='msg'+m.id;
-  row.innerHTML=`<div class="avatar" style="cursor:pointer" onclick="openProfile('${m.user_id}')">${avHtml}</div><div class="msg-content"><div class="msg-meta"><span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>${rbadge}${mineLabel}<span class="msg-time">${t}</span></div><div class="msg-bubble${isMe?' mine':''}">${renderContent(m.content)}${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}</div></div>`;
+  row.innerHTML=`
+    <div class="avatar" style="cursor:pointer" onclick="openProfile('${m.user_id}')">${avHtml}</div>
+    <div class="msg-content">
+      <div class="msg-meta">
+        <span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>
+        ${rbadge}${mineLabel}
+        <span class="msg-time">${t}</span>
+      </div>
+      <div class="msg-bubble${isMe?' mine':''}">
+        ${renderContent(m.content)}
+        ${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}
+      </div>
+    </div>`;
   document.getElementById('messages').appendChild(row);
-}
-
-// ===== FIX: renderContent — [img:...] ნაცვლად emoji ID იყენებს =====
-function renderContent(s){
-  if(!s)return '';
-  return s.split(/(\[img:emoji_(\d+)\])/g).map((part,i,arr)=>{
-    // emoji ID სისტემა: [img:emoji_N] → localსმაილი
-    const idxMatch=part.match(/^\[img:emoji_(\d+)\]$/);
-    if(idxMatch){
-      const idx=parseInt(idxMatch[1]);
-      const em=customEmojis[idx];
-      if(em&&em.startsWith('data:')){
-        return `<img src="${em}" style="width:28px;height:28px;border-radius:5px;object-fit:cover;vertical-align:middle;margin:0 2px" loading="lazy">`;
-      }
-      return em||part;
-    }
-    // ძველი [img:data:...] ფორმატიც მხარდაჭერილია
-    const dataMatch=part.match(/^\[img:(data:[^\]]+)\]$/);
-    if(dataMatch){
-      return `<img src="${dataMatch[1]}" style="width:28px;height:28px;border-radius:5px;object-fit:cover;vertical-align:middle;margin:0 2px" loading="lazy" onerror="this.style.display='none'">`;
-    }
-    return esc(part);
-  }).join('');
 }
 
 async function sendMessage(){
@@ -916,170 +1071,7 @@ async function delMsg(id){
   await sb.from('messages').delete().eq('id',id);
 }
 
-// ===== FIX: EMOJI SYSTEM — LocalStorage + settings fallback =====
-// სტრატეგია: ტექსტ-სმაილები → settings ცხრილში (მცირე)
-//            სურათ-სმაილები → localStorage-ში (დიდი, browser-local)
-//            შეტყობინებაში → [img:emoji_N] (index, არა base64!)
-
-async function loadEmojis(){
-  // 1. ჯერ settings-დან ვიღებთ ტექსტ სმაილებს
-  const {data}=await sb.from('settings').select('value').eq('key','custom_emojis_text').single();
-  let textEmojis=['😊','😂','❤️','🔥','😍','🥺','👑','💜','✨','🎉','😎','🤣'];
-  if(data?.value){
-    try{textEmojis=JSON.parse(data.value);}catch(e){}
-  }
-
-  // 2. localStorage-დან სურათ-სმაილები (browser-local, ზომა არ აქვს შეზღუდვა)
-  let imgEmojis=[];
-  try{
-    const stored=localStorage.getItem(EMOJI_IMGS_KEY);
-    if(stored)imgEmojis=JSON.parse(stored);
-  }catch(e){}
-
-  // 3. გავაერთიანოთ: ტექსტები პირველი, შემდეგ სურათები
-  customEmojis=[...textEmojis,...imgEmojis];
-}
-
-async function saveEmojisText(){
-  // მხოლოდ ტექსტ-სმაილები ინახება DB-ში
-  const textOnly=customEmojis.filter(e=>!e.startsWith('data:'));
-  await sb.from('settings').upsert({key:'custom_emojis_text',value:JSON.stringify(textOnly)});
-}
-
-function saveEmojisImgs(){
-  // სურათ-სმაილები localStorage-ში
-  const imgOnly=customEmojis.filter(e=>e.startsWith('data:'));
-  try{localStorage.setItem(EMOJI_IMGS_KEY,JSON.stringify(imgOnly));}catch(e){
-    toast('⚠️ localStorage სავსეა, ძველი სმაილები წაიშლება');
-    localStorage.removeItem(EMOJI_IMGS_KEY);
-  }
-}
-
-function resizeEmoji(file){
-  return new Promise((resolve,reject)=>{
-    const reader=new FileReader();
-    reader.onerror=reject;
-    reader.onload=(ev)=>{
-      const img=new Image();
-      img.onerror=reject;
-      img.onload=()=>{
-        const canvas=document.createElement('canvas');
-        canvas.width=48;canvas.height=48;  // 48px საკმარისია (იყო 64)
-        const ctx=canvas.getContext('2d');
-        ctx.drawImage(img,0,0,48,48);
-        resolve(canvas.toDataURL('image/webp',0.6));  // ხარისხი 0.6 (იყო 0.7)
-      };
-      img.src=ev.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-async function handleEmojiImages(e){
-  const files=Array.from(e.target.files);
-  if(!files.length)return;
-  toast('⏳ იტვირთება...');
-  let added=0;
-  for(const file of files){
-    try{
-      const small=await resizeEmoji(file);
-      customEmojis.push(small);
-      added++;
-    }catch(err){toast('❌ '+err.message);}
-  }
-  if(added>0){
-    if(customEmojis.length>30)customEmojis=customEmojis.slice(0,30);
-    buildEmojis();
-    saveEmojisImgs();  // სურათები → localStorage (სასწრაფოდ, სინქრონულად)
-    toast('✅ '+added+' სმაილი დაემატა! (ამ browser-ში ინახება)');
-  }
-  e.target.value='';
-}
-
-async function addTextEmoji(){
-  const v=document.getElementById('newEmojiInput').value.trim();
-  if(!v||v.length>6){toast('❌ მაქს 6 სიმბოლო');return;}
-  customEmojis.push(v);
-  if(customEmojis.length>30)customEmojis=customEmojis.slice(0,30);
-  document.getElementById('newEmojiInput').value='';
-  buildEmojis();
-  await saveEmojisText();  // ტექსტ-სმაილები → DB (ყველასთვის)
-  toast('✅ სმაილი დაემატა!');
-}
-
-async function removeEmoji(idx){
-  const wasImg=customEmojis[idx]?.startsWith('data:');
-  customEmojis.splice(idx,1);
-  buildEmojis();
-  if(wasImg){saveEmojisImgs();}
-  else{await saveEmojisText();}
-  toast('🗑 წაიშალა');
-}
-
-function buildEmojis(){
-  buildEmojiGrid('emojiGrid','msgInput',true);
-  buildEmojiGrid('dmEmojiGrid','dmInput',false);
-}
-
-function buildEmojiGrid(gridId,inputId,withManage){
-  const grid=document.getElementById(gridId);
-  if(!grid)return;
-  grid.innerHTML='';
-  const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);
-  if(withManage){
-    const addSec=document.getElementById('addEmojiSection');
-    if(addSec)addSec.style.display=canManage?'block':'none';
-  }
-  customEmojis.forEach((em,idx)=>{
-    const btn=document.createElement('button');
-    btn.className='em-btn';
-    const isImg=em.startsWith('data:');
-    if(isImg){
-      const img=document.createElement('img');
-      img.src=em;
-      img.style.cssText='width:24px;height:24px;border-radius:4px;object-fit:cover';
-      btn.appendChild(img);
-    } else {
-      btn.textContent=em;
-    }
-    if(canManage){
-      const del=document.createElement('button');
-      del.className='em-del vis';
-      del.textContent='✕';
-      del.onclick=(e)=>{e.stopPropagation();removeEmoji(idx);};
-      btn.appendChild(del);
-    }
-    btn.onclick=(e)=>{
-      if(e.target.classList&&e.target.classList.contains('em-del'))return;
-      const inp=document.getElementById(inputId);
-      if(isImg){
-        // ===== FIX: base64 ნაცვლად index ვწერთ შეტყობინებაში =====
-        inp.value+='[img:emoji_'+idx+']';
-      } else {
-        inp.value+=em;
-      }
-      inp.focus();
-    };
-    grid.appendChild(btn);
-  });
-}
-
-function toggleEmojiPanel(){
-  document.getElementById('emojiPanel').classList.toggle('open');
-  document.getElementById('dmEmojiPanel').classList.remove('open');
-}
-
-function toggleDMEmoji(){
-  document.getElementById('dmEmojiPanel').classList.toggle('open');
-  buildEmojiGrid('dmEmojiGrid','dmInput',false);
-}
-
-document.addEventListener('click',e=>{
-  const p=document.getElementById('emojiPanel');
-  if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.remove('open');
-  const dp=document.getElementById('dmEmojiPanel');
-  if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-emoji-btn'))dp.classList.remove('open');
-});
+// ==================== USERS ====================
 
 async function loadAllUsers(){
   const {data}=await sb.from('profiles').select('*').order('username');
@@ -1135,8 +1127,17 @@ function makeUserItem(u){
   d.className='list-item';
   d.dataset.q=(u.username||'').toLowerCase();
   const on=isOnline(u.last_seen);
-  const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(u.emotion||'😊');
-  d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
+  const avHtml=u.avatar_url
+    ?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`
+    :(u.emotion||'😊');
+  d.innerHTML=`
+    <div class="avatar" style="position:relative">
+      ${avHtml}${on?'<div class="online-dot"></div>':''}
+    </div>
+    <div class="list-info">
+      <div class="list-name">${esc(u.username||'?')}</div>
+      ${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}
+    </div>`;
   d.onclick=()=>openProfile(u.id);
   return d;
 }
@@ -1155,6 +1156,8 @@ async function pingOnline(){
   await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);
 }
 
+// ==================== FRIENDS ====================
+
 async function loadFriends(){
   const {data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');
   myFriends=(data||[]).map(f=>f.friend_id);
@@ -1170,8 +1173,7 @@ function renderFriends(){
     const e=document.createElement('div');
     e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';
     e.textContent='მეგობრები ჯერ არ გყავს 💜';
-    el.appendChild(e);
-    return;
+    el.appendChild(e);return;
   }
   list.forEach(u=>el.appendChild(makeUserItem(u)));
 }
@@ -1186,16 +1188,20 @@ async function toggleFriend(){
     await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});
     toast('📨 მოთხოვნა გაიგზავნა!');
   }
-  document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
+  document.getElementById('friendBtn').textContent=
+    myFriends.includes(VIEW_UID)?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
 }
 
 async function checkFriendReqs(){
-  const {data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');
+  const {data}=await sb.from('friends')
+    .select('*, profiles!friends_user_id_fkey(username)')
+    .eq('friend_id',ME.id).eq('status','pending');
   const badge=document.getElementById('friendBadge');
   if(data&&data.length){
     badge.textContent=data.length;badge.classList.add('show');
     const req=data[0];
-    document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს მეგობრებში';
+    document.getElementById('friendReqTxt').textContent=
+      (req.profiles?.username||'?')+' გვინდა დაგამატოს მეგობრებში';
     document.getElementById('friendReqOverlay').dataset.rid=req.id;
     document.getElementById('friendReqOverlay').dataset.fid=req.user_id;
     openModal('friendReqOverlay');
@@ -1219,6 +1225,8 @@ async function declineFriend(){
   toast('❌ უარყოფილია');
 }
 
+// ==================== DM ====================
+
 function openDMList(){
   document.getElementById('dmListOverlay').classList.add('open');
   buildDMUserList(allUsers);
@@ -1236,8 +1244,18 @@ function buildDMUserList(users){
     const d=document.createElement('div');
     d.className='dm-list-item';
     const on=isOnline(u.last_seen);
-    const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u.emotion||'😊');
-    d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div><div class="list-sub">${rLabel(u.role)}</div></div><span style="font-size:18px">✉️</span>`;
+    const avHtml=u.avatar_url
+      ?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+      :(u.emotion||'😊');
+    d.innerHTML=`
+      <div class="avatar" style="position:relative">
+        ${avHtml}${on?'<div class="online-dot"></div>':''}
+      </div>
+      <div class="list-info">
+        <div class="list-name">${esc(u.username||'?')}</div>
+        <div class="list-sub">${rLabel(u.role)}</div>
+      </div>
+      <span style="font-size:18px">✉️</span>`;
     d.onclick=()=>{closeDMList();openDM(u.id);};
     el.appendChild(d);
   });
@@ -1256,33 +1274,43 @@ async function openDM(uid){
   if(!DM_UID)return;
   const u=allUsers.find(u=>u.id===DM_UID);
   document.getElementById('dmTitle').textContent=u?.username||'პირადი';
-  const avHtml=u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u?.emotion||'👤');
+  const avHtml=u?.avatar_url
+    ?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+    :(u?.emotion||'👤');
   document.getElementById('dmAv').innerHTML=avHtml;
   document.getElementById('dmBox').classList.add('open');
   buildEmojiGrid('dmEmojiGrid','dmInput',false);
   const rk=[ME.id,DM_UID].sort().join('_');
-  const {data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(50);
+  const {data}=await sb.from('direct_messages')
+    .select('*').eq('room_key',rk)
+    .order('created_at',{ascending:true}).limit(50);
   const box=document.getElementById('dmMsgs');
   box.innerHTML='';
   (data||[]).forEach(m=>appendDMMsg(m));
   box.scrollTop=box.scrollHeight;
   if(dmCh)sb.removeChannel(dmCh);
-  dmCh=sb.channel('dm'+rk).on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
-    if(p.new.sender_id===ME.id)return;
-    appendDMMsg(p.new);
-    document.getElementById('dmMsgs').scrollTop=9999;
-    const b=document.getElementById('dmBadge');
-    b.textContent=parseInt(b.textContent||0)+1;
-    b.classList.add('show');
-  }).subscribe();
+  dmCh=sb.channel('dm'+rk)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
+      if(p.new.sender_id===ME.id)return;
+      appendDMMsg(p.new);
+      document.getElementById('dmMsgs').scrollTop=9999;
+      const b=document.getElementById('dmBadge');
+      b.textContent=parseInt(b.textContent||0)+1;
+      b.classList.add('show');
+    }).subscribe();
 }
 
 function appendDMMsg(m){
-  const isMe=m.sender_id===ME.id;
+  const isMe=(m.sender_id===ME.id);
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const box=document.getElementById('dmMsgs');
   const d=document.createElement('div');
-  d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px"><div style="max-width:80%;background:${isMe?'rgba(88,0,184,0.25)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px;color:var(--text);word-break:break-word">${renderContent(m.content)}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`;
+  d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px">
+    <div style="max-width:80%;background:${isMe?'rgba(88,0,184,0.25)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px;color:var(--text);word-break:break-word">
+      ${renderContent(m.content)}
+      <span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span>
+    </div>
+  </div>`;
   box.appendChild(d);
 }
 
@@ -1309,6 +1337,8 @@ function closeDM(){
 
 function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
 
+// ==================== PANELS ====================
+
 function showPanel(name){
   ['rooms','friends','users','online'].forEach(p=>{
     document.getElementById('panel'+cap(p))?.classList.toggle('hidden',p!==name);
@@ -1323,6 +1353,8 @@ function showPanel(name){
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('mob-open');}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
+// ==================== THEME / HEARTS ====================
+
 function toggleTheme(){
   theme=theme==='night'?'day':'night';
   document.body.className=theme;
@@ -1333,7 +1365,8 @@ function spawnHearts(){
   const heartsContainer=document.getElementById('hearts');
   if(!heartsContainer)return;
   const emojis=['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿'];
-  let activeHearts=0;const MAX_HEARTS=50;
+  let activeHearts=0;
+  const MAX_HEARTS=50;
   function createHeart(){
     if(activeHearts>MAX_HEARTS)return;
     const heart=document.createElement('div');
@@ -1355,20 +1388,35 @@ function spawnHearts(){
 setInterval(()=>{
   const hearts=document.getElementById('hearts');
   if(hearts){
-    hearts.style.display='block';hearts.style.visibility='visible';hearts.style.zIndex='999999';
+    hearts.style.display='block';
+    hearts.style.visibility='visible';
+    hearts.style.zIndex='999999';
     if(hearts.parentElement!==document.body)document.body.appendChild(hearts);
   }
 },1000);
 
+// ==================== UTILS ====================
+
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function bgClose(e,id){if(e.target.id===id)closeModal(id);}
+
 function toast(msg){
-  const t=document.createElement('div');t.className='toast';t.textContent=msg;
-  document.body.appendChild(t);setTimeout(()=>t.remove(),2500);
+  const t=document.createElement('div');
+  t.className='toast';
+  t.textContent=msg;
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(),2500);
 }
-function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
-async function logout(){await sb.auth.signOut();location.href='index.html';}
+
+function esc(s){
+  return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  location.href='index.html';
+}
 
 init();
 </script>
