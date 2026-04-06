@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია - სმაილები</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body.night{--bg:#07000f;--panel:#0e0018;--panel2:#130020;--border:rgba(138,43,226,0.3);--text:#ede0ff;--text2:#a07cc0;--text3:#5c3d7a;--bubble:#1a0030;--input-bg:#160025;--online:#b06aff;--indigo:#5800b8;--indigo2:#8b3ff5;--indigo-f:rgba(88,0,184,0.15);--glow:rgba(138,43,226,0.4);--accent:#ff6fff;}
+body.day{--bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);--text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;--online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);--glow:rgba(106,13,173,0.2);--accent:#c040ff;}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+#topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto}
+.nav-logo{font-size:24px;margin-right:8px;cursor:pointer}
+.nav-btn{height:36px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0 12px;flex-shrink:0}
+.nav-btn:hover,.nav-btn.active{background:var(--indigo-f);border-color:var(--border);color:var(--text)}
+.nav-btn span.label{font-size:10px;font-family:'Unbounded',sans-serif}
+.badge{position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;font-size:9px;min-width:14px;height:14px;border-radius:7px;display:none;align-items:center;justify-content:center}
+.badge.show{display:flex}
+.nav-spacer{flex:1}
+#app{display:flex;flex:1;min-height:0}
+#sidebar{width:260px;background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+@media(max-width:640px){#sidebar{display:none}#sidebar.mob-open{display:flex;position:fixed;inset:0;top:50px;z-index:200;width:100%}}
+.sb-header{padding:14px 16px;border-bottom:1px solid var(--border);font-size:9px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.sb-body{flex:1;overflow-y:auto;padding:10px 8px}
+.search-box{width:100%;padding:9px 13px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);outline:none;margin-bottom:10px}
+.room-item,.list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;margin-bottom:2px;border:1px solid transparent}
+.room-item:hover,.list-item:hover{background:var(--indigo-f);border-color:var(--border)}
+.room-item.active{background:var(--indigo-f);border-color:var(--border)}
+.room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px}
+.room-name{font-size:13px;color:var(--text)}
+.list-info{flex:1}
+.list-name{font-size:13px;color:var(--text)}
+.list-sub{font-size:11px;color:var(--text3)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0}
+#main{flex:1;display:flex;flex-direction:column;min-width:0;background:var(--bg)}
+.chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0}
+.chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
+.chat-sub{font-size:11px;color:var(--text2);margin-left:auto;background:var(--indigo-f);padding:3px 10px;border-radius:20px}
+#messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+#messages::-webkit-scrollbar{width:3px}
+.msg-row{display:flex;align-items:flex-end;gap:8px}
+.msg-content{max-width:78%}
+.msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:14px;color:var(--text);word-break:break-word}
+.msg-bubble.mine{background:rgba(88,0,184,0.2)}
+.msg-meta{display:flex;align-items:center;gap:5px;margin-bottom:3px}
+.msg-nick{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
+.role-badge{font-size:9px;padding:1px 5px;border-radius:4px}
+.rb-founder{background:rgba(255,180,0,.18);color:#f0a500}
+.rb-admin{background:rgba(138,43,226,.2);color:#c084fc}
+.msg-time{font-size:10px;color:var(--text3)}
+.chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0}
+.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#msgInput{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:22px;padding:10px 18px;color:var(--text);font-size:14px;outline:none;min-height:42px;max-height:80px;overflow-y:auto}
+.send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#emojiPanel{position:absolute;bottom:74px;left:18px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:14px;width:340px;z-index:1000;display:none}
+#emojiPanel.open{display:block}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:6px;max-height:200px;overflow-y:auto}
+.em-btn{width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);font-size:24px;cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+.em-btn img{width:32px;height:32px;object-fit:cover}
+.em-del{position:absolute;top:-4px;right:-4px;width:16px;height:16px;background:#cc0000;color:#fff;border-radius:50%;font-size:8px;display:none;align-items:center;justify-content:center;cursor:pointer}
+.em-btn:hover .em-del.vis{display:flex}
+#addEmojiSection{border-top:1px solid var(--border);padding-top:10px;margin-top:10px;display:none}
+.ep-upload-btn{width:100%;padding:8px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;cursor:pointer;margin-bottom:7px}
+.ep-add{display:flex;gap:6px}
+.ep-add-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;padding:0 12px;cursor:pointer;height:38px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;padding:26px;position:relative}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.sec-lbl{font-size:9px;color:var(--text2);margin:14px 0 7px}
+.inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);outline:none}
+.act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);cursor:pointer;margin-bottom:6px}
+.act-btn.success{border-color:rgba(80,210,0,.3);color:#88ee44}
+.act-btn.danger{border-color:rgba(220,0,0,.3);color:#ff7777}
+.act-btn.warn{border-color:rgba(255,160,0,.3);color:#ffaa33}
+#dmBox{position:fixed;right:16px;bottom:16px;width:320px;height:420px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000}
+#dmBox.open{display:flex}
+.dm-head{background:var(--indigo);padding:12px;display:flex;align-items:center;gap:8px}
+.dm-title{flex:1;color:#fff;font-size:13px}
+.dm-x{background:rgba(255,255,255,.2);border:none;border-radius:7px;color:#fff;padding:3px 8px;cursor:pointer}
+#dmMsgs{flex:1;overflow-y:auto;padding:12px}
+.dm-bar{display:flex;gap:6px;padding:8px;border-top:1px solid var(--border)}
+#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px;outline:none}
+.dm-emoji-btn{width:32px;height:32px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer}
+.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;padding:0 13px;cursor:pointer}
+#dmEmojiPanel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:260px;display:none}
+#dmEmojiPanel.open{display:block}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;z-index:99999;animation:fadeIn .3s}
+@keyframes fadeIn{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+.hidden{display:none!important}
+</style>
+</head>
+<body class="night">
+<nav id="topnav">
+  <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
+  <button class="nav-btn active" onclick="showPanel('rooms')">💬 <span class="label">ოთახები</span></button>
+  <button class="nav-btn" onclick="showPanel('friends')">👥 <span class="label">მეგობრები</span><span class="badge" id="friendBadge"></span></button>
+  <button class="nav-btn" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
+  <button class="nav-btn" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
+  <button class="nav-btn" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span></button>
+  <div class="nav-spacer"></div>
+  <button class="nav-btn" onclick="openMyProfile()">👤</button>
+  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
+</nav>
+<div id="app">
+  <div id="sidebar">
+    <div id="panelRooms"><div class="sb-header"><div class="sb-dot"></div>ოთახები</div><div class="sb-body" id="roomList"></div></div>
+    <div id="panelFriends" class="hidden"><div class="sb-header"><div class="sb-dot"></div>მეგობრები</div><div class="sb-body" id="friendsList"></div></div>
+    <div id="panelUsers" class="hidden"><div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div><div class="sb-body"><input class="search-box" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()"><div id="usersListEl"></div></div></div>
+    <div id="panelOnline" class="hidden"><div class="sb-header"><div class="sb-dot"></div>ონლაინი</div><div class="sb-body" id="onlineListEl"></div></div>
+  </div>
+  <div id="main">
+    <div class="chat-header"><div style="font-size:22px" id="roomIcon">💬</div><div class="chat-title" id="roomTitle">ოთახი 1</div><div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div></div>
+    <div id="messages"></div>
+    <div id="emojiPanel"><div class="emoji-grid" id="emojiGrid"></div><div id="addEmojiSection"><input type="file" id="emojiImgInput" accept="image/*" multiple style="display:none" onchange="handleEmojiImages(event)"><button class="ep-upload-btn" onclick="document.getElementById('emojiImgInput').click()">🖼️ სურათის სმაილი</button><div class="ep-add"><input class="inp" id="newEmojiInput" placeholder="😊" maxlength="2" style="margin:0;width:55px"><button class="ep-add-btn" onclick="addTextEmoji()">+ ტექსტი</button></div></div></div>
+    <div class="chat-bar"><button class="icon-btn" onclick="toggleEmojiPanel()">😊</button><input id="msgInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter'){event.preventDefault();sendMessage()}"><button class="send-btn" onclick="sendMessage()">✈️</button></div>
+  </div>
+</div>
+<div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')"><div class="modal"><button class="modal-x" onclick="closeModal('profileOverlay')">✕</button><div class="modal-title">პროფილი</div><div id="profileContent"></div></div></div>
+<div id="dmBox"><div class="dm-head"><div class="avatar" id="dmAv" style="width:28px;height:28px">👤</div><div class="dm-title" id="dmTitle">პირადი</div><button class="dm-x" onclick="closeDM()">✕</button></div><div id="dmMsgs"></div><div id="dmEmojiPanel"><div class="emoji-grid" id="dmEmojiGrid"></div></div><div class="dm-bar"><button class="dm-emoji-btn" onclick="toggleDMEmoji()">😊</button><input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()"><button class="dm-send" onclick="sendDM()">✈️</button></div></div>
+<div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')"><div class="modal"><button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button><div class="modal-title">📬 მეგობრის მოთხოვნა</div><p id="friendReqTxt"></p><button class="act-btn success" onclick="acceptFriend()">✅ დასტური</button><button class="act-btn danger" onclick="declineFriend()">❌ უარი</button></div></div>
+<div id="dmListOverlay" class="overlay" onclick="bgClose(event,'dmListOverlay')"><div class="modal" style="max-width:340px"><div class="modal-title">✉️ პირადი</div><input class="search-box" placeholder="🔍 ძებნა..." id="dmUserSearch" oninput="filterDMUsers()"><div id="dmUserList"></div></div></div>
+
+<script>
+const {createClient}=supabase;
+const sb=createClient("https://vjstuyxuhshsouqsnvxp.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE");
+
+let ME=null, MYPROF=null, ROOM=1, VIEW_UID=null, DM_UID=null;
+let allUsers=[], myFriends=[], customEmojis=[];
+let selectedEmotion='😊', msgCh=null, dmCh=null, theme='night';
+
+const ROOMS=[{id:1,icon:'🏠',name:'ოთახი 1'},{id:2,icon:'🎮',name:'ოთახი 2'},{id:3,icon:'🎵',name:'ოთახი 3'},{id:4,icon:'🌙',name:'ოთახი 4'},{id:5,icon:'🔥',name:'ოთახი 5'},{id:6,icon:'💜',name:'ოთახი 6'},{id:7,icon:'🌊',name:'ოთახი 7'},{id:8,icon:'🦋',name:'ოთახი 8'}];
+
+async function init(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user){location.href='index.html';return;}
+  ME=user;
+  MYPROF=await loadProf(ME.id);
+  if(!MYPROF){
+    await sb.from('profiles').insert({id:ME.id,username:user.email?.split('@')[0]||'მომხმარებელი',role:'member',emotion:'😊'});
+    MYPROF=await loadProf(ME.id);
+  }
+  if(MYPROF?.is_blocked){alert('დაბლოკილი ხარ');await sb.auth.signOut();location.href='index.html';return;}
+  
+  await loadEmojis();
+  buildRooms();
+  buildEmojis();
+  switchRoom(ROOMS[0]);
+  await loadAllUsers();
+  await pingOnline();
+  setInterval(pingOnline,20000);
+  setInterval(loadAllUsers,15000);
+  checkFriendReqs();
+}
+
+async function loadProf(uid){
+  const {data}=await sb.from('profiles').select('*').eq('id',uid).single();
+  return data;
+}
+
+// ========== EMOJI სისტემა (global_emojis ცხრილი) ==========
+async function loadEmojis(){
+  const {data, error} = await sb.from('global_emojis').select('*').order('created_at', {ascending: true});
+  if(error){
+    console.error('Emoji load error:', error);
+    customEmojis = ['😊','😂','❤️','🔥','😍','🥺','👑','💜','✨','🎉'];
+    return;
+  }
+  if(data && data.length){
+    customEmojis = data.map(e => e.content);
+    console.log(`✅ ჩაიტვირთა ${customEmojis.length} ემოჯი global_emojis-დან`);
+  } else {
+    customEmojis = ['😊','😂','❤️','🔥','😍','🥺','👑','💜','✨','🎉'];
+    for(let em of customEmojis){
+      await sb.from('global_emojis').insert({content: em, type: 'text'});
+    }
+  }
+}
+
+async function addTextEmoji(){
+  const canManage = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  if(!canManage){ toast('❌ მხოლოდ ადმინს შეუძლია'); return; }
+  
+  const val = document.getElementById('newEmojiInput').value.trim();
+  if(!val || val.length > 6){ toast('❌ მაქს 6 სიმბოლო'); return; }
+  
+  const {error} = await sb.from('global_emojis').insert({content: val, type: 'text', created_by: ME.id});
+  if(error){ toast('❌ '+error.message); return; }
+  
+  customEmojis.push(val);
+  document.getElementById('newEmojiInput').value = '';
+  buildEmojis();
+  toast('✅ სმაილი დაემატა ყველასთვის!');
+}
+
+async function handleEmojiImages(e){
+  const canManage = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  if(!canManage){ toast('❌ მხოლოდ ადმინს შეუძლია'); return; }
+  
+  const files = Array.from(e.target.files);
+  if(!files.length) return;
+  toast('⏳ იტვირთება...');
+  
+  for(let file of files){
+    if(file.size > 2*1024*1024){ toast('❌ 2MB-ზე დიდი'); continue; }
+    const dataUrl = await resizeImage(file, 64, 64);
+    const {error} = await sb.from('global_emojis').insert({content: dataUrl, type: 'image', created_by: ME.id});
+    if(error){ toast('❌ '+error.message); continue; }
+    customEmojis.push(dataUrl);
+  }
+  buildEmojis();
+  toast('✅ სურათის სმაილები დაემატა!');
+  e.target.value = '';
+}
+
+async function removeEmoji(idx){
+  const canManage = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  if(!canManage){ toast('❌ მხოლოდ ადმინს შეუძლია'); return; }
+  
+  const em = customEmojis[idx];
+  if(!em) return;
+  const {error} = await sb.from('global_emojis').delete().eq('content', em);
+  if(error){ toast('❌ '+error.message); return; }
+  customEmojis.splice(idx, 1);
+  buildEmojis();
+  toast('🗑 წაიშალა!');
+}
+
+function resizeImage(file, w, h){
+  return new Promise((resolve, reject)=>{
+    const reader=new FileReader();
+    reader.onload=ev=>{
+      const img=new Image();
+      img.onload=()=>{
+        const canvas=document.createElement('canvas');
+        canvas.width=w; canvas.height=h;
+        const ctx=canvas.getContext('2d');
+        ctx.drawImage(img,0,0,w,h);
+        resolve(canvas.toDataURL('image/png'));
+      };
+      img.onerror=reject;
+      img.src=ev.target.result;
+    };
+    reader.onerror=reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function buildEmojis(){
+  buildEmojiGrid('emojiGrid','msgInput',true);
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+}
+
+function buildEmojiGrid(gridId, inputId, withManage){
+  const grid=document.getElementById(gridId);
+  if(!grid)return;
+  grid.innerHTML='';
+  const canManage = withManage && (MYPROF?.role === 'admin' || MYPROF?.role === 'founder');
+  
+  if(withManage){
+    const addSec=document.getElementById('addEmojiSection');
+    if(addSec) addSec.style.display = canManage ? 'block' : 'none';
+  }
+  
+  customEmojis.forEach((em, idx)=>{
+    const btn=document.createElement('button');
+    btn.className='em-btn';
+    if(em.startsWith('data:')){
+      const img=document.createElement('img');
+      img.src=em;
+      btn.appendChild(img);
+    } else {
+      btn.textContent=em;
+    }
+    if(canManage){
+      const del=document.createElement('button');
+      del.className='em-del vis';
+      del.textContent='✕';
+      del.onclick=(e)=>{ e.stopPropagation(); removeEmoji(idx); };
+      btn.appendChild(del);
+    }
+    btn.onclick=()=>{
+      const inp=document.getElementById(inputId);
+      if(em.startsWith('data:')){
+        inp.value += `[img:${em}]`;
+      } else {
+        inp.value += em;
+      }
+      inp.focus();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function renderContent(text){
+  if(!text) return '';
+  return text.replace(/\[img:(data:image\/[^\]]+)\]/g, (match, dataUrl)=>{
+    return `<img src="${dataUrl}" style="width:24px;height:24px;border-radius:4px;vertical-align:middle;margin:0 2px">`;
+  }).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ========== ძირითადი ფუნქციები ==========
+function buildRooms(){
+  const el=document.getElementById('roomList');
+  el.innerHTML='';
+  ROOMS.forEach(r=>{
+    const d=document.createElement('div');
+    d.className='room-item'+(r.id===ROOM?' active':'');
+    d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>`;
+    d.onclick=()=>switchRoom(r);
+    el.appendChild(d);
+  });
+}
+
+function switchRoom(r){
+  ROOM=r.id;
+  document.getElementById('roomTitle').textContent=r.name;
+  document.getElementById('roomIcon').textContent=r.icon;
+  document.querySelectorAll('.room-item').forEach((el,i)=>el.classList.toggle('active',i===r.id-1));
+  loadMessages(r.id);
+}
+
+async function loadMessages(roomId){
+  if(msgCh) sb.removeChannel(msgCh);
+  const {data}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
+  const box=document.getElementById('messages');
+  box.innerHTML='';
+  (data||[]).forEach(m=>appendMsg(m));
+  box.scrollTop=box.scrollHeight;
+  msgCh=sb.channel('room'+roomId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room_id=eq.${roomId}`},async payload=>{
+      const {data:msg}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id',payload.new.id).single();
+      if(msg){appendMsg(msg);box.scrollTop=box.scrollHeight;}
+    })
+    .subscribe();
+}
+
+function appendMsg(m){
+  const isMe=m.user_id===ME?.id;
+  const canDel=MYPROF?.role==='founder' || (MYPROF?.role==='admin' && m.profiles?.role!=='founder');
+  const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+  const role=m.profiles?.role;
+  const rbadge=role && role!=='member' ? `<span class="role-badge ${role==='founder'?'rb-founder':'rb-admin'}">${role==='founder'?'👑 დამფუძნებელი':'🛡️ ადმინი'}</span>` : '';
+  const avHtml=m.profiles?.avatar_url ? `<img src="${m.profiles.avatar_url}">` : (m.profiles?.emotion||'😊');
+  const row=document.createElement('div');
+  row.className='msg-row';
+  row.id='msg'+m.id;
+  row.innerHTML=`<div class="avatar" style="cursor:pointer" onclick="openProfile('${m.user_id}')">${avHtml}</div><div class="msg-content"><div class="msg-meta"><span class="msg-nick" onclick="openProfile('${m.user_id}')">${escapeHtml(m.profiles?.username||'?')}</span>${rbadge}<span class="msg-time">${t}</span></div><div class="msg-bubble${isMe?' mine':''}">${renderContent(m.content)}${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')" style="background:none;border:none;float:right;margin-left:8px;cursor:pointer">🗑</button>`:''}</div></div>`;
+  document.getElementById('messages').appendChild(row);
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('msgInput');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt});
+}
+
+async function delMsg(id){ if(confirm('წავშალო?')) await sb.from('messages').delete().eq('id',id); }
+
+async function loadAllUsers(){
+  const {data}=await sb.from('profiles').select('*').order('username');
+  allUsers=data||[];
+  renderUserLists();
+}
+
+function renderUserLists(){
+  const founders=allUsers.filter(u=>u.role==='founder'), admins=allUsers.filter(u=>u.role==='admin'), members=allUsers.filter(u=>u.role==='member');
+  const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));
+  document.getElementById('onlineCnt').textContent=`● ${onlineNow.length} ონლაინი`;
+  
+  const usEl=document.getElementById('usersListEl');
+  if(usEl){
+    usEl.innerHTML='';
+    [...founders, ...admins, ...members].forEach(u=>usEl.appendChild(makeUserItem(u)));
+  }
+  const onEl=document.getElementById('onlineListEl');
+  if(onEl){
+    onEl.innerHTML='';
+    const onlineUsers=allUsers.filter(u=>isOnline(u.last_seen));
+    if(!onlineUsers.length){
+      onEl.innerHTML='<div style="color:var(--text3);text-align:center;padding:24px">ახლა არავინ არის ონლაინი</div>';
+    } else {
+      onlineUsers.forEach(u=>onEl.appendChild(makeUserItem(u)));
+    }
+  }
+  renderFriends();
+}
+
+function makeUserItem(u){
+  const d=document.createElement('div');
+  d.className='list-item';
+  const on=isOnline(u.last_seen);
+  const avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');
+  d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${escapeHtml(u.username)}</div>${u.status?`<div class="list-sub">${escapeHtml(u.status)}</div>`:''}</div>`;
+  d.onclick=()=>openProfile(u.id);
+  return d;
+}
+
+function filterUsers(){ const q=document.getElementById('userSearch').value.toLowerCase(); document.querySelectorAll('#usersListEl .list-item').forEach(el=>{ el.style.display=el.textContent.toLowerCase().includes(q)?'':'none'; }); }
+function isOnline(ts){ if(!ts)return false; return Date.now()-new Date(ts).getTime()<60000; }
+async function pingOnline(){ if(ME) await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id); }
+
+async function openProfile(uid){
+  VIEW_UID=uid;
+  const p=await loadProf(uid);
+  const isSelf=uid===ME.id;
+  const myRole=MYPROF?.role;
+  const modal=document.getElementById('profileContent');
+  modal.innerHTML=`
+    <div style="text-align:center;margin-bottom:20px"><div class="avatar" style="width:80px;height:80px;margin:0 auto;font-size:40px;cursor:pointer" onclick="${isSelf?'clickAvatar()':''}">${p?.avatar_url?`<img src="${p.avatar_url}" style="width:100%;height:100%">`:`<span>${p?.emotion||'😊'}</span>`}</div><div style="font-size:18px;font-weight:600;margin-top:10px">${escapeHtml(p?.username)}</div><span class="role-badge ${p?.role==='founder'?'rb-founder':p?.role==='admin'?'rb-admin':''}" style="padding:3px 12px">${p?.role==='founder'?'👑 დამფუძნებელი':p?.role==='admin'?'🛡️ ადმინი':'👤 წევრი'}</span></div>
+    <div class="sec-lbl">სტატუსი</div><input class="inp" id="statusInp" placeholder="სტატუსი..." value="${escapeHtml(p?.status||'')}" ${isSelf?'':'disabled'}>
+    <div class="sec-lbl">ემოცია</div><div class="emo-row" id="emoRowMain" style="display:flex;gap:5px;flex-wrap:wrap">${['😊','😍','😴','😤','🥺','🎮','🎵','💜'].map(e=>`<button class="emo-btn" onclick="pickEmo(this,'${e}')" style="padding:6px 11px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer">${e}</button>`).join('')}</div>
+    <input class="inp" id="emoComment" placeholder="კომენტარი..." value="${escapeHtml(p?.emotion_comment||'')}" ${isSelf?'':'disabled'}>
+    <button class="act-btn success" onclick="saveProfile()" ${isSelf?'':'style="display:none"'}>✅ შენახვა</button>
+    ${myRole==='founder' && !isSelf ? `<div style="margin-top:15px"><div class="sec-lbl">👑 დამფუძნებლის პანელი</div><select class="inp" id="roleSelect"><option value="member" ${p?.role==='member'?'selected':''}>👤 წევრი</option><option value="admin" ${p?.role==='admin'?'selected':''}>🛡️ ადმინი</option><option value="founder" ${p?.role==='founder'?'selected':''}>👑 დამფუძნებელი</option></select><button class="act-btn" onclick="assignRole()">🎖️ როლის მინიჭება</button><button class="act-btn warn" onclick="removeRole()">🔄 წევრად გადაყვანა</button><input class="inp" id="blockReason" placeholder="დაბლოკვის მიზეზი..."><button class="act-btn danger" onclick="blockUser()">🚫 დაბლოკვა</button><button class="act-btn success" onclick="unblockUser()">✅ განბლოკვა</button></div>` : ''}
+    <div style="margin-top:15px"><button class="act-btn" onclick="toggleFriend()" id="friendBtn">${myFriends.includes(uid)?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება'}</button><button class="act-btn" onclick="openDMfromProfile()">✉️ პირადი შეტყობინება</button></div>
+  `;
+  selectedEmotion=p?.emotion||'😊';
+  document.querySelectorAll('.emo-btn').forEach(btn=>btn.classList.toggle('active',btn.textContent===selectedEmotion));
+  document.getElementById('profileOverlay').classList.add('open');
+}
+
+async function saveProfile(){
+  await sb.from('profiles').update({status:document.getElementById('statusInp').value, emotion:selectedEmotion, emotion_comment:document.getElementById('emoComment').value}).eq('id',ME.id);
+  toast('✅ შენახულია!');
+  closeModal('profileOverlay');
+}
+function pickEmo(btn,em){ selectedEmotion=em; document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('active')); btn.classList.add('active'); }
+function clickAvatar(){ alert('ავატარის შეცვლა მალე დაემატება'); }
+async function assignRole(){ if(MYPROF?.role!=='founder')return; await sb.from('profiles').update({role:document.getElementById('roleSelect').value}).eq('id',VIEW_UID); toast('✅ როლი შეიცვალა'); loadAllUsers(); openProfile(VIEW_UID); }
+async function removeRole(){ if(MYPROF?.role!=='founder')return; await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID); toast('✅ წევრი გახდა'); loadAllUsers(); openProfile(VIEW_UID); }
+async function blockUser(){ if(MYPROF?.role!=='founder')return; await sb.from('profiles').update({is_blocked:true,block_reason:document.getElementById('blockReason').value}).eq('id',VIEW_UID); toast('🚫 დაიბლოკა'); closeModal('profileOverlay'); }
+async function unblockUser(){ if(MYPROF?.role!=='founder')return; await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID); toast('✅ განბლოკილია'); }
+
+async function toggleFriend(){
+  if(myFriends.includes(VIEW_UID)){
+    await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);
+    myFriends=myFriends.filter(f=>f!==VIEW_UID);
+    toast('💔 მეგობრობა გაუქმდა');
+  } else {
+    await sb.from('friends').insert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});
+    toast('📨 მოთხოვნა გაიგზავნა');
+  }
+  document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
+}
+
+async function checkFriendReqs(){
+  const {data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');
+  const badge=document.getElementById('friendBadge');
+  if(data && data.length){
+    badge.textContent=data.length; badge.classList.add('show');
+    const req=data[0];
+    document.getElementById('friendReqTxt').innerHTML=`${escapeHtml(req.profiles?.username)} გვინდა დაგამატოს მეგობრებში`;
+    document.getElementById('friendReqOverlay').dataset.rid=req.id;
+    document.getElementById('friendReqOverlay').dataset.fid=req.user_id;
+    document.getElementById('friendReqOverlay').classList.add('open');
+  } else { badge.classList.remove('show'); }
+}
+async function acceptFriend(){ const rid=document.getElementById('friendReqOverlay').dataset.rid; const fid=document.getElementById('friendReqOverlay').dataset.fid; await sb.from('friends').update({status:'accepted'}).eq('id',rid); await sb.from('friends').insert({user_id:ME.id,friend_id:fid,status:'accepted'}); myFriends.push(fid); closeModal('friendReqOverlay'); toast('✅ მეგობარი დაემატა'); renderFriends(); }
+async function declineFriend(){ await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid); closeModal('friendReqOverlay'); toast('❌ უარყოფილია'); }
+
+async function renderFriends(){
+  const {data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');
+  myFriends=(data||[]).map(f=>f.friend_id);
+  const el=document.getElementById('friendsList');
+  if(!el)return;
+  el.innerHTML='';
+  const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);
+  if(!list.length){ el.innerHTML='<div style="color:var(--text3);text-align:center;padding:24px">მეგობრები ჯერ არ გყავს 💜</div>'; return; }
+  list.forEach(u=>el.appendChild(makeUserItem(u)));
+}
+
+function openDMList(){ document.getElementById('dmListOverlay').classList.add('open'); buildDMUserList(allUsers.filter(u=>u.id!==ME?.id)); }
+function buildDMUserList(users){ const el=document.getElementById('dmUserList'); el.innerHTML=''; users.forEach(u=>{ const d=document.createElement('div'); d.className='list-item'; d.innerHTML=`<div class="avatar">${u.avatar_url?`<img src="${u.avatar_url}">`:u.emotion||'😊'}</div><div class="list-info"><div class="list-name">${escapeHtml(u.username)}</div><div class="list-sub">${u.role==='founder'?'👑 დამფუძნებელი':u.role==='admin'?'🛡️ ადმინი':'👤 წევრი'}</div></div><span>✉️</span>`; d.onclick=()=>{ closeDMList(); openDM(u.id); }; el.appendChild(d); }); }
+function filterDMUsers(){ const q=document.getElementById('dmUserSearch').value.toLowerCase(); buildDMUserList(allUsers.filter(u=>u.id!==ME?.id && u.username.toLowerCase().includes(q))); }
+function closeDMList(){ document.getElementById('dmListOverlay').classList.remove('open'); }
+async function openDM(uid){ if(uid) DM_UID=uid; if(!DM_UID)return; const u=allUsers.find(u=>u.id===DM_UID); document.getElementById('dmTitle').textContent=u?.username||'პირადი'; document.getElementById('dmAv').innerHTML=u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%">`:u?.emotion||'👤'; document.getElementById('dmBox').classList.add('open'); const rk=[ME.id,DM_UID].sort().join('_'); const {data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(50); const box=document.getElementById('dmMsgs'); box.innerHTML=''; (data||[]).forEach(m=>appendDMMsg(m)); box.scrollTop=box.scrollHeight; if(dmCh)sb.removeChannel(dmCh); dmCh=sb.channel('dm'+rk).on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{ if(p.new.sender_id===ME.id)return; appendDMMsg(p.new); box.scrollTop=9999; const b=document.getElementById('dmBadge'); b.textContent=parseInt(b.textContent||0)+1; b.classList.add('show'); }).subscribe(); }
+function appendDMMsg(m){ const isMe=m.sender_id===ME.id; const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'}); const d=document.createElement('div'); d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px"><div style="max-width:80%;background:${isMe?'rgba(88,0,184,0.25)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px">${renderContent(m.content)}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`; document.getElementById('dmMsgs').appendChild(d); }
+async function sendDM(){ const inp=document.getElementById('dmInput'); const txt=inp.value.trim(); if(!txt||!DM_UID)return; inp.value=''; const rk=[ME.id,DM_UID].sort().join('_'); appendDMMsg({sender_id:ME.id,content:txt,created_at:new Date().toISOString()}); document.getElementById('dmMsgs').scrollTop=9999; await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt}); }
+function closeDM(){ document.getElementById('dmBox').classList.remove('open'); document.getElementById('dmEmojiPanel').classList.remove('open'); document.getElementById('dmBadge').textContent=''; document.getElementById('dmBadge').classList.remove('show'); DM_UID=null; if(dmCh)sb.removeChannel(dmCh); dmCh=null; }
+function openDMfromProfile(){ closeModal('profileOverlay'); openDM(VIEW_UID); }
+function toggleEmojiPanel(){ document.getElementById('emojiPanel').classList.toggle('open'); }
+function toggleDMEmoji(){ document.getElementById('dmEmojiPanel').classList.toggle('open'); buildEmojiGrid('dmEmojiGrid','dmInput',false); }
+function showPanel(name){ ['rooms','friends','users','online'].forEach(p=>{ document.getElementById('panel'+p.charAt(0).toUpperCase()+p.slice(1)).classList.toggle('hidden',p!==name); }); document.getElementById('sidebar').classList.add('mob-open'); if(name==='friends')renderFriends(); if(name==='users'||name==='online')loadAllUsers(); }
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('mob-open'); }
+function toggleTheme(){ theme=theme==='night'?'day':'night'; document.body.className=theme; document.getElementById('themeBtn').textContent=theme==='night'?'🌙':'☀️'; }
+function closeModal(id){ document.getElementById(id).classList.remove('open'); }
+function bgClose(e,id){ if(e.target.id===id) closeModal(id); }
+function toast(msg){ const t=document.createElement('div'); t.className='toast'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+function escapeHtml(str){ if(!str)return ''; return str.replace(/[&<>]/g, function(m){if(m==='&')return '&amp;'; if(m==='<')return '&lt;'; if(m==='>')return '&gt;'; return m;}); }
+async function logout(){ await sb.auth.signOut(); location.href='index.html'; }
+function openMyProfile(){ openProfile(ME.id); }
+init();
+</script>
+</body>
+</html>
