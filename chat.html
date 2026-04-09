@@ -572,15 +572,12 @@ function renderContent(s) {
     const numId = parseInt(id);
     const url = emojiCache[numId];
     if (!url) return match;
-    // Storage URL ან text emoji
     if (url.startsWith('http')) {
-      // GIF შემოწმება URL-ში
       if (url.includes('.gif') || url.includes('gif')) {
         return `<img src="${url}" class="chat-emoji-gif" loading="eager" decoding="async">`;
       }
       return `<img src="${url}" class="chat-emoji" loading="eager">`;
     }
-    // ძველი base64 (უკუთავსებადობა)
     if (url.startsWith('data:image/gif')) {
       return `<img src="${url}" class="chat-emoji-gif" loading="eager" decoding="async">`;
     }
@@ -647,8 +644,53 @@ async function loadEmojis() {
 }
 
 // ================================================================
-// გამოსწორებული handleEmojiImages — Supabase Storage-ის გამოყენება
-// base64-ის ნაცვლად ფაილი იტვირთება storage-ში და URL ინახება
+// compressImage — Canvas-ით სურათის კომპრესია ატვირთვამდე
+// GIF-ები გამოტოვებულია (Canvas GIF-ს animation-ს ვერ ინახავს)
+// მაქსიმუმი: 256x256px, quality 0.85 — ადვილად ჩაეტევა 500KB-ში
+// ================================================================
+function compressImage(file, maxSizePx = 256, quality = 0.85) {
+  return new Promise((resolve, reject) => {
+    // GIF-ები პირდაპირ გავატაროთ — Canvas მათ animation-ს ვერ ინახავს
+    if (file.type === 'image/gif') { resolve(file); return; }
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+      let { width, height } = img;
+
+      // პროპორციულად შეამცირე თუ ძალიან დიდია
+      if (width > maxSizePx || height > maxSizePx) {
+        if (width > height) {
+          height = Math.round(height * maxSizePx / width);
+          width = maxSizePx;
+        } else {
+          width = Math.round(width * maxSizePx / height);
+          height = maxSizePx;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(blob => {
+        if (!blob) { reject(new Error('კომპრესია ვერ მოხდა')); return; }
+        // Blob-ს ფაილად გარდაქმნა
+        const compressed = new File([blob], file.name, { type: 'image/webp', lastModified: Date.now() });
+        resolve(compressed);
+      }, 'image/webp', quality);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); reject(new Error('სურათი ვერ ჩაიტვირთა')); };
+    img.src = url;
+  });
+}
+
+// ================================================================
+// handleEmojiImages — Storage-ის გამოყენება + კომპრესია
+// ატვირთვამდე სურათი Canvas-ით კომპრესსდება რომ 500KB-ში ჩაჯდეს
 // ================================================================
 async function handleEmojiImages(e) {
   const files = Array.from(e.target.files);
@@ -657,27 +699,51 @@ async function handleEmojiImages(e) {
     toast('❌ მხოლოდ ადმინს/დამფუძნებელს შეუძლია!');
     return;
   }
-  toast('⏳ იტვირთება...');
+  toast('⏳ მუშავდება და იტვირთება...');
   let added = 0;
 
-  for (const file of files) {
+  for (const originalFile of files) {
     try {
-      // ზომის შემოწმება: GIF მაქს 5MB, სხვა მაქს 10MB
-      const maxSize = file.type === 'image/gif' ? 5 * 1024 * 1024 : 10 * 1024 * 1024;
-      if (file.size > maxSize) {
-        toast('❌ ' + file.name + ' ძალიან დიდია! (GIF მაქს 5MB, სხვა 10MB)');
+      // ორიგინალის ზომის შემოწმება (20MB მაქს)
+      const maxOriginal = 20 * 1024 * 1024;
+      if (originalFile.size > maxOriginal) {
+        toast('❌ ' + originalFile.name + ' ძალიან დიდია! (მაქს 20MB)');
         continue;
       }
 
-      // უნიკალური ფაილის სახელი
-      const ext = file.name.split('.').pop().toLowerCase() || 'png';
-      const fileName = `emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      // კომპრესია (GIF-ები გამოტოვებულია)
+      let fileToUpload;
+      try {
+        fileToUpload = await compressImage(originalFile, 256, 0.85);
+        if (fileToUpload !== originalFile) {
+          console.log(`კომპრესია: ${originalFile.name} ${(originalFile.size/1024).toFixed(0)}KB → ${(fileToUpload.size/1024).toFixed(0)}KB`);
+        }
+      } catch(compErr) {
+        console.warn('კომპრესია ვერ მოხდა, ორიგინალი ვცადოთ:', compErr);
+        fileToUpload = originalFile;
+      }
 
-      // Supabase Storage-ში ატვირთვა (bucket: emojis)
+      // კომპრესირებულის ზომის შემოწმება
+      if (fileToUpload.size > 490 * 1024) {
+        // კიდევ ერთი მცდელობა უფრო მაღალი კომპრესიით
+        try {
+          fileToUpload = await compressImage(originalFile, 128, 0.75);
+          console.log(`მეორე კომპრესია: ${(fileToUpload.size/1024).toFixed(0)}KB`);
+        } catch(e2) {
+          // გავაგრძელოთ
+        }
+      }
+
+      // Storage-ში ატვირთვა
+      const isGif = originalFile.type === 'image/gif';
+      const ext = isGif ? 'gif' : 'webp';
+      const fileName = `emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const contentType = isGif ? 'image/gif' : 'image/webp';
+
       const { data: uploadData, error: uploadError } = await sb.storage
         .from('emojis')
-        .upload(fileName, file, {
-          contentType: file.type,
+        .upload(fileName, fileToUpload, {
+          contentType,
           upsert: false
         });
 
@@ -687,14 +753,11 @@ async function handleEmojiImages(e) {
         continue;
       }
 
-      // Public URL-ის მიღება
-      const { data: urlData } = sb.storage
-        .from('emojis')
-        .getPublicUrl(fileName);
-
+      // Public URL
+      const { data: urlData } = sb.storage.from('emojis').getPublicUrl(fileName);
       const publicUrl = urlData.publicUrl;
 
-      // ბაზაში მხოლოდ URL-ის შენახვა
+      // ბაზაში შენახვა
       const { data: insertData, error: insertError } = await sb
         .from('global_emojis')
         .insert({ url: publicUrl })
@@ -703,7 +766,6 @@ async function handleEmojiImages(e) {
 
       if (insertError) {
         toast('❌ ' + insertError.message);
-        // Storage-იდანაც წავშალოთ თუ ბაზაში ვერ შეინახა
         await sb.storage.from('emojis').remove([fileName]);
         continue;
       }
@@ -739,29 +801,19 @@ async function addTextEmoji() {
   await loadEmojis(); buildEmojis();
 }
 
-// ================================================================
-// გამოსწორებული removeEmoji — Storage-იდანაც შლის
-// ================================================================
 async function removeEmoji(id) {
   const emoji = customEmojis.find(e => e.id === id);
-
-  // ბაზიდან წაშლა
   const {error} = await sb.from('global_emojis').delete().eq('id', id);
   if (error) { toast('❌ ' + error.message); return; }
-
-  // Storage-იდანაც წაშლა (მხოლოდ თუ Storage URL-ია)
   if (emoji?.url && emoji.url.includes('/storage/v1/object/public/emojis/')) {
     try {
       const parts = emoji.url.split('/storage/v1/object/public/emojis/');
       if (parts.length > 1) {
-        const fileName = parts[1].split('?')[0]; // query params მოვაშოროთ
+        const fileName = parts[1].split('?')[0];
         await sb.storage.from('emojis').remove([fileName]);
       }
-    } catch(err) {
-      console.warn('Storage delete warning:', err);
-    }
+    } catch(err) { console.warn('Storage delete warning:', err); }
   }
-
   toast('🗑 სმაილი წაიშალა');
   await loadEmojis(); buildEmojis();
 }
