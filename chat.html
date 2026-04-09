@@ -9,7 +9,6 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-/* ===== NIGHT MODE ===== */
 body.night{
   --bg:#1c1a30;
   --panel:#252240;
@@ -28,7 +27,6 @@ body.night{
   --accent:#f07aff;
 }
 
-/* ===== DAY MODE ===== */
 body.day{
   --bg:#f5eeff;
   --panel:#ede0ff;
@@ -65,20 +63,8 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 @keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 20px var(--glow)) drop-shadow(0 0 40px var(--accent))}}
 @keyframes planeShoot{0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}60%{transform:translate(30px,-30px) rotate(-40deg) scale(.8);opacity:.5}100%{transform:translate(60px,-60px) rotate(-45deg) scale(.4);opacity:0}}
 
-#panelRooms,#panelFriends,#panelUsers,#panelOnline{animation:panelSlideIn 0.4s cubic-bezier(0.2,0.9,0.4,1.1)}
-.room-item{animation:itemFadeIn 0.3s ease backwards;animation-delay:calc(var(--order,0) * 0.03s)}
-.room-item:nth-child(1){--order:1}.room-item:nth-child(2){--order:2}.room-item:nth-child(3){--order:3}.room-item:nth-child(4){--order:4}.room-item:nth-child(5){--order:5}.room-item:nth-child(6){--order:6}.room-item:nth-child(7){--order:7}.room-item:nth-child(8){--order:8}.room-item:nth-child(9){--order:9}.room-item:nth-child(10){--order:10}.room-item:nth-child(11){--order:11}.room-item:nth-child(12){--order:12}
-.msg-row{animation:messagePop 0.35s cubic-bezier(0.34,1.2,0.64,1) backwards}
-.gal-item{animation:galleryZoom 0.4s cubic-bezier(0.2,0.9,0.4,1.1) backwards;animation-delay:calc(var(--gal-order,0) * 0.05s)}
-.gal-item:nth-child(1){--gal-order:1}.gal-item:nth-child(2){--gal-order:2}.gal-item:nth-child(3){--gal-order:3}
-#dmBox{animation:dmSlideUp 0.35s cubic-bezier(0.2,0.9,0.4,1.1);transform-origin:bottom right}
-.modal{animation:modalFloat 0.4s cubic-bezier(0.34,1.3,0.64,1)}
-
-#hearts{position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden}
-.heart{position:absolute;bottom:-60px;will-change:transform,opacity;transform:translateZ(0);user-select:none;z-index:999999;animation:heartFloat linear;}
-
 .msg-bubble img.chat-emoji{width:52px!important;height:52px!important;object-fit:cover;vertical-align:middle;margin:0 3px;display:inline-block;border-radius:8px}
-.msg-bubble img.chat-emoji-gif{width:64px!important;height:64px!important;object-fit:contain;vertical-align:middle;margin:0 3px;display:inline-block;border-radius:10px;image-rendering:auto}
+.msg-bubble img.chat-emoji-gif{width:64px!important;height:64px!important;object-fit:contain;vertical-align:middle;margin:0 3px;display:inline-block;border-radius:10px}
 
 #topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto;scrollbar-width:none;box-shadow:0 2px 20px rgba(0,0,0,.25)}
 #topnav::-webkit-scrollbar{display:none}
@@ -98,209 +84,165 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .sb-body{flex:1;overflow-y:auto;padding:10px 8px}
 .sb-body::-webkit-scrollbar{width:3px}
 .sb-body::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.search-box{width:100%;padding:9px 13px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none;margin-bottom:10px;transition:border-color .2s}
+.search-box{width:100%;padding:9px 13px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none;margin-bottom:10px}
 .search-box:focus{border-color:var(--indigo2)}
-.search-box::placeholder{color:var(--text3)}
 .role-header{display:flex;align-items:center;gap:8px;padding:10px 8px 5px;margin-top:4px}
 .role-header-line{flex:1;height:1px;background:var(--border)}
-.role-header-text{font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;font-family:'Unbounded',sans-serif;white-space:nowrap}
-.room-item,.list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:16px;cursor:pointer;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);margin-bottom:2px;border:1px solid transparent}
+.role-header-text{font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase;font-family:'Unbounded',sans-serif}
+.room-item,.list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:16px;cursor:pointer;transition:all 0.2s;margin-bottom:2px;border:1px solid transparent}
 .room-item:hover,.list-item:hover{background:var(--indigo-f);border-color:var(--border);transform:translateX(4px)}
-.room-item.active,.list-item.active{background:linear-gradient(135deg,var(--indigo-f),rgba(168,85,247,0.1));border-left:3px solid var(--accent);box-shadow:0 4px 12px rgba(0,0,0,.2)}
-.room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
-.room-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.list-info{flex:1;min-width:0}
-.list-name{font-size:13px;font-weight:500;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.list-sub{font-size:11px;color:var(--text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.avatar{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative;overflow:hidden}
-.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0;box-shadow:0 0 5px var(--online)}
+.room-item.active,.list-item.active{background:linear-gradient(135deg,var(--indigo-f),rgba(168,85,247,0.1));border-left:3px solid var(--accent)}
+.room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px}
+.room-name{font-size:13px;font-weight:500;color:var(--text)}
+.list-info{flex:1}
+.list-name{font-size:13px;font-weight:500;color:var(--text)}
+.list-sub{font-size:11px;color:var(--text3)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0}
 
-#main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;z-index:1;background:var(--bg)}
-.chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;z-index:2}
-.chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
+#main{flex:1;display:flex;flex-direction:column;background:var(--bg)}
+.chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px}
+.chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700}
 .chat-sub{font-size:11px;color:var(--text2);margin-left:auto;background:var(--indigo-f);border:1px solid var(--border);padding:3px 10px;border-radius:20px}
 
-#messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
+#messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
 #messages::-webkit-scrollbar{width:3px}
-#messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .msg-row{display:flex;align-items:flex-end;gap:8px}
-.msg-content{max-width:78%;display:flex;flex-direction:column}
-.msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:14px;color:var(--text);line-height:1.55;position:relative;word-break:break-word}
-.msg-bubble.mine{background:rgba(120,30,200,0.22);border-color:rgba(168,85,247,0.4)}
-.msg-meta{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap}
+.msg-content{max-width:78%}
+.msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:14px;line-height:1.55;position:relative}
+.msg-bubble.mine{background:rgba(120,30,200,0.22)}
+.msg-meta{display:flex;align-items:center;gap:5px;margin-bottom:3px}
 .msg-nick{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
-.msg-nick:hover{text-decoration:underline}
-.role-badge{font-size:9px;padding:1px 5px;border-radius:4px;font-weight:700}
-.rb-founder{background:rgba(255,180,0,.18);color:#f0a500;border:1px solid rgba(255,180,0,.3)}
-.rb-admin{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
+.role-badge{font-size:9px;padding:1px 5px;border-radius:4px}
+.rb-founder{background:rgba(255,180,0,.18);color:#f0a500}
+.rb-admin{background:rgba(168,85,247,.2);color:#c084fc}
 .msg-time{font-size:10px;color:var(--text3)}
-.msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .2s;padding:0}
+.msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0}
 .msg-bubble:hover .msg-del{opacity:1}
 
-.chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:relative;z-index:2;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
-.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.1)}
+.chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:14px 18px;display:flex;gap:10px}
+.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer}
 .icon-btn:hover{background:var(--border);transform:scale(1.05)}
-#msgInput{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:22px;padding:12px 20px;color:var(--text);font-size:14px;font-family:'Noto Sans Georgian',sans-serif;outline:none;transition:border-color .2s,box-shadow .2s;height:46px;box-shadow:0 2px 10px rgba(0,0,0,.08)}
-#msgInput:focus{border-color:var(--indigo2);box-shadow:0 0 0 3px var(--indigo-f),0 2px 10px rgba(0,0,0,.08)}
-#msgInput::placeholder{color:var(--text3)}
-.send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 18px rgba(120,30,200,.5);overflow:hidden;position:relative}
-.send-btn:hover{transform:scale(1.1);box-shadow:0 6px 24px rgba(120,30,200,.65)}
+#msgInput{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:22px;padding:12px 20px;color:var(--text);font-size:14px;outline:none}
+#msgInput:focus{border-color:var(--indigo2)}
+.send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:20px;cursor:pointer;position:relative}
+.send-btn:hover{transform:scale(1.1)}
 .send-plane{display:inline-block}
 .send-btn.fly .send-plane{animation:planeShoot .45s ease forwards}
 
-#emojiPanel{position:absolute;bottom:74px;left:18px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:14px;width:360px;z-index:1000;box-shadow:0 10px 40px rgba(0,0,0,.4);display:none}
+#emojiPanel{position:absolute;bottom:74px;left:18px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:14px;width:360px;z-index:1000;display:none}
 #emojiPanel.open{display:block}
-.ep-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:9px;color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:1.5px;text-transform:uppercase}
+.ep-header{display:flex;justify-content:space-between;margin-bottom:10px;font-size:9px;color:var(--text2)}
 .emoji-grid{display:flex;flex-wrap:wrap;gap:8px;max-height:220px;overflow-y:auto;margin-bottom:10px}
-.emoji-grid::-webkit-scrollbar{width:3px}
-.emoji-grid::-webkit-scrollbar-thumb{background:var(--border)}
-.em-btn{width:60px;height:60px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative;overflow:visible;flex-shrink:0}
+.em-btn{width:60px;height:60px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;position:relative}
 .em-btn:hover{background:var(--border);transform:scale(1.12)}
-.em-btn img{width:46px!important;height:46px!important;border-radius:8px;object-fit:contain;display:block;pointer-events:none;image-rendering:auto}
-.em-btn .em-emoji-text{font-size:30px;line-height:1;pointer-events:none}
-.em-del{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:#cc0000;color:#fff;border-radius:50%;font-size:8px;display:none;align-items:center;justify-content:center;cursor:pointer;border:none;z-index:10}
+.em-btn img{width:46px!important;height:46px!important;border-radius:8px;object-fit:contain}
+.em-btn .em-emoji-text{font-size:30px}
+.em-del{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:#cc0000;color:#fff;border-radius:50%;font-size:8px;display:none;cursor:pointer}
 .em-btn:hover .em-del.vis{display:flex}
-#addEmojiSection{border-top:1px solid var(--border);padding-top:10px;margin-top:6px}
-.ep-upload-btn{width:100%;padding:8px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;text-align:center;transition:background .2s;margin-bottom:7px;display:block}
-.ep-upload-btn:hover{background:var(--border)}
+#addEmojiSection{border-top:1px solid var(--border);padding-top:10px}
+.ep-upload-btn{width:100%;padding:8px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;cursor:pointer;margin-bottom:7px}
 .ep-add{display:flex;gap:6px}
-.ep-add-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:0 12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;white-space:nowrap;height:38px}
+.ep-add-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;padding:0 12px;cursor:pointer}
 
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center}
 .overlay.open{display:flex}
-.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;padding:26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);z-index:10001}
-.modal::-webkit-scrollbar{width:3px}
-.modal::-webkit-scrollbar-thumb{background:var(--border)}
-.modal-x{position:absolute;top:14px;right:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:28px;height:28px;color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.modal-x:hover{background:var(--border);color:var(--text)}
-.modal-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;color:var(--text);margin-bottom:20px;letter-spacing:1px;text-transform:uppercase}
-.sec-lbl{font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;font-family:'Unbounded',sans-serif;margin:14px 0 7px}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;padding:26px;position:relative}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:28px;height:28px;cursor:pointer}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;margin-bottom:20px}
+.sec-lbl{font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin:14px 0 7px}
 .divider{height:1px;background:var(--border);margin:14px 0}
 .av-big-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:18px}
-.av-big{width:88px;height:88px;border-radius:50%;background:var(--indigo-f);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,box-shadow .2s;box-shadow:0 0 20px var(--glow)}
-.av-big:hover{border-color:var(--indigo2)}
-.av-big img{width:100%;height:100%;object-fit:cover}
-.av-edit{position:absolute;inset:0;background:rgba(120,30,200,.6);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0;transition:opacity .2s}
+.av-big{width:88px;height:88px;border-radius:50%;background:var(--indigo-f);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;position:relative}
+.av-big img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av-edit{position:absolute;inset:0;background:rgba(120,30,200,.6);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0}
 .av-big:hover .av-edit{opacity:1}
-.prof-name{font-size:18px;font-weight:600;color:var(--text)}
+.prof-name{font-size:18px;font-weight:600}
 .prof-role{font-size:11px;padding:3px 12px;border-radius:20px}
-.pr-founder{background:rgba(255,180,0,.15);color:#f0a500;border:1px solid rgba(255,180,0,.3)}
-.pr-admin{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
-.pr-member{background:var(--indigo-f);color:var(--text2);border:1px solid var(--border)}
-.inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;transition:border-color .2s}
+.pr-founder{background:rgba(255,180,0,.15);color:#f0a500}
+.pr-admin{background:rgba(168,85,247,.2);color:#c084fc}
+.pr-member{background:var(--indigo-f);color:var(--text2)}
+.inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:8px}
 .inp:focus{border-color:var(--indigo2)}
-.inp::placeholder{color:var(--text3)}
-.inp:disabled{opacity:.5;cursor:not-allowed}
-select.inp{cursor:pointer}
 .emo-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
-.emo-btn{padding:6px 11px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s}
-.emo-btn.active,.emo-btn:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
-.act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-bottom:6px;text-align:left}
+.emo-btn{padding:6px 11px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer}
+.emo-btn.active,.emo-btn:hover{background:var(--indigo);color:#fff}
+.act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);cursor:pointer;margin-bottom:6px;text-align:left}
 .act-btn:hover{background:var(--border)}
-.act-btn.danger{border-color:rgba(220,0,0,.3);color:#ff7777}
-.act-btn.danger:hover{background:rgba(220,0,0,.12)}
-.act-btn.success{border-color:rgba(80,210,0,.3);color:#88ee44}
-.act-btn.success:hover{background:rgba(80,210,0,.08)}
-.act-btn.warn{border-color:rgba(255,160,0,.3);color:#ffaa33}
-.act-btn.warn:hover{background:rgba(255,160,0,.08)}
+.act-btn.danger{color:#ff7777}
+.act-btn.success{color:#88ee44}
+.act-btn.warn{color:#ffaa33}
 
 .gallery-tabs{display:flex;gap:6px;margin-bottom:16px}
-.gtab{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text2);font-family:'Noto Sans Georgian',sans-serif;font-size:12px;cursor:pointer;text-align:center;transition:all 0.3s cubic-bezier(0.2,0.9,0.4,1.1)}
-.gtab.active,.gtab:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
-.album-bar{display:flex;align-items:center;gap:6px;margin-bottom:14px;flex-wrap:wrap}
-.album-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s;white-space:nowrap}
-.album-chip.active,.album-chip:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
+.gtab{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--indigo-f);cursor:pointer;text-align:center}
+.gtab.active,.gtab:hover{background:var(--indigo);color:#fff}
+.album-bar{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
+.album-chip{padding:5px 12px;border-radius:20px;border:1px solid var(--border);background:var(--indigo-f);font-size:12px;cursor:pointer}
+.album-chip.active,.album-chip:hover{background:var(--indigo);color:#fff}
 .album-chip.new-album{border-style:dashed;color:var(--accent)}
-.album-chip.new-album:hover{background:rgba(240,122,255,.1);border-color:var(--accent);color:var(--accent)}
-.album-chip .chip-del{margin-left:5px;font-size:10px;opacity:.6;cursor:pointer}
-.album-chip .chip-del:hover{opacity:1}
-.album-create-form{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:10px 12px;margin-bottom:10px;display:none;gap:6px;align-items:center}
+.album-chip .chip-del{margin-left:5px;font-size:10px}
+.album-create-form{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:10px;margin-bottom:10px;display:none;gap:6px}
 .album-create-form.open{display:flex}
-.album-create-form input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
-.album-create-form input:focus{border-color:var(--indigo2)}
-.album-create-form button{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:8px;color:#fff;font-size:12px;padding:7px 14px;cursor:pointer;white-space:nowrap}
+.album-create-form input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:8px;padding:7px 10px}
+.album-create-form button{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:8px;color:#fff;padding:7px 14px;cursor:pointer}
 .gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
-.gal-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid var(--border);background:var(--indigo-f);transition:transform .2s}
+.gal-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid var(--border)}
 .gal-item:hover{transform:scale(1.04)}
-.gal-item img{width:100%;height:100%;object-fit:cover;display:block}
-.gal-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent 55%);opacity:0;transition:opacity .2s;display:flex;flex-direction:column;justify-content:flex-end;padding:6px}
+.gal-item img{width:100%;height:100%;object-fit:cover}
+.gal-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8),transparent 55%);opacity:0;display:flex;flex-direction:column;justify-content:flex-end;padding:6px}
 .gal-item:hover .gal-overlay{opacity:1}
-.gal-cap{font-size:10px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
-.gal-del{position:absolute;top:5px;right:5px;background:rgba(200,0,0,.85);border:none;border-radius:6px;color:#fff;font-size:10px;cursor:pointer;padding:3px 6px;opacity:0;transition:opacity .2s;z-index:2}
+.gal-cap{font-size:10px;color:#fff}
+.gal-del{position:absolute;top:5px;right:5px;background:rgba(200,0,0,.85);border:none;border-radius:6px;color:#fff;font-size:10px;cursor:pointer;padding:3px 6px;opacity:0}
 .gal-item:hover .gal-del{opacity:1}
-.gal-empty{text-align:center;padding:32px 0;color:var(--text3);font-size:13px}
-.gal-upload-area{border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px}
+.gal-upload-area{border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;margin-bottom:12px}
 .gal-upload-area:hover{border-color:var(--indigo2);background:var(--indigo-f)}
-.gal-upload-icon{font-size:30px;margin-bottom:6px}
-.gal-upload-text{font-size:12px;color:var(--text3)}
 .gal-form{background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;display:none}
 .gal-form.open{display:block}
-.gal-preview{width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:10px;background:rgba(0,0,0,.3);display:none}
+.gal-preview{width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:10px;display:none}
 .gal-preview.show{display:block}
 .gal-emo-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
-.gal-emo-btn{padding:4px 9px;border-radius:16px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:14px;cursor:pointer;transition:all .2s}
-.gal-emo-btn.active,.gal-emo-btn:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
-.gal-inp{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px}
-.gal-inp:focus{border-color:var(--indigo2)}
-.gal-inp::placeholder{color:var(--text3)}
-.gal-album-select{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;cursor:pointer}
+.gal-emo-btn{padding:4px 9px;border-radius:16px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer}
+.gal-emo-btn.active,.gal-emo-btn:hover{background:var(--indigo);color:#fff}
+.gal-inp{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
+.gal-album-select{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;margin-bottom:8px}
 
-.photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+.photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center}
 .photo-viewer.open{display:flex}
-.pv-close{position:absolute;top:16px;right:16px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.pv-img{max-width:90vw;max-height:65vh;border-radius:14px;object-fit:contain;box-shadow:0 0 60px var(--glow)}
-.pv-info{margin-top:14px;text-align:center;max-width:420px}
-.pv-title{font-size:16px;font-weight:600;color:var(--text);margin-bottom:4px}
-.pv-emo{font-size:24px;margin-bottom:4px}
-.pv-comment{font-size:13px;color:var(--text2)}
-.pv-author{font-size:11px;color:var(--text3);margin-top:5px}
-.pv-counter{font-size:11px;color:var(--text3);margin-top:3px}
+.pv-close{position:absolute;top:16px;right:16px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;cursor:pointer}
+.pv-img{max-width:90vw;max-height:65vh;border-radius:14px}
+.pv-info{margin-top:14px;text-align:center}
+.pv-title{font-size:16px;font-weight:600}
+.pv-emo{font-size:24px}
 .pv-nav{display:flex;gap:12px;margin-top:14px}
-.pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.pv-nav-btn:hover{background:var(--border)}
+.pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;font-size:20px;cursor:pointer}
 
-#dmBox{position:fixed;right:16px;bottom:16px;width:320px;height:420px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
+#dmBox{position:fixed;right:16px;bottom:16px;width:320px;height:420px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000}
 #dmBox.open{display:flex}
-.dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0}
-.dm-title{flex:1;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-x{background:rgba(255,255,255,.2);border:none;border-radius:7px;color:#fff;font-size:11px;cursor:pointer;padding:3px 8px}
-.dm-x:hover{background:rgba(255,255,255,.35)}
+.dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px}
+.dm-title{flex:1;font-size:13px;font-weight:600;color:#fff}
+.dm-x{background:rgba(255,255,255,.2);border:none;border-radius:7px;color:#fff;padding:3px 8px;cursor:pointer}
 #dmMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
-#dmMsgs::-webkit-scrollbar{width:3px}
-#dmMsgs::-webkit-scrollbar-thumb{background:var(--border)}
-.dm-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;align-items:center;position:relative}
-#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
-#dmInput:focus{border-color:var(--indigo2)}
-.dm-emoji-btn{width:32px;height:32px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;font-size:16px;cursor:pointer;padding:0 13px;height:34px;overflow:hidden;position:relative}
-.dm-plane{display:inline-block}
+.dm-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border)}
+#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;color:var(--text);font-size:13px;outline:none}
+.dm-emoji-btn{width:32px;height:32px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);font-size:15px;cursor:pointer}
+.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;padding:0 13px;cursor:pointer;position:relative}
 .dm-send.fly .dm-plane{animation:planeShoot .45s ease forwards}
 
-#dmEmojiPanel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:300px;z-index:1000;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
+#dmEmojiPanel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:300px;display:none}
 #dmEmojiPanel.open{display:block}
-#dmEmojiPanel .emoji-grid{max-height:180px;margin-bottom:0}
-#dmEmojiPanel .em-btn{width:52px;height:52px}
-#dmEmojiPanel .em-btn img{width:40px!important;height:40px!important}
 
-#dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center;padding:16px}
+#dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center}
 #dmListOverlay.open{display:flex}
-.dm-list-modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:340px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:modalFloat 0.3s cubic-bezier(.22,1,.36,1);max-height:70vh;display:flex;flex-direction:column}
-.dm-list-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--text);margin-bottom:14px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
-.dm-list-close{background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;width:26px;height:26px;color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dm-list-modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:340px;padding:20px;max-height:70vh;display:flex;flex-direction:column}
+.dm-list-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;display:flex;justify-content:space-between;margin-bottom:14px}
+.dm-list-close{background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;width:26px;height:26px;cursor:pointer}
 .dm-list-body{overflow-y:auto;flex:1}
-.dm-list-body::-webkit-scrollbar{width:3px}
-.dm-list-body::-webkit-scrollbar-thumb{background:var(--border)}
-.dm-list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;transition:all .2s;margin-bottom:2px;border:1px solid transparent}
+.dm-list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;border:1px solid transparent}
 .dm-list-item:hover{background:var(--indigo-f);border-color:var(--border)}
 
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:messagePop .3s ease;white-space:nowrap}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;animation:messagePop .3s ease}
 .hidden{display:none!important}
-
-::-webkit-scrollbar{width:5px;height:5px}
-::-webkit-scrollbar-track{background:var(--panel2);border-radius:10px}
-::-webkit-scrollbar-thumb{background:var(--indigo2);border-radius:10px}
-::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 </style>
 </head>
 <body class="night">
@@ -314,7 +256,7 @@ select.inp{cursor:pointer}
   <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span></button>
   <div class="nav-spacer"></div>
   <button class="nav-btn" onclick="openMyProfile()">👤</button>
-  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" style="font-size:18px">🌙</button>
+  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
   <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
 </nav>
 <div id="app">
@@ -353,7 +295,7 @@ select.inp{cursor:pointer}
         <input type="file" id="emojiImgInput" accept="image/gif,image/png,image/jpeg,image/webp" multiple style="display:none" onchange="handleEmojiImages(event)">
         <button class="ep-upload-btn" onclick="document.getElementById('emojiImgInput').click()">🖼️ სმაილის ატვირთვა</button>
         <div class="ep-add">
-          <input class="inp" id="newEmojiInput" placeholder="😊" maxlength="6" style="margin:0;text-align:center;font-size:18px;width:55px;flex-shrink:0">
+          <input class="inp" id="newEmojiInput" placeholder="😊" maxlength="6" style="width:55px;margin:0">
           <button class="ep-add-btn" onclick="addTextEmoji()">+ დამატება</button>
         </div>
       </div>
@@ -366,7 +308,6 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- Profile Modal -->
 <div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')">
   <div class="modal">
     <button class="modal-x" onclick="closeModal('profileOverlay')">✕</button>
@@ -404,7 +345,7 @@ select.inp{cursor:pointer}
       <div id="founderSec" class="hidden">
         <div class="divider"></div>
         <div class="sec-lbl">👑 დამფუძნებლის პანელი</div>
-        <div class="sec-lbl" style="margin-top:10px">როლის მინიჭება</div>
+        <div class="sec-lbl">როლის მინიჭება</div>
         <select class="inp" id="roleSelect">
           <option value="member">👤 წევრი</option>
           <option value="admin">🛡️ ადმინი</option>
@@ -436,8 +377,8 @@ select.inp{cursor:pointer}
           <div class="gal-upload-text">დააჭირე ფოტოს ასატვირთად</div>
         </div>
         <div class="gal-form" id="galForm">
-          <img id="galPreviewImg" class="gal-preview" src="" alt="">
-          <div class="sec-lbl" style="margin-top:0">სათაური</div>
+          <img id="galPreviewImg" class="gal-preview" src="">
+          <div class="sec-lbl">სათაური</div>
           <input class="gal-inp" id="galTitle" placeholder="ფოტოს სათაური...">
           <div class="sec-lbl">ალბომი</div>
           <select class="gal-album-select" id="galAlbumSelect">
@@ -467,7 +408,7 @@ select.inp{cursor:pointer}
       <div class="album-create-form" id="albumCreateForm">
         <input id="albumNameInp" placeholder="ალბომის სახელი..." maxlength="30">
         <button onclick="createAlbum()">✅ შექმნა</button>
-        <button style="background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:7px 10px;cursor:pointer;font-size:12px" onclick="document.getElementById('albumCreateForm').classList.remove('open')">✕</button>
+        <button onclick="document.getElementById('albumCreateForm').classList.remove('open')">✕</button>
       </div>
       <div class="gallery-grid" id="galGrid"></div>
       <div class="gal-empty hidden" id="galEmpty">📷 ფოტო ჯერ არ არის</div>
@@ -475,18 +416,16 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- Friend Request Modal -->
 <div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')">
   <div class="modal" style="max-width:320px">
     <button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button>
     <div class="modal-title">📬 მეგობრის მოთხოვნა</div>
-    <p style="font-size:14px;color:var(--text2);margin-bottom:14px" id="friendReqTxt"></p>
+    <p style="margin-bottom:14px" id="friendReqTxt"></p>
     <button class="act-btn success" onclick="acceptFriend()">✅ დასტური</button>
     <button class="act-btn danger" onclick="declineFriend()">❌ უარი</button>
   </div>
 </div>
 
-<!-- DM List -->
 <div id="dmListOverlay" onclick="bgCloseDMList(event)">
   <div class="dm-list-modal">
     <div class="dm-list-title">✉️ პირადი შეტყობინებები<button class="dm-list-close" onclick="closeDMList()">✕</button></div>
@@ -495,10 +434,9 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- DM Box -->
 <div id="dmBox">
   <div class="dm-head">
-    <div class="avatar" style="width:28px;height:28px;font-size:14px;border:2px solid rgba(255,255,255,.3);flex-shrink:0" id="dmAv">👤</div>
+    <div class="avatar" style="width:28px;height:28px;font-size:14px" id="dmAv">👤</div>
     <div class="dm-title" id="dmTitle">პირადი</div>
     <button class="dm-x" onclick="closeDM()">✕</button>
   </div>
@@ -514,10 +452,9 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- Photo Viewer -->
 <div class="photo-viewer" id="photoViewer" onclick="pvBgClose(event)">
   <button class="pv-close" onclick="closePhotoViewer()">✕</button>
-  <img class="pv-img" id="pvImg" src="" alt="">
+  <img class="pv-img" id="pvImg" src="">
   <div class="pv-info">
     <div class="pv-title" id="pvTitle"></div>
     <div class="pv-emo" id="pvEmo"></div>
@@ -544,9 +481,7 @@ let emojiCache = {};
 let selectedEmotion = '😊', msgCh = null, dmCh = null, theme = 'night';
 let galSelectedEmo = '😊', galFileData = null;
 let currentGallery = [], pvIndex = 0;
-let userAlbums = [];
-let activeAlbumFilter = null;
-let galleryViewUID = null;
+let userAlbums = [], activeAlbumFilter = null, galleryViewUID = null;
 
 const ROOMS = [
   {id:1,icon:'🏠',name:'ოთახი 1'},{id:2,icon:'🎮',name:'ოთახი 2'},
@@ -556,13 +491,6 @@ const ROOMS = [
   {id:9,icon:'⚡',name:'ოთახი 9'},{id:10,icon:'🌸',name:'ოთახი 10'},
   {id:11,icon:'🎯',name:'ოთახი 11'},{id:12,icon:'🍀',name:'ოთახი 12'},
 ];
-
-function animateSendPlane(btnId) {
-  const btn = document.getElementById(btnId);
-  if (!btn) return;
-  btn.classList.add('fly');
-  setTimeout(() => btn.classList.remove('fly'), 500);
-}
 
 function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
@@ -589,11 +517,10 @@ function renderContent(s) {
     const url = emojiCache[numId];
     if (!url) return match;
     if (url.startsWith('data:image/gif')) {
-      const blobUrl = getGifUrl(url, numId);
-      return `<img src="${blobUrl}" class="chat-emoji-gif" loading="eager" decoding="async">`;
+      return `<img src="${getGifUrl(url, numId)}" class="chat-emoji-gif">`;
     }
     if (url.startsWith('data:')) {
-      return `<img src="${url}" class="chat-emoji" loading="eager">`;
+      return `<img src="${url}" class="chat-emoji">`;
     }
     return `<span style="font-size:28px;vertical-align:middle">${esc(url)}</span>`;
   });
@@ -637,6 +564,14 @@ async function init() {
       if (idx >= 0) allUsers[idx] = {...allUsers[idx], ...payload.new};
       else allUsers.push(payload.new);
       updateOnlineBadge();
+      if (VIEW_UID === payload.new.id) {
+        document.getElementById('profRole').textContent = rLabel(payload.new.role);
+        document.getElementById('profRole').className = 'prof-role ' + rClass(payload.new.role);
+        if (MYPROF?.role === 'founder' && VIEW_UID !== ME.id) {
+          document.getElementById('roleSelect').value = payload.new.role;
+        }
+      }
+      loadMessages(ROOM);
     })
     .subscribe();
 }
@@ -647,7 +582,7 @@ async function loadProf(uid) {
 }
 
 async function loadEmojis() {
-  const {data, error} = await sb.from('global_emojis').select('id,url').order('id', {ascending:true});
+  const {data, error} = await sb.from('global_emoji').select('id,url').order('id', {ascending:true});
   if (error) { console.error(error); customEmojis = []; return; }
   customEmojis = data || [];
   emojiCache = {};
@@ -674,7 +609,7 @@ async function handleEmojiImages(e) {
       } else {
         finalUrl = await resizeImg(file, 52, 0.85);
       }
-      const {error} = await sb.from('global_emojis').insert({url: finalUrl});
+      const {error} = await sb.from('global_emoji').insert({url: finalUrl});
       if (error) { toast('❌ ' + error.message); continue; }
       added++;
     } catch(err) { toast('❌ ' + err.message); }
@@ -694,8 +629,6 @@ function resizeImg(file, size, quality) {
         const c = document.createElement('canvas');
         c.width = size; c.height = size;
         const ctx = c.getContext('2d');
-        ctx.imageSmoothingEnabled = true;
-        ctx.imageSmoothingQuality = 'high';
         ctx.drawImage(img, 0, 0, size, size);
         res(c.toDataURL('image/webp', quality));
       };
@@ -709,7 +642,7 @@ async function addTextEmoji() {
   if (!['admin','founder'].includes(MYPROF?.role)) { toast('❌ მხოლოდ ადმინს/დამფუძნებელს შეუძლია!'); return; }
   const v = document.getElementById('newEmojiInput').value.trim();
   if (!v || v.length > 6) { toast('❌ მაქს 6 სიმბოლო'); return; }
-  const {error} = await sb.from('global_emojis').insert({url: v});
+  const {error} = await sb.from('global_emoji').insert({url: v});
   if (error) { toast('❌ ' + error.message); return; }
   document.getElementById('newEmojiInput').value = '';
   toast('✅ სმაილი დაემატა!');
@@ -717,7 +650,7 @@ async function addTextEmoji() {
 }
 
 async function removeEmoji(id) {
-  const {error} = await sb.from('global_emojis').delete().eq('id', id);
+  const {error} = await sb.from('global_emoji').delete().eq('id', id);
   if (error) { toast('❌ ' + error.message); return; }
   toast('🗑 სმაილი წაიშალა');
   await loadEmojis(); buildEmojis();
@@ -744,7 +677,6 @@ function buildEmojiGrid(gridId, inputId, withManage) {
     if (isImg) {
       const img = document.createElement('img');
       img.src = em.url;
-      if (em.url.startsWith('data:image/gif')) img.style.imageRendering = 'auto';
       btn.appendChild(img);
     } else {
       const span = document.createElement('span');
@@ -776,7 +708,6 @@ function toggleEmojiPanel() {
 }
 function toggleDMEmoji() {
   document.getElementById('dmEmojiPanel').classList.toggle('open');
-  buildEmojiGrid('dmEmojiGrid', 'dmInput', false);
 }
 document.addEventListener('click', e => {
   const p = document.getElementById('emojiPanel');
@@ -867,7 +798,7 @@ function clickAvatar() {
 async function uploadAvatar(e) {
   const file = e.target.files[0];
   if (!file) return;
-  if (file.size > 3 * 1024 * 1024) { toast('❌ მაქს 3MB'); e.target.value = ''; return; }
+  if (file.size > 3 * 1024 * 1024) { toast('❌ მაქს 3MB'); return; }
   toast('⏳ იტვირთება...');
   const reader = new FileReader();
   reader.onload = async ev => {
@@ -883,21 +814,35 @@ async function uploadAvatar(e) {
   e.target.value = '';
 }
 
+// ========== FIXED: ROLE ASSIGNMENT ==========
 async function assignRole() {
-  if (MYPROF?.role !== 'founder') { toast('❌ მხოლოდ დამფუძნებელს შეუძლია როლის მინიჭება!'); return; }
-  if (!VIEW_UID || VIEW_UID === ME.id) { toast('❌ საკუთარ თავს ვერ შეუცვლი როლს'); return; }
+  if (MYPROF?.role !== 'founder') { 
+    toast('❌ მხოლოდ დამფუძნებელს შეუძლია როლის მინიჭება!'); 
+    return; 
+  }
+  if (!VIEW_UID || VIEW_UID === ME.id) { 
+    toast('❌ საკუთარ თავს ვერ შეუცვლი როლს'); 
+    return; 
+  }
   const newRole = document.getElementById('roleSelect').value;
-  const {error} = await sb.from('profiles').update({role: newRole}).eq('id', VIEW_UID);
-  if (error) { toast('❌ ' + error.message); return; }
+  console.log('Assigning role:', newRole, 'to user:', VIEW_UID);
+  const { data, error } = await sb
+    .from('profiles')
+    .update({ role: newRole })
+    .eq('id', VIEW_UID)
+    .select();
+  if (error) { 
+    toast('❌ ' + error.message); 
+    return; 
+  }
   toast('✅ როლი წარმატებით შეიცვალა -> ' + rLabel(newRole));
-  // განახლება ინტერფეისში
   document.getElementById('profRole').textContent = rLabel(newRole);
   document.getElementById('profRole').className = 'prof-role ' + rClass(newRole);
   document.getElementById('roleSelect').value = newRole;
   await loadAllUsers();
-  // განახლება allUsers-ში
   const idx = allUsers.findIndex(u => u.id === VIEW_UID);
   if (idx >= 0) allUsers[idx].role = newRole;
+  loadMessages(ROOM);
 }
 
 async function removeRole() {
@@ -905,7 +850,7 @@ async function removeRole() {
   if (!VIEW_UID) { toast('❌ მომხმარებელი არ არის არჩეული'); return; }
   const target = await loadProf(VIEW_UID);
   if (target?.role === 'founder') { toast('❌ დამფუძნებლის როლს ვერ გადახსნი!'); return; }
-  const {error} = await sb.from('profiles').update({role: 'member'}).eq('id', VIEW_UID);
+  const { error } = await sb.from('profiles').update({ role: 'member' }).eq('id', VIEW_UID);
   if (error) { toast('❌ ' + error.message); return; }
   toast('✅ ახლა წევრია');
   document.getElementById('profRole').textContent = rLabel('member');
@@ -914,6 +859,7 @@ async function removeRole() {
   await loadAllUsers();
   const idx = allUsers.findIndex(u => u.id === VIEW_UID);
   if (idx >= 0) allUsers[idx].role = 'member';
+  loadMessages(ROOM);
 }
 
 async function blockUser() {
@@ -959,7 +905,7 @@ function rbClass(r) { return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'
 async function loadAlbumsAndGallery(uid) {
   galleryViewUID = uid;
   const isSelf = uid === ME.id;
-  const {data: albs} = await sb.from('albums').select('*').eq('user_id', uid).order('created_at', {ascending:true});
+  const {data: albs} = await sb.from('albums').select('*').eq('user_id', uid).order('created_at');
   userAlbums = albs || [];
   if (isSelf) {
     const sel = document.getElementById('galAlbumSelect');
@@ -991,7 +937,6 @@ function renderAlbumBar(isSelf) {
       const del = document.createElement('span');
       del.className = 'chip-del';
       del.textContent = '✕';
-      del.title = 'ალბომის წაშლა';
       del.onclick = ev => { ev.stopPropagation(); deleteAlbum(a.id); };
       chip.appendChild(del);
     }
@@ -1054,7 +999,7 @@ function renderGallery(isSelf) {
   filtered.forEach((photo, idx) => {
     const item = document.createElement('div');
     item.className = 'gal-item';
-    item.innerHTML = `<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:14px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
+    item.innerHTML = `<img src="${photo.url}"><div class="gal-overlay"><div>${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
     item.addEventListener('click', e => {
       if (!e.target.classList.contains('gal-del')) { currentGallery.__filtered = filtered; openPhotoViewer(idx, filtered); }
     });
@@ -1065,20 +1010,18 @@ function renderGallery(isSelf) {
 function galFileChosen(e) {
   const file = e.target.files[0];
   if (!file) return;
-  if (file.size > 4 * 1024 * 1024) { toast('❌ მაქსიმუმი 4MB'); e.target.value = ''; return; }
+  if (file.size > 4 * 1024 * 1024) { toast('❌ მაქსიმუმი 4MB'); return; }
   const reader = new FileReader();
   reader.onload = ev => {
     galFileData = ev.target.result;
-    const prev = document.getElementById('galPreviewImg');
-    prev.src = galFileData;
-    prev.classList.add('show');
+    document.getElementById('galPreviewImg').src = galFileData;
+    document.getElementById('galPreviewImg').classList.add('show');
     document.getElementById('galForm').classList.add('open');
     galSelectedEmo = '😊';
     document.querySelectorAll('.gal-emo-btn').forEach((b, i) => b.classList.toggle('active', i === 0));
     document.getElementById('galTitle').value = '';
     document.getElementById('galComment').value = '';
   };
-  reader.onerror = () => toast('❌ ფოტოს წაკითხვა ვერ მოხდა');
   reader.readAsDataURL(file);
   e.target.value = '';
 }
@@ -1092,8 +1035,7 @@ function pickGalEmo(btn, em) {
 function cancelGalUpload() {
   galFileData = null;
   document.getElementById('galForm').classList.remove('open');
-  const prev = document.getElementById('galPreviewImg');
-  prev.src = ''; prev.classList.remove('show');
+  document.getElementById('galPreviewImg').classList.remove('show');
 }
 
 async function uploadGalleryPhoto() {
@@ -1196,13 +1138,19 @@ function appendMsg(m) {
   const t = new Date(m.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit', minute:'2-digit'});
   const role = m.profiles?.role;
   const rbadge = role && role !== 'member' ? `<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>` : '';
-  const avHtml = m.profiles?.avatar_url ? `<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">` : (m.profiles?.emotion || '😊');
-  const mineLabel = isMe ? '<span style="font-size:9px;color:var(--indigo2);font-weight:600">შენ</span>' : '';
+  const avHtml = m.profiles?.avatar_url ? `<img src="${m.profiles.avatar_url}">` : (m.profiles?.emotion || '😊');
   const row = document.createElement('div');
   row.className = 'msg-row';
   row.id = 'msg' + m.id;
-  row.innerHTML = `<div class="avatar" style="cursor:pointer" onclick="openProfile('${m.user_id}')">${avHtml}</div><div class="msg-content"><div class="msg-meta"><span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>${rbadge}${mineLabel}<span class="msg-time">${t}</span></div><div class="msg-bubble${isMe?' mine':''}">${renderContent(m.content)}${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}</div></div>`;
+  row.innerHTML = `<div class="avatar" onclick="openProfile('${m.user_id}')">${avHtml}</div><div class="msg-content"><div class="msg-meta"><span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>${rbadge}<span class="msg-time">${t}</span></div><div class="msg-bubble${isMe?' mine':''}">${renderContent(m.content)}${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}</div></div>`;
   document.getElementById('messages').appendChild(row);
+}
+
+function animateSendPlane(btnId) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  btn.classList.add('fly');
+  setTimeout(() => btn.classList.remove('fly'), 500);
 }
 
 async function sendMessage() {
@@ -1270,7 +1218,7 @@ function renderUserLists() {
 function roleHeader(icon, label) {
   const d = document.createElement('div');
   d.className = 'role-header';
-  d.innerHTML = `<span style="font-size:12px">${icon}</span><div class="role-header-line"></div><span class="role-header-text">${label}</span>`;
+  d.innerHTML = `<span>${icon}</span><div class="role-header-line"></div><span class="role-header-text">${label}</span>`;
   return d;
 }
 
@@ -1279,7 +1227,7 @@ function makeUserItem(u) {
   d.className = 'list-item';
   d.dataset.q = (u.username||'').toLowerCase();
   const on = isOnline(u.last_seen);
-  const avHtml = u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">` : (u.emotion||'😊');
+  const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion||'😊');
   d.innerHTML = `<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
   d.onclick = () => openProfile(u.id);
   return d;
@@ -1297,9 +1245,10 @@ function isOnline(ts) {
   return Date.now() - new Date(ts).getTime() < 90000;
 }
 
+// FIXED: only update last_seen, nothing else!
 async function pingOnline() {
   if (!ME) return;
-  await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
+  await sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', ME.id);
 }
 
 async function loadFriends() {
@@ -1320,9 +1269,7 @@ function renderFriends() {
     el.appendChild(e);
     return;
   }
-  const frag = document.createDocumentFragment();
-  list.forEach(u => frag.appendChild(makeUserItem(u)));
-  el.appendChild(frag);
+  list.forEach(u => el.appendChild(makeUserItem(u)));
 }
 
 async function toggleFriend() {
@@ -1381,20 +1328,18 @@ function buildDMUserList(users) {
   el.innerHTML = '';
   const filtered = users.filter(u => u.id !== ME?.id);
   if (!filtered.length) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">ვერ მოიძებნა</div>';
+    el.innerHTML = '<div style="color:var(--text3);text-align:center;padding:16px">ვერ მოიძებნა</div>';
     return;
   }
-  const frag = document.createDocumentFragment();
   filtered.forEach(u => {
     const d = document.createElement('div');
     d.className = 'dm-list-item';
     const on = isOnline(u.last_seen);
-    const avHtml = u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (u.emotion||'😊');
-    d.innerHTML = `<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div><div class="list-sub">${rLabel(u.role)}</div></div><span style="font-size:18px">✉️</span>`;
+    const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion||'😊');
+    d.innerHTML = `<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div><div class="list-sub">${rLabel(u.role)}</div></div><span>✉️</span>`;
     d.onclick = () => { closeDMList(); openDM(u.id); };
-    frag.appendChild(d);
+    el.appendChild(d);
   });
-  el.appendChild(frag);
 }
 
 function filterDMUsers() {
@@ -1410,10 +1355,9 @@ async function openDM(uid) {
   if (!DM_UID) return;
   const u = allUsers.find(u => u.id === DM_UID);
   document.getElementById('dmTitle').textContent = u?.username || 'პირადი';
-  const avHtml = u?.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">` : (u?.emotion||'👤');
+  const avHtml = u?.avatar_url ? `<img src="${u.avatar_url}">` : (u?.emotion||'👤');
   document.getElementById('dmAv').innerHTML = avHtml;
   document.getElementById('dmBox').classList.add('open');
-  buildEmojiGrid('dmEmojiGrid', 'dmInput', false);
   const rk = [ME.id, DM_UID].sort().join('_');
   const {data} = await sb.from('direct_messages').select('*').eq('room_key', rk).order('created_at', {ascending:true}).limit(50);
   const box = document.getElementById('dmMsgs');
@@ -1438,7 +1382,7 @@ function appendDMMsg(m) {
   const t = new Date(m.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit', minute:'2-digit'});
   const box = document.getElementById('dmMsgs');
   const d = document.createElement('div');
-  d.innerHTML = `<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px"><div style="max-width:80%;background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px;color:var(--text);word-break:break-word">${renderContent(m.content)}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`;
+  d.innerHTML = `<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px"><div style="max-width:80%;background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px">${renderContent(m.content)}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`;
   box.appendChild(d);
 }
 
