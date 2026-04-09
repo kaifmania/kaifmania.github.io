@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body.night{--bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff}
+body.day{--bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);--text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;--online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);--glow:rgba(106,13,173,0.2);--accent:#c040ff}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+@keyframes heartFloat{0%{transform:translateY(0) scale(0.6);opacity:0}10%{opacity:.8}80%{opacity:.3}100%{transform:translateY(-110vh) scale(1.2);opacity:0}}
+@keyframes planeShoot{0%{transform:translate(0,0)}100%{transform:translate(30px,-30px) rotate(-40deg);opacity:0}}
+.msg-bubble img.chat-emoji{width:42px!important;height:42px!important;object-fit:cover;border-radius:8px;vertical-align:middle}
+.msg-bubble img.chat-emoji-gif{width:52px!important;height:52px!important;object-fit:contain;border-radius:10px}
+#hearts{position:fixed;inset:0
+ბევრი კი არა არასწორადა გაწერილი
+მივხვდი, კოდი ნამდვილად არეული იყო - CSS-ის ნახევარი აკლდა, რაც იწვევდა იმას, რომ გვერდი ჩამოჰქონდა და ემოჯები არასწორად ჩანდა.
+
+აი სრული, სუფთა, მუშა კოდი:
+
+html
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* NIGHT MODE */
+body.night{
+  --bg:#1c1a30;
+  --panel:#252240;
+  --panel2:#2e2a50;
+  --border:rgba(160,80,255,0.35);
+  --text:#ede0ff;
+  --text2:#b580e0;
+  --text3:#7a5a9a;
+  --bubble:#2a2745;
+  --input-bg:#221f3a;
+  --online:#c07aff;
+  --indigo:#7a1fc8;
+  --indigo2:#a855f7;
+  --indigo-f:rgba(120,30,200,0.18);
+  --glow:rgba(168,85,247,0.28);
+  --accent:#f07aff;
+}
+/* DAY MODE */
+body.day{
+  --bg:#f5eeff;
+  --panel:#ede0ff;
+  --panel2:#e8d5ff;
+  --border:rgba(106,13,173,0.2);
+  --text:#1e0a36;
+  --text2:#6b3a9e;
+  --text3:#a882cc;
+  --bubble:#fff;
+  --input-bg:#fff;
+  --online:#7b2fbe;
+  --indigo:#5a189a;
+  --indigo2:#7b2fbe;
+  --indigo-f:rgba(106,13,173,0.08);
+  --glow:rgba(106,13,173,0.2);
+  --accent:#c040ff;
+}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden;transition:background .4s,color .4s}
+
+/* ANIMATIONS */
+@keyframes panelSlideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes messagePop{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+@keyframes heartFloat{0%{transform:translateY(0) scale(0.6);opacity:0}10%{opacity:.8}80%{opacity:.3}100%{transform:translateY(-110vh) scale(1.2);opacity:0}}
+@keyframes planeShoot{0%{transform:translate(0,0)}100%{transform:translate(30px,-30px) rotate(-40deg);opacity:0}}
+@keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 20px var(--glow))}}
+
+/* MAIN LAYOUT */
+#topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto;scrollbar-width:none}
+#topnav::-webkit-scrollbar{display:none}
+.nav-logo{font-size:24px;margin-right:8px;animation:flicker 2.5s infinite;flex-shrink:0;cursor:pointer}
+.nav-btn{height:36px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0 12px;flex-shrink:0;position:relative}
+.nav-btn:hover,.nav-btn.active{background:var(--indigo-f);border-color:var(--border);color:var(--text)}
+.nav-btn span.label{font-size:10px;font-family:'Unbounded',sans-serif}
+.badge{position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;font-size:9px;min-width:14px;height:14px;border-radius:7px;display:none;align-items:center;justify-content:center}
+.badge.show{display:flex}
+.nav-spacer{flex:1}
+
+#app{display:flex;flex:1;min-height:0}
+#sidebar{width:260px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:all 0.3s}
+@media(max-width:640px){#sidebar{display:none}#sidebar.mob-open{display:flex;position:fixed;inset:0;top:50px;z-index:200;width:100%}}
+
+.sb-header{padding:14px 16px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:9px;color:var(--text2);display:flex;align-items:center;gap:8px}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.sb-body{flex:1;overflow-y:auto;padding:10px 8px}
+.sb-body::-webkit-scrollbar{width:3px}
+.search-box{width:100%;padding:9px 13px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px}
+.search-box:focus{border-color:var(--indigo2)}
+
+.room-item,.list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:16px;cursor:pointer;margin-bottom:2px;border:1px solid transparent}
+.room-item:hover,.list-item:hover{background:var(--indigo-f);border-color:var(--border)}
+.room-item.active,.list-item.active{background:linear-gradient(135deg,var(--indigo-f),rgba(168,85,247,0.1));border-left:3px solid var(--accent)}
+.room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px}
+.room-name{font-size:13px;font-weight:500}
+.list-info{flex:1}
+.list-name{font-size:13px;font-weight:500}
+.list-sub{font-size:11px;color:var(--text3)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0}
+
+#main{flex:1;display:flex;flex-direction:column;background:var(--bg)}
+.chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0}
+.chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700}
+.chat-sub{font-size:11px;color:var(--text2);margin-left:auto;background:var(--indigo-f);padding:3px 10px;border-radius:20px}
+
+#messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+#messages::-webkit-scrollbar{width:3px}
+.msg-row{display:flex;align-items:flex-end;gap:8px;animation:messagePop 0.3s}
+.msg-content{max-width:78%}
+.msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:14px;line-height:1.55;position:relative}
+.msg-bubble.mine{background:rgba(120,30,200,0.22)}
+.msg-meta{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap}
+.msg-nick{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
+.role-badge{font-size:9px;padding:1px 5px;border-radius:4px}
+.rb-founder{background:rgba(255,180,0,.18);color:#f0a500}
+.rb-admin{background:rgba(168,85,247,.2);color:#c084fc}
+.msg-time{font-size:10px;color:var(--text3)}
+.msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0}
+.msg-bubble:hover .msg-del{opacity:1}
+
+.chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:14px 18px;display:flex;gap:10px;flex-shrink:0}
+.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer}
+#msgInput{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:22px;padding:12px 20px;color:var(--text);font-size:14px;outline:none}
+#msgInput:focus{border-color:var(--indigo2)}
+.send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:20px;cursor:pointer;position:relative}
+.send-btn.fly .send-plane{animation:planeShoot .45s forwards}
+
+#emojiPanel{position:absolute;bottom:74px;left:18px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:14px;width:360px;z-index:1000;display:none;max-height:400px;overflow-y:auto}
+#emojiPanel.open{display:block}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:8px;max-height:250px;overflow-y:auto}
+.emoji-grid::-webkit-scrollbar{width:3px}
+.em-btn{width:55px;height:55px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;position:relative}
+.em-btn img{width:42px!important;height:42px!important;border-radius:6px;object-fit:contain}
+.em-btn .em-emoji-text{font-size:28px}
+.em-del{position:absolute;top:-4px;right:-4px;width:14px;height:14px;background:#cc0000;color:#fff;border-radius:50%;font-size:7px;display:none;cursor:pointer}
+.em-btn:hover .em-del.vis{display:flex}
+
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:460px;max-height:85vh;overflow-y:auto;padding:26px;position:relative}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;margin-bottom:20px}
+.sec-lbl{font-size:9px;color:var(--text2);text-transform:uppercase;margin:14px 0 7px}
+.divider{height:1px;background:var(--border);margin:14px 0}
+.av-big-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:18px}
+.av-big{width:88px;height:88px;border-radius:50%;background:var(--indigo-f);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;position:relative}
+.av-big img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av-edit{position:absolute;inset:0;background:rgba(120,30,200,.6);display:flex;align-items:center;justify-content:center;font-size:20px;opacity:0;border-radius:50%}
+.av-big:hover .av-edit{opacity:1}
+.prof-name{font-size:18px;font-weight:600}
+.prof-role{font-size:11px;padding:3px 12px;border-radius:20px}
+.pr-founder{background:rgba(255,180,0,.15);color:#f0a500}
+.pr-admin{background:rgba(168,85,247,.2);color:#c084fc}
+.pr-member{background:var(--indigo-f);color:var(--text2)}
+.inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:8px}
+.inp:focus{border-color:var(--indigo2)}
+.emo-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.emo-btn{padding:6px 11px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer}
+.emo-btn.active,.emo-btn:hover{background:var(--indigo);color:#fff}
+.act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);cursor:pointer;margin-bottom:6px;text-align:left}
+.act-btn:hover{background:var(--border)}
+.act-btn.danger{color:#ff7777}
+.act-btn.success{color:#88ee44}
+.act-btn.warn{color:#ffaa33}
+
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
+.gal-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid var(--border)}
+.gal-item img{width:100%;height:100%;object-fit:cover}
+.gal-del{position:absolute;top:5px;right:5px;background:rgba(200,0,0,.85);border:none;border-radius:6px;color:#fff;font-size:10px;cursor:pointer;padding:3px 6px;opacity:0}
+.gal-item:hover .gal-del{opacity:1}
+.gal-empty{text-align:center;padding:32px 0;color:var(--text3)}
+
+#dmBox{position:fixed;right:16px;bottom:16px;width:320px;height:420px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000}
+#dmBox.open{display:flex}
+.dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px}
+.dm-title{flex:1;font-size:13px;font-weight:600;color:#fff}
+.dm-x{background:rgba(255,255,255,.2);border:none;border-radius:7px;color:#fff;padding:3px 8px;cursor:pointer}
+#dmMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.dm-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border)}
+#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;color:var(--text);font-size:13px;outline:none}
+.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;padding:0 13px;cursor:pointer}
+.dm-send.fly .dm-plane{animation:planeShoot .45s forwards}
+
+#dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center}
+#dmListOverlay.open{display:flex}
+.dm-list-modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:340px;padding:20px;max-height:70vh;display:flex;flex-direction:column}
+.dm-list-body{overflow-y:auto;flex:1}
+.dm-list-item{display:flex;align-items:center;gap:10px;padding:9px;border-radius:12px;cursor:pointer;border:1px solid transparent}
+.dm-list-item:hover{background:var(--indigo-f);border-color:var(--border)}
+
+.photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center}
+.photo-viewer.open{display:flex}
+.pv-close{position:absolute;top:16px;right:16px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.pv-img{max-width:90vw;max-height:65vh;border-radius:14px}
+.pv-nav{display:flex;gap:12px;margin-top:14px}
+.pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;font-size:20px;cursor:pointer}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;z-index:99999;animation:messagePop .3s}
+.hidden{display:none!important}
+#hearts{position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden}
+.heart{position:absolute;bottom:-60px;animation:heartFloat linear;font-size:1.6rem}
+</style>
+</head>
+<body class="night">
+<div id="hearts"></div>
+<nav id="topnav">
+  <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
+  <button class="nav-btn active" id="navRooms" onclick="showPanel('rooms')">💬 <span class="label">ოთახები</span></button>
+  <button class="nav-btn" id="navFriends" onclick="showPanel('friends')">👥 <span class="label">მეგობრები</span><span class="badge" id="friendBadge"></span></button>
+  <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
+  <button class="nav-btn" id="navOnline" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
+  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span></button>
+  <div class="nav-spacer"></div>
+  <button class="nav-btn" onclick="openMyProfile()">👤</button>
+  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
+</nav>
+<div id="app">
+  <div id="sidebar">
+    <div id="panelRooms"><div class="sb-header"><div class="sb-dot"></div>ოთახები</div><div class="sb-body" id="roomList"></div></div>
+    <div id="panelFriends" class="hidden"><div class="sb-header"><div class="sb-dot"></div>მეგობრები</div><div class="sb-body" id="friendsList"></div></div>
+    <div id="panelUsers" class="hidden"><div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div><div class="sb-body"><input class="search-box" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()"><div id="usersListEl"></div></div></div>
+    <div id="panelOnline" class="hidden"><div class="sb-header"><div class="sb-dot"></div>ონლაინი</div><div class="sb-body" id="onlineListEl"></div></div>
+  </div>
+  <div id="main">
+    <div class="chat-header"><div style="font-size:22px" id="roomIcon">💬</div><div class="chat-title" id="roomTitle">ოთახი 1</div><div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div></div>
+    <div id="messages"></div>
+    <div id="emojiPanel"><div class="emoji-grid" id="emojiGrid"></div></div>
+    <div class="chat-bar">
+      <button class="icon-btn" onclick="toggleEmojiPanel()">😊</button>
+      <input id="msgInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}">
+      <button class="send-btn" id="mainSendBtn" onclick="sendMessage()"><span class="send-plane">✈️</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')"><div class="modal"><button class="modal-x" onclick="closeModal('profileOverlay')">✕</button><div class="modal-title" id="profTitle">პროფილი</div><div class="av-big-wrap"><div class="av-big" id="avBig" onclick="clickAvatar()"><span id="avEmoji">😊</span><img id="avImg" style="display:none"><div class="av-edit">✏️</div></div><input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)"><div class="prof-name" id="profName">-</div><span class="prof-role pr-member" id="profRole">წევრი</span></div><div id="tabInfo"><div class="sec-lbl">სტატუსი</div><input class="inp" id="statusInp" placeholder="სტატუსი..."><div class="sec-lbl">ემოცია</div><div class="emo-row"><button class="emo-btn" onclick="pickEmo(this,'😊')">😊</button><button class="emo-btn" onclick="pickEmo(this,'😍')">😍</button><button class="emo-btn" onclick="pickEmo(this,'😴')">😴</button><button class="emo-btn" onclick="pickEmo(this,'😤')">😤</button><button class="emo-btn" onclick="pickEmo(this,'🥺')">🥺</button><button class="emo-btn" onclick="pickEmo(this,'🎮')">🎮</button><button class="emo-btn" onclick="pickEmo(this,'🎵')">🎵</button><button class="emo-btn" onclick="pickEmo(this,'💜')">💜</button></div><input class="inp" id="emoComment" placeholder="კომენტარი ემოციაზე..."><button class="act-btn success" onclick="saveProfile()">✅ შენახვა</button><div id="founderSec" class="hidden"><div class="divider"></div><div class="sec-lbl">👑 დამფუძნებლის პანელი</div><select class="inp" id="roleSelect"><option value="member">👤 წევრი</option><option value="admin">🛡️ ადმინი</option><option value="founder">👑 დამფუძნებელი</option></select><button class="act-btn" onclick="assignRole()">🎖️ როლის მინიჭება</button><button class="act-btn warn" onclick="removeRole()">🔄 წევრად გადახსნა</button><input class="inp" id="blockReason" placeholder="დაბლოკვის მიზეზი..."><button class="act-btn danger" onclick="blockUser()">🚫 დაბლოკვა</button><button class="act-btn success" onclick="unblockUser()">✅ განბლოკვა</button></div><div id="adminSec" class="hidden"><div class="divider"></div><div class="sec-lbl">🛡️ ადმინის პანელი</div><input class="inp" id="blockReasonAdmin" placeholder="დაბლოკვის მიზეზი..."><button class="act-btn danger" onclick="blockUserAdmin()">🚫 დაბლოკვა</button><button class="act-btn success" onclick="unblockUserAdmin()">✅ განბლოკვა</button></div><div class="divider"></div><button class="act-btn" id="friendBtn" onclick="toggleFriend()" style="display:none">➕ მეგობრად დამატება</button><button class="act-btn" id="dmBtn" onclick="openDMfromProfile()" style="display:none">✉️ პირადი შეტყობინება</button></div></div></div>
+
+<div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')"><div class="modal" style="max-width:320px"><button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button><div class="modal-title">📬 მეგობრის მოთხოვნა</div><p style="margin-bottom:14px" id="friendReqTxt"></p><button class="act-btn success" onclick="acceptFriend()">✅ დასტური</button><button class="act-btn danger" onclick="declineFriend()">❌ უარი</button></div></div>
+
+<div id="dmListOverlay" onclick="bgCloseDMList(event)"><div class="dm-list-modal"><div class="dm-list-title">✉️ პირადი შეტყობინებები<button class="dm-list-close" onclick="closeDMList()">✕</button></div><input class="search-box" placeholder="🔍 ძებნა..." id="dmUserSearch" oninput="filterDMUsers()"><div class="dm-list-body" id="dmUserList"></div></div></div>
+
+<div id="dmBox"><div class="dm-head"><div class="avatar" style="width:28px;height:28px" id="dmAv">👤</div><div class="dm-title" id="dmTitle">პირადი</div><button class="dm-x" onclick="closeDM()">✕</button></div><div id="dmMsgs"></div><div class="dm-bar"><button class="icon-btn" style="width:32px;height:32px;font-size:14px" onclick="toggleDMEmoji()">😊</button><input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()"><button class="dm-send" id="dmSendBtn" onclick="sendDM()"><span class="dm-plane">✈️</span></button></div></div>
+
+<div class="photo-viewer" id="photoViewer" onclick="pvBgClose(event)"><button class="pv-close" onclick="closePhotoViewer()">✕</button><img class="pv-img" id="pvImg" src=""><div class="pv-info"><div class="pv-title" id="pvTitle"></div><div class="pv-emo" id="pvEmo"></div><div class="pv-comment" id="pvComment"></div></div><div class="pv-nav"><button class="pv-nav-btn" onclick="pvNav(-1)">‹</button><button class="pv-nav-btn" onclick="pvNav(1)">›</button></div></div>
+
+<script>
+const sb = supabase.createClient("https://vjstuyxuhshsouqsnvxp.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE");
+let ME=null,MYPROF=null,ROOM=1,VIEW_UID=null,DM_UID=null,allUsers=[],myFriends=[],customEmojis=[],emojiCache={},selectedEmotion='😊',msgCh=null,dmCh=null,theme='night',galFileData=null,currentGallery=[],pvIndex=0;
+const ROOMS=[{id:1,icon:'🏠',name:'ოთახი 1'},{id:2,icon:'🎮',name:'ოთახი 2'},{id:3,icon:'🎵',name:'ოთახი 3'},{id:4,icon:'🌙',name:'ოთახი 4'},{id:5,icon:'🔥',name:'ოთახი 5'},{id:6,icon:'💜',name:'ოთახი 6'},{id:7,icon:'🌊',name:'ოთახი 7'},{id:8,icon:'🦋',name:'ოთახი 8'},{id:9,icon:'⚡',name:'ოთახი 9'},{id:10,icon:'🌸',name:'ოთახი 10'},{id:11,icon:'🎯',name:'ოთახი 11'},{id:12,icon:'🍀',name:'ოთახი 12'}];
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function renderContent(s){if(!s)return '';return s.replace(/\[e:(\d+)\]/g,(m,id)=>{let u=emojiCache[parseInt(id)];if(!u)return m;if(u.startsWith('data:'))return `<img src="${u}" class="chat-emoji${u.includes('gif')?'-gif':''}">`;return`<span style="font-size:28px">${esc(u)}</span>`;});}
+
+async function init(){let{data:{user}}=await sb.auth.getUser();if(!user){location.href='index.html';return;}ME=user;MYPROF=await loadProf(ME.id);if(!MYPROF){await sb.from('profiles').insert({id:ME.id,username:ME.email?.split('@')[0]||'მომხმარებელი',role:'member',emotion:'😊'});MYPROF=await loadProf(ME.id);}
+if(MYPROF?.is_blocked){alert('დაბლოკილი ხარ');await sb.auth.signOut();location.href='index.html';return;}
+buildRooms();await loadEmojis();buildEmojis();spawnHearts();switchRoom(ROOMS[0]);await loadAllUsers();await pingOnline();setInterval(pingOnline,30000);setInterval(loadAllUsers,45000);checkFriendReqs();
+sb.channel('profiles-watch').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},p=>{let i=allUsers.findIndex(u=>u.id===p.new.id);if(i>=0)allUsers[i]={...allUsers[i],...p.new};else allUsers.push(p.new);updateOnlineBadge();if(VIEW_UID===p.new.id){document.getElementById('profRole').textContent=rLabel(p.new.role);document.getElementById('profRole').className='prof-role '+rClass(p.new.role);if(MYPROF?.role==='founder'&&VIEW_UID!==ME.id)document.getElementById('roleSelect').value=p.new.role;}loadMessages(ROOM);}).subscribe();}
+async function loadProf(uid){let{data}=await sb.from('profiles').select('*').eq('id',uid).single();return data;}
+async function loadEmojis(){let{data}=await sb.from('global_emoji').select('id,url').limit(50);customEmojis=data||[];emojiCache={};customEmojis.forEach(e=>emojiCache[e.id]=e.url);}
+function buildEmojis(){let g=document.getElementById('emojiGrid');if(!g)return;g.innerHTML='';customEmojis.slice(0,30).forEach(em=>{let btn=document.createElement('button');btn.className='em-btn';if(em.url?.startsWith('data:')){let img=document.createElement('img');img.src=em.url;btn.appendChild(img);}else{let span=document.createElement('span');span.className='em-emoji-text';span.textContent=em.url||'?';btn.appendChild(span);}
+btn.onclick=()=>{let inp=document.getElementById('msgInput');if(inp)inp.value+=em.url?.startsWith('data:')?`[e:${em.id}]`:em.url;};g.appendChild(btn);});}
+function toggleEmojiPanel(){document.getElementById('emojiPanel').classList.toggle('open');}
+function toggleDMEmoji(){let p=document.getElementById('dmEmojiPanel');if(!p){let d=document.getElementById('dmBox');let div=document.createElement('div');div.id='dmEmojiPanel';div.className='emoji-grid';div.style.cssText='position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:280px;display:none;z-index:1000';d.appendChild(div);p=div;}p.classList.toggle('open');if(p.classList.contains('open')){p.innerHTML='';customEmojis.slice(0,30).forEach(em=>{let btn=document.createElement('button');btn.className='em-btn';btn.style.width='45px';btn.style.height='45px';if(em.url?.startsWith('data:')){let img=document.createElement('img');img.src=em.url;img.style.width='36px';btn.appendChild(img);}else{let span=document.createElement('span');span.textContent=em.url||'?';btn.appendChild(span);}
+btn.onclick=()=>{let inp=document.getElementById('dmInput');if(inp)inp.value+=em.url?.startsWith('data:')?`[e:${em.id}]`:em.url;};p.appendChild(btn);});}}
+async function openProfile(uid){VIEW_UID=uid;let p=await loadProf(uid);let isSelf=uid===ME.id;document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';document.getElementById('profName').textContent=p?.username||'?';document.getElementById('profRole').textContent=rLabel(p?.role);document.getElementById('profRole').className='prof-role '+rClass(p?.role);if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';}else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊';}
+document.getElementById('avEdit').style.display=isSelf?'':'none';document.getElementById('statusInp').value=p?.status||'';document.getElementById('statusInp').disabled=!isSelf;document.getElementById('emoComment').value=p?.emotion_comment||'';selectedEmotion=p?.emotion||'😊';document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
+let showFounder=MYPROF?.role==='founder'&&!isSelf;document.getElementById('founderSec').classList.toggle('hidden',!showFounder);if(showFounder)document.getElementById('roleSelect').value=p?.role||'member';
+let showAdmin=MYPROF?.role==='admin'&&!isSelf&&p?.role==='member';document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
+let isFr=myFriends.includes(uid);let fb=document.getElementById('friendBtn');if(fb){fb.style.display=isSelf?'none':'';fb.textContent=isFr?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';}
+let db=document.getElementById('dmBtn');if(db)db.style.display=isSelf?'none':'';
+openModal('profileOverlay');}
+async function saveProfile(){let{error}=await sb.from('profiles').update({status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value}).eq('id',ME.id);if(error)toast('❌ '+error.message);else{toast('✅ შენახულია!');closeModal('profileOverlay');}}
+function pickEmo(btn,em){selectedEmotion=em;document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
+function clickAvatar(){if(VIEW_UID===ME.id)document.getElementById('avatarInput').click();}
+async function uploadAvatar(e){let file=e.target.files[0];if(!file)return;if(file.size>3*1024*1024){toast('❌ მაქს 3MB');return;}let reader=new FileReader();reader.onload=async ev=>{await sb.from('profiles').update({avatar_url:ev.target.result}).eq('id',ME.id);document.getElementById('avImg').src=ev.target.result;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';toast('✅ განახლდა!');};reader.readAsDataURL(file);}
+async function assignRole(){if(MYPROF?.role!=='founder'){toast('❌ მხოლოდ დამფუძნებელს შეუძლია!');return;}if(!VIEW_UID||VIEW_UID===ME.id){toast('❌ საკუთარ თავს ვერ შეუცვლი');return;}let newRole=document.getElementById('roleSelect').value;let{error}=await sb.from('profiles').update({role:newRole}).eq('id',VIEW_UID);if(error){toast('❌ '+error.message);return;}toast('✅ როლი შეიცვალა -> '+rLabel(newRole));document.getElementById('profRole').textContent=rLabel(newRole);document.getElementById('profRole').className='prof-role '+rClass(newRole);await loadAllUsers();loadMessages(ROOM);}
+async function removeRole(){if(MYPROF?.role!=='founder'){toast('❌ მხოლოდ დამფუძნებელს შეუძლია!');return;}let target=await loadProf(VIEW_UID);if(target?.role==='founder'){toast('❌ დამფუძნებელს ვერ გადახსნი!');return;}let{error}=await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID);if(error){toast('❌ '+error.message);return;}toast('✅ ახლა წევრია');document.getElementById('profRole').textContent=rLabel('member');document.getElementById('profRole').className='prof-role pr-member';await loadAllUsers();loadMessages(ROOM);}
+async function blockUser(){if(MYPROF?.role!=='founder'){toast('❌');return;}let r=document.getElementById('blockReason').value||'არ არის მიზეზი';await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);toast('🚫 დაიბლოკა!');closeModal('profileOverlay');}
+async function unblockUser(){await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);toast('✅ განბლოკილია!');}
+async function blockUserAdmin(){if(MYPROF?.role!=='admin'){toast('❌');return;}let r=document.getElementById('blockReasonAdmin').value||'არ არის მიზეზი';await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);toast('🚫 დაიბლოკა!');closeModal('profileOverlay');}
+async function unblockUserAdmin(){await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);toast('✅ განბლოკილია!');}
+function rLabel(r){return r==='founder'?'👑 დამფუძნებელი':r==='admin'?'🛡️ ადმინი':'👤 წევრი';}
+function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member';}
+function buildRooms(){let el=document.getElementById('roomList');el.innerHTML='';ROOMS.forEach(r=>{let d=document.createElement('div');d.className='room-item'+(r.id===ROOM?' active':'');d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>`;d.onclick=()=>switchRoom(r);el.appendChild(d);});}
+function switchRoom(r){ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach((el,i)=>el.classList.toggle('active',i===r.id-1));loadMessages(r.id);document.getElementById('sidebar').classList.remove('mob-open');}
+async function loadMessages(roomId){if(msgCh)sb.removeChannel(msgCh);let{data}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('room_id',roomId).order('created_at',{ascending:true}).limit(80);let box=document.getElementById('messages');box.innerHTML='';(data||[]).forEach(m=>appendMsg(m));box.scrollTop=box.scrollHeight;
+msgCh=sb.channel('room'+roomId).on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room_id=eq.${roomId}`},async p=>{let{data:msg}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id',p.new.id).single();if(msg){appendMsg(msg);box.scrollTop=box.scrollHeight;}}).on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},p=>{document.getElementById('msg'+p.old.id)?.remove();}).subscribe();}
+function appendMsg(m){let isMe=m.user_id===ME?.id;let myRole=MYPROF?.role;let canDel=myRole==='founder'||(myRole==='admin'&&m.profiles?.role!=='founder');let t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});let rbadge=m.profiles?.role&&m.profiles.role!=='member'?`<span class="role-badge rb-${m.profiles.role}">${rLabel(m.profiles.role)}</span>`:'';let avHtml=m.profiles?.avatar_url?`<img src="${m.profiles.avatar_url}">`:(m.profiles?.emotion||'😊');let row=document.createElement('div');row.className='msg-row';row.id='msg'+m.id;row.innerHTML=`<div class="avatar" onclick="openProfile('${m.user_id}')">${avHtml}</div><div class="msg-content"><div class="msg-meta"><span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>${rbadge}<span class="msg-time">${t}</span></div><div class="msg-bubble${isMe?' mine':''}">${renderContent(m.content)}${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}</div></div>`;document.getElementById('messages').appendChild(row);}
+function animateSendPlane(btnId){let btn=document.getElementById(btnId);if(btn){btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}}
+async function sendMessage(){let inp=document.getElementById('msgInput');let txt=inp.value.trim();if(!txt)return;inp.value='';animateSendPlane('mainSendBtn');await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt});}
+async function delMsg(id){if(confirm('წავშალო?'))await sb.from('messages').delete().eq('id',id);}
+async function loadAllUsers(){let{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];renderUserLists();}
+function updateOnlineBadge(){let on=allUsers.filter(u=>isOnline(u.last_seen));document.getElementById('onlineCnt').textContent=`● ${on.length} ონლაინი`;}
+function renderUserLists(){let founders=[],admins=[],members=[];allUsers.forEach(u=>{if(u.role==='founder')founders.push(u);else if(u.role==='admin')admins.push(u);else members.push(u);});updateOnlineBadge();let usEl=document.getElementById('usersListEl');if(usEl){let frag=document.createDocumentFragment();if(founders.length)frag.appendChild(makeUserSection('👑','დამფუძნებლები',founders));if(admins.length)frag.appendChild(makeUserSection('🛡️','ადმინები',admins));if(members.length)frag.appendChild(makeUserSection('👤','წევრები',members));usEl.innerHTML='';usEl.appendChild(frag);}
+let onEl=document.getElementById('onlineListEl');if(onEl){let online=allUsers.filter(u=>isOnline(u.last_seen));let onF=online.filter(u=>u.role==='founder'),onA=online.filter(u=>u.role==='admin'),onM=online.filter(u=>u.role==='member');let frag=document.createDocumentFragment();if(!online.length){let e=document.createElement('div');e.style.cssText='color:var(--text3);text-align:center;padding:24px';e.textContent='ახლა არავინ არის ონლაინი';frag.appendChild(e);}else{if(onF.length)frag.appendChild(makeUserSection('👑','დამფუძნებლები',onF));if(onA.length)frag.appendChild(makeUserSection('🛡️','ადმინები',onA));if(onM.length)frag.appendChild(makeUserSection('👤','წევრები',onM));}onEl.innerHTML='';onEl.appendChild(frag);}renderFriends();}
+function makeUserSection(icon,label,users){let d=document.createElement('div');d.className='role-header';d.innerHTML=`<span>${icon}</span><div class="role-header-line"></div><span class="role-header-text">${label}</span>`;users.forEach(u=>d.appendChild(makeUserItem(u)));return d;}
+function makeUserItem(u){let d=document.createElement('div');d.className='list-item';let on=isOnline(u.last_seen);let avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;d.onclick=()=>openProfile(u.id);return d;}
+function filterUsers(){let q=document.getElementById('userSearch').value.toLowerCase();document.querySelectorAll('#usersListEl .list-item').forEach(el=>{el.style.display=el.innerText.toLowerCase().includes(q)?'':'none';});}
+function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<90000;}
+async function pingOnline(){if(ME)await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}
+async function loadFriends(){let{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');myFriends=(data||[]).map(f=>f.friend_id);renderFriends();}
+function renderFriends(){let el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';let list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);if(!list.length){let e=document.createElement('div');e.style.cssText='color:var(--text3);text-align:center;padding:24px';e.textContent='მეგობრები ჯერ არ გყავს 💜';el.appendChild(e);return;}list.forEach(u=>el.appendChild(makeUserItem(u)));}
+async function toggleFriend(){let isFr=myFriends.includes(VIEW_UID);if(isFr){await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);myFriends=myFriends.filter(f=>f!==VIEW_UID);toast('💔 მეგობრობა გაუქმდა');}else{await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});toast('📨 მოთხოვნა გაიგზავნა!');}let fb=document.getElementById('friendBtn');if(fb)fb.textContent=myFriends.includes(VIEW_UID)?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';}
+async function checkFriendReqs(){let{data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');let badge=document.getElementById('friendBadge');if(data&&data.length){badge.textContent=data.length;badge.classList.add('show');let req=data[0];document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს მეგობრებში';document.getElementById('friendReqOverlay').dataset.rid=req.id;document.getElementById('friendReqOverlay').dataset.fid=req.user_id;openModal('friendReqOverlay');}else{badge.classList.remove('show');}}
+async function acceptFriend(){let rid=document.getElementById('friendReqOverlay').dataset.rid;let fid=document.getElementById('friendReqOverlay').dataset.fid;await sb.from('friends').update({status:'accepted'}).eq('id',rid);await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});myFriends.push(fid);closeModal('friendReqOverlay');toast('✅ მეგობარი დაემატა!');renderFriends();}
+async function declineFriend(){await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);closeModal('friendReqOverlay');toast('❌ უარყოფილია');}
+function openDMList(){document.getElementById('dmListOverlay').classList.add('open');let el=document.getElementById('dmUserList');el.innerHTML='';allUsers.filter(u=>u.id!==ME?.id).forEach(u=>{let d=document.createElement('div');d.className='dm-list-item';let on=isOnline(u.last_seen);let avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div><div class="list-sub">${rLabel(u.role)}</div></div><span>✉️</span>`;d.onclick=()=>{closeDMList();openDM(u.id);};el.appendChild(d);});}
+function filterDMUsers(){let q=document.getElementById('dmUserSearch').value.toLowerCase();let el=document.getElementById('dmUserList');el.innerHTML='';allUsers.filter(u=>u.id!==ME?.id&&(u.username||'').toLowerCase().includes(q)).forEach(u=>{let d=document.createElement('div');d.className='dm-list-item';let on=isOnline(u.last_seen);let avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div><div class="list-sub">${rLabel(u.role)}</div></div><span>✉️</span>`;d.onclick=()=>{closeDMList();openDM(u.id);};el.appendChild(d);});}
+function closeDMList(){document.getElementById('dmListOverlay').classList.remove('open');}
+function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
+async function openDM(uid){if(uid)DM_UID=uid;if(!DM_UID)return;let u=allUsers.find(u=>u.id===DM_UID);document.getElementById('dmTitle').textContent=u?.username||'პირადი';let avHtml=u?.avatar_url?`<img src="${u.avatar_url}">`:(u?.emotion||'👤');document.getElementById('dmAv').innerHTML=avHtml;document.getElementById('dmBox').classList.add('open');let rk=[ME.id,DM_UID].sort().join('_');let{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(50);let box=document.getElementById('dmMsgs');box.innerHTML='';(data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;if(dmCh)sb.removeChannel(dmCh);dmCh=sb.channel('dm'+rk).on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{if(p.new.sender_id===ME.id)return;appendDMMsg(p.new);box.scrollTop=9999;let b=document.getElementById('dmBadge');b.textContent=parseInt(b.textContent||0)+1;b.classList.add('show');}).subscribe();}
+function appendDMMsg(m){let isMe=m.sender_id===ME.id;let t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});let box=document.getElementById('dmMsgs');let d=document.createElement('div');d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:4px"><div style="max-width:75%;background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px">${renderContent(m.content)}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`;box.appendChild(d);}
+async function sendDM(){let inp=document.getElementById('dmInput');let txt=inp.value.trim();if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');let rk=[ME.id,DM_UID].sort().join('_');appendDMMsg({sender_id:ME.id,content:txt,created_at:new Date().toISOString()});document.getElementById('dmMsgs').scrollTop=9999;await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt});}
+function closeDM(){document.getElementById('dmBox').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;if(dmCh)sb.removeChannel(dmCh);}
+function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
+function showPanel(name){['rooms','friends','users','online'].forEach(p=>{let el=document.getElementById('panel'+p.charAt(0).toUpperCase()+p.slice(1));if(el)el.classList.toggle('hidden',p!==name);let nav=document.getElementById('nav'+p.charAt(0).toUpperCase()+p.slice(1));if(nav)nav.classList.toggle('active',p===name);});document.getElementById('sidebar').classList.add('mob-open');if(name==='friends')loadFriends();if(name==='users'||name==='online')loadAllUsers();}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('mob-open');}
+function toggleTheme(){theme=theme==='night'?'day':'night';document.body.className=theme;document.getElementById('themeBtn').textContent=theme==='night'?'🌙':'☀️';}
+function spawnHearts(){let hc=document.getElementById('hearts');if(!hc)return;let emojis=['💜','🌸','💙','🌺','💚','🌷','💗','🌼'];setInterval(()=>{let h=document.createElement('div');h.className='heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];h.style.left=Math.random()*100+'%';h.style.fontSize=(1.2+Math.random()*1.5)+'rem';h.style.animationDuration=(8+Math.random()*8)+'s';hc.appendChild(h);setTimeout(()=>h.remove(),16000);},2500);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function bgClose(e,id){if(e.target.id===id)closeModal(id);}
+function toast(msg){let t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
+async function logout(){await sb.auth.signOut();location.href='index.html';}
+function openMyProfile(){openProfile(ME.id);}
+init();
+</script>
+</body>
+</html>
