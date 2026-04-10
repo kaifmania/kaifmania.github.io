@@ -41,7 +41,6 @@ body{
   position:relative;
 }
 
-/* animated background grid */
 body::before{
   content:'';
   position:fixed;
@@ -76,7 +75,6 @@ body::after{
   gap:14px;
 }
 
-/* ===== HEADER ===== */
 .header{
   display:flex;
   align-items:center;
@@ -112,7 +110,6 @@ body::after{
 }
 .pill span{color:var(--text);font-size:13px;font-weight:700}
 
-/* ===== MAIN AREA ===== */
 .main-area{
   display:flex;
   gap:16px;
@@ -120,7 +117,6 @@ body::after{
   align-items:flex-start;
 }
 
-/* ===== GALLOWS ===== */
 .gallows-wrap{
   flex-shrink:0;
   background:var(--surface);
@@ -147,7 +143,6 @@ body::after{
   z-index:1;
 }
 
-/* ===== RIGHT PANEL ===== */
 .right-panel{
   flex:1;
   display:flex;
@@ -156,7 +151,6 @@ body::after{
   min-width:0;
 }
 
-/* category badge */
 .cat-badge{
   display:inline-flex;
   align-items:center;
@@ -172,7 +166,6 @@ body::after{
   align-self:flex-start;
 }
 
-/* hint */
 .hint-box{
   background:var(--surface);
   border:1px solid var(--border);
@@ -187,7 +180,6 @@ body::after{
 }
 .hint-icon{font-size:14px;flex-shrink:0;margin-top:1px}
 
-/* word display */
 .word-row{
   display:flex;
   gap:6px;
@@ -231,7 +223,6 @@ body::after{
 .letter-cell.space{min-width:14px}
 .letter-cell.space .letter-line{background:transparent}
 
-/* mistakes */
 .mistakes-row{
   display:flex;
   gap:6px;
@@ -252,7 +243,6 @@ body::after{
 }
 .mistakes-label{font-size:11px;color:var(--text3);margin-left:4px;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
 
-/* wrong letters */
 .wrong-letters{
   display:flex;
   flex-wrap:wrap;
@@ -271,7 +261,6 @@ body::after{
 }
 @keyframes wrongPop{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
 
-/* ===== KEYBOARD ===== */
 .keyboard{
   width:100%;
   display:flex;
@@ -328,7 +317,6 @@ body::after{
   opacity:.4;
 }
 
-/* ===== OVERLAY ===== */
 .overlay{
   position:fixed;
   inset:0;
@@ -416,7 +404,6 @@ body::after{
 }
 .play-again-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(192,132,252,0.5)}
 
-/* particles */
 .particle{
   position:fixed;
   pointer-events:none;
@@ -429,7 +416,6 @@ body::after{
   100%{transform:translate(var(--dx),var(--dy)) scale(0) rotate(var(--dr));opacity:0}
 }
 
-/* ===== GALLOWS ANIMATION ===== */
 .gallows-part{
   stroke:var(--text);
   stroke-width:3;
@@ -441,7 +427,6 @@ body::after{
 .gallows-part.show{opacity:1}
 .gallows-base{stroke:var(--border);stroke-width:3;stroke-linecap:round;fill:none}
 
-/* head/body shake on final */
 #g-body-group{
   transform-origin:80px 90px;
   transition:transform .1s;
@@ -459,7 +444,6 @@ body::after{
 @keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
 #game{animation:slideUp .5s ease}
 
-/* responsive */
 @media(max-width:580px){
   .main-area{flex-direction:column;align-items:center}
   #gallowsSVG{width:130px;height:160px}
@@ -476,7 +460,6 @@ body::after{
 <body>
 <div id="game">
 
-  <!-- HEADER -->
   <div class="header">
     <div class="logo">☠ ჩამოხრჩობანა</div>
     <div class="score-pills">
@@ -485,35 +468,24 @@ body::after{
     </div>
   </div>
 
-  <!-- MAIN AREA -->
   <div class="main-area">
 
-    <!-- GALLOWS -->
     <div class="gallows-wrap">
       <svg id="gallowsSVG" viewBox="0 0 160 210">
-        <!-- base structure (always visible) -->
         <line class="gallows-base" x1="20" y1="200" x2="140" y2="200"/>
         <line class="gallows-base" x1="50" y1="200" x2="50" y2="20"/>
         <line class="gallows-base" x1="50" y1="20" x2="100" y2="20"/>
         <line class="gallows-base" x1="100" y1="20" x2="100" y2="40"/>
 
-        <!-- body group -->
         <g id="g-body-group">
-          <!-- 1: head -->
           <circle id="g1" class="gallows-part" cx="100" cy="54" r="14"/>
-          <!-- 2: body -->
           <line id="g2" class="gallows-part" x1="100" y1="68" x2="100" y2="120"/>
-          <!-- 3: left arm -->
           <line id="g3" class="gallows-part" x1="100" y1="80" x2="75" y2="100"/>
-          <!-- 4: right arm -->
           <line id="g4" class="gallows-part" x1="100" y1="80" x2="125" y2="100"/>
-          <!-- 5: left leg -->
           <line id="g5" class="gallows-part" x1="100" y1="120" x2="75" y2="148"/>
-          <!-- 6: right leg -->
           <line id="g6" class="gallows-part" x1="100" y1="120" x2="125" y2="148"/>
         </g>
 
-        <!-- eyes (shown on lose) -->
         <g id="g-eyes" style="opacity:0;transition:opacity .3s">
           <line x1="93" y1="50" x2="97" y2="54" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
           <line x1="97" y1="50" x2="93" y2="54" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
@@ -521,27 +493,21 @@ body::after{
           <line x1="107" y1="50" x2="103" y2="54" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
         </g>
 
-        <!-- rope -->
         <line id="g-rope" class="gallows-base" x1="100" y1="20" x2="100" y2="40" stroke-width="2"/>
       </svg>
     </div>
 
-    <!-- RIGHT PANEL -->
     <div class="right-panel">
 
-      <!-- category -->
       <div class="cat-badge" id="catBadge">📂 კატეგორია</div>
 
-      <!-- hint -->
       <div class="hint-box" id="hintBox">
         <span class="hint-icon">💡</span>
         <span id="hintText">მინიშნება...</span>
       </div>
 
-      <!-- word -->
       <div class="word-row" id="wordRow"></div>
 
-      <!-- lives -->
       <div style="display:flex;flex-direction:column;gap:6px">
         <div class="mistakes-row" id="livesRow"></div>
         <div class="wrong-letters" id="wrongLetters"></div>
@@ -550,12 +516,10 @@ body::after{
     </div>
   </div>
 
-  <!-- KEYBOARD -->
   <div class="keyboard" id="keyboard"></div>
 
 </div>
 
-<!-- RESULT OVERLAY -->
 <div class="overlay" id="overlay">
   <div class="result-card" id="resultCard">
     <span class="result-emoji" id="resultEmoji">🏆</span>
@@ -570,103 +534,90 @@ body::after{
 </div>
 
 <script>
+// ============ 🎯 განახლებული სიტყვები - ქართული კულტურა, ისტორია, ფილმები ============
 const WORDS = [
-  // ცხოველები
-  {w:'კატა',cat:'🐾 ცხოველები',hint:'საყვარელი შინაური ცხოველი'},
-  {w:'ძაღლი',cat:'🐾 ცხოველები',hint:'ადამიანის საუკეთესო მეგობარი'},
-  {w:'მგელი',cat:'🐾 ცხოველები',hint:'ტყის მტაცებელი'},
-  {w:'დათვი',cat:'🐾 ცხოველები',hint:'დიდი, ძლიერი ტყის მაცხოვრებელი'},
-  {w:'მელა',cat:'🐾 ცხოველები',hint:'ცბიერი ცხოველი'},
-  {w:'ლომი',cat:'🐾 ცხოველები',hint:'სავანის მეფე'},
-  {w:'ვეფხვი',cat:'🐾 ცხოველები',hint:'ლაქებიანი დიდი კატა'},
-  {w:'სპილო',cat:'🐾 ცხოველები',hint:'ყველაზე დიდი ხმელეთის ცხოველი'},
-  {w:'ჟირაფი',cat:'🐾 ცხოველები',hint:'ყველაზე გრძელი კისერი'},
-  {w:'ზებრა',cat:'🐾 ცხოველები',hint:'ზოლებიანი ცხოველი'},
-  {w:'ზღარბი',cat:'🐾 ცხოველები',hint:'ეკლებიანი ცხოველი'},
-  {w:'კურდღელი',cat:'🐾 ცხოველები',hint:'გრძელყურება და სწრაფი'},
-  {w:'მაიმუნი',cat:'🐾 ცხოველები',hint:'ადამიანის ნათესავი'},
-  {w:'ვირი',cat:'🐾 ცხოველები',hint:'ჯიუტი სახედარი'},
-  {w:'ცხვარი',cat:'🐾 ცხოველები',hint:'მატყლის მიმწოდებელი'},
-  // ფრინველები
-  {w:'არწივი',cat:'🦅 ფრინველები',hint:'ცის მეფე'},
-  {w:'ბუ',cat:'🦅 ფრინველები',hint:'ღამის ფრინველი'},
-  {w:'გედი',cat:'🦅 ფრინველები',hint:'თეთრი, ლამაზი ფრინველი'},
-  {w:'ვარხვი',cat:'🦅 ფრინველები',hint:'ლამაზი კუდი, ინდური ფრინველი'},
-  {w:'ჩიტი',cat:'🦅 ფრინველები',hint:'პატარა ფრთოსანი'},
-  // ხილი
-  {w:'ვაშლი',cat:'🍎 ხილი',hint:'ნიუტონის შთამაგონებელი'},
-  {w:'მსხალი',cat:'🍎 ხილი',hint:'ჩამოშვებული ფორმა'},
-  {w:'ბანანი',cat:'🍎 ხილი',hint:'ყვითელი, მოხრილი'},
-  {w:'ყურძენი',cat:'🍎 ხილი',hint:'ღვინოს ნედლეული'},
-  {w:'ატამი',cat:'🍎 ხილი',hint:'ბუსუსიანი კანი'},
-  {w:'ნესვი',cat:'🍎 ხილი',hint:'ბახჩის ნაყოფი'},
-  {w:'ალუბალი',cat:'🍎 ხილი',hint:'პატარა წითელი'},
-  {w:'ქლიავი',cat:'🍎 ხილი',hint:'ლურჯ-მეწამული ფერი'},
-  {w:'კივი',cat:'🍎 ხილი',hint:'ახალი ზელანდიის სიმბოლო'},
-  // ქვეყნები
-  {w:'საქართველო',cat:'🌍 ქვეყნები',hint:'კავკასიის მარგალიტი'},
-  {w:'სომხეთი',cat:'🌍 ქვეყნები',hint:'მეზობელი ქვეყანა სამხრეთით'},
-  {w:'თურქეთი',cat:'🌍 ქვეყნები',hint:'ევროპა-აზიის გასაყარი'},
-  {w:'საბერძნეთი',cat:'🌍 ქვეყნები',hint:'ოლიმპიური თამაშების სამშობლო'},
-  {w:'იტალია',cat:'🌍 ქვეყნები',hint:'ჩექმის ფორმის ქვეყანა'},
-  {w:'ისპანეთი',cat:'🌍 ქვეყნები',hint:'ფლამენკოს სამშობლო'},
-  {w:'საფრანგეთი',cat:'🌍 ქვეყნები',hint:'ეიფელის კოშკი'},
-  {w:'გერმანია',cat:'🌍 ქვეყნები',hint:'ბეთჰოვენის სამშობლო'},
-  {w:'ბრაზილია',cat:'🌍 ქვეყნები',hint:'ამაზონი და ფეხბურთი'},
-  {w:'იაპონია',cat:'🌍 ქვეყნები',hint:'ამომავალი მზის ქვეყანა'},
-  // საკვები
-  {w:'ხინკალი',cat:'🍽 საკვები',hint:'ქართული ეროვნული კერძი'},
-  {w:'ხაჭაპური',cat:'🍽 საკვები',hint:'ყველიანი პური'},
-  {w:'პიცა',cat:'🍽 საკვები',hint:'იტალიური ნამცხვარი'},
-  {w:'სუში',cat:'🍽 საკვები',hint:'იაპონური ბრინჯი თევზით'},
-  {w:'ჰამბურგერი',cat:'🍽 საკვები',hint:'ორ პურს შორის'},
-  {w:'ლობიანი',cat:'🍽 საკვები',hint:'ლობიოს პური'},
-  {w:'ჩაქაფული',cat:'🍽 საკვები',hint:'ქართული საგაზაფხულო კერძი'},
-  {w:'სათილი',cat:'🍽 საკვები',hint:'ქართული პური'},
-  // პროფესიები
-  {w:'მასწავლებელი',cat:'👔 პროფესიები',hint:'ცოდნის მიმცემი'},
-  {w:'ექიმი',cat:'👔 პროფესიები',hint:'ჯანმრთელობის დამცველი'},
-  {w:'ინჟინერი',cat:'👔 პროფესიები',hint:'ამშენებელი და შემქმნელი'},
-  {w:'მოსამართლე',cat:'👔 პროფესიები',hint:'სამართლის გამრიგე'},
-  {w:'პოეტი',cat:'👔 პროფესიები',hint:'ლექსების ავტორი'},
-  {w:'მხატვარი',cat:'👔 პროფესიები',hint:'ფერებით ქმნის სამყაროს'},
-  {w:'მეთევზე',cat:'👔 პროფესიები',hint:'ზღვაზე სამუშაო'},
-  {w:'მეფუტკრე',cat:'👔 პროფესიები',hint:'თაფლის მოყვარული'},
-  // ბუნება
-  {w:'მთა',cat:'🌿 ბუნება',hint:'სიმაღლის სიმბოლო'},
-  {w:'მდინარე',cat:'🌿 ბუნება',hint:'მიედინება ზღვისკენ'},
-  {w:'ტყე',cat:'🌿 ბუნება',hint:'ხეების სამეფო'},
-  {w:'ვულკანი',cat:'🌿 ბუნება',hint:'ლავის ამოფრქვევა'},
-  {w:'ქარიშხალი',cat:'🌿 ბუნება',hint:'ძლიერი ქარი'},
-  {w:'ჩანჩქერი',cat:'🌿 ბუნება',hint:'მდინარე კლდიდან ეცემა'},
-  {w:'ინება',cat:'🌿 ბუნება',hint:'ცის მოვლენა'},
-  // სპორტი
-  {w:'ფეხბურთი',cat:'⚽ სპორტი',hint:'22 მოთამაშე, ერთი ბურთი'},
-  {w:'კალათბურთი',cat:'⚽ სპორტი',hint:'კალათში ჩაყრა'},
-  {w:'მოჭიდავეობა',cat:'⚽ სპორტი',hint:'ქართული ეროვნული სპორტი'},
-  {w:'ჭადრაკი',cat:'⚽ სპორტი',hint:'64 უჯრედი, ორი მოთამაშე'},
-  {w:'ტენისი',cat:'⚽ სპორტი',hint:'ჩოგბურთი'},
-  {w:'ვოლეიბოლი',cat:'⚽ სპორტი',hint:'ბადეზე გადაყრა'},
-  // ფერები
-  {w:'ლურჯი',cat:'🎨 ფერები',hint:'ცის ფერი'},
-  {w:'მწვანე',cat:'🎨 ფერები',hint:'ბალახის ფერი'},
-  {w:'წითელი',cat:'🎨 ფერები',hint:'ვარდის ფერი'},
-  {w:'ყვითელი',cat:'🎨 ფერები',hint:'მზის ფერი'},
-  {w:'იისფერი',cat:'🎨 ფერები',hint:'ნახშირბადი და ლურჯი'},
-  {w:'ვარდისფერი',cat:'🎨 ფერები',hint:'ვარდისა და თეთრის ნაზავი'},
-  // ემოციები
-  {w:'სიხარული',cat:'😊 ემოციები',hint:'ბედნიერება'},
-  {w:'სიყვარული',cat:'😊 ემოციები',hint:'ყველაზე ძლიერი გრძნობა'},
-  {w:'ნოსტალგია',cat:'😊 ემოციები',hint:'წარსულის სევდა'},
-  {w:'სინდისი',cat:'😊 ემოციები',hint:'შინაგანი ხმა'},
-  {w:'მადლიერება',cat:'😊 ემოციები',hint:'მადლობის გრძნობა'},
-  // ტექნოლოგია
-  {w:'კომპიუტერი',cat:'💻 ტექნოლოგია',hint:'ციფრული მოწყობილობა'},
-  {w:'ინტერნეტი',cat:'💻 ტექნოლოგია',hint:'გლობალური ქსელი'},
-  {w:'პროგრამა',cat:'💻 ტექნოლოგია',hint:'კოდის ნაკრები'},
-  {w:'ეკრანი',cat:'💻 ტექნოლოგია',hint:'ვიზუალური გამომავალი'},
-  {w:'კლავიატურა',cat:'💻 ტექნოლოგია',hint:'ასოების ღილაკები'},
-  {w:'ალგორითმი',cat:'💻 ტექნოლოგია',hint:'გადაწყვეტის ნაბიჯები'},
+  // 🎬 ქართული ფილმები
+  {w:'ნათლისღება',cat:'🎬 ქართული კინო',hint:'რეჟისორი თენგიზ აბულაძე, ფილმი სინდისზე'},
+  {w:'მონანიება',cat:'🎬 ქართული კინო',hint:'თენგიზ აბულაძის ცნობილი ფილმი'},
+  {w:'შერეკილები',cat:'🎬 ქართული კინო',hint:'კომედია, სადაც ორი მეგობარია'},
+  {w:'მწვერვალი',cat:'🎬 ქართული კინო',hint:'მთამსვლელების ფილმი'},
+  {w:'აჩრდილი',cat:'🎬 ქართული კინო',hint:'მისტიკური ფილმი'},
+  
+  // 📜 ქართული ისტორია
+  {w:'თამარი',cat:'📜 ქართული ისტორია',hint:'საქართველოს მეფე, ოქროს ხანა'},
+  {w:'დავითი',cat:'📜 ქართული ისტორია',hint:'აღმაშენებელი მეფე'},
+  {w:'გორგასალი',cat:'📜 ქართული ისტორია',hint:'თბილისის დამაარსებელი მეფე'},
+  {w:'რუსთაველი',cat:'📜 ქართული ისტორია',hint:'ვეფხისტყაოსნის ავტორი'},
+  {w:'ფარნავაზი',cat:'📜 ქართული ისტორია',hint:'ქართლის მეფე, ქართული დამწერლობის შემქმნელი'},
+  {w:'ვახტანგი',cat:'📜 ქართული ისტორია',hint:'გორგასალი მეფე'},
+  {w:'ბაგრატი',cat:'📜 ქართული ისტორია',hint:'ქართველ მეფეთა დინასტია'},
+  {w:'თრიალეთი',cat:'📜 ქართული ისტორია',hint:'ისტორიული მხარე, არქეოლოგიური ძეგლებით'},
+  
+  // ⛪ ქართული მართლმადიდებლობა
+  {w:'სვეტიცხოველი',cat:'⛪ საკულტო ძეგლები',hint:'მცხეთის საკათედრო ტაძარი'},
+  {w:'გელათი',cat:'⛪ საკულტო ძეგლები',hint:'ქუთაისთან ახლოს, დავით აღმაშენებლის მონასტერი'},
+  {w:'ბაგრატი',cat:'⛪ საკულტო ძეგლები',hint:'ქუთაისის ტაძარი'},
+  {w:'ნინო',cat:'⛪ წმინდანები',hint:'ქართველი წმინდანი, ვაზის ჯვრით'},
+  {w:'გიორგი',cat:'⛪ წმინდანები',hint:'დრაკონის მკვლელი წმინდანი'},
+  {w:'მცხეთა',cat:'⛪ საკულტო ძეგლები',hint:'საქართველოს ძველი დედაქალაქი'},
+  {w:'უფლისციხე',cat:'⛪ საკულტო ძეგლები',hint:'კლდეში ნაკვეთი ქალაქი'},
+  {w:'ვარძია',cat:'⛪ საკულტო ძეგლები',hint:'მრავალსართულიანი მონასტერი კლდეში'},
+  
+  // 🏔️ ქართული გეოგრაფია
+  {w:'ყაზბეგი',cat:'🏔️ მთები',hint:'მწვერვალი საქართველოში'},
+  {w:'შხარა',cat:'🏔️ მთები',hint:'საქართველოს უმაღლესი მწვერვალი'},
+  {w:'უშბა',cat:'🏔️ მთები',hint:'სვანეთის მწვერვალი'},
+  {w:'თეთნულდი',cat:'🏔️ მთები',hint:'სვანეთის მწვერვალი'},
+  {w:'აბუდელაური',cat:'🏔️ მთები',hint:'რაჭის მწვერვალი'},
+  
+  // 🍷 ქართული კერძები
+  {w:'ხინკალი',cat:'🍽️ კერძები',hint:'ცომში გახვეული ხორცი'},
+  {w:'ხაჭაპური',cat:'🍽️ კერძები',hint:'ყველიანი პური'},
+  {w:'აჭარული',cat:'🍽️ კერძები',hint:'ნავის ფორმის ხაჭაპური'},
+  {w:'ლობიანი',cat:'🍽️ კერძები',hint:'ლობიოს პური'},
+  {w:'მწვადი',cat:'🍽️ კერძები',hint:'ცეცხლზე შემწვარი ხორცი'},
+  {w:'ჩაქაფული',cat:'🍽️ კერძები',hint:'კვერცხიანი საგაზაფხულო კერძი'},
+  {w:'ფხალი',cat:'🍽️ კერძები',hint:'ნიგვზიანი ბოსტნეულის კერძი'},
+  {w:'საცივი',cat:'🍽️ კერძები',hint:'ნიგვზიანი ინდაურის კერძი'},
+  {w:'გომი',cat:'🍽️ კერძები',hint:'სიმინდის ფაფა'},
+  {w:'ელარჯი',cat:'🍽️ კერძები',hint:'სიმინდის ფაფა ყველით'},
+  
+  // 🍇 ქართული ღვინოები
+  {w:'საფერავი',cat:'🍇 ღვინოები',hint:'წითელი ღვინის ჯიში'},
+  {w:'რქაწითელი',cat:'🍇 ღვინოები',hint:'თეთრი ღვინის ჯიში'},
+  {w:'ცოლიკოური',cat:'🍇 ღვინოები',hint:'თეთრი ღვინის ჯიში'},
+  {w:'ალადასტური',cat:'🍇 ღვინოები',hint:'ქართული თეთრი ღვინო'},
+  {w:'ხვანჭკარა',cat:'🍇 ღვინოები',hint:'ნახევრადტკბილი წითელი ღვინო'},
+  {w:'კინძმარაული',cat:'🍇 ღვინოები',hint:'ნახევრადტკბილი წითელი ღვინო'},
+  
+  // 🎭 ქართული ტრადიციები
+  {w:'სუპრა',cat:'🎭 ტრადიციები',hint:'ქართული ნადიმი'},
+  {w:'თამადა',cat:'🎭 ტრადიციები',hint:'ნადიმის მეთაური'},
+  {w:'ჩოხა',cat:'🎭 ტრადიციები',hint:'ქართული ეროვნული სამოსი'},
+  {w:'პაპახი',cat:'🎭 ტრადიციები',hint:'ქართული თავსაბურავი'},
+  {w:'ნადური',cat:'🎭 ტრადიციები',hint:'მთიულური ცეკვა'},
+  {w:'ხორუმი',cat:'🎭 ტრადიციები',hint:'აჭარული ცეკვა'},
+  
+  // 🏛️ ქართული ციხესიმაგრეები
+  {w:'ნარიყალა',cat:'🏛️ ციხესიმაგრეები',hint:'თბილისის ციხე'},
+  {w:'ანანური',cat:'🏛️ ციხესიმაგრეები',hint:'ჟინვალთან ახლოს'},
+  {w:'რაბათი',cat:'🏛️ ციხესიმაგრეები',hint:'ახალციხის ციხე'},
+  {w:'გორი',cat:'🏛️ ციხესიმაგრეები',hint:'გორის ციხე'},
+  {w:'ხერთვისი',cat:'🏛️ ციხესიმაგრეები',hint:'სამცხე-ჯავახეთის ციხე'},
+  
+  // 🖋️ ქართული მწერლობა
+  {w:'რუსთაველი',cat:'🖋️ მწერლები',hint:'ვეფხისტყაოსნის ავტორი'},
+  {w:'გურამიშვილი',cat:'🖋️ მწერლები',hint:'დავითიანის ავტორი'},
+  {w:'ბარათაშვილი',cat:'🖋️ მწერლები',hint:'მერანის ავტორი'},
+  {w:'ჭავჭავაძე',cat:'🖋️ მწერლები',hint:'კაცია-ადამიანი? და სხვა'},
+  {w:'წერეთელი',cat:'🖋️ მწერლები',hint:'ბაში-აჩუკის ავტორი'},
+  {w:'აბაშიძე',cat:'🖋️ მწერლები',hint:'ლექსების ავტორი'},
+  {w:'ვაჟა',cat:'🖋️ მწერლები',hint:'ვაჟა-ფშაველა, მთის წიგნების ავტორი'},
+  
+  // 🩰 ქართული ბალეტი
+  {w:'გედი',cat:'🩰 ბალეტი',hint:'ჩაიკოვსკის ბალეტი'},
+  {w:'მაჩიტა',cat:'🩰 ბალეტი',hint:'ხაჩატურიანის ბალეტი'},
+  {w:'ოთელო',cat:'🩰 ბალეტი',hint:'შექსპირის მიხედვით'},
 ];
 
 // Georgian keyboard rows
@@ -675,7 +626,7 @@ const KB_ROWS = [
   ['თ','ი','კ','ლ','მ','ნ','ო','პ'],
   ['ჟ','რ','ს','ტ','უ','ფ','ქ','ღ'],
   ['ყ','შ','ჩ','ც','ძ','წ','ჭ','ხ'],
-  ['ჯ','ჰ','ე̂','ზ̂'],
+  ['ჯ','ჰ'],
 ];
 
 const MAX_WRONG = 6;
@@ -698,7 +649,6 @@ function newGame() {
   document.getElementById('g-eyes').style.opacity = '0';
   document.getElementById('g-body-group').classList.remove('shake');
 
-  // reset gallows
   for (let i = 1; i <= 6; i++) {
     const el = document.getElementById('g' + i);
     if (el) el.classList.remove('show');
@@ -776,12 +726,10 @@ function guess(letter, btn) {
   btn.disabled = true;
 
   if (currentWord.includes(letter)) {
-    // correct!
     btn.classList.add('hit');
     revealLetters(letter);
     checkWin();
   } else {
-    // wrong
     btn.classList.add('miss');
     wrongLetters.push(letter);
     showWrongLetter(letter);
@@ -832,6 +780,7 @@ function checkWin() {
     wins++;
     updateScoreDisplay();
     spawnParticles(true);
+    sendScoreToParent();
     setTimeout(() => showResult(true), 800);
   }
 }
@@ -841,10 +790,8 @@ function checkLose() {
     gameOver = true;
     losses++;
     updateScoreDisplay();
-    // show X eyes
     document.getElementById('g-eyes').style.opacity = '1';
     document.getElementById('g-body-group').classList.add('shake');
-    // reveal all letters in red
     setTimeout(() => {
       revealAllWrong();
       setTimeout(() => showResult(false), 600);
@@ -887,6 +834,15 @@ function updateScoreDisplay() {
   document.getElementById('scoreLose').textContent = losses;
 }
 
+function sendScoreToParent() {
+  if (window.opener && !window.opener.closed) {
+    window.opener.postMessage({
+      type: 'GAME_SCORE_UPDATE',
+      score: wins
+    }, '*');
+  }
+}
+
 function spawnParticles(win) {
   const emojis = win
     ? ['🎉','⭐','✨','🌟','🎊','💫','🏆']
@@ -912,11 +868,9 @@ function spawnParticles(win) {
   }
 }
 
-// keyboard support
 document.addEventListener('keydown', e => {
   if (gameOver) return;
   const letter = e.key;
-  // find matching btn
   const btn = document.querySelector(`.kb-btn[data-letter="${letter}"]`);
   if (btn && !btn.disabled) {
     btn.click();
