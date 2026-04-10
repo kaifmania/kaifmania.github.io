@@ -1,0 +1,998 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>სიტყვის ბეთლი — კაიფმანია</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#1c1a30;
+  --panel:#252240;
+  --panel2:#2e2a50;
+  --border:rgba(160,80,255,0.3);
+  --text:#ede0ff;
+  --text2:#b580e0;
+  --text3:#7a5a9a;
+  --indigo:#7a1fc8;
+  --indigo2:#a855f7;
+  --indigo-f:rgba(120,30,200,0.15);
+  --accent:#f07aff;
+  --green:#4ade80;
+  --red:#f87171;
+  --amber:#fbbf24;
+  --glow:rgba(168,85,247,0.3);
+}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100dvh;
+  display:flex;
+  flex-direction:column;
+  overflow-x:hidden;
+}
+
+/* bg pattern */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse 60% 40% at 20% 20%, rgba(120,30,200,0.12) 0%, transparent 60%),
+    radial-gradient(ellipse 50% 50% at 80% 80%, rgba(168,85,247,0.08) 0%, transparent 60%);
+  pointer-events:none;
+  z-index:0;
+}
+
+/* ===== TOPBAR ===== */
+#topbar{
+  position:relative;
+  z-index:10;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:14px 24px;
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  box-shadow:0 2px 20px rgba(0,0,0,0.3);
+}
+.tb-back{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  padding:7px 14px;
+  border-radius:12px;
+  background:var(--indigo-f);
+  border:1px solid var(--border);
+  color:var(--text2);
+  font-size:13px;
+  text-decoration:none;
+  transition:all .2s;
+  font-family:'Noto Sans Georgian',sans-serif;
+}
+.tb-back:hover{background:var(--border);color:var(--text)}
+.tb-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+  letter-spacing:0.5px;
+}
+.tb-score-box{
+  margin-left:auto;
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.tb-score-label{font-size:11px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px}
+.tb-score-val{
+  font-family:'Unbounded',sans-serif;
+  font-size:20px;
+  font-weight:900;
+  color:var(--accent);
+  min-width:50px;
+  text-align:right;
+  text-shadow:0 0 20px rgba(240,122,255,0.5);
+}
+.tb-total{font-size:11px;color:var(--text3)}
+
+/* ===== MAIN ===== */
+#main{
+  position:relative;
+  z-index:1;
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  padding:24px 16px 40px;
+  max-width:800px;
+  margin:0 auto;
+  width:100%;
+}
+
+/* ===== INTRO ===== */
+#introScreen{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  padding-top:40px;
+  animation:fadeIn .5s ease;
+}
+.intro-icon{font-size:64px;margin-bottom:20px;animation:float 3s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.intro-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:28px;
+  font-weight:900;
+  color:var(--text);
+  margin-bottom:8px;
+  letter-spacing:-0.5px;
+}
+.intro-sub{font-size:15px;color:var(--text2);margin-bottom:32px;line-height:1.6}
+.intro-rules{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:20px 24px;
+  margin-bottom:32px;
+  text-align:left;
+  width:100%;
+  max-width:460px;
+}
+.intro-rules h3{
+  font-family:'Unbounded',sans-serif;
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--text2);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.rule-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:8px 0;
+  border-bottom:1px solid rgba(160,80,255,0.1);
+  font-size:14px;
+  color:var(--text2);
+}
+.rule-row:last-child{border:none}
+.rule-icon{font-size:20px;flex-shrink:0}
+.rule-badge{
+  margin-left:auto;
+  font-family:'Unbounded',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  color:var(--green);
+  background:rgba(74,222,128,0.1);
+  border:1px solid rgba(74,222,128,0.3);
+  padding:3px 10px;
+  border-radius:20px;
+}
+.start-btn{
+  padding:16px 48px;
+  border-radius:50px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;
+  color:#fff;
+  font-family:'Unbounded',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  cursor:pointer;
+  letter-spacing:1px;
+  box-shadow:0 8px 32px rgba(120,30,200,0.5);
+  transition:all .2s;
+}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 12px 40px rgba(120,30,200,0.65)}
+.start-btn:active{transform:translateY(0)}
+
+/* ===== GAME SCREEN ===== */
+#gameScreen{display:none;width:100%}
+
+/* progress */
+.progress-row{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:20px;
+  width:100%;
+}
+.progress-text{
+  font-size:11px;
+  color:var(--text3);
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:1px;
+  white-space:nowrap;
+}
+.progress-bar{
+  flex:1;
+  height:6px;
+  background:rgba(160,80,255,0.15);
+  border-radius:3px;
+  overflow:hidden;
+}
+.progress-fill{
+  height:100%;
+  background:linear-gradient(90deg,var(--indigo),var(--accent));
+  border-radius:3px;
+  transition:width .4s cubic-bezier(0.4,0,0.2,1);
+  box-shadow:0 0 8px rgba(168,85,247,0.5);
+}
+.streak-badge{
+  font-size:11px;
+  padding:3px 10px;
+  border-radius:20px;
+  background:rgba(251,191,36,0.12);
+  border:1px solid rgba(251,191,36,0.3);
+  color:var(--amber);
+  font-family:'Unbounded',sans-serif;
+  font-weight:700;
+  transition:all .3s;
+  white-space:nowrap;
+}
+.streak-badge.hot{
+  background:rgba(251,191,36,0.22);
+  box-shadow:0 0 12px rgba(251,191,36,0.3);
+}
+
+/* hint label */
+.hint-label{
+  font-size:12px;
+  color:var(--text3);
+  text-align:center;
+  margin-bottom:10px;
+  letter-spacing:0.5px;
+}
+
+/* scrambled answer area */
+.answer-area{
+  min-height:64px;
+  background:var(--panel);
+  border:2px solid var(--border);
+  border-radius:16px;
+  padding:12px 16px;
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  align-items:center;
+  margin-bottom:16px;
+  width:100%;
+  transition:border-color .3s;
+  position:relative;
+}
+.answer-area.correct{border-color:var(--green);box-shadow:0 0 20px rgba(74,222,128,0.2)}
+.answer-area.wrong{border-color:var(--red);box-shadow:0 0 20px rgba(248,113,113,0.2);animation:shake .35s ease}
+.answer-placeholder{
+  font-size:13px;
+  color:var(--text3);
+  font-style:italic;
+  pointer-events:none;
+}
+@keyframes shake{
+  0%,100%{transform:translateX(0)}
+  20%{transform:translateX(-8px)}
+  40%{transform:translateX(8px)}
+  60%{transform:translateX(-6px)}
+  80%{transform:translateX(6px)}
+}
+
+/* letters */
+.letter-tile{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-width:38px;
+  height:42px;
+  padding:0 10px;
+  border-radius:10px;
+  font-size:18px;
+  font-weight:600;
+  font-family:'Noto Sans Georgian',sans-serif;
+  cursor:pointer;
+  transition:all .15s cubic-bezier(0.34,1.4,0.64,1);
+  user-select:none;
+  position:relative;
+  border:1px solid transparent;
+}
+.letter-tile.scrambled{
+  background:var(--panel2);
+  border-color:var(--border);
+  color:var(--text);
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+.letter-tile.scrambled:hover{
+  transform:translateY(-4px) scale(1.08);
+  border-color:var(--indigo2);
+  box-shadow:0 6px 20px rgba(168,85,247,0.3);
+  background:rgba(168,85,247,0.2);
+}
+.letter-tile.scrambled:active{transform:scale(0.95)}
+.letter-tile.placed{
+  background:rgba(120,30,200,0.25);
+  border-color:rgba(168,85,247,0.5);
+  color:var(--text);
+  animation:popIn .2s cubic-bezier(0.34,1.5,0.64,1);
+}
+.letter-tile.placed:hover{
+  background:rgba(248,113,113,0.2);
+  border-color:rgba(248,113,113,0.5);
+  transform:scale(1.05);
+}
+.letter-tile.correct-tile{
+  background:rgba(74,222,128,0.2);
+  border-color:rgba(74,222,128,0.5);
+  color:var(--green);
+  pointer-events:none;
+}
+.letter-tile.wrong-tile{
+  background:rgba(248,113,113,0.2);
+  border-color:rgba(248,113,113,0.5);
+  color:var(--red);
+}
+@keyframes popIn{
+  from{transform:scale(0.7);opacity:0.5}
+  to{transform:scale(1);opacity:1}
+}
+
+/* scrambled pool */
+.scramble-pool{
+  display:flex;
+  flex-wrap:wrap;
+  gap:8px;
+  justify-content:center;
+  min-height:58px;
+  padding:8px 0;
+  width:100%;
+  margin-bottom:16px;
+}
+
+/* controls */
+.game-controls{
+  display:flex;
+  gap:10px;
+  width:100%;
+  margin-bottom:20px;
+}
+.ctrl-btn{
+  flex:1;
+  padding:11px;
+  border-radius:12px;
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;
+  cursor:pointer;
+  transition:all .2s;
+  border:1px solid var(--border);
+  font-weight:500;
+}
+.ctrl-btn.clear{background:rgba(248,113,113,0.08);color:var(--red);border-color:rgba(248,113,113,0.3)}
+.ctrl-btn.clear:hover{background:rgba(248,113,113,0.18)}
+.ctrl-btn.skip{background:var(--indigo-f);color:var(--text2)}
+.ctrl-btn.skip:hover{background:var(--border)}
+.ctrl-btn.check{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;
+  border-color:transparent;
+  box-shadow:0 4px 16px rgba(120,30,200,0.4);
+}
+.ctrl-btn.check:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(120,30,200,0.55)}
+.ctrl-btn.check:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* feedback */
+.feedback-msg{
+  text-align:center;
+  font-size:14px;
+  font-weight:600;
+  min-height:22px;
+  margin-bottom:14px;
+  transition:all .3s;
+}
+.feedback-msg.good{color:var(--green)}
+.feedback-msg.bad{color:var(--red)}
+
+/* word display */
+.word-card{
+  width:100%;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:20px 24px;
+  margin-bottom:20px;
+  position:relative;
+  overflow:hidden;
+}
+.word-card::before{
+  content:'';
+  position:absolute;
+  top:0;left:0;right:0;height:2px;
+  background:linear-gradient(90deg,var(--indigo),var(--accent));
+}
+.word-num{
+  font-size:10px;
+  color:var(--text3);
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.word-target{
+  font-size:13px;
+  color:var(--text2);
+  margin-bottom:4px;
+}
+.word-hint{
+  font-size:11px;
+  color:var(--text3);
+  font-style:italic;
+}
+
+/* ===== RESULT SCREEN ===== */
+#resultScreen{
+  display:none;
+  flex-direction:column;
+  align-items:center;
+  text-align:center;
+  width:100%;
+  animation:fadeIn .5s ease;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+
+.result-trophy{font-size:80px;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+.result-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:24px;
+  font-weight:900;
+  color:var(--text);
+  margin-bottom:6px;
+}
+.result-sub{font-size:14px;color:var(--text2);margin-bottom:28px}
+.result-score-big{
+  font-family:'Unbounded',sans-serif;
+  font-size:64px;
+  font-weight:900;
+  color:var(--accent);
+  text-shadow:0 0 30px rgba(240,122,255,0.5);
+  line-height:1;
+  margin-bottom:6px;
+}
+.result-score-label{font-size:13px;color:var(--text3);margin-bottom:28px;font-family:'Unbounded',sans-serif;letter-spacing:1px}
+.result-stats{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  width:100%;
+  max-width:420px;
+  margin-bottom:28px;
+}
+.stat-box{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:14px 10px;
+}
+.stat-val{
+  font-family:'Unbounded',sans-serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:4px;
+}
+.stat-label{font-size:10px;color:var(--text3);letter-spacing:1px;text-transform:uppercase}
+.result-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.res-btn{
+  padding:12px 28px;
+  border-radius:14px;
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+  transition:all .2s;
+  border:1px solid var(--border);
+}
+.res-btn.primary{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border-color:transparent;
+  color:#fff;
+  box-shadow:0 4px 16px rgba(120,30,200,0.4);
+}
+.res-btn.primary:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(120,30,200,0.55)}
+.res-btn.secondary{background:var(--indigo-f);color:var(--text2)}
+.res-btn.secondary:hover{background:var(--border)}
+
+/* rank badge */
+.rank-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:8px 20px;
+  border-radius:50px;
+  font-family:'Unbounded',sans-serif;
+  font-size:12px;
+  font-weight:700;
+  margin-bottom:20px;
+}
+.rank-s{background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:var(--amber)}
+.rank-a{background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:var(--indigo2)}
+.rank-b{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:var(--green)}
+.rank-c{background:rgba(160,80,255,0.1);border:1px solid var(--border);color:var(--text2)}
+
+/* save indicator */
+.save-indicator{
+  font-size:12px;
+  color:var(--text3);
+  margin-top:16px;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.save-dot{
+  width:6px;height:6px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 6px var(--green);
+}
+
+/* ===== TOAST ===== */
+.toast{
+  position:fixed;
+  bottom:24px;left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;
+  padding:10px 22px;
+  border-radius:20px;
+  font-size:13px;
+  z-index:9999;
+  box-shadow:0 6px 24px rgba(0,0,0,0.4);
+  pointer-events:none;
+  animation:toastPop .3s cubic-bezier(0.34,1.3,0.64,1);
+  white-space:nowrap;
+}
+@keyframes toastPop{from{opacity:0;transform:translateX(-50%) translateY(10px) scale(0.95)}to{opacity:1;transform:translateX(-50%) translateY(0) scale(1)}}
+
+/* confetti particle */
+.confetti{
+  position:fixed;
+  width:8px;height:8px;
+  border-radius:2px;
+  pointer-events:none;
+  z-index:9999;
+  animation:confettiFall linear forwards;
+}
+@keyframes confettiFall{
+  0%{transform:translate(0,0) rotate(0deg);opacity:1}
+  100%{transform:translate(var(--dx),100vh) rotate(720deg);opacity:0}
+}
+
+@media(max-width:480px){
+  .intro-title{font-size:22px}
+  .result-score-big{font-size:48px}
+  .result-stats{grid-template-columns:repeat(3,1fr)}
+  .stat-val{font-size:18px}
+  .game-controls{flex-wrap:wrap}
+  .ctrl-btn.check{flex:100%}
+}
+</style>
+</head>
+<body>
+
+<div id="topbar">
+  <a href="chat.html" class="tb-back">← უკან</a>
+  <div class="tb-title">🎭 სიტყვის ბეთლი</div>
+  <div class="tb-score-box">
+    <span class="tb-score-label">ქულა</span>
+    <span class="tb-score-val" id="topScore">0</span>
+    <span class="tb-total" id="topTotal">/ 0</span>
+  </div>
+</div>
+
+<div id="main">
+
+  <!-- INTRO -->
+  <div id="introScreen">
+    <div class="intro-icon">🧩</div>
+    <div class="intro-title">სიტყვის ბეთლი</div>
+    <div class="intro-sub">არეული ასოები, შენი წყობა<br>200 სიტყვა · სწორი = 5 ქულა</div>
+    <div class="intro-rules">
+      <h3>წესები</h3>
+      <div class="rule-row">
+        <span class="rule-icon">👆</span>
+        <span>ასოებს დააჭირე სწორი თანმიმდევრობით</span>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">✅</span>
+        <span>სწორი სიტყვა</span>
+        <span class="rule-badge">+5 ქულა</span>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">🔄</span>
+        <span>გაასუფთავე და თავიდან სცადე</span>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">⏭️</span>
+        <span>გამოტოვება შეგიძლია (0 ქულა)</span>
+      </div>
+      <div class="rule-row">
+        <span class="rule-icon">🏆</span>
+        <span>ქულა პროფილზე შეინახება</span>
+      </div>
+    </div>
+    <button class="start-btn" onclick="startGame()">▶ დაწყება</button>
+  </div>
+
+  <!-- GAME -->
+  <div id="gameScreen">
+    <div class="progress-row">
+      <span class="progress-text" id="progressText">1 / 200</span>
+      <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0.5%"></div></div>
+      <span class="streak-badge" id="streakBadge">🔥 0</span>
+    </div>
+
+    <div class="word-card">
+      <div class="word-num" id="wordNum">სიტყვა #1</div>
+      <div class="word-target">დაალაგე ასოები სწორი სიტყვის შესაქმნელად:</div>
+    </div>
+
+    <div class="hint-label">▼ შენი პასუხი</div>
+    <div class="answer-area" id="answerArea">
+      <span class="answer-placeholder" id="answerPlaceholder">აქ გამოჩნდება...</span>
+    </div>
+
+    <div class="hint-label">▼ ასოები (დააჭირე)</div>
+    <div class="scramble-pool" id="scramblePool"></div>
+
+    <div class="feedback-msg" id="feedbackMsg"></div>
+
+    <div class="game-controls">
+      <button class="ctrl-btn clear" onclick="clearAnswer()">🗑 გასუფთავება</button>
+      <button class="ctrl-btn skip" onclick="skipWord()">⏭ გამოტოვება</button>
+      <button class="ctrl-btn check" id="checkBtn" onclick="checkAnswer()" disabled>✓ შემოწმება</button>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div id="resultScreen">
+    <div class="result-trophy" id="resultTrophy">🏆</div>
+    <div class="result-title" id="resultTitle">გათავდა!</div>
+    <div class="result-sub" id="resultSub">200 სიტყვა გაიარე</div>
+    <div class="rank-badge rank-s" id="rankBadge">👑 S RANK</div>
+    <div class="result-score-big" id="resultScore">0</div>
+    <div class="result-score-label">საერთო ქულა</div>
+    <div class="result-stats">
+      <div class="stat-box">
+        <div class="stat-val" id="statCorrect">0</div>
+        <div class="stat-label">სწორი</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statSkipped">0</div>
+        <div class="stat-label">გამოტ.</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="statStreak">0</div>
+        <div class="stat-label">max streak</div>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="res-btn primary" onclick="restartGame()">🔄 თავიდან</button>
+      <button class="res-btn secondary" onclick="goBack()">← მთავარი</button>
+    </div>
+    <div class="save-indicator" id="saveIndicator" style="display:none">
+      <div class="save-dot"></div>
+      <span>ქულა პროფილზე შეინახა</span>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://vjstuyxuhshsouqsnvxp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
+);
+
+// ===== 200 ქართული სიტყვა =====
+const WORDS = [
+  "სახლი","მზე","მთა","ზღვა","მდინარე","ტყე","ველი","ქვა","ხე","ყვავილი",
+  "ფრინველი","თევზი","ცხოველი","ძაღლი","კატა","ცხენი","ძროხა","ცხვარი","ღორი","თხა",
+  "ვაშლი","მსხალი","ყურძენი","ატამი","ბალი","ნიგოზი","ლიმონი","ფორთოხალი","ბანანი","კომში",
+  "პური","ყველი","კვერცხი","რძე","კარაქი","ხორცი","თევზი","ბოსტნეული","ხახვი","ნიორი",
+  "წყალი","ჰაერი","ცეცხლი","მიწა","ქარი","წვიმა","თოვლი","ყინული","ნისლი","ქარიშხალი",
+  "დღე","ღამე","დილა","საღამო","სიცხე","სიცივე","შემოდგომა","გაზაფხული","ზაფხული","ზამთარი",
+  "მამა","დედა","ძმა","და","შვილი","ბებია","პაპა","ბიძა","დეიდა","მეგობარი",
+  "სახელი","ასაკი","სიმაღლე","წონა","ფერი","ფორმა","ზომა","სიგრძე","სიგანე","სიღრმე",
+  "სკოლა","კლასი","მასწავლებელი","მოსწავლე","წიგნი","ნოუთბუქი","კალამი","ფანქარი","საშლელი","სახაზავი",
+  "ექიმი","ავადმყოფი","წამალი","საავადმყოფო","ოპერაცია","ანალიზი","ტკივილი","ჯანმრთელობა","ვიტამინი","ვაქცინა",
+  "მანქანა","ავტობუსი","მეტრო","თვითმფრინავი","გემი","მატარებელი","ველოსიპედი","მოტოციკლი","ტაქსი","ვაგონი",
+  "ქუჩა","გზა","ხიდი","გვირაბი","მოედანი","პარკი","ბაღი","სტადიონი","სამოსახლო","სასახლე",
+  "სიყვარული","სიხარული","სევდა","ბრაზი","შიში","გასაკვირი","სიამაყე","სირცხვილი","ვნება","ოცნება",
+  "სიმღერა","მუსიკა","ცეკვა","ხელოვნება","ფერწერა","ქანდაკება","კინო","თეატრი","ბიბლიოთეკა","მუზეუმი",
+  "ფეხბურთი","კალათბურთი","ჩოგბურთი","ცურვა","სირბილი","ველოსიპედი","ლაშქრობა","ალპინიზმი","ჭიდაობა","ბოქსი",
+  "ტელეფონი","კომპიუტერი","ინტერნეტი","კამერა","ტელევიზორი","რადიო","საათი","კალკულატორი","პრინტერი","სკანერი",
+  "ოქრო","ვერცხლი","სპილენძი","რკინა","ფოლადი","ალუმინი","მინა","ხე","პლასტმასი","ქაღალდი",
+  "ლურჯი","წითელი","მწვანე","ყვითელი","ნარინჯისფერი","იისფერი","ვარდისფერი","შავი","თეთრი","ნაცრისფერი",
+  "პირველი","მეორე","მესამე","მეოთხე","მეხუთე","მეექვსე","მეშვიდე","მერვე","მეცხრე","მეათე",
+  "ერთი","ორი","სამი","ოთხი","ხუთი","ექვსი","შვიდი","რვა","ცხრა","ათი"
+];
+
+let ME = null;
+let currentIndex = 0;
+let currentWord = '';
+let placedLetters = [];
+let letterElements = [];
+let score = 0;
+let correct = 0;
+let skipped = 0;
+let streak = 0;
+let maxStreak = 0;
+let shuffledWords = [];
+let checking = false;
+
+// ===== INIT =====
+async function init() {
+  const {data:{user}} = await sb.auth.getUser();
+  if (!user) { location.href = 'index.html'; return; }
+  ME = user;
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function scrambleWord(word) {
+  const letters = word.split('');
+  let scrambled;
+  let attempts = 0;
+  do {
+    scrambled = shuffle(letters);
+    attempts++;
+  } while (scrambled.join('') === word && attempts < 20);
+  return scrambled;
+}
+
+function startGame() {
+  shuffledWords = shuffle(WORDS);
+  currentIndex = 0;
+  score = 0;
+  correct = 0;
+  skipped = 0;
+  streak = 0;
+  maxStreak = 0;
+  document.getElementById('topScore').textContent = '0';
+  document.getElementById('topTotal').textContent = '/ ' + (WORDS.length * 5);
+  document.getElementById('introScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  loadWord();
+}
+
+function loadWord() {
+  if (currentIndex >= shuffledWords.length) { showResult(); return; }
+  checking = false;
+  currentWord = shuffledWords[currentIndex];
+  placedLetters = [];
+
+  // update ui
+  document.getElementById('wordNum').textContent = 'სიტყვა #' + (currentIndex + 1);
+  document.getElementById('progressText').textContent = (currentIndex + 1) + ' / ' + shuffledWords.length;
+  const pct = ((currentIndex + 1) / shuffledWords.length * 100).toFixed(1);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('feedbackMsg').textContent = '';
+  document.getElementById('feedbackMsg').className = 'feedback-msg';
+  document.getElementById('checkBtn').disabled = true;
+
+  const answerArea = document.getElementById('answerArea');
+  answerArea.innerHTML = '<span class="answer-placeholder" id="answerPlaceholder">აქ გამოჩნდება...</span>';
+  answerArea.className = 'answer-area';
+
+  // scramble
+  const scrambled = scrambleWord(currentWord);
+  const pool = document.getElementById('scramblePool');
+  pool.innerHTML = '';
+  letterElements = [];
+
+  scrambled.forEach((letter, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'letter-tile scrambled';
+    tile.textContent = letter;
+    tile.dataset.letter = letter;
+    tile.dataset.idx = i;
+    tile.dataset.used = 'false';
+    tile.style.animationDelay = (i * 0.04) + 's';
+    tile.onclick = () => pickLetter(tile);
+    pool.appendChild(tile);
+    letterElements.push(tile);
+  });
+}
+
+function pickLetter(tile) {
+  if (tile.dataset.used === 'true' || checking) return;
+  tile.dataset.used = 'true';
+  tile.classList.remove('scrambled');
+  tile.classList.add('placed');
+
+  const placeholder = document.getElementById('answerPlaceholder');
+  if (placeholder) placeholder.remove();
+
+  const answerArea = document.getElementById('answerArea');
+  const clone = tile.cloneNode(true);
+  clone.classList.remove('scrambled');
+  clone.classList.add('placed');
+  clone.dataset.srcIdx = tile.dataset.idx;
+  clone.onclick = () => returnLetter(clone, tile);
+  answerArea.appendChild(clone);
+
+  placedLetters.push({letter: tile.dataset.letter, srcIdx: tile.dataset.idx});
+  document.getElementById('checkBtn').disabled = placedLetters.length !== currentWord.length;
+}
+
+function returnLetter(clone, srcTile) {
+  if (checking) return;
+  clone.remove();
+  srcTile.dataset.used = 'false';
+  srcTile.classList.remove('placed');
+  srcTile.classList.add('scrambled');
+
+  placedLetters = placedLetters.filter(p => p.srcIdx !== clone.dataset.srcIdx);
+
+  const answerArea = document.getElementById('answerArea');
+  if (answerArea.children.length === 0) {
+    const ph = document.createElement('span');
+    ph.className = 'answer-placeholder';
+    ph.id = 'answerPlaceholder';
+    ph.textContent = 'აქ გამოჩნდება...';
+    answerArea.appendChild(ph);
+  }
+  document.getElementById('checkBtn').disabled = placedLetters.length !== currentWord.length;
+}
+
+function clearAnswer() {
+  if (checking) return;
+  placedLetters = [];
+  document.getElementById('answerArea').className = 'answer-area';
+  document.getElementById('answerArea').innerHTML = '<span class="answer-placeholder" id="answerPlaceholder">აქ გამოჩნდება...</span>';
+  letterElements.forEach(t => {
+    t.dataset.used = 'false';
+    t.classList.remove('placed','correct-tile','wrong-tile');
+    t.classList.add('scrambled');
+  });
+  document.getElementById('checkBtn').disabled = true;
+  document.getElementById('feedbackMsg').textContent = '';
+  document.getElementById('feedbackMsg').className = 'feedback-msg';
+}
+
+function checkAnswer() {
+  if (checking) return;
+  const answer = placedLetters.map(p => p.letter).join('');
+  if (answer === currentWord) {
+    checking = true;
+    score += 5;
+    correct++;
+    streak++;
+    if (streak > maxStreak) maxStreak = streak;
+    document.getElementById('topScore').textContent = score;
+    document.getElementById('feedbackMsg').textContent = '✅ სწორია! +5 ქულა';
+    document.getElementById('feedbackMsg').className = 'feedback-msg good';
+    document.getElementById('answerArea').classList.add('correct');
+    updateStreak();
+    setTimeout(() => { currentIndex++; loadWord(); }, 900);
+  } else {
+    document.getElementById('answerArea').classList.add('wrong');
+    document.getElementById('feedbackMsg').textContent = '❌ არასწორი, სცადე თავიდან!';
+    document.getElementById('feedbackMsg').className = 'feedback-msg bad';
+    streak = 0;
+    updateStreak();
+    setTimeout(() => {
+      document.getElementById('answerArea').classList.remove('wrong');
+    }, 600);
+  }
+}
+
+function skipWord() {
+  if (checking) return;
+  skipped++;
+  streak = 0;
+  updateStreak();
+  currentIndex++;
+  loadWord();
+}
+
+function updateStreak() {
+  const el = document.getElementById('streakBadge');
+  el.textContent = '🔥 ' + streak;
+  if (streak >= 3) el.classList.add('hot');
+  else el.classList.remove('hot');
+}
+
+async function showResult() {
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('resultScreen').style.display = 'flex';
+
+  document.getElementById('resultScore').textContent = score;
+  document.getElementById('statCorrect').textContent = correct;
+  document.getElementById('statSkipped').textContent = skipped;
+  document.getElementById('statStreak').textContent = maxStreak;
+
+  const total = WORDS.length * 5;
+  const pct = score / total;
+
+  let trophy, title, sub, rankClass, rankText;
+  if (pct >= 0.9) {
+    trophy = '🏆'; title = 'ლეგენდა!'; sub = 'შენ ნამდვილი ოსტატი ხარ!';
+    rankClass = 'rank-badge rank-s'; rankText = '👑 S RANK';
+  } else if (pct >= 0.7) {
+    trophy = '🥇'; title = 'შესანიშნავი!'; sub = 'ძალიან კარგი შედეგი!';
+    rankClass = 'rank-badge rank-a'; rankText = '⭐ A RANK';
+  } else if (pct >= 0.5) {
+    trophy = '🥈'; title = 'კარგია!'; sub = 'კიდევ ცოტა და ტოპი ხარ!';
+    rankClass = 'rank-badge rank-b'; rankText = '✨ B RANK';
+  } else {
+    trophy = '🎯'; title = 'სცადე!'; sub = 'პრაქტიკა ოსტადს ჰქმნის!';
+    rankClass = 'rank-badge rank-c'; rankText = '💪 C RANK';
+  }
+
+  document.getElementById('resultTrophy').textContent = trophy;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('resultSub').textContent = sub;
+  document.getElementById('rankBadge').className = rankClass;
+  document.getElementById('rankBadge').textContent = rankText;
+
+  if (pct >= 0.7) spawnConfetti();
+
+  // save score
+  if (ME) {
+    const {error} = await sb.from('profiles')
+      .update({ game_score: score })
+      .eq('id', ME.id);
+    if (!error) {
+      document.getElementById('saveIndicator').style.display = 'flex';
+    }
+  }
+}
+
+function restartGame() {
+  document.getElementById('resultScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  startGame();
+}
+
+function goBack() { location.href = 'chat.html'; }
+
+function spawnConfetti() {
+  const colors = ['#f07aff','#a855f7','#4ade80','#fbbf24','#f87171','#60a5fa'];
+  for (let i = 0; i < 60; i++) {
+    setTimeout(() => {
+      const c = document.createElement('div');
+      c.className = 'confetti';
+      c.style.left = Math.random() * 100 + 'vw';
+      c.style.top = '-10px';
+      c.style.background = colors[Math.floor(Math.random() * colors.length)];
+      c.style.animationDuration = (1.5 + Math.random() * 2) + 's';
+      c.style.setProperty('--dx', (Math.random() - 0.5) * 200 + 'px');
+      document.body.appendChild(c);
+      setTimeout(() => c.remove(), 4000);
+    }, i * 40);
+  }
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
