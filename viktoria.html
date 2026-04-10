@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ვიქტორინა — კაიფმანია</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Noto Sans Georgian',sans-serif;background:#0f0c1e;color:#ede0ff;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 20%,rgba(120,30,200,0.18) 0%,transparent 60%),radial-gradient(ellipse at 80% 80%,rgba(168,85,247,0.14) 0%,transparent 60%);pointer-events:none;z-index:0}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@keyframes popIn{0%{transform:scale(0.7) rotate(-4deg);opacity:0}70%{transform:scale(1.05) rotate(1deg)}100%{transform:scale(1) rotate(0);opacity:1}}
+@keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-5px)}80%{transform:translateX(5px)}}
+@keyframes scoreFloat{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-40px);opacity:0}}
+@keyframes correctGlow{0%{box-shadow:0 0 0 0 rgba(74,222,128,0.6)}100%{box-shadow:0 0 0 16px rgba(74,222,128,0)}}
+@keyframes wrongGlow{0%{box-shadow:0 0 0 0 rgba(239,68,68,0.6)}100%{box-shadow:0 0 0 16px rgba(239,68,68,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+#app{position:relative;z-index:1;width:100%;max-width:560px}
+.screen{display:none;flex-direction:column;align-items:center;gap:18px;width:100%;animation:slideUp .35s ease}
+.screen.active{display:flex}
+/* LOADING */
+.loading-icon{font-size:60px;animation:float 2s ease-in-out infinite}
+.loading-text{font-family:'Unbounded',sans-serif;font-size:11px;color:#b580e0;letter-spacing:2.5px}
+.spinner{width:36px;height:36px;border:3px solid rgba(168,85,247,0.2);border-top-color:#a855f7;border-radius:50%;animation:spin .8s linear infinite}
+/* WELCOME */
+.welcome-icon{font-size:80px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(168,85,247,0.6))}
+.welcome-title{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;background:linear-gradient(135deg,#f07aff,#a855f7,#818cf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;text-align:center;line-height:1.25}
+.welcome-sub{font-size:13px;color:#b580e0;text-align:center;line-height:1.7;max-width:400px}
+.stats-row{display:flex;gap:10px;width:100%;flex-wrap:wrap}
+.stat-card{flex:1;min-width:100px;background:rgba(120,30,200,0.12);border:1px solid rgba(168,85,247,0.2);border-radius:14px;padding:12px 14px;text-align:center}
+.stat-val{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:#f07aff;display:block}
+.stat-lbl{font-size:9px;color:#7a5a9a;text-transform:uppercase;letter-spacing:1.5px;font-family:'Unbounded',sans-serif;margin-top:2px}
+.cat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%}
+.cat-btn{padding:11px 14px;border-radius:12px;border:1px solid rgba(168,85,247,0.2);background:rgba(120,30,200,0.1);color:#b580e0;font-family:'Noto Sans Georgian',sans-serif;font-size:12px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:6px}
+.cat-btn:hover,.cat-btn.sel{background:rgba(168,85,247,0.2);border-color:rgba(168,85,247,0.5);color:#ede0ff;transform:translateY(-1px)}
+.diff-row{display:flex;gap:8px;width:100%}
+.diff-btn{flex:1;padding:10px;border-radius:12px;border:1px solid rgba(168,85,247,0.2);background:rgba(120,30,200,0.1);color:#b580e0;font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:1px;cursor:pointer;transition:all .2s;text-align:center}
+.diff-btn:hover{transform:translateY(-2px)}
+.diff-btn.sel-easy{background:rgba(74,222,128,0.15);border-color:rgba(74,222,128,0.4);color:#4ade80}
+.diff-btn.sel-medium{background:rgba(251,191,36,0.15);border-color:rgba(251,191,36,0.4);color:#fbbf24}
+.diff-btn.sel-hard{background:rgba(239,68,68,0.15);border-color:rgba(239,68,68,0.4);color:#ef4444}
+.sec-lbl{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:2px;color:#7a5a9a;text-transform:uppercase;width:100%}
+.start-btn{width:100%;padding:17px;border-radius:18px;border:none;background:linear-gradient(135deg,#7a1fc8,#a855f7,#f07aff);color:#fff;font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 8px 28px rgba(168,85,247,0.45)}
+.start-btn:hover{transform:translateY(-2px);box-shadow:0 12px 38px rgba(168,85,247,0.6)}
+/* QUIZ */
+.quiz-top{width:100%;display:flex;align-items:center;gap:10px}
+.q-num{font-family:'Unbounded',sans-serif;font-size:10px;color:#7a5a9a;letter-spacing:1px;flex-shrink:0}
+.prog-bar{flex:1;height:6px;background:rgba(168,85,247,0.15);border-radius:3px;overflow:hidden}
+.prog-fill{height:100%;background:linear-gradient(90deg,#a855f7,#f07aff);border-radius:3px;transition:width .4s ease;box-shadow:0 0 8px rgba(168,85,247,0.5)}
+.score-live{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#f07aff;flex-shrink:0;position:relative}
+.score-pop{position:absolute;top:-22px;right:0;font-size:11px;color:#4ade80;font-weight:700;animation:scoreFloat .9s ease forwards;pointer-events:none;white-space:nowrap}
+/* Timer */
+.timer-wrap{position:relative;width:58px;height:58px;flex-shrink:0}
+.timer-svg{width:58px;height:58px;transform:rotate(-90deg)}
+.t-bg{stroke:rgba(168,85,247,0.15)}
+.t-circle{stroke:#a855f7;stroke-dasharray:283;stroke-dashoffset:0;transition:stroke .4s}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700}
+.timer-wrap.urgent .t-circle{stroke:#ef4444}
+.timer-wrap.urgent .timer-num{color:#ef4444}
+/* Question card */
+.q-card{width:100%;background:rgba(18,12,36,0.85);border:1px solid rgba(168,85,247,0.22);border-radius:22px;padding:22px;backdrop-filter:blur(18px);box-shadow:0 20px 50px rgba(0,0,0,0.45),inset 0 1px 0 rgba(168,85,247,0.08);animation:popIn .3s cubic-bezier(0.34,1.2,0.64,1)}
+.q-tag{display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.2);font-size:9px;color:#b580e0;font-family:'Unbounded',sans-serif;letter-spacing:.8px;margin-bottom:12px}
+.q-text{font-size:17px;font-weight:600;color:#ede0ff;line-height:1.55;margin-bottom:18px;min-height:60px}
+.answers{display:flex;flex-direction:column;gap:8px}
+.ans-btn{
+  padding:13px 16px;border-radius:14px;border:1px solid rgba(168,85,247,0.2);
+  background:rgba(40,25,70,0.6);color:#ede0ff;
+  font-family:'Noto Sans Georgian',sans-serif;font-size:14px;
+  cursor:pointer;transition:all .2s;text-align:left;
+  display:flex;align-items:center;gap:10px;
+}
+.ans-btn:hover:not(:disabled){background:rgba(120,30,200,0.25);border-color:rgba(168,85,247,0.45);transform:translateX(4px)}
+.ans-btn:disabled{cursor:default}
+.ans-btn.correct{background:rgba(74,222,128,0.18)!important;border-color:rgba(74,222,128,0.6)!important;color:#4ade80!important;animation:correctGlow .6s ease}
+.ans-btn.wrong{background:rgba(239,68,68,0.18)!important;border-color:rgba(239,68,68,0.5)!important;color:#ef4444!important;animation:wrongGlow .6s ease,shake .4s ease}
+.ans-btn.reveal{background:rgba(74,222,128,0.08)!important;border-color:rgba(74,222,128,0.3)!important;color:#4ade80!important}
+.ans-idx{width:26px;height:26px;border-radius:8px;background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.2);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:10px;color:#b580e0;flex-shrink:0}
+.ans-btn.correct .ans-idx{background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.4);color:#4ade80}
+.ans-btn.wrong .ans-idx{background:rgba(239,68,68,0.2);border-color:rgba(239,68,68,0.4);color:#ef4444}
+.feedback-row{width:100%;display:flex;align-items:center;gap:10px;padding:10px 14px;border-radius:12px;font-size:13px;opacity:0;transition:opacity .3s}
+.feedback-row.show{opacity:1}
+.feedback-row.ok{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+.feedback-row.ko{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.25);color:#ef4444}
+.next-btn{width:100%;padding:14px;border-radius:14px;border:none;background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px;opacity:0;pointer-events:none;transform:translateY(8px)}
+.next-btn.show{opacity:1;pointer-events:all;transform:translateY(0);transition:all .3s ease}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(168,85,247,0.4)}
+/* RESULT */
+.result-icon{font-size:80px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 30px rgba(168,85,247,0.6))}
+.result-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;text-align:center;line-height:1.3;background:linear-gradient(135deg,#f07aff,#a855f7);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%}
+.res-card{background:rgba(120,30,200,0.12);border:1px solid rgba(168,85,247,0.2);border-radius:14px;padding:14px;text-align:center}
+.res-val{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:#f07aff;display:block}
+.res-lbl{font-size:9px;color:#7a5a9a;text-transform:uppercase;letter-spacing:1px;font-family:'Unbounded',sans-serif;margin-top:2px}
+.rating-bar{width:100%;background:rgba(168,85,247,0.1);border-radius:10px;height:10px;overflow:hidden;border:1px solid rgba(168,85,247,0.15)}
+.rating-fill{height:100%;background:linear-gradient(90deg,#a855f7,#f07aff);border-radius:10px;transition:width 1s cubic-bezier(0.4,0,0.2,1)}
+.rating-label{font-size:13px;color:#b580e0;text-align:center}
+.total-score-box{
+  width:100%;padding:20px;
+  background:rgba(120,30,200,0.15);
+  border:1px solid rgba(168,85,247,0.3);
+  border-radius:18px;text-align:center;
+}
+.total-score-num{font-family:'Unbounded',sans-serif;font-size:48px;font-weight:900;color:#f07aff;line-height:1;display:block}
+.total-score-lbl{font-size:11px;color:#7a5a9a;text-transform:uppercase;letter-spacing:2px;font-family:'Unbounded',sans-serif;margin-top:6px;display:block}
+.saved-badge{display:inline-flex;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.25);color:#4ade80;font-size:12px}
+.replay-btn{width:100%;padding:16px;border-radius:18px;border:none;background:linear-gradient(135deg,#7a1fc8,#a855f7,#f07aff);color:#fff;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;box-shadow:0 8px 28px rgba(168,85,247,0.4)}
+.replay-btn:hover{transform:translateY(-2px);box-shadow:0 12px 38px rgba(168,85,247,0.55)}
+.back-link{color:#7a5a9a;font-size:12px;cursor:pointer;text-decoration:underline;font-family:'Noto Sans Georgian',sans-serif}
+.back-link:hover{color:#b580e0}
+/* Toast */
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:9999;pointer-events:none;animation:slideUp .3s ease;white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <!-- LOADING -->
+
+  <div class="screen active" id="loadingScreen">
+    <div class="loading-icon">🧠</div>
+    <div class="loading-text">იტვირთება...</div>
+    <div class="spinner"></div>
+  </div>
+
+  <!-- WELCOME -->
+
+  <div class="screen" id="welcomeScreen">
+    <div class="welcome-icon">🏆</div>
+    <div class="welcome-title">ვიქტორინა</div>
+    <div style="font-size:13px;color:#b580e0;text-align:center;line-height:1.7">200 კითხვა · სწორი პასუხი = 5 ქულა<br>ქულა ინახება პროფილზე</div>
+    <div class="stats-row" id="statsRow"></div>
+    <div class="sec-lbl">კატეგორია</div>
+    <div class="cat-grid" id="catGrid"></div>
+    <div class="sec-lbl">სირთულე</div>
+    <div class="diff-row">
+      <button class="diff-btn sel-easy" id="diffEasy" onclick="setDiff('easy',this)">😊 მარტივი</button>
+      <button class="diff-btn" id="diffMedium" onclick="setDiff('medium',this)">🔥 საშუალო</button>
+      <button class="diff-btn" id="diffHard" onclick="setDiff('hard',this)">💀 რთული</button>
+    </div>
+    <button class="start-btn" onclick="startQuiz()">▶ თამაშის დაწყება</button>
+    <span class="back-link" onclick="goBack()">← მთავარ გვერდზე დაბრუნება</span>
+  </div>
+
+  <!-- QUIZ -->
+
+  <div class="screen" id="quizScreen">
+    <div class="quiz-top">
+      <div class="q-num" id="qNum">1/10</div>
+      <div class="prog-bar"><div class="prog-fill" id="progFill" style="width:0%"></div></div>
+      <div class="score-live" id="scoreLive">0 ქ.<span id="scorePop" style="display:none" class="score-pop"></span></div>
+      <div class="timer-wrap" id="timerWrap">
+        <svg class="timer-svg" viewBox="0 0 100 100">
+          <circle class="t-bg" cx="50" cy="50" r="45" fill="none" stroke-width="8"/>
+          <circle class="t-circle" id="timerCircle" cx="50" cy="50" r="45" fill="none" stroke-width="8" stroke-linecap="round"/>
+        </svg>
+        <div class="timer-num" id="timerNum">20</div>
+      </div>
+    </div>
+    <div class="q-card" id="qCard">
+      <div class="q-tag" id="qTag">📚 კატეგორია</div>
+      <div class="q-text" id="qText">კითხვა...</div>
+      <div class="answers" id="answers"></div>
+    </div>
+    <div class="feedback-row" id="feedbackRow"><span id="feedbackTxt"></span></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">შემდეგი კითხვა →</button>
+  </div>
+
+  <!-- RESULT -->
+
+  <div class="screen" id="resultScreen">
+    <div class="result-icon" id="resultIcon">🏆</div>
+    <div class="result-title" id="resultTitle">შედეგი</div>
+    <div class="total-score-box">
+      <span class="total-score-num" id="totalScore">0</span>
+      <span class="total-score-lbl">ვიქტორინის ქულა</span>
+    </div>
+    <div class="result-grid" id="resultGrid"></div>
+    <div style="width:100%">
+      <div style="display:flex;justify-content:space-between;font-size:11px;color:#7a5a9a;margin-bottom:6px">
+        <span>სისწორე</span><span id="accPct">0%</span>
+      </div>
+      <div class="rating-bar"><div class="rating-fill" id="ratingFill" style="width:0%"></div></div>
+    </div>
+    <div class="saved-badge" id="savedBadge" style="display:none">✅ ქულა პროფილზე შეინახა!</div>
+    <button class="replay-btn" onclick="replayQuiz()">🔄 თავიდან თამაში</button>
+    <span class="back-link" onclick="goBack()">← მთავარ გვერდზე დაბრუნება</span>
+  </div>
+
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://vjstuyxuhshsouqsnvxp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
+);
+
+let ME = null, MYPROF = null;
+let selectedCat = 'all', selectedDiff = 'easy';
+let quizQuestions = [], qIndex = 0, score = 0;
+let correct = 0, wrong = 0, timeouts = 0;
+let timerInterval = null, timeLeft = 20;
+let answered = false;
+
+const SCORE_PER_Q = 5;
+
+// ===== 200 კითხვა =====
+const ALL_QUESTIONS = [
+  // ისტორია
+  {cat:'🏛️ ისტორია',diff:'easy',q:'საქართველოს პირველი დედაქალაქი რომელი ქალაქია?',a:['მცხეთა','თბილისი','ქუთაისი','რუსთავი'],c:0},
+  {cat:'🏛️ ისტორია',diff:'easy',q:'ვახტანგ გორგასალმა თბილისი რომელ საუკუნეში დააარსა?',a:['V საუკუნე','III საუკუნე','VII საუკუნე','X საუკუნე'],c:0},
+  {cat:'🏛️ ისტორია',diff:'easy',q:'დავით აღმაშენებელი ქართველ მეფეთა შორის ყველაზე ცნობილია რით?',a:['ქვეყნის გამთლიანებით','ომების წაგებით','ქვეყნის გაყოფით','ეკლესიების დაშლით'],c:0},
+  {cat:'🏛️ ისტორია',diff:'easy',q:'რუსთაველის "ვეფხისტყაოსანი" რომელ პერიოდშია დაწერილი?',a:['XII საუკუნე','XV საუკუნე','VIII საუკუნე','XVII საუკუნე'],c:0},
+  {cat:'🏛️ ისტორია',diff:'easy',q:'ქართული ანბანი რამდენ ასოს შეიცავს?',a:['33','26','35','28'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'მეფე ტამარი მეფობდა:',a:['1184-1213 წლებში','1100-1150 წლებში','1250-1300 წლებში','900-950 წლებში'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'საქართველოს სახელმწიფო დამოუკიდებლობა რომელ წელს გამოცხადდა?',a:['1991','1990','1992','1989'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'ყვარლის ციხე-სიმაგრე ბრძოლა სად გაიმართა?',a:['კახეთში','ქართლში','აჭარაში','სამეგრელოში'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'ქართლ-კახეთის სამეფო რუსეთს რომელ წელს შეუერთდა?',a:['1801','1850','1780','1820'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'ბაგრატ III-ის გამეფება რომელ წელს მოხდა?',a:['978','1000','950','1020'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'რომელი ბრძოლა გაიმართა 1121 წელს?',a:['დიდგორის ბრძოლა','მანაზკერტის ბრძოლა','ბოლნისის ბრძოლა','ლეჩხუმის ბრძოლა'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'ქართველი მეფე, რომელმაც თბილისი ხალიფას ხელიდან გაათავისუფლა:',a:['დავით აღმაშენებელი','გიორგი III','თამარ მეფე','ბაგრატ IV'],c:0},
+  // გეოგრაფია
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'საქართველოს ყველაზე მაღალი მთა რომელია?',a:['შხარა','ყაზბეგი','ელბრუსი','ეწერი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'რომელ ზღვაზე გასწვდება საქართველო?',a:['შავ ზღვაზე','კასპიის ზღვაზე','წითელ ზღვაზე','ხმელთაშუა ზღვაზე'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'მსოფლიოს ყველაზე დიდი ოკეანე:',a:['წყნარი','ატლანტის','ინდოეთის','ჩრდილოეთის ყინულოვანი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'მსოფლიოს ყველაზე გრძელი მდინარე:',a:['ნილოსი','ამაზონი','ვოლგა','იანძი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'მსოფლიოს ყველაზე პატარა ქვეყანა:',a:['ვატიკანი','მონაკო','სან-მარინო','ლიხტენშტეინი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'საქართველოს დედაქალაქი თბილისი რომელ მდინარეზეა?',a:['მტკვარზე','რიონზე','ალაზანზე','ლიახვზე'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'ავსტრალიის დედაქალაქი:',a:['კანბერა','სიდნეი','მელბურნი','ბრიზბენი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'მსოფლიოს ყველაზე დიდი ტბა:',a:['კასპიის ზღვა','ბაიკალი','ვიქტორია','სუპერიორი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'ევრაზიის ყველაზე მაღალი მთა:',a:['ევერესტი','კ2','ლხოწე','მაკალუ'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'hard',q:'სამხრეთ ამერიკის ყველაზე მაღალი მთა:',a:['აკონკაგუა','ჩიმბორასო','კოტოპახი','ჰუასკარანი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'hard',q:'გრენლანდია რომელ ქვეყნის ტერიტორიაა?',a:['დანიის','ნორვეგიის','კანადის','აშშ-ის'],c:0},
+  // მეცნიერება
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'წყლის ქიმიური ფორმულა:',a:['H₂O','CO₂','NaCl','O₂'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'დედამიწიდან ყველაზე ახლოს მდებარე ვარსკვლავი:',a:['მზე','პოლარული','სირიუსი','ვეგა'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'ადამიანის სხეულში ყველაზე გრძელი ძვალი:',a:['ბარძაყის ძვალი','ხერხემალი','სააწვდომი ძვალი','მხარ-ძვალი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'სინათლის სიჩქარე წამში:',a:['300,000 კმ','150,000 კმ','500,000 კმ','100,000 კმ'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'პერიოდული ცხრილის პირველი ელემენტი:',a:['წყალბადი','ჰელიუმი','ლითიუმი','ჟანგბადი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'ატომის ცენტრში რა არის?',a:['ბირთვი','ელექტრონი','პროტონი','კვარკი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'DNA-ს სრული სახელი:',a:['დეოქსირიბონუკლეინის მჟავა','რიბონუკლეინის მჟავა','ადენოზინ ტრიფოსფატი','ამინო-ნუკლეინის მჟავა'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'ელექტრული წინაღობის ერთეული:',a:['ომი','ამპერი','ვოლტი','ვატი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'პლასტიკის ძირითადი კომპონენტი:',a:['ნახშირწყალბადები','სელიციუმი','ალუმინი','კარბონი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'hard',q:'კვანტური ფიზიკის ერთ-ერთი ფუძემდებელი:',a:['მაქს პლანკი','ნიუტონი','კეპლერი','გალილეი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'hard',q:'ადამიანის გენომი რამდენ ბაზისურ წყვილს შეიცავს?',a:['3 მილიარდი','1 მილიარდი','5 მილიარდი','500 მილიონი'],c:0},
+  // სპორტი
+  {cat:'⚽ სპორტი',diff:'easy',q:'ფეხბურთის მსოფლიო ჩემპიონატი რამდენ წელიწადში ერთხელ გაიმართება?',a:['4 წელიწადში','2 წელიწადში','6 წელიწადში','8 წელიწადში'],c:0},
+  {cat:'⚽ სპორტი',diff:'easy',q:'ოლიმპიური თამაშები ყოველ რამდენ წელიწადში ერთხელ გაიმართება?',a:['4','2','6','8'],c:0},
+  {cat:'⚽ სპორტი',diff:'easy',q:'ბასკეტბოლის კალათა რამდენ სანტიმეტრ სიმაღლეზეა?',a:['305 სმ','280 სმ','320 სმ','350 სმ'],c:0},
+  {cat:'⚽ სპორტი',diff:'easy',q:'ტენისის ყველაზე პრესტიჟული ტურნირი:',a:['უიმბლდონი','რობან გაროსი','US Open','Australian Open'],c:0},
+  {cat:'⚽ სპორტი',diff:'medium',q:'მსოფლიო ჩემპიონატი ყველაზე მეტჯერ მოიგო:',a:['ბრაზილიამ','გერმანიამ','იტალიამ','არგენტინამ'],c:0},
+  {cat:'⚽ სპორტი',diff:'medium',q:'ფორმულა 1-ში ლეგენდარული ინგლისელი მძღოლი:',a:['ლუის ჰამილტონი','მიხაელ შუმახერი','სებასტიან ფეტელი','აირტონ სენა'],c:0},
+  {cat:'⚽ სპორტი',diff:'medium',q:'ჭადრაკი სად წარმოიშვა?',a:['ინდოეთში','ჩინეთში','სპარსეთში','ეგვიპტეში'],c:0},
+  {cat:'⚽ სპორტი',diff:'hard',q:'საქართველოს ეროვნული ფეხბურთის გუნდის მეტსახელი:',a:['ჯვარი','ლომი','არწივი','მგელი'],c:0},
+  // მუსიკა
+  {cat:'🎵 მუსიკა',diff:'easy',q:'ბითლზის სახელი:',a:['The Beatles','The Rolling Stones','Led Zeppelin','Pink Floyd'],c:0},
+  {cat:'🎵 მუსიკა',diff:'easy',q:'სიმღერა "Bohemian Rhapsody" რომელ ჯგუფს ეკუთვნის?',a:['Queen','Led Zeppelin','Rolling Stones','Nirvana'],c:0},
+  {cat:'🎵 მუსიკა',diff:'easy',q:'ფორტეპიანოს კლავიშები რამდენია?',a:['88','76','100','72'],c:0},
+  {cat:'🎵 მუსიკა',diff:'easy',q:'გიტარას ჩვეულებრივ რამდენი სიმი აქვს?',a:['6','4','8','5'],c:0},
+  {cat:'🎵 მუსიკა',diff:'medium',q:'მოცარტი სად დაიბადა?',a:['ავსტრიაში','გერმანიაში','იტალიაში','საფრანგეთში'],c:0},
+  {cat:'🎵 მუსიკა',diff:'medium',q:'"ოცნება მელოდია" - ქართული ეროვნული სიმღერა ვის ეკუთვნის?',a:['ბარბარე ჯორჯაძეს','ქეთევან ჩემქვინი','ნინო ეედლიშვილს','ლელა წურწუმიას'],c:0},
+  {cat:'🎵 მუსიკა',diff:'medium',q:'ბეთჰოვენი გახდა ყრუ, მაგრამ კვლავ:',a:['მუსიკა წერდა','კონცერტებს ართმევდა','სწავლობდა','სიმღერდა'],c:0},
+  {cat:'🎵 მუსიკა',diff:'hard',q:'ქართული პოლიფონია UNESCO-ს სიაში შევიდა:',a:['2001 წელს','1999 წელს','2005 წელს','2010 წელს'],c:0},
+  // კინო
+  {cat:'🎬 კინო',diff:'easy',q:'"ტიტანიკი" რომელ წელს გამოვიდა?',a:['1997','1995','2000','1993'],c:0},
+  {cat:'🎬 კინო',diff:'easy',q:'"ვარსკვლავური ომების" (Star Wars) შემქმნელი:',a:['ჯორჯ ლუკასი','სტივენ სპილბერგი','ჯეიმს კამერონი','კრისტოფერ ნოლანი'],c:0},
+  {cat:'🎬 კინო',diff:'easy',q:'ოსკარი ყოველ წელს რომელ ქალაქში გაიცემა?',a:['ლოს-ანჯელესი','ნიუ-იორკი','ლასვეგასი','ჰოლივუდი'],c:0},
+  {cat:'🎬 კინო',diff:'medium',q:'ქართული კინოს ლეგენდა:',a:['ოთარ იოსელიანი','გიორგი შენგელაია','თენგიზ აბულაძე','ყველა სახელდებული'],c:3},
+  {cat:'🎬 კინო',diff:'medium',q:'ფილმი "განდი" ოსკარი მიიღო:',a:['1983 წელს','1985 წელს','1980 წელს','1987 წელს'],c:0},
+  {cat:'🎬 კინო',diff:'hard',q:'ფილმი "მონანიება" - ქართული კლასიკა - ვინ გადაიღო?',a:['თენგიზ აბულაძე','ოთარ იოსელიანი','ელდარ შენგელაია','გიორგი დანელია'],c:0},
+  // ტექნოლოგია
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'WWW-ის ავტორი:',a:['ტიმ ბერნერს-ლი','ბილ გეიტსი','სტივ ჯობსი','მარკ ცუკერბერგი'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'Google დაარსდა:',a:['1998 წელს','2000 წელს','1995 წელს','2004 წელს'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'iPhone-ის შემქმნელი კომპანია:',a:['Apple','Samsung','Nokia','Motorola'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'PDF-ის სრული სახელი:',a:['Portable Document Format','Personal Digital File','Private Data Form','Print Design Format'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'medium',q:'Bitcoin-ის ბლოკჩეინი შეიქმნა:',a:['2008 წელს','2010 წელს','2005 წელს','2015 წელს'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'medium',q:'პირველი ელ-ფოსტა გაიგზავნა:',a:['1971 წელს','1985 წელს','1968 წელს','1990 წელს'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'medium',q:'Python პროგრამირების ენა შექმნა:',a:['გვიდო ვან როსუმი','ლინუს ტორვალდსი','ჯეიმს გოსლინგი','ბრენდან აიქი'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'hard',q:'ChatGPT-ს შემქმნელი კომპანია:',a:['OpenAI','Google','Microsoft','Meta'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'hard',q:'Linux-ის ბირთვი პირველად გამოვიდა:',a:['1991 წელს','1985 წელს','1995 წელს','2000 წელს'],c:0},
+  // ლიტერატურა
+  {cat:'📚 ლიტერატურა',diff:'easy',q:'"ვეფხისტყაოსნის" ავტორი:',a:['შოთა რუსთაველი','დავით გურამიშვილი','ნიკოლოზ ბარათაშვილი','ილია ჭავჭავაძე'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'easy',q:'"ჰარი პოტერის" ავტორი:',a:['ჯ. კ. როულინგი','სტეფენ კინგი','ჯ. რ. ტოლკინი','C. S. ლუისი'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'easy',q:'"1984" ვის ეკუთვნის?',a:['ჯორჯ ორუელს','ოლდოს ჰაქსლის','ჰ. ჯ. უელსს','რეი ბრედბერის'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'medium',q:'"ომი და მშვიდობა" ვის ეკუთვნის?',a:['ლევ ტოლსტოის','ფ. დოსტოევსკის','ა. ჩეხოვს','მ. გორკის'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'medium',q:'შექსპირი დაიბადა:',a:['1564 წელს','1550 წელს','1580 წელს','1540 წელს'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'medium',q:'"ბატონი ბეჭდების" (Lord of the Rings) ავტორი:',a:['ტოლკინი','C.S. ლუისი','მ. ლ. ი','ასიმოვი'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'hard',q:'ილია ჭავჭავაძე ნობელის პრემიის კანდიდატი იყო:',a:['1901 წელს','1905 წელს','1898 წელს','1910 წელს'],c:0},
+  // კვება
+  {cat:'🍕 კვება',diff:'easy',q:'პიცა სად წარმოიშვა?',a:['იტალიაში','საბერძნეთში','საფრანგეთში','ესპანეთში'],c:0},
+  {cat:'🍕 კვება',diff:'easy',q:'ხინკალი ქართული სამზარეულოს კერძია, ძირითადი შიგთავსი:',a:['ხორცი','ყველი','კარტოფილი','ბოსტნეული'],c:0},
+  {cat:'🍕 კვება',diff:'easy',q:'სუში სად წარმოიშვა?',a:['იაპონიაში','ჩინეთში','კორეაში','ტაილანდში'],c:0},
+  {cat:'🍕 კვება',diff:'medium',q:'ყველაზე ძვირი სანელებელი სამყაროში:',a:['ზაფრანა','კარდამომი','ვანილი','ჯინჯერი'],c:0},
+  {cat:'🍕 კვება',diff:'medium',q:'შოკოლადი პირველად სად გამოიყენეს?',a:['მაიანებმა','ეგვიპტელებმა','ინდოეთელებმა','ჩინელებმა'],c:0},
+  {cat:'🍕 კვება',diff:'hard',q:'ფრანგული ღვინის ყველაზე ცნობილი რეგიონი:',a:['ბორდო','ბურგუნდია','შამპანი','ალზასი'],c:0},
+  // ხელოვნება
+  {cat:'🎨 ხელოვნება',diff:'easy',q:'"მონა ლიზა" ვინ დახატა?',a:['ლეონარდო და ვინჩი','მიქელანჯელო','რაფაელი','ბოტიჩელი'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'easy',q:'ვინ შექმნა "მწყემსი"?',a:['მიქელანჯელო','დონატელო','ბერნინი','ჩელინი'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'medium',q:'ვან გოგი სად დაიბადა?',a:['ნიდერლანდებში','ბელგიაში','საფრანგეთში','გერმანიაში'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'medium',q:'პიკასო რომელი ქვეყნიდანაა?',a:['ესპანეთიდან','საფრანგეთიდან','იტალიიდან','პორტუგალიიდან'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'hard',q:'ქართული ხელოვნების ლეგენდა ნიკო ფიროსმანი დაიბადა:',a:['1862 წელს','1850 წელს','1875 წელს','1840 წელს'],c:0},
+  // გეოგრაფია 2
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'ბრაზილიის დედაქალაქი:',a:['ბრაზილია','სან-პაულო','რიო-დე-ჟანეირო','ბელუ-ჰორიზონტი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'ეგვიპტე რომელ კონტინენტზეა?',a:['აფრიკაში','აზიაში','ორივეზე','ახლო აღმოსავლეთში'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'ნილოსი სად ჩაედინება?',a:['ხმელთაშუა ზღვაში','წითელ ზღვაში','ინდოეთის ოკეანეში','ატლანტში'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'ისლანდიის დედაქალაქი:',a:['რეიკიავიკი','ოსლო','კოპენჰაგენი','ჰელსინკი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'hard',q:'მსოფლიოს ყველაზე ღრმა ტბა:',a:['ბაიკალი','ტანგანიკა','კასპია','სუპერიორი'],c:0},
+  // მეცნიერება 2
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'რამდენი ფეხი აქვს ობობას?',a:['8','6','10','12'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'რომელი პლანეტაა ყველაზე დიდი?',a:['იუპიტერი','სატურნი','ურანი','ნეპტუნი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'გრავიტაციის თეორია ვის ეკუთვნის?',a:['ნიუტონს','ეინშტეინს','გალილეის','კოპერნიკს'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'ადამიანის სხეულში ძვლების რაოდენობა:',a:['206','180','240','156'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'hard',q:'პეროდული ცხრილის 79-ე ელემენტი:',a:['ოქრო','ვერცხლი','პლატინა','სპილენძი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'hard',q:'შავი ხვრელიდან გამოსვლა შეუძლია:',a:['ჰოუქინგის გამოსხივებას','სინათლეს','ჩვეულებრივ ნივთიერებას','ყველაფერს'],c:0},
+  // ისტორია 2
+  {cat:'🏛️ ისტორია',diff:'easy',q:'მეორე მსოფლიო ომი დასრულდა:',a:['1945 წელს','1944 წელს','1946 წელს','1943 წელს'],c:0},
+  {cat:'🏛️ ისტორია',diff:'easy',q:'ბერლინის კედელი დაეცა:',a:['1989 წელს','1991 წელს','1985 წელს','1993 წელს'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'ამერიკის კონსტიტუცია მიღებული იქნა:',a:['1787 წელს','1776 წელს','1800 წელს','1765 წელს'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'ნაპოლეონი წამოიყვანეს გადასახლებაში:',a:['სანტ-ელენაზე','ელბაზე','კორსიკაზე','ტენერიფეზე'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'ბიზანტიის იმპერია დაეცა:',a:['1453 წელს','1400 წელს','1500 წელს','1350 წელს'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'პირველი ატომური ბომბი ჩამოვარდა:',a:['ჰიროსიმაში','ნაგასაკიში','ტოკიოში','ოსაკაში'],c:0},
+  // სპორტი 2
+  {cat:'⚽ სპორტი',diff:'easy',q:'ფეხბურთის მოედანზე მოთამაშეთა რაოდენობა ერთ გუნდში:',a:['11','10','12','9'],c:0},
+  {cat:'⚽ სპორტი',diff:'medium',q:'რომელი ქვეყანა უმასპინძლა 2018 წლის ფეხბურთის მსოფლიო ჩემპიონატს?',a:['რუსეთი','ბრაზილია','ფრანგეთი','გერმანია'],c:0},
+  {cat:'⚽ სპორტი',diff:'medium',q:'მოკრივე მუჰამედ ალი სახელი ვინ ჰქვია სინამდვილეში?',a:['კასიუს კლეი','ფლოიდ მაივეზერი','მაიკ ტაიზონი','ევანდერ ჰოლიფილდი'],c:0},
+  {cat:'⚽ სპორტი',diff:'hard',q:'ოლიმპიური ხუთი რგოლი რას განასახიერებს?',a:['ხუთ კონტინენტს','ხუთ ელემენტს','ხუთ სპორტს','ხუთ ქვეყანას'],c:0},
+  // ტექნოლოგია 2
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'CPU-ს სრული სახელი:',a:['Central Processing Unit','Computer Power Unit','Central Program Utility','Core Processor Unit'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'Wi-Fi სიმბოლო ასოციირდება:',a:['უკაბელო ქსელთან','ვიდეო ფაილთან','ვებ ინტერფეისთან','ვირტუალ ფაილთან'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'medium',q:'Tesla-ს CEO:',a:['ელონ მასკი','ჯეფ ბეზოსი','ბილ გეიტსი','ლარი ეილისონი'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'medium',q:'Java პროგრამირების ენა შეიქმნა:',a:['1995 წელს','1990 წელს','2000 წელს','1985 წელს'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'hard',q:'კვანტური კომპიუტერის ძირითადი ერთეული:',a:['კუბიტი','ბიტი','ბაიტი','ნანობიტი'],c:0},
+  // კვება 2
+  {cat:'🍕 კვება',diff:'easy',q:'ყველაზე მეტი ვიტამინ C-ს შეიცავს:',a:['ლიმონი','ფორთოხალი','კივი','ვაშლი'],c:0},
+  {cat:'🍕 კვება',diff:'medium',q:'ყველი "ედამი" სად წარმოიშვა?',a:['ჰოლანდიაში','საფრანგეთში',' შვეიცარიაში','იტალიაში'],c:0},
+  {cat:'🍕 კვება',diff:'hard',q:'ქართული ღვინის ყველაზე ძველი ვაზი სად აღმოჩნდა?',a:['შულავერ-გორაში','მცხეთაში','ბოლნისში','ვარდზიაში'],c:0},
+  // კინო 2
+  {cat:'🎬 კინო',diff:'easy',q:'"The Godfather" - ვინ გადაიღო?',a:['ფრენსის კოპოლა','მარტინ სკორსეზე','სტანლი კუბრიკი','ბილი უაილდერი'],c:0},
+  {cat:'🎬 კინო',diff:'medium',q:'ფილმი "პარაზიტი" ოსკარი მიიღო:',a:['2020 წელს','2019 წელს','2021 წელს','2018 წელს'],c:0},
+  {cat:'🎬 კინო',diff:'hard',q:'კინოს ისტორიაში ყველაზე ძვირი ფილმი:',a:['Pirates of the Caribbean: At World\'s End','Avengers: Endgame','Avatar','Titanic'],c:0},
+  // ლიტერატურა 2
+  {cat:'📚 ლიტერატურა',diff:'easy',q:'"დათვი" - ქართული ზღაპარი? ახასიათებს:',a:['ბავშვური სიბრძნე','ბოროტება','სიყვარული','გმირობა'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'medium',q:'კაფკა სად დაიბადა?',a:['პრაღაში','ვენაში','ბუდაპეშტში','ბერლინში'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'hard',q:'ნობელის ლიტერატურის პრემია პირველად გაიცა:',a:['1901 წელს','1895 წელს','1910 წელს','1920 წელს'],c:0},
+  // მუსიკა 2
+  {cat:'🎵 მუსიკა',diff:'easy',q:'Michael Jackson-ს "King of Pop" ეძახდნენ. ეს ნიშნავს:',a:['პოპის მეფე','პოპ სიმღერა','პოპ მოძრაობა','პოპ ოსტატი'],c:0},
+  {cat:'🎵 მუსიკა',diff:'medium',q:'ჯაზი სად წარმოიშვა?',a:['ნიუ-ორლეანსში','ნიუ-იორკში','ჩიკაგოში','ლოს-ანჯელესში'],c:0},
+  {cat:'🎵 მუსიკა',diff:'hard',q:'ბახი რომელი ქვეყნიდანაა?',a:['გერმანიიდან','ავსტრიიდან','საფრანგეთიდან','ჩეხეთიდან'],c:0},
+  // ხელოვნება 2
+  {cat:'🎨 ხელოვნება',diff:'easy',q:'ყვითელი + წითელი = ?',a:['ნარინჯისფერი','მწვანე','ფერმკრთალი','იისფერი'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'medium',q:'ბაუჰაუსი რომელ ქვეყანაში ჩამოყალიბდა?',a:['გერმანიაში','ავსტრიაში','შვეიცარიაში','ჩეხეთში'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'hard',q:'ქართული ეკლესიის ფრესკები - ფიქსირება:',a:['ბეთანიაში','მცხეთაში','ალავერდში','ყველაფერი სახელდებული'],c:3},
+  // გეოგრაფია 3
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'ყველაზე ცოტა მოსახლე ქვეყანა:',a:['ვატიკანი','ნაურუ','პალაუ','სან-მარინო'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'სუეცის არხი ერთმანეთთან აკავშირებს:',a:['ხმელთაშუა ზღვა და წითელი ზღვა','ატლანტის ოკეანე და ინდოეთის ოკეანე','შავი ზღვა და კასპია','ბალტიი და ჩრდილოეთი ზღვა'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'hard',q:'მსოფლიოს ყველაზე გრძელი სახმელეთო საზღვარი:',a:['კანადა-აშშ','კაზახეთი-რუსეთი','ჩინეთი-მონღოლეთი','ბრაზილია-ბოლივია'],c:0},
+  // ისტორია 3
+  {cat:'🏛️ ისტორია',diff:'easy',q:'კლეოპატრა ეგვიპტის მეფისდანა იყო. რომელ სამეფო დინასტიას ეკუთვნოდა?',a:['პტოლემეოსების','ფარაონების','რამზესების','ნეფერტიტის'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'ფრანგული რევოლუცია დაიწყო:',a:['1789 წელს','1776 წელს','1800 წელს','1750 წელს'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'ჩინგიზ-ყაენის ნამდვილი სახელი:',a:['თემუჯინი','ბოდო','ოგოდეი','ჯოჩი'],c:0},
+  // მეცნიერება 3
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'ადამიანის ნორმალური სხეულის ტემპერატურა:',a:['36.6°C','37.5°C','35.0°C','38.0°C'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'ოზონის ფენა რომელ ატმოსფეროს ფენაში მდებარეობს?',a:['სტრატოსფეროში','ტროპოსფეროში','მეზოსფეროში','ეგზოსფეროში'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'hard',q:'CRISPR ტექნოლოგია გამოიყენება:',a:['გენების რედაქტირებაში','ნანოტექნოლოგიაში','კვანტურ გამოთვლაში','ხელოვნურ ინტელექტში'],c:0},
+  // სპორტი 3
+  {cat:'⚽ სპორტი',diff:'easy',q:'ოლიმპიური ცეცხლი სად ინთება?',a:['ოლიმპიაში, საბერძნეთი','ათენში','ოლიმპიის ქალაქში','ბარცელონაში'],c:0},
+  {cat:'⚽ სპორტი',diff:'medium',q:'ყველაზე სწრაფი ოლიმპიური ჩემპიონი სირბილში:',a:['უსეინ ბოლტი','კარლ ლუისი','ტაიმო ტომინენი','მაურისიო ბოლტი'],c:0},
+  {cat:'⚽ სპორტი',diff:'hard',q:'გოლფის ტერმინი "eagle" ნიშნავს:',a:['ორი ნაკლები par-ზე','ერთი ნაკლები par-ზე','ჰოლ-ინ-ვანი','სამი ნაკლები par-ზე'],c:0},
+  // ლიტერატურა 3
+  {cat:'📚 ლიტერატურა',diff:'medium',q:'"მიტოვებული" - ქართული რომანის ავტორი:',a:['კ. გამსახურდია','ნ. ბარათაშვილი','ი. ჭავჭავაძე','ა. ყაზბეგი'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'hard',q:'გ. მარკესი წარმომადგენელია:',a:['მაგიური რეალიზმის','სიურეალიზმის','ეგზისტენციალიზმის','ნატურალიზმის'],c:0},
+  // კვება 3
+  {cat:'🍕 კვება',diff:'easy',q:'მაკარონი ძირითადად მზადდება:',a:['ხორბლის ფქვილისგან','ბრინჯისგან','სიმინდისგან','კარტოფილისგან'],c:0},
+  {cat:'🍕 კვება',diff:'medium',q:'სომელიე არის სპეციალისტი:',a:['ღვინოში','ყველში','ყავაში','სუშიში'],c:0},
+  // ტექნოლოგია 3
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'USB-ს სრული სახელი:',a:['Universal Serial Bus','Unified System Base','Ultra Speed Buffer','Uniform Signal Bus'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'medium',q:'SpaceX-ის დამფუძნებელი:',a:['ელონ მასკი','ჯეფ ბეზოსი','ბრიჯ ბიზოსი','ბილ გეიტსი'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'hard',q:'პირველი კომერციული ვებ ბრაუზერი:',a:['Netscape Navigator','Internet Explorer','Mosaic','Opera'],c:0},
+  // დამატებითი ქართული
+  {cat:'🏛️ ისტორია',diff:'easy',q:'ქართული ანბანი შექმნა:',a:['ფარნავაზ მეფემ','ვახტანგ გორგასალმა','დავით აღმაშენებელმა','მირიან მეფემ'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'გელათის მონასტერი ააგო:',a:['დავით აღმაშენებელმა','ბაგრატ III-მ','გიორგი IV-მ','ლაშა გიორგიმ'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'ქართული სახელმწიფოებრიობის დაარსება ასოცირდება:',a:['ფარნავაზ I-თან','ნეოლით. კულტ.','ლეგ. ქართლოსთან','ავგ. იმ-თან'],c:0},
+  // გეოგრაფია 4
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'ნიაგარის ჩანჩქერი სად მდებარეობს?',a:['კანადა-აშშ საზღვარზე','ბრაზილიაში','სამხ. აფრიკაში','ვენესუელაში'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'ფიორდები ყველაზე მეტია:',a:['ნორვეგიაში','ისლანდიაში','შოტლანდიაში','ახ. ზელანდიაში'],c:0},
+  // მეცნიერება 4
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'ყველაზე მეტი ქლოროფილი შეიცავს:',a:['ბალახი','ვარდი','მზესუმზირა','კარტოფილი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'გეომეტრიაში π ≈',a:['3.14159','3.12345','3.16000','3.10000'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'hard',q:'შავი ხვრელის მოვლენა "ჰოუქინგის გამოსხივება" აღმოაჩინა:',a:['სტივენ ჰოუქინგმა','ალბერტ ეინშტეინმა','ნილს ბორმა','რიჩარდ ფეინმანმა'],c:0},
+  // კინო 3
+  {cat:'🎬 კინო',diff:'easy',q:'Marvel-ის ყველაზე ხანგრძლივი სუპერგმირი:',a:['კაპიტანი ამერიკა','რკინის კაცი','თქვენ-ის ადამიანი','ტჰორი'],c:0},
+  {cat:'🎬 კინო',diff:'medium',q:'ფილმ "ამადეუსის" რეჟისორი:',a:['მილოშ ფორმანი','სტივ სპილბერგი','ბ. ბერტოლუჩი','ჟ. ლ. გოდარი'],c:0},
+  // მუსიკა 3
+  {cat:'🎵 მუსიკა',diff:'easy',q:'რამდენი ნოტია?',a:['7','5','8','12'],c:0},
+  {cat:'🎵 მუსიკა',diff:'medium',q:'ოპერა "კარმენი" ვის ეკუთვნის?',a:['ბიზეს','ვერდის','პუჩინის','დონიცეტის'],c:0},
+  {cat:'🎵 მუსიკა',diff:'hard',q:'Beatles-ი დაიშალა:',a:['1970 წელს','1968 წელს','1972 წელს','1965 წელს'],c:0},
+  // ხელოვნება 3
+  {cat:'🎨 ხელოვნება',diff:'medium',q:'არქიტექტურის ერთ-ერთი კლასიკური ორდერი:',a:['დორიული','გოთური','ბაროკო','ნეოკლასიკური'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'hard',q:'"სიკვდილისა და სასიცოცხლო ძალა" პიკასოს ნაწარმოება:',a:['გუერნიკა','ავინიონის ქალწულები','ვეიპინგ ვუმანი','ლა ვი'],c:0},
+  // სხვადასხვა
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'ტოკიო რომელი ქვეყნის დედაქალაქია?',a:['იაპონია','ჩინეთი','კორეა','ვიეტნამი'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'easy',q:'ნაირობი სად მდებარეობს?',a:['კენიაში','ნიგერიაში','ეთიოპიაში','ტანზანიაში'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'easy',q:'ყელის ტემპერატურა ზემოდან?',a:['36.6','37','38','36'],c:0},
+  {cat:'⚽ სპორტი',diff:'easy',q:'ჩოგბურთი (ტენისი) ოლიმპიური სპორტია?',a:['დიახ','არა','ხანდახან','ახლა არა'],c:0},
+  {cat:'🏛️ ისტორია',diff:'easy',q:'ინდოეთს დამოუკიდებლობა მიეცა:',a:['1947','1950','1945','1955'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'easy',q:'HTML ნიშნავს:',a:['HyperText Markup Language','High Text Making Language','Hyper Transfer Markup Line','Home Text Management Language'],c:0},
+  {cat:'🍕 კვება',diff:'easy',q:'ყავა სად წარმოიშვა?',a:['ეთიოპიაში','ბრაზილიაში','კოლუმბიაში','ინდოეთში'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'easy',q:'ეზოპი ცნობილია:',a:['იგავ-არაკებით','ლექსებით','რომანებით','დრამებით'],c:0},
+  {cat:'🎵 მუსიკა',diff:'easy',q:'ვიოლინო მიეკუთვნება:',a:['სიმებიანს','ჩასაბერს','დასარტყმელს','კლავიშებიანს'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'easy',q:'ფოტოგრაფია გამოიგონეს:',a:['XIX საუკუნეში','XX საუკუნეში','XVIII საუკუნეში','XVII საუკუნეში'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'medium',q:'ყველაზე დიდი კუნძული:',a:['გრენლანდია','ავსტრალია','ბორნეო','მადაგასკარი'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'medium',q:'ფოტოსინთეზი ხდება:',a:['ქლოროპლასტებში','მიტოქონდრიებში','ბირთვში','ციტოპლაზმაში'],c:0},
+  {cat:'🏛️ ისტორია',diff:'medium',q:'ოდიშის სამთავრო მმართველი:',a:['დადიანი','ბაგრატიონი','არასენი','ჩხეიძე'],c:0},
+  {cat:'⚽ სპორტი',diff:'medium',q:'NBA ჩემპიონატი ასოცირდება:',a:['ბასკეტბოლთან','ფეხბურთთან','ბეისბოლთან','ამ. ფეხბ.'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'medium',q:'AI სრული სახელი:',a:['Artificial Intelligence','Automated Information','Advanced Interface','Adaptive Input'],c:0},
+  {cat:'🍕 კვება',diff:'medium',q:'ვასაბი წარმოიშვა:',a:['იაპონიაში','ჩინეთში','კორეაში','ტაილანდში'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'medium',q:'მარკ ტვენი ცნობილია:',a:['ტომ სოიერით','ჰაკლბეგ ფინით','ორივეთ','ფ. ბეკეტით'],c:2},
+  {cat:'🎨 ხელოვნება',diff:'medium',q:'სიმბოლიზმი მოძრაობა:',a:['XIX-XX საუკუნეების მიჯნა','XVII საუკ','XVIII საუკ','XXI საუკ'],c:0},
+  {cat:'🌍 გეოგრაფია',diff:'hard',q:'მსოფლიოს ყველაზე ნოტიო ადგილი:',a:['ჩერაპუნჯი (ინდოეთი)','ამაზონი','ვანკუვერი','ბანგლადეში'],c:0},
+  {cat:'🔬 მეცნიერება',diff:'hard',q:'ჰიგსის ბოზონი აღმოაჩინეს:',a:['2012 წელს','2005 წელს','2015 წელს','2000 წელს'],c:0},
+  {cat:'🏛️ ისტორია',diff:'hard',q:'ოდიშის სამთავრო მმართველი ვინ დაეხმარა რუს ელჩებს?',a:['ლევან I დადიანი','გიორგი III','ვახტანგ VI','ბაქარ V'],c:0},
+  {cat:'⚽ სპორტი',diff:'hard',q:'ფეხბურთში "Offside" წესი პირველად შემოღებული იქნა:',a:['1863 წელს','1880 წელს','1900 წელს','1920 წელს'],c:0},
+  {cat:'💻 ტექნოლოგია',diff:'hard',q:'ბლოკჩეინი გამოიყენება:',a:['კრიპტოვალუტებში','ვიდეო თამაშებში','სოციალურ ქსელებში','ვებ სერვ.'],c:0},
+  {cat:'🍕 კვება',diff:'hard',q:'მიშელინის ვარსკვლავები სად გაიცემა?',a:['ბენელუქსში','პარიზში','ლონდონში','ნ. იორკში'],c:0},
+  {cat:'📚 ლიტერატურა',diff:'hard',q:'ბორხესი წარმომადგენელია:',a:['მაგ. რეალიზმის','ეგზ-ლიზმის','სიურ-ლიზმის','ნატ-ლიზმის'],c:0},
+  {cat:'🎬 კინო',diff:'hard',q:'ქართული ანიმაციური ფილმის ლეგენდა:',a:['რეზო გაბრიაძე','ელდარ შენგ.','ო. იოსელ.','ლ. ხვედელ.'],c:0},
+  {cat:'🎵 მუსიკა',diff:'hard',q:'შოსტაკოვიჩის 7-ე სიმფონია ცნობილია როგორც:',a:['ლენინგრადური','მოსკოვური','მეომრის','გამარჯვების'],c:0},
+  {cat:'🎨 ხელოვნება',diff:'hard',q:'"სკრიმი" (The Scream) ვინ შექმნა?',a:['ედვარდ მუნქი','ვ. ვან გოგი','ენსტ კირხნერი','ო. კოკოშკა'],c:0},
+];
+
+const CATS = [...new Set(ALL_QUESTIONS.map(q=>q.cat))];
+let selectedCatObj = 'all';
+
+let ME_ID = null, myProfile = null;
+let sessionScore = 0, sessionCorrect = 0, sessionWrong = 0, sessionTimeouts = 0;
+let currentQuestions = [], currentIndex = 0;
+let timerInt = null, tLeft = 20;
+let isAnswered = false;
+let selectedDiffVal = 'easy';
+
+const TIMES = {easy:20, medium:15, hard:10};
+
+async function init() {
+  const {data:{user}} = await sb.auth.getUser();
+  if (!user) { location.href='index.html'; return; }
+  ME_ID = user.id;
+  const {data:p} = await sb.from('profiles').select('*').eq('id',ME_ID).single();
+  myProfile = p;
+  buildCatGrid();
+  updateStats();
+  showScreen('welcomeScreen');
+}
+
+function buildCatGrid() {
+  const g = document.getElementById('catGrid');
+  g.innerHTML = '';
+  // ყველა
+  const all = document.createElement('button');
+  all.className = 'cat-btn sel';
+  all.innerHTML = '<span class="cat-icon">🎲</span> ყველა';
+  all.dataset.cat = 'all';
+  all.onclick = () => selectCat('all', all);
+  g.appendChild(all);
+  // კატეგორიები
+  CATS.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-btn';
+    btn.textContent = c;
+    btn.dataset.cat = c;
+    btn.onclick = () => selectCat(c, btn);
+    g.appendChild(btn);
+  });
+}
+
+function selectCat(val, el) {
+  selectedCatObj = val;
+  document.querySelectorAll('.cat-btn').forEach(b=>b.classList.remove('sel'));
+  el.classList.add('sel');
+}
+
+function setDiff(val, el) {
+  selectedDiffVal = val;
+  document.querySelectorAll('.diff-btn').forEach(b=>{
+    b.className='diff-btn';
+    b.classList.remove('sel-easy','sel-medium','sel-hard');
+  });
+  el.classList.add('sel-'+val);
+}
+
+function updateStats() {
+  const el = document.getElementById('statsRow');
+  if (!el) return;
+  const total = myProfile?.quiz_score || 0;
+  const games = myProfile?.quiz_games || 0;
+  el.innerHTML = `
+    <div class="stat-card"><span class="stat-val">${total}</span><span class="stat-lbl">სულ ქულა</span></div>
+    <div class="stat-card"><span class="stat-val">${games}</span><span class="stat-lbl">თამაში</span></div>
+    <div class="stat-card"><span class="stat-val">${ALL_QUESTIONS.length}</span><span class="stat-lbl">კითხვა</span></div>
+  `;
+}
+
+function startQuiz() {
+  let pool = ALL_QUESTIONS.filter(q => q.diff === selectedDiffVal);
+  if (selectedCatObj !== 'all') pool = pool.filter(q => q.cat === selectedCatObj);
+  if (!pool.length) { showToast('❌ ამ კატეგორიაში კითხვები არ არის!'); return; }
+  // 10 კითხვა (ან ნაკლები თუ ნაკლებია)
+  currentQuestions = shuffle(pool).slice(0, Math.min(10, pool.length));
+  currentIndex = 0;
+  sessionScore = 0;
+  sessionCorrect = 0;
+  sessionWrong = 0;
+  sessionTimeouts = 0;
+  showScreen('quizScreen');
+  renderQuestion();
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+function renderQuestion() {
+  const q = currentQuestions[currentIndex];
+  isAnswered = false;
+  // header
+  document.getElementById('qNum').textContent = (currentIndex+1)+'/'+currentQuestions.length;
+  const pct = (currentIndex/currentQuestions.length)*100;
+  document.getElementById('progFill').style.width = pct+'%';
+  document.getElementById('scoreLive').innerHTML = sessionScore+' ქ.<span id="scorePop" style="display:none" class="score-pop"></span>';
+  // tag
+  document.getElementById('qTag').textContent = q.cat;
+  // question
+  document.getElementById('qText').textContent = q.q;
+  // answers - შეურიე
+  const ansEl = document.getElementById('answers');
+  ansEl.innerHTML = '';
+  const idxs = ['A','B','C','D'];
+  const shuffled = shuffleAnswers(q.a, q.c);
+  shuffled.forEach((item, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'ans-btn';
+    btn.innerHTML = `<span class="ans-idx">${idxs[i]}</span>${item.text}`;
+    btn.dataset.correct = item.correct ? '1' : '0';
+    btn.onclick = () => answerQ(btn, item.correct);
+    ansEl.appendChild(btn);
+  });
+  // feedback reset
+  const fb = document.getElementById('feedbackRow');
+  fb.className = 'feedback-row';
+  document.getElementById('feedbackTxt').textContent = '';
+  const nb = document.getElementById('nextBtn');
+  nb.className = 'next-btn';
+  nb.textContent = currentIndex < currentQuestions.length-1 ? 'შემდეგი კითხვა →' : 'შედეგი →';
+  // timer
+  startTimer();
+}
+
+function shuffleAnswers(answers, correctIdx) {
+  const items = answers.map((text, i) => ({text, correct: i === correctIdx}));
+  for (let i=items.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[items[i],items[j]]=[items[j],items[i]];}
+  return items;
+}
+
+function startTimer() {
+  clearInterval(timerInt);
+  tLeft = TIMES[selectedDiffVal] || 20;
+  const total = tLeft;
+  const circle = document.getElementById('timerCircle');
+  const numEl = document.getElementById('timerNum');
+  const wrap = document.getElementById('timerWrap');
+  circle.style.transition = 'none';
+  circle.style.strokeDashoffset = '0';
+  wrap.classList.remove('urgent');
+  numEl.textContent = tLeft;
+  numEl.style.color = '';
+  timerInt = setInterval(() => {
+    tLeft--;
+    numEl.textContent = tLeft;
+    const offset = ((total - tLeft) / total) * 283;
+    circle.style.transition = 'stroke-dashoffset 1s linear, stroke .4s';
+    circle.style.strokeDashoffset = offset;
+    if (tLeft <= 5) wrap.classList.add('urgent');
+    if (tLeft <= 0) {
+      clearInterval(timerInt);
+      timeoutQ();
+    }
+  }, 1000);
+}
+
+function timeoutQ() {
+  if (isAnswered) return;
+  isAnswered = true;
+  sessionTimeouts++;
+  // reveal correct
+  document.querySelectorAll('.ans-btn').forEach(btn => {
+    btn.disabled = true;
+    if (btn.dataset.correct === '1') btn.classList.add('reveal');
+  });
+  showFeedback(false, '⏰ დრო ამოიწურა!');
+  showNextBtn();
+}
+
+function answerQ(btn, isCorrect) {
+  if (isAnswered) return;
+  isAnswered = true;
+  clearInterval(timerInt);
+  // disable all
+  document.querySelectorAll('.ans-btn').forEach(b => {
+    b.disabled = true;
+    if (b.dataset.correct === '1') b.classList.add('reveal');
+  });
+  if (isCorrect) {
+    btn.classList.remove('reveal');
+    btn.classList.add('correct');
+    sessionCorrect++;
+    sessionScore += SCORE_PER_Q;
+    // score popup
+    const pop = document.getElementById('scorePop');
+    if (pop) {
+      pop.textContent = '+'+SCORE_PER_Q;
+      pop.style.display = 'block';
+      setTimeout(() => { pop.style.display='none'; }, 900);
+    }
+    document.getElementById('scoreLive').childNodes[0].textContent = sessionScore+' ქ.';
+    showFeedback(true, '✅ სწორია! +'+SCORE_PER_Q+' ქულა');
+  } else {
+    btn.classList.remove('reveal');
+    btn.classList.add('wrong');
+    sessionWrong++;
+    showFeedback(false, '❌ არასწორი!');
+  }
+  showNextBtn();
+}
+
+function showFeedback(ok, txt) {
+  const fb = document.getElementById('feedbackRow');
+  fb.className = 'feedback-row show ' + (ok ? 'ok' : 'ko');
+  document.getElementById('feedbackTxt').textContent = txt;
+}
+
+function showNextBtn() {
+  const nb = document.getElementById('nextBtn');
+  nb.classList.add('show');
+}
+
+function nextQuestion() {
+  currentIndex++;
+  if (currentIndex >= currentQuestions.length) {
+    finishQuiz();
+  } else {
+    renderQuestion();
+  }
+}
+
+async function finishQuiz() {
+  showScreen('resultScreen');
+  const total = currentQuestions.length;
+  const acc = Math.round((sessionCorrect/total)*100);
+  // icon & title
+  let icon = '🏆', title = 'შესანიშნავი!';
+  if (acc >= 80) { icon='🌟'; title='ბრწყინვალე!'; }
+  else if (acc >= 60) { icon='👏'; title='კარგად!'; }
+  else if (acc >= 40) { icon='💪'; title='გაგრძელდება!'; }
+  else { icon='🤔'; title='ვარჯიში გჭირდება!'; }
+  document.getElementById('resultIcon').textContent = icon;
+  document.getElementById('resultTitle').textContent = title;
+  document.getElementById('totalScore').textContent = sessionScore;
+  // grid
+  document.getElementById('resultGrid').innerHTML = `
+    <div class="res-card"><span class="res-val" style="color:#4ade80">${sessionCorrect}</span><span class="res-lbl">სწორი</span></div>
+    <div class="res-card"><span class="res-val" style="color:#ef4444">${sessionWrong}</span><span class="res-lbl">არასწორი</span></div>
+    <div class="res-card"><span class="res-val" style="color:#fbbf24">${sessionTimeouts}</span><span class="res-lbl">გამოტოვ.</span></div>
+  `;
+  // accuracy
+  document.getElementById('accPct').textContent = acc+'%';
+  setTimeout(() => {
+    document.getElementById('ratingFill').style.width = acc+'%';
+  }, 300);
+  // save score
+  if (ME_ID && sessionScore > 0) {
+    await saveScore();
+  }
+}
+
+async function saveScore() {
+  try {
+    const newTotal = (myProfile?.quiz_score || 0) + sessionScore;
+    const newGames = (myProfile?.quiz_games || 0) + 1;
+    const {error} = await sb.from('profiles').update({
+      quiz_score: newTotal,
+      quiz_games: newGames
+    }).eq('id', ME_ID);
+    if (!error) {
+      myProfile = {...myProfile, quiz_score: newTotal, quiz_games: newGames};
+      document.getElementById('savedBadge').style.display = 'inline-flex';
+      // parent window-ს შეატყობინე
+      if (window.opener) {
+        window.opener.postMessage({type:'QUIZ_SCORE_UPDATE', score: newTotal}, '*');
+      }
+    }
+  } catch(e) {}
+}
+
+function replayQuiz() {
+  showScreen('welcomeScreen');
+  updateStats();
+}
+
+function goBack() {
+  location.href = 'index.html';
+}
+
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+init();
+</script>
+
+</body>
+</html>
