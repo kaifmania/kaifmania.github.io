@@ -3,235 +3,520 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ფორუმი · კაიფმანია</title>
+<title>კაიფმანია - ფორუმი</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 body.night{
-  --bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);
-  --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
-  --indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
-  --glow:rgba(168,85,247,0.28);--accent:#f07aff;--online:#c07aff;
+  --bg:#1c1a30;
+  --panel:#252240;
+  --panel2:#2e2a50;
+  --border:rgba(160,80,255,0.35);
+  --text:#ede0ff;
+  --text2:#b580e0;
+  --text3:#7a5a9a;
+  --bubble:#2a2745;
+  --input-bg:#221f3a;
+  --online:#c07aff;
+  --indigo:#7a1fc8;
+  --indigo2:#a855f7;
+  --indigo-f:rgba(120,30,200,0.18);
+  --glow:rgba(168,85,247,0.28);
+  --accent:#f07aff;
+  --green:#4ade80;
+  --red:#f87171;
+  --yellow:#fbbf24;
 }
+
 body.day{
-  --bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);
-  --text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;
-  --indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);
-  --glow:rgba(106,13,173,0.2);--accent:#c040ff;--online:#7b2fbe;
+  --bg:#f5eeff;
+  --panel:#ede0ff;
+  --panel2:#e8d5ff;
+  --border:rgba(106,13,173,0.2);
+  --text:#1e0a36;
+  --text2:#6b3a9e;
+  --text3:#a882cc;
+  --bubble:#fff;
+  --input-bg:#fff;
+  --online:#7b2fbe;
+  --indigo:#5a189a;
+  --indigo2:#7b2fbe;
+  --indigo-f:rgba(106,13,173,0.08);
+  --glow:rgba(106,13,173,0.2);
+  --accent:#c040ff;
+  --green:#22c55e;
+  --red:#ef4444;
+  --yellow:#eab308;
 }
 
-body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;transition:background .4s,color .4s}
-
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 22px var(--glow)) drop-shadow(0 0 44px var(--accent))}}
-@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
-@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
-@keyframes replyPop{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
-
-/* ===== TOPNAV ===== */
-#topnav{display:flex;align-items:center;gap:8px;background:var(--panel);border-bottom:2px solid var(--border);padding:10px 20px;z-index:100;flex-shrink:0;box-shadow:0 2px 24px rgba(0,0,0,.3)}
-.nav-logo{font-size:26px;animation:flicker 2.5s ease-in-out infinite;flex-shrink:0;text-decoration:none}
-.nav-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--text);letter-spacing:2px;text-transform:uppercase}
-.nav-sub{font-size:11px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px}
-.nav-spacer{flex:1}
-.nav-btn{height:36px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;padding:0 14px;font-family:'Noto Sans Georgian',sans-serif;font-size:12px;text-decoration:none;white-space:nowrap}
-.nav-btn:hover{background:var(--indigo-f);border-color:var(--border);color:var(--text)}
-
-/* ===== LAYOUT ===== */
-#wrap{flex:1;max-width:860px;width:100%;margin:0 auto;padding:28px 16px 60px}
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  transition:background .4s,color .4s;
+}
 
 /* ===== HEADER ===== */
-.forum-header{display:flex;align-items:center;gap:16px;margin-bottom:28px;animation:fadeUp .4s ease}
-.forum-icon{font-size:42px;animation:flicker 3s ease-in-out infinite}
-.forum-titles{flex:1}
-.forum-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--text);letter-spacing:.5px}
-.forum-desc{font-size:12px;color:var(--text3);margin-top:4px;font-family:'Unbounded',sans-serif;letter-spacing:1px}
-.forum-stats{display:flex;gap:10px;flex-wrap:wrap}
-.stat-pill{display:flex;align-items:center;gap:5px;padding:5px 12px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);font-size:11px;color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:.5px}
+.top-bar{
+  background:var(--panel);
+  border-bottom:1px solid var(--border);
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  flex-wrap:wrap;
+  gap:12px;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+.logo{
+  font-family:'Unbounded',sans-serif;
+  font-size:18px;
+  font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--indigo2));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  cursor:pointer;
+}
+.user-info{
+  display:flex;
+  align-items:center;
+  gap:12px;
+}
+.user-avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:var(--indigo-f);
+  border:2px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+}
+.user-name{
+  font-size:14px;
+  font-weight:500;
+  color:var(--text);
+}
+.user-role{
+  font-size:10px;
+  padding:2px 8px;
+  border-radius:12px;
+  background:var(--indigo-f);
+  color:var(--text2);
+}
+.role-founder{background:rgba(255,180,0,0.15);color:#f0a500;border:1px solid rgba(255,180,0,0.3);}
+.role-admin{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3);}
+.role-member{background:var(--indigo-f);color:var(--text2);border:1px solid var(--border);}
 
-/* ===== NEW QUESTION BUTTON ===== */
-.new-q-bar{display:flex;align-items:center;gap:10px;margin-bottom:20px;animation:fadeUp .4s .05s ease both}
-.new-q-btn{display:flex;align-items:center;gap:8px;padding:11px 22px;border-radius:50px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 4px 20px rgba(120,30,200,.45);transition:all .2s}
-.new-q-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,30,200,.55)}
-.new-q-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.q-count-pill{margin-left:auto;font-size:10px;color:var(--text3);font-family:'Unbounded',sans-serif;background:var(--indigo-f);border:1px solid var(--border);padding:4px 10px;border-radius:20px}
+.btn-icon{
+  background:var(--indigo-f);
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:8px 14px;
+  color:var(--text2);
+  cursor:pointer;
+  font-size:14px;
+  transition:all .2s;
+}
+.btn-icon:hover{
+  background:var(--border);
+  color:var(--text);
+}
 
-/* ===== CREATE QUESTION FORM ===== */
-#createForm{display:none;background:var(--panel);border:1.5px solid var(--border);border-radius:20px;padding:22px;margin-bottom:22px;box-shadow:0 8px 32px rgba(0,0,0,.3),0 0 24px var(--glow);animation:slideDown .3s ease}
-#createForm.open{display:block}
-.cf-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:14px}
-.cf-inp{width:100%;padding:12px 16px;background:var(--input-bg);border:1.5px solid var(--border);border-radius:14px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:14px;outline:none;margin-bottom:10px;transition:border-color .2s;resize:none}
-.cf-inp:focus{border-color:var(--indigo2)}
-.cf-inp::placeholder{color:var(--text3)}
-.cf-tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
-.cf-tag{padding:5px 12px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text3);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
-.cf-tag.active{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
-.cf-actions{display:flex;gap:8px;justify-content:flex-end}
-.cf-cancel{padding:10px 18px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
-.cf-cancel:hover{background:var(--border)}
-.cf-submit{padding:10px 22px;border-radius:12px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;font-weight:600;transition:all .2s;box-shadow:0 4px 16px rgba(120,30,200,.4)}
-.cf-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(120,30,200,.55)}
+/* ===== MAIN CONTAINER ===== */
+.container{
+  max-width:1000px;
+  margin:0 auto;
+  padding:20px;
+}
 
-/* ===== FILTER BAR ===== */
-.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap;animation:fadeUp .4s .1s ease both}
-.filter-chip{padding:6px 14px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text3);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
-.filter-chip.active{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
-.filter-search{flex:1;min-width:160px;padding:8px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:20px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
-.filter-search:focus{border-color:var(--indigo2)}
-.filter-search::placeholder{color:var(--text3)}
+/* ===== NEW TOPIC FORM ===== */
+.new-topic-form{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:20px;
+  margin-bottom:24px;
+  display:none;
+}
+.new-topic-form.show{display:block;}
+.form-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:11px;
+  letter-spacing:1.5px;
+  color:var(--text2);
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.form-input{
+  width:100%;
+  padding:12px 16px;
+  background:var(--input-bg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:14px;
+  margin-bottom:12px;
+  outline:none;
+}
+.form-input:focus{border-color:var(--indigo2);}
+.form-textarea{
+  width:100%;
+  padding:12px 16px;
+  background:var(--input-bg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:14px;
+  min-height:100px;
+  resize:vertical;
+  outline:none;
+}
+.form-textarea:focus{border-color:var(--indigo2);}
+.form-actions{
+  display:flex;
+  gap:10px;
+  justify-content:flex-end;
+}
+.btn-submit{
+  padding:10px 24px;
+  border-radius:12px;
+  border:none;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn-cancel{
+  padding:10px 24px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:transparent;
+  color:var(--text2);
+  cursor:pointer;
+}
 
-/* ===== QUESTION CARD ===== */
-.q-card{background:var(--panel);border:1.5px solid var(--border);border-radius:20px;margin-bottom:14px;overflow:hidden;transition:all .2s;box-shadow:0 2px 14px rgba(0,0,0,.2);animation:fadeUp .4s ease both}
-.q-card:hover{border-color:var(--indigo2);box-shadow:0 6px 24px rgba(0,0,0,.3),0 0 20px var(--glow)}
-.q-head{padding:18px 20px;display:flex;align-items:flex-start;gap:12px;cursor:pointer}
-.q-avatar{width:38px;height:38px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
-.q-avatar img{width:100%;height:100%;object-fit:cover}
-.q-body{flex:1;min-width:0}
-.q-meta{display:flex;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap}
-.q-author{font-size:12px;font-weight:600;color:var(--indigo2);cursor:pointer}
-.q-author:hover{text-decoration:underline}
-.q-role{font-size:9px;padding:1px 6px;border-radius:4px;font-weight:700}
-.qr-founder{background:rgba(255,180,0,.18);color:#f0a500;border:1px solid rgba(255,180,0,.3)}
-.qr-admin{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
-.q-time{font-size:10px;color:var(--text3)}
-.q-tag{font-size:9px;padding:2px 7px;border-radius:6px;font-family:'Unbounded',sans-serif;letter-spacing:.5px;font-weight:700}
-.qt-general{background:rgba(168,85,247,.15);color:#c084fc;border:1px solid rgba(168,85,247,.25)}
-.qt-announcement{background:rgba(255,180,0,.15);color:#f0a500;border:1px solid rgba(255,180,0,.25)}
-.qt-question{background:rgba(74,222,128,.15);color:#4ade80;border:1px solid rgba(74,222,128,.25)}
-.qt-poll{background:rgba(59,130,246,.15);color:#60a5fa;border:1px solid rgba(59,130,246,.25)}
-.qt-hot{background:rgba(240,82,255,.15);color:#f07aff;border:1px solid rgba(240,82,255,.25)}
-.q-pinned{font-size:9px;color:#f0a500;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
-.q-text{font-size:14px;color:var(--text);line-height:1.6;margin-bottom:10px;word-break:break-word}
-.q-foot{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
-.q-stat{display:flex;align-items:center;gap:4px;font-size:11px;color:var(--text3)}
-.q-like-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text3);font-size:12px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
-.q-like-btn:hover,.q-like-btn.liked{background:rgba(240,82,255,.15);border-color:rgba(240,82,255,.35);color:var(--accent)}
-.q-like-btn.liked{animation:pop .3s ease}
-.q-del-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:transparent;border:1px solid transparent;color:var(--text3);font-size:11px;cursor:pointer;transition:all .2s;margin-left:auto;font-family:'Noto Sans Georgian',sans-serif}
-.q-del-btn:hover{background:rgba(220,0,0,.1);border-color:rgba(220,0,0,.3);color:#ff7777}
-.q-toggle-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
-.q-toggle-btn:hover{background:var(--border)}
-.pin-btn{display:flex;align-items:center;gap:4px;padding:4px 10px;border-radius:20px;background:transparent;border:1px solid transparent;color:var(--text3);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
-.pin-btn:hover{background:rgba(255,180,0,.1);border-color:rgba(255,180,0,.3);color:#f0a500}
-.pin-btn.pinned{color:#f0a500}
+/* ===== TOPICS LIST ===== */
+.topics-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:16px;
+  flex-wrap:wrap;
+  gap:10px;
+}
+.topics-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  color:var(--text);
+}
+.add-topic-btn{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;
+  border-radius:12px;
+  padding:8px 18px;
+  color:#fff;
+  font-size:12px;
+  font-weight:600;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:6px;
+}
+.add-topic-btn:hover{transform:translateY(-1px);}
 
-/* ===== PINNED BADGE ===== */
-.q-card.pinned-card{border-color:rgba(255,180,0,.4);box-shadow:0 4px 20px rgba(255,180,0,.1)}
-.q-card.pinned-card .q-head{background:linear-gradient(135deg,rgba(255,180,0,.06),transparent)}
+/* ===== TOPIC CARD ===== */
+.topic-card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:20px;
+  margin-bottom:16px;
+  overflow:hidden;
+  transition:all .2s;
+}
+.topic-card:hover{border-color:var(--indigo2);}
+.topic-pinned{
+  border-left:4px solid var(--yellow);
+}
+.topic-header{
+  padding:16px 20px;
+  cursor:pointer;
+  display:flex;
+  align-items:flex-start;
+  gap:12px;
+}
+.topic-avatar{
+  width:42px;
+  height:42px;
+  border-radius:50%;
+  background:var(--indigo-f);
+  border:2px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:20px;
+  flex-shrink:0;
+}
+.topic-info{
+  flex:1;
+}
+.topic-title{
+  font-size:16px;
+  font-weight:700;
+  color:var(--text);
+  margin-bottom:6px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.pin-badge{
+  font-size:9px;
+  padding:2px 8px;
+  border-radius:12px;
+  background:rgba(251,191,36,0.15);
+  color:var(--yellow);
+  border:1px solid rgba(251,191,36,0.3);
+}
+.topic-meta{
+  display:flex;
+  gap:12px;
+  font-size:11px;
+  color:var(--text3);
+}
+.topic-author{
+  color:var(--indigo2);
+  cursor:pointer;
+}
+.topic-author:hover{text-decoration:underline;}
+.topic-stats{
+  display:flex;
+  gap:12px;
+  align-items:center;
+  margin-left:auto;
+  font-size:12px;
+  color:var(--text2);
+}
+.topic-actions{
+  display:flex;
+  gap:6px;
+  margin-left:12px;
+}
+.action-btn{
+  background:transparent;
+  border:none;
+  font-size:14px;
+  cursor:pointer;
+  padding:4px 8px;
+  border-radius:8px;
+  transition:all .2s;
+}
+.action-btn.delete{color:var(--red);}
+.action-btn.delete:hover{background:rgba(248,113,113,0.15);}
+.action-btn.pin{color:var(--yellow);}
+.action-btn.pin:hover{background:rgba(251,191,36,0.1);}
+.action-btn:hover{transform:scale(1.05);}
 
-/* ===== REPLIES SECTION ===== */
-.replies-section{border-top:1px solid var(--border);background:var(--panel2);display:none}
-.replies-section.open{display:block}
-.replies-inner{padding:16px 20px;display:flex;flex-direction:column;gap:10px}
-.reply-item{display:flex;gap:10px;animation:replyPop .3s ease both}
-.reply-avatar{width:30px;height:30px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden}
-.reply-avatar img{width:100%;height:100%;object-fit:cover}
-.reply-body{flex:1;min-width:0}
-.reply-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
-.reply-author{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
-.reply-author:hover{text-decoration:underline}
-.reply-time{font-size:10px;color:var(--text3)}
-.reply-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:9px 13px;font-size:13px;color:var(--text);line-height:1.55;word-break:break-word;position:relative}
-.reply-bubble.mine{background:rgba(120,30,200,0.18);border-color:rgba(168,85,247,0.35)}
-.reply-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:10px;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .2s;padding:0}
-.reply-bubble:hover .reply-del{opacity:1}
-
-/* ===== REPLY INPUT ===== */
-.reply-input-row{display:flex;gap:8px;align-items:center;padding:12px 20px;border-top:1px solid var(--border)}
-.reply-av{width:28px;height:28px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
-.reply-av img{width:100%;height:100%;object-fit:cover}
-.reply-inp{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:20px;padding:9px 16px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;transition:border-color .2s}
-.reply-inp:focus{border-color:var(--indigo2)}
-.reply-inp::placeholder{color:var(--text3)}
-.reply-send{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s,box-shadow .2s;box-shadow:0 3px 12px rgba(120,30,200,.45)}
-.reply-send:hover{transform:scale(1.1)}
-
-/* ===== EMPTY ===== */
-.forum-empty{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px;animation:fadeUp .5s ease}
-.forum-empty-icon{font-size:52px;margin-bottom:12px;display:block;animation:flicker 3s ease-in-out infinite}
-.forum-empty-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text2);margin-bottom:8px;letter-spacing:1px}
-
-/* ===== LOADING ===== */
-.forum-loading{display:flex;flex-direction:column;gap:14px;padding:10px 0}
-.skeleton{background:var(--panel);border:1px solid var(--border);border-radius:18px;height:100px;animation:pulse 1.5s ease-in-out infinite}
-@keyframes pulse{0%,100%{opacity:.6}50%{opacity:1}}
+/* ===== COMMENTS SECTION ===== */
+.comments-section{
+  background:var(--surface2);
+  border-top:1px solid var(--border);
+  padding:16px 20px;
+  display:none;
+}
+.comments-section.show{display:block;}
+.comment-list{
+  margin-bottom:16px;
+  max-height:400px;
+  overflow-y:auto;
+}
+.comment-item{
+  padding:12px 0;
+  border-bottom:1px solid var(--border);
+  display:flex;
+  gap:10px;
+}
+.comment-avatar{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--indigo-f);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:14px;
+  flex-shrink:0;
+}
+.comment-content{
+  flex:1;
+}
+.comment-author{
+  font-size:12px;
+  font-weight:600;
+  color:var(--indigo2);
+  margin-bottom:4px;
+}
+.comment-text{
+  font-size:13px;
+  color:var(--text);
+  line-height:1.5;
+}
+.comment-time{
+  font-size:10px;
+  color:var(--text3);
+  margin-top:4px;
+}
+.comment-delete{
+  font-size:11px;
+  color:var(--red);
+  cursor:pointer;
+  margin-left:8px;
+}
+.comment-delete:hover{text-decoration:underline;}
+.add-comment{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
+.add-comment input{
+  flex:1;
+  padding:10px 14px;
+  background:var(--input-bg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  color:var(--text);
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;
+  outline:none;
+}
+.add-comment input:focus{border-color:var(--indigo2);}
+.add-comment button{
+  padding:10px 18px;
+  border-radius:14px;
+  border:none;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+}
 
 /* ===== TOAST ===== */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:fadeUp .3s ease;white-space:nowrap}
-.hidden{display:none!important}
+.toast{
+  position:fixed;
+  bottom:30px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;
+  padding:10px 24px;
+  border-radius:30px;
+  font-size:13px;
+  z-index:1000;
+  animation:toastIn .3s ease;
+}
+@keyframes toastIn{
+  from{opacity:0;transform:translateX(-50%) translateY(20px);}
+  to{opacity:1;transform:translateX(-50%) translateY(0);}
+}
+
+/* ===== MODAL ===== */
+.modal-overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(8px);
+  z-index:1000;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.modal-overlay.show{display:flex;}
+.modal-content{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:24px;
+  max-width:400px;
+  width:90%;
+  text-align:center;
+}
+.modal-buttons{
+  display:flex;
+  gap:12px;
+  margin-top:20px;
+  justify-content:center;
+}
+.modal-btn{
+  padding:10px 24px;
+  border-radius:12px;
+  border:none;
+  cursor:pointer;
+  font-weight:600;
+}
+.modal-btn.confirm{background:var(--red);color:#fff;}
+.modal-btn.cancel{background:var(--indigo-f);color:var(--text);border:1px solid var(--border);}
+
+/* ===== LOADING ===== */
+.loading{
+  text-align:center;
+  padding:40px;
+  color:var(--text2);
+}
 </style>
 </head>
 <body class="night">
 
-<nav id="topnav">
-  <a class="nav-logo" href="chat.html">🔥</a>
-  <div>
-    <div class="nav-title">ფორუმი</div>
-    <div class="nav-sub">კაიფმანია</div>
-  </div>
-  <div class="nav-spacer"></div>
-  <div id="navUserInfo" style="display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2)"></div>
-  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
-  <a class="nav-btn" href="chat.html">← ჩათი</a>
-</nav>
-
-<div id="wrap">
-
-  <!-- Header -->
-  <div class="forum-header">
-    <div class="forum-icon">💬</div>
-    <div class="forum-titles">
-      <div class="forum-title">სოული კორნერი</div>
-      <div class="forum-desc">განიხილე · დასვი კითხვა · გაიგე</div>
+<div class="top-bar">
+  <div class="logo" onclick="location.reload()">🎯 კაიფფორუმი</div>
+  <div class="user-info" id="userInfo">
+    <div class="user-avatar" id="userAvatar">👤</div>
+    <div>
+      <div class="user-name" id="userName">იტვირთება...</div>
+      <div class="user-role" id="userRole">წევრი</div>
     </div>
-    <div class="forum-stats" id="forumStats"></div>
+    <button class="btn-icon" onclick="toggleTheme()" id="themeBtn">🌙</button>
+    <button class="btn-icon" onclick="logout()">🚪</button>
   </div>
+</div>
 
-  <!-- New Question -->
-  <div class="new-q-bar">
-    <button class="new-q-btn" id="newQBtn" onclick="toggleCreateForm()" disabled>✏️ კითხვის დამატება</button>
-    <div class="q-count-pill" id="qCountPill">0 განხილვა</div>
-  </div>
-
-  <!-- Create Form -->
-  <div id="createForm">
-    <div class="cf-title">ახალი განხილვა</div>
-    <input class="cf-inp" id="cfTitle" placeholder="სათაური..." maxlength="120">
-    <textarea class="cf-inp" id="cfBody" placeholder="დეტალები (სურვილისამებრ)..." rows="3" maxlength="1000"></textarea>
-    <div class="cf-tag-row" id="cfTags">
-      <div class="cf-tag active" data-tag="general">💬 ზოგადი</div>
-      <div class="cf-tag" data-tag="announcement">📢 განცხადება</div>
-      <div class="cf-tag" data-tag="question">❓ კითხვა</div>
-      <div class="cf-tag" data-tag="poll">📊 გამოკითხვა</div>
-      <div class="cf-tag" data-tag="hot">🔥 ცხელი</div>
-    </div>
-    <div class="cf-actions">
-      <button class="cf-cancel" onclick="toggleCreateForm()">გაუქმება</button>
-      <button class="cf-submit" onclick="submitQuestion()">✅ გამოქვეყნება</button>
+<div class="container">
+  <div class="new-topic-form" id="newTopicForm">
+    <div class="form-title">📝 ახალი თემის შექმნა</div>
+    <input type="text" class="form-input" id="topicTitle" placeholder="თემის სათაური...">
+    <textarea class="form-textarea" id="topicContent" placeholder="თემის შინაარსი..."></textarea>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="hideNewTopicForm()">გაუქმება</button>
+      <button class="btn-submit" onclick="createTopic()">შექმნა</button>
     </div>
   </div>
 
-  <!-- Filter Bar -->
-  <div class="filter-bar">
-    <div class="filter-chip active" data-filter="all" onclick="setFilter('all',this)">ყველა</div>
-    <div class="filter-chip" data-filter="general" onclick="setFilter('general',this)">💬 ზოგადი</div>
-    <div class="filter-chip" data-filter="announcement" onclick="setFilter('announcement',this)">📢 განცხადება</div>
-    <div class="filter-chip" data-filter="question" onclick="setFilter('question',this)">❓ კითხვა</div>
-    <div class="filter-chip" data-filter="hot" onclick="setFilter('hot',this)">🔥 ცხელი</div>
-    <input class="filter-search" id="filterSearch" placeholder="🔍 ძებნა..." oninput="renderQuestions()">
+  <div class="topics-header">
+    <div class="topics-title">📋 ყველა თემა</div>
+    <button class="add-topic-btn" id="addTopicBtn" onclick="showNewTopicForm()">+ ახალი თემა</button>
   </div>
 
-  <!-- Questions List -->
-  <div id="questionsList">
-    <div class="forum-loading">
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
-      <div class="skeleton"></div>
+  <div id="topicsList">
+    <div class="loading">იტვირთება...</div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal-content">
+    <div id="modalMessage">დარწმუნებული ხარ?</div>
+    <div class="modal-buttons">
+      <button class="modal-btn confirm" onclick="confirmAction()">დიახ</button>
+      <button class="modal-btn cancel" onclick="closeModal()">არა</button>
     </div>
   </div>
-
 </div>
 
 <script>
@@ -241,451 +526,326 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
 );
 
-let ME = null, MYPROF = null;
-let allProfiles = {};
-let questions = [];
-let replies = {}; // qId → array
-let myLikes = new Set();
-let activeFilter = 'all';
-let activeTag = 'general';
-let theme = 'night';
-let openReplies = new Set();
-let forumCh = null;
+let ME = null;
+let MYPROF = null;
+let currentTopics = [];
+let pendingAction = null;
+let pendingTopicId = null;
+let openComments = new Set();
 
-// ========== INIT ==========
+// ===== AUTH =====
 async function init() {
   const {data:{user}} = await sb.auth.getUser();
-  if (!user) { location.href = 'index.html'; return; }
+  if (!user) { 
+    location.href = 'index.html'; 
+    return; 
+  }
   ME = user;
-
-  const {data: prof} = await sb.from('profiles').select('*').eq('id', ME.id).single();
-  MYPROF = prof;
-  if (!MYPROF) { toast('❌ პროფილი ვერ მოიძებნა'); return; }
-
-  // Nav user info
-  const avHtml = MYPROF.avatar_url ? `<img src="${MYPROF.avatar_url}" style="width:28px;height:28px;border-radius:50%;object-fit:cover;border:1.5px solid var(--border)">` : `<span style="font-size:18px">${MYPROF.emotion||'😊'}</span>`;
-  document.getElementById('navUserInfo').innerHTML = `${avHtml}<span>${esc(MYPROF.username||'?')}</span>`;
-
-  // Can create questions?
-  const canCreate = ['admin','founder'].includes(MYPROF.role);
-  const btn = document.getElementById('newQBtn');
-  btn.disabled = !canCreate;
-  if (!canCreate) btn.title = 'მხოლოდ ადმინს / დამფუძნებელს შეუძლია კითხვის დამატება';
-
-  // Load all profiles
-  const {data: profs} = await sb.from('profiles').select('id,username,role,avatar_url,emotion');
-  (profs||[]).forEach(p => { allProfiles[p.id] = p; });
-
-  // Load likes
-  const {data: likesData} = await sb.from('forum_likes').select('question_id').eq('user_id', ME.id);
-  (likesData||[]).forEach(l => myLikes.add(l.question_id));
-
-  await loadQuestions();
-  subscribeRealtime();
-}
-
-// ========== LOAD ==========
-async function loadQuestions() {
-  const {data, error} = await sb.from('forum_questions')
-    .select('*')
-    .order('is_pinned', {ascending:false})
-    .order('created_at', {ascending:false});
-
-  if (error) { toast('❌ ' + error.message); return; }
-  questions = data || [];
-
-  // Load reply counts
-  const ids = questions.map(q => q.id);
-  if (ids.length) {
-    const {data: rData} = await sb.from('forum_replies').select('question_id');
-    const counts = {};
-    (rData||[]).forEach(r => { counts[r.question_id] = (counts[r.question_id]||0) + 1; });
-    questions.forEach(q => { q._replyCount = counts[q.id] || 0; });
+  MYPROF = await loadProf(ME.id);
+  if (!MYPROF) {
+    const meta = user.user_metadata || {};
+    await sb.from('profiles').insert({
+      id: ME.id,
+      username: meta.username || meta.name || user.email?.split('@')[0] || 'მომხმარებელი',
+      role: 'member',
+      emotion: '😊'
+    });
+    MYPROF = await loadProf(ME.id);
   }
-
-  updateStats();
-  renderQuestions();
+  
+  document.getElementById('userName').textContent = MYPROF?.username || 'მომხმარებელი';
+  document.getElementById('userAvatar').textContent = MYPROF?.emotion || '👤';
+  const roleEl = document.getElementById('userRole');
+  roleEl.textContent = rLabel(MYPROF?.role);
+  roleEl.className = `user-role role-${MYPROF?.role || 'member'}`;
+  
+  // თუ ადმინი ან დამფუძნებელია - აჩვენე ახალი თემის ღილაკი
+  const canCreate = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  document.getElementById('addTopicBtn').style.display = canCreate ? 'flex' : 'none';
+  
+  await loadTopics();
+  subscribeToChanges();
 }
 
-// ========== STATS ==========
-function updateStats() {
-  const total = questions.length;
-  const totalReplies = questions.reduce((s,q) => s + (q._replyCount||0), 0);
-  document.getElementById('forumStats').innerHTML = `
-    <div class="stat-pill">💬 ${total} თემა</div>
-    <div class="stat-pill">✉️ ${totalReplies} პასუხი</div>
-  `;
-  document.getElementById('qCountPill').textContent = total + ' განხილვა';
+async function loadProf(uid) {
+  const {data} = await sb.from('profiles').select('*').eq('id', uid).single();
+  return data;
 }
 
-// ========== RENDER ==========
-function renderQuestions() {
-  const list = document.getElementById('questionsList');
-  const search = (document.getElementById('filterSearch').value||'').toLowerCase();
+function rLabel(r) {
+  if (r === 'founder') return '👑 დამფუძნებელი';
+  if (r === 'admin') return '🛡️ ადმინი';
+  return '👤 წევრი';
+}
 
-  let filtered = questions.filter(q => {
-    if (activeFilter !== 'all' && q.tag !== activeFilter) return false;
-    if (search && !q.title.toLowerCase().includes(search) && !(q.body||'').toLowerCase().includes(search)) return false;
-    return true;
-  });
-
-  if (!filtered.length) {
-    list.innerHTML = `<div class="forum-empty">
-      <span class="forum-empty-icon">💭</span>
-      <div class="forum-empty-title">თემა ვერ მოიძებნა</div>
-      <div>${activeFilter!=='all'?'სხვა კატეგორია სცადე':'პირველი კითხვა შენ დასვი!'}</div>
-    </div>`;
+// ===== TOPICS =====
+async function loadTopics() {
+  const {data, error} = await sb.from('forum_topics')
+    .select('*, profiles(username, role, emotion, avatar_url)')
+    .order('is_pinned', {ascending: false})
+    .order('created_at', {ascending: false});
+  
+  if (error) {
+    console.error(error);
+    document.getElementById('topicsList').innerHTML = '<div class="loading">❌ შეცდომა ჩატვირთვისას</div>';
     return;
   }
-
-  list.innerHTML = '';
-  filtered.forEach((q, idx) => {
-    const el = buildQuestionCard(q, idx);
-    list.appendChild(el);
-  });
+  
+  currentTopics = data || [];
+  renderTopics();
 }
 
-function buildQuestionCard(q, idx) {
-  const author = allProfiles[q.user_id] || {};
-  const avHtml = author.avatar_url
-    ? `<img src="${author.avatar_url}">`
-    : `<span>${author.emotion||'😊'}</span>`;
-  const timeStr = timeAgo(q.created_at);
-  const canMod = ['admin','founder'].includes(MYPROF?.role);
-  const isOwner = q.user_id === ME?.id;
-  const liked = myLikes.has(q.id);
-  const roleTag = author.role && author.role !== 'member'
-    ? `<span class="q-role ${author.role==='founder'?'qr-founder':'qr-admin'}">${author.role==='founder'?'👑':'🛡️'}</span>`
-    : '';
-  const tagLabels = {general:'💬 ზოგადი',announcement:'📢 განცხადება',question:'❓ კითხვა',poll:'📊 გამოკითხვა',hot:'🔥 ცხელი'};
-  const tagClasses = {general:'qt-general',announcement:'qt-announcement',question:'qt-question',poll:'qt-poll',hot:'qt-hot'};
-  const isOpen = openReplies.has(q.id);
-
-  const card = document.createElement('div');
-  card.className = 'q-card' + (q.is_pinned ? ' pinned-card' : '');
-  card.style.animationDelay = (idx * 0.04) + 's';
-  card.dataset.qid = q.id;
-
-  card.innerHTML = `
-    <div class="q-head" onclick="toggleReplies('${q.id}')">
-      <div class="q-avatar">${avHtml}</div>
-      <div class="q-body">
-        <div class="q-meta">
-          <span class="q-author" onclick="event.stopPropagation()">${esc(author.username||'?')}</span>
-          ${roleTag}
-          <span class="q-time">${timeStr}</span>
-          <span class="q-tag ${tagClasses[q.tag]||'qt-general'}">${tagLabels[q.tag]||'💬'}</span>
-          ${q.is_pinned?'<span class="q-pinned">📌 დამაგრებული</span>':''}
-        </div>
-        <div class="q-text">${esc(q.title)}${q.body?`<div style="font-size:12px;color:var(--text3);margin-top:5px">${esc(q.body)}</div>`:''}</div>
-        <div class="q-foot">
-          <button class="q-like-btn${liked?' liked':''}" onclick="event.stopPropagation();toggleLike('${q.id}',this)">
-            ${liked?'💜':'🤍'} <span class="like-count">${q.likes_count||0}</span>
-          </button>
-          <div class="q-stat">💬 <span class="reply-count-${q.id}">${q._replyCount||0}</span></div>
-          <button class="q-toggle-btn" onclick="event.stopPropagation();toggleReplies('${q.id}')">
-            ${isOpen?'▲ დახურვა':'▼ პასუხები'}
-          </button>
-          ${canMod?`<button class="pin-btn${q.is_pinned?' pinned':''}" onclick="event.stopPropagation();togglePin('${q.id}',${q.is_pinned})">${q.is_pinned?'📌 მოხსნა':'📌 დამაგრება'}</button>`:''}
-          ${(isOwner||canMod)?`<button class="q-del-btn" onclick="event.stopPropagation();deleteQuestion('${q.id}')">🗑 წაშლა</button>`:''}
-        </div>
-      </div>
-    </div>
-    <div class="replies-section${isOpen?' open':''}" id="replies-${q.id}">
-      <div class="replies-inner" id="repliesInner-${q.id}">
-        <div style="color:var(--text3);font-size:12px;text-align:center;padding:10px">⏳ იტვირთება...</div>
-      </div>
-      <div class="reply-input-row">
-        <div class="reply-av">${MYPROF?.avatar_url?`<img src="${MYPROF.avatar_url}">`:(MYPROF?.emotion||'😊')}</div>
-        <input class="reply-inp" id="replyInp-${q.id}" placeholder="პასუხი..." onkeydown="if(event.key==='Enter')submitReply('${q.id}')">
-        <button class="reply-send" onclick="submitReply('${q.id}')">✈️</button>
-      </div>
-    </div>
-  `;
-
-  if (isOpen) loadReplies(q.id);
-  return card;
-}
-
-// ========== TOGGLE REPLIES ==========
-async function toggleReplies(qId) {
-  const section = document.getElementById('replies-' + qId);
-  const card = document.querySelector(`[data-qid="${qId}"]`);
-  if (!section) return;
-  const isOpen = section.classList.contains('open');
-  if (isOpen) {
-    section.classList.remove('open');
-    openReplies.delete(qId);
-    const btn = card?.querySelector('.q-toggle-btn');
-    if (btn) btn.textContent = '▼ პასუხები';
-  } else {
-    section.classList.add('open');
-    openReplies.add(qId);
-    const btn = card?.querySelector('.q-toggle-btn');
-    if (btn) btn.textContent = '▲ დახურვა';
-    await loadReplies(qId);
-  }
-}
-
-// ========== LOAD REPLIES ==========
-async function loadReplies(qId) {
-  const {data, error} = await sb.from('forum_replies')
-    .select('*')
-    .eq('question_id', qId)
-    .order('created_at', {ascending:true});
-
-  if (error) return;
-  replies[qId] = data || [];
-  renderReplies(qId);
-}
-
-function renderReplies(qId) {
-  const inner = document.getElementById('repliesInner-' + qId);
-  if (!inner) return;
-  const list = replies[qId] || [];
-
-  if (!list.length) {
-    inner.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:14px">პირველი პასუხი შენ გაეცი! 💜</div>';
+function renderTopics() {
+  const container = document.getElementById('topicsList');
+  if (!currentTopics.length) {
+    container.innerHTML = '<div class="loading">📭 ჯერ არ არის თემები</div>';
     return;
   }
-
-  inner.innerHTML = '';
-  list.forEach((r, idx) => {
-    const author = allProfiles[r.user_id] || {};
-    const avHtml = author.avatar_url
-      ? `<img src="${author.avatar_url}">`
-      : `<span>${author.emotion||'😊'}</span>`;
-    const isMe = r.user_id === ME?.id;
-    const canDel = isMe || ['admin','founder'].includes(MYPROF?.role);
-    const timeStr = timeAgo(r.created_at);
-
-    const item = document.createElement('div');
-    item.className = 'reply-item';
-    item.style.animationDelay = (idx * 0.03) + 's';
-    item.innerHTML = `
-      <div class="reply-avatar">${avHtml}</div>
-      <div class="reply-body">
-        <div class="reply-meta">
-          <span class="reply-author">${esc(author.username||'?')}</span>
-          <span class="reply-time">${timeStr}</span>
+  
+  container.innerHTML = '';
+  currentTopics.forEach(topic => {
+    const isPinned = topic.is_pinned;
+    const canDelete = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+    const canPin = MYPROF?.role === 'founder';
+    const isOpen = openComments.has(topic.id);
+    
+    const topicDiv = document.createElement('div');
+    topicDiv.className = `topic-card ${isPinned ? 'topic-pinned' : ''}`;
+    topicDiv.innerHTML = `
+      <div class="topic-header" onclick="toggleComments('${topic.id}')">
+        <div class="topic-avatar">${topic.profiles?.emotion || '📝'}</div>
+        <div class="topic-info">
+          <div class="topic-title">
+            ${topic.title}
+            ${isPinned ? '<span class="pin-badge">📌 პინავა</span>' : ''}
+          </div>
+          <div class="topic-meta">
+            <span class="topic-author" onclick="event.stopPropagation(); showUserProfile('${topic.user_id}')">${escapeHtml(topic.profiles?.username || '?')}</span>
+            <span>${formatDate(topic.created_at)}</span>
+            <span>💬 ${topic.comment_count || 0}</span>
+          </div>
         </div>
-        <div class="reply-bubble${isMe?' mine':''}">
-          ${esc(r.content)}
-          ${canDel?`<button class="reply-del" onclick="deleteReply('${r.id}','${qId}')">🗑</button>`:''}
+        <div class="topic-stats">
+          <span>👁️ ${topic.views || 0}</span>
+        </div>
+        <div class="topic-actions" onclick="event.stopPropagation()">
+          ${canPin ? `<button class="action-btn pin" onclick="pinTopic('${topic.id}', ${!isPinned})">📌</button>` : ''}
+          ${canDelete ? `<button class="action-btn delete" onclick="deleteTopic('${topic.id}')">🗑</button>` : ''}
+        </div>
+      </div>
+      <div class="comments-section" id="comments-${topic.id}" style="display: ${isOpen ? 'block' : 'none'}">
+        <div class="comment-list" id="commentList-${topic.id}">
+          <div class="loading">იტვირთება კომენტარები...</div>
+        </div>
+        <div class="add-comment">
+          <input type="text" id="commentInput-${topic.id}" placeholder="დაწერე კომენტარი...">
+          <button onclick="addComment('${topic.id}')">📨 გაგზავნა</button>
         </div>
       </div>
     `;
-    inner.appendChild(item);
+    container.appendChild(topicDiv);
+    
+    // თუ გახსნილია, ჩატვირთე კომენტარები
+    if (isOpen) {
+      loadComments(topic.id);
+    }
   });
 }
 
-// ========== SUBMIT QUESTION ==========
-function toggleCreateForm() {
-  const form = document.getElementById('createForm');
-  form.classList.toggle('open');
-}
-
-document.getElementById('cfTags').addEventListener('click', e => {
-  const chip = e.target.closest('.cf-tag');
-  if (!chip) return;
-  document.querySelectorAll('.cf-tag').forEach(c => c.classList.remove('active'));
-  chip.classList.add('active');
-  activeTag = chip.dataset.tag;
-});
-
-async function submitQuestion() {
-  if (!['admin','founder'].includes(MYPROF?.role)) { toast('❌ არ გაქვს უფლება'); return; }
-  const title = document.getElementById('cfTitle').value.trim();
-  const body = document.getElementById('cfBody').value.trim();
-  const activeTagEl = document.querySelector('.cf-tag.active');
-  const tag = activeTagEl?.dataset.tag || 'general';
-
-  if (!title) { toast('❌ სათაური ჩაწერე!'); return; }
-
-  const {error} = await sb.from('forum_questions').insert({
-    user_id: ME.id,
-    title,
-    body: body || null,
-    tag,
-    likes_count: 0,
-    is_pinned: false
-  });
-
-  if (error) { toast('❌ ' + error.message); return; }
-  document.getElementById('cfTitle').value = '';
-  document.getElementById('cfBody').value = '';
-  document.getElementById('createForm').classList.remove('open');
-  toast('✅ განხილვა გამოქვეყნდა!');
-  await loadQuestions();
-}
-
-// ========== SUBMIT REPLY ==========
-async function submitReply(qId) {
-  const inp = document.getElementById('replyInp-' + qId);
-  if (!inp) return;
-  const content = inp.value.trim();
-  if (!content) return;
-  inp.value = '';
-
-  const {error} = await sb.from('forum_replies').insert({
-    question_id: qId,
-    user_id: ME.id,
-    content
-  });
-
-  if (error) { toast('❌ ' + error.message); return; }
-
-  // Update reply count in memory
-  const q = questions.find(x => x.id === qId);
-  if (q) {
-    q._replyCount = (q._replyCount||0) + 1;
-    const cnt = document.querySelector(`.reply-count-${qId}`);
-    if (cnt) cnt.textContent = q._replyCount;
-  }
-
-  await loadReplies(qId);
-}
-
-// ========== LIKE ==========
-async function toggleLike(qId, btn) {
-  const liked = myLikes.has(qId);
-  const countEl = btn.querySelector('.like-count');
-  const q = questions.find(x => x.id === qId);
-
-  if (liked) {
-    myLikes.delete(qId);
-    btn.classList.remove('liked');
-    btn.innerHTML = `🤍 <span class="like-count">${(q?.likes_count||1) - 1}</span>`;
-    if (q) q.likes_count = Math.max(0, (q.likes_count||1) - 1);
-    await sb.from('forum_likes').delete().eq('user_id', ME.id).eq('question_id', qId);
-    await sb.from('forum_questions').update({likes_count: q?.likes_count||0}).eq('id', qId);
+function toggleComments(topicId) {
+  if (openComments.has(topicId)) {
+    openComments.delete(topicId);
+    document.getElementById(`comments-${topicId}`).style.display = 'none';
   } else {
-    myLikes.add(qId);
-    btn.classList.add('liked');
-    btn.innerHTML = `💜 <span class="like-count">${(q?.likes_count||0) + 1}</span>`;
-    if (q) q.likes_count = (q.likes_count||0) + 1;
-    btn.classList.add('liked');
-    await sb.from('forum_likes').upsert({user_id: ME.id, question_id: qId});
-    await sb.from('forum_questions').update({likes_count: q?.likes_count||0}).eq('id', qId);
+    openComments.add(topicId);
+    document.getElementById(`comments-${topicId}`).style.display = 'block';
+    loadComments(topicId);
   }
 }
 
-// ========== PIN ==========
-async function togglePin(qId, currentlyPinned) {
-  const newVal = !currentlyPinned;
-  const {error} = await sb.from('forum_questions').update({is_pinned: newVal}).eq('id', qId);
-  if (error) { toast('❌ ' + error.message); return; }
-  toast(newVal ? '📌 დამაგრდა!' : '📌 მოხსნილია');
-  await loadQuestions();
-}
-
-// ========== DELETE QUESTION ==========
-async function deleteQuestion(qId) {
-  if (!confirm('წავშალო?')) return;
-  await sb.from('forum_replies').delete().eq('question_id', qId);
-  await sb.from('forum_likes').delete().eq('question_id', qId);
-  const {error} = await sb.from('forum_questions').delete().eq('id', qId);
-  if (error) { toast('❌ ' + error.message); return; }
-  toast('🗑 წაიშალა');
-  questions = questions.filter(q => q.id !== qId);
-  updateStats();
-  renderQuestions();
-}
-
-// ========== DELETE REPLY ==========
-async function deleteReply(rId, qId) {
-  if (!confirm('წავშალო?')) return;
-  const {error} = await sb.from('forum_replies').delete().eq('id', rId);
-  if (error) { toast('❌ ' + error.message); return; }
-  toast('🗑 წაიშალა');
-  const q = questions.find(x => x.id === qId);
-  if (q) {
-    q._replyCount = Math.max(0, (q._replyCount||1) - 1);
-    const cnt = document.querySelector(`.reply-count-${qId}`);
-    if (cnt) cnt.textContent = q._replyCount;
+// ===== COMMENTS =====
+async function loadComments(topicId) {
+  const {data, error} = await sb.from('forum_comments')
+    .select('*, profiles(username, role, emotion, avatar_url)')
+    .eq('topic_id', topicId)
+    .order('created_at', {ascending: true});
+  
+  if (error) {
+    console.error(error);
+    return;
   }
-  await loadReplies(qId);
+  
+  renderComments(topicId, data || []);
 }
 
-// ========== REALTIME ==========
-function subscribeRealtime() {
-  forumCh = sb.channel('forum-live')
-    .on('postgres_changes', {event:'INSERT', schema:'public', table:'forum_questions'}, async payload => {
-      const {data: prof} = await sb.from('profiles').select('id,username,role,avatar_url,emotion').eq('id', payload.new.user_id).single();
-      if (prof) allProfiles[prof.id] = prof;
-      const q = {...payload.new, _replyCount:0};
-      questions.unshift(q);
-      // move pinned to top
-      questions.sort((a,b) => (b.is_pinned?1:0) - (a.is_pinned?1:0));
-      updateStats();
-      renderQuestions();
-    })
-    .on('postgres_changes', {event:'DELETE', schema:'public', table:'forum_questions'}, payload => {
-      questions = questions.filter(q => q.id !== payload.old.id);
-      updateStats();
-      renderQuestions();
-    })
-    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'forum_questions'}, payload => {
-      const idx = questions.findIndex(q => q.id === payload.new.id);
-      if (idx >= 0) {
-        questions[idx] = {...questions[idx], ...payload.new};
-        questions.sort((a,b) => (b.is_pinned?1:0) - (a.is_pinned?1:0));
-        updateStats();
-        renderQuestions();
-      }
-    })
-    .on('postgres_changes', {event:'INSERT', schema:'public', table:'forum_replies'}, async payload => {
-      const qId = payload.new.question_id;
-      const {data: prof} = await sb.from('profiles').select('id,username,role,avatar_url,emotion').eq('id', payload.new.user_id).single();
-      if (prof) allProfiles[prof.id] = prof;
-      if (!replies[qId]) replies[qId] = [];
-      // avoid duplicate
-      if (!replies[qId].find(r => r.id === payload.new.id)) {
-        replies[qId].push(payload.new);
-      }
-      const q = questions.find(x => x.id === qId);
-      if (q) {
-        q._replyCount = (replies[qId]||[]).length;
-        const cnt = document.querySelector(`.reply-count-${qId}`);
-        if (cnt) cnt.textContent = q._replyCount;
-      }
-      if (openReplies.has(qId)) renderReplies(qId);
-    })
-    .on('postgres_changes', {event:'DELETE', schema:'public', table:'forum_replies'}, payload => {
-      const qId = payload.old.question_id;
-      if (replies[qId]) replies[qId] = replies[qId].filter(r => r.id !== payload.old.id);
-      if (openReplies.has(qId)) renderReplies(qId);
-    })
-    .subscribe();
+function renderComments(topicId, comments) {
+  const container = document.getElementById(`commentList-${topicId}`);
+  if (!container) return;
+  
+  if (!comments.length) {
+    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text3)">💬 კომენტარები ჯერ არ არის</div>';
+    return;
+  }
+  
+  container.innerHTML = '';
+  comments.forEach(comment => {
+    const canDelete = MYPROF?.role === 'admin' || MYPROF?.role === 'founder' || comment.user_id === ME?.id;
+    const commentDiv = document.createElement('div');
+    commentDiv.className = 'comment-item';
+    commentDiv.innerHTML = `
+      <div class="comment-avatar">${comment.profiles?.emotion || '💬'}</div>
+      <div class="comment-content">
+        <div class="comment-author">
+          ${escapeHtml(comment.profiles?.username || '?')}
+          ${comment.profiles?.role === 'admin' ? '<span style="font-size:9px;margin-left:4px;">🛡️</span>' : ''}
+          ${comment.profiles?.role === 'founder' ? '<span style="font-size:9px;margin-left:4px;">👑</span>' : ''}
+        </div>
+        <div class="comment-text">${escapeHtml(comment.content)}</div>
+        <div class="comment-time">${formatDate(comment.created_at)}</div>
+      </div>
+      ${canDelete ? `<span class="comment-delete" onclick="deleteComment('${comment.id}', '${topicId}')">🗑</span>` : ''}
+    `;
+    container.appendChild(commentDiv);
+  });
 }
 
-// ========== FILTER ==========
-function setFilter(f, el) {
-  activeFilter = f;
-  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
-  el.classList.add('active');
-  renderQuestions();
+async function addComment(topicId) {
+  const input = document.getElementById(`commentInput-${topicId}`);
+  const content = input.value.trim();
+  if (!content) {
+    toast('✏️ დაწერე კომენტარი!');
+    return;
+  }
+  
+  const {error} = await sb.from('forum_comments').insert({
+    topic_id: topicId,
+    user_id: ME.id,
+    content: content
+  });
+  
+  if (error) {
+    toast('❌ ' + error.message);
+    return;
+  }
+  
+  input.value = '';
+  await loadComments(topicId);
+  await updateCommentCount(topicId);
+  toast('✅ კომენტარი დაემატა!');
 }
 
-// ========== UTILS ==========
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function timeAgo(ts) {
-  const diff = Date.now() - new Date(ts).getTime();
-  const m = Math.floor(diff / 60000);
-  const h = Math.floor(diff / 3600000);
-  const d = Math.floor(diff / 86400000);
-  if (m < 1) return 'ახლახანს';
-  if (m < 60) return m + ' წუთის წინ';
-  if (h < 24) return h + ' საათის წინ';
-  if (d < 7) return d + ' დღის წინ';
-  return new Date(ts).toLocaleDateString('ka-GE');
+async function deleteComment(commentId, topicId) {
+  const {error} = await sb.from('forum_comments').delete().eq('id', commentId);
+  if (error) {
+    toast('❌ ' + error.message);
+    return;
+  }
+  await loadComments(topicId);
+  await updateCommentCount(topicId);
+  toast('🗑 კომენტარი წაიშალა!');
 }
 
-function toggleTheme() {
-  theme = theme === 'night' ? 'day' : 'night';
-  document.body.className = theme;
-  document.getElementById('themeBtn').textContent = theme === 'night' ? '🌙' : '☀️';
+async function updateCommentCount(topicId) {
+  const {count} = await sb.from('forum_comments').select('*', {count: 'exact', head: true}).eq('topic_id', topicId);
+  await sb.from('forum_topics').update({comment_count: count}).eq('id', topicId);
+  await loadTopics();
+}
+
+// ===== TOPIC ACTIONS =====
+async function createTopic() {
+  const title = document.getElementById('topicTitle').value.trim();
+  const content = document.getElementById('topicContent').value.trim();
+  
+  if (!title) {
+    toast('📝 ჩაწერე თემის სათაური!');
+    return;
+  }
+  
+  const {error} = await sb.from('forum_topics').insert({
+    title: title,
+    content: content || '',
+    user_id: ME.id
+  });
+  
+  if (error) {
+    toast('❌ ' + error.message);
+    return;
+  }
+  
+  document.getElementById('topicTitle').value = '';
+  document.getElementById('topicContent').value = '';
+  hideNewTopicForm();
+  await loadTopics();
+  toast('✅ თემა შეიქმნა!');
+}
+
+function showNewTopicForm() {
+  document.getElementById('newTopicForm').classList.add('show');
+}
+
+function hideNewTopicForm() {
+  document.getElementById('newTopicForm').classList.remove('show');
+}
+
+function deleteTopic(topicId) {
+  pendingTopicId = topicId;
+  pendingAction = 'delete';
+  document.getElementById('modalMessage').textContent = '🗑 თემის წაშლა? (კომენტარებიც წაიშლება)';
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+async function pinTopic(topicId, isPinned) {
+  const {error} = await sb.from('forum_topics').update({is_pinned: isPinned}).eq('id', topicId);
+  if (error) {
+    toast('❌ ' + error.message);
+    return;
+  }
+  await loadTopics();
+  toast(isPinned ? '📌 თემი დაპინავდა!' : '📍 პინი მოხსნილია');
+}
+
+async function confirmAction() {
+  if (pendingAction === 'delete' && pendingTopicId) {
+    const {error} = await sb.from('forum_topics').delete().eq('id', pendingTopicId);
+    if (error) {
+      toast('❌ ' + error.message);
+    } else {
+      await loadTopics();
+      toast('✅ თემა წაიშალა!');
+    }
+  }
+  closeModal();
+  pendingAction = null;
+  pendingTopicId = null;
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+// ===== UTILITIES =====
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function formatDate(dateStr) {
+  const date = new Date(dateStr);
+  const now = new Date();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+  
+  if (minutes < 1) return 'ახლახან';
+  if (minutes < 60) return `${minutes} წუთის წინ`;
+  if (hours < 24) return `${hours} საათის წინ`;
+  if (days < 7) return `${days} დღის წინ`;
+  return date.toLocaleDateString('ka-GE');
+}
+
+function showUserProfile(uid) {
+  toast('👤 მომხმარებლის პროფილი (მალე დაემატება)');
 }
 
 function toast(msg) {
@@ -694,6 +854,28 @@ function toast(msg) {
   t.textContent = msg;
   document.body.appendChild(t);
   setTimeout(() => t.remove(), 2500);
+}
+
+function toggleTheme() {
+  const body = document.body;
+  const isNight = body.classList.contains('night');
+  body.classList.remove(isNight ? 'night' : 'day');
+  body.classList.add(isNight ? 'day' : 'night');
+  document.getElementById('themeBtn').textContent = isNight ? '☀️' : '🌙';
+}
+
+async function logout() {
+  await sb.auth.signOut();
+  location.href = 'index.html';
+}
+
+function subscribeToChanges() {
+  sb.channel('forum-changes')
+    .on('postgres_changes', {event: '*', schema: 'public', table: 'forum_topics'}, () => loadTopics())
+    .on('postgres_changes', {event: '*', schema: 'public', table: 'forum_comments'}, () => {
+      openComments.forEach(id => loadComments(id));
+    })
+    .subscribe();
 }
 
 init();
