@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ჩამოხრჩობანა</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0a0a0f;
+  --surface:#12121a;
+  --surface2:#1a1a26;
+  --border:#2a2a40;
+  --text:#f0eaff;
+  --text2:#8878aa;
+  --text3:#4a4060;
+  --accent:#c084fc;
+  --accent2:#e879f9;
+  --green:#4ade80;
+  --red:#f87171;
+  --yellow:#fbbf24;
+  --glow-purple:rgba(192,132,252,0.15);
+  --glow-red:rgba(248,113,113,0.2);
+  --glow-green:rgba(74,222,128,0.2);
+}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  min-height:100dvh;
+  padding:12px;
+  position:relative;
+}
+
+/* animated background grid */
+body::before{
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:
+    linear-gradient(rgba(192,132,252,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(192,132,252,0.03) 1px, transparent 1px);
+  background-size:40px 40px;
+  pointer-events:none;
+  z-index:0;
+}
+body::after{
+  content:'';
+  position:fixed;
+  inset:0;
+  background:
+    radial-gradient(ellipse at 15% 20%, rgba(192,132,252,0.12) 0%, transparent 50%),
+    radial-gradient(ellipse at 85% 80%, rgba(232,121,249,0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 50%, rgba(10,10,15,0.4) 0%, transparent 70%);
+  pointer-events:none;
+  z-index:0;
+}
+
+#game{
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:820px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+}
+
+/* ===== HEADER ===== */
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  width:100%;
+  padding:0 4px;
+}
+.logo{
+  font-family:'Unbounded',sans-serif;
+  font-size:13px;
+  font-weight:900;
+  letter-spacing:2px;
+  color:var(--accent);
+  text-shadow:0 0 20px rgba(192,132,252,0.5);
+  text-transform:uppercase;
+}
+.score-pills{
+  display:flex;
+  gap:8px;
+}
+.pill{
+  padding:5px 14px;
+  border-radius:20px;
+  font-family:'Unbounded',sans-serif;
+  font-size:10px;
+  border:1px solid var(--border);
+  background:var(--surface);
+  color:var(--text2);
+  display:flex;
+  align-items:center;
+  gap:5px;
+  letter-spacing:.5px;
+}
+.pill span{color:var(--text);font-size:13px;font-weight:700}
+
+/* ===== MAIN AREA ===== */
+.main-area{
+  display:flex;
+  gap:16px;
+  width:100%;
+  align-items:flex-start;
+}
+
+/* ===== GALLOWS ===== */
+.gallows-wrap{
+  flex-shrink:0;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:16px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  position:relative;
+  overflow:hidden;
+}
+.gallows-wrap::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(ellipse at 50% 0%, rgba(192,132,252,0.06) 0%, transparent 70%);
+}
+#gallowsSVG{
+  width:160px;
+  height:200px;
+  display:block;
+  position:relative;
+  z-index:1;
+}
+
+/* ===== RIGHT PANEL ===== */
+.right-panel{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+  min-width:0;
+}
+
+/* category badge */
+.cat-badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:5px 14px;
+  border-radius:20px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  font-size:11px;
+  color:var(--text2);
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:.5px;
+  align-self:flex-start;
+}
+
+/* hint */
+.hint-box{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:12px 16px;
+  font-size:12px;
+  color:var(--text2);
+  line-height:1.5;
+  display:flex;
+  gap:8px;
+  align-items:flex-start;
+}
+.hint-icon{font-size:14px;flex-shrink:0;margin-top:1px}
+
+/* word display */
+.word-row{
+  display:flex;
+  gap:6px;
+  flex-wrap:wrap;
+  align-items:flex-end;
+  padding:4px 0;
+}
+.letter-cell{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:4px;
+  min-width:28px;
+}
+.letter-char{
+  font-family:'Unbounded',sans-serif;
+  font-size:22px;
+  font-weight:700;
+  color:var(--text);
+  height:30px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  transition:all .3s cubic-bezier(0.34,1.56,0.64,1);
+  transform:scale(0);
+  opacity:0;
+}
+.letter-char.revealed{
+  transform:scale(1);
+  opacity:1;
+}
+.letter-char.wrong-reveal{color:var(--red)}
+.letter-line{
+  width:100%;
+  height:2px;
+  background:var(--border);
+  border-radius:1px;
+  transition:background .3s;
+}
+.letter-cell.active .letter-line{background:var(--accent)}
+.letter-cell.space{min-width:14px}
+.letter-cell.space .letter-line{background:transparent}
+
+/* mistakes */
+.mistakes-row{
+  display:flex;
+  gap:6px;
+  align-items:center;
+}
+.life-dot{
+  width:10px;height:10px;
+  border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  transition:all .4s;
+  flex-shrink:0;
+}
+.life-dot.lost{
+  background:var(--red);
+  box-shadow:0 0 8px var(--red);
+  transform:scale(0.7);
+}
+.mistakes-label{font-size:11px;color:var(--text3);margin-left:4px;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
+
+/* wrong letters */
+.wrong-letters{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  min-height:32px;
+}
+.wrong-chip{
+  padding:3px 10px;
+  border-radius:8px;
+  background:rgba(248,113,113,0.1);
+  border:1px solid rgba(248,113,113,0.3);
+  color:var(--red);
+  font-family:'Unbounded',sans-serif;
+  font-size:12px;
+  animation:wrongPop .3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes wrongPop{from{transform:scale(0) rotate(-10deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+
+/* ===== KEYBOARD ===== */
+.keyboard{
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  gap:5px;
+}
+.kb-row{
+  display:flex;
+  justify-content:center;
+  gap:4px;
+  flex-wrap:wrap;
+}
+.kb-btn{
+  width:36px;height:36px;
+  border-radius:10px;
+  border:1px solid var(--border);
+  background:var(--surface2);
+  color:var(--text);
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;
+  cursor:pointer;
+  transition:all .15s;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+  position:relative;
+  overflow:hidden;
+}
+.kb-btn::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  background:radial-gradient(circle at center, rgba(192,132,252,0.3), transparent 70%);
+  opacity:0;
+  transition:opacity .2s;
+}
+.kb-btn:hover:not(:disabled)::before{opacity:1}
+.kb-btn:hover:not(:disabled){
+  border-color:var(--accent);
+  color:var(--accent);
+  transform:translateY(-2px);
+  box-shadow:0 4px 12px rgba(192,132,252,0.25);
+}
+.kb-btn:disabled{cursor:default;opacity:.3}
+.kb-btn.hit{
+  background:rgba(74,222,128,0.12);
+  border-color:rgba(74,222,128,0.4);
+  color:var(--green);
+  opacity:.5;
+}
+.kb-btn.miss{
+  background:rgba(248,113,113,0.1);
+  border-color:rgba(248,113,113,0.3);
+  color:var(--red);
+  opacity:.4;
+}
+
+/* ===== OVERLAY ===== */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.8);
+  backdrop-filter:blur(12px);
+  z-index:100;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+.overlay.show{display:flex}
+.result-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:36px 40px;
+  text-align:center;
+  max-width:400px;
+  width:100%;
+  position:relative;
+  overflow:hidden;
+}
+.result-card::before{
+  content:'';
+  position:absolute;
+  inset:0;
+  border-radius:28px;
+  background:radial-gradient(ellipse at 50% -20%, var(--glow), transparent 70%);
+  pointer-events:none;
+}
+.result-card.win::before{--glow:rgba(74,222,128,0.15)}
+.result-card.lose::before{--glow:rgba(248,113,113,0.12)}
+.result-emoji{font-size:64px;margin-bottom:12px;display:block;animation:float 2s ease-in-out infinite}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.result-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:8px;
+}
+.result-title.win{color:var(--green);text-shadow:0 0 30px var(--green)}
+.result-title.lose{color:var(--red);text-shadow:0 0 30px var(--red)}
+.result-word{
+  font-size:13px;
+  color:var(--text2);
+  margin-bottom:6px;
+}
+.result-word strong{
+  font-family:'Unbounded',sans-serif;
+  color:var(--text);
+  font-size:15px;
+  display:block;
+  margin-top:4px;
+}
+.result-stats{
+  display:flex;
+  gap:10px;
+  justify-content:center;
+  margin:16px 0 20px;
+}
+.rs{
+  background:var(--surface2);
+  border:1px solid var(--border);
+  border-radius:12px;
+  padding:10px 16px;
+  font-family:'Unbounded',sans-serif;
+}
+.rs-val{font-size:20px;font-weight:900;color:var(--accent);display:block}
+.rs-lbl{font-size:9px;color:var(--text3);letter-spacing:1px}
+.play-again-btn{
+  width:100%;
+  padding:14px;
+  border-radius:16px;
+  border:none;
+  background:linear-gradient(135deg,#7c3aed,var(--accent),var(--accent2));
+  color:#fff;
+  font-family:'Unbounded',sans-serif;
+  font-size:13px;
+  font-weight:700;
+  cursor:pointer;
+  transition:all .2s;
+  box-shadow:0 8px 24px rgba(192,132,252,0.35);
+  letter-spacing:.5px;
+}
+.play-again-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(192,132,252,0.5)}
+
+/* particles */
+.particle{
+  position:fixed;
+  pointer-events:none;
+  font-size:20px;
+  z-index:200;
+  animation:particleFly 1.2s ease-out forwards;
+}
+@keyframes particleFly{
+  0%{transform:translate(0,0) scale(1) rotate(0deg);opacity:1}
+  100%{transform:translate(var(--dx),var(--dy)) scale(0) rotate(var(--dr));opacity:0}
+}
+
+/* ===== GALLOWS ANIMATION ===== */
+.gallows-part{
+  stroke:var(--text);
+  stroke-width:3;
+  stroke-linecap:round;
+  fill:none;
+  opacity:0;
+  transition:opacity .3s;
+}
+.gallows-part.show{opacity:1}
+.gallows-base{stroke:var(--border);stroke-width:3;stroke-linecap:round;fill:none}
+
+/* head/body shake on final */
+#g-body-group{
+  transform-origin:80px 90px;
+  transition:transform .1s;
+}
+
+@keyframes shake{
+  0%,100%{transform:rotate(0deg)}
+  20%{transform:rotate(-8deg)}
+  40%{transform:rotate(8deg)}
+  60%{transform:rotate(-5deg)}
+  80%{transform:rotate(5deg)}
+}
+.shake{animation:shake .5s ease both}
+
+@keyframes slideUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+#game{animation:slideUp .5s ease}
+
+/* responsive */
+@media(max-width:580px){
+  .main-area{flex-direction:column;align-items:center}
+  #gallowsSVG{width:130px;height:160px}
+  .gallows-wrap{padding:12px}
+  .letter-char{font-size:18px}
+  .kb-btn{width:32px;height:32px;font-size:12px;border-radius:8px}
+}
+@media(max-width:400px){
+  .kb-btn{width:28px;height:28px;font-size:11px}
+  .letter-char{font-size:16px}
+}
+</style>
+</head>
+<body>
+<div id="game">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="logo">☠ ჩამოხრჩობანა</div>
+    <div class="score-pills">
+      <div class="pill">🏆 <span id="scoreWin">0</span></div>
+      <div class="pill">💀 <span id="scoreLose">0</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN AREA -->
+  <div class="main-area">
+
+    <!-- GALLOWS -->
+    <div class="gallows-wrap">
+      <svg id="gallowsSVG" viewBox="0 0 160 210">
+        <!-- base structure (always visible) -->
+        <line class="gallows-base" x1="20" y1="200" x2="140" y2="200"/>
+        <line class="gallows-base" x1="50" y1="200" x2="50" y2="20"/>
+        <line class="gallows-base" x1="50" y1="20" x2="100" y2="20"/>
+        <line class="gallows-base" x1="100" y1="20" x2="100" y2="40"/>
+
+        <!-- body group -->
+        <g id="g-body-group">
+          <!-- 1: head -->
+          <circle id="g1" class="gallows-part" cx="100" cy="54" r="14"/>
+          <!-- 2: body -->
+          <line id="g2" class="gallows-part" x1="100" y1="68" x2="100" y2="120"/>
+          <!-- 3: left arm -->
+          <line id="g3" class="gallows-part" x1="100" y1="80" x2="75" y2="100"/>
+          <!-- 4: right arm -->
+          <line id="g4" class="gallows-part" x1="100" y1="80" x2="125" y2="100"/>
+          <!-- 5: left leg -->
+          <line id="g5" class="gallows-part" x1="100" y1="120" x2="75" y2="148"/>
+          <!-- 6: right leg -->
+          <line id="g6" class="gallows-part" x1="100" y1="120" x2="125" y2="148"/>
+        </g>
+
+        <!-- eyes (shown on lose) -->
+        <g id="g-eyes" style="opacity:0;transition:opacity .3s">
+          <line x1="93" y1="50" x2="97" y2="54" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="97" y1="50" x2="93" y2="54" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="103" y1="50" x2="107" y2="54" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
+          <line x1="107" y1="50" x2="103" y2="54" stroke="var(--red)" stroke-width="2.5" stroke-linecap="round"/>
+        </g>
+
+        <!-- rope -->
+        <line id="g-rope" class="gallows-base" x1="100" y1="20" x2="100" y2="40" stroke-width="2"/>
+      </svg>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+
+      <!-- category -->
+      <div class="cat-badge" id="catBadge">📂 კატეგორია</div>
+
+      <!-- hint -->
+      <div class="hint-box" id="hintBox">
+        <span class="hint-icon">💡</span>
+        <span id="hintText">მინიშნება...</span>
+      </div>
+
+      <!-- word -->
+      <div class="word-row" id="wordRow"></div>
+
+      <!-- lives -->
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <div class="mistakes-row" id="livesRow"></div>
+        <div class="wrong-letters" id="wrongLetters"></div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- KEYBOARD -->
+  <div class="keyboard" id="keyboard"></div>
+
+</div>
+
+<!-- RESULT OVERLAY -->
+<div class="overlay" id="overlay">
+  <div class="result-card" id="resultCard">
+    <span class="result-emoji" id="resultEmoji">🏆</span>
+    <div class="result-title" id="resultTitle">გაიმარჯვე!</div>
+    <div class="result-word">სიტყვა იყო: <strong id="resultWord"></strong></div>
+    <div class="result-stats">
+      <div class="rs"><span class="rs-val" id="rsWins">0</span><span class="rs-lbl">გამარჯვება</span></div>
+      <div class="rs"><span class="rs-val" id="rsLoses">0</span><span class="rs-lbl">წაგება</span></div>
+    </div>
+    <button class="play-again-btn" onclick="newGame()">🔄 ახალი თამაში</button>
+  </div>
+</div>
+
+<script>
+const WORDS = [
+  // ცხოველები
+  {w:'კატა',cat:'🐾 ცხოველები',hint:'საყვარელი შინაური ცხოველი'},
+  {w:'ძაღლი',cat:'🐾 ცხოველები',hint:'ადამიანის საუკეთესო მეგობარი'},
+  {w:'მგელი',cat:'🐾 ცხოველები',hint:'ტყის მტაცებელი'},
+  {w:'დათვი',cat:'🐾 ცხოველები',hint:'დიდი, ძლიერი ტყის მაცხოვრებელი'},
+  {w:'მელა',cat:'🐾 ცხოველები',hint:'ცბიერი ცხოველი'},
+  {w:'ლომი',cat:'🐾 ცხოველები',hint:'სავანის მეფე'},
+  {w:'ვეფხვი',cat:'🐾 ცხოველები',hint:'ლაქებიანი დიდი კატა'},
+  {w:'სპილო',cat:'🐾 ცხოველები',hint:'ყველაზე დიდი ხმელეთის ცხოველი'},
+  {w:'ჟირაფი',cat:'🐾 ცხოველები',hint:'ყველაზე გრძელი კისერი'},
+  {w:'ზებრა',cat:'🐾 ცხოველები',hint:'ზოლებიანი ცხოველი'},
+  {w:'ზღარბი',cat:'🐾 ცხოველები',hint:'ეკლებიანი ცხოველი'},
+  {w:'კურდღელი',cat:'🐾 ცხოველები',hint:'გრძელყურება და სწრაფი'},
+  {w:'მაიმუნი',cat:'🐾 ცხოველები',hint:'ადამიანის ნათესავი'},
+  {w:'ვირი',cat:'🐾 ცხოველები',hint:'ჯიუტი სახედარი'},
+  {w:'ცხვარი',cat:'🐾 ცხოველები',hint:'მატყლის მიმწოდებელი'},
+  // ფრინველები
+  {w:'არწივი',cat:'🦅 ფრინველები',hint:'ცის მეფე'},
+  {w:'ბუ',cat:'🦅 ფრინველები',hint:'ღამის ფრინველი'},
+  {w:'გედი',cat:'🦅 ფრინველები',hint:'თეთრი, ლამაზი ფრინველი'},
+  {w:'ვარხვი',cat:'🦅 ფრინველები',hint:'ლამაზი კუდი, ინდური ფრინველი'},
+  {w:'ჩიტი',cat:'🦅 ფრინველები',hint:'პატარა ფრთოსანი'},
+  // ხილი
+  {w:'ვაშლი',cat:'🍎 ხილი',hint:'ნიუტონის შთამაგონებელი'},
+  {w:'მსხალი',cat:'🍎 ხილი',hint:'ჩამოშვებული ფორმა'},
+  {w:'ბანანი',cat:'🍎 ხილი',hint:'ყვითელი, მოხრილი'},
+  {w:'ყურძენი',cat:'🍎 ხილი',hint:'ღვინოს ნედლეული'},
+  {w:'ატამი',cat:'🍎 ხილი',hint:'ბუსუსიანი კანი'},
+  {w:'ნესვი',cat:'🍎 ხილი',hint:'ბახჩის ნაყოფი'},
+  {w:'ალუბალი',cat:'🍎 ხილი',hint:'პატარა წითელი'},
+  {w:'ქლიავი',cat:'🍎 ხილი',hint:'ლურჯ-მეწამული ფერი'},
+  {w:'კივი',cat:'🍎 ხილი',hint:'ახალი ზელანდიის სიმბოლო'},
+  // ქვეყნები
+  {w:'საქართველო',cat:'🌍 ქვეყნები',hint:'კავკასიის მარგალიტი'},
+  {w:'სომხეთი',cat:'🌍 ქვეყნები',hint:'მეზობელი ქვეყანა სამხრეთით'},
+  {w:'თურქეთი',cat:'🌍 ქვეყნები',hint:'ევროპა-აზიის გასაყარი'},
+  {w:'საბერძნეთი',cat:'🌍 ქვეყნები',hint:'ოლიმპიური თამაშების სამშობლო'},
+  {w:'იტალია',cat:'🌍 ქვეყნები',hint:'ჩექმის ფორმის ქვეყანა'},
+  {w:'ისპანეთი',cat:'🌍 ქვეყნები',hint:'ფლამენკოს სამშობლო'},
+  {w:'საფრანგეთი',cat:'🌍 ქვეყნები',hint:'ეიფელის კოშკი'},
+  {w:'გერმანია',cat:'🌍 ქვეყნები',hint:'ბეთჰოვენის სამშობლო'},
+  {w:'ბრაზილია',cat:'🌍 ქვეყნები',hint:'ამაზონი და ფეხბურთი'},
+  {w:'იაპონია',cat:'🌍 ქვეყნები',hint:'ამომავალი მზის ქვეყანა'},
+  // საკვები
+  {w:'ხინკალი',cat:'🍽 საკვები',hint:'ქართული ეროვნული კერძი'},
+  {w:'ხაჭაპური',cat:'🍽 საკვები',hint:'ყველიანი პური'},
+  {w:'პიცა',cat:'🍽 საკვები',hint:'იტალიური ნამცხვარი'},
+  {w:'სუში',cat:'🍽 საკვები',hint:'იაპონური ბრინჯი თევზით'},
+  {w:'ჰამბურგერი',cat:'🍽 საკვები',hint:'ორ პურს შორის'},
+  {w:'ლობიანი',cat:'🍽 საკვები',hint:'ლობიოს პური'},
+  {w:'ჩაქაფული',cat:'🍽 საკვები',hint:'ქართული საგაზაფხულო კერძი'},
+  {w:'სათილი',cat:'🍽 საკვები',hint:'ქართული პური'},
+  // პროფესიები
+  {w:'მასწავლებელი',cat:'👔 პროფესიები',hint:'ცოდნის მიმცემი'},
+  {w:'ექიმი',cat:'👔 პროფესიები',hint:'ჯანმრთელობის დამცველი'},
+  {w:'ინჟინერი',cat:'👔 პროფესიები',hint:'ამშენებელი და შემქმნელი'},
+  {w:'მოსამართლე',cat:'👔 პროფესიები',hint:'სამართლის გამრიგე'},
+  {w:'პოეტი',cat:'👔 პროფესიები',hint:'ლექსების ავტორი'},
+  {w:'მხატვარი',cat:'👔 პროფესიები',hint:'ფერებით ქმნის სამყაროს'},
+  {w:'მეთევზე',cat:'👔 პროფესიები',hint:'ზღვაზე სამუშაო'},
+  {w:'მეფუტკრე',cat:'👔 პროფესიები',hint:'თაფლის მოყვარული'},
+  // ბუნება
+  {w:'მთა',cat:'🌿 ბუნება',hint:'სიმაღლის სიმბოლო'},
+  {w:'მდინარე',cat:'🌿 ბუნება',hint:'მიედინება ზღვისკენ'},
+  {w:'ტყე',cat:'🌿 ბუნება',hint:'ხეების სამეფო'},
+  {w:'ვულკანი',cat:'🌿 ბუნება',hint:'ლავის ამოფრქვევა'},
+  {w:'ქარიშხალი',cat:'🌿 ბუნება',hint:'ძლიერი ქარი'},
+  {w:'ჩანჩქერი',cat:'🌿 ბუნება',hint:'მდინარე კლდიდან ეცემა'},
+  {w:'ინება',cat:'🌿 ბუნება',hint:'ცის მოვლენა'},
+  // სპორტი
+  {w:'ფეხბურთი',cat:'⚽ სპორტი',hint:'22 მოთამაშე, ერთი ბურთი'},
+  {w:'კალათბურთი',cat:'⚽ სპორტი',hint:'კალათში ჩაყრა'},
+  {w:'მოჭიდავეობა',cat:'⚽ სპორტი',hint:'ქართული ეროვნული სპორტი'},
+  {w:'ჭადრაკი',cat:'⚽ სპორტი',hint:'64 უჯრედი, ორი მოთამაშე'},
+  {w:'ტენისი',cat:'⚽ სპორტი',hint:'ჩოგბურთი'},
+  {w:'ვოლეიბოლი',cat:'⚽ სპორტი',hint:'ბადეზე გადაყრა'},
+  // ფერები
+  {w:'ლურჯი',cat:'🎨 ფერები',hint:'ცის ფერი'},
+  {w:'მწვანე',cat:'🎨 ფერები',hint:'ბალახის ფერი'},
+  {w:'წითელი',cat:'🎨 ფერები',hint:'ვარდის ფერი'},
+  {w:'ყვითელი',cat:'🎨 ფერები',hint:'მზის ფერი'},
+  {w:'იისფერი',cat:'🎨 ფერები',hint:'ნახშირბადი და ლურჯი'},
+  {w:'ვარდისფერი',cat:'🎨 ფერები',hint:'ვარდისა და თეთრის ნაზავი'},
+  // ემოციები
+  {w:'სიხარული',cat:'😊 ემოციები',hint:'ბედნიერება'},
+  {w:'სიყვარული',cat:'😊 ემოციები',hint:'ყველაზე ძლიერი გრძნობა'},
+  {w:'ნოსტალგია',cat:'😊 ემოციები',hint:'წარსულის სევდა'},
+  {w:'სინდისი',cat:'😊 ემოციები',hint:'შინაგანი ხმა'},
+  {w:'მადლიერება',cat:'😊 ემოციები',hint:'მადლობის გრძნობა'},
+  // ტექნოლოგია
+  {w:'კომპიუტერი',cat:'💻 ტექნოლოგია',hint:'ციფრული მოწყობილობა'},
+  {w:'ინტერნეტი',cat:'💻 ტექნოლოგია',hint:'გლობალური ქსელი'},
+  {w:'პროგრამა',cat:'💻 ტექნოლოგია',hint:'კოდის ნაკრები'},
+  {w:'ეკრანი',cat:'💻 ტექნოლოგია',hint:'ვიზუალური გამომავალი'},
+  {w:'კლავიატურა',cat:'💻 ტექნოლოგია',hint:'ასოების ღილაკები'},
+  {w:'ალგორითმი',cat:'💻 ტექნოლოგია',hint:'გადაწყვეტის ნაბიჯები'},
+];
+
+// Georgian keyboard rows
+const KB_ROWS = [
+  ['ა','ბ','გ','დ','ე','ვ','ზ'],
+  ['თ','ი','კ','ლ','მ','ნ','ო','პ'],
+  ['ჟ','რ','ს','ტ','უ','ფ','ქ','ღ'],
+  ['ყ','შ','ჩ','ც','ძ','წ','ჭ','ხ'],
+  ['ჯ','ჰ','ე̂','ზ̂'],
+];
+
+const MAX_WRONG = 6;
+let currentWord = '', currentHint = '', currentCat = '';
+let guessed = new Set();
+let wrongLetters = [];
+let wins = 0, losses = 0;
+let gameOver = false;
+
+function newGame() {
+  const entry = WORDS[Math.floor(Math.random() * WORDS.length)];
+  currentWord = entry.w;
+  currentHint = entry.hint;
+  currentCat = entry.cat;
+  guessed = new Set();
+  wrongLetters = [];
+  gameOver = false;
+
+  document.getElementById('overlay').classList.remove('show');
+  document.getElementById('g-eyes').style.opacity = '0';
+  document.getElementById('g-body-group').classList.remove('shake');
+
+  // reset gallows
+  for (let i = 1; i <= 6; i++) {
+    const el = document.getElementById('g' + i);
+    if (el) el.classList.remove('show');
+  }
+
+  document.getElementById('catBadge').textContent = currentCat;
+  document.getElementById('hintText').textContent = currentHint;
+  document.getElementById('wrongLetters').innerHTML = '';
+
+  renderWord();
+  renderLives();
+  buildKeyboard();
+}
+
+function renderWord() {
+  const row = document.getElementById('wordRow');
+  row.innerHTML = '';
+  currentWord.split('').forEach(ch => {
+    if (ch === ' ') {
+      const cell = document.createElement('div');
+      cell.className = 'letter-cell space';
+      cell.innerHTML = '<div class="letter-line"></div>';
+      row.appendChild(cell);
+      return;
+    }
+    const cell = document.createElement('div');
+    const revealed = guessed.has(ch);
+    cell.className = 'letter-cell' + (revealed ? '' : ' active');
+    const char = document.createElement('div');
+    char.className = 'letter-char' + (revealed ? ' revealed' : '');
+    char.textContent = revealed ? ch : '';
+    const line = document.createElement('div');
+    line.className = 'letter-line';
+    cell.appendChild(char);
+    cell.appendChild(line);
+    row.appendChild(cell);
+  });
+}
+
+function renderLives() {
+  const row = document.getElementById('livesRow');
+  row.innerHTML = '';
+  for (let i = 0; i < MAX_WRONG; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'life-dot' + (i < wrongLetters.length ? ' lost' : '');
+    row.appendChild(dot);
+  }
+  const lbl = document.createElement('span');
+  lbl.className = 'mistakes-label';
+  lbl.textContent = (MAX_WRONG - wrongLetters.length) + ' ცდა დარჩა';
+  row.appendChild(lbl);
+}
+
+function buildKeyboard() {
+  const kb = document.getElementById('keyboard');
+  kb.innerHTML = '';
+  KB_ROWS.forEach(row => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'kb-row';
+    row.forEach(letter => {
+      const btn = document.createElement('button');
+      btn.className = 'kb-btn';
+      btn.textContent = letter;
+      btn.dataset.letter = letter;
+      btn.onclick = () => guess(letter, btn);
+      rowEl.appendChild(btn);
+    });
+    kb.appendChild(rowEl);
+  });
+}
+
+function guess(letter, btn) {
+  if (gameOver || guessed.has(letter)) return;
+  guessed.add(letter);
+  btn.disabled = true;
+
+  if (currentWord.includes(letter)) {
+    // correct!
+    btn.classList.add('hit');
+    revealLetters(letter);
+    checkWin();
+  } else {
+    // wrong
+    btn.classList.add('miss');
+    wrongLetters.push(letter);
+    showWrongLetter(letter);
+    updateGallows();
+    renderLives();
+    checkLose();
+  }
+}
+
+function revealLetters(letter) {
+  const cells = document.querySelectorAll('.letter-cell');
+  let idx = 0;
+  currentWord.split('').forEach((ch, i) => {
+    if (ch === ' ') return;
+    const cell = cells[idx];
+    if (ch === letter && cell) {
+      cell.classList.remove('active');
+      const char = cell.querySelector('.letter-char');
+      if (char) {
+        char.textContent = ch;
+        setTimeout(() => char.classList.add('revealed'), 20);
+      }
+    }
+    idx++;
+  });
+}
+
+function showWrongLetter(letter) {
+  const box = document.getElementById('wrongLetters');
+  const chip = document.createElement('div');
+  chip.className = 'wrong-chip';
+  chip.textContent = letter;
+  box.appendChild(chip);
+}
+
+function updateGallows() {
+  const idx = wrongLetters.length;
+  const el = document.getElementById('g' + idx);
+  if (el) {
+    setTimeout(() => el.classList.add('show'), 100);
+  }
+}
+
+function checkWin() {
+  const allRevealed = currentWord.split('').filter(c => c !== ' ').every(c => guessed.has(c));
+  if (allRevealed) {
+    gameOver = true;
+    wins++;
+    updateScoreDisplay();
+    spawnParticles(true);
+    setTimeout(() => showResult(true), 800);
+  }
+}
+
+function checkLose() {
+  if (wrongLetters.length >= MAX_WRONG) {
+    gameOver = true;
+    losses++;
+    updateScoreDisplay();
+    // show X eyes
+    document.getElementById('g-eyes').style.opacity = '1';
+    document.getElementById('g-body-group').classList.add('shake');
+    // reveal all letters in red
+    setTimeout(() => {
+      revealAllWrong();
+      setTimeout(() => showResult(false), 600);
+    }, 500);
+  }
+}
+
+function revealAllWrong() {
+  const cells = document.querySelectorAll('.letter-cell');
+  let idx = 0;
+  currentWord.split('').forEach(ch => {
+    if (ch === ' ') return;
+    const cell = cells[idx];
+    if (cell && !guessed.has(ch)) {
+      const char = cell.querySelector('.letter-char');
+      if (char) {
+        char.textContent = ch;
+        char.classList.add('revealed', 'wrong-reveal');
+      }
+    }
+    idx++;
+  });
+}
+
+function showResult(won) {
+  const overlay = document.getElementById('overlay');
+  const card = document.getElementById('resultCard');
+  card.className = 'result-card ' + (won ? 'win' : 'lose');
+  document.getElementById('resultEmoji').textContent = won ? '🏆' : '💀';
+  document.getElementById('resultTitle').textContent = won ? 'გამარჯვება!' : 'წაგება!';
+  document.getElementById('resultTitle').className = 'result-title ' + (won ? 'win' : 'lose');
+  document.getElementById('resultWord').innerHTML = 'სიტყვა იყო: <strong>' + currentWord + '</strong>';
+  document.getElementById('rsWins').textContent = wins;
+  document.getElementById('rsLoses').textContent = losses;
+  overlay.classList.add('show');
+}
+
+function updateScoreDisplay() {
+  document.getElementById('scoreWin').textContent = wins;
+  document.getElementById('scoreLose').textContent = losses;
+}
+
+function spawnParticles(win) {
+  const emojis = win
+    ? ['🎉','⭐','✨','🌟','🎊','💫','🏆']
+    : ['💀','☠','🩸','👻'];
+  for (let i = 0; i < 18; i++) {
+    setTimeout(() => {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      p.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+      const startX = 30 + Math.random() * 40;
+      const startY = 40 + Math.random() * 20;
+      p.style.left = startX + 'vw';
+      p.style.top = startY + 'vh';
+      const dx = (Math.random() - 0.5) * 200;
+      const dy = -(80 + Math.random() * 120);
+      const dr = (Math.random() - 0.5) * 360 + 'deg';
+      p.style.setProperty('--dx', dx + 'px');
+      p.style.setProperty('--dy', dy + 'px');
+      p.style.setProperty('--dr', dr);
+      document.body.appendChild(p);
+      setTimeout(() => p.remove(), 1300);
+    }, i * 60);
+  }
+}
+
+// keyboard support
+document.addEventListener('keydown', e => {
+  if (gameOver) return;
+  const letter = e.key;
+  // find matching btn
+  const btn = document.querySelector(`.kb-btn[data-letter="${letter}"]`);
+  if (btn && !btn.disabled) {
+    btn.click();
+    btn.style.transform = 'scale(0.9)';
+    setTimeout(() => { btn.style.transform = ''; }, 150);
+  }
+});
+
+newGame();
+</script>
+</body>
+</html>
