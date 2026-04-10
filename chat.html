@@ -9,42 +9,17 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-/* ===== NIGHT MODE ===== */
 body.night{
-  --bg:#1c1a30;
-  --panel:#252240;
-  --panel2:#2e2a50;
-  --border:rgba(160,80,255,0.35);
-  --text:#ede0ff;
-  --text2:#b580e0;
-  --text3:#7a5a9a;
-  --bubble:#2a2745;
-  --input-bg:#221f3a;
-  --online:#c07aff;
-  --indigo:#7a1fc8;
-  --indigo2:#a855f7;
-  --indigo-f:rgba(120,30,200,0.18);
-  --glow:rgba(168,85,247,0.28);
-  --accent:#f07aff;
+  --bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);
+  --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
+  --online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
+  --glow:rgba(168,85,247,0.28);--accent:#f07aff;
 }
-
-/* ===== DAY MODE ===== */
 body.day{
-  --bg:#f5eeff;
-  --panel:#ede0ff;
-  --panel2:#e8d5ff;
-  --border:rgba(106,13,173,0.2);
-  --text:#1e0a36;
-  --text2:#6b3a9e;
-  --text3:#a882cc;
-  --bubble:#fff;
-  --input-bg:#fff;
-  --online:#7b2fbe;
-  --indigo:#5a189a;
-  --indigo2:#7b2fbe;
-  --indigo-f:rgba(106,13,173,0.08);
-  --glow:rgba(106,13,173,0.2);
-  --accent:#c040ff;
+  --bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);
+  --text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;
+  --online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);
+  --glow:rgba(106,13,173,0.2);--accent:#c040ff;
 }
 
 body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden;transition:background .4s,color .4s}
@@ -57,9 +32,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 @keyframes modalFloat{from{opacity:0;transform:translateY(30px) scale(0.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes heartFloat{
   0%{transform:translate3d(0,0,0) rotate(-5deg) scale(0.6);opacity:0}
-  8%{opacity:.75}
-  50%{opacity:.45}
-  92%{opacity:.15}
+  8%{opacity:.75}50%{opacity:.45}92%{opacity:.15}
   100%{transform:translate3d(var(--drift,0px),-115vh,0) rotate(8deg) scale(1.3);opacity:0}
 }
 @keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 20px var(--glow)) drop-shadow(0 0 40px var(--accent))}}
@@ -106,7 +79,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .room-item,.list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:16px;cursor:pointer;transition:all 0.2s cubic-bezier(0.4,0,0.2,1);margin-bottom:2px;border:1px solid transparent}
 .room-item:hover,.list-item:hover{background:var(--indigo-f);border-color:var(--border);transform:translateX(4px)}
 .room-item.active,.list-item.active{background:linear-gradient(135deg,var(--indigo-f),rgba(168,85,247,0.1));border-left:3px solid var(--accent);box-shadow:0 4px 12px rgba(0,0,0,.2)}
-/* თამაშის ოთახი სპეციალური სტილი */
 .room-item.game-room{border:1px solid rgba(74,222,128,0.2)}
 .room-item.game-room:hover{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.08)}
 .room-item.game-room.active{border-left:3px solid #4ade80;background:rgba(74,222,128,0.1)}
@@ -124,23 +96,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;z-index:2}
 .chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
 .chat-sub{font-size:11px;color:var(--text2);margin-left:auto;background:var(--indigo-f);border:1px solid var(--border);padding:3px 10px;border-radius:20px}
-/* თამაშის header ღილაკი */
-.play-btn{
-  margin-left:auto;
-  display:none;
-  align-items:center;
-  gap:6px;
-  padding:6px 14px;
-  border-radius:20px;
-  background:rgba(74,222,128,0.12);
-  border:1px solid rgba(74,222,128,0.4);
-  color:#4ade80;
-  font-size:12px;
-  font-weight:600;
-  cursor:pointer;
-  transition:all .2s;
-  font-family:'Noto Sans Georgian',sans-serif;
-}
+.play-btn{margin-left:auto;display:none;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.4);color:#4ade80;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
 .play-btn:hover{background:rgba(74,222,128,0.22);transform:scale(1.04)}
 
 #messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:8px;position:relative;z-index:1}
@@ -160,15 +116,10 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .2s;padding:0}
 .msg-bubble:hover .msg-del{opacity:1}
 
-/* თამაშის placeholder მთავარ ფანჯარაში */
+/* ===== თამაშის placeholder ===== */
 #gameRoomPlaceholder{
-  display:none;
-  flex:1;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:16px;
-  padding:32px;
+  display:none;flex:1;flex-direction:column;align-items:center;
+  justify-content:center;gap:16px;padding:32px;
 }
 .grp-icon{font-size:72px;animation:flicker 2.5s ease-in-out infinite}
 .grp-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--text);text-align:center}
@@ -176,20 +127,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .grp-score-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px 20px}
 .grp-score-label{font-size:11px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px}
 .grp-score-val{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--accent)}
-.grp-play-btn{
-  padding:14px 40px;
-  border-radius:50px;
-  background:linear-gradient(135deg,rgba(74,222,128,0.8),rgba(52,211,153,0.8));
-  border:none;
-  color:#052e16;
-  font-family:'Unbounded',sans-serif;
-  font-size:13px;
-  font-weight:700;
-  cursor:pointer;
-  letter-spacing:.5px;
-  box-shadow:0 6px 24px rgba(74,222,128,0.3);
-  transition:all .2s;
-}
+.grp-play-btn{padding:14px 40px;border-radius:50px;background:linear-gradient(135deg,rgba(74,222,128,0.8),rgba(52,211,153,0.8));border:none;color:#052e16;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 6px 24px rgba(74,222,128,0.3);transition:all .2s}
 .grp-play-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(74,222,128,0.45)}
 
 .chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:14px 18px;display:flex;align-items:center;gap:10px;flex-shrink:0;position:relative;z-index:2;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
@@ -242,21 +180,14 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .pr-founder{background:rgba(255,180,0,.15);color:#f0a500;border:1px solid rgba(255,180,0,.3)}
 .pr-admin{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
 .pr-member{background:var(--indigo-f);color:var(--text2);border:1px solid var(--border)}
-/* პროფილის თამაშის ქულა */
-.prof-game-score{
-  display:flex;
-  align-items:center;
-  gap:6px;
-  background:rgba(74,222,128,0.1);
-  border:1px solid rgba(74,222,128,0.25);
-  border-radius:20px;
-  padding:4px 12px;
-  font-size:12px;
-  color:#4ade80;
-  font-family:'Unbounded',sans-serif;
-  font-weight:700;
-}
+
+/* ===== პროფილის ქულები ===== */
+.prof-scores-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.prof-game-score{display:flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Unbounded',sans-serif;font-weight:700}
+.prof-game-score.word{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
+.prof-game-score.quiz{background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.25);color:#a855f7}
 .prof-game-score.animate{animation:scorePop .4s ease}
+
 .inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;transition:border-color .2s}
 .inp:focus{border-color:var(--indigo2)}
 .inp::placeholder{color:var(--text3)}
@@ -301,8 +232,6 @@ select.inp{cursor:pointer}
 .gal-empty{text-align:center;padding:32px 0;color:var(--text3);font-size:13px}
 .gal-upload-area{border:2px dashed var(--border);border-radius:14px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;margin-bottom:12px}
 .gal-upload-area:hover{border-color:var(--indigo2);background:var(--indigo-f)}
-.gal-upload-icon{font-size:30px;margin-bottom:6px}
-.gal-upload-text{font-size:12px;color:var(--text3)}
 .gal-form{background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:14px;margin-bottom:12px;display:none}
 .gal-form.open{display:block}
 .gal-preview{width:100%;max-height:200px;object-fit:contain;border-radius:10px;margin-bottom:10px;background:rgba(0,0,0,.3);display:none}
@@ -413,18 +342,16 @@ select.inp{cursor:pointer}
       <div style="font-size:22px" id="roomIcon">💬</div>
       <div class="chat-title" id="roomTitle">ოთახი 1</div>
       <div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div>
-      <!-- თამაშის ოთახის header ღილაკი -->
       <button class="play-btn" id="playHeaderBtn" onclick="openGame()">🎮 თამაში</button>
     </div>
 
-    <!-- ჩვეულებრივი ჩათი -->
     <div id="messages"></div>
 
-    <!-- თამაშის ოთახის placeholder -->
+    <!-- თამაშის placeholder -->
     <div id="gameRoomPlaceholder">
-      <div class="grp-icon">🎭</div>
-      <div class="grp-title">სიტყვის ბეთლი</div>
-      <div class="grp-sub">200 ქართული სიტყვა · სწორი = 5 ქულა<br>დაალაგე არეული ასოები სწორი სიტყვის შესაქმნელად!</div>
+      <div class="grp-icon" id="grpIcon">🔐</div>
+      <div class="grp-title" id="grpTitle">შიფროგრამა</div>
+      <div class="grp-sub" id="grpDesc">200 ქართული სიტყვა · სწორი = 5 ქულა</div>
       <div class="grp-score-row">
         <span class="grp-score-label">შენი ქულა</span>
         <span class="grp-score-val" id="grpMyScore">0</span>
@@ -466,10 +393,10 @@ select.inp{cursor:pointer}
       <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
       <div class="prof-name" id="profName">-</div>
       <span class="prof-role pr-member" id="profRole">წევრი</span>
-      <!-- თამაშის ქულები პროფილზე -->
-      <div style="display:flex;gap:8px;flex-wrap:wrap;justify-content:center">
-        <div class="prof-game-score" id="profGameScore">🎭 0</div>
-        <div class="prof-game-score" id="profQuizScore" style="background:rgba(168,85,247,0.1);border-color:rgba(168,85,247,0.25);color:#a855f7">🏆 0</div>
+      <!-- ✅ გასწორება: ორი ცალკე ქულის badge -->
+      <div class="prof-scores-row">
+        <div class="prof-game-score word" id="profWordScore">🔐 0</div>
+        <div class="prof-game-score quiz" id="profQuizScore">🏆 0</div>
       </div>
     </div>
     <div class="gallery-tabs">
@@ -523,8 +450,8 @@ select.inp{cursor:pointer}
       <div id="galUploadZone" style="display:none">
         <input type="file" id="galFileInput" accept="image/*" style="display:none" onchange="galFileChosen(event)">
         <div class="gal-upload-area" onclick="document.getElementById('galFileInput').click()">
-          <div class="gal-upload-icon">📸</div>
-          <div class="gal-upload-text">დააჭირე ფოტოს ასატვირთად</div>
+          <div style="font-size:30px;margin-bottom:6px">📸</div>
+          <div style="font-size:12px;color:var(--text3)">დააჭირე ფოტოს ასატვირთად</div>
         </div>
         <div class="gal-form" id="galForm">
           <img id="galPreviewImg" class="gal-preview" src="" alt="">
@@ -639,10 +566,12 @@ let userAlbums = [];
 let activeAlbumFilter = null;
 let galleryViewUID = null;
 
+// ===== ოთახების კონფიგი =====
+// ✅ გასწორება: შიფროგრამა და ვიქტორინა — სხვადასხვა ფაილები და scoreField-ები
 const ROOMS = [
   {id:1,  icon:'🏠', name:'მთავარი მოედანი'},
-  {id:2,  icon:'🎭', name:'სიტყვის ბეთლი', isGame:true,  gameFile:'game-wordsort.html', gameName:'სიტყვის ბეთლი', gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა', gameScoreField:'game_score'},
-  {id:3,  icon:'🏆', name:'ვიქტორინა',      isGame:true,  gameFile:'game-quiz.html',     gameName:'ვიქტორინა',     gameDesc:'200 კითხვა · სწორი = 5 ქულა',    gameScoreField:'quiz_score'},
+  {id:2,  icon:'🔐', name:'შიფროგრამა',  isGame:true, gameFile:'game-wordsort.html', gameName:'შიფროგრამა', gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა', gameScoreField:'game_score'},
+  {id:3,  icon:'🏆', name:'ვიქტორინა',   isGame:true, gameFile:'game-quiz.html',    gameName:'ვიქტორინა',  gameDesc:'200 კითხვა · სწორი პასუხი = 5 ქულა',  gameScoreField:'quiz_score'},
   {id:4,  icon:'🎵', name:'მუსიკ კლაბი'},
   {id:5,  icon:'🌙', name:'ლეიტ ნაიტ'},
   {id:6,  icon:'🔥', name:'ჰოთ ტეიქს'},
@@ -654,7 +583,7 @@ const ROOMS = [
   {id:12, icon:'💡', name:'ბრეინსტორმ'},
 ];
 
-let activeGameRoom = null; // მიმდინარე game room ობიექტი
+let activeGameRoom = null;
 
 // ===== GAME FUNCTIONS =====
 function openGame() {
@@ -662,18 +591,27 @@ function openGame() {
   window.open(activeGameRoom.gameFile, '_blank');
 }
 
-// postMessage — ნებისმიერი თამაშიდან
+// ✅ გასწორება: postMessage handler — ორი სხვადასხვა ტიპი
 window.addEventListener('message', async (e) => {
   if (!e.data || !e.data.type) return;
+
+  // შიფროგრამა → game_score
   if (e.data.type === 'GAME_SCORE_UPDATE' && e.data.score !== undefined) {
-    if (MYPROF) { MYPROF.game_score = e.data.score; updateGameScoreUI(); }
+    if (MYPROF) {
+      MYPROF.game_score = e.data.score;
+      updateGameScoreUI();
+    }
   }
-  if (e.data.type === 'QUIZ_SCORE_UPDATE' && e.data.quiz_score !== undefined) {
-    if (MYPROF) { MYPROF.quiz_score = e.data.quiz_score; updateGameScoreUI(); }
+
+  // ვიქტორინა → quiz_score
+  if (e.data.type === 'QUIZ_SCORE_UPDATE' && e.data.score !== undefined) {
+    if (MYPROF) {
+      MYPROF.quiz_score = e.data.score;
+      updateGameScoreUI();
+    }
   }
 });
 
-// Supabase realtime ქულის განახლება
 function watchGameScore() {
   if (!ME) return;
   sb.channel('game-score-' + ME.id)
@@ -687,17 +625,21 @@ function watchGameScore() {
     .subscribe();
 }
 
+// ✅ გასწორება: ორი ქულის badge ცალ-ცალკე
 function updateGameScoreUI() {
-  // პროფილ მოდალი — ორი ქულა
-  const wordEl = document.getElementById('profGameScore');
+  const wordEl = document.getElementById('profWordScore');
   const quizEl = document.getElementById('profQuizScore');
   if (wordEl) {
-    wordEl.textContent = '🎭 ' + (MYPROF?.game_score || 0);
-    wordEl.classList.remove('animate'); void wordEl.offsetWidth; wordEl.classList.add('animate');
+    wordEl.textContent = '🔐 ' + (MYPROF?.game_score || 0);
+    wordEl.classList.remove('animate');
+    void wordEl.offsetWidth;
+    wordEl.classList.add('animate');
   }
   if (quizEl) {
     quizEl.textContent = '🏆 ' + (MYPROF?.quiz_score || 0);
-    quizEl.classList.remove('animate'); void quizEl.offsetWidth; quizEl.classList.add('animate');
+    quizEl.classList.remove('animate');
+    void quizEl.offsetWidth;
+    quizEl.classList.add('animate');
   }
 }
 
@@ -709,11 +651,13 @@ function refreshGamePlaceholder() {
   if (grpEl) grpEl.textContent = sc;
 }
 
+// ✅ გასწორება: placeholder დინამიურად ავსდება სწორი მონაცემებით
 function setGameRoomView(isGame, roomObj) {
   const messagesEl = document.getElementById('messages');
   const chatBar = document.getElementById('chatBar');
   const placeholder = document.getElementById('gameRoomPlaceholder');
   const playBtn = document.getElementById('playHeaderBtn');
+  const onlineCnt = document.getElementById('onlineCnt');
 
   if (isGame && roomObj) {
     activeGameRoom = roomObj;
@@ -721,26 +665,26 @@ function setGameRoomView(isGame, roomObj) {
     chatBar.style.display = 'none';
     placeholder.style.display = 'flex';
     playBtn.style.display = 'flex';
-    const titleEl = document.querySelector('.grp-title');
-    const descEl = document.querySelector('.grp-sub');
-    if (titleEl) titleEl.textContent = roomObj.icon + ' ' + roomObj.gameName;
-    if (descEl) descEl.textContent = roomObj.gameDesc;
-    if (MYPROF) {
-      const sc = MYPROF[roomObj.gameScoreField] || 0;
-      const grpEl = document.getElementById('grpMyScore');
-      if (grpEl) grpEl.textContent = sc;
-    }
+    onlineCnt.style.display = 'none';
+
+    // placeholder კონტენტი — სწორი თამაშის მიხედვით
+    document.getElementById('grpIcon').textContent = roomObj.icon;
+    document.getElementById('grpTitle').textContent = roomObj.gameName;
+    document.getElementById('grpDesc').textContent = roomObj.gameDesc;
+
+    const sc = MYPROF?.[roomObj.gameScoreField] || 0;
+    document.getElementById('grpMyScore').textContent = sc;
   } else {
     activeGameRoom = null;
     messagesEl.style.display = '';
     chatBar.style.display = '';
     placeholder.style.display = 'none';
     playBtn.style.display = 'none';
+    onlineCnt.style.display = '';
   }
 }
 
-// ===== END GAME FUNCTIONS =====
-
+// ===== UTILITIES =====
 function animateSendPlane(btnId) {
   const btn = document.getElementById(btnId);
   if (!btn) return;
@@ -786,8 +730,7 @@ function compressImage(file, maxSizePx = 256, quality = 0.85) {
       }
       const canvas = document.createElement('canvas');
       canvas.width = width; canvas.height = height;
-      const ctx = canvas.getContext('2d');
-      ctx.drawImage(img, 0, 0, width, height);
+      canvas.getContext('2d').drawImage(img, 0, 0, width, height);
       canvas.toBlob(blob => {
         if (!blob) { reject(new Error('კომპრესია ვერ მოხდა')); return; }
         resolve(new File([blob], file.name, { type: 'image/webp', lastModified: Date.now() }));
@@ -894,6 +837,7 @@ document.addEventListener('click', e => {
   if (dp && dp.classList.contains('open') && !dp.contains(e.target) && !e.target.closest('.dm-emoji-btn')) dp.classList.remove('open');
 });
 
+// ===== PROFILE =====
 function openMyProfile() { openProfile(ME.id); }
 
 async function openProfile(uid) {
@@ -902,17 +846,18 @@ async function openProfile(uid) {
   const isSelf = (uid === ME.id);
   const myRole = MYPROF?.role;
   const viewRole = p?.role;
+
   document.getElementById('profTitle').textContent = isSelf ? 'ჩემი პროფილი' : 'პროფილი';
   document.getElementById('profName').textContent = p?.username || '?';
   const roleEl = document.getElementById('profRole');
   roleEl.textContent = rLabel(viewRole);
   roleEl.className = 'prof-role ' + rClass(viewRole);
 
-  // თამაშების ქულები
-  const scoreEl = document.getElementById('profGameScore');
-  if (scoreEl) scoreEl.textContent = '🎭 ' + (p?.game_score || 0);
-  const quizScoreEl = document.getElementById('profQuizScore');
-  if (quizScoreEl) quizScoreEl.textContent = '🏆 ' + (p?.quiz_score || 0);
+  // ✅ ქულების სწორი ჩვენება
+  const wordEl = document.getElementById('profWordScore');
+  const quizEl = document.getElementById('profQuizScore');
+  if (wordEl) wordEl.textContent = '🔐 ' + (p?.game_score || 0);
+  if (quizEl) quizEl.textContent = '🏆 ' + (p?.quiz_score || 0);
 
   if (p?.avatar_url) {
     document.getElementById('avImg').src = p.avatar_url;
@@ -933,12 +878,15 @@ async function openProfile(uid) {
   document.getElementById('emoRowMain').style.opacity = isSelf ? '1' : '.5';
   selectedEmotion = p?.emotion || '😊';
   document.querySelectorAll('.emo-btn').forEach(b => b.classList.toggle('active', b.textContent === selectedEmotion));
+
   const showFounder = (myRole === 'founder') && !isSelf;
   document.getElementById('founderSec').classList.toggle('hidden', !showFounder);
   if (showFounder) { document.getElementById('roleSelect').value = viewRole || 'member'; document.getElementById('blockReason').value = ''; }
+
   const showAdmin = (myRole === 'admin') && !isSelf && (viewRole === 'member');
   document.getElementById('adminSec').classList.toggle('hidden', !showAdmin);
   if (showAdmin) document.getElementById('blockReasonAdmin').value = '';
+
   document.getElementById('friendBtn').style.display = isSelf ? 'none' : '';
   document.getElementById('dmBtn').style.display = isSelf ? 'none' : '';
   const isFr = myFriends.includes(uid);
@@ -1064,6 +1012,7 @@ function rLabel(r) { return r==='founder'?'👑 დამფუძნებე�
 function rClass(r) { return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member'; }
 function rbClass(r) { return r==='founder'?'rb-founder':r==='admin'?'rb-admin':''; }
 
+// ===== GALLERY =====
 async function loadAlbumsAndGallery(uid) {
   galleryViewUID = uid;
   const isSelf = uid === ME.id;
@@ -1230,6 +1179,7 @@ function pvNav(dir) { pvIndex = (pvIndex + dir + _pvFiltered.length) % _pvFilter
 function closePhotoViewer() { document.getElementById('photoViewer').classList.remove('open'); }
 function pvBgClose(e) { if (e.target.id === 'photoViewer') closePhotoViewer(); }
 
+// ===== ROOMS =====
 function buildRooms() {
   const el = document.getElementById('roomList');
   if (!el) return;
@@ -1254,19 +1204,17 @@ function switchRoom(r) {
     el.classList.toggle('active', ROOMS[i]?.id === r.id);
   });
 
-  // თამაშის ოთახი vs ჩვეულებრივი
   if (r.isGame) {
     setGameRoomView(true, r);
-    document.getElementById('onlineCnt').style.display = 'none';
   } else {
     setGameRoomView(false, null);
-    document.getElementById('onlineCnt').style.display = '';
     loadMessages(r.id);
   }
 
   document.getElementById('sidebar')?.classList.remove('mob-open');
 }
 
+// ===== MESSAGES =====
 async function loadMessages(roomId) {
   if (msgCh) { sb.removeChannel(msgCh); msgCh = null; }
   const {data} = await sb.from('messages')
@@ -1318,6 +1266,7 @@ async function delMsg(id) {
   await sb.from('messages').delete().eq('id', id);
 }
 
+// ===== USERS =====
 async function loadAllUsers() {
   const {data} = await sb.from('profiles').select('*').order('username');
   allUsers = data || [];
@@ -1326,7 +1275,8 @@ async function loadAllUsers() {
 
 function updateOnlineBadge() {
   const onlineNow = allUsers.filter(u => isOnline(u.last_seen));
-  document.getElementById('onlineCnt').textContent = `● ${onlineNow.length} ონლაინი`;
+  const cnt = document.getElementById('onlineCnt');
+  if (cnt) cnt.textContent = `● ${onlineNow.length} ონლაინი`;
 }
 
 function renderUserLists() {
@@ -1399,6 +1349,7 @@ async function pingOnline() {
   await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
 }
 
+// ===== FRIENDS =====
 async function loadFriends() {
   const {data} = await sb.from('friends').select('friend_id').eq('user_id', ME.id).eq('status', 'accepted');
   myFriends = (data||[]).map(f => f.friend_id);
@@ -1466,6 +1417,7 @@ async function declineFriend() {
   toast('❌ უარყოფილია');
 }
 
+// ===== DM =====
 function openDMList() {
   document.getElementById('dmListOverlay').classList.add('open');
   buildDMUserList(allUsers);
@@ -1557,6 +1509,7 @@ function closeDM() {
 
 function openDMfromProfile() { closeModal('profileOverlay'); openDM(VIEW_UID); }
 
+// ===== NAV PANELS =====
 function showPanel(name) {
   ['rooms','friends','users','online'].forEach(p => {
     document.getElementById('panel' + cap(p))?.classList.toggle('hidden', p !== name);
@@ -1577,6 +1530,7 @@ function toggleTheme() {
   document.getElementById('themeBtn').textContent = theme === 'night' ? '🌙' : '☀️';
 }
 
+// ===== HEARTS =====
 function spawnHearts() {
   const hc = document.getElementById('hearts');
   if (!hc) return;
@@ -1605,6 +1559,7 @@ function spawnHearts() {
   setInterval(make, 1800);
 }
 
+// ===== MODAL =====
 function openModal(id) { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 function bgClose(e, id) { if (e.target.id === id) closeModal(id); }
@@ -1630,6 +1585,7 @@ async function loadEmojis() {
   customEmojis.forEach(e => { emojiCache[e.id] = e.url; });
 }
 
+// ===== INIT =====
 async function init() {
   const {data:{user}} = await sb.auth.getUser();
   if (!user) { location.href = 'index.html'; return; }
@@ -1669,6 +1625,11 @@ async function init() {
       if (idx >= 0) allUsers[idx] = {...allUsers[idx], ...payload.new};
       else allUsers.push(payload.new);
       updateOnlineBadge();
+      // ✅ თუ საკუთარი პროფილია — UI-ც განვაახლოთ
+      if (payload.new.id === ME?.id) {
+        MYPROF = {...MYPROF, ...payload.new};
+        updateGameScoreUI();
+      }
     })
     .subscribe();
 }
