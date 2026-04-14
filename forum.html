@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>კაიფმანია - ფორუმი</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 * {
   margin: 0;
@@ -13,455 +13,421 @@
   box-sizing: border-box;
 }
 
-body.night {
-  --bg: #0a0a12;
-  --card: #14141f;
-  --card2: #1a1a2a;
-  --border: #2a2a3e;
-  --text: #eeeef5;
-  --text2: #a0a0c0;
-  --text3: #6a6a8a;
-  --primary: #7c3aed;
-  --primary-dark: #5b21b6;
-  --red: #ef4444;
-  --yellow: #fbbf24;
-  --input: #1e1e2e;
-}
-
-body.day {
-  --bg: #f5f3ff;
-  --card: #ffffff;
-  --card2: #f8f7ff;
-  --border: #e2ddf5;
-  --text: #1e1b4b;
-  --text2: #5b21b6;
-  --text3: #8b7bb5;
-  --primary: #7c3aed;
-  --primary-dark: #5b21b6;
-  --red: #ef4444;
-  --yellow: #eab308;
-  --input: #ffffff;
-}
-
 body {
   font-family: 'Noto Sans Georgian', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  transition: all 0.3s;
-  min-height: 100vh;
+  background: #f0f2f5;
+  color: #1a1a2e;
 }
 
-/* header */
+body.dark {
+  background: #121212;
+  color: #ddd;
+}
+
 .header {
-  background: var(--card);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 24px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 10px 20px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
-  gap: 12px;
-  position: sticky;
-  top: 0;
-  z-index: 100;
+  gap: 10px;
+}
+
+body.dark .header {
+  background: #1a1a1a;
+  border-bottom-color: #333;
 }
 
 .logo {
-  font-size: 22px;
-  font-weight: 700;
-  background: linear-gradient(135deg, #c084fc, #7c3aed);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  font-size: 18px;
+  font-weight: 600;
+  color: #7c3aed;
   cursor: pointer;
 }
 
 .user-area {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .avatar {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
-  background: var(--primary-dark);
+  background: #7c3aed;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 20px;
-}
-
-.user-details {
-  text-align: right;
+  font-size: 14px;
+  color: #fff;
 }
 
 .username {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .role-badge {
   font-size: 10px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: rgba(124, 58, 237, 0.15);
-  color: var(--primary);
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #e9e9ef;
+}
+
+body.dark .role-badge {
+  background: #2a2a2a;
 }
 
 .role-badge.founder {
-  background: rgba(251, 191, 36, 0.15);
-  color: var(--yellow);
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .role-badge.admin {
-  background: rgba(124, 58, 237, 0.2);
-  color: #a78bfa;
+  background: #ede9fe;
+  color: #7c3aed;
 }
 
 .btn-icon {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 6px 12px;
+  background: none;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  padding: 4px 10px;
   cursor: pointer;
-  color: var(--text2);
-  font-size: 14px;
+  font-size: 12px;
 }
 
-.btn-icon:hover {
-  background: var(--border);
+body.dark .btn-icon {
+  border-color: #444;
+  color: #ddd;
 }
 
-/* container */
 .container {
-  max-width: 900px;
+  max-width: 750px;
   margin: 0 auto;
-  padding: 24px 20px;
+  padding: 20px;
 }
 
-/* ახალი თემის ფორმა (მხოლოდ ადმინ/ფაუნდერი) */
-.new-topic-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 20px;
-  margin-bottom: 28px;
+/* ახალი თემის ფორმა - მხოლოდ ადმინ/ფაუნდერი */
+.new-topic-form {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 20px;
   display: none;
 }
 
-.new-topic-card.show {
+body.dark .new-topic-form {
+  background: #1a1a1a;
+  border-color: #333;
+}
+
+.new-topic-form.show {
   display: block;
 }
 
-.new-topic-title {
+.new-topic-form h4 {
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text2);
-  text-transform: uppercase;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
+  color: #666;
 }
 
 input, textarea {
   width: 100%;
-  padding: 12px 16px;
-  background: var(--input);
-  border: 1px solid var(--border);
-  border-radius: 14px;
-  color: var(--text);
+  padding: 10px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
   font-family: inherit;
-  font-size: 14px;
-  margin-bottom: 12px;
+  font-size: 13px;
+  margin-bottom: 10px;
   outline: none;
 }
 
+body.dark input, body.dark textarea {
+  background: #2a2a2a;
+  border-color: #444;
+  color: #ddd;
+}
+
 input:focus, textarea:focus {
-  border-color: var(--primary);
+  border-color: #7c3aed;
 }
 
 textarea {
-  min-height: 90px;
+  min-height: 70px;
   resize: vertical;
 }
 
 .form-buttons {
   display: flex;
-  gap: 12px;
+  gap: 8px;
   justify-content: flex-end;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: #7c3aed;
   border: none;
-  padding: 10px 24px;
-  border-radius: 14px;
-  color: white;
-  font-weight: 600;
+  padding: 6px 16px;
+  border-radius: 8px;
+  color: #fff;
+  font-weight: 500;
   cursor: pointer;
+  font-size: 12px;
 }
 
 .btn-secondary {
-  background: transparent;
-  border: 1px solid var(--border);
-  padding: 10px 24px;
-  border-radius: 14px;
-  color: var(--text2);
+  background: none;
+  border: 1px solid #ddd;
+  padding: 6px 16px;
+  border-radius: 8px;
   cursor: pointer;
+  font-size: 12px;
 }
 
-/* header for topics */
 .topics-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .topics-header h2 {
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
 }
 
 .new-topic-btn {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: #7c3aed;
   border: none;
-  padding: 8px 20px;
-  border-radius: 14px;
-  color: white;
-  font-weight: 600;
+  padding: 5px 14px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 500;
   cursor: pointer;
-  font-size: 13px;
   display: none;
 }
 
-/* topic card */
+/* თემის ბარათი */
 .topic {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  margin-bottom: 14px;
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 12px;
+  margin-bottom: 10px;
   overflow: hidden;
-  transition: all 0.2s;
 }
 
-.topic:hover {
-  border-color: var(--primary);
+body.dark .topic {
+  background: #1a1a1a;
+  border-color: #333;
 }
 
 .topic.pinned {
-  border-left: 4px solid var(--yellow);
+  border-left: 3px solid #fbbf24;
 }
 
 .topic-header {
-  padding: 16px 20px;
+  padding: 12px 16px;
   cursor: pointer;
   display: flex;
-  gap: 12px;
+  gap: 10px;
   align-items: flex-start;
 }
 
 .topic-avatar {
-  width: 46px;
-  height: 46px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
-  background: var(--card2);
-  border: 2px solid var(--border);
+  background: #e9e9ef;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
+  font-size: 16px;
   flex-shrink: 0;
 }
 
-.topic-content {
+body.dark .topic-avatar {
+  background: #2a2a2a;
+}
+
+.topic-info {
   flex: 1;
 }
 
 .topic-title {
-  font-size: 17px;
-  font-weight: 700;
-  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 4px;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
   flex-wrap: wrap;
 }
 
-.pin-label {
-  font-size: 9px;
-  padding: 2px 8px;
-  border-radius: 20px;
-  background: rgba(251, 191, 36, 0.12);
-  color: var(--yellow);
-  border: 1px solid rgba(251, 191, 36, 0.3);
+.pin-badge {
+  font-size: 8px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background: #fef3c7;
+  color: #b45309;
 }
 
 .topic-meta {
   display: flex;
-  gap: 14px;
-  font-size: 11px;
-  color: var(--text3);
+  gap: 10px;
+  font-size: 10px;
+  color: #888;
 }
 
 .topic-author {
-  color: var(--primary);
+  color: #7c3aed;
   cursor: pointer;
 }
 
 .topic-stats {
   display: flex;
-  gap: 12px;
-  font-size: 12px;
-  color: var(--text2);
-  align-items: center;
+  gap: 8px;
+  font-size: 10px;
+  color: #888;
 }
 
 .topic-actions {
   display: flex;
-  gap: 6px;
-  margin-left: 10px;
+  gap: 4px;
 }
 
 .action-btn {
-  background: transparent;
+  background: none;
   border: none;
-  font-size: 16px;
+  font-size: 13px;
   cursor: pointer;
-  padding: 5px 8px;
-  border-radius: 10px;
-  transition: all 0.2s;
+  padding: 3px 5px;
+  border-radius: 6px;
 }
 
 .action-btn.delete {
-  color: var(--red);
-}
-
-.action-btn.delete:hover {
-  background: rgba(239, 68, 68, 0.1);
+  color: #ef4444;
 }
 
 .action-btn.pin {
-  color: var(--yellow);
+  color: #fbbf24;
 }
 
-.action-btn.pin:hover {
-  background: rgba(251, 191, 36, 0.1);
-}
-
-/* comments */
+/* კომენტარები */
 .comments-area {
-  border-top: 1px solid var(--border);
-  padding: 16px 20px;
+  border-top: 1px solid #eee;
+  padding: 12px 16px;
   display: none;
-  background: var(--card2);
+  background: #fafafa;
+}
+
+body.dark .comments-area {
+  border-top-color: #333;
+  background: #151515;
 }
 
 .comments-list {
-  max-height: 400px;
+  max-height: 300px;
   overflow-y: auto;
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .comment {
-  padding: 12px 0;
-  border-bottom: 1px solid var(--border);
+  padding: 8px 0;
+  border-bottom: 1px solid #eee;
   display: flex;
-  gap: 10px;
+  gap: 8px;
+}
+
+body.dark .comment {
+  border-bottom-color: #2a2a2a;
 }
 
 .comment-avatar {
-  width: 32px;
-  height: 32px;
+  width: 26px;
+  height: 26px;
   border-radius: 50%;
-  background: var(--card);
+  background: #e0e0e0;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 14px;
+  font-size: 11px;
   flex-shrink: 0;
 }
 
-.comment-info {
+.comment-content {
   flex: 1;
 }
 
-.comment-author-name {
-  font-size: 12px;
+.comment-author {
+  font-size: 11px;
   font-weight: 600;
-  color: var(--primary);
-  margin-bottom: 4px;
+  color: #7c3aed;
+  margin-bottom: 3px;
 }
 
 .comment-text {
-  font-size: 13px;
-  line-height: 1.45;
+  font-size: 12px;
+  line-height: 1.4;
 }
 
 .comment-time {
-  font-size: 10px;
-  color: var(--text3);
-  margin-top: 4px;
+  font-size: 9px;
+  color: #aaa;
+  margin-top: 3px;
 }
 
 .comment-delete {
-  font-size: 11px;
-  color: var(--red);
+  font-size: 10px;
+  color: #ef4444;
   cursor: pointer;
   align-self: center;
 }
 
-.add-comment-form {
+.add-comment {
   display: flex;
-  gap: 10px;
-  margin-top: 12px;
+  gap: 8px;
+  margin-top: 10px;
 }
 
-.add-comment-form input {
+.add-comment input {
   margin-bottom: 0;
-  flex: 1;
+  padding: 8px;
+  font-size: 12px;
 }
 
-.add-comment-form button {
-  padding: 10px 20px;
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+.add-comment button {
+  background: #7c3aed;
   border: none;
-  border-radius: 14px;
-  color: white;
-  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 8px;
+  color: #fff;
+  font-size: 11px;
   cursor: pointer;
 }
 
-/* toast */
 .toast {
   position: fixed;
-  bottom: 30px;
+  bottom: 20px;
   left: 50%;
   transform: translateX(-50%);
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-  color: white;
-  padding: 10px 24px;
-  border-radius: 40px;
-  font-size: 13px;
+  background: #333;
+  color: #fff;
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-size: 12px;
   z-index: 1000;
-  animation: fadeIn 0.2s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateX(-50%) translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
 }
 
 .modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(5px);
+  background: rgba(0,0,0,0.6);
   display: none;
   align-items: center;
   justify-content: center;
@@ -473,37 +439,42 @@ textarea {
 }
 
 .modal-box {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 28px;
-  max-width: 360px;
+  background: #fff;
+  border-radius: 16px;
+  padding: 20px;
+  max-width: 300px;
   width: 90%;
   text-align: center;
 }
 
+body.dark .modal-box {
+  background: #1a1a1a;
+  border: 1px solid #333;
+}
+
 .modal-buttons {
   display: flex;
-  gap: 12px;
+  gap: 10px;
   justify-content: center;
-  margin-top: 24px;
+  margin-top: 16px;
 }
 
 .loading {
   text-align: center;
-  padding: 50px;
-  color: var(--text2);
+  padding: 40px;
+  font-size: 13px;
+  color: #888;
 }
 </style>
 </head>
-<body class="night">
+<body>
 
 <div class="header">
-  <div class="logo" onclick="location.reload()">🎯 კაიფფორუმი</div>
+  <div class="logo" onclick="location.reload()">კაიფფორუმი</div>
   <div class="user-area">
     <div class="avatar" id="userAvatar">👤</div>
-    <div class="user-details">
-      <div class="username" id="userName">იტვირთება...</div>
+    <div>
+      <div class="username" id="userName">...</div>
       <div class="role-badge" id="userRole">წევრი</div>
     </div>
     <button class="btn-icon" onclick="toggleTheme()" id="themeBtn">🌙</button>
@@ -512,10 +483,9 @@ textarea {
 </div>
 
 <div class="container">
-  <!-- ახალი თემის ფორმა (მხოლოდ ადმინ/ფაუნდერი ხედავს) -->
-  <div class="new-topic-card" id="newTopicForm">
-    <div class="new-topic-title">📝 ახალი თემა</div>
-    <input type="text" id="topicTitle" placeholder="სათაური...">
+  <div class="new-topic-form" id="newTopicForm">
+    <h4>ახალი თემა</h4>
+    <input type="text" id="topicTitle" placeholder="სათაური">
     <textarea id="topicContent" placeholder="ტექსტი..."></textarea>
     <div class="form-buttons">
       <button class="btn-secondary" onclick="hideNewTopicForm()">გაუქმება</button>
@@ -524,8 +494,8 @@ textarea {
   </div>
 
   <div class="topics-header">
-    <h2>📋 თემები</h2>
-    <button class="new-topic-btn" id="addTopicBtn">+ ახალი თემა</button>
+    <h2>თემები</h2>
+    <button class="new-topic-btn" id="addTopicBtn">+ ახალი</button>
   </div>
 
   <div id="topicsList">
@@ -535,7 +505,7 @@ textarea {
 
 <div class="modal" id="modal">
   <div class="modal-box">
-    <div id="modalMsg">დარწმუნებული ხარ?</div>
+    <div id="modalMsg">წავშალოთ თემა?</div>
     <div class="modal-buttons">
       <button class="btn-primary" style="background:#ef4444" onclick="confirmDelete()">წაშლა</button>
       <button class="btn-secondary" onclick="closeModal()">გაუქმება</button>
@@ -545,7 +515,7 @@ textarea {
 
 <script>
 const { createClient } = supabase;
-const supabaseClient = createClient(
+const sb = createClient(
   "https://vjstuyxuhshsouqsnvxp.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
 );
@@ -553,371 +523,199 @@ const supabaseClient = createClient(
 let currentUser = null;
 let myProfile = null;
 let topics = [];
-let pendingDeleteTopicId = null;
-let openCommentsSet = new Set();
+let pendingDeleteId = null;
+let openComments = new Set();
 
 async function init() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user) {
-    location.href = 'index.html';
-    return;
-  }
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { location.href = 'index.html'; return; }
   currentUser = user;
   myProfile = await getProfile(user.id);
-  
   if (!myProfile) {
-    const meta = user.user_metadata || {};
-    await supabaseClient.from('profiles').insert({
-      id: user.id,
-      username: meta.username || user.email?.split('@')[0] || 'მომხმარებელი',
-      role: 'member',
-      emotion: '😊'
-    });
+    await sb.from('profiles').insert({ id: user.id, username: user.email?.split('@')[0] || 'მომხმარებელი', role: 'member', emotion: '😊' });
     myProfile = await getProfile(user.id);
   }
-  
-  document.getElementById('userName').innerText = myProfile?.username || 'მომხმარებელი';
+  document.getElementById('userName').innerText = myProfile?.username || '';
   document.getElementById('userAvatar').innerText = myProfile?.emotion || '👤';
   const roleSpan = document.getElementById('userRole');
-  const role = myProfile?.role || 'member';
-  
-  if (role === 'founder') {
-    roleSpan.innerText = '👑 დამფუძნებელი';
+  if (myProfile?.role === 'founder') {
+    roleSpan.innerText = 'დამფუძნებელი';
     roleSpan.className = 'role-badge founder';
-  } else if (role === 'admin') {
-    roleSpan.innerText = '🛡️ ადმინი';
+  } else if (myProfile?.role === 'admin') {
+    roleSpan.innerText = 'ადმინი';
     roleSpan.className = 'role-badge admin';
   } else {
-    roleSpan.innerText = '👤 წევრი';
+    roleSpan.innerText = 'წევრი';
     roleSpan.className = 'role-badge';
   }
-  
-  const canCreate = (role === 'admin' || role === 'founder');
-  document.getElementById('addTopicBtn').style.display = canCreate ? 'flex' : 'none';
-  
+  const canCreate = myProfile?.role === 'admin' || myProfile?.role === 'founder';
+  document.getElementById('addTopicBtn').style.display = canCreate ? 'block' : 'none';
   await loadTopics();
   subscribeRealTime();
 }
 
 async function getProfile(id) {
-  const { data } = await supabaseClient.from('profiles').select('*').eq('id', id).single();
+  const { data } = await sb.from('profiles').select('*').eq('id', id).single();
   return data;
 }
 
 async function loadTopics() {
-  const { data, error } = await supabaseClient
-    .from('forum_topics')
-    .select('*, profiles(username, role, emotion)')
-    .order('is_pinned', { ascending: false })
-    .order('created_at', { ascending: false });
-  
-  if (error) {
-    document.getElementById('topicsList').innerHTML = '<div class="loading">❌ შეცდომა</div>';
-    return;
-  }
+  const { data } = await sb.from('forum_topics').select('*, profiles(username, role, emotion)').order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
   topics = data || [];
   renderTopics();
 }
 
 function renderTopics() {
   const container = document.getElementById('topicsList');
-  if (!topics.length) {
-    container.innerHTML = '<div class="loading">📭 ჯერ არ არის თემები</div>';
-    return;
-  }
-  
+  if (!topics.length) { container.innerHTML = '<div class="loading">ჯერ არ არის თემები</div>'; return; }
   container.innerHTML = '';
-  const userRole = myProfile?.role;
-  const isAdmin = userRole === 'admin';
-  const isFounder = userRole === 'founder';
-  
-  for (const topic of topics) {
-    const isOpen = openCommentsSet.has(topic.id);
-    const topicDiv = document.createElement('div');
-    topicDiv.className = `topic ${topic.is_pinned ? 'pinned' : ''}`;
-    
-    let actionsHtml = '';
-    if (isAdmin || isFounder) {
-      actionsHtml += `<button class="action-btn delete" onclick="event.stopPropagation(); deleteTopic('${topic.id}')">🗑</button>`;
-    }
-    if (isFounder) {
-      actionsHtml += `<button class="action-btn pin" onclick="event.stopPropagation(); pinTopic('${topic.id}', ${!topic.is_pinned})">📌</button>`;
-    }
-    
-    topicDiv.innerHTML = `
-      <div class="topic-header" onclick="toggleComments('${topic.id}')">
-        <div class="topic-avatar">${topic.profiles?.emotion || '📝'}</div>
-        <div class="topic-content">
-          <div class="topic-title">
-            ${escapeHtml(topic.title)}
-            ${topic.is_pinned ? '<span class="pin-label">📌 პინი</span>' : ''}
-          </div>
-          <div class="topic-meta">
-            <span class="topic-author" onclick="event.stopPropagation();">${escapeHtml(topic.profiles?.username || '?')}</span>
-            <span>${formatDate(topic.created_at)}</span>
-            <span>💬 ${topic.comment_count || 0}</span>
-          </div>
+  const isAdmin = myProfile?.role === 'admin';
+  const isFounder = myProfile?.role === 'founder';
+  for (let t of topics) {
+    const isOpen = openComments.has(t.id);
+    const div = document.createElement('div');
+    div.className = `topic ${t.is_pinned ? 'pinned' : ''}`;
+    let actions = '';
+    if (isAdmin || isFounder) actions += `<button class="action-btn delete" onclick="event.stopPropagation(); deleteTopic('${t.id}')">🗑</button>`;
+    if (isFounder) actions += `<button class="action-btn pin" onclick="event.stopPropagation(); pinTopic('${t.id}', ${!t.is_pinned})">📌</button>`;
+    div.innerHTML = `
+      <div class="topic-header" onclick="toggleComments('${t.id}')">
+        <div class="topic-avatar">${t.profiles?.emotion || '📝'}</div>
+        <div class="topic-info">
+          <div class="topic-title">${escapeHtml(t.title)}${t.is_pinned ? '<span class="pin-badge">პინი</span>' : ''}</div>
+          <div class="topic-meta"><span class="topic-author">${escapeHtml(t.profiles?.username || '?')}</span><span>${formatDate(t.created_at)}</span><span>💬 ${t.comment_count || 0}</span></div>
         </div>
-        <div class="topic-stats">
-          <span>👁️ ${topic.views || 0}</span>
-        </div>
-        <div class="topic-actions" onclick="event.stopPropagation()">
-          ${actionsHtml}
-        </div>
+        <div class="topic-stats">👁️ ${t.views || 0}</div>
+        <div class="topic-actions">${actions}</div>
       </div>
-      <div class="comments-area" id="comments-${topic.id}" style="display: ${isOpen ? 'block' : 'none'}">
-        <div class="comments-list" id="commentsList-${topic.id}">
-          <div class="loading">იტვირთება...</div>
-        </div>
-        <div class="add-comment-form">
-          <input type="text" id="commentInput-${topic.id}" placeholder="დაწერე კომენტარი...">
-          <button onclick="addComment('${topic.id}')">გაგზავნა</button>
-        </div>
+      <div class="comments-area" id="comments-${t.id}" style="display:${isOpen ? 'block' : 'none'}">
+        <div class="comments-list" id="commentsList-${t.id}"><div class="loading">იტვირთება...</div></div>
+        <div class="add-comment"><input type="text" id="commentInput-${t.id}" placeholder="კომენტარი..."><button onclick="addComment('${t.id}')">გაგზავნა</button></div>
       </div>
     `;
-    container.appendChild(topicDiv);
-    
-    if (isOpen) {
-      loadComments(topic.id);
-    }
+    container.appendChild(div);
+    if (isOpen) loadComments(t.id);
   }
 }
 
-async function toggleComments(topicId) {
-  if (openCommentsSet.has(topicId)) {
-    openCommentsSet.delete(topicId);
-    const sec = document.getElementById(`comments-${topicId}`);
-    if (sec) sec.style.display = 'none';
-  } else {
-    openCommentsSet.add(topicId);
-    const sec = document.getElementById(`comments-${topicId}`);
-    if (sec) {
-      sec.style.display = 'block';
-      loadComments(topicId);
-    }
-  }
+async function toggleComments(id) {
+  if (openComments.has(id)) { openComments.delete(id); document.getElementById(`comments-${id}`).style.display = 'none'; }
+  else { openComments.add(id); document.getElementById(`comments-${id}`).style.display = 'block'; loadComments(id); }
 }
 
 async function loadComments(topicId) {
-  const { data, error } = await supabaseClient
-    .from('forum_comments')
-    .select('*, profiles(username, role, emotion)')
-    .eq('topic_id', topicId)
-    .order('created_at', { ascending: true });
-  
-  if (error) return;
+  const { data } = await sb.from('forum_comments').select('*, profiles(username, role, emotion)').eq('topic_id', topicId).order('created_at', true);
   renderComments(topicId, data || []);
 }
 
 function renderComments(topicId, comments) {
   const container = document.getElementById(`commentsList-${topicId}`);
   if (!container) return;
-  
-  if (!comments.length) {
-    container.innerHTML = '<div style="padding:16px;text-align:center;color:var(--text3)">💬 კომენტარები ჯერ არ არის</div>';
-    return;
-  }
-  
+  if (!comments.length) { container.innerHTML = '<div style="padding:12px;text-align:center;color:#888">კომენტარები არ არის</div>'; return; }
   container.innerHTML = '';
   const isAdminOrFounder = myProfile?.role === 'admin' || myProfile?.role === 'founder';
-  
-  for (const comment of comments) {
-    const canDelete = isAdminOrFounder || comment.user_id === currentUser?.id;
-    const commentDiv = document.createElement('div');
-    commentDiv.className = 'comment';
-    commentDiv.innerHTML = `
-      <div class="comment-avatar">${comment.profiles?.emotion || '💬'}</div>
-      <div class="comment-info">
-        <div class="comment-author-name">
-          ${escapeHtml(comment.profiles?.username || '?')}
-          ${comment.profiles?.role === 'admin' ? ' 🛡️' : ''}
-          ${comment.profiles?.role === 'founder' ? ' 👑' : ''}
-        </div>
-        <div class="comment-text">${escapeHtml(comment.content)}</div>
-        <div class="comment-time">${formatDate(comment.created_at)}</div>
+  for (let c of comments) {
+    const canDelete = isAdminOrFounder || c.user_id === currentUser?.id;
+    const div = document.createElement('div');
+    div.className = 'comment';
+    div.innerHTML = `
+      <div class="comment-avatar">${c.profiles?.emotion || '💬'}</div>
+      <div class="comment-content">
+        <div class="comment-author">${escapeHtml(c.profiles?.username || '?')}</div>
+        <div class="comment-text">${escapeHtml(c.content)}</div>
+        <div class="comment-time">${formatDate(c.created_at)}</div>
       </div>
-      ${canDelete ? `<span class="comment-delete" onclick="deleteComment('${comment.id}', '${topicId}')">🗑</span>` : ''}
+      ${canDelete ? `<span class="comment-delete" onclick="deleteComment('${c.id}', '${topicId}')">🗑</span>` : ''}
     `;
-    container.appendChild(commentDiv);
+    container.appendChild(div);
   }
 }
 
 async function addComment(topicId) {
   const input = document.getElementById(`commentInput-${topicId}`);
   const content = input.value.trim();
-  if (!content) {
-    toast('✏️ დაწერე კომენტარი!');
-    return;
-  }
-  
-  const { error } = await supabaseClient.from('forum_comments').insert({
-    topic_id: topicId,
-    user_id: currentUser.id,
-    content: content
-  });
-  
-  if (error) {
-    toast('❌ ' + error.message);
-    return;
-  }
-  
+  if (!content) { toast('დაწერე კომენტარი'); return; }
+  await sb.from('forum_comments').insert({ topic_id: topicId, user_id: currentUser.id, content });
   input.value = '';
   await loadComments(topicId);
-  await updateCommentCount(topicId);
-  toast('✅ კომენტარი დაემატა');
+  await updateCount(topicId);
+  toast('კომენტარი დაემატა');
 }
 
 async function deleteComment(commentId, topicId) {
   const isAdminOrFounder = myProfile?.role === 'admin' || myProfile?.role === 'founder';
-  const { data: comment } = await supabaseClient.from('forum_comments').select('user_id').eq('id', commentId).single();
-  
-  if (!isAdminOrFounder && comment?.user_id !== currentUser?.id) {
-    toast('⛔ არ გაქვს უფლება');
-    return;
-  }
-  
-  await supabaseClient.from('forum_comments').delete().eq('id', commentId);
+  const { data: c } = await sb.from('forum_comments').select('user_id').eq('id', commentId).single();
+  if (!isAdminOrFounder && c?.user_id !== currentUser?.id) { toast('არ გაქვს უფლება'); return; }
+  await sb.from('forum_comments').delete().eq('id', commentId);
   await loadComments(topicId);
-  await updateCommentCount(topicId);
-  toast('🗑 წაიშალა');
+  await updateCount(topicId);
+  toast('წაიშალა');
 }
 
-async function updateCommentCount(topicId) {
-  const { count } = await supabaseClient.from('forum_comments').select('*', { count: 'exact', head: true }).eq('topic_id', topicId);
-  await supabaseClient.from('forum_topics').update({ comment_count: count }).eq('id', topicId);
+async function updateCount(topicId) {
+  const { count } = await sb.from('forum_comments').select('*', { count: 'exact', head: true }).eq('topic_id', topicId);
+  await sb.from('forum_topics').update({ comment_count: count }).eq('id', topicId);
   await loadTopics();
 }
 
 async function createTopic() {
-  const role = myProfile?.role;
-  if (role !== 'admin' && role !== 'founder') {
-    toast('⛔ თემის შექმნა მხოლოდ ადმინს შეუძლია');
-    return;
-  }
-  
+  if (myProfile?.role !== 'admin' && myProfile?.role !== 'founder') { toast('არ გაქვს უფლება'); return; }
   const title = document.getElementById('topicTitle').value.trim();
+  if (!title) { toast('ჩაწერე სათაური'); return; }
   const content = document.getElementById('topicContent').value.trim();
-  
-  if (!title) {
-    toast('📝 ჩაწერე სათაური');
-    return;
-  }
-  
-  const { error } = await supabaseClient.from('forum_topics').insert({
-    title: title,
-    content: content || '',
-    user_id: currentUser.id
-  });
-  
-  if (error) {
-    toast('❌ ' + error.message);
-    return;
-  }
-  
+  await sb.from('forum_topics').insert({ title, content: content || '', user_id: currentUser.id });
   document.getElementById('topicTitle').value = '';
   document.getElementById('topicContent').value = '';
   hideNewTopicForm();
   await loadTopics();
-  toast('✅ თემა შეიქმნა');
+  toast('თემა შეიქმნა');
 }
 
-function showNewTopicForm() {
-  const role = myProfile?.role;
-  if (role !== 'admin' && role !== 'founder') {
-    toast('⛔ არ გაქვს უფლება');
-    return;
-  }
-  document.getElementById('newTopicForm').classList.add('show');
-}
+function showNewTopicForm() { document.getElementById('newTopicForm').classList.add('show'); }
+function hideNewTopicForm() { document.getElementById('newTopicForm').classList.remove('show'); }
 
-function hideNewTopicForm() {
-  document.getElementById('newTopicForm').classList.remove('show');
-}
-
-function deleteTopic(topicId) {
-  const role = myProfile?.role;
-  if (role !== 'admin' && role !== 'founder') {
-    toast('⛔ არ გაქვს უფლება');
-    return;
-  }
-  pendingDeleteTopicId = topicId;
-  document.getElementById('modalMsg').innerText = '🗑 წაშალო თემა? (კომენტარებიც წაიშლება)';
+function deleteTopic(id) {
+  if (myProfile?.role !== 'admin' && myProfile?.role !== 'founder') { toast('არ გაქვს უფლება'); return; }
+  pendingDeleteId = id;
   document.getElementById('modal').classList.add('show');
 }
 
 async function confirmDelete() {
-  if (pendingDeleteTopicId) {
-    await supabaseClient.from('forum_topics').delete().eq('id', pendingDeleteTopicId);
-    await loadTopics();
-    toast('✅ თემა წაიშალა');
-    pendingDeleteTopicId = null;
-  }
+  if (pendingDeleteId) { await sb.from('forum_topics').delete().eq('id', pendingDeleteId); await loadTopics(); toast('თემა წაიშალა'); pendingDeleteId = null; }
   closeModal();
 }
 
-function closeModal() {
-  document.getElementById('modal').classList.remove('show');
-}
+function closeModal() { document.getElementById('modal').classList.remove('show'); }
 
-async function pinTopic(topicId, isPinned) {
-  if (myProfile?.role !== 'founder') {
-    toast('⛔ პინავა მხოლოდ დამფუძნებელს შეუძლია');
-    return;
-  }
-  await supabaseClient.from('forum_topics').update({ is_pinned: isPinned }).eq('id', topicId);
+async function pinTopic(id, pinned) {
+  if (myProfile?.role !== 'founder') { toast('მხოლოდ დამფუძნებელს შეუძლია'); return; }
+  await sb.from('forum_topics').update({ is_pinned: pinned }).eq('id', id);
   await loadTopics();
-  toast(isPinned ? '📌 დაპინავდა' : '📍 პინი მოხსნილია');
+  toast(pinned ? 'დაპინავდა' : 'პინი მოხსნილია');
 }
 
-function formatDate(dateStr) {
-  const d = new Date(dateStr);
+function formatDate(d) {
+  const date = new Date(d);
   const now = new Date();
-  const diff = now - d;
+  const diff = now - date;
   const mins = Math.floor(diff / 60000);
   if (mins < 1) return 'ახლახან';
-  if (mins < 60) return `${mins} წთ წინ`;
+  if (mins < 60) return mins + ' წთ წინ';
   const hours = Math.floor(diff / 3600000);
-  if (hours < 24) return `${hours} სთ წინ`;
+  if (hours < 24) return hours + ' სთ წინ';
   const days = Math.floor(diff / 86400000);
-  if (days < 7) return `${days} დღის წინ`;
-  return d.toLocaleDateString('ka-GE');
+  if (days < 7) return days + ' დღის წინ';
+  return date.toLocaleDateString('ka-GE');
 }
 
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-}
-
-function toast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.innerText = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
-}
-
-function toggleTheme() {
-  const body = document.body;
-  const isNight = body.classList.contains('night');
-  body.classList.remove(isNight ? 'night' : 'day');
-  body.classList.add(isNight ? 'day' : 'night');
-  document.getElementById('themeBtn').innerText = isNight ? '☀️' : '🌙';
-}
-
-async function logout() {
-  await supabaseClient.auth.signOut();
-  location.href = 'index.html';
-}
-
+function escapeHtml(s) { if (!s) return ''; return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2000); }
+function toggleTheme() { document.body.classList.toggle('dark'); document.getElementById('themeBtn').innerText = document.body.classList.contains('dark') ? '☀️' : '🌙'; }
+async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
 function subscribeRealTime() {
-  supabaseClient.channel('forum-live')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'forum_topics' }, () => loadTopics())
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'forum_comments' }, () => {
-      openCommentsSet.forEach(id => loadComments(id));
-    })
-    .subscribe();
+  sb.channel('live').on('postgres_changes', { event: '*', schema: 'public', table: 'forum_topics' }, () => loadTopics())
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'forum_comments' }, () => { openComments.forEach(id => loadComments(id)); }).subscribe();
 }
-
 document.getElementById('addTopicBtn').onclick = showNewTopicForm;
 init();
 </script>
