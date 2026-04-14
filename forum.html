@@ -5,47 +5,47 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>კაიფმანია - ფორუმი</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
 body.night{
-  --bg:#1c1a30;
-  --panel:#252240;
-  --panel2:#2e2a50;
-  --border:rgba(160,80,255,0.35);
-  --text:#ede0ff;
-  --text2:#b580e0;
-  --text3:#7a5a9a;
-  --bubble:#2a2745;
-  --input-bg:#221f3a;
-  --online:#c07aff;
-  --indigo:#7a1fc8;
-  --indigo2:#a855f7;
-  --indigo-f:rgba(120,30,200,0.18);
-  --glow:rgba(168,85,247,0.28);
-  --accent:#f07aff;
+  --bg:#0f0c1f;
+  --panel:#1a1630;
+  --panel2:#211d3a;
+  --border:rgba(139,92,246,0.3);
+  --text:#f0eaff;
+  --text2:#a78bfa;
+  --text3:#6b5b8a;
+  --bubble:#262240;
+  --input-bg:#1e1b36;
+  --online:#c084fc;
+  --indigo:#6d28d9;
+  --indigo2:#8b5cf6;
+  --indigo-f:rgba(109,40,217,0.15);
+  --glow:rgba(139,92,246,0.2);
+  --accent:#e879f9;
   --green:#4ade80;
   --red:#f87171;
   --yellow:#fbbf24;
 }
 
 body.day{
-  --bg:#f5eeff;
-  --panel:#ede0ff;
-  --panel2:#e8d5ff;
-  --border:rgba(106,13,173,0.2);
-  --text:#1e0a36;
-  --text2:#6b3a9e;
-  --text3:#a882cc;
-  --bubble:#fff;
-  --input-bg:#fff;
-  --online:#7b2fbe;
-  --indigo:#5a189a;
-  --indigo2:#7b2fbe;
-  --indigo-f:rgba(106,13,173,0.08);
-  --glow:rgba(106,13,173,0.2);
-  --accent:#c040ff;
+  --bg:#f8f4ff;
+  --panel:#ffffff;
+  --panel2:#f3eaff;
+  --border:rgba(139,92,246,0.2);
+  --text:#1e1b4b;
+  --text2:#6d28d9;
+  --text3:#9b8ec7;
+  --bubble:#ffffff;
+  --input-bg:#ffffff;
+  --online:#7c3aed;
+  --indigo:#5b21b6;
+  --indigo2:#7c3aed;
+  --indigo-f:rgba(91,33,182,0.08);
+  --glow:rgba(124,58,237,0.12);
+  --accent:#db2777;
   --green:#22c55e;
   --red:#ef4444;
   --yellow:#eab308;
@@ -56,14 +56,13 @@ body{
   background:var(--bg);
   color:var(--text);
   min-height:100vh;
-  transition:background .4s,color .4s;
+  transition:background .3s,color .3s;
 }
 
-/* ===== HEADER ===== */
 .top-bar{
   background:var(--panel);
-  border-bottom:1px solid var(--border);
-  padding:12px 20px;
+  border-bottom:2px solid var(--border);
+  padding:12px 24px;
   display:flex;
   align-items:center;
   justify-content:space-between;
@@ -72,24 +71,25 @@ body{
   position:sticky;
   top:0;
   z-index:100;
+  backdrop-filter:blur(4px);
 }
 .logo{
-  font-family:'Unbounded',sans-serif;
-  font-size:18px;
-  font-weight:900;
+  font-size:20px;
+  font-weight:700;
   background:linear-gradient(135deg,var(--accent),var(--indigo2));
   -webkit-background-clip:text;
   -webkit-text-fill-color:transparent;
   cursor:pointer;
+  letter-spacing:-0.3px;
 }
 .user-info{
   display:flex;
   align-items:center;
-  gap:12px;
+  gap:14px;
 }
 .user-avatar{
-  width:36px;
-  height:36px;
+  width:38px;
+  height:38px;
   border-radius:50%;
   background:var(--indigo-f);
   border:2px solid var(--border);
@@ -100,28 +100,29 @@ body{
 }
 .user-name{
   font-size:14px;
-  font-weight:500;
+  font-weight:600;
   color:var(--text);
 }
 .user-role{
   font-size:10px;
-  padding:2px 8px;
-  border-radius:12px;
+  padding:3px 10px;
+  border-radius:20px;
   background:var(--indigo-f);
   color:var(--text2);
+  font-weight:500;
 }
-.role-founder{background:rgba(255,180,0,0.15);color:#f0a500;border:1px solid rgba(255,180,0,0.3);}
-.role-admin{background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3);}
+.role-founder{background:rgba(251,191,36,0.12);color:#fbbf24;border:1px solid rgba(251,191,36,0.3);}
+.role-admin{background:rgba(139,92,246,0.15);color:#a78bfa;border:1px solid rgba(139,92,246,0.3);}
 .role-member{background:var(--indigo-f);color:var(--text2);border:1px solid var(--border);}
 
 .btn-icon{
   background:var(--indigo-f);
   border:1px solid var(--border);
   border-radius:10px;
-  padding:8px 14px;
+  padding:6px 12px;
   color:var(--text2);
   cursor:pointer;
-  font-size:14px;
+  font-size:13px;
   transition:all .2s;
 }
 .btn-icon:hover{
@@ -129,39 +130,37 @@ body{
   color:var(--text);
 }
 
-/* ===== MAIN CONTAINER ===== */
 .container{
   max-width:1000px;
   margin:0 auto;
-  padding:20px;
+  padding:24px 20px;
 }
 
-/* ===== NEW TOPIC FORM ===== */
 .new-topic-form{
   background:var(--panel);
   border:1px solid var(--border);
-  border-radius:20px;
-  padding:20px;
-  margin-bottom:24px;
+  border-radius:24px;
+  padding:24px;
+  margin-bottom:28px;
   display:none;
 }
 .new-topic-form.show{display:block;}
 .form-title{
-  font-family:'Unbounded',sans-serif;
-  font-size:11px;
-  letter-spacing:1.5px;
+  font-size:12px;
+  font-weight:600;
   color:var(--text2);
   text-transform:uppercase;
-  margin-bottom:14px;
+  letter-spacing:1px;
+  margin-bottom:16px;
 }
 .form-input{
   width:100%;
   padding:12px 16px;
   background:var(--input-bg);
   border:1px solid var(--border);
-  border-radius:14px;
+  border-radius:16px;
   color:var(--text);
-  font-family:'Noto Sans Georgian',sans-serif;
+  font-family:inherit;
   font-size:14px;
   margin-bottom:12px;
   outline:none;
@@ -172,9 +171,9 @@ body{
   padding:12px 16px;
   background:var(--input-bg);
   border:1px solid var(--border);
-  border-radius:14px;
+  border-radius:16px;
   color:var(--text);
-  font-family:'Noto Sans Georgian',sans-serif;
+  font-family:inherit;
   font-size:14px;
   min-height:100px;
   resize:vertical;
@@ -183,12 +182,13 @@ body{
 .form-textarea:focus{border-color:var(--indigo2);}
 .form-actions{
   display:flex;
-  gap:10px;
+  gap:12px;
   justify-content:flex-end;
+  margin-top:8px;
 }
 .btn-submit{
   padding:10px 24px;
-  border-radius:12px;
+  border-radius:14px;
   border:none;
   background:linear-gradient(135deg,var(--indigo),var(--indigo2));
   color:#fff;
@@ -197,49 +197,47 @@ body{
 }
 .btn-cancel{
   padding:10px 24px;
-  border-radius:12px;
+  border-radius:14px;
   border:1px solid var(--border);
   background:transparent;
   color:var(--text2);
   cursor:pointer;
 }
 
-/* ===== TOPICS LIST ===== */
 .topics-header{
   display:flex;
   justify-content:space-between;
   align-items:center;
-  margin-bottom:16px;
+  margin-bottom:20px;
   flex-wrap:wrap;
-  gap:10px;
+  gap:12px;
 }
 .topics-title{
-  font-family:'Unbounded',sans-serif;
-  font-size:13px;
-  font-weight:700;
+  font-size:14px;
+  font-weight:600;
   color:var(--text);
 }
 .add-topic-btn{
   background:linear-gradient(135deg,var(--indigo),var(--indigo2));
   border:none;
-  border-radius:12px;
-  padding:8px 18px;
+  border-radius:14px;
+  padding:8px 20px;
   color:#fff;
-  font-size:12px;
+  font-size:13px;
   font-weight:600;
   cursor:pointer;
   display:flex;
   align-items:center;
   gap:6px;
+  transition:transform .1s;
 }
-.add-topic-btn:hover{transform:translateY(-1px);}
+.add-topic-btn:hover{transform:scale(0.98);}
 
-/* ===== TOPIC CARD ===== */
 .topic-card{
   background:var(--panel);
   border:1px solid var(--border);
   border-radius:20px;
-  margin-bottom:16px;
+  margin-bottom:14px;
   overflow:hidden;
   transition:all .2s;
 }
@@ -255,8 +253,8 @@ body{
   gap:12px;
 }
 .topic-avatar{
-  width:42px;
-  height:42px;
+  width:44px;
+  height:44px;
   border-radius:50%;
   background:var(--indigo-f);
   border:2px solid var(--border);
@@ -282,27 +280,27 @@ body{
 .pin-badge{
   font-size:9px;
   padding:2px 8px;
-  border-radius:12px;
-  background:rgba(251,191,36,0.15);
+  border-radius:16px;
+  background:rgba(251,191,36,0.12);
   color:var(--yellow);
   border:1px solid rgba(251,191,36,0.3);
 }
 .topic-meta{
   display:flex;
-  gap:12px;
+  gap:14px;
   font-size:11px;
   color:var(--text3);
 }
 .topic-author{
   color:var(--indigo2);
   cursor:pointer;
+  font-weight:500;
 }
 .topic-author:hover{text-decoration:underline;}
 .topic-stats{
   display:flex;
   gap:12px;
   align-items:center;
-  margin-left:auto;
   font-size:12px;
   color:var(--text2);
 }
@@ -316,27 +314,25 @@ body{
   border:none;
   font-size:14px;
   cursor:pointer;
-  padding:4px 8px;
-  border-radius:8px;
+  padding:5px 8px;
+  border-radius:10px;
   transition:all .2s;
 }
 .action-btn.delete{color:var(--red);}
-.action-btn.delete:hover{background:rgba(248,113,113,0.15);}
+.action-btn.delete:hover{background:rgba(248,113,113,0.12);}
 .action-btn.pin{color:var(--yellow);}
 .action-btn.pin:hover{background:rgba(251,191,36,0.1);}
-.action-btn:hover{transform:scale(1.05);}
 
-/* ===== COMMENTS SECTION ===== */
 .comments-section{
-  background:var(--surface2);
   border-top:1px solid var(--border);
   padding:16px 20px;
   display:none;
+  background:var(--bubble);
 }
 .comments-section.show{display:block;}
 .comment-list{
   margin-bottom:16px;
-  max-height:400px;
+  max-height:420px;
   overflow-y:auto;
 }
 .comment-item{
@@ -346,8 +342,8 @@ body{
   gap:10px;
 }
 .comment-avatar{
-  width:30px;
-  height:30px;
+  width:32px;
+  height:32px;
   border-radius:50%;
   background:var(--indigo-f);
   display:flex;
@@ -368,7 +364,7 @@ body{
 .comment-text{
   font-size:13px;
   color:var(--text);
-  line-height:1.5;
+  line-height:1.45;
 }
 .comment-time{
   font-size:10px;
@@ -380,36 +376,37 @@ body{
   color:var(--red);
   cursor:pointer;
   margin-left:8px;
+  align-self:center;
 }
 .comment-delete:hover{text-decoration:underline;}
 .add-comment{
   display:flex;
   gap:10px;
-  margin-top:12px;
+  margin-top:14px;
 }
 .add-comment input{
   flex:1;
   padding:10px 14px;
   background:var(--input-bg);
   border:1px solid var(--border);
-  border-radius:14px;
+  border-radius:16px;
   color:var(--text);
-  font-family:'Noto Sans Georgian',sans-serif;
+  font-family:inherit;
   font-size:13px;
   outline:none;
 }
 .add-comment input:focus{border-color:var(--indigo2);}
 .add-comment button{
-  padding:10px 18px;
-  border-radius:14px;
+  padding:10px 20px;
+  border-radius:16px;
   border:none;
   background:linear-gradient(135deg,var(--indigo),var(--indigo2));
   color:#fff;
   cursor:pointer;
   font-weight:600;
+  font-size:13px;
 }
 
-/* ===== TOAST ===== */
 .toast{
   position:fixed;
   bottom:30px;
@@ -418,22 +415,22 @@ body{
   background:linear-gradient(135deg,var(--indigo),var(--indigo2));
   color:#fff;
   padding:10px 24px;
-  border-radius:30px;
+  border-radius:40px;
   font-size:13px;
   z-index:1000;
-  animation:toastIn .3s ease;
+  animation:toastIn .25s ease;
+  box-shadow:0 4px 12px rgba(0,0,0,0.2);
 }
 @keyframes toastIn{
   from{opacity:0;transform:translateX(-50%) translateY(20px);}
   to{opacity:1;transform:translateX(-50%) translateY(0);}
 }
 
-/* ===== MODAL ===== */
 .modal-overlay{
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.8);
-  backdrop-filter:blur(8px);
+  background:rgba(0,0,0,0.75);
+  backdrop-filter:blur(6px);
   z-index:1000;
   display:none;
   align-items:center;
@@ -443,21 +440,21 @@ body{
 .modal-content{
   background:var(--panel);
   border:1px solid var(--border);
-  border-radius:24px;
-  padding:24px;
-  max-width:400px;
+  border-radius:28px;
+  padding:28px;
+  max-width:380px;
   width:90%;
   text-align:center;
 }
 .modal-buttons{
   display:flex;
   gap:12px;
-  margin-top:20px;
+  margin-top:24px;
   justify-content:center;
 }
 .modal-btn{
   padding:10px 24px;
-  border-radius:12px;
+  border-radius:14px;
   border:none;
   cursor:pointer;
   font-weight:600;
@@ -465,10 +462,9 @@ body{
 .modal-btn.confirm{background:var(--red);color:#fff;}
 .modal-btn.cancel{background:var(--indigo-f);color:var(--text);border:1px solid var(--border);}
 
-/* ===== LOADING ===== */
 .loading{
   text-align:center;
-  padding:40px;
+  padding:50px;
   color:var(--text2);
 }
 </style>
@@ -491,8 +487,8 @@ body{
 <div class="container">
   <div class="new-topic-form" id="newTopicForm">
     <div class="form-title">📝 ახალი თემის შექმნა</div>
-    <input type="text" class="form-input" id="topicTitle" placeholder="თემის სათაური...">
-    <textarea class="form-textarea" id="topicContent" placeholder="თემის შინაარსი..."></textarea>
+    <input type="text" class="form-input" id="topicTitle" placeholder="სათაური...">
+    <textarea class="form-textarea" id="topicContent" placeholder="აღწერა (არასავალდებულო)"></textarea>
     <div class="form-actions">
       <button class="btn-cancel" onclick="hideNewTopicForm()">გაუქმება</button>
       <button class="btn-submit" onclick="createTopic()">შექმნა</button>
@@ -500,8 +496,8 @@ body{
   </div>
 
   <div class="topics-header">
-    <div class="topics-title">📋 ყველა თემა</div>
-    <button class="add-topic-btn" id="addTopicBtn" onclick="showNewTopicForm()">+ ახალი თემა</button>
+    <div class="topics-title">📋 თემები</div>
+    <button class="add-topic-btn" id="addTopicBtn" style="display:none">+ ახალი თემა</button>
   </div>
 
   <div id="topicsList">
@@ -533,7 +529,6 @@ let pendingAction = null;
 let pendingTopicId = null;
 let openComments = new Set();
 
-// ===== AUTH =====
 async function init() {
   const {data:{user}} = await sb.auth.getUser();
   if (!user) { 
@@ -556,12 +551,12 @@ async function init() {
   document.getElementById('userName').textContent = MYPROF?.username || 'მომხმარებელი';
   document.getElementById('userAvatar').textContent = MYPROF?.emotion || '👤';
   const roleEl = document.getElementById('userRole');
-  roleEl.textContent = rLabel(MYPROF?.role);
+  roleEl.textContent = roleLabel(MYPROF?.role);
   roleEl.className = `user-role role-${MYPROF?.role || 'member'}`;
   
-  // თუ ადმინი ან დამფუძნებელია - აჩვენე ახალი თემის ღილაკი
-  const canCreate = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
-  document.getElementById('addTopicBtn').style.display = canCreate ? 'flex' : 'none';
+  // მხოლოდ admin ან founder-ს აქვს თემის შექმნის უფლება
+  const canCreateTopic = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  document.getElementById('addTopicBtn').style.display = canCreateTopic ? 'flex' : 'none';
   
   await loadTopics();
   subscribeToChanges();
@@ -572,22 +567,21 @@ async function loadProf(uid) {
   return data;
 }
 
-function rLabel(r) {
+function roleLabel(r) {
   if (r === 'founder') return '👑 დამფუძნებელი';
   if (r === 'admin') return '🛡️ ადმინი';
   return '👤 წევრი';
 }
 
-// ===== TOPICS =====
 async function loadTopics() {
   const {data, error} = await sb.from('forum_topics')
-    .select('*, profiles(username, role, emotion, avatar_url)')
+    .select('*, profiles(username, role, emotion)')
     .order('is_pinned', {ascending: false})
     .order('created_at', {ascending: false});
   
   if (error) {
     console.error(error);
-    document.getElementById('topicsList').innerHTML = '<div class="loading">❌ შეცდომა ჩატვირთვისას</div>';
+    document.getElementById('topicsList').innerHTML = '<div class="loading">❌ შეცდომა</div>';
     return;
   }
   
@@ -603,10 +597,11 @@ function renderTopics() {
   }
   
   container.innerHTML = '';
+  const isAdminOrFounder = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  const isFounder = MYPROF?.role === 'founder';
+  
   currentTopics.forEach(topic => {
     const isPinned = topic.is_pinned;
-    const canDelete = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
-    const canPin = MYPROF?.role === 'founder';
     const isOpen = openComments.has(topic.id);
     
     const topicDiv = document.createElement('div');
@@ -616,8 +611,8 @@ function renderTopics() {
         <div class="topic-avatar">${topic.profiles?.emotion || '📝'}</div>
         <div class="topic-info">
           <div class="topic-title">
-            ${topic.title}
-            ${isPinned ? '<span class="pin-badge">📌 პინავა</span>' : ''}
+            ${escapeHtml(topic.title)}
+            ${isPinned ? '<span class="pin-badge">📌 პინი</span>' : ''}
           </div>
           <div class="topic-meta">
             <span class="topic-author" onclick="event.stopPropagation(); showUserProfile('${topic.user_id}')">${escapeHtml(topic.profiles?.username || '?')}</span>
@@ -629,13 +624,13 @@ function renderTopics() {
           <span>👁️ ${topic.views || 0}</span>
         </div>
         <div class="topic-actions" onclick="event.stopPropagation()">
-          ${canPin ? `<button class="action-btn pin" onclick="pinTopic('${topic.id}', ${!isPinned})">📌</button>` : ''}
-          ${canDelete ? `<button class="action-btn delete" onclick="deleteTopic('${topic.id}')">🗑</button>` : ''}
+          ${isFounder ? `<button class="action-btn pin" onclick="pinTopic('${topic.id}', ${!isPinned})">📌</button>` : ''}
+          ${isAdminOrFounder ? `<button class="action-btn delete" onclick="deleteTopic('${topic.id}')">🗑</button>` : ''}
         </div>
       </div>
       <div class="comments-section" id="comments-${topic.id}" style="display: ${isOpen ? 'block' : 'none'}">
         <div class="comment-list" id="commentList-${topic.id}">
-          <div class="loading">იტვირთება კომენტარები...</div>
+          <div class="loading">იტვირთება...</div>
         </div>
         <div class="add-comment">
           <input type="text" id="commentInput-${topic.id}" placeholder="დაწერე კომენტარი...">
@@ -645,28 +640,28 @@ function renderTopics() {
     `;
     container.appendChild(topicDiv);
     
-    // თუ გახსნილია, ჩატვირთე კომენტარები
-    if (isOpen) {
-      loadComments(topic.id);
-    }
+    if (isOpen) loadComments(topic.id);
   });
 }
 
 function toggleComments(topicId) {
   if (openComments.has(topicId)) {
     openComments.delete(topicId);
-    document.getElementById(`comments-${topicId}`).style.display = 'none';
+    const sec = document.getElementById(`comments-${topicId}`);
+    if(sec) sec.style.display = 'none';
   } else {
     openComments.add(topicId);
-    document.getElementById(`comments-${topicId}`).style.display = 'block';
-    loadComments(topicId);
+    const sec = document.getElementById(`comments-${topicId}`);
+    if(sec) {
+      sec.style.display = 'block';
+      loadComments(topicId);
+    }
   }
 }
 
-// ===== COMMENTS =====
 async function loadComments(topicId) {
   const {data, error} = await sb.from('forum_comments')
-    .select('*, profiles(username, role, emotion, avatar_url)')
+    .select('*, profiles(username, role, emotion)')
     .eq('topic_id', topicId)
     .order('created_at', {ascending: true});
   
@@ -674,7 +669,6 @@ async function loadComments(topicId) {
     console.error(error);
     return;
   }
-  
   renderComments(topicId, data || []);
 }
 
@@ -688,8 +682,10 @@ function renderComments(topicId, comments) {
   }
   
   container.innerHTML = '';
+  const isAdminOrFounder = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  
   comments.forEach(comment => {
-    const canDelete = MYPROF?.role === 'admin' || MYPROF?.role === 'founder' || comment.user_id === ME?.id;
+    const canDelete = isAdminOrFounder || comment.user_id === ME?.id;
     const commentDiv = document.createElement('div');
     commentDiv.className = 'comment-item';
     commentDiv.innerHTML = `
@@ -751,8 +747,13 @@ async function updateCommentCount(topicId) {
   await loadTopics();
 }
 
-// ===== TOPIC ACTIONS =====
 async function createTopic() {
+  const canCreate = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  if (!canCreate) {
+    toast('⛔ თემის შექმნა მხოლოდ ადმინისთვისაა!');
+    return;
+  }
+  
   const title = document.getElementById('topicTitle').value.trim();
   const content = document.getElementById('topicContent').value.trim();
   
@@ -780,6 +781,10 @@ async function createTopic() {
 }
 
 function showNewTopicForm() {
+  if (MYPROF?.role !== 'admin' && MYPROF?.role !== 'founder') {
+    toast('⛔ თემის შექმნის უფლება არ გაქვს');
+    return;
+  }
   document.getElementById('newTopicForm').classList.add('show');
 }
 
@@ -788,6 +793,10 @@ function hideNewTopicForm() {
 }
 
 function deleteTopic(topicId) {
+  if (MYPROF?.role !== 'admin' && MYPROF?.role !== 'founder') {
+    toast('⛔ წაშლის უფლება არ გაქვს');
+    return;
+  }
   pendingTopicId = topicId;
   pendingAction = 'delete';
   document.getElementById('modalMessage').textContent = '🗑 თემის წაშლა? (კომენტარებიც წაიშლება)';
@@ -795,6 +804,10 @@ function deleteTopic(topicId) {
 }
 
 async function pinTopic(topicId, isPinned) {
+  if (MYPROF?.role !== 'founder') {
+    toast('⛔ პინავა მხოლოდ დამფუძნებელს შეუძლია');
+    return;
+  }
   const {error} = await sb.from('forum_topics').update({is_pinned: isPinned}).eq('id', topicId);
   if (error) {
     toast('❌ ' + error.message);
@@ -823,7 +836,6 @@ function closeModal() {
   document.getElementById('modalOverlay').classList.remove('show');
 }
 
-// ===== UTILITIES =====
 function escapeHtml(str) {
   if (!str) return '';
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
@@ -838,14 +850,14 @@ function formatDate(dateStr) {
   const days = Math.floor(diff / 86400000);
   
   if (minutes < 1) return 'ახლახან';
-  if (minutes < 60) return `${minutes} წუთის წინ`;
-  if (hours < 24) return `${hours} საათის წინ`;
+  if (minutes < 60) return `${minutes} წთ წინ`;
+  if (hours < 24) return `${hours} სთ წინ`;
   if (days < 7) return `${days} დღის წინ`;
   return date.toLocaleDateString('ka-GE');
 }
 
 function showUserProfile(uid) {
-  toast('👤 მომხმარებლის პროფილი (მალე დაემატება)');
+  toast('👤 პროფილი (მალე)');
 }
 
 function toast(msg) {
