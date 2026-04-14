@@ -3,392 +3,270 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>კაიფმანია - ფორუმი</title>
+<title>კაიფფორუმი</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root {
-  --primary: #6366f1;
-  --bg-dark: #0f172a;
-  --card-dark: rgba(30, 41, 59, 0.7);
-  --border-dark: rgba(255, 255, 255, 0.1);
-  --text-main: #f8fafc;
-  --text-dim: #94a3b8;
-}
+    :root {
+        --bg-color: #1a1033; /* შენი საიტის მუქი იასამნისფერი */
+        --card-bg: rgba(255, 255, 255, 0.05);
+        --accent: #6d5dfc;
+        --text-color: #ffffff;
+        --text-dim: #b0a8c5;
+        --border: rgba(255, 255, 255, 0.1);
+    }
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  font-family: 'Noto Sans Georgian', sans-serif;
-  background-color: var(--bg-dark);
-  background-image: radial-gradient(circle at top right, #1e1b4b, #0f172a);
-  color: var(--text-main);
-  min-height: 100vh;
-  line-height: 1.6;
-}
+    body {
+        font-family: 'Noto Sans Georgian', sans-serif;
+        background: var(--bg-color);
+        color: var(--text-color);
+        padding: 20px;
+        overflow-x: hidden;
+    }
 
-/* Header */
-.header {
-  backdrop-filter: blur(10px);
-  background: rgba(15, 23, 42, 0.8);
-  border-bottom: 1px solid var(--border-dark);
-  padding: 12px 24px;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
+    /* ფორუმის კონტეინერი */
+    .forum-wrapper {
+        max-width: 900px;
+        margin: 0 auto;
+    }
 
-.logo {
-  font-size: 20px;
-  font-weight: 600;
-  background: linear-gradient(to right, #818cf8, #c084fc);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  cursor: pointer;
-}
+    .forum-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        padding-bottom: 15px;
+        border-bottom: 1px solid var(--border);
+    }
 
-.user-area { display: flex; align-items: center; gap: 15px; }
+    .forum-title { font-size: 22px; font-weight: 600; }
 
-.avatar-circle {
-  width: 35px; height: 35px;
-  background: var(--primary);
-  border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 18px;
-}
+    /* ღილაკი "+ ახალი თემა" - მხოლოდ ადმინებისთვის */
+    .admin-btn {
+        background: linear-gradient(135deg, #6d5dfc, #a085ff);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 12px;
+        cursor: pointer;
+        font-weight: 500;
+        transition: 0.3s;
+        display: none; /* საწყისად დამალულია */
+    }
 
-.role-badge {
-  font-size: 10px;
-  background: rgba(99, 102, 241, 0.2);
-  color: #a5b4fc;
-  padding: 2px 8px;
-  border-radius: 20px;
-  border: 1px solid rgba(99, 102, 241, 0.3);
-}
+    .admin-btn:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(109, 93, 252, 0.4); }
 
-/* Container */
-.container {
-  max-width: 800px;
-  margin: 20px auto;
-  padding: 0 15px;
-}
+    /* თემის ბარათი */
+    .topic-card {
+        background: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 20px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: 0.3s ease;
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+    }
 
-.topics-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 25px;
-}
+    .topic-card:hover {
+        background: rgba(255, 255, 255, 0.08);
+        border-color: var(--accent);
+    }
 
-.new-topic-btn {
-  background: var(--primary);
-  color: white;
-  border: none;
-  padding: 8px 18px;
-  border-radius: 8px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: 0.3s;
-}
+    .topic-top { display: flex; align-items: flex-start; gap: 15px; }
 
-.new-topic-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
+    .topic-emoji {
+        font-size: 24px;
+        background: rgba(109, 93, 252, 0.2);
+        width: 50px; height: 50px;
+        display: flex; align-items: center; justify-content: center;
+        border-radius: 15px;
+    }
 
-/* Topic Card */
-.topic-card {
-  background: var(--card-dark);
-  backdrop-filter: blur(5px);
-  border: 1px solid var(--border-dark);
-  border-radius: 16px;
-  margin-bottom: 15px;
-  transition: 0.3s;
-  overflow: hidden;
-}
+    .topic-info h3 { font-size: 18px; margin-bottom: 5px; color: var(--text-color); }
+    
+    .topic-meta {
+        font-size: 13px;
+        color: var(--text-dim);
+        display: flex;
+        gap: 15px;
+    }
 
-.topic-card:hover { border-color: rgba(99, 102, 241, 0.5); }
+    /* კომენტარების სექცია */
+    .comments-box {
+        margin-top: 15px;
+        padding-top: 15px;
+        border-top: 1px solid var(--border);
+        display: none;
+    }
 
-.topic-card.pinned { border-left: 4px solid #fbbf24; }
+    .comment {
+        background: rgba(0, 0, 0, 0.2);
+        padding: 10px 15px;
+        border-radius: 12px;
+        margin-bottom: 10px;
+        font-size: 14px;
+    }
 
-.topic-body { padding: 20px; cursor: pointer; }
+    .comment-user { color: var(--accent); font-weight: 600; font-size: 12px; margin-bottom: 3px; }
 
-.topic-top { display: flex; gap: 15px; }
+    .add-comment-form {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
 
-.topic-content-main { flex: 1; }
+    input[type="text"] {
+        flex: 1;
+        background: rgba(0,0,0,0.3);
+        border: 1px solid var(--border);
+        padding: 10px 15px;
+        border-radius: 10px;
+        color: white;
+        outline: none;
+    }
 
-.topic-title {
-  font-size: 17px;
-  font-weight: 500;
-  margin-bottom: 6px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
+    /* ახალი თემის ფორმა */
+    .new-topic-modal {
+        background: rgba(26, 16, 51, 0.95);
+        border: 1px solid var(--accent);
+        padding: 25px;
+        border-radius: 20px;
+        margin-bottom: 25px;
+        display: none;
+        animation: fadeIn 0.3s ease;
+    }
 
-.topic-meta {
-  font-size: 13px;
-  color: var(--text-dim);
-  display: flex;
-  gap: 15px;
-}
-
-/* Form Styles */
-.new-topic-form {
-  background: var(--card-dark);
-  border: 1px solid var(--border-dark);
-  padding: 20px;
-  border-radius: 16px;
-  margin-bottom: 20px;
-  display: none;
-}
-
-.new-topic-form.show { display: block; animation: slideIn 0.3s ease-out; }
-
-input, textarea {
-  width: 100%;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--border-dark);
-  border-radius: 8px;
-  padding: 12px;
-  color: white;
-  margin-bottom: 12px;
-  outline: none;
-}
-
-input:focus { border-color: var(--primary); }
-
-/* Comments Area */
-.comments-section {
-  background: rgba(15, 23, 42, 0.4);
-  border-top: 1px solid var(--border-dark);
-  padding: 20px;
-}
-
-.comment-item {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 15px;
-  font-size: 14px;
-}
-
-.comment-bubble {
-  background: rgba(255, 255, 255, 0.05);
-  padding: 10px 15px;
-  border-radius: 12px;
-  flex: 1;
-}
-
-.comment-user { font-weight: 600; color: #a5b4fc; font-size: 12px; }
-
-.add-comment-box {
-  display: flex;
-  gap: 10px;
-  margin-top: 15px;
-}
-
-/* Toast */
-.toast {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  background: var(--primary);
-  padding: 12px 24px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3);
-  z-index: 1000;
-  animation: fadeIn 0.3s;
-}
-
-@keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 
 </style>
 </head>
 <body>
 
-<div class="header">
-  <div class="logo" onclick="location.reload()">კაიფმანია • ფორუმი</div>
-  <div class="user-area">
-    <div class="user-info" style="text-align: right">
-      <div id="userName" style="font-weight: 500">იტვირთება...</div>
-      <div class="role-badge" id="userRole">...</div>
+<div class="forum-wrapper">
+    <div class="forum-header">
+        <div class="forum-title">კაიფფორუმი</div>
+        <button class="admin-btn" id="addTopicBtn">+ ახალი თემა</button>
     </div>
-    <div class="avatar-circle" id="userAvatar">👤</div>
-    <button class="new-topic-btn" onclick="logout()" style="background: transparent; border: 1px solid var(--border-dark)">🚪</button>
-  </div>
-</div>
 
-<div class="container">
-  <div class="new-topic-form" id="newTopicForm">
-    <h3 style="margin-bottom: 15px">ახალი თემის შექმნა</h3>
-    <input type="text" id="topicTitle" placeholder="თემის სათაური">
-    <textarea id="topicContent" rows="4" placeholder="რა თემას განვიხილავთ?"></textarea>
-    <div style="display: flex; gap: 10px; justify-content: flex-end">
-      <button onclick="hideNewTopicForm()" style="background:none; border:none; color: var(--text-dim); cursor:pointer">გაუქმება</button>
-      <button class="new-topic-btn" onclick="createTopic()">გამოქვეყნება</button>
+    <div class="new-topic-modal" id="newTopicForm">
+        <h3 style="margin-bottom: 15px">ახალი თემის დამატება</h3>
+        <input type="text" id="topicTitle" placeholder="თემის სათაური" style="width: 100%; margin-bottom: 10px;"><br>
+        <textarea id="topicContent" placeholder="აღწერა..." style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 10px; padding: 10px; color: white; min-height: 80px;"></textarea>
+        <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 10px;">
+            <button onclick="hideNewTopicForm()" style="background: none; border: none; color: white; cursor: pointer;">გაუქმება</button>
+            <button class="admin-btn" style="display: block;" onclick="createTopic()">გამოქვეყნება</button>
+        </div>
     </div>
-  </div>
 
-  <div class="topics-header">
-    <h2 style="font-weight: 500">აქტუალური თემები</h2>
-    <button class="new-topic-btn" id="addTopicBtn" style="display: none">+ ახალი თემა</button>
-  </div>
-
-  <div id="topicsList">
-    <div style="text-align: center; padding: 50px; color: var(--text-dim)">იტვირთება...</div>
-  </div>
+    <div id="topicsList">
+        <div style="text-align: center; color: var(--text-dim); padding: 40px;">იტვირთება...</div>
+    </div>
 </div>
 
 <script>
-// აქ რჩება შენი სუფაბეისის ლოგიკა უცვლელად, უბრალოდ Render ფუნქციაში მოხდება დიზაინის ცვლილება
-const { createClient } = supabase;
-const sb = createClient(
-  "https://vjstuyxuhshsouqsnvxp.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
-);
+    // სუფაბეისის კონფიგურაცია (იგივე დავტოვე)
+    const { createClient } = supabase;
+    const sb = createClient(
+        "https://vjstuyxuhshsouqsnvxp.supabase.co",
+        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
+    );
 
-let currentUser = null;
-let myProfile = null;
-let topics = [];
-let openComments = new Set();
+    let myProfile = null;
+    let currentUser = null;
 
-async function init() {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) { location.href = 'index.html'; return; }
-  currentUser = user;
-  
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
-  myProfile = profile;
+    async function init() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) return;
+        currentUser = user;
 
-  document.getElementById('userName').innerText = myProfile?.username || 'მომხმარებელი';
-  document.getElementById('userAvatar').innerText = myProfile?.emotion || '👤';
-  
-  const roleDisplay = { 'founder': 'დამფუძნებელი', 'admin': 'ადმინი', 'member': 'წევრი' };
-  document.getElementById('userRole').innerText = roleDisplay[myProfile?.role] || 'წევრი';
+        const { data: profile } = await sb.from('profiles').select('*').eq('id', user.id).single();
+        myProfile = profile;
 
-  // შემოწმება: მხოლოდ ადმინს/დამფუძნებელს შეუძლია პოსტვა
-  if (myProfile?.role === 'admin' || myProfile?.role === 'founder') {
-    document.getElementById('addTopicBtn').style.display = 'block';
-  }
+        // მხოლოდ ადმინებს და დამფუძნებლებს ვუჩვენებთ ღილაკს
+        if (profile?.role === 'admin' || profile?.role === 'founder') {
+            document.getElementById('addTopicBtn').style.display = 'block';
+        }
 
-  await loadTopics();
-  subscribeRealTime();
-}
+        loadTopics();
+    }
 
-async function loadTopics() {
-  const { data } = await sb.from('forum_topics').select('*, profiles(username, emotion)').order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
-  topics = data || [];
-  renderTopics();
-}
+    async function loadTopics() {
+        const { data } = await sb.from('forum_topics').select('*, profiles(username, emotion)').order('is_pinned', { ascending: false }).order('created_at', { ascending: false });
+        const list = document.getElementById('topicsList');
+        list.innerHTML = '';
 
-function renderTopics() {
-  const container = document.getElementById('topicsList');
-  container.innerHTML = '';
+        data.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'topic-card';
+            card.innerHTML = `
+                <div class="topic-top" onclick="toggleComments('${t.id}')">
+                    <div class="topic-emoji">${t.profiles?.emotion || '📝'}</div>
+                    <div class="topic-info">
+                        <h3>${t.title}</h3>
+                        <div class="topic-meta">
+                            <span>👤 ${t.profiles?.username}</span>
+                            <span>💬 ${t.comment_count || 0} პასუხი</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="comments-box" id="comments-${t.id}">
+                    <div id="list-${t.id}">იტვირთება...</div>
+                    <div class="add-comment-form">
+                        <input type="text" id="input-${t.id}" placeholder="დაწერე პასუხი...">
+                        <button class="admin-btn" style="display: block; padding: 8px 15px;" onclick="addComment('${t.id}')">➤</button>
+                    </div>
+                </div>
+            `;
+            list.appendChild(card);
+        });
+    }
 
-  topics.forEach(t => {
-    const isOpen = openComments.has(t.id);
-    const card = document.createElement('div');
-    card.className = `topic-card ${t.is_pinned ? 'pinned' : ''}`;
-    
-    card.innerHTML = `
-      <div class="topic-body" onclick="toggleComments('${t.id}')">
-        <div class="topic-top">
-          <div class="avatar-circle" style="background: rgba(255,255,255,0.05); border: 1px solid var(--border-dark)">
-            ${t.profiles?.emotion || '📝'}
-          </div>
-          <div class="topic-content-main">
-            <div class="topic-title">
-              ${escapeHtml(t.title)}
-              ${t.is_pinned ? '📌' : ''}
-            </div>
-            <div class="topic-meta">
-              <span>👤 ${escapeHtml(t.profiles?.username)}</span>
-              <span>📅 ${formatDate(t.created_at)}</span>
-              <span>💬 ${t.comment_count || 0}</span>
-              <span>👁️ ${t.views || 0}</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div class="comments-section" id="comments-${t.id}" style="display:${isOpen ? 'block' : 'none'}">
-        <div id="list-${t.id}">იტვირთება...</div>
-        <div class="add-comment-box">
-          <input type="text" id="input-${t.id}" placeholder="დაწერე კომენტარი...">
-          <button class="new-topic-btn" onclick="addComment('${t.id}')">✈️</button>
-        </div>
-      </div>
-    `;
-    container.appendChild(card);
-    if (isOpen) loadComments(t.id);
-  });
-}
+    function toggleComments(id) {
+        const box = document.getElementById(`comments-${id}`);
+        const isVisible = box.style.display === 'block';
+        box.style.display = isVisible ? 'none' : 'block';
+        if (!isVisible) loadComments(id);
+    }
 
-// დანარჩენი დამხმარე ფუნქციები (toggleComments, loadComments, addComment, formatDate და ა.შ.) 
-// იგივე რჩება რაც შენს კოდში გქონდა, უბრალოდ HTML სტრუქტურა მოვარგე ახალ დიზაინს.
+    async function loadComments(topicId) {
+        const { data } = await sb.from('forum_comments').select('*, profiles(username)').eq('topic_id', topicId).order('created_at', { ascending: true });
+        const list = document.getElementById(`list-${topicId}`);
+        list.innerHTML = data.length ? '' : '<p style="font-size:12px; color:gray;">კომენტარები ჯერ არ არის.</p>';
+        data.forEach(c => {
+            list.innerHTML += `
+                <div class="comment">
+                    <div class="comment-user">${c.profiles?.username}</div>
+                    <div>${c.content}</div>
+                </div>
+            `;
+        });
+    }
 
-async function toggleComments(id) {
-  if (openComments.has(id)) {
-    openComments.delete(id);
-    document.getElementById(`comments-${id}`).style.display = 'none';
-  } else {
-    openComments.add(id);
-    document.getElementById(`comments-${id}`).style.display = 'block';
-    loadComments(id);
-  }
-}
+    async function addComment(topicId) {
+        const input = document.getElementById(`input-${topicId}`);
+        const val = input.value.trim();
+        if(!val) return;
+        await sb.from('forum_comments').insert({ topic_id: topicId, user_id: currentUser.id, content: val });
+        input.value = '';
+        loadComments(topicId);
+    }
 
-async function loadComments(topicId) {
-  const { data } = await sb.from('forum_comments').select('*, profiles(username, emotion)').eq('topic_id', topicId).order('created_at', { ascending: true });
-  const list = document.getElementById(`list-${topicId}`);
-  list.innerHTML = data.length ? '' : '<p style="color:var(--text-dim); font-size:12px">ჯერ კომენტარები არ არის</p>';
-  
-  data.forEach(c => {
-    list.innerHTML += `
-      <div class="comment-item">
-        <div style="font-size:14px">${c.profiles?.emotion || '💬'}</div>
-        <div class="comment-bubble">
-          <div class="comment-user">${escapeHtml(c.profiles?.username)}</div>
-          <div style="font-size:13px">${escapeHtml(c.content)}</div>
-        </div>
-      </div>
-    `;
-  });
-}
+    function showNewTopicForm() { document.getElementById('newTopicForm').style.display = 'block'; }
+    function hideNewTopicForm() { document.getElementById('newTopicForm').style.display = 'none'; }
 
-async function addComment(topicId) {
-  const input = document.getElementById(`input-${topicId}`);
-  const val = input.value.trim();
-  if(!val) return;
-  await sb.from('forum_comments').insert({ topic_id: topicId, user_id: currentUser.id, content: val });
-  input.value = '';
-  loadComments(topicId);
-}
+    async function createTopic() {
+        const title = document.getElementById('topicTitle').value;
+        const content = document.getElementById('topicContent').value;
+        if(!title) return;
+        await sb.from('forum_topics').insert({ title, content, user_id: currentUser.id });
+        location.reload();
+    }
 
-function showNewTopicForm() { document.getElementById('newTopicForm').classList.add('show'); }
-function hideNewTopicForm() { document.getElementById('newTopicForm').classList.remove('remove'); document.getElementById('newTopicForm').style.display='none'; }
-
-async function createTopic() {
-  const title = document.getElementById('topicTitle').value;
-  const content = document.getElementById('topicContent').value;
-  if(!title) return;
-  await sb.from('forum_topics').insert({ title, content, user_id: currentUser.id });
-  location.reload();
-}
-
-function formatDate(d) {
-  const date = new Date(d);
-  return date.toLocaleDateString('ka-GE');
-}
-
-function escapeHtml(s) { return s?.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') || ''; }
-async function logout() { await sb.auth.signOut(); location.href = 'index.html'; }
-function subscribeRealTime() {
-  sb.channel('live').on('postgres_changes', { event: '*', schema: 'public', table: 'forum_topics' }, () => loadTopics()).subscribe();
-}
-
-document.getElementById('addTopicBtn').onclick = showNewTopicForm;
-init();
+    document.getElementById('addTopicBtn').onclick = showNewTopicForm;
+    init();
 </script>
 </body>
 </html>
