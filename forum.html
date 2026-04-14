@@ -136,6 +136,7 @@ body{
   padding:24px 20px;
 }
 
+/* ადმინ ფორმა - მხოლოდ ადმინ/დამფუძნებელი ხედავს */
 .new-topic-form{
   background:var(--panel);
   border:1px solid var(--border);
@@ -485,8 +486,9 @@ body{
 </div>
 
 <div class="container">
+  <!-- ადმინ ფორმა - მხოლოდ ადმინ/დამფუძნებელი ხედავს -->
   <div class="new-topic-form" id="newTopicForm">
-    <div class="form-title">📝 ახალი თემის შექმნა</div>
+    <div class="form-title">📝 ახალი თემის შექმნა (ადმინი)</div>
     <input type="text" class="form-input" id="topicTitle" placeholder="სათაური...">
     <textarea class="form-textarea" id="topicContent" placeholder="აღწერა (არასავალდებულო)"></textarea>
     <div class="form-actions">
@@ -554,9 +556,10 @@ async function init() {
   roleEl.textContent = roleLabel(MYPROF?.role);
   roleEl.className = `user-role role-${MYPROF?.role || 'member'}`;
   
-  // მხოლოდ admin ან founder-ს აქვს თემის შექმნის უფლება
-  const canCreateTopic = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
-  document.getElementById('addTopicBtn').style.display = canCreateTopic ? 'flex' : 'none';
+  // ადმინ პანელი: მხოლოდ admin ან founder
+  const isAdminOrFounder = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  const addBtn = document.getElementById('addTopicBtn');
+  if(addBtn) addBtn.style.display = isAdminOrFounder ? 'flex' : 'none';
   
   await loadTopics();
   subscribeToChanges();
@@ -606,6 +609,25 @@ function renderTopics() {
     
     const topicDiv = document.createElement('div');
     topicDiv.className = `topic-card ${isPinned ? 'topic-pinned' : ''}`;
+    
+    // action buttons: მხოლოდ ადმინ/ფაუნდერი ხედავს წაშლას, პინს მხოლოდ ფაუნდერი
+    let actionsHtml = '';
+    if (isAdminOrFounder) {
+      if (isFounder) {
+        actionsHtml = `<div class="topic-actions" onclick="event.stopPropagation()">
+          <button class="action-btn pin" onclick="pinTopic('${topic.id}', ${!isPinned})">📌</button>
+          <button class="action-btn delete" onclick="deleteTopic('${topic.id}')">🗑</button>
+        </div>`;
+      } else {
+        // admin-ს მხოლოდ წაშლა (პინი არა)
+        actionsHtml = `<div class="topic-actions" onclick="event.stopPropagation()">
+          <button class="action-btn delete" onclick="deleteTopic('${topic.id}')">🗑</button>
+        </div>`;
+      }
+    } else {
+      actionsHtml = `<div class="topic-actions" onclick="event.stopPropagation()"></div>`;
+    }
+    
     topicDiv.innerHTML = `
       <div class="topic-header" onclick="toggleComments('${topic.id}')">
         <div class="topic-avatar">${topic.profiles?.emotion || '📝'}</div>
@@ -623,10 +645,7 @@ function renderTopics() {
         <div class="topic-stats">
           <span>👁️ ${topic.views || 0}</span>
         </div>
-        <div class="topic-actions" onclick="event.stopPropagation()">
-          ${isFounder ? `<button class="action-btn pin" onclick="pinTopic('${topic.id}', ${!isPinned})">📌</button>` : ''}
-          ${isAdminOrFounder ? `<button class="action-btn delete" onclick="deleteTopic('${topic.id}')">🗑</button>` : ''}
-        </div>
+        ${actionsHtml}
       </div>
       <div class="comments-section" id="comments-${topic.id}" style="display: ${isOpen ? 'block' : 'none'}">
         <div class="comment-list" id="commentList-${topic.id}">
@@ -731,6 +750,12 @@ async function addComment(topicId) {
 }
 
 async function deleteComment(commentId, topicId) {
+  const isAdminOrFounder = MYPROF?.role === 'admin' || MYPROF?.role === 'founder';
+  const comment = await sb.from('forum_comments').select('user_id').eq('id', commentId).single();
+  if (!isAdminOrFounder && comment.data?.user_id !== ME?.id) {
+    toast('⛔ არ გაქვს უფლება');
+    return;
+  }
   const {error} = await sb.from('forum_comments').delete().eq('id', commentId);
   if (error) {
     toast('❌ ' + error.message);
