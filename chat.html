@@ -83,8 +83,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .room-item.game-room{border:1px solid rgba(74,222,128,0.2)}
 .room-item.game-room:hover{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.08)}
 .room-item.game-room.active{border-left:3px solid #4ade80;background:rgba(74,222,128,0.1)}
-
-/* ===== Forum Room Style ===== */
 .room-item.forum-room{border:1px solid rgba(96,165,250,0.2)}
 .room-item.forum-room:hover{border-color:rgba(96,165,250,0.5);background:rgba(96,165,250,0.08)}
 .room-item.forum-room.active{border-left:3px solid #60a5fa;background:rgba(96,165,250,0.1)}
@@ -126,26 +124,20 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0;transition:opacity .2s;padding:0}
 .msg-bubble:hover .msg-del{opacity:1}
 
-/* ===== Game Placeholder ===== */
 #gameRoomPlaceholder{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px}
 .grp-icon{font-size:72px;animation:flicker 2.5s ease-in-out infinite}
 .grp-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--text);text-align:center}
 .grp-sub{font-size:14px;color:var(--text2);text-align:center;max-width:320px;line-height:1.6}
-.grp-score-row{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px 20px}
-.grp-score-label{font-size:11px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px}
-.grp-score-val{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--accent)}
+.grp-score-row{display:flex;align-items:center;gap:14px;background:var(--panel);border:2px solid var(--border);border-radius:20px;padding:16px 28px;box-shadow:0 0 20px var(--glow)}
+.grp-score-label{font-size:11px;color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:1px}
+.grp-score-val{font-family:'Unbounded',sans-serif;font-size:32px;font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--accent)}
 .grp-play-btn{padding:14px 40px;border-radius:50px;background:linear-gradient(135deg,rgba(74,222,128,0.8),rgba(52,211,153,0.8));border:none;color:#052e16;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 6px 24px rgba(74,222,128,0.3);transition:all .2s}
 .grp-play-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(74,222,128,0.45)}
 
-/* ===== Forum Placeholder ===== */
-#forumRoomPlaceholder{
-  display:none;flex:1;flex-direction:column;align-items:center;
-  justify-content:center;gap:20px;padding:32px;
-  animation:forumFloat .4s ease;
-}
+#forumRoomPlaceholder{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;animation:forumFloat .4s ease}
 .frp-icon{font-size:72px;animation:flicker 3s ease-in-out infinite}
-.frp-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--text);text-align:center;letter-spacing:.5px}
-.frp-desc{font-size:14px;color:var(--text2);text-align:center;max-width:340px;line-height:1.7}
+.frp-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--text);text-align:center;letter-spacing:.5px}
+.frp-desc{font-size:14px;color:var(--text2);text-align:center;max-width:360px;line-height:1.8}
 .frp-stats{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
 .frp-stat{display:flex;align-items:center;gap:6px;padding:8px 16px;border-radius:20px;background:var(--panel);border:1px solid var(--border);font-size:12px;color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:.5px}
 .frp-open-btn{padding:14px 40px;border-radius:50px;background:linear-gradient(135deg,rgba(96,165,250,0.8),rgba(59,130,246,0.8));border:none;color:#0f172a;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 6px 24px rgba(96,165,250,0.3);transition:all .2s;text-decoration:none;display:flex;align-items:center;gap:8px}
@@ -313,7 +305,7 @@ select.inp{cursor:pointer}
 ::-webkit-scrollbar-thumb:hover{background:var(--accent)}
 </style>
 </head>
-<body class="night">
+<body>
 <div id="hearts"></div>
 <nav id="topnav">
   <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
@@ -360,7 +352,6 @@ select.inp{cursor:pointer}
 
     <div id="messages"></div>
 
-    <!-- Game Placeholder -->
     <div id="gameRoomPlaceholder">
       <div class="grp-icon" id="grpIcon">🔐</div>
       <div class="grp-title" id="grpTitle">შიფროგრამა</div>
@@ -372,7 +363,6 @@ select.inp{cursor:pointer}
       <button class="grp-play-btn" onclick="openGame()">▶ თამაშის დაწყება</button>
     </div>
 
-    <!-- Forum Placeholder -->
     <div id="forumRoomPlaceholder">
       <div class="frp-icon">💬</div>
       <div class="frp-title">სოული კორნერი</div>
@@ -579,10 +569,14 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
 );
 
+// ===== FIX 1: თემა localStorage-დან იტვირთება =====
+let theme = localStorage.getItem('kaif_theme') || 'night';
+document.body.className = theme;
+
 let ME = null, MYPROF = null, ROOM = 1, VIEW_UID = null, DM_UID = null;
 let allUsers = [], myFriends = [], customEmojis = [];
 let emojiCache = {};
-let selectedEmotion = '😊', msgCh = null, dmCh = null, theme = 'night';
+let selectedEmotion = '😊', msgCh = null, dmCh = null;
 let galSelectedEmo = '😊', galFileData = null;
 let currentGallery = [], pvIndex = 0;
 let userAlbums = [], activeAlbumFilter = null, galleryViewUID = null;
@@ -593,8 +587,7 @@ const ROOMS = [
   {id:2,  icon:'🔐', name:'შიფროგრამა',  isGame:true, gameFile:'game-wordsort.html', gameName:'შიფროგრამა', gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა', gameScoreField:'game_score'},
   {id:3,  icon:'🏆', name:'ვიქტორინა',   isGame:true, gameFile:'game-quiz.html',    gameName:'ვიქტორინა',  gameDesc:'200 კითხვა · სწორი პასუხი = 5 ქულა',  gameScoreField:'quiz_score'},
   {id:4,  icon:'🪢', name:'ჩამოხრჩობა', isGame:true, gameFile:'game-hangman.html', gameName:'ჩამოხრჩობა', gameDesc:'6 არასწორი ასო · კაცი ეწყობა ნაწილ-ნაწილ'},
-  {id:5,  icon:'📋', name:'კაიფფორუმი', isGame:true, gameFile:'forum.html', gameName:'კაიფფორუმი', gameDesc:'თემების შექმნა · კომენტარები · ადმინ პანელი'},
-  {id:5,  icon:'📋', name:'კაიფფორუმი', isForum:true, gameFile:'forum.html'},
+  {id:5,  icon:'📋', name:'ფორუმი', isForum:true, gameFile:'forum.html'},
   {id:6,  icon:'🎵', name:'მუსიკ კლაბი'},
   {id:7,  icon:'💜', name:'სოული კორნერ'},
   {id:8,  icon:'🌊', name:'ოშენ ვაიბ'},
@@ -603,6 +596,7 @@ const ROOMS = [
   {id:11, icon:'🌸', name:'სოფთ ჰარმონი'},
   {id:12, icon:'💡', name:'ბრეინსტორმ'}
 ];
+
 // ===== GAME =====
 function openGame() {
   if (!activeGameRoom) return;
@@ -639,12 +633,12 @@ function updateGameScoreUI() {
 
 function refreshGamePlaceholder() {
   if (!activeGameRoom) return;
-  const sc = MYPROF?.[activeGameRoom.gameScoreField] || 0;
+  const sc = activeGameRoom.gameScoreField ? (MYPROF?.[activeGameRoom.gameScoreField] ?? 0) : 0;
   const el = document.getElementById('grpMyScore');
   if (el) el.textContent = sc;
 }
 
-// ===== FORUM STATS LOADER =====
+// ===== FORUM STATS =====
 async function loadForumStats() {
   const {count: qCount} = await sb.from('forum_questions').select('id', {count:'exact', head:true});
   const {count: rCount} = await sb.from('forum_replies').select('id', {count:'exact', head:true});
@@ -658,7 +652,7 @@ async function loadForumStats() {
   }
 }
 
-// ===== ROOM VIEW SETTER =====
+// ===== ROOM VIEW =====
 function setRoomView(mode, roomObj) {
   const messagesEl = document.getElementById('messages');
   const chatBar = document.getElementById('chatBar');
@@ -668,7 +662,6 @@ function setRoomView(mode, roomObj) {
   const forumBtn = document.getElementById('forumHeaderBtn');
   const onlineCnt = document.getElementById('onlineCnt');
 
-  // Reset all
   messagesEl.style.display = '';
   chatBar.style.display = '';
   gamePlaceholder.style.display = 'none';
@@ -686,8 +679,8 @@ function setRoomView(mode, roomObj) {
     onlineCnt.style.display = 'none';
     document.getElementById('grpIcon').textContent = roomObj.icon;
     document.getElementById('grpTitle').textContent = roomObj.gameName;
-    document.getElementById('grpDesc').textContent = roomObj.gameDesc;
-    document.getElementById('grpMyScore').textContent = MYPROF?.[roomObj.gameScoreField] || 0;
+    document.getElementById('grpDesc').textContent = roomObj.gameDesc || '';
+    document.getElementById('grpMyScore').textContent = activeGameRoom.gameScoreField ? (MYPROF?.[activeGameRoom.gameScoreField] ?? 0) : 0;
   } else if (mode === 'forum') {
     activeGameRoom = null;
     messagesEl.style.display = 'none';
@@ -1166,26 +1159,25 @@ function buildRooms() {
     let cls = 'room-item';
     if (r.isGame) cls += ' game-room';
     if (r.isForum) cls += ' forum-room';
-    if (r.id === ROOM) cls += ' active';
+    if (r.id === ROOM && idx === 0) cls += ' active';
     d.className = cls;
     d.style.animationDelay = (idx * 0.03) + 's';
     let badge = '';
     if (r.isGame) badge = '<span class="game-badge">GAME</span>';
     if (r.isForum) badge = '<span class="forum-badge">FORUM</span>';
     d.innerHTML = `<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${badge}`;
-    d.onclick = () => switchRoom(r);
+    d.onclick = () => switchRoom(r, d);
     el.appendChild(d);
   });
 }
 
-function switchRoom(r) {
+function switchRoom(r, clickedEl) {
   if (!r || !r.id) return;
   ROOM = r.id;
   document.getElementById('roomTitle').textContent = r.name;
   document.getElementById('roomIcon').textContent = r.icon;
-  document.querySelectorAll('.room-item').forEach((el, i) => {
-    el.classList.toggle('active', ROOMS[i]?.id === r.id);
-  });
+  document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+  if (clickedEl) clickedEl.classList.add('active');
 
   if (r.isGame) {
     setRoomView('game', r);
@@ -1209,8 +1201,12 @@ async function loadMessages(roomId) {
   box.innerHTML = '';
   (data || []).forEach(m => appendMsg(m));
   box.scrollTop = box.scrollHeight;
+
+  // realtime - duplicate-ის თავიდან ასაცილებლად ვამოწმებ id-ს
   msgCh = sb.channel('room' + roomId)
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:`room_id=eq.${roomId}`}, async payload => {
+      // თუ optimistic bubble უკვე გვაქვს - skip
+      if (document.getElementById('msg' + payload.new.id)) return;
       const {data: msg} = await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id', payload.new.id).single();
       if (msg) { appendMsg(msg); box.scrollTop = box.scrollHeight; }
     })
@@ -1224,7 +1220,7 @@ function appendMsg(m) {
   const isMe = (m.user_id === ME?.id);
   const myRole = MYPROF?.role;
   const authorRole = m.profiles?.role;
-  const canDel = myRole === 'founder' || (myRole === 'admin' && authorRole !== 'founder');
+  const canDel = myRole === 'founder' || (myRole === 'admin' && authorRole !== 'founder') || isMe;
   const t = new Date(m.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit', minute:'2-digit'});
   const role = m.profiles?.role;
   const rbadge = role && role !== 'member' ? `<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>` : '';
@@ -1237,17 +1233,51 @@ function appendMsg(m) {
   document.getElementById('messages').appendChild(row);
 }
 
+// ===== FIX 2: შეტყობინება მაშინვე ჩნდება =====
 async function sendMessage() {
   const inp = document.getElementById('msgInput');
   const txt = inp.value.trim();
   if (!txt) return;
   inp.value = '';
   animateSendPlane('mainSendBtn');
-  await sb.from('messages').insert({room_id: ROOM, user_id: ME.id, content: txt});
+
+  // optimistic — მაშინვე ვხატავ ეკრანზე
+  const fakeId = 'temp_' + Date.now();
+  const fakeMsg = {
+    id: fakeId,
+    user_id: ME.id,
+    room_id: ROOM,
+    content: txt,
+    created_at: new Date().toISOString(),
+    profiles: {
+      username: MYPROF?.username,
+      role: MYPROF?.role,
+      avatar_url: MYPROF?.avatar_url,
+      emotion: MYPROF?.emotion
+    }
+  };
+  appendMsg(fakeMsg);
+  const box = document.getElementById('messages');
+  box.scrollTop = box.scrollHeight;
+
+  // DB-ში ვწერ
+  const {data, error} = await sb.from('messages')
+    .insert({room_id: ROOM, user_id: ME.id, content: txt})
+    .select('id').single();
+
+  // fake element-ს ვაძლევ რეალური id-ს, რომ realtime duplicate არ გაჩნდეს
+  if (data) {
+    const fakeEl = document.getElementById('msg' + fakeId);
+    if (fakeEl) fakeEl.id = 'msg' + data.id;
+  }
 }
 
+// ===== FIX 3: წაშლა მაშინვე =====
 async function delMsg(id) {
   if (!confirm('წავშალო?')) return;
+  // მაშინვე ვშლი ეკრანიდან
+  document.getElementById('msg' + id)?.remove();
+  // DB-დან ვშლი ფონში
   await sb.from('messages').delete().eq('id', id);
 }
 
@@ -1501,14 +1531,23 @@ function showPanel(name) {
 
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mob-open'); }
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
-function toggleTheme() { theme = theme === 'night' ? 'day' : 'night'; document.body.className = theme; document.getElementById('themeBtn').textContent = theme === 'night' ? '🌙' : '☀️'; }
 
+// ===== FIX 1: toggleTheme ინახავს localStorage-ში =====
+function toggleTheme() {
+  theme = theme === 'night' ? 'day' : 'night';
+  document.body.className = theme;
+  localStorage.setItem('kaif_theme', theme);
+  document.getElementById('themeBtn').textContent = theme === 'night' ? '🌙' : '☀️';
+}
+
+// ===== FIX: ემოჯების სწორი ანიმაცია =====
 function spawnHearts() {
   const hc = document.getElementById('hearts');
   if (!hc) return;
   const emojis = ['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿'];
   let active = 0;
-  const MAX = 40;
+  const MAX = 35;
+
   function make() {
     if (active >= MAX) return;
     const h = document.createElement('div');
@@ -1516,19 +1555,19 @@ function spawnHearts() {
     h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
     const leftPct = Math.random() * 100;
     const drift = (Math.random() - 0.5) * 80;
-    const dur = 10 + Math.random() * 12;
-    const size = 1.4 + Math.random() * 1.6;
-    h.style.left = leftPct + '%';
-    h.style.fontSize = size + 'rem';
-    h.style.animationDuration = dur + 's';
-    h.style.animationDelay = (Math.random() * 2) + 's';
-    h.style.setProperty('--drift', drift + 'px');
+    const dur = 8 + Math.random() * 10;
+    const size = 1.2 + Math.random() * 1.4;
+    // animationDelay=0s — ყოველი ახალი მაშინვე იწყებს, არ გაიყინება
+    h.style.cssText = `left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:0s;--drift:${drift}px`;
     hc.appendChild(h);
     active++;
-    setTimeout(() => { h.remove(); active--; }, (dur + 3) * 1000);
+    setTimeout(() => { h.remove(); active--; }, (dur + 0.5) * 1000);
   }
-  for (let i = 0; i < 20; i++) setTimeout(make, i * 120);
-  setInterval(make, 1800);
+
+  // პირველი ტალღა — თანდათანობით
+  for (let i = 0; i < 15; i++) setTimeout(make, i * 250);
+  // შემდეგ რეგულარული დამატება
+  setInterval(() => { if (active < MAX) make(); }, 1800);
 }
 
 function openModal(id) { document.getElementById(id).classList.add('open'); }
@@ -1572,11 +1611,15 @@ async function init() {
     location.href = 'index.html';
     return;
   }
+
+  // theme button-ის სწორი icon init-ზე
+  document.getElementById('themeBtn').textContent = theme === 'night' ? '🌙' : '☀️';
+
   buildRooms();
   await loadEmojis();
   buildEmojis();
   spawnHearts();
-  switchRoom(ROOMS[0]);
+  switchRoom(ROOMS[0], document.querySelector('.room-item'));
   await loadAllUsers();
   await pingOnline();
   setInterval(pingOnline, 30000);
