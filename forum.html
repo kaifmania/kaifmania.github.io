@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფფორუმი</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:#1c1a30;
+  color:#ede0ff;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:#252240}
+::-webkit-scrollbar-thumb{background:#7a1fc8;border-radius:4px}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
+@keyframes popIn{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+@keyframes shimmer{0%,100%{opacity:.6}50%{opacity:1}}
+@keyframes planeShoot{0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}60%{transform:translate(28px,-28px) rotate(-40deg) scale(.7);opacity:.5}100%{transform:translate(56px,-56px) rotate(-45deg) scale(.3);opacity:0}}
+
+.forum-wrapper{
+  max-width:860px;
+  margin:0 auto;
+  padding:28px 20px 60px;
+  animation:fadeUp .4s ease;
+}
+
+/* ===== HEADER ===== */
+.forum-header{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin-bottom:28px;
+  padding-bottom:18px;
+  border-bottom:1px solid rgba(160,80,255,0.25);
+}
+.back-btn{
+  background:rgba(120,30,200,0.18);
+  border:1px solid rgba(160,80,255,0.35);
+  border-radius:12px;
+  color:#b580e0;
+  font-size:18px;
+  width:40px;height:40px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  text-decoration:none;
+  transition:all .2s;
+  flex-shrink:0;
+}
+.back-btn:hover{background:rgba(120,30,200,0.35);color:#fff}
+.header-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:18px;
+  font-weight:700;
+  color:#ede0ff;
+  letter-spacing:.5px;
+}
+.header-sub{
+  font-size:12px;
+  color:#7a5a9a;
+  margin-top:3px;
+}
+.new-topic-btn{
+  margin-left:auto;
+  display:none;
+  align-items:center;
+  gap:8px;
+  padding:10px 20px;
+  border-radius:22px;
+  background:linear-gradient(135deg,#7a1fc8,#a855f7);
+  border:none;
+  color:#fff;
+  font-family:'Unbounded',sans-serif;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:.5px;
+  cursor:pointer;
+  box-shadow:0 4px 18px rgba(120,30,200,.45);
+  transition:all .2s;
+  flex-shrink:0;
+}
+.new-topic-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,30,200,.6)}
+
+/* ===== NEW TOPIC FORM ===== */
+.new-topic-form{
+  background:#252240;
+  border:1px solid rgba(160,80,255,0.4);
+  border-radius:20px;
+  padding:22px;
+  margin-bottom:22px;
+  display:none;
+  animation:popIn .3s ease;
+}
+.new-topic-form.open{display:block}
+.form-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:11px;
+  color:#b580e0;
+  letter-spacing:1.5px;
+  text-transform:uppercase;
+  margin-bottom:14px;
+}
+.form-inp{
+  width:100%;
+  background:#1c1a30;
+  border:1.5px solid rgba(160,80,255,0.3);
+  border-radius:12px;
+  padding:11px 15px;
+  color:#ede0ff;
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:14px;
+  outline:none;
+  margin-bottom:10px;
+  transition:border-color .2s;
+}
+.form-inp:focus{border-color:#a855f7}
+.form-inp::placeholder{color:#7a5a9a}
+textarea.form-inp{min-height:80px;resize:vertical}
+.emoji-pick-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:12px}
+.ep-btn{
+  width:40px;height:40px;
+  border-radius:10px;
+  background:rgba(120,30,200,0.15);
+  border:1.5px solid rgba(160,80,255,0.25);
+  font-size:20px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+}
+.ep-btn:hover,.ep-btn.active{background:rgba(120,30,200,0.4);border-color:#a855f7;transform:scale(1.1)}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;margin-top:4px}
+.btn-cancel{
+  background:none;border:1px solid rgba(160,80,255,0.3);
+  border-radius:12px;padding:9px 18px;
+  color:#b580e0;font-size:13px;cursor:pointer;
+  font-family:'Noto Sans Georgian',sans-serif;
+  transition:all .2s;
+}
+.btn-cancel:hover{background:rgba(160,80,255,0.1)}
+.btn-post{
+  background:linear-gradient(135deg,#7a1fc8,#a855f7);
+  border:none;border-radius:12px;padding:9px 22px;
+  color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+  font-family:'Noto Sans Georgian',sans-serif;
+  box-shadow:0 3px 14px rgba(120,30,200,.4);
+  transition:all .2s;
+}
+.btn-post:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(120,30,200,.55)}
+
+/* ===== TOPIC CARD ===== */
+.topic-card{
+  background:#252240;
+  border:1px solid rgba(160,80,255,0.22);
+  border-radius:20px;
+  margin-bottom:14px;
+  overflow:hidden;
+  transition:border-color .25s,box-shadow .25s;
+  animation:fadeUp .35s ease backwards;
+}
+.topic-card:hover{border-color:rgba(168,85,247,0.5);box-shadow:0 4px 24px rgba(120,30,200,.18)}
+.topic-head{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  padding:18px 20px;
+  cursor:pointer;
+  user-select:none;
+}
+.topic-emo-box{
+  width:48px;height:48px;
+  border-radius:14px;
+  background:rgba(120,30,200,0.2);
+  border:1px solid rgba(160,80,255,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  flex-shrink:0;
+}
+.topic-text{flex:1;min-width:0}
+.topic-title-text{
+  font-size:15px;font-weight:600;color:#ede0ff;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  margin-bottom:4px;
+}
+.topic-meta-row{
+  display:flex;align-items:center;gap:12px;
+  font-size:12px;color:#7a5a9a;flex-wrap:wrap;
+}
+.topic-badge{
+  font-size:9px;padding:2px 7px;
+  border-radius:6px;
+  background:rgba(168,85,247,0.15);
+  color:#a855f7;
+  border:1px solid rgba(168,85,247,0.3);
+  font-family:'Unbounded',sans-serif;
+  font-weight:700;letter-spacing:.4px;
+}
+.topic-chevron{
+  font-size:18px;color:#7a5a9a;
+  transition:transform .3s;flex-shrink:0;
+}
+.topic-card.open .topic-chevron{transform:rotate(180deg)}
+.topic-del-btn{
+  background:none;border:none;color:#7a5a9a;
+  font-size:13px;cursor:pointer;padding:4px 8px;
+  border-radius:7px;transition:all .2s;
+  flex-shrink:0;
+}
+.topic-del-btn:hover{background:rgba(220,0,0,.15);color:#ff7777}
+
+/* ===== COMMENTS SECTION ===== */
+.comments-section{
+  display:none;
+  padding:0 20px 18px;
+  border-top:1px solid rgba(160,80,255,0.15);
+}
+.topic-card.open .comments-section{display:block}
+
+/* topic description */
+.topic-desc{
+  font-size:14px;color:#b580e0;
+  line-height:1.6;
+  padding:14px 0 12px;
+  border-bottom:1px solid rgba(160,80,255,0.12);
+  margin-bottom:14px;
+}
+
+.comment-item{
+  display:flex;gap:10px;
+  padding:10px 14px;
+  border-radius:14px;
+  background:rgba(0,0,0,0.2);
+  margin-bottom:8px;
+  animation:fadeUp .25s ease;
+}
+.comment-av{
+  width:30px;height:30px;
+  border-radius:50%;
+  background:rgba(120,30,200,0.2);
+  border:1px solid rgba(160,80,255,0.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;overflow:hidden;
+}
+.comment-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.comment-body{flex:1;min-width:0}
+.comment-user{font-size:11px;font-weight:600;color:#a855f7;margin-bottom:3px}
+.comment-text{font-size:13px;color:#ede0ff;line-height:1.5;word-break:break-word}
+.comment-text img.chat-emoji{width:28px!important;height:28px!important;object-fit:cover;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:6px}
+.comment-text img.chat-emoji-gif{width:36px!important;height:36px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:7px}
+.comment-time{font-size:10px;color:#7a5a9a;margin-top:2px}
+.comment-del-btn{
+  background:none;border:none;color:#7a5a9a;
+  font-size:11px;cursor:pointer;padding:2px 5px;
+  border-radius:6px;transition:all .2s;
+  flex-shrink:0;margin-top:2px;
+}
+.comment-del-btn:hover{background:rgba(220,0,0,.15);color:#ff7777}
+
+.empty-comments{
+  text-align:center;padding:18px 0;
+  color:#7a5a9a;font-size:13px;
+}
+
+/* ===== COMMENT INPUT ===== */
+.comment-input-wrap{
+  margin-top:12px;
+  background:#1c1a30;
+  border:1.5px solid rgba(160,80,255,0.28);
+  border-radius:16px;
+  padding:10px 12px;
+  transition:border-color .2s;
+}
+.comment-input-wrap:focus-within{border-color:#a855f7}
+.comment-inp-row{display:flex;align-items:center;gap:8px}
+.comment-inp{
+  flex:1;
+  background:none;border:none;outline:none;
+  color:#ede0ff;
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;
+  padding:2px 0;
+}
+.comment-inp::placeholder{color:#7a5a9a}
+.emoji-toggle-btn{
+  width:34px;height:34px;
+  border-radius:10px;
+  background:rgba(120,30,200,0.18);
+  border:1px solid rgba(160,80,255,0.28);
+  font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s;
+}
+.emoji-toggle-btn:hover{background:rgba(120,30,200,0.35)}
+.comment-send-btn{
+  width:36px;height:36px;
+  border-radius:50%;
+  background:linear-gradient(135deg,#7a1fc8,#a855f7);
+  border:none;color:#fff;font-size:16px;
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;transition:all .2s;
+  box-shadow:0 3px 12px rgba(120,30,200,.4);
+  overflow:hidden;position:relative;
+}
+.comment-send-btn:hover{transform:scale(1.08);box-shadow:0 5px 18px rgba(120,30,200,.6)}
+.send-plane{display:inline-block}
+.comment-send-btn.fly .send-plane{animation:planeShoot .45s ease forwards}
+
+/* inline emoji panel for comments */
+.inline-emoji-panel{
+  display:none;
+  padding-top:10px;
+  border-top:1px solid rgba(160,80,255,0.2);
+  margin-top:8px;
+}
+.inline-emoji-panel.open{display:block}
+.iem-grid{
+  display:flex;flex-wrap:wrap;gap:6px;
+  max-height:150px;overflow-y:auto;
+}
+.iem-grid::-webkit-scrollbar{width:3px}
+.iem-grid::-webkit-scrollbar-thumb{background:rgba(160,80,255,0.4)}
+.iem-btn{
+  width:46px;height:46px;
+  border-radius:12px;
+  background:rgba(120,30,200,0.15);
+  border:1px solid rgba(160,80,255,0.25);
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .15s;
+  flex-shrink:0;
+}
+.iem-btn:hover{background:rgba(120,30,200,0.35);transform:scale(1.1)}
+.iem-btn img{width:34px!important;height:34px!important;border-radius:7px;object-fit:contain}
+.iem-btn span{font-size:24px}
+
+/* ===== EMPTY STATE ===== */
+.empty-state{
+  text-align:center;padding:60px 20px;color:#7a5a9a;
+}
+.empty-icon{font-size:52px;margin-bottom:14px;animation:shimmer 2s ease-in-out infinite}
+.empty-text{font-size:14px;line-height:1.7}
+
+/* ===== LOADING ===== */
+.loading-card{
+  background:#252240;border:1px solid rgba(160,80,255,0.15);
+  border-radius:20px;padding:20px;margin-bottom:14px;
+  animation:shimmer 1.4s ease-in-out infinite;
+}
+.loading-line{height:14px;border-radius:7px;background:rgba(160,80,255,0.15);margin-bottom:8px}
+.loading-line.short{width:55%}
+
+/* toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,#7a1fc8,#a855f7);
+  color:#fff;padding:10px 22px;border-radius:20px;
+  font-size:13px;z-index:99999;
+  box-shadow:0 6px 24px rgba(0,0,0,.4);
+  pointer-events:none;animation:fadeUp .3s ease;
+  white-space:nowrap;
+}
+</style>
+</head>
+<body>
+<div class="forum-wrapper">
+  <div class="forum-header">
+    <a class="back-btn" href="chat.html" title="უკან">←</a>
+    <div>
+      <div class="header-title">💬 კაიფფორუმი</div>
+      <div class="header-sub" id="forumSub">იტვირთება...</div>
+    </div>
+    <button class="new-topic-btn" id="newTopicBtn" onclick="toggleNewTopicForm()">+ ახალი თემა</button>
+  </div>
+
+  <!-- New Topic Form -->
+  <div class="new-topic-form" id="newTopicForm">
+    <div class="form-title">✏️ ახალი თემა</div>
+    <input class="form-inp" id="topicTitle" placeholder="თემის სათაური...">
+    <textarea class="form-inp" id="topicContent" placeholder="აღწერა (სურვილისამებრ)..."></textarea>
+    <div class="form-title" style="margin-bottom:8px">ემოჯი</div>
+    <div class="emoji-pick-row" id="topicEmojiRow">
+      <button class="ep-btn active" onclick="pickTopicEmoji(this,'💬')">💬</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'🔥')">🔥</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'🎵')">🎵</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'🎮')">🎮</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'💡')">💡</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'🌸')">🌸</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'📚')">📚</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'🌊')">🌊</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'💜')">💜</button>
+      <button class="ep-btn" onclick="pickTopicEmoji(this,'✨')">✨</button>
+    </div>
+    <div class="form-actions">
+      <button class="btn-cancel" onclick="toggleNewTopicForm()">გაუქმება</button>
+      <button class="btn-post" onclick="createTopic()">📤 გამოქვეყნება</button>
+    </div>
+  </div>
+
+  <!-- Topics List -->
+  <div id="topicsList">
+    <div class="loading-card"><div class="loading-line"></div><div class="loading-line short"></div></div>
+    <div class="loading-card"><div class="loading-line"></div><div class="loading-line short"></div></div>
+    <div class="loading-card"><div class="loading-line"></div><div class="loading-line short"></div></div>
+  </div>
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://vjstuyxuhshsouqsnvxp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
+);
+
+let ME = null, MYPROF = null;
+let topicEmoji = '💬';
+let customEmojis = [];
+let emojiCache = {};
+let openCommentPanels = {}; // topicId -> bool
+
+// ===== INIT =====
+async function init() {
+  const {data:{user}} = await sb.auth.getUser();
+  if (!user) { location.href = 'index.html'; return; }
+  ME = user;
+  const {data: prof} = await sb.from('profiles').select('*').eq('id', user.id).single();
+  MYPROF = prof;
+  if (!MYPROF) return;
+
+  const canCreate = ['admin','founder'].includes(MYPROF.role);
+  if (canCreate) document.getElementById('newTopicBtn').style.display = 'flex';
+
+  await loadEmojis();
+  await loadTopics();
+}
+
+// ===== EMOJIS =====
+async function loadEmojis() {
+  const {data} = await sb.from('global_emojis').select('id,url').order('id', {ascending:true});
+  customEmojis = data || [];
+  emojiCache = {};
+  customEmojis.forEach(e => { emojiCache[e.id] = e.url; });
+}
+
+function renderContent(s) {
+  if (!s) return '';
+  const esc = t => (t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return esc(s).replace(/\[e:(\d+)\]/g, (match, id) => {
+    const numId = parseInt(id);
+    const url = emojiCache[numId];
+    if (!url) return match;
+    if (url.startsWith('http') || url.startsWith('data:')) {
+      const cls = url.includes('.gif') || url.startsWith('data:image/gif') ? 'chat-emoji-gif' : 'chat-emoji';
+      return `<img src="${url}" class="${cls}" loading="lazy">`;
+    }
+    return `<span style="font-size:22px;vertical-align:middle">${url}</span>`;
+  });
+}
+
+function buildInlineEmojiPanel(topicId) {
+  const panel = document.getElementById('iem-' + topicId);
+  if (!panel) return;
+  const grid = panel.querySelector('.iem-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+  customEmojis.forEach(em => {
+    const btn = document.createElement('button');
+    btn.className = 'iem-btn';
+    const isImg = em.url && (em.url.startsWith('http') || em.url.startsWith('data:'));
+    if (isImg) {
+      const img = document.createElement('img');
+      img.src = em.url; img.loading = 'lazy';
+      btn.appendChild(img);
+    } else {
+      const sp = document.createElement('span');
+      sp.textContent = em.url || '?';
+      btn.appendChild(sp);
+    }
+    btn.onclick = () => {
+      const inp = document.getElementById('cinp-' + topicId);
+      if (inp) { inp.value += isImg ? `[e:${em.id}]` : em.url; inp.focus(); }
+    };
+    grid.appendChild(btn);
+  });
+}
+
+// ===== TOPICS =====
+async function loadTopics() {
+  const {data, error} = await sb.from('forum_topics')
+    .select('*, profiles(username, emotion, avatar_url, role)')
+    .order('is_pinned', {ascending:false})
+    .order('created_at', {ascending:false});
+
+  const {count: qCount} = await sb.from('forum_topics').select('id', {count:'exact', head:true});
+  const {count: rCount} = await sb.from('forum_replies').select('id', {count:'exact', head:true});
+  document.getElementById('forumSub').textContent = `${qCount||0} თემა · ${rCount||0} პასუხი`;
+
+  const list = document.getElementById('topicsList');
+  list.innerHTML = '';
+
+  if (!data || !data.length) {
+    list.innerHTML = `<div class="empty-state"><div class="empty-icon">💬</div><div class="empty-text">ჯერ თემები არ არის.<br>პირველი გახდი!</div></div>`;
+    return;
+  }
+
+  data.forEach((t, idx) => {
+    const card = buildTopicCard(t, idx);
+    list.appendChild(card);
+  });
+}
+
+function buildTopicCard(t, idx) {
+  const isMine = t.user_id === ME?.id;
+  const canDelete = ['admin','founder'].includes(MYPROF?.role) || isMine;
+  const d = new Date(t.created_at).toLocaleDateString('ka-GE');
+  const authorEmoji = t.profiles?.emotion || '😊';
+  const authorRole = t.profiles?.role;
+  const roleBadge = authorRole === 'founder'
+    ? '<span class="topic-badge" style="background:rgba(255,180,0,.15);color:#f0a500;border-color:rgba(255,180,0,.3)">👑 დამფუძნებელი</span>'
+    : authorRole === 'admin'
+    ? '<span class="topic-badge">🛡️ ადმინი</span>' : '';
+
+  const card = document.createElement('div');
+  card.className = 'topic-card';
+  card.style.animationDelay = (idx * 0.04) + 's';
+  card.id = 'tcard-' + t.id;
+
+  card.innerHTML = `
+    <div class="topic-head" onclick="toggleTopic('${t.id}')">
+      <div class="topic-emo-box">${t.emoji || authorEmoji}</div>
+      <div class="topic-text">
+        <div class="topic-title-text">${esc(t.title)}</div>
+        <div class="topic-meta-row">
+          <span>👤 ${esc(t.profiles?.username||'?')}</span>
+          ${roleBadge}
+          <span>📅 ${d}</span>
+          <span>💬 <span id="rcount-${t.id}">${t.reply_count||0}</span> პასუხი</span>
+        </div>
+      </div>
+      ${canDelete ? `<button class="topic-del-btn" onclick="deleteTopic(event,'${t.id}')">🗑</button>` : ''}
+      <span class="topic-chevron">⌄</span>
+    </div>
+    <div class="comments-section" id="csec-${t.id}">
+      ${t.content ? `<div class="topic-desc">${esc(t.content)}</div>` : ''}
+      <div id="clist-${t.id}"><div class="empty-comments">⏳ იტვირთება...</div></div>
+      <div class="comment-input-wrap">
+        <div class="comment-inp-row">
+          <button class="emoji-toggle-btn" onclick="toggleInlineEmoji('${t.id}')">😊</button>
+          <input class="comment-inp" id="cinp-${t.id}" placeholder="დაწერე პასუხი..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendComment('${t.id}')}">
+          <button class="comment-send-btn" id="csend-${t.id}" onclick="sendComment('${t.id}')"><span class="send-plane">✈️</span></button>
+        </div>
+        <div class="inline-emoji-panel" id="iem-${t.id}">
+          <div class="iem-grid"></div>
+        </div>
+      </div>
+    </div>
+  `;
+  return card;
+}
+
+function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function toggleTopic(id) {
+  const card = document.getElementById('tcard-' + id);
+  const sec = document.getElementById('csec-' + id);
+  const isOpen = card.classList.contains('open');
+  card.classList.toggle('open', !isOpen);
+  if (!isOpen) {
+    loadComments(id);
+    buildInlineEmojiPanel(id);
+  }
+}
+
+function toggleInlineEmoji(topicId) {
+  const panel = document.getElementById('iem-' + topicId);
+  if (!panel) return;
+  panel.classList.toggle('open');
+}
+
+// close emoji panels on outside click
+document.addEventListener('click', e => {
+  if (!e.target.closest('.comment-input-wrap')) {
+    document.querySelectorAll('.inline-emoji-panel.open').forEach(p => p.classList.remove('open'));
+  }
+});
+
+// ===== COMMENTS =====
+async function loadComments(topicId) {
+  const {data} = await sb.from('forum_replies')
+    .select('*, profiles(username, emotion, avatar_url, role)')
+    .eq('topic_id', topicId)
+    .order('created_at', {ascending:true});
+
+  const list = document.getElementById('clist-' + topicId);
+  if (!list) return;
+  list.innerHTML = '';
+
+  if (!data || !data.length) {
+    list.innerHTML = '<div class="empty-comments">💬 კომენტარები ჯერ არ არის</div>';
+    return;
+  }
+
+  data.forEach(c => {
+    list.appendChild(buildCommentEl(c));
+  });
+}
+
+function buildCommentEl(c) {
+  const isMine = c.user_id === ME?.id;
+  const canDel = ['admin','founder'].includes(MYPROF?.role) || isMine;
+  const t = new Date(c.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit',minute:'2-digit'});
+  const avHtml = c.profiles?.avatar_url
+    ? `<img src="${c.profiles.avatar_url}">`
+    : (c.profiles?.emotion || '😊');
+
+  const d = document.createElement('div');
+  d.className = 'comment-item';
+  d.id = 'cm-' + c.id;
+  d.innerHTML = `
+    <div class="comment-av">${avHtml}</div>
+    <div class="comment-body">
+      <div class="comment-user">${esc(c.profiles?.username||'?')}</div>
+      <div class="comment-text">${renderContent(c.content)}</div>
+      <div class="comment-time">${t}</div>
+    </div>
+    ${canDel ? `<button class="comment-del-btn" onclick="deleteComment('${c.id}','${c.topic_id}')">🗑</button>` : ''}
+  `;
+  return d;
+}
+
+async function sendComment(topicId) {
+  const inp = document.getElementById('cinp-' + topicId);
+  const btn = document.getElementById('csend-' + topicId);
+  const txt = inp.value.trim();
+  if (!txt) return;
+  inp.value = '';
+
+  // plane animation
+  if (btn) { btn.classList.add('fly'); setTimeout(() => btn.classList.remove('fly'), 500); }
+
+  // optimistic
+  const fakeComment = {
+    id: 'temp_' + Date.now(),
+    topic_id: topicId,
+    user_id: ME.id,
+    content: txt,
+    created_at: new Date().toISOString(),
+    profiles: { username: MYPROF?.username, emotion: MYPROF?.emotion, avatar_url: MYPROF?.avatar_url, role: MYPROF?.role }
+  };
+  const list = document.getElementById('clist-' + topicId);
+  const empty = list?.querySelector('.empty-comments');
+  if (empty) empty.remove();
+  if (list) list.appendChild(buildCommentEl(fakeComment));
+
+  const {data, error} = await sb.from('forum_replies')
+    .insert({topic_id: topicId, user_id: ME.id, content: txt})
+    .select('id').single();
+
+  if (data) {
+    const fakeEl = document.getElementById('cm-' + fakeComment.id);
+    if (fakeEl) fakeEl.id = 'cm-' + data.id;
+    // update reply count display
+    const rcEl = document.getElementById('rcount-' + topicId);
+    if (rcEl) rcEl.textContent = parseInt(rcEl.textContent||0) + 1;
+  }
+
+  document.getElementById('iem-' + topicId)?.classList.remove('open');
+}
+
+async function deleteComment(id, topicId) {
+  if (!confirm('პასუხი წაიშალოს?')) return;
+  document.getElementById('cm-' + id)?.remove();
+  await sb.from('forum_replies').delete().eq('id', id);
+  const rcEl = document.getElementById('rcount-' + topicId);
+  if (rcEl) rcEl.textContent = Math.max(0, parseInt(rcEl.textContent||0) - 1);
+}
+
+// ===== NEW TOPIC =====
+let _topicEmoji = '💬';
+function pickTopicEmoji(btn, em) {
+  _topicEmoji = em;
+  document.querySelectorAll('.ep-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function toggleNewTopicForm() {
+  const form = document.getElementById('newTopicForm');
+  form.classList.toggle('open');
+  if (form.classList.contains('open')) document.getElementById('topicTitle').focus();
+}
+
+async function createTopic() {
+  const title = document.getElementById('topicTitle').value.trim();
+  const content = document.getElementById('topicContent').value.trim();
+  if (!title) { toast('❌ სათაური შეავსე!'); return; }
+  if (!['admin','founder'].includes(MYPROF?.role)) { toast('❌ არ გაქვს უფლება!'); return; }
+
+  const {data, error} = await sb.from('forum_topics')
+    .insert({title, content: content||null, user_id: ME.id, emoji: _topicEmoji})
+    .select('*, profiles(username, emotion, avatar_url, role)').single();
+
+  if (error) { toast('❌ ' + error.message); return; }
+
+  document.getElementById('topicTitle').value = '';
+  document.getElementById('topicContent').value = '';
+  toggleNewTopicForm();
+  toast('✅ თემა გამოქვეყნდა!');
+
+  const list = document.getElementById('topicsList');
+  const emptyState = list.querySelector('.empty-state');
+  if (emptyState) list.innerHTML = '';
+  const card = buildTopicCard(data, 0);
+  list.insertBefore(card, list.firstChild);
+
+  // update sub
+  const {count: qCount} = await sb.from('forum_topics').select('id', {count:'exact', head:true});
+  const {count: rCount} = await sb.from('forum_replies').select('id', {count:'exact', head:true});
+  document.getElementById('forumSub').textContent = `${qCount||0} თემა · ${rCount||0} პასუხი`;
+}
+
+async function deleteTopic(e, id) {
+  e.stopPropagation();
+  if (!confirm('თემა წაიშალოს?')) return;
+  document.getElementById('tcard-' + id)?.remove();
+  await sb.from('forum_replies').delete().eq('topic_id', id);
+  await sb.from('forum_topics').delete().eq('id', id);
+  toast('🗑 თემა წაიშალა');
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
