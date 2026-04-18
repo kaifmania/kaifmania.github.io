@@ -39,6 +39,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 @keyframes planeShoot{0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}60%{transform:translate(30px,-30px) rotate(-40deg) scale(.8);opacity:.5}100%{transform:translate(60px,-60px) rotate(-45deg) scale(.4);opacity:0}}
 @keyframes scorePop{0%{transform:scale(1)}50%{transform:scale(1.3)}100%{transform:scale(1)}}
 @keyframes forumFloat{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,0,0,.4)}50%{box-shadow:0 0 0 6px rgba(220,0,0,0)}}
 
 #panelRooms,#panelFriends,#panelUsers,#panelOnline{animation:panelSlideIn 0.4s cubic-bezier(0.2,0.9,0.4,1.1)}
 .room-item{animation:itemFadeIn 0.3s ease backwards;animation-delay:calc(var(--order,0) * 0.03s)}
@@ -86,7 +87,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .room-item.forum-room{border:1px solid rgba(96,165,250,0.2)}
 .room-item.forum-room:hover{border-color:rgba(96,165,250,0.5);background:rgba(96,165,250,0.08)}
 .room-item.forum-room.active{border-left:3px solid #60a5fa;background:rgba(96,165,250,0.1)}
-
 .game-badge{font-size:8px;padding:1px 5px;border-radius:4px;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3);font-family:'Unbounded',sans-serif;font-weight:700;letter-spacing:.5px;margin-left:auto;flex-shrink:0}
 .forum-badge{font-size:8px;padding:1px 5px;border-radius:4px;background:rgba(96,165,250,0.15);color:#60a5fa;border:1px solid rgba(96,165,250,0.3);font-family:'Unbounded',sans-serif;font-weight:700;letter-spacing:.5px;margin-left:auto;flex-shrink:0}
 .room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
@@ -194,11 +194,15 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .pr-founder{background:rgba(255,180,0,.15);color:#f0a500;border:1px solid rgba(255,180,0,.3)}
 .pr-admin{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
 .pr-member{background:var(--indigo-f);color:var(--text2);border:1px solid var(--border)}
-.prof-scores-row{display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
-.prof-game-score{display:flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;font-size:12px;font-family:'Unbounded',sans-serif;font-weight:700}
+
+/* ===== SCORE ROW — 3 თამაში ===== */
+.prof-scores-row{display:flex;gap:6px;flex-wrap:wrap;justify-content:center}
+.prof-game-score{display:flex;align-items:center;gap:5px;border-radius:20px;padding:4px 11px;font-size:11px;font-family:'Unbounded',sans-serif;font-weight:700}
 .prof-game-score.word{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.25);color:#4ade80}
 .prof-game-score.quiz{background:rgba(168,85,247,0.1);border:1px solid rgba(168,85,247,0.25);color:#a855f7}
+.prof-game-score.hang{background:rgba(251,191,36,0.1);border:1px solid rgba(251,191,36,0.25);color:#fbbf24}
 .prof-game-score.animate{animation:scorePop .4s ease}
+
 .inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;transition:border-color .2s}
 .inp:focus{border-color:var(--indigo2)}
 .inp::placeholder{color:var(--text3)}
@@ -266,7 +270,9 @@ select.inp{cursor:pointer}
 .pv-nav{display:flex;gap:12px;margin-top:14px}
 .pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pv-nav-btn:hover{background:var(--border)}
-#dmBox{position:fixed;right:16px;bottom:16px;width:320px;height:420px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
+
+/* ===== DM BOX ===== */
+#dmBox{position:fixed;right:16px;bottom:16px;width:340px;height:460px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
 #dmBox.open{display:flex}
 .dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0}
 .dm-title{flex:1;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -275,18 +281,57 @@ select.inp{cursor:pointer}
 #dmMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
 #dmMsgs::-webkit-scrollbar{width:3px}
 #dmMsgs::-webkit-scrollbar-thumb{background:var(--border)}
-.dm-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;align-items:center;position:relative}
-#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
+
+/* DM voice message bubble */
+.dm-voice-bubble{
+  display:flex;align-items:center;gap:8px;
+  background:var(--indigo-f);
+  border:1px solid var(--border);
+  border-radius:14px;padding:8px 12px;
+  min-width:180px;max-width:100%;
+}
+.dm-voice-bubble audio{height:28px;flex:1;min-width:0;accent-color:var(--indigo2)}
+.dm-voice-bubble audio::-webkit-media-controls-panel{background:transparent}
+
+.dm-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;align-items:center;position:relative;flex-wrap:wrap}
+#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none;min-width:0}
 #dmInput:focus{border-color:var(--indigo2)}
-.dm-emoji-btn{width:32px;height:32px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;font-size:16px;cursor:pointer;padding:0 13px;height:34px;overflow:hidden;position:relative}
+.dm-icon-btn{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.dm-icon-btn:hover{background:var(--border)}
+.dm-icon-btn.recording{background:rgba(220,0,0,.2);border-color:rgba(220,0,0,.4);animation:recPulse 1s ease-in-out infinite}
+.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;font-size:16px;cursor:pointer;padding:0 13px;height:34px;overflow:hidden;position:relative;flex-shrink:0}
 .dm-plane{display:inline-block}
 .dm-send.fly .dm-plane{animation:planeShoot .45s ease forwards}
-#dmEmojiPanel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:300px;z-index:1000;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
+#dmEmojiPanel{position:absolute;bottom:56px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:300px;z-index:1000;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
 #dmEmojiPanel.open{display:block}
 #dmEmojiPanel .emoji-grid{max-height:180px;margin-bottom:0}
 #dmEmojiPanel .em-btn{width:52px;height:52px}
 #dmEmojiPanel .em-btn img{width:40px!important;height:40px!important}
+
+/* voice rec preview bar */
+#dmVoicePreview{
+  width:100%;padding:8px 10px;
+  display:none;
+  align-items:center;gap:8px;
+  background:rgba(120,30,200,0.12);
+  border-top:1px solid var(--border);
+  flex-shrink:0;
+}
+#dmVoicePreview.show{display:flex}
+#dmVoicePreview audio{height:28px;flex:1;min-width:0;accent-color:var(--indigo2)}
+.voice-send-btn{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;border-radius:10px;color:#fff;font-size:13px;
+  padding:0 12px;height:32px;cursor:pointer;white-space:nowrap;
+  font-family:'Noto Sans Georgian',sans-serif;flex-shrink:0;
+}
+.voice-cancel-btn{
+  background:none;border:1px solid rgba(220,0,0,.3);
+  border-radius:10px;color:#ff7777;font-size:13px;
+  padding:0 10px;height:32px;cursor:pointer;
+  font-family:'Noto Sans Georgian',sans-serif;flex-shrink:0;
+}
+
 #dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center;padding:16px}
 #dmListOverlay.open{display:flex}
 .dm-list-modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:340px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:modalFloat 0.3s cubic-bezier(.22,1,.36,1);max-height:70vh;display:flex;flex-direction:column}
@@ -366,7 +411,7 @@ select.inp{cursor:pointer}
     <div id="forumRoomPlaceholder">
       <div class="frp-icon">💬</div>
       <div class="frp-title">სოული კორნერი</div>
-      <div class="frp-desc">განიხილე საინტერესო თემები, დასვი კითხვები და გაიგე მეტი! ადმინები და დამფუძნებელი ქმნიან თემებს, ყველა კი პასუხობს.</div>
+      <div class="frp-desc">განიხილე საინტერესო თემები, დასვი კითხვები და გაიგე მეტი!</div>
       <div class="frp-stats" id="frpStats">
         <div class="frp-stat">💬 0 თემა</div>
         <div class="frp-stat">✉️ 0 პასუხი</div>
@@ -409,9 +454,11 @@ select.inp{cursor:pointer}
       <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
       <div class="prof-name" id="profName">-</div>
       <span class="prof-role pr-member" id="profRole">წევრი</span>
+      <!-- 3 ქულის ინდიკატორი -->
       <div class="prof-scores-row">
         <div class="prof-game-score word" id="profWordScore">🔐 0</div>
         <div class="prof-game-score quiz" id="profQuizScore">🏆 0</div>
+        <div class="prof-game-score hang" id="profHangScore">🪢 0</div>
       </div>
     </div>
     <div class="gallery-tabs">
@@ -534,12 +581,21 @@ select.inp{cursor:pointer}
     <button class="dm-x" onclick="closeDM()">✕</button>
   </div>
   <div id="dmMsgs"></div>
+
+  <!-- voice preview bar (shown after recording) -->
+  <div id="dmVoicePreview">
+    <audio id="dmVoiceAudio" controls></audio>
+    <button class="voice-send-btn" onclick="sendVoiceDM()">📤 გაგზავნა</button>
+    <button class="voice-cancel-btn" onclick="cancelVoice()">✕</button>
+  </div>
+
   <div id="dmEmojiPanel">
     <div class="ep-header"><span>სმაილები</span></div>
     <div class="emoji-grid" id="dmEmojiGrid"></div>
   </div>
   <div class="dm-bar">
-    <button class="dm-emoji-btn" onclick="toggleDMEmoji()">😊</button>
+    <button class="dm-icon-btn" onclick="toggleDMEmoji()" title="სმაილები">😊</button>
+    <button class="dm-icon-btn" id="voiceBtn" onclick="toggleVoiceRecording()" title="ხმოვანი შეტყობინება">🎤</button>
     <input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()">
     <button class="dm-send" id="dmSendBtn" onclick="sendDM()"><span class="dm-plane">✈️</span></button>
   </div>
@@ -569,7 +625,6 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
 );
 
-// ===== FIX 1: თემა localStorage-დან იტვირთება =====
 let theme = localStorage.getItem('kaif_theme') || 'night';
 document.body.className = theme;
 
@@ -582,11 +637,82 @@ let currentGallery = [], pvIndex = 0;
 let userAlbums = [], activeAlbumFilter = null, galleryViewUID = null;
 let activeGameRoom = null;
 
+// ===== VOICE RECORDING =====
+let mediaRecorder = null;
+let audioChunks = [];
+let isRecording = false;
+let voiceBlob = null;
+
+async function toggleVoiceRecording() {
+  if (isRecording) {
+    stopVoiceRecording();
+  } else {
+    startVoiceRecording();
+  }
+}
+
+async function startVoiceRecording() {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    audioChunks = [];
+    mediaRecorder = new MediaRecorder(stream);
+    mediaRecorder.ondataavailable = e => { if (e.data.size > 0) audioChunks.push(e.data); };
+    mediaRecorder.onstop = () => {
+      voiceBlob = new Blob(audioChunks, {type:'audio/webm'});
+      const url = URL.createObjectURL(voiceBlob);
+      document.getElementById('dmVoiceAudio').src = url;
+      document.getElementById('dmVoicePreview').classList.add('show');
+      stream.getTracks().forEach(t => t.stop());
+    };
+    mediaRecorder.start();
+    isRecording = true;
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('voiceBtn').textContent = '⏹';
+    toast('🔴 ჩაწერა მიმდინარეობს...');
+  } catch(err) {
+    toast('❌ მიკროფონი მიუწვდომელია');
+  }
+}
+
+function stopVoiceRecording() {
+  if (mediaRecorder && isRecording) {
+    mediaRecorder.stop();
+    isRecording = false;
+    document.getElementById('voiceBtn').classList.remove('recording');
+    document.getElementById('voiceBtn').textContent = '🎤';
+  }
+}
+
+function cancelVoice() {
+  voiceBlob = null;
+  document.getElementById('dmVoicePreview').classList.remove('show');
+  document.getElementById('dmVoiceAudio').src = '';
+}
+
+async function sendVoiceDM() {
+  if (!voiceBlob || !DM_UID) return;
+  toast('⏳ იტვირთება...');
+  try {
+    const fileName = `voice_${Date.now()}_${ME.id}.webm`;
+    const {data: upData, error: upErr} = await sb.storage.from('voice-messages').upload(fileName, voiceBlob, {contentType:'audio/webm'});
+    if (upErr) { toast('❌ ' + upErr.message); return; }
+    const {data: urlData} = sb.storage.from('voice-messages').getPublicUrl(fileName);
+    const voiceUrl = urlData.publicUrl;
+    const rk = [ME.id, DM_UID].sort().join('_');
+    // store as [voice:URL]
+    await sb.from('direct_messages').insert({room_key:rk, sender_id:ME.id, receiver_id:DM_UID, content:`[voice:${voiceUrl}]`});
+    appendDMMsg({sender_id:ME.id, content:`[voice:${voiceUrl}]`, created_at:new Date().toISOString()});
+    document.getElementById('dmMsgs').scrollTop = 9999;
+    cancelVoice();
+    toast('✅ ხმოვანი გაიგზავნა!');
+  } catch(err) { toast('❌ ' + err.message); }
+}
+
 const ROOMS = [
   {id:1,  icon:'🏠', name:'კაფე-ბარი'},
   {id:2,  icon:'🔐', name:'შიფროგრამა',  isGame:true, gameFile:'game-wordsort.html', gameName:'შიფროგრამა', gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა', gameScoreField:'game_score'},
   {id:3,  icon:'🏆', name:'ვიქტორინა',   isGame:true, gameFile:'game-quiz.html',    gameName:'ვიქტორინა',  gameDesc:'200 კითხვა · სწორი პასუხი = 5 ქულა',  gameScoreField:'quiz_score'},
-  {id:4,  icon:'🪢', name:'ჩამოხრჩობა', isGame:true, gameFile:'game-hangman.html', gameName:'ჩამოხრჩობა', gameDesc:'6 არასწორი ასო · კაცი ეწყობა ნაწილ-ნაწილ'},
+  {id:4,  icon:'🪢', name:'ჩამოხრჩობა', isGame:true, gameFile:'game-hangman.html', gameName:'ჩამოხრჩობა', gameDesc:'6 არასწორი ასო · კაცი ეწყობა ნაწილ-ნაწილ', gameScoreField:'hangman_score'},
   {id:5,  icon:'📋', name:'ფორუმი', isForum:true, gameFile:'forum.html'},
   {id:6,  icon:'🎵', name:'მუსიკ კლაბი'},
   {id:7,  icon:'💜', name:'სოული კორნერ'},
@@ -606,10 +732,13 @@ function openGame() {
 window.addEventListener('message', async (e) => {
   if (!e.data || !e.data.type) return;
   if (e.data.type === 'GAME_SCORE_UPDATE' && e.data.score !== undefined) {
-    if (MYPROF) { MYPROF.game_score = e.data.score; updateGameScoreUI(); }
+    if (MYPROF) { MYPROF.game_score = e.data.score; updateScoreUI(); }
   }
   if (e.data.type === 'QUIZ_SCORE_UPDATE' && e.data.score !== undefined) {
-    if (MYPROF) { MYPROF.quiz_score = e.data.score; updateGameScoreUI(); }
+    if (MYPROF) { MYPROF.quiz_score = e.data.score; updateScoreUI(); }
+  }
+  if (e.data.type === 'HANGMAN_SCORE_UPDATE' && e.data.score !== undefined) {
+    if (MYPROF) { MYPROF.hangman_score = e.data.score; updateScoreUI(); }
   }
 });
 
@@ -618,17 +747,28 @@ function watchGameScore() {
   sb.channel('game-score-' + ME.id)
     .on('postgres_changes', {event:'UPDATE', schema:'public', table:'profiles', filter:`id=eq.${ME.id}`}, payload => {
       MYPROF = {...MYPROF, ...payload.new};
-      updateGameScoreUI();
+      updateScoreUI();
       if (document.getElementById('gameRoomPlaceholder').style.display !== 'none') refreshGamePlaceholder();
     })
     .subscribe();
 }
 
-function updateGameScoreUI() {
-  const wordEl = document.getElementById('profWordScore');
-  const quizEl = document.getElementById('profQuizScore');
-  if (wordEl) { wordEl.textContent = '🔐 ' + (MYPROF?.game_score || 0); wordEl.classList.remove('animate'); void wordEl.offsetWidth; wordEl.classList.add('animate'); }
-  if (quizEl) { quizEl.textContent = '🏆 ' + (MYPROF?.quiz_score || 0); quizEl.classList.remove('animate'); void quizEl.offsetWidth; quizEl.classList.add('animate'); }
+// ===== SCORE UI — ყველა 3 თამაში =====
+function updateScoreUI() {
+  const fields = [
+    {id:'profWordScore', field:'game_score', label:'🔐'},
+    {id:'profQuizScore', field:'quiz_score', label:'🏆'},
+    {id:'profHangScore', field:'hangman_score', label:'🪢'},
+  ];
+  fields.forEach(({id, field, label}) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const val = MYPROF?.[field] ?? 0;
+    el.textContent = label + ' ' + val;
+    el.classList.remove('animate');
+    void el.offsetWidth;
+    el.classList.add('animate');
+  });
 }
 
 function refreshGamePlaceholder() {
@@ -640,7 +780,7 @@ function refreshGamePlaceholder() {
 
 // ===== FORUM STATS =====
 async function loadForumStats() {
-  const {count: qCount} = await sb.from('forum_questions').select('id', {count:'exact', head:true});
+  const {count: qCount} = await sb.from('forum_topics').select('id', {count:'exact', head:true});
   const {count: rCount} = await sb.from('forum_replies').select('id', {count:'exact', head:true});
   const el = document.getElementById('frpStats');
   if (el) el.innerHTML = `<div class="frp-stat">💬 ${qCount||0} თემა</div><div class="frp-stat">✉️ ${rCount||0} პასუხი</div>`;
@@ -706,7 +846,12 @@ function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').repl
 
 function renderContent(s) {
   if (!s) return '';
-  return s.replace(/\[e:(\d+)\]/g, (match, id) => {
+  // voice message
+  if (s.startsWith('[voice:') && s.endsWith(']')) {
+    const url = s.slice(7, -1);
+    return `<audio controls src="${esc(url)}" style="height:32px;max-width:220px;accent-color:var(--indigo2)"></audio>`;
+  }
+  return esc(s).replace(/\[e:(\d+)\]/g, (match, id) => {
     const numId = parseInt(id);
     const url = emojiCache[numId];
     if (!url) return match;
@@ -835,7 +980,7 @@ document.addEventListener('click', e => {
   const p = document.getElementById('emojiPanel');
   if (p && p.classList.contains('open') && !p.contains(e.target) && !e.target.closest('.icon-btn')) p.classList.remove('open');
   const dp = document.getElementById('dmEmojiPanel');
-  if (dp && dp.classList.contains('open') && !dp.contains(e.target) && !e.target.closest('.dm-emoji-btn')) dp.classList.remove('open');
+  if (dp && dp.classList.contains('open') && !dp.contains(e.target) && !e.target.closest('.dm-icon-btn')) dp.classList.remove('open');
 });
 
 // ===== PROFILE =====
@@ -851,10 +996,15 @@ async function openProfile(uid) {
   const roleEl = document.getElementById('profRole');
   roleEl.textContent = rLabel(viewRole);
   roleEl.className = 'prof-role ' + rClass(viewRole);
+
+  // ===== ყველა 3 ქულა =====
   const wordEl = document.getElementById('profWordScore');
   const quizEl = document.getElementById('profQuizScore');
+  const hangEl = document.getElementById('profHangScore');
   if (wordEl) wordEl.textContent = '🔐 ' + (p?.game_score || 0);
   if (quizEl) quizEl.textContent = '🏆 ' + (p?.quiz_score || 0);
+  if (hangEl) hangEl.textContent = '🪢 ' + (p?.hangman_score || 0);
+
   if (p?.avatar_url) {
     document.getElementById('avImg').src = p.avatar_url;
     document.getElementById('avImg').style.display = 'block';
@@ -1159,7 +1309,6 @@ function buildRooms() {
     let cls = 'room-item';
     if (r.isGame) cls += ' game-room';
     if (r.isForum) cls += ' forum-room';
-    if (r.id === ROOM && idx === 0) cls += ' active';
     d.className = cls;
     d.style.animationDelay = (idx * 0.03) + 's';
     let badge = '';
@@ -1178,7 +1327,6 @@ function switchRoom(r, clickedEl) {
   document.getElementById('roomIcon').textContent = r.icon;
   document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
   if (clickedEl) clickedEl.classList.add('active');
-
   if (r.isGame) {
     setRoomView('game', r);
   } else if (r.isForum) {
@@ -1187,7 +1335,6 @@ function switchRoom(r, clickedEl) {
     setRoomView('chat', null);
     loadMessages(r.id);
   }
-
   document.getElementById('sidebar')?.classList.remove('mob-open');
 }
 
@@ -1202,10 +1349,8 @@ async function loadMessages(roomId) {
   (data || []).forEach(m => appendMsg(m));
   box.scrollTop = box.scrollHeight;
 
-  // realtime - duplicate-ის თავიდან ასაცილებლად ვამოწმებ id-ს
   msgCh = sb.channel('room' + roomId)
     .on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:`room_id=eq.${roomId}`}, async payload => {
-      // თუ optimistic bubble უკვე გვაქვს - skip
       if (document.getElementById('msg' + payload.new.id)) return;
       const {data: msg} = await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id', payload.new.id).single();
       if (msg) { appendMsg(msg); box.scrollTop = box.scrollHeight; }
@@ -1233,7 +1378,6 @@ function appendMsg(m) {
   document.getElementById('messages').appendChild(row);
 }
 
-// ===== FIX 2: შეტყობინება მაშინვე ჩნდება =====
 async function sendMessage() {
   const inp = document.getElementById('msgInput');
   const txt = inp.value.trim();
@@ -1241,43 +1385,26 @@ async function sendMessage() {
   inp.value = '';
   animateSendPlane('mainSendBtn');
 
-  // optimistic — მაშინვე ვხატავ ეკრანზე
   const fakeId = 'temp_' + Date.now();
   const fakeMsg = {
-    id: fakeId,
-    user_id: ME.id,
-    room_id: ROOM,
-    content: txt,
+    id: fakeId, user_id: ME.id, room_id: ROOM, content: txt,
     created_at: new Date().toISOString(),
-    profiles: {
-      username: MYPROF?.username,
-      role: MYPROF?.role,
-      avatar_url: MYPROF?.avatar_url,
-      emotion: MYPROF?.emotion
-    }
+    profiles: {username: MYPROF?.username, role: MYPROF?.role, avatar_url: MYPROF?.avatar_url, emotion: MYPROF?.emotion}
   };
   appendMsg(fakeMsg);
   const box = document.getElementById('messages');
   box.scrollTop = box.scrollHeight;
 
-  // DB-ში ვწერ
-  const {data, error} = await sb.from('messages')
-    .insert({room_id: ROOM, user_id: ME.id, content: txt})
-    .select('id').single();
-
-  // fake element-ს ვაძლევ რეალური id-ს, რომ realtime duplicate არ გაჩნდეს
+  const {data, error} = await sb.from('messages').insert({room_id: ROOM, user_id: ME.id, content: txt}).select('id').single();
   if (data) {
     const fakeEl = document.getElementById('msg' + fakeId);
     if (fakeEl) fakeEl.id = 'msg' + data.id;
   }
 }
 
-// ===== FIX 3: წაშლა მაშინვე =====
 async function delMsg(id) {
   if (!confirm('წავშალო?')) return;
-  // მაშინვე ვშლი ეკრანიდან
   document.getElementById('msg' + id)?.remove();
-  // DB-დან ვშლი ფონში
   await sb.from('messages').delete().eq('id', id);
 }
 
@@ -1488,10 +1615,26 @@ async function openDM(uid) {
 
 function appendDMMsg(m) {
   const isMe = (m.sender_id === ME.id);
-  const t = new Date(m.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit', minute:'2-digit'});
+  const t = new Date(m.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit',minute:'2-digit'});
   const box = document.getElementById('dmMsgs');
   const d = document.createElement('div');
-  d.innerHTML = `<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px"><div style="max-width:80%;background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px;color:var(--text);word-break:break-word">${renderContent(m.content)}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`;
+
+  // voice message check
+  const isVoice = m.content && m.content.startsWith('[voice:') && m.content.endsWith(']');
+  if (isVoice) {
+    const url = m.content.slice(7, -1);
+    d.innerHTML = `<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px">
+      <div style="max-width:85%;">
+        <div class="dm-voice-bubble">
+          <span style="font-size:16px">🎤</span>
+          <audio controls src="${esc(url)}" style="height:28px;flex:1;min-width:0;accent-color:var(--indigo2)"></audio>
+        </div>
+        <div style="font-size:10px;color:var(--text3);margin-top:3px;${isMe?'text-align:right':''}">${t}</div>
+      </div>
+    </div>`;
+  } else {
+    d.innerHTML = `<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px"><div style="max-width:80%;background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px;color:var(--text);word-break:break-word">${renderContent(m.content)}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`;
+  }
   box.appendChild(d);
 }
 
@@ -1508,6 +1651,8 @@ async function sendDM() {
 }
 
 function closeDM() {
+  if (isRecording) stopVoiceRecording();
+  cancelVoice();
   document.getElementById('dmBox').classList.remove('open');
   document.getElementById('dmEmojiPanel').classList.remove('open');
   document.getElementById('dmBadge').textContent = '';
@@ -1532,7 +1677,6 @@ function showPanel(name) {
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mob-open'); }
 function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 
-// ===== FIX 1: toggleTheme ინახავს localStorage-ში =====
 function toggleTheme() {
   theme = theme === 'night' ? 'day' : 'night';
   document.body.className = theme;
@@ -1540,14 +1684,12 @@ function toggleTheme() {
   document.getElementById('themeBtn').textContent = theme === 'night' ? '🌙' : '☀️';
 }
 
-// ===== FIX: ემოჯების სწორი ანიმაცია =====
 function spawnHearts() {
   const hc = document.getElementById('hearts');
   if (!hc) return;
   const emojis = ['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿'];
   let active = 0;
   const MAX = 35;
-
   function make() {
     if (active >= MAX) return;
     const h = document.createElement('div');
@@ -1557,16 +1699,12 @@ function spawnHearts() {
     const drift = (Math.random() - 0.5) * 80;
     const dur = 8 + Math.random() * 10;
     const size = 1.2 + Math.random() * 1.4;
-    // animationDelay=0s — ყოველი ახალი მაშინვე იწყებს, არ გაიყინება
     h.style.cssText = `left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;animation-delay:0s;--drift:${drift}px`;
     hc.appendChild(h);
     active++;
     setTimeout(() => { h.remove(); active--; }, (dur + 0.5) * 1000);
   }
-
-  // პირველი ტალღა — თანდათანობით
   for (let i = 0; i < 15; i++) setTimeout(make, i * 250);
-  // შემდეგ რეგულარული დამატება
   setInterval(() => { if (active < MAX) make(); }, 1800);
 }
 
@@ -1612,7 +1750,6 @@ async function init() {
     return;
   }
 
-  // theme button-ის სწორი icon init-ზე
   document.getElementById('themeBtn').textContent = theme === 'night' ? '🌙' : '☀️';
 
   buildRooms();
@@ -1627,13 +1764,17 @@ async function init() {
   checkFriendReqs();
   watchGameScore();
 
+  // realtime profiles watch (scores included)
   sb.channel('profiles-watch')
     .on('postgres_changes', {event:'UPDATE', schema:'public', table:'profiles'}, payload => {
       const idx = allUsers.findIndex(u => u.id === payload.new.id);
       if (idx >= 0) allUsers[idx] = {...allUsers[idx], ...payload.new};
       else allUsers.push(payload.new);
       updateOnlineBadge();
-      if (payload.new.id === ME?.id) { MYPROF = {...MYPROF, ...payload.new}; updateGameScoreUI(); }
+      if (payload.new.id === ME?.id) {
+        MYPROF = {...MYPROF, ...payload.new};
+        updateScoreUI();
+      }
     })
     .subscribe();
 }
