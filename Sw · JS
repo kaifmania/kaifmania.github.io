@@ -1,28 +1,21 @@
-// კაიფმანია Service Worker v2
-const CACHE_NAME = 'kaifmania-v2';
-
-// Files to cache for offline use
-const CACHE_FILES = [
+const CACHE_NAME = 'kaifmania-v1';
+const ASSETS = [
   '/',
   '/index.html',
-  '/index_fixed.html',
+  '/manifest.json'
 ];
 
-let userId = null;
-
-// ===== INSTALL =====
-self.addEventListener('install', e => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(CACHE_FILES).catch(() => {});
-    })
+// Install: cache core assets
+self.addEventListener('install', event => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS))
   );
   self.skipWaiting();
 });
 
-// ===== ACTIVATE =====
-self.addEventListener('activate', e => {
-  e.waitUntil(
+// Activate: clean old caches
+self.addEventListener('activate', event => {
+  event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
     )
@@ -30,96 +23,61 @@ self.addEventListener('activate', e => {
   self.clients.claim();
 });
 
-// ===== FETCH — Network first, cache fallback =====
-self.addEventListener('fetch', e => {
-  // Only handle GET requests for same-origin HTML/JS/CSS
-  if (e.request.method !== 'GET') return;
-  const url = new URL(e.request.url);
-  if (url.origin !== self.location.origin) return;
+// Fetch: network-first for API, cache-first for assets
+self.addEventListener('fetch', event => {
+  const url = new URL(event.request.url);
 
-  e.respondWith(
-    fetch(e.request)
-      .then(response => {
-        // Cache successful responses
-        if (response.ok) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(e.request, clone));
+  // Skip Supabase API calls — always use network
+  if (url.hostname.includes('supabase.co')) return;
+
+  event.respondWith(
+    fetch(event.request)
+      .then(res => {
+        if (res && res.status === 200 && event.request.method === 'GET') {
+          const clone = res.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
         }
-        return response;
+        return res;
       })
-      .catch(() => caches.match(e.request))
+      .catch(() => caches.match(event.request))
   );
 });
 
-// ===== MESSAGES from main app =====
-self.addEventListener('message', e => {
-  if (e.data && e.data.type === 'SET_USER_ID') {
-    userId = e.data.userId;
-  }
-  if (e.data && e.data.type === 'SKIP_WAITING') {
-    self.skipWaiting();
+// Receive messages from main thread
+self.addEventListener('message', event => {
+  if (event.data && event.data.type === 'SET_USER_ID') {
+    self.userId = event.data.userId;
   }
 });
 
-// ===== PUSH NOTIFICATIONS =====
-// This fires when a push message comes from the server (Web Push API)
-self.addEventListener('push', e => {
-  if (!e.data) return;
-  try {
-    const data = e.data.json();
-    e.waitUntil(
-      self.registration.showNotification(data.title || '💜 კაიფმანია', {
-        body: data.body || 'ახალი შეტყობინება',
-        icon: '/icon-192.png',
-        badge: '/icon-192.png',
-        tag: data.tag || 'kaif-notif',
-        renotify: true,
-        vibrate: [200, 100, 200],
-        data: data
-      })
-    );
-  } catch (err) {
-    // If not JSON, show raw text
-    e.waitUntil(
-      self.registration.showNotification('💜 კაიფმანია', {
-        body: e.data.text(),
-        icon: '/icon-192.png',
-        tag: 'kaif-notif'
-      })
-    );
-  }
-});
-
-// ===== NOTIFICATION CLICK =====
-self.addEventListener('notificationclick', e => {
-  e.notification.close();
-  const data = e.notification.data || {};
-
-  e.waitUntil(
-    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
-      // If app is already open, focus it
-      for (const client of clientList) {
-        if (client.url.includes(self.location.origin) && 'focus' in client) {
-          client.focus();
-          // Send message to open DM if applicable
-          if (data.senderUid) {
-            client.postMessage({ type: 'DM_NOTIFICATION', uid: data.senderUid, text: data.body || '' });
-          }
-          return;
-        }
-      }
-      // Otherwise open new window
-      if (clients.openWindow) {
-        return clients.openWindow('/');
-      }
+// Push notifications (if backend sends them)
+self.addEventListener('push', event => {
+  if (!event.data) return;
+  let data = {};
+  try { data = event.data.json(); } catch(e) { data = { title: 'კაიფმანია', body: event.data.text() }; }
+  event.waitUntil(
+    self.registration.showNotification(data.title || '💜 კაიფმანია', {
+      body: data.body || '',
+      icon: '/icon-192.png',
+      badge: '/icon-192.png',
+      vibrate: [200, 100, 200],
+      tag: data.tag || 'kaif-notif',
+      renotify: true,
+      data: data
     })
   );
 });
 
-// ===== BACKGROUND SYNC (optional) =====
-self.addEventListener('sync', e => {
-  if (e.tag === 'sync-messages') {
-    // Could be used to retry failed message sends
-    console.log('[SW] Background sync:', e.tag);
-  }
+// Notification click: open app
+self.addEventListener('notificationclick', event => {
+  event.notification.close();
+  event.waitUntil(
+    clients.matchAll({ type: 'window', includeUncontrolled: true }).then(clientList => {
+      if (clientList.length > 0) {
+        clientList[0].focus();
+      } else {
+        clients.openWindow('/');
+      }
+    })
+  );
 });
