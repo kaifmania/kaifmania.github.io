@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a1fc8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{--bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+@keyframes messagePop{from{opacity:0;transform:translateY(15px) scale(0.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes modalFloat{from{opacity:0;transform:translateY(30px) scale(0.9)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes planeShoot{0%{transform:translate(0,0) rotate(0deg) scale(1);opacity:1}100%{transform:translate(30px,-30px) rotate(-40deg) scale(.4);opacity:0}}
+.msg-row{animation:messagePop 0.35s cubic-bezier(0.34,1.2,0.64,1) backwards}
+.modal{animation:modalFloat 0.4s cubic-bezier(0.34,1.3,0.64,1)}
+.send-btn.fly .send-plane{animation:planeShoot .45s ease forwards}
+#topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto}
+#topnav::-webkit-scrollbar{display:none}
+.nav-logo{font-size:24px;margin-right:8px;flex-shrink:0;cursor:pointer}
+.nav-btn{height:36px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0 12px;flex-shrink:0}
+.nav-btn:hover,.nav-btn.active{background:var(--indigo-f);border-color:var(--border);color:var(--text)}
+.nav-btn span.label{font-size:10px;font-family:'Unbounded',sans-serif}
+.nav-spacer{flex:1}
+#app{display:flex;flex:1;min-height:0}
+#sidebar{width:260px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+@media(max-width:640px){#sidebar{display:none}}
+.sb-header{padding:14px 16px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:9px;color:var(--text2);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.sb-body{flex:1;overflow-y:auto;padding:10px 8px}
+.room-item,.list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:16px;cursor:pointer;margin-bottom:2px;border:1px solid transparent}
+.room-item:hover,.list-item:hover{background:var(--indigo-f);border-color:var(--border)}
+.room-item.active{background:linear-gradient(135deg,var(--indigo-f),rgba(168,85,247,0.1));border-left:3px solid var(--accent)}
+.room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.room-name{font-size:13px;font-weight:500;color:var(--text)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0}
+#main{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0}
+.chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
+.chat-sub{font-size:11px;color:var(--text2);margin-left:auto;background:var(--indigo-f);border:1px solid var(--border);padding:3px 10px;border-radius:20px}
+#messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:8px}
+.msg-row{display:flex;align-items:flex-end;gap:8px}
+.msg-content{max-width:78%;display:flex;flex-direction:column}
+.msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:14px;color:var(--text);line-height:1.55;word-break:break-word}
+.msg-bubble.mine{background:rgba(120,30,200,0.22);border-color:rgba(168,85,247,0.4)}
+.msg-meta{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap}
+.msg-nick{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
+.msg-time{font-size:10px;color:var(--text3)}
+.msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0}
+.msg-bubble:hover .msg-del{opacity:1}
+.chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:10px 18px;display:flex;align-items:flex-end;gap:10px;flex-shrink:0}
+.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+#msgInput{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:18px;padding:10px 18px;color:var(--text);font-size:14px;outline:none;min-height:46px;max-height:160px;resize:none}
+.send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;padding:26px;position:relative}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;margin-bottom:20px}
+.av-big-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;margin-bottom:18px}
+.av-big{width:88px;height:88px;border-radius:50%;background:var(--indigo-f);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;position:relative;overflow:hidden}
+.av-big img{width:100%;height:100%;object-fit:cover}
+.prof-name{font-size:18px;font-weight:600}
+.prof-role{font-size:11px;padding:3px 12px;border-radius:20px}
+.inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:8px}
+.act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text);cursor:pointer;margin-bottom:6px}
+.act-btn.success{border-color:rgba(80,210,0,.3);color:#88ee44}
+.gallery-tabs{display:flex;gap:6px;margin-bottom:16px}
+.gtab{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text2);cursor:pointer;text-align:center}
+.gtab.active{background:var(--indigo);color:#fff}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:10px}
+.gal-item{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;cursor:pointer;border:1px solid var(--border)}
+.gal-item img{width:100%;height:100%;object-fit:cover}
+.gal-del{position:absolute;top:5px;right:5px;background:rgba(200,0,0,.85);border:none;border-radius:6px;color:#fff;font-size:10px;cursor:pointer;padding:3px 6px;opacity:0}
+.gal-item:hover .gal-del{opacity:1}
+.photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px}
+.photo-viewer.open{display:flex}
+.pv-close{position:absolute;top:16px;right:16px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;cursor:pointer;font-size:20px;display:flex;align-items:center;justify-content:center}
+.pv-img{max-width:90vw;max-height:65vh;border-radius:14px;object-fit:contain}
+.pv-info{margin-top:14px;text-align:center}
+.pv-title{font-size:16px;font-weight:600}
+.pv-emo{font-size:24px}
+.pv-comment{font-size:13px;color:var(--text2)}
+.pv-author{font-size:11px;color:var(--text3)}
+.pv-nav{display:flex;gap:12px;margin-top:14px}
+.pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;cursor:pointer;font-size:20px}
+.pv-comments-section{width:100%;max-width:480px;margin-top:14px;background:rgba(255,255,255,0.06);border-radius:16px;padding:12px;max-height:200px;overflow-y:auto}
+.pv-comment-item{display:flex;gap:8px;margin-bottom:10px}
+.pv-comment-av{width:28px;height:28px;border-radius:50%;background:rgba(255,255,255,.15);display:flex;align-items:center;justify-content:center;font-size:14px}
+.pv-comment-nick{font-size:11px;font-weight:700;color:var(--accent);cursor:pointer}
+.pv-comment-text{font-size:12px;color:rgba(255,255,255,.85)}
+.pv-comment-time{font-size:10px;color:rgba(255,255,255,.35)}
+.pv-comment-input-row{display:flex;gap:8px;margin-top:12px}
+.pv-comment-input{flex:1;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:20px;padding:10px 16px;color:#fff;outline:none}
+.pv-comment-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:20px;color:#fff;padding:0 20px;cursor:pointer}
+#dmBox{position:fixed;right:16px;bottom:16px;width:340px;height:480px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000}
+#dmBox.open{display:flex}
+.dm-head{padding:12px 14px;display:flex;align-items:center;gap:9px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-radius:20px 20px 0 0}
+.dm-title{flex:1;font-size:13px;font-weight:600;color:#fff}
+.dm-x{background:rgba(255,255,255,.2);border:none;border-radius:7px;color:#fff;cursor:pointer;padding:3px 8px}
+#dmMsgs{flex:1;overflow-y:auto;padding:12px}
+.dm-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border)}
+#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;color:var(--text);outline:none;resize:none}
+.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;padding:0 13px;cursor:pointer}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;z-index:99999;animation:messagePop .3s ease}
+.hidden{display:none!important}
+</style>
+</head>
+<body>
+
+<div id="topnav">
+  <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
+  <button class="nav-btn active" id="navRooms" onclick="showPanel('rooms')">💬 <span class="label">ოთახები</span></button>
+  <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
+  <div class="nav-spacer"></div>
+  <button class="nav-btn" onclick="openMyProfile()">👤</button>
+  <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
+</div>
+
+<div id="app">
+  <div id="sidebar">
+    <div id="panelRooms">
+      <div class="sb-header"><div class="sb-dot"></div>ოთახები</div>
+      <div class="sb-body" id="roomList"></div>
+    </div>
+    <div id="panelUsers" class="hidden">
+      <div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div>
+      <div class="sb-body">
+        <input class="inp" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()" style="margin-bottom:10px">
+        <div id="usersListEl"></div>
+      </div>
+    </div>
+  </div>
+
+  <div id="main">
+    <div class="chat-header">
+      <div style="font-size:22px" id="roomIcon">💬</div>
+      <div class="chat-title" id="roomTitle">მთავარი მოედანი</div>
+      <div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div>
+    </div>
+    <div id="messages"></div>
+    <div class="chat-bar">
+      <textarea id="msgInput" placeholder="დაწერე შეტყობინება..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"></textarea>
+      <button class="send-btn" onclick="sendMessage()"><span class="send-plane">✈️</span></button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('profileOverlay')">✕</button>
+    <div class="modal-title" id="profTitle">პროფილი</div>
+    <div class="av-big-wrap">
+      <div class="av-big" id="avBig" onclick="clickAvatar()">
+        <span id="avEmoji">😊</span>
+        <img id="avImg" style="display:none">
+      </div>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+      <div class="prof-name" id="profName">-</div>
+      <span class="prof-role" id="profRole">👤 წევრი</span>
+    </div>
+    <div class="gallery-tabs">
+      <button class="gtab active" id="gtabInfo" onclick="switchGalleryTab('info',this)">👤 ინფო</button>
+      <button class="gtab" id="gtabGallery" onclick="switchGalleryTab('gallery',this)">📸 ალბომი</button>
+    </div>
+    <div id="tabInfo">
+      <div class="sec-lbl">სტატუსი</div>
+      <input class="inp" id="statusInp" placeholder="სტატუსი...">
+      <button class="act-btn success" onclick="saveProfile()">✅ შენახვა</button>
+      <button class="act-btn" id="dmBtn" onclick="openDMfromProfile()" style="display:none">✉️ პირადი შეტყობინება</button>
+    </div>
+    <div id="tabGallery" class="hidden">
+      <div class="gallery-grid" id="galGrid"></div>
+      <div class="gal-empty hidden" id="galEmpty">📷 ფოტო ჯერ არ არის</div>
+    </div>
+  </div>
+</div>
+
+<div id="dmBox">
+  <div class="dm-head">
+    <div class="avatar" style="width:28px;height:28px" id="dmAv">👤</div>
+    <div class="dm-title" id="dmTitle">პირადი</div>
+    <button class="dm-x" onclick="closeDM()">✕</button>
+  </div>
+  <div id="dmMsgs"></div>
+  <div class="dm-bar">
+    <textarea id="dmInput" placeholder="შეტყობინება..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendDM()}"></textarea>
+    <button class="dm-send" onclick="sendDM()">✈️</button>
+  </div>
+</div>
+
+<div class="photo-viewer" id="photoViewer" onclick="pvBgClose(event)">
+  <button class="pv-close" onclick="closePhotoViewer()">✕</button>
+  <img class="pv-img" id="pvImg" src="" alt="">
+  <div class="pv-info">
+    <div class="pv-title" id="pvTitle"></div>
+    <div class="pv-emo" id="pvEmo"></div>
+    <div class="pv-comment" id="pvCommentText"></div>
+    <div class="pv-author" id="pvAuthor"></div>
+  </div>
+  <div class="pv-nav">
+    <button class="pv-nav-btn" onclick="pvNav(-1)">&#8249;</button>
+    <button class="pv-nav-btn" onclick="pvNav(1)">&#8250;</button>
+  </div>
+  <div class="pv-comments-section" id="pvCommentsSection"></div>
+  <div class="pv-comment-input-row">
+    <input class="pv-comment-input" id="pvCommentInput" placeholder="კომენტარი..." onkeydown="if(event.key==='Enter')addPhotoComment()">
+    <button class="pv-comment-send" onclick="addPhotoComment()">✈️</button>
+  </div>
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://vjstuyxuhshsouqsnvxp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
+);
+
+// ========== GLOBALS ==========
+let ME = null, MYPROF = null, ROOM = 1, VIEW_UID = null, DM_UID = null;
+let allUsers = [], myFriends = [];
+let msgCh = null, dmCh = null;
+let currentGallery = [], pvIndex = 0, _pvFiltered = [];
+let pvPhotoComments = [];
+
+const ROOMS = [
+  {id:1, icon:'🏠', name:'მთავარი მოედანი'},
+  {id:2, icon:'🎭', name:'სიტყვის ბეთლი', isGame:true, gameFile:'game-wordsort.html'},
+  {id:3, icon:'💬', name:'ფორუმი', isForum:true}
+];
+
+// ========== UTILS ==========
+function esc(s){return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function bgClose(e,id){if(e.target.id===id)closeModal(id);}
+function isOnline(ts){return ts && (Date.now()-new Date(ts).getTime()<90000);}
+
+// ========== ROOMS ==========
+function buildRooms(){
+  const el=document.getElementById('roomList'); if(!el) return; el.innerHTML='';
+  ROOMS.forEach((r,idx)=>{
+    const d=document.createElement('div'); d.className='room-item';
+    d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>`;
+    d.onclick=()=>switchRoom(r,d);
+    el.appendChild(d);
+  });
+}
+
+function switchRoom(r,clickedEl){
+  ROOM=r.id;
+  document.getElementById('roomTitle').textContent=r.name;
+  document.getElementById('roomIcon').textContent=r.icon;
+  document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));
+  if(clickedEl) clickedEl.classList.add('active');
+  if(r.isGame){ window.location.href=r.gameFile; return; }
+  if(r.isForum){ window.open('forum.html','_blank'); return; }
+  loadMessages(r.id);
+}
+
+// ========== MESSAGES ==========
+async function loadMessages(roomId){
+  if(msgCh){ sb.removeChannel(msgCh); msgCh=null; }
+  const box=document.getElementById('messages');
+  box.innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)">იტვირთება...</div>';
+  
+  const {data}=await sb.from('messages')
+    .select('*, profiles(username,role,avatar_url,emotion)')
+    .eq('room_id', roomId)
+    .order('created_at', {ascending:true})
+    .limit(100);
+  
+  box.innerHTML='';
+  (data||[]).forEach(msg=>appendMsg(msg));
+  box.scrollTop=box.scrollHeight;
+  
+  msgCh=sb.channel('room'+roomId)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:`room_id=eq.${roomId}`}, async payload=>{
+      if(document.getElementById('msg'+payload.new.id)) return;
+      const {data:msg}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id',payload.new.id).single();
+      if(msg){ appendMsg(msg); box.scrollTop=box.scrollHeight; }
+    })
+    .on('postgres_changes', {event:'DELETE', schema:'public', table:'messages'}, payload=>{
+      document.getElementById('msg'+payload.old.id)?.remove();
+    }).subscribe();
+}
+
+function appendMsg(m){
+  const isMe=(m.user_id===ME?.id);
+  const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+  const avHtml=m.profiles?.avatar_url?`<img src="${m.profiles.avatar_url}">`:(m.profiles?.emotion||'😊');
+  const row=document.createElement('div'); row.className='msg-row'; row.id='msg'+m.id;
+  row.innerHTML=`
+    <div class="avatar" style="cursor:pointer" onclick="openProfile('${m.user_id}')">${avHtml}</div>
+    <div class="msg-content">
+      <div class="msg-meta">
+        <span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>
+        <span class="msg-time">${t}</span>
+      </div>
+      <div class="msg-bubble${isMe?' mine':''}">
+        ${esc(m.content)}
+        ${isMe?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}
+      </div>
+    </div>`;
+  document.getElementById('messages').appendChild(row);
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('msgInput');
+  const txt=inp.value.trim(); if(!txt) return;
+  inp.value='';
+  const {error}=await sb.from('messages').insert({room_id:ROOM, user_id:ME.id, content:txt});
+  if(error) toast('❌ '+error.message);
+  document.getElementById('messages').scrollTop=9999;
+}
+
+async function delMsg(id){
+  if(!confirm('წავშალო?')) return;
+  await sb.from('messages').delete().eq('id',id);
+}
+
+// ========== PHOTO COMMENTS ==========
+async function loadPhotoComments(photoId){
+  const {data}=await sb.from('photo_comments').select('*, profiles(username,avatar_url)').eq('photo_id',photoId).order('created_at',{ascending:true});
+  pvPhotoComments=data||[];
+  renderPhotoComments();
+}
+function renderPhotoComments(){
+  const box=document.getElementById('pvCommentsSection'); if(!box) return;
+  box.innerHTML='';
+  if(!pvPhotoComments.length){ box.innerHTML='<div style="color:rgba(255,255,255,.3);padding:12px;text-align:center">კომენტარი ჯერ არ არის</div>'; return; }
+  pvPhotoComments.forEach(c=>{
+    const d=document.createElement('div'); d.className='pv-comment-item';
+    const avHtml=c.profiles?.avatar_url?`<img src="${c.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:'😊';
+    d.innerHTML=`
+      <div class="pv-comment-av">${avHtml}</div>
+      <div class="pv-comment-body">
+        <span class="pv-comment-nick" onclick="openProfile('${c.user_id}')">${esc(c.profiles?.username||'?')}</span>
+        <div class="pv-comment-text">${esc(c.content)}</div>
+        <div class="pv-comment-time">${new Date(c.created_at).toLocaleTimeString('ka-GE')}</div>
+      </div>`;
+    box.appendChild(d);
+  });
+}
+async function addPhotoComment(){
+  const inp=document.getElementById('pvCommentInput');
+  const txt=inp.value.trim(); if(!txt || !currentPhotoId) return;
+  inp.value='';
+  const {data,error}=await sb.from('photo_comments').insert({photo_id:currentPhotoId, user_id:ME.id, content:txt}).select('*, profiles(username,avatar_url)').single();
+  if(!error && data){ pvPhotoComments.push(data); renderPhotoComments(); }
+  else toast('❌ '+(error?.message||'error'));
+}
+
+// ========== PHOTO VIEWER ==========
+async function openPhotoViewer(idx,filtered){
+  _pvFiltered=filtered||currentGallery; pvIndex=idx;
+  await showPVPhoto();
+  document.getElementById('photoViewer').classList.add('open');
+}
+async function showPVPhoto(){
+  const p=_pvFiltered[pvIndex]; if(!p) return;
+  currentPhotoId=p.id;
+  document.getElementById('pvImg').src=p.url;
+  document.getElementById('pvTitle').textContent=p.title||'';
+  document.getElementById('pvEmo').textContent=p.emotion||'';
+  document.getElementById('pvCommentText').textContent=p.comment||'';
+  const owner=allUsers.find(u=>u.id===p.user_id);
+  document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';
+  await loadPhotoComments(p.id);
+}
+function pvNav(dir){ pvIndex=(pvIndex+dir+_pvFiltered.length)%_pvFiltered.length; showPVPhoto(); }
+function closePhotoViewer(){ document.getElementById('photoViewer').classList.remove('open'); currentPhotoId=null; }
+function pvBgClose(e){ if(e.target.id==='photoViewer') closePhotoViewer(); }
+
+// ========== USERS & PROFILE ==========
+async function loadAllUsers(){
+  const {data}=await sb.from('profiles').select('*').order('username');
+  allUsers=data||[];
+  renderUserLists();
+}
+function updateOnlineBadge(){
+  const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));
+  document.getElementById('onlineCnt').textContent=`● ${onlineNow.length} ონლაინი`;
+}
+function renderUserLists(){
+  const usEl=document.getElementById('usersListEl'); if(!usEl) return;
+  usEl.innerHTML='';
+  allUsers.filter(u=>u.id!==ME?.id).forEach(u=>{
+    const d=document.createElement('div'); d.className='list-item';
+    const avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');
+    d.innerHTML=`<div class="avatar">${avHtml}${isOnline(u.last_seen)?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
+    d.onclick=()=>openProfile(u.id);
+    usEl.appendChild(d);
+  });
+  updateOnlineBadge();
+}
+function filterUsers(){
+  const q=document.getElementById('userSearch').value.toLowerCase();
+  document.querySelectorAll('#usersListEl .list-item').forEach(el=>{
+    el.style.display=el.querySelector('.list-name')?.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+async function openProfile(uid){
+  VIEW_UID=uid;
+  const p=await sb.from('profiles').select('*').eq('id',uid).single();
+  if(!p.data) return;
+  document.getElementById('profTitle').textContent=(uid===ME.id)?'ჩემი პროფილი':'პროფილი';
+  document.getElementById('profName').textContent=p.data.username||'?';
+  document.getElementById('profRole').textContent=p.data.role==='founder'?'👑 დამფუძნებელი':p.data.role==='admin'?'🛡️ ადმინი':'👤 წევრი';
+  if(p.data.avatar_url){ document.getElementById('avImg').src=p.data.avatar_url; document.getElementById('avImg').style.display='block'; document.getElementById('avEmoji').style.display='none'; }
+  else{ document.getElementById('avImg').style.display='none'; document.getElementById('avEmoji').style.display='block'; document.getElementById('avEmoji').textContent=p.data.emotion||'😊'; }
+  document.getElementById('statusInp').value=p.data.status||'';
+  document.getElementById('dmBtn').style.display=(uid!==ME.id)?'':'none';
+  const {data:gallery}=await sb.from('gallery').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+  currentGallery=gallery||[];
+  const grid=document.getElementById('galGrid'); grid.innerHTML='';
+  if(currentGallery.length){
+    document.getElementById('galEmpty').classList.add('hidden');
+    currentGallery.forEach((photo,idx)=>{
+      const item=document.createElement('div'); item.className='gal-item';
+      item.innerHTML=`<img src="${photo.url}" loading="lazy"><div class="gal-overlay"><div>${photo.emotion||''}</div>${photo.title?`<div>${esc(photo.title)}</div>`:''}</div>${uid===ME.id?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
+      item.onclick=(e)=>{ if(!e.target.classList.contains('gal-del')) openPhotoViewer(idx,currentGallery); };
+      grid.appendChild(item);
+    });
+  } else { document.getElementById('galEmpty').classList.remove('hidden'); }
+  openModal('profileOverlay');
+}
+async function saveProfile(){
+  await sb.from('profiles').update({status:document.getElementById('statusInp').value}).eq('id',ME.id);
+  toast('✅ შენახულია!'); closeModal('profileOverlay');
+}
+function clickAvatar(){ if(VIEW_UID===ME.id) document.getElementById('avatarInput').click(); }
+async function uploadAvatar(e){
+  const file=e.target.files[0]; if(!file) return;
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    await sb.from('profiles').update({avatar_url:ev.target.result}).eq('id',ME.id);
+    toast('✅ ავატარი განახლდა!');
+  };
+  reader.readAsDataURL(file);
+}
+async function deleteGalPhoto(e,id){ e.stopPropagation(); if(confirm('წავშალო?')) await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id); loadGallery(); }
+function openMyProfile(){ openProfile(ME.id); }
+function openDMfromProfile(){ closeModal('profileOverlay'); openDM(VIEW_UID); }
+function switchGalleryTab(tab,btn){
+  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('tabInfo').classList.toggle('hidden',tab!=='info');
+  document.getElementById('tabGallery').classList.toggle('hidden',tab!=='gallery');
+}
+
+// ========== DM ==========
+async function openDM(uid){
+  DM_UID=uid;
+  const u=allUsers.find(u=>u.id===uid);
+  document.getElementById('dmTitle').textContent=u?.username||'პირადი';
+  document.getElementById('dmAv').innerHTML=u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u?.emotion||'👤');
+  document.getElementById('dmBox').classList.add('open');
+  const rk=[ME.id,DM_UID].sort().join('_');
+  const {data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true});
+  const box=document.getElementById('dmMsgs'); box.innerHTML='';
+  (data||[]).forEach(m=>appendDMMsg(m));
+  if(dmCh) sb.removeChannel(dmCh);
+  dmCh=sb.channel('dm'+rk)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
+      if(p.new.sender_id!==ME.id) appendDMMsg(p.new);
+    }).subscribe();
+}
+function appendDMMsg(m){
+  const isMe=(m.sender_id===ME.id);
+  const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+  const box=document.getElementById('dmMsgs');
+  const d=document.createElement('div');
+  d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end':''};margin-bottom:8px"><div style="background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;max-width:80%"><div>${esc(m.content)}</div><div style="font-size:10px;color:var(--text3);margin-top:3px">${t}</div></div></div>`;
+  box.appendChild(d); box.scrollTop=9999;
+}
+async function sendDM(){
+  const inp=document.getElementById('dmInput');
+  const txt=inp.value.trim(); if(!txt || !DM_UID) return;
+  inp.value='';
+  const rk=[ME.id,DM_UID].sort().join('_');
+  appendDMMsg({sender_id:ME.id, content:txt, created_at:new Date().toISOString()});
+  await sb.from('direct_messages').insert({room_key:rk, sender_id:ME.id, receiver_id:DM_UID, content:txt});
+}
+function closeDM(){ document.getElementById('dmBox').classList.remove('open'); DM_UID=null; if(dmCh){ sb.removeChannel(dmCh); dmCh=null; } }
+
+// ========== INIT ==========
+function showPanel(name){
+  document.getElementById('panelRooms').classList.toggle('hidden',name!=='rooms');
+  document.getElementById('panelUsers').classList.toggle('hidden',name!=='users');
+  document.getElementById('navRooms').classList.toggle('active',name==='rooms');
+  document.getElementById('navUsers').classList.toggle('active',name==='users');
+}
+function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('mob-open'); }
+async function init(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user){ location.href='index.html'; return; }
+  ME=user;
+  MYPROF=(await sb.from('profiles').select('*').eq('id',ME.id).single()).data;
+  if(!MYPROF) await sb.from('profiles').insert({id:ME.id, username:user.email?.split('@')[0]||'მომხმარებელი', role:'member'});
+  buildRooms();
+  await loadAllUsers();
+  switchRoom(ROOMS[0], document.querySelector('.room-item'));
+  setInterval(()=>sb.from('profiles').update({last_seen:new Date()}).eq('id',ME.id), 30000);
+  sb.channel('profiles').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},()=>loadAllUsers()).subscribe();
+}
+async function logout(){ await sb.auth.signOut(); location.href='index.html'; }
+init();
+</script>
+</body>
+</html>
