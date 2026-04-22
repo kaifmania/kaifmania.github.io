@@ -1,0 +1,734 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>კაიფმანია — ჩატი</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
+
+  body.night {
+    --bg: #080610;
+    --bg2: #0d0a1c;
+    --panel: #110e22;
+    --panel2: #171330;
+    --panel3: #1e1840;
+    --border: rgba(139, 92, 246, 0.25);
+    --border2: rgba(139, 92, 246, 0.12);
+    --text: #ede9fe;
+    --text2: #a78bfa;
+    --text3: #6d5a9c;
+    --bubble: #14112a;
+    --bubble-mine: rgba(109, 40, 217, 0.2);
+    --input-bg: #0f0c20;
+    --indigo: #5b21b6;
+    --indigo2: #8b5cf6;
+    --indigo-f: rgba(91, 33, 182, 0.12);
+    --glow: rgba(139, 92, 246, 0.35);
+    --accent: #a855f7;
+    --online: #a855f7;
+    --shadow: rgba(0, 0, 0, 0.7);
+    --send-grad: linear-gradient(135deg, #5b21b6, #a855f7);
+    --input-focus-shadow: rgba(139, 92, 246, 0.35);
+  }
+
+  body.day {
+    --bg: #f8f5ff;
+    --bg2: #f1ebff;
+    --panel: #ffffff;
+    --panel2: #faf6ff;
+    --panel3: #f3edff;
+    --border: rgba(109, 40, 217, 0.15);
+    --border2: rgba(109, 40, 217, 0.08);
+    --text: #1e0a3c;
+    --text2: #6d28d9;
+    --text3: #9d7ecb;
+    --bubble: #ffffff;
+    --bubble-mine: rgba(109, 40, 217, 0.07);
+    --input-bg: #ffffff;
+    --indigo: #5b21b6;
+    --indigo2: #7c3aed;
+    --indigo-f: rgba(91, 33, 182, 0.06);
+    --glow: rgba(109, 40, 217, 0.15);
+    --accent: #7c3aed;
+    --online: #7c3aed;
+    --shadow: rgba(0, 0, 0, 0.1);
+    --send-grad: linear-gradient(135deg, #5b21b6, #7c3aed);
+    --input-focus-shadow: rgba(109, 40, 217, 0.18);
+  }
+
+  html, body { height: 100%; overflow: hidden; }
+  body {
+    font-family: 'Noto Sans Georgian', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    transition: background 0.3s;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #bgCanvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  #floatLayer {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 1;
+    overflow: hidden;
+  }
+  .fp {
+    position: absolute;
+    bottom: -50px;
+    user-select: none;
+    pointer-events: none;
+    will-change: transform, opacity;
+    animation: fpRise linear forwards;
+  }
+  @keyframes fpRise {
+    0%   { transform: translate(0,0) rotate(0deg) scale(0.4); opacity: 0; }
+    10%  { opacity: 0.9; }
+    100% { transform: translate(var(--fx), calc(-1 * var(--fy))) rotate(var(--fr)) scale(var(--fs)); opacity: 0; }
+  }
+
+  @keyframes flicker { 0%,100%{filter:drop-shadow(0 0 6px var(--glow))} 50%{filter:drop-shadow(0 0 20px var(--accent))} }
+  @keyframes msgPop { from { opacity:0; transform: translateY(12px) scale(0.96); } to { opacity:1; transform: translateY(0) scale(1); } }
+  @keyframes planeFly { 0%{ transform:translate(0,0) } 60%{ transform:translate(18px,-18px) rotate(-35deg) } 100%{ transform:translate(40px,-40px) rotate(-45deg); opacity:0 } }
+  @keyframes typingDot { 0%,80%,100%{ transform:scale(0.5); opacity:0.3 } 40%{ transform:scale(1.1); opacity:1 } }
+
+  #topnav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    background: var(--panel);
+    border-bottom: 1.5px solid var(--border);
+    padding: 5px 12px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    flex-shrink: 0;
+    z-index: 200;
+  }
+  #topnav::-webkit-scrollbar { display: none; }
+  .nav-logo { font-size: 26px; cursor: pointer; animation: flicker 2.5s infinite; flex-shrink: 0; }
+  .nav-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--text2);
+    font-size: 13px;
+    padding: 5px 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .nav-btn.active, .nav-btn:hover {
+    background: var(--indigo-f);
+    border-color: var(--border);
+    color: var(--text);
+  }
+  .badge {
+    background: var(--accent);
+    color: white;
+    font-size: 7px;
+    border-radius: 10px;
+    min-width: 16px;
+    height: 16px;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    margin-left: 4px;
+  }
+  .badge.show { display: flex; }
+  .nav-spacer { flex: 1; }
+
+  #sidebar {
+    width: 250px;
+    background: var(--panel);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+  }
+  @media (max-width: 640px) {
+    #sidebar { display: none; }
+    #sidebar.mob-open { display: flex; position: fixed; inset: 0; top: 52px; z-index: 300; width: 100%; background: var(--panel); }
+  }
+  .sb-header {
+    padding: 12px;
+    font-family: 'Unbounded', sans-serif;
+    font-size: 8px;
+    letter-spacing: 2px;
+    color: var(--text2);
+    border-bottom: 1px solid var(--border);
+  }
+  .sb-body { flex: 1; overflow-y: auto; padding: 8px; }
+  .room-item, .list-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 10px;
+    border-radius: 14px;
+    cursor: pointer;
+    margin-bottom: 4px;
+    transition: 0.2s;
+  }
+  .room-item:hover, .list-item:hover { background: var(--indigo-f); transform: translateX(3px); }
+  .room-item.active { background: var(--indigo-f); border-left: 3px solid var(--accent); }
+  .room-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--indigo-f);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+  }
+  .room-name { font-size: 13px; font-weight: 500; }
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: var(--indigo-f);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  #main {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    background: var(--bg);
+  }
+  .chat-header {
+    background: var(--panel);
+    padding: 8px 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+  .chat-title { font-family: 'Unbounded', sans-serif; font-weight: bold; font-size: 14px; }
+  .chat-sub { margin-left: auto; font-size: 11px; background: var(--indigo-f); padding: 4px 12px; border-radius: 20px; }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .msg-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    animation: msgPop 0.25s ease;
+  }
+  .msg-bubble {
+    background: var(--bubble);
+    border: 1px solid var(--border2);
+    border-radius: 4px 14px 14px 14px;
+    padding: 8px 12px;
+    font-size: 12.5px;
+    max-width: 70%;
+    position: relative;
+  }
+  .msg-bubble.mine {
+    background: var(--bubble-mine);
+    border-radius: 14px 4px 14px 14px;
+  }
+  .msg-nick { font-size: 10px; font-weight: bold; color: var(--indigo2); cursor: pointer; }
+  .msg-time { font-size: 8px; color: var(--text3); margin-left: 6px; }
+
+  .chat-bar {
+    background: var(--panel);
+    border-top: 1px solid var(--border);
+    padding: 10px;
+  }
+  #typingIndicator {
+    min-height: 18px;
+    font-size: 10px;
+    color: var(--text3);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-bottom: 5px;
+  }
+  .typing-dots { display: flex; gap: 3px; }
+  .typing-dot { width: 4px; height: 4px; background: var(--accent); border-radius: 50%; animation: typingDot 1.2s infinite; }
+  .chat-bar-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+  #msgInput {
+    flex: 1;
+    background: var(--input-bg);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    padding: 10px 16px;
+    color: var(--text);
+    font-size: 13px;
+    outline: none;
+  }
+  #msgInput:focus { border-color: var(--indigo2); box-shadow: 0 0 0 3px var(--input-focus-shadow); }
+  .send-btn {
+    background: var(--send-grad);
+    border: none;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+  }
+  .send-btn.fly .send-plane { animation: planeFly 0.4s ease forwards; }
+
+  #emojiPanel {
+    position: absolute;
+    bottom: 85px;
+    left: 16px;
+    background: var(--panel2);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 12px;
+    width: 340px;
+    z-index: 500;
+    display: none;
+  }
+  #emojiPanel.open { display: block; }
+  .emoji-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    max-height: 200px;
+    overflow-y: auto;
+  }
+  .em-btn {
+    width: 54px;
+    height: 54px;
+    background: var(--indigo-f);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    font-size: 28px;
+  }
+
+  #dmBox {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 330px;
+    height: 460px;
+    background: var(--panel);
+    border-radius: 24px;
+    display: none;
+    flex-direction: column;
+    z-index: 15000;
+    box-shadow: 0 20px 40px black;
+  }
+  #dmBox.open { display: flex; }
+  .dm-head {
+    background: var(--send-grad);
+    padding: 12px;
+    border-radius: 24px 24px 0 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: white;
+  }
+  .dm-x {
+    margin-left: auto;
+    background: rgba(255,255,255,0.2);
+    border: none;
+    border-radius: 20px;
+    padding: 4px 10px;
+    cursor: pointer;
+    color: white;
+  }
+  #dmMsgs {
+    flex: 1;
+    overflow-y: auto;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .dm-bar {
+    display: flex;
+    gap: 8px;
+    padding: 10px;
+    border-top: 1px solid var(--border);
+  }
+  #dmInput {
+    flex: 1;
+    background: var(--input-bg);
+    border-radius: 28px;
+    padding: 8px 14px;
+    border: none;
+    color: var(--text);
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 90px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--send-grad);
+    color: white;
+    padding: 8px 20px;
+    border-radius: 30px;
+    font-size: 12px;
+    z-index: 99999;
+    white-space: nowrap;
+  }
+  .hidden { display: none !important; }
+  .search-box {
+    width: 100%;
+    padding: 8px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--input-bg);
+    color: var(--text);
+    margin-bottom: 10px;
+  }
+  .icon-btn {
+    background: var(--indigo-f);
+    border: none;
+    width: 40px;
+    height: 40px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-size: 20px;
+  }
+</style>
+</head>
+<body class="night">
+
+<canvas id="bgCanvas"></canvas>
+<div id="floatLayer"></div>
+
+<nav id="topnav">
+  <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
+  <button class="nav-btn active" onclick="showPanel('rooms')">💬 ოთახები</button>
+  <button class="nav-btn" onclick="showPanel('users')">🌐 მომხმარებლები</button>
+  <button class="nav-btn" onclick="showPanel('online')">🟣 ონლაინი</button>
+  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ პირადი<span class="badge" id="dmBadge"></span></button>
+  <div class="nav-spacer"></div>
+  <button class="nav-btn" onclick="openMyProfile()">👤</button>
+  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+</nav>
+
+<div id="app">
+  <div id="sidebar">
+    <div id="panelRooms"><div class="sb-header">💬 ოთახები</div><div class="sb-body" id="roomList"></div></div>
+    <div id="panelUsers" class="hidden"><div class="sb-header">🌐 მომხმარებლები</div><div class="sb-body"><input id="userSearch" class="search-box" placeholder="🔍 ძებნა..." oninput="filterUsers()"><div id="usersListEl"></div></div></div>
+    <div id="panelOnline" class="hidden"><div class="sb-header">🟣 ონლაინი</div><div class="sb-body" id="onlineListEl"></div></div>
+  </div>
+
+  <div id="main">
+    <div class="chat-header">
+      <div id="roomIcon">💬</div>
+      <div class="chat-title" id="roomTitle">კაფე-ბარი</div>
+      <div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div>
+    </div>
+    <div id="messages"></div>
+    <div class="chat-bar">
+      <div id="typingIndicator"></div>
+      <div class="chat-bar-row">
+        <button class="icon-btn" onclick="toggleEmojiPanel()">😊</button>
+        <input id="msgInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter') sendMessage()" oninput="onTyping()">
+        <button class="send-btn" onclick="sendMessage()"><span class="send-plane">✈️</span></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="dmBox">
+  <div class="dm-head"><div class="avatar" id="dmAv">👤</div><div class="dm-title" id="dmTitle">პირადი</div><button class="dm-x" onclick="closeDM()">✕</button></div>
+  <div id="dmMsgs"></div>
+  <div class="dm-bar"><input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter') sendDM()"><button class="send-btn" onclick="sendDM()">✈️</button></div>
+</div>
+
+<div id="emojiPanel"><div class="emoji-grid" id="emojiGrid"></div></div>
+
+<script>
+  // Supabase
+  const supabaseUrl = "https://vjstuyxuhshsouqsnvxp.supabase.co";
+  const supabaseKey = "eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNzb3Vxc254dnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE";
+  const sb = supabase.createClient(supabaseUrl, supabaseKey);
+  
+  let CURRENT_USER = null;
+  let CURRENT_ROOM = 1;
+  let allUsers = [];
+  let customEmojis = [];
+  let msgChannel = null;
+  let typingChannel = null;
+  let typingUsers = {};
+  let typingTimeout = null;
+  let DM_UID = null;
+  let dmChannel = null;
+  let dmUnread = {};
+
+  // Helper
+  function toast(msg) { let t = document.createElement('div'); t.className = 'toast'; t.innerText = msg; document.body.appendChild(t); setTimeout(()=>t.remove(), 2000); }
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function isOnline(ts) { return ts && (Date.now() - new Date(ts).getTime() < 90000); }
+  
+  async function loadAllUsers() { 
+    let {data} = await sb.from('profiles').select('*'); 
+    allUsers = data||[]; 
+    renderUserLists(); 
+    updateOnlineBadge(); 
+  }
+  
+  function renderUserLists() {
+    let container = document.getElementById('usersListEl'); 
+    if(container) container.innerHTML = allUsers.map(u => `<div class="list-item" onclick="openProfile('${u.id}')"><div class="avatar">${u.emotion||'😊'}</div><div>${esc(u.username)}</div></div>`).join('');
+    let onlineContainer = document.getElementById('onlineListEl'); 
+    if(onlineContainer) onlineContainer.innerHTML = allUsers.filter(u=>isOnline(u.last_seen)).map(u=>`<div class="list-item" onclick="openProfile('${u.id}')">${esc(u.username)}</div>`).join('');
+  }
+  
+  function updateOnlineBadge() { 
+    let cnt = allUsers.filter(u=>isOnline(u.last_seen)).length; 
+    let el = document.getElementById('onlineCnt'); 
+    if(el) el.innerHTML = `● ${cnt} ონლაინი`; 
+  }
+  
+  function filterUsers() { 
+    let q = document.getElementById('userSearch').value.toLowerCase(); 
+    document.querySelectorAll('#usersListEl .list-item').forEach(el => { 
+      el.style.display = el.innerText.toLowerCase().includes(q) ? '' : 'none'; 
+    }); 
+  }
+
+  // Rooms
+  const ROOMS = [
+    {id:1, icon:'🏠', name:'კაფე-ბარი'},
+    {id:2, icon:'🎮', name:'თამაშები'},
+    {id:3, icon:'📋', name:'ფორუმი'},
+    {id:4, icon:'🎵', name:'მუსიკა'},
+    {id:5, icon:'💜', name:'სოული კორნერ'}
+  ];
+  
+  function buildRooms() {
+    let container = document.getElementById('roomList');
+    container.innerHTML = ROOMS.map(r => `<div class="room-item" data-id="${r.id}"><div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div></div>`).join('');
+    document.querySelectorAll('.room-item').forEach(el => { el.onclick = () => switchRoom(parseInt(el.dataset.id)); });
+    document.querySelector('.room-item')?.classList.add('active');
+  }
+  
+  function switchRoom(roomId) {
+    CURRENT_ROOM = roomId;
+    let room = ROOMS.find(r=>r.id===roomId);
+    document.getElementById('roomTitle').innerText = room.name;
+    document.getElementById('roomIcon').innerText = room.icon;
+    document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));
+    document.querySelector(`.room-item[data-id="${roomId}"]`)?.classList.add('active');
+    loadMessages(CURRENT_ROOM);
+  }
+
+  // Messages
+  async function loadMessages(roomId) {
+    if(msgChannel) try{ await sb.removeChannel(msgChannel); }catch(e){}
+    if(typingChannel) try{ await sb.removeChannel(typingChannel); }catch(e){}
+    typingUsers = {}; updateTypingUI();
+    
+    let {data} = await sb.from('messages').select('*, profiles(username)').eq('room_id', roomId).order('created_at', {ascending:true}).limit(50);
+    let container = document.getElementById('messages');
+    container.innerHTML = '';
+    (data||[]).forEach(m => appendMessage(m));
+    container.scrollTop = container.scrollHeight;
+    
+    msgChannel = sb.channel(`room-${roomId}`).on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:`room_id=eq.${roomId}`}, payload => { appendMessage(payload.new); container.scrollTop = 9999; }).subscribe();
+    typingChannel = sb.channel(`typing-${roomId}`).on('broadcast', {event:'typing'}, ({payload}) => { if(payload.uid !== CURRENT_USER?.id) { typingUsers[payload.uid] = payload.name; updateTypingUI(); setTimeout(()=>{ delete typingUsers[payload.uid]; updateTypingUI(); }, 3000); } }).subscribe();
+  }
+  
+  function appendMessage(m) {
+    let isMe = m.user_id === CURRENT_USER?.id;
+    let row = document.createElement('div'); row.className = 'msg-row';
+    row.innerHTML = `<div class="avatar" onclick="openProfile('${m.user_id}')">😊</div>
+      <div class="msg-content"><div class="msg-bubble ${isMe ? 'mine' : ''}"><span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span><span class="msg-time">${new Date(m.created_at).toLocaleTimeString()}</span><br>${esc(m.content)}</div></div>`;
+    document.getElementById('messages').appendChild(row);
+  }
+  
+  async function sendMessage() {
+    if(!CURRENT_USER) { toast('ჯერ შედით სისტემაში'); return; }
+    let inp = document.getElementById('msgInput'); let txt = inp.value.trim(); if(!txt) return;
+    inp.value = ''; clearTimeout(typingTimeout);
+    await sb.from('messages').insert({room_id: CURRENT_ROOM, user_id: CURRENT_USER.id, content: txt});
+    document.querySelector('.send-btn')?.classList.add('fly'); setTimeout(()=>document.querySelector('.send-btn')?.classList.remove('fly'),400);
+  }
+  
+  function onTyping() { 
+    if(!CURRENT_USER) return;
+    clearTimeout(typingTimeout); 
+    sb.channel(`typing-${CURRENT_ROOM}`).send({type:'broadcast', event:'typing', payload:{uid:CURRENT_USER.id, name:CURRENT_USER.username}}); 
+    typingTimeout = setTimeout(()=> sb.channel(`typing-${CURRENT_ROOM}`).send({type:'broadcast', event:'stop', payload:{uid:CURRENT_USER.id}}), 2000); 
+  }
+  
+  function updateTypingUI() { 
+    let el = document.getElementById('typingIndicator'); 
+    let names = Object.values(typingUsers); 
+    el.innerHTML = names.length ? `<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${names.join(', ')} წერს...</span>` : ''; 
+  }
+
+  // Emojis
+  async function loadEmojis() { 
+    let {data} = await sb.from('global_emojis').select('*'); 
+    customEmojis = data||[]; 
+    buildEmojiGrid(); 
+  }
+  
+  function buildEmojiGrid() { 
+    let grid = document.getElementById('emojiGrid'); 
+    if(grid) grid.innerHTML = customEmojis.map(e => `<button class="em-btn" onclick="insertEmoji('${e.url.replace(/'/g, "\\'")}')">${e.url.startsWith('http')?`<img src="${e.url}">`:e.url}</button>`).join(''); 
+  }
+  
+  function insertEmoji(emoji) { 
+    let inp = document.getElementById('msgInput'); 
+    inp.value += emoji; 
+    inp.focus(); 
+  }
+  
+  function toggleEmojiPanel() { 
+    document.getElementById('emojiPanel').classList.toggle('open'); 
+  }
+
+  // DM System
+  async function openDMList() { 
+    await loadAllUsers(); 
+    let list = document.createElement('div'); list.className = 'overlay'; list.id = 'dmListTemp'; 
+    list.innerHTML = `<div class="modal" style="background:var(--panel);border-radius:24px;padding:20px;max-width:320px;margin:auto"><div style="font-weight:bold;margin-bottom:12px">აირჩიე მომხმარებელი</div><div id="dmUserListTemp"></div><button style="margin-top:12px;padding:8px;background:var(--indigo-f);border:none;border-radius:12px;cursor:pointer" onclick="this.parentElement.parentElement.remove()">დახურვა</button></div>`; 
+    document.body.appendChild(list); list.classList.add('open'); 
+    let container = list.querySelector('#dmUserListTemp'); 
+    container.innerHTML = allUsers.filter(u=>u.id!==CURRENT_USER?.id).map(u=>`<div class="list-item" onclick="openDM('${u.id}'); list.remove()">${esc(u.username)}</div>`).join(''); 
+  }
+  
+  async function openDM(uid) { 
+    DM_UID = uid; 
+    let user = allUsers.find(u=>u.id===uid); 
+    document.getElementById('dmTitle').innerText = user?.username||'პირადი'; 
+    document.getElementById('dmBox').classList.add('open'); 
+    let rk = [CURRENT_USER.id, uid].sort().join('_'); 
+    let {data} = await sb.from('direct_messages').select('*').eq('room_key', rk).order('created_at'); 
+    let container = document.getElementById('dmMsgs'); container.innerHTML = ''; 
+    (data||[]).forEach(m=>appendDMMsg(m)); 
+    if(dmChannel) try{ await sb.removeChannel(dmChannel); }catch(e){} 
+    dmChannel = sb.channel(`dm-${rk}`).on('postgres_changes', {event:'INSERT', schema:'public', table:'direct_messages', filter:`room_key=eq.${rk}`}, payload=>{ appendDMMsg(payload.new); container.scrollTop=9999; if(payload.new.sender_id !== CURRENT_USER.id) { dmUnread[payload.new.sender_id] = 0; updateDMBadge(); } }).subscribe(); 
+    container.scrollTop = 9999; 
+  }
+  
+  function appendDMMsg(m) { 
+    let isMe = m.sender_id === CURRENT_USER.id; 
+    let div = document.createElement('div'); 
+    div.className = 'msg-row'; 
+    div.innerHTML = `<div class="msg-bubble ${isMe?'mine':''}" style="max-width:100%"><span class="msg-time">${new Date(m.created_at).toLocaleTimeString()}</span><br>${esc(m.content)}</div>`; 
+    document.getElementById('dmMsgs').appendChild(div); 
+  }
+  
+  async function sendDM() { 
+    let inp = document.getElementById('dmInput'); let txt = inp.value.trim(); 
+    if(!txt || !DM_UID) return; 
+    inp.value = ''; 
+    let rk = [CURRENT_USER.id, DM_UID].sort().join('_'); 
+    await sb.from('direct_messages').insert({room_key: rk, sender_id: CURRENT_USER.id, receiver_id: DM_UID, content: txt}); 
+    appendDMMsg({sender_id: CURRENT_USER.id, content: txt, created_at: new Date()}); 
+    document.getElementById('dmMsgs').scrollTop = 9999; 
+  }
+  
+  function closeDM() { 
+    document.getElementById('dmBox').classList.remove('open'); 
+    if(dmChannel) try{ sb.removeChannel(dmChannel); }catch(e){} 
+    DM_UID=null; 
+  }
+  
+  function updateDMBadge() { 
+    let total = Object.values(dmUnread).reduce((a,b)=>a+b,0); 
+    let b = document.getElementById('dmBadge'); 
+    if(total) { b.innerText = total; b.classList.add('show'); } 
+    else b.classList.remove('show'); 
+  }
+
+  // Profile
+  async function openProfile(uid) { 
+    let {data:prof} = await sb.from('profiles').select('*').eq('id',uid).single(); 
+    alert(`👤 ${prof?.username}\n📝 სტატუსი: ${prof?.status||'მშვიდობა'}\n😊 ემოცია: ${prof?.emotion||'😊'}`); 
+  }
+  
+  function openMyProfile() { if(CURRENT_USER) openProfile(CURRENT_USER.id); else toast('ჯერ არ ხართ ავტორიზებული'); }
+
+  // Theme
+  function setTheme(t) { document.body.className = t; localStorage.setItem('kaif_theme', t); document.getElementById('themeBtn').innerText = t==='night'?'🌙':'☀️'; }
+  function toggleTheme() { setTheme(document.body.className === 'night' ? 'day' : 'night'); }
+
+  // Sidebar
+  function showPanel(name) { 
+    ['rooms','users','online'].forEach(p=>{ document.getElementById(`panel${p.charAt(0).toUpperCase()+p.slice(1)}`).classList.toggle('hidden', p!==name); }); 
+    if(window.innerWidth<640) document.getElementById('sidebar').classList.add('mob-open'); 
+    if(name==='users'||name==='online') loadAllUsers(); 
+  }
+  function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mob-open'); }
+
+  // Background animations
+  (function initBg() { 
+    let c = document.getElementById('bgCanvas'), ctx = c.getContext('2d'); 
+    function resize() { c.width = innerWidth; c.height = innerHeight; } 
+    resize(); window.addEventListener('resize', resize); 
+    let points = []; for(let i=0;i<60;i++) points.push({x:Math.random()*innerWidth, y:Math.random()*innerHeight, dx:(Math.random()-.5)*0.4, dy:(Math.random()-.5)*0.4}); 
+    function draw() { ctx.clearRect(0,0,c.width,c.height); for(let p of points) { ctx.beginPath(); ctx.arc(p.x,p.y,2,0,Math.PI*2); ctx.fillStyle = `rgba(139,92,246,0.2)`; ctx.fill(); p.x+=p.dx; p.y+=p.dy; if(p.x<0||p.x>c.width) p.dx*=-1; if(p.y<0||p.y>c.height) p.dy*=-1; } requestAnimationFrame(draw); } draw(); 
+  })();
+  
+  (function floatParticles() { 
+    let layer = document.getElementById('floatLayer'); 
+    let symbols = ['💜','🌸','💙','✨','⭐','🌙','🦋','🌊','💫']; 
+    setInterval(()=>{ 
+      let el = document.createElement('div'); el.className='fp'; el.innerText = symbols[Math.floor(Math.random()*symbols.length)]; 
+      el.style.left = Math.random()*100+'%'; el.style.fontSize = (1+Math.random()*1.2)+'rem'; 
+      let dur = 8+Math.random()*12; el.style.animationDuration = dur+'s'; 
+      el.style.setProperty('--fx', (Math.random()*100-50)+'px'); el.style.setProperty('--fy', (60+Math.random()*60)+'vh'); 
+      el.style.setProperty('--fr', (Math.random()*60-30)+'deg'); el.style.setProperty('--fs', 0.7+Math.random()*1.2); 
+      layer.appendChild(el); setTimeout(()=>el.remove(), dur*1000); 
+    }, 1300); 
+  })();
+
+  // Anonymous user (no login required)
+  async function initAnonymous() {
+    CURRENT_USER = { id: 'anonymous', username: 'სტუმარი' };
+    await loadAllUsers();
+    await loadEmojis();
+    buildRooms();
+    loadMessages(1);
+    const savedTheme = localStorage.getItem('kaif_theme');
+    setTheme(savedTheme || 'night');
+    sb.channel('dm-listener-anon').on('postgres_changes', {event:'INSERT', schema:'public', table:'direct_messages'}, payload => { toast('ახალი შეტყობინება'); }).subscribe();
+    setInterval(() => {}, 30000);
+    toast('✅ სისტემაში შესვლა წარმატებით დასრულდა (სტუმარი)');
+  }
+  
+  initAnonymous();
+</script>
+</body>
+</html>
