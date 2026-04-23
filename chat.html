@@ -1,0 +1,2770 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#7a1fc8">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="კაიფმანია">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ===== THEME VARIABLES ===== */
+body.night{
+–bg:#12101f;
+–bg2:#1a1730;
+–panel:#1e1b35;
+–panel2:#252245;
+–panel3:#2c2850;
+–border:rgba(140,60,255,0.28);
+–border2:rgba(140,60,255,0.15);
+–text:#ede0ff;
+–text2:#b08ad8;
+–text3:#7a5a9a;
+–bubble:#222040;
+–bubble-mine:rgba(110,25,190,0.30);
+–input-bg:#1a1730;
+–indigo:#6a18b8;
+–indigo2:#9d4edd;
+–indigo-f:rgba(106,24,184,0.15);
+–glow:rgba(157,78,221,0.30);
+–accent:#e879f9;
+–accent2:#c026d3;
+–online:#a855f7;
+–shadow:rgba(0,0,0,0.5);
+}
+body.day{
+–bg:#f0e8ff;
+–bg2:#ece0ff;
+–panel:#ffffff;
+–panel2:#f5eeff;
+–panel3:#ede0ff;
+–border:rgba(120,40,200,0.18);
+–border2:rgba(120,40,200,0.09);
+–text:#1e0a36;
+–text2:#6b3a9e;
+–text3:#a882cc;
+–bubble:#ffffff;
+–bubble-mine:rgba(120,40,200,0.10);
+–input-bg:#ffffff;
+–indigo:#5a189a;
+–indigo2:#7b2fbe;
+–indigo-f:rgba(90,24,154,0.07);
+–glow:rgba(120,40,200,0.18);
+–accent:#c026d3;
+–accent2:#a21caf;
+–online:#7b2fbe;
+–shadow:rgba(0,0,0,0.12);
+}
+
+/* ===== BASE ===== */
+html,body{height:100%;overflow:hidden}
+body{
+font-family:‘Noto Sans Georgian’,sans-serif;
+background:var(–bg);
+color:var(–text);
+display:flex;
+flex-direction:column;
+transition:background .35s,color .35s;
+position:relative;
+}
+
+/* ===== ANIMATED BACKGROUND ===== */
+#bgCanvas{
+position:fixed;inset:0;
+pointer-events:none;
+z-index:0;
+opacity:0.45;
+}
+
+/* ===== FLOATING HEARTS ===== */
+#hearts{
+position:fixed;inset:0;
+pointer-events:none;
+z-index:5;
+overflow:hidden;
+}
+.heart{
+position:absolute;
+bottom:-80px;
+user-select:none;
+pointer-events:none;
+will-change:transform,opacity;
+}
+@keyframes heartFloat{
+0%{transform:translateX(0) translateY(0) rotate(-5deg) scale(0.5);opacity:0}
+8%{opacity:0.85}
+50%{opacity:0.5}
+90%{opacity:0.1}
+100%{transform:translateX(var(–drift)) translateY(-105vh) rotate(12deg) scale(1.4);opacity:0}
+}
+
+/* ===== KEYFRAMES ===== */
+@keyframes flicker{
+0%,100%{filter:drop-shadow(0 0 8px var(–glow))}
+50%{filter:drop-shadow(0 0 24px var(–glow)) drop-shadow(0 0 48px var(–accent))}
+}
+@keyframes slideIn{from{opacity:0;transform:translateX(-18px)}to{opacity:1;transform:translateX(0)}}
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes msgPop{from{opacity:0;transform:translateY(12px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes modalIn{from{opacity:0;transform:translateY(28px) scale(0.92)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes dmIn{from{opacity:0;transform:translateY(24px) scale(0.94)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes planeFly{
+0%{transform:translate(0,0) rotate(0) scale(1);opacity:1}
+60%{transform:translate(28px,-28px) rotate(-38deg) scale(.75);opacity:.45}
+100%{transform:translate(56px,-56px) rotate(-45deg) scale(.3);opacity:0}
+}
+@keyframes scorePop{0%{transform:scale(1)}50%{transform:scale(1.35)}100%{transform:scale(1)}}
+@keyframes reactionIn{0%{transform:scale(0) translateY(6px);opacity:0}65%{transform:scale(1.18) translateY(-2px);opacity:1}100%{transform:scale(1) translateY(0);opacity:1}}
+@keyframes notifSlide{from{opacity:0;transform:translateX(110%)}to{opacity:1;transform:translateX(0)}}
+@keyframes recPulse{0%,100%{box-shadow:0 0 0 0 rgba(220,0,0,.45)}50%{box-shadow:0 0 0 7px rgba(220,0,0,0)}}
+@keyframes installPulse{0%,100%{box-shadow:0 0 0 0 rgba(157,78,221,.5)}50%{box-shadow:0 0 0 9px rgba(157,78,221,0)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes typingDot{0%,80%,100%{transform:scale(0.6);opacity:0.4}40%{transform:scale(1);opacity:1}}
+
+/* ===== TOP NAV ===== */
+#topnav{
+display:flex;align-items:center;gap:2px;
+background:var(–panel);
+border-bottom:1px solid var(–border);
+padding:5px 10px;
+z-index:200;flex-shrink:0;
+overflow-x:auto;scrollbar-width:none;
+box-shadow:0 2px 20px var(–shadow);
+position:relative;
+}
+#topnav::-webkit-scrollbar{display:none}
+.nav-logo{
+font-size:22px;margin-right:6px;
+animation:flicker 2.8s ease-in-out infinite;
+flex-shrink:0;cursor:pointer;
+transition:transform .2s;
+}
+.nav-logo:hover{transform:scale(1.15) rotate(-5deg)}
+.nav-btn{
+height:34px;border-radius:10px;
+background:transparent;border:1px solid transparent;
+color:var(–text2);font-size:15px;
+cursor:pointer;display:flex;align-items:center;
+justify-content:center;gap:4px;
+transition:all .2s;white-space:nowrap;
+padding:0 10px;flex-shrink:0;position:relative;
+}
+.nav-btn span.label{font-size:9px;font-family:‘Unbounded’,sans-serif;letter-spacing:.5px}
+.nav-btn:hover,.nav-btn.active{
+background:var(–indigo-f);
+border-color:var(–border);
+color:var(–text);
+}
+.badge{
+position:absolute;top:1px;right:1px;
+background:var(–accent);color:#fff;
+font-size:8px;font-weight:700;
+min-width:14px;height:14px;border-radius:7px;
+display:none;align-items:center;justify-content:center;padding:0 3px;
+}
+.badge.show{display:flex}
+.nav-spacer{flex:1}
+#installBtn{
+display:none;align-items:center;gap:5px;
+padding:5px 12px;border-radius:18px;
+background:linear-gradient(135deg,var(–indigo),var(–indigo2));
+border:none;color:#fff;
+font-size:10px;font-family:‘Unbounded’,sans-serif;
+font-weight:700;letter-spacing:.5px;cursor:pointer;
+flex-shrink:0;
+animation:installPulse 2s ease-in-out infinite;
+}
+#installBtn.show{display:flex}
+#installBtn:hover{transform:scale(1.05)}
+
+/* ===== LAYOUT ===== */
+#app{display:flex;flex:1;min-height:0;position:relative;z-index:2}
+
+/* ===== SIDEBAR ===== */
+#sidebar{
+width:252px;
+background:var(–panel);
+border-right:1px solid var(–border);
+display:flex;flex-direction:column;
+flex-shrink:0;position:relative;z-index:2;
+transition:all .3s ease;
+}
+@media(max-width:640px){
+#sidebar{display:none}
+#sidebar.mob-open{display:flex;position:fixed;inset:0;top:48px;z-index:300;width:100%}
+}
+.sb-header{
+padding:12px 14px;
+border-bottom:1px solid var(–border);
+font-family:‘Unbounded’,sans-serif;
+font-size:8px;letter-spacing:2.5px;
+color:var(–text2);text-transform:uppercase;
+display:flex;align-items:center;gap:7px;
+background:linear-gradient(90deg,var(–indigo-f),transparent);
+flex-shrink:0;
+}
+.sb-dot{
+width:5px;height:5px;border-radius:50%;
+background:var(–accent);
+box-shadow:0 0 7px var(–accent);
+flex-shrink:0;
+animation:flicker 2s ease-in-out infinite;
+}
+.sb-body{flex:1;overflow-y:auto;padding:8px 6px}
+.sb-body::-webkit-scrollbar{width:2px}
+.sb-body::-webkit-scrollbar-thumb{background:var(–border);border-radius:2px}
+.search-box{
+width:100%;padding:8px 12px;
+background:var(–input-bg);border:1px solid var(–border);
+border-radius:10px;color:var(–text);
+font-size:12px;font-family:‘Noto Sans Georgian’,sans-serif;
+outline:none;margin-bottom:8px;
+transition:border-color .2s;
+}
+.search-box:focus{border-color:var(–indigo2)}
+.search-box::placeholder{color:var(–text3)}
+.role-header{display:flex;align-items:center;gap:6px;padding:8px 6px 4px;margin-top:2px}
+.role-header-line{flex:1;height:1px;background:var(–border)}
+.role-header-text{font-size:8px;letter-spacing:1.5px;color:var(–text3);text-transform:uppercase;font-family:‘Unbounded’,sans-serif;white-space:nowrap}
+
+/* ===== ROOM ITEMS ===== */
+.room-item,.list-item{
+display:flex;align-items:center;gap:9px;
+padding:8px 9px;border-radius:12px;
+cursor:pointer;transition:all .2s cubic-bezier(.4,0,.2,1);
+margin-bottom:2px;border:1px solid transparent;
+animation:slideIn .3s ease backwards;
+}
+.room-item:hover,.list-item:hover{
+background:var(–indigo-f);
+border-color:var(–border2);
+transform:translateX(3px);
+}
+.room-item.active,.list-item.active{
+background:linear-gradient(90deg,var(–indigo-f),transparent);
+border-left:3px solid var(–accent);
+box-shadow:inset 0 0 20px var(–indigo-f);
+}
+.room-item.game-room{border:1px solid rgba(74,222,128,0.15)}
+.room-item.game-room:hover{border-color:rgba(74,222,128,0.4);background:rgba(74,222,128,0.07)}
+.room-item.game-room.active{border-left:3px solid #4ade80;background:rgba(74,222,128,0.09)}
+.room-item.forum-room{border:1px solid rgba(96,165,250,0.15)}
+.room-item.forum-room:hover{border-color:rgba(96,165,250,0.4);background:rgba(96,165,250,0.07)}
+.room-item.forum-room.active{border-left:3px solid #60a5fa;background:rgba(96,165,250,0.09)}
+
+.game-badge{font-size:7px;padding:1px 5px;border-radius:4px;background:rgba(74,222,128,0.12);color:#4ade80;border:1px solid rgba(74,222,128,0.25);font-family:‘Unbounded’,sans-serif;font-weight:700;letter-spacing:.3px;margin-left:auto;flex-shrink:0}
+.forum-badge{font-size:7px;padding:1px 5px;border-radius:4px;background:rgba(96,165,250,0.12);color:#60a5fa;border:1px solid rgba(96,165,250,0.25);font-family:‘Unbounded’,sans-serif;font-weight:700;letter-spacing:.3px;margin-left:auto;flex-shrink:0}
+.room-icon{width:32px;height:32px;border-radius:9px;background:var(–indigo-f);border:1px solid var(–border2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0}
+.room-name{font-size:12px;font-weight:500;color:var(–text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.list-info{flex:1;min-width:0}
+.list-name{font-size:12px;font-weight:500;color:var(–text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.list-sub{font-size:10px;color:var(–text3);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:1px}
+
+/* ===== AVATAR ===== */
+.avatar{
+width:32px;height:32px;border-radius:50%;
+background:var(–indigo-f);border:2px solid var(–border);
+display:flex;align-items:center;justify-content:center;
+font-size:15px;flex-shrink:0;position:relative;overflow:hidden;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.online-dot{
+width:8px;height:8px;background:var(–online);
+border-radius:50%;border:2px solid var(–panel);
+position:absolute;bottom:0;right:0;
+box-shadow:0 0 5px var(–online);
+}
+
+/* ===== MAIN AREA ===== */
+#main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;z-index:1;background:var(–bg)}
+
+.chat-header{
+height:50px;background:var(–panel);
+border-bottom:1px solid var(–border);
+display:flex;align-items:center;padding:0 16px;gap:9px;
+flex-shrink:0;z-index:2;
+box-shadow:0 1px 10px var(–shadow);
+}
+.chat-title{font-family:‘Unbounded’,sans-serif;font-size:12px;font-weight:700;color:var(–text)}
+.chat-sub{
+font-size:10px;color:var(–text2);margin-left:auto;
+background:var(–indigo-f);border:1px solid var(–border2);
+padding:3px 9px;border-radius:16px;white-space:nowrap;
+}
+.play-btn{
+margin-left:auto;display:none;align-items:center;gap:5px;
+padding:5px 12px;border-radius:16px;
+background:rgba(74,222,128,0.10);border:1px solid rgba(74,222,128,0.35);
+color:#4ade80;font-size:11px;font-weight:600;cursor:pointer;
+transition:all .2s;font-family:‘Noto Sans Georgian’,sans-serif;
+}
+.play-btn:hover{background:rgba(74,222,128,0.20)}
+.forum-open-btn{
+margin-left:auto;display:none;align-items:center;gap:5px;
+padding:5px 12px;border-radius:16px;
+background:rgba(96,165,250,0.10);border:1px solid rgba(96,165,250,0.35);
+color:#60a5fa;font-size:11px;font-weight:600;cursor:pointer;
+transition:all .2s;text-decoration:none;font-family:‘Noto Sans Georgian’,sans-serif;
+}
+.forum-open-btn:hover{background:rgba(96,165,250,0.20)}
+
+/* ===== MESSAGES ===== */
+#messages{
+flex:1;overflow-y:auto;
+padding:14px 16px;
+display:flex;flex-direction:column;gap:6px;
+position:relative;
+}
+#messages::-webkit-scrollbar{width:3px}
+#messages::-webkit-scrollbar-thumb{background:var(–border);border-radius:2px}
+
+.msg-row{
+display:flex;align-items:flex-end;gap:7px;
+animation:msgPop .3s cubic-bezier(.34,1.2,.64,1) backwards;
+}
+.msg-content{max-width:76%;display:flex;flex-direction:column;position:relative}
+.msg-bubble{
+background:var(–bubble);
+border:1px solid var(–border2);
+border-radius:4px 14px 14px 14px;
+padding:9px 13px;font-size:13px;
+color:var(–text);line-height:1.55;
+position:relative;word-break:break-word;
+}
+.msg-bubble.mine{
+background:var(–bubble-mine);
+border-color:rgba(157,78,221,0.35);
+}
+.msg-meta{display:flex;align-items:center;gap:4px;margin-bottom:2px;flex-wrap:wrap}
+.msg-nick{font-size:10px;font-weight:600;color:var(–indigo2);cursor:pointer}
+.msg-nick:hover{text-decoration:underline}
+.role-badge{font-size:8px;padding:1px 4px;border-radius:3px;font-weight:700}
+.rb-founder{background:rgba(255,180,0,.15);color:#f0a500;border:1px solid rgba(255,180,0,.25)}
+.rb-admin{background:rgba(157,78,221,.18);color:#c084fc;border:1px solid rgba(157,78,221,.25)}
+.msg-time{font-size:9px;color:var(–text3)}
+.msg-del{
+position:absolute;top:3px;right:7px;
+background:none;border:none;
+font-size:10px;color:var(–text3);
+cursor:pointer;opacity:0;transition:opacity .2s;padding:0;
+}
+.msg-bubble:hover .msg-del{opacity:1}
+.msg-react-btn{
+display:inline-flex;align-items:center;gap:2px;
+margin-top:3px;padding:2px 8px;
+background:var(–panel2);border:1px solid var(–border2);
+border-radius:16px;font-size:11px;cursor:pointer;
+opacity:0;transition:opacity .2s;
+align-self:flex-start;white-space:nowrap;
+}
+.msg-row:hover .msg-react-btn{opacity:1}
+.msg-react-btn:hover{background:var(–panel3);transform:scale(1.04)}
+.msg-reactions{display:flex;flex-wrap:wrap;gap:3px;margin-top:3px}
+.reaction-chip{
+display:inline-flex;align-items:center;gap:2px;
+padding:2px 7px;border-radius:16px;
+background:var(–panel2);border:1px solid var(–border2);
+font-size:11px;cursor:pointer;transition:all .2s;
+animation:reactionIn .28s cubic-bezier(.34,1.5,.64,1) backwards;
+user-select:none;
+}
+.reaction-chip:hover{transform:scale(1.08)}
+.reaction-chip.mine{background:rgba(157,78,221,0.18);border-color:rgba(157,78,221,0.38)}
+.reaction-chip .rc-count{font-size:10px;color:var(–text2);font-weight:600}
+.reaction-picker{
+position:fixed;
+background:var(–panel2);border:1px solid var(–border);
+border-radius:20px;padding:7px 10px;
+display:flex;gap:6px;z-index:9000;
+box-shadow:0 8px 28px var(–shadow);
+animation:modalIn .22s cubic-bezier(.34,1.3,.64,1);
+white-space:nowrap;pointer-events:all;
+}
+.rp-btn{font-size:20px;cursor:pointer;transition:transform .15s;border:none;background:none;padding:2px;border-radius:7px}
+.rp-btn:hover{transform:scale(1.32)}
+
+/* ===== EMOJI IMAGES IN CHAT ===== */
+.msg-bubble img.chat-emoji{
+width:48px!important;height:48px!important;
+object-fit:cover;vertical-align:middle;
+margin:0 2px;display:inline-block;border-radius:7px;
+}
+.msg-bubble img.chat-emoji-gif{
+width:60px!important;height:60px!important;
+object-fit:contain;vertical-align:middle;
+margin:0 2px;display:inline-block;border-radius:9px;
+}
+
+/* ===== GAME / FORUM PLACEHOLDERS ===== */
+#gameRoomPlaceholder{
+display:none;flex:1;flex-direction:column;
+align-items:center;justify-content:center;
+gap:14px;padding:28px;
+}
+.grp-icon{font-size:64px;animation:flicker 2.5s ease-in-out infinite}
+.grp-title{font-family:‘Unbounded’,sans-serif;font-size:18px;font-weight:900;color:var(–text);text-align:center}
+.grp-sub{font-size:13px;color:var(–text2);text-align:center;max-width:300px;line-height:1.6}
+.grp-score-row{
+display:flex;align-items:center;gap:12px;
+background:var(–panel);border:2px solid var(–border);
+border-radius:18px;padding:14px 24px;
+box-shadow:0 0 20px var(–glow);
+}
+.grp-score-label{font-size:10px;color:var(–text2);font-family:‘Unbounded’,sans-serif;letter-spacing:1px}
+.grp-score-val{font-family:‘Unbounded’,sans-serif;font-size:28px;font-weight:900;color:var(–accent);text-shadow:0 0 18px var(–accent)}
+.grp-play-btn{
+padding:12px 36px;border-radius:40px;
+background:linear-gradient(135deg,rgba(74,222,128,0.82),rgba(52,211,153,0.82));
+border:none;color:#052e16;
+font-family:‘Unbounded’,sans-serif;font-size:12px;font-weight:700;
+cursor:pointer;letter-spacing:.5px;
+box-shadow:0 6px 22px rgba(74,222,128,0.28);transition:all .2s;
+}
+.grp-play-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(74,222,128,0.42)}
+#forumRoomPlaceholder{
+display:none;flex:1;flex-direction:column;
+align-items:center;justify-content:center;
+gap:18px;padding:28px;
+animation:fadeUp .4s ease;
+}
+.frp-icon{font-size:64px;animation:flicker 3s ease-in-out infinite}
+.frp-title{font-family:‘Unbounded’,sans-serif;font-size:20px;font-weight:900;color:var(–text);text-align:center;letter-spacing:.5px}
+.frp-desc{font-size:13px;color:var(–text2);text-align:center;max-width:340px;line-height:1.8}
+.frp-stats{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.frp-stat{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:18px;background:var(–panel);border:1px solid var(–border2);font-size:11px;color:var(–text2);font-family:‘Unbounded’,sans-serif;letter-spacing:.3px}
+.frp-open-btn{
+padding:12px 36px;border-radius:40px;
+background:linear-gradient(135deg,rgba(96,165,250,0.82),rgba(59,130,246,0.82));
+border:none;color:#0f172a;
+font-family:‘Unbounded’,sans-serif;font-size:12px;font-weight:700;
+cursor:pointer;letter-spacing:.5px;
+box-shadow:0 6px 22px rgba(96,165,250,0.28);transition:all .2s;
+text-decoration:none;display:flex;align-items:center;gap:7px;
+}
+.frp-open-btn:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(96,165,250,0.42)}
+.frp-role-note{font-size:10px;color:var(–text3);text-align:center;font-family:‘Unbounded’,sans-serif;letter-spacing:.3px;padding:5px 12px;border-radius:10px;background:var(–indigo-f);border:1px solid var(–border2)}
+
+/* ===== CHAT BAR ===== */
+.chat-bar{
+background:var(–panel);
+border-top:1px solid var(–border);
+padding:8px 14px 12px;
+display:flex;flex-direction:column;gap:5px;
+flex-shrink:0;position:relative;z-index:2;
+box-shadow:0 -2px 16px var(–shadow);
+}
+.chat-toolbar{display:flex;align-items:center;gap:3px}
+.fmt-btn{
+height:26px;min-width:26px;border-radius:6px;
+background:transparent;border:1px solid transparent;
+color:var(–text2);font-size:12px;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+transition:all .2s;padding:0 5px;
+font-family:‘Noto Sans Georgian’,sans-serif;
+}
+.fmt-btn:hover,.fmt-btn.active{background:var(–indigo-f);border-color:var(–border2);color:var(–text)}
+.fmt-btn b{font-weight:900;font-size:13px}
+.fmt-btn i{font-style:italic;font-size:13px}
+.fmt-sep{width:1px;height:18px;background:var(–border);margin:0 3px;flex-shrink:0}
+.chat-bar-row{display:flex;align-items:center;gap:8px}
+.icon-btn{
+width:40px;height:40px;border-radius:11px;
+background:var(–indigo-f);border:1px solid var(–border2);
+font-size:17px;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+flex-shrink:0;transition:all .2s;
+}
+.icon-btn:hover{background:var(–panel3);transform:scale(1.06)}
+
+/* ===== INPUT ===== */
+#msgInput{
+flex:1;background:var(–input-bg);
+border:1.5px solid var(–border);
+border-radius:20px;padding:11px 18px;
+color:var(–text);-webkit-text-fill-color:var(–text);font-size:13px;
+font-family:‘Noto Sans Georgian’,sans-serif;
+outline:none;height:44px;
+transition:border-color .2s,box-shadow .2s;
+box-shadow:inset 0 1px 4px rgba(0,0,0,.08);
+}
+#msgInput:focus{border-color:var(–indigo2);box-shadow:0 0 0 3px var(–indigo-f),inset 0 1px 4px rgba(0,0,0,.08)}
+#msgInput::placeholder{color:var(–text3)}
+
+/* ===== TYPING INDICATOR ===== */
+.typing-indicator{
+display:flex;align-items:center;gap:8px;
+padding:4px 0;font-size:11px;color:var(–text3);
+font-style:italic;min-height:18px;
+}
+.typing-dots{display:flex;gap:3px;align-items:center}
+.typing-dot{
+width:5px;height:5px;border-radius:50%;
+background:var(–text3);
+animation:typingDot 1.4s ease-in-out infinite;
+}
+.typing-dot:nth-child(2){animation-delay:.2s}
+.typing-dot:nth-child(3){animation-delay:.4s}
+
+/* ===== SEND BUTTON ===== */
+.send-btn{
+width:44px;height:44px;border-radius:50%;
+background:linear-gradient(135deg,var(–indigo),var(–indigo2));
+border:none;color:#fff;font-size:18px;
+cursor:pointer;display:flex;align-items:center;justify-content:center;
+flex-shrink:0;transition:transform .2s,box-shadow .2s;
+box-shadow:0 4px 16px rgba(106,24,184,.5);
+overflow:hidden;position:relative;
+}
+.send-btn:hover{transform:scale(1.1);box-shadow:0 6px 22px rgba(106,24,184,.65)}
+.send-plane{display:inline-block}
+.send-btn.fly .send-plane{animation:planeFly .42s ease forwards}
+
+/* ===== EMOJI PANEL ===== */
+#emojiPanel{
+position:fixed;bottom:82px;left:14px;
+background:var(–panel2);border:1px solid var(–border);
+border-radius:16px;padding:12px;width:340px;
+z-index:1000;
+box-shadow:0 10px 36px var(–shadow);
+display:none;
+}
+#emojiPanel.open{display:block;animation:fadeUp .22s ease}
+.ep-header{
+display:flex;justify-content:space-between;align-items:center;
+margin-bottom:9px;font-size:8px;color:var(–text2);
+font-family:‘Unbounded’,sans-serif;letter-spacing:1.5px;text-transform:uppercase;
+}
+.emoji-grid{
+display:flex;flex-wrap:wrap;gap:6px;
+max-height:200px;overflow-y:auto;margin-bottom:8px;
+}
+.emoji-grid::-webkit-scrollbar{width:2px}
+.emoji-grid::-webkit-scrollbar-thumb{background:var(–border)}
+.em-btn{
+width:56px;height:56px;border-radius:12px;
+background:var(–indigo-f);border:1px solid var(–border2);
+cursor:pointer;display:flex;align-items:center;justify-content:center;
+transition:all .15s;position:relative;overflow:visible;flex-shrink:0;
+}
+.em-btn:hover{background:var(–panel3);transform:scale(1.1)}
+.em-btn img{width:42px!important;height:42px!important;border-radius:7px;object-fit:contain;display:block;pointer-events:none}
+.em-btn .em-emoji-text{font-size:28px;line-height:1;pointer-events:none}
+.em-del{
+position:absolute;top:-5px;right:-5px;
+width:16px;height:16px;background:#cc0000;color:#fff;
+border-radius:50%;font-size:8px;
+display:none;align-items:center;justify-content:center;
+cursor:pointer;border:none;z-index:10;
+}
+.em-btn:hover .em-del.vis{display:flex}
+#addEmojiSection{border-top:1px solid var(–border);padding-top:9px;margin-top:5px}
+.ep-upload-btn{
+width:100%;padding:7px;background:var(–indigo-f);
+border:1px solid var(–border2);border-radius:9px;
+color:var(–text2);font-size:11px;cursor:pointer;
+font-family:‘Noto Sans Georgian’,sans-serif;text-align:center;
+transition:background .2s;margin-bottom:6px;display:block;
+}
+.ep-upload-btn:hover{background:var(–panel3)}
+.ep-add{display:flex;gap:5px}
+.ep-add-btn{
+background:linear-gradient(135deg,var(–indigo),var(–indigo2));
+border:none;border-radius:9px;color:#fff;
+font-size:11px;padding:0 11px;cursor:pointer;
+font-family:‘Noto Sans Georgian’,sans-serif;white-space:nowrap;height:36px;
+}
+
+/* ===== MODALS ===== */
+.overlay{
+position:fixed;inset:0;
+background:rgba(0,0,0,.72);backdrop-filter:blur(8px);
+z-index:10000;display:none;
+align-items:center;justify-content:center;padding:14px;
+}
+.overlay.open{display:flex}
+.modal{
+background:var(–panel);border:1px solid var(–border);
+border-radius:20px;width:100%;max-width:450px;
+max-height:90vh;overflow-y:auto;padding:22px;
+position:relative;
+box-shadow:0 20px 56px var(–shadow),0 0 36px var(–glow);
+z-index:10001;animation:modalIn .35s cubic-bezier(.34,1.3,.64,1);
+}
+.modal::-webkit-scrollbar{width:2px}
+.modal::-webkit-scrollbar-thumb{background:var(–border)}
+.modal-x{
+position:absolute;top:12px;right:12px;
+background:var(–indigo-f);border:1px solid var(–border2);
+border-radius:8px;width:26px;height:26px;
+color:var(–text2);font-size:12px;cursor:pointer;
+display:flex;align-items:center;justify-content:center;
+}
+.modal-x:hover{background:var(–panel3);color:var(–text)}
+.modal-title{
+font-family:‘Unbounded’,sans-serif;font-size:11px;
+font-weight:700;color:var(–text);
+margin-bottom:18px;letter-spacing:1px;text-transform:uppercase;
+}
+.sec-lbl{font-size:8px;letter-spacing:2px;color:var(–text2);text-transform:uppercase;font-family:‘Unbounded’,sans-serif;margin:12px 0 6px}
+.divider{height:1px;background:var(–border);margin:12px 0}
+
+/* ===== PROFILE ===== */
+.av-big-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;margin-bottom:16px}
+.av-big{
+width:82px;height:82px;border-radius:50%;
+background:var(–indigo-f);border:3px solid var(–border);
+display:flex;align-items:center;justify-content:center;
+font-size:38px;cursor:pointer;position:relative;overflow:hidden;
+transition:border-color .2s,box-shadow .2s;
+box-shadow:0 0 18px var(–glow);
+}
+.av-big:hover{border-color:var(–indigo2)}
+.av-big img{width:100%;height:100%;object-fit:cover}
+.av-edit{
+position:absolute;inset:0;
+background:rgba(106,24,184,.58);
+display:flex;align-items:center;justify-content:center;
+font-size:18px;opacity:0;transition:opacity .2s;
+}
+.av-big:hover .av-edit{opacity:1}
+.prof-name{font-size:17px;font-weight:600;color:var(–text)}
+.prof-role{font-size:10px;padding:2px 11px;border-radius:16px}
+.pr-founder{background:rgba(255,180,0,.13);color:#f0a500;border:1px solid rgba(255,180,0,.25)}
+.pr-admin{background:rgba(157,78,221,.18);color:#c084fc;border:1px solid rgba(157,78,221,.25)}
+.pr-member{background:var(–indigo-f);color:var(–text2);border:1px solid var(–border2)}
+.prof-scores-row{display:flex;gap:5px;flex-wrap:wrap;justify-content:center}
+.prof-game-score{display:flex;align-items:center;gap:4px;border-radius:16px;padding:3px 10px;font-size:10px;font-family:‘Unbounded’,sans-serif;font-weight:700}
+.prof-game-score.word{background:rgba(74,222,128,0.08);border:1px solid rgba(74,222,128,0.22);color:#4ade80}
+.prof-game-score.quiz{background:rgba(157,78,221,0.08);border:1px solid rgba(157,78,221,0.22);color:#a855f7}
+.prof-game-score.hang{background:rgba(251,191,36,0.08);border:1px solid rgba(251,191,36,0.22);color:#fbbf24}
+.prof-game-score.animate{animation:scorePop .38s ease}
+
+/* ===== INPUTS ===== */
+.inp{
+width:100%;padding:10px 13px;
+background:var(–input-bg);border:1px solid var(–border);
+border-radius:10px;color:var(–text);
+font-family:‘Noto Sans Georgian’,sans-serif;font-size:12px;
+outline:none;margin-bottom:7px;transition:border-color .2s;
+}
+.inp:focus{border-color:var(–indigo2)}
+.inp::placeholder{color:var(–text3)}
+.inp:disabled{opacity:.5;cursor:not-allowed}
+select.inp{cursor:pointer}
+.emo-row{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:9px}
+.emo-btn{
+padding:5px 10px;border-radius:16px;
+background:var(–indigo-f);border:1px solid var(–border2);
+color:var(–text2);font-size:12px;cursor:pointer;transition:all .2s;
+}
+.emo-btn.active,.emo-btn:hover{background:var(–indigo);color:#fff;border-color:var(–indigo2)}
+.act-btn{
+width:100%;padding:10px;border-radius:10px;
+border:1px solid var(–border2);background:var(–indigo-f);
+color:var(–text);font-family:‘Noto Sans Georgian’,sans-serif;
+font-size:12px;cursor:pointer;transition:all .2s;
+margin-bottom:5px;text-align:left;
+}
+.act-btn:hover{background:var(–panel3)}
+.act-btn.danger{border-color:rgba(220,0,0,.28);color:#ff7777}
+.act-btn.danger:hover{background:rgba(220,0,0,.1)}
+.act-btn.success{border-color:rgba(80,210,0,.28);color:#88ee44}
+.act-btn.success:hover{background:rgba(80,210,0,.06)}
+.act-btn.warn{border-color:rgba(255,160,0,.28);color:#ffaa33}
+.act-btn.warn:hover{background:rgba(255,160,0,.06)}
+
+/* ===== GALLERY TABS ===== */
+.gallery-tabs{display:flex;gap:5px;margin-bottom:14px}
+.gtab{
+flex:1;padding:8px;border-radius:9px;
+border:1px solid var(–border2);background:var(–indigo-f);
+color:var(–text2);font-family:‘Noto Sans Georgian’,sans-serif;
+font-size:11px;cursor:pointer;text-align:center;
+transition:all .25s;
+}
+.gtab.active,.gtab:hover{background:var(–indigo);color:#fff;border-color:var(–indigo2)}
+.album-bar{display:flex;align-items:center;gap:5px;margin-bottom:12px;flex-wrap:wrap}
+.album-chip{
+padding:4px 11px;border-radius:16px;
+border:1px solid var(–border2);background:var(–indigo-f);
+color:var(–text2);font-size:11px;cursor:pointer;transition:all .2s;white-space:nowrap;
+}
+.album-chip.active,.album-chip:hover{background:var(–indigo);color:#fff;border-color:var(–indigo2)}
+.album-chip.new-album{border-style:dashed;color:var(–accent)}
+.album-chip.new-album:hover{background:rgba(232,121,249,.08);border-color:var(–accent);color:var(–accent)}
+.album-chip .chip-del{margin-left:4px;font-size:9px;opacity:.6;cursor:pointer}
+.album-chip .chip-del:hover{opacity:1}
+.album-create-form{background:var(–panel2);border:1px solid var(–border2);border-radius:10px;padding:9px 11px;margin-bottom:9px;display:none;gap:5px;align-items:center}
+.album-create-form.open{display:flex}
+.album-create-form input{flex:1;background:var(–input-bg);border:1px solid var(–border2);border-radius:7px;padding:6px 9px;color:var(–text);font-size:11px;font-family:‘Noto Sans Georgian’,sans-serif;outline:none}
+.album-create-form input:focus{border-color:var(–indigo2)}
+.album-create-form button{background:linear-gradient(135deg,var(–indigo),var(–indigo2));border:none;border-radius:7px;color:#fff;font-size:11px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+.gallery-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:9px}
+.gal-item{
+position:relative;aspect-ratio:1;border-radius:9px;
+overflow:hidden;cursor:pointer;
+border:1px solid var(–border2);background:var(–indigo-f);
+transition:transform .2s;
+animation:fadeUp .35s ease backwards;
+}
+.gal-item:hover{transform:scale(1.04)}
+.gal-item img{width:100%;height:100%;object-fit:cover;display:block}
+.gal-overlay{
+position:absolute;inset:0;
+background:linear-gradient(to top,rgba(0,0,0,.8),transparent 55%);
+opacity:0;transition:opacity .2s;
+display:flex;flex-direction:column;justify-content:flex-end;padding:5px;
+}
+.gal-item:hover .gal-overlay{opacity:1}
+.gal-cap{font-size:9px;color:#fff;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;margin-top:2px}
+.gal-del{
+position:absolute;top:4px;right:4px;
+background:rgba(200,0,0,.85);border:none;border-radius:5px;
+color:#fff;font-size:9px;cursor:pointer;padding:2px 5px;
+opacity:0;transition:opacity .2s;z-index:2;
+}
+.gal-item:hover .gal-del{opacity:1}
+.gal-empty{text-align:center;padding:28px 0;color:var(–text3);font-size:12px}
+.gal-upload-area{
+border:2px dashed var(–border);border-radius:12px;
+padding:18px;text-align:center;cursor:pointer;
+transition:all .2s;margin-bottom:10px;
+}
+.gal-upload-area:hover{border-color:var(–indigo2);background:var(–indigo-f)}
+.gal-form{background:var(–panel2);border:1px solid var(–border2);border-radius:12px;padding:12px;margin-bottom:10px;display:none}
+.gal-form.open{display:block}
+.gal-preview{width:100%;max-height:180px;object-fit:contain;border-radius:9px;margin-bottom:9px;background:rgba(0,0,0,.3);display:none}
+.gal-preview.show{display:block}
+.gal-emo-row{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:7px}
+.gal-emo-btn{padding:3px 8px;border-radius:14px;background:var(–indigo-f);border:1px solid var(–border2);color:var(–text2);font-size:13px;cursor:pointer;transition:all .2s}
+.gal-emo-btn.active,.gal-emo-btn:hover{background:var(–indigo);color:#fff;border-color:var(–indigo2)}
+.gal-inp{width:100%;padding:8px 11px;background:var(–input-bg);border:1px solid var(–border2);border-radius:9px;color:var(–text);font-family:‘Noto Sans Georgian’,sans-serif;font-size:12px;outline:none;margin-bottom:7px}
+.gal-inp:focus{border-color:var(–indigo2)}
+.gal-inp::placeholder{color:var(–text3)}
+.gal-album-select{width:100%;padding:8px 11px;background:var(–input-bg);border:1px solid var(–border2);border-radius:9px;color:var(–text);font-family:‘Noto Sans Georgian’,sans-serif;font-size:12px;outline:none;margin-bottom:7px;cursor:pointer}
+
+/* ===== APPEARANCE SETTINGS ===== */
+.color-swatch-row{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:5px}
+.color-swatch{width:32px;height:32px;border-radius:9px;cursor:pointer;border:2px solid transparent;transition:all .2s;box-shadow:0 2px 7px rgba(0,0,0,.2)}
+.color-swatch:hover{transform:scale(1.14);box-shadow:0 4px 13px rgba(0,0,0,.28)}
+.color-swatch.active{border-color:#fff;box-shadow:0 0 0 3px var(–indigo2),0 4px 13px rgba(0,0,0,.28)}
+.color-custom-inp{width:32px;height:32px;border-radius:9px;border:2px solid var(–border);cursor:pointer;padding:0;background:none;outline:none}
+.theme-toggle-big{display:flex;gap:9px;margin-bottom:9px}
+.theme-card{flex:1;padding:11px;border-radius:12px;border:2px solid var(–border2);cursor:pointer;text-align:center;transition:all .2s;background:var(–indigo-f)}
+.theme-card:hover{border-color:var(–indigo2);transform:translateY(-2px)}
+.theme-card.active{border-color:var(–accent);background:rgba(157,78,221,0.1);box-shadow:0 0 18px var(–glow)}
+.theme-card-icon{font-size:26px;margin-bottom:5px}
+.theme-card-label{font-size:10px;font-family:‘Unbounded’,sans-serif;letter-spacing:.5px;color:var(–text2)}
+.theme-card.active .theme-card-label{color:var(–accent)}
+
+/* ===== PHOTO VIEWER ===== */
+.photo-viewer{
+position:fixed;inset:0;
+background:rgba(0,0,0,.95);
+z-index:20000;display:none;flex-direction:column;
+align-items:center;justify-content:flex-start;
+padding:14px;overflow-y:auto;
+}
+.photo-viewer.open{display:flex}
+.pv-close{
+position:fixed;top:14px;right:14px;
+background:var(–indigo-f);border:1px solid var(–border2);
+border-radius:9px;width:36px;height:36px;
+color:var(–text);font-size:18px;cursor:pointer;
+display:flex;align-items:center;justify-content:center;z-index:20001;
+}
+.pv-img{max-width:88vw;max-height:52vh;border-radius:12px;object-fit:contain;box-shadow:0 0 52px var(–glow);margin-top:6px;flex-shrink:0}
+.pv-info{margin-top:10px;text-align:center;max-width:460px;width:100%}
+.pv-title{font-size:15px;font-weight:600;color:var(–text);margin-bottom:3px}
+.pv-emo{font-size:22px;margin-bottom:3px}
+.pv-comment-text{font-size:12px;color:var(–text2)}
+.pv-author{font-size:10px;color:var(–text3);margin-top:4px}
+.pv-counter{font-size:10px;color:var(–text3);margin-top:2px}
+.pv-nav{display:flex;gap:10px;margin-top:10px}
+.pv-nav-btn{background:var(–indigo-f);border:1px solid var(–border2);border-radius:9px;width:40px;height:40px;color:var(–text);font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.pv-nav-btn:hover{background:var(–panel3)}
+.pv-reactions-section{width:100%;max-width:460px;margin-top:12px;background:var(–panel);border:1px solid var(–border2);border-radius:16px;padding:12px}
+.pv-reactions-bar{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px}
+.pv-react-picker{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:8px}
+.pv-react-btn{font-size:18px;cursor:pointer;padding:3px 7px;border-radius:9px;background:var(–indigo-f);border:1px solid var(–border2);transition:all .15s}
+.pv-react-btn:hover{transform:scale(1.18);background:var(–panel3)}
+.pv-reaction-chip{display:inline-flex;align-items:center;gap:2px;padding:3px 9px;border-radius:16px;background:var(–panel2);border:1px solid var(–border2);font-size:12px;cursor:pointer;transition:all .2s;animation:reactionIn .28s cubic-bezier(.34,1.5,.64,1) backwards}
+.pv-reaction-chip.mine{background:rgba(157,78,221,0.18);border-color:rgba(157,78,221,0.38)}
+.pv-reaction-chip:hover{transform:scale(1.06)}
+.pv-comments-section{width:100%;max-width:460px;margin-top:8px;background:var(–panel);border:1px solid var(–border2);border-radius:16px;padding:12px;margin-bottom:20px}
+.pv-comments-title{font-size:9px;letter-spacing:1.5px;color:var(–text2);font-family:‘Unbounded’,sans-serif;text-transform:uppercase;margin-bottom:9px}
+.pv-comment-item{display:flex;align-items:flex-start;gap:7px;margin-bottom:9px;animation:msgPop .28s ease}
+.pv-comment-av{width:26px;height:26px;border-radius:50%;background:var(–indigo-f);border:1px solid var(–border2);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
+.pv-comment-av img{width:100%;height:100%;object-fit:cover}
+.pv-comment-body{background:var(–bubble);border:1px solid var(–border2);border-radius:4px 12px 12px 12px;padding:7px 11px;flex:1}
+.pv-comment-nick{font-size:10px;font-weight:600;color:var(–indigo2);margin-bottom:2px;cursor:pointer}
+.pv-comment-nick:hover{text-decoration:underline}
+.pv-comment-content{font-size:12px;color:var(–text);word-break:break-word}
+.pv-comment-time{font-size:9px;color:var(–text3);margin-top:2px}
+.pv-comment-del{background:none;border:none;color:var(–text3);font-size:10px;cursor:pointer;margin-left:5px;opacity:.6}
+.pv-comment-del:hover{opacity:1;color:#ff7777}
+.pv-comment-input-wrap{display:flex;gap:5px;align-items:flex-end;margin-top:7px;position:relative}
+#pvCommentInput{flex:1;background:var(–input-bg);border:1px solid var(–border2);border-radius:12px;padding:8px 12px;color:var(–text);font-size:12px;font-family:‘Noto Sans Georgian’,sans-serif;outline:none;resize:none;max-height:90px;min-height:38px}
+#pvCommentInput:focus{border-color:var(–indigo2)}
+#pvCommentInput::placeholder{color:var(–text3)}
+.pv-comment-send{background:linear-gradient(135deg,var(–indigo),var(–indigo2));border:none;border-radius:10px;color:#fff;font-size:15px;cursor:pointer;padding:0 12px;height:38px;flex-shrink:0}
+.pv-comment-emoji-btn{width:34px;height:38px;border-radius:9px;background:var(–indigo-f);border:1px solid var(–border2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.pv-comment-emoji-btn:hover{background:var(–panel3)}
+#pvEmojiPanel{position:absolute;bottom:46px;left:0;background:var(–panel2);border:1px solid var(–border);border-radius:14px;padding:11px;width:320px;z-index:21000;box-shadow:0 8px 28px var(–shadow);display:none}
+#pvEmojiPanel.open{display:block;animation:fadeUp .2s ease}
+#pvEmojiPanel .emoji-grid{max-height:160px;margin-bottom:0}
+#pvEmojiPanel .em-btn{width:48px;height:48px}
+#pvEmojiPanel .em-btn img{width:36px!important;height:36px!important}
+
+/* ===== DM BOX ===== */
+#dmBox{
+position:fixed;right:14px;bottom:14px;
+width:320px;height:440px;
+background:var(–panel);border:1px solid var(–border);
+border-radius:18px;display:none;flex-direction:column;
+z-index:15000;
+box-shadow:0 16px 48px var(–shadow),0 0 28px var(–glow);
+overflow:hidden;
+}
+#dmBox.open{display:flex;animation:dmIn .32s cubic-bezier(.2,.9,.4,1.1)}
+.dm-head{
+background:linear-gradient(135deg,var(–indigo),var(–indigo2));
+padding:11px 13px;display:flex;align-items:center;gap:8px;flex-shrink:0;
+}
+.dm-title{flex:1;font-size:12px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dm-x{background:rgba(255,255,255,.18);border:none;border-radius:6px;color:#fff;font-size:10px;cursor:pointer;padding:3px 7px}
+.dm-x:hover{background:rgba(255,255,255,.32)}
+#dmMsgs{flex:1;overflow-y:auto;padding:11px;display:flex;flex-direction:column;gap:5px}
+#dmMsgs::-webkit-scrollbar{width:2px}
+#dmMsgs::-webkit-scrollbar-thumb{background:var(–border)}
+.dm-voice-bubble{display:flex;align-items:center;gap:7px;background:var(–indigo-f);border:1px solid var(–border2);border-radius:12px;padding:7px 11px;min-width:160px;max-width:100%}
+.dm-voice-bubble audio{height:26px;flex:1;min-width:0;accent-color:var(–indigo2)}
+.dm-bar{display:flex;gap:5px;padding:7px 9px;border-top:1px solid var(–border2);flex-shrink:0;align-items:center;position:relative;flex-wrap:wrap}
+#dmInput{flex:1;background:var(–input-bg);border:1px solid var(–border2);border-radius:12px;padding:7px 11px;color:var(–text);-webkit-text-fill-color:var(–text);font-size:12px;font-family:‘Noto Sans Georgian’,sans-serif;outline:none;min-width:0}
+#dmInput:focus{border-color:var(–indigo2)}
+.dm-icon-btn{width:32px;height:32px;border-radius:9px;background:var(–indigo-f);border:1px solid var(–border2);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.dm-icon-btn:hover{background:var(–panel3)}
+.dm-icon-btn.recording{background:rgba(220,0,0,.18);border-color:rgba(220,0,0,.38);animation:recPulse 1s ease-in-out infinite}
+.dm-send{background:linear-gradient(135deg,var(–indigo),var(–indigo2));border:none;border-radius:10px;color:#fff;font-size:15px;cursor:pointer;padding:0 12px;height:32px;overflow:hidden;position:relative;flex-shrink:0}
+.dm-plane{display:inline-block}
+.dm-send.fly .dm-plane{animation:planeFly .42s ease forwards}
+#dmEmojiPanel{position:absolute;bottom:52px;left:7px;background:var(–panel2);border:1px solid var(–border);border-radius:14px;padding:11px;width:290px;z-index:1000;box-shadow:0 8px 28px var(–shadow);display:none}
+#dmEmojiPanel.open{display:block;animation:fadeUp .2s ease}
+#dmEmojiPanel .emoji-grid{max-height:160px;margin-bottom:0}
+#dmEmojiPanel .em-btn{width:48px;height:48px}
+#dmEmojiPanel .em-btn img{width:36px!important;height:36px!important}
+#dmVoicePreview{width:100%;padding:7px 9px;display:none;align-items:center;gap:7px;background:rgba(106,24,184,0.1);border-top:1px solid var(–border2);flex-shrink:0}
+#dmVoicePreview.show{display:flex}
+#dmVoicePreview audio{height:26px;flex:1;min-width:0;accent-color:var(–indigo2)}
+.voice-send-btn{background:linear-gradient(135deg,var(–indigo),var(–indigo2));border:none;border-radius:9px;color:#fff;font-size:11px;padding:0 10px;height:30px;cursor:pointer;white-space:nowrap;font-family:‘Noto Sans Georgian’,sans-serif;flex-shrink:0}
+.voice-cancel-btn{background:none;border:1px solid rgba(220,0,0,.28);border-radius:9px;color:#ff7777;font-size:11px;padding:0 9px;height:30px;cursor:pointer;font-family:‘Noto Sans Georgian’,sans-serif;flex-shrink:0}
+
+/* ===== DM NOTIFICATION ===== */
+#dmNotif{
+position:fixed;top:62px;right:14px;
+background:linear-gradient(135deg,var(–indigo),var(–indigo2));
+border-radius:16px;padding:11px 14px;max-width:270px;
+z-index:99000;
+box-shadow:0 8px 30px var(–shadow);
+display:none;cursor:pointer;
+}
+#dmNotif.show{display:block;animation:notifSlide .38s cubic-bezier(.34,1.3,.64,1)}
+.dn-row{display:flex;align-items:center;gap:9px}
+.dn-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;overflow:hidden}
+.dn-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.dn-name{font-size:11px;font-weight:700;color:#fff;font-family:‘Unbounded’,sans-serif}
+.dn-text{font-size:11px;color:rgba(255,255,255,.8);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:190px}
+.dn-close{position:absolute;top:5px;right:7px;background:none;border:none;color:rgba(255,255,255,.58);font-size:11px;cursor:pointer;padding:2px 5px;border-radius:5px}
+.dn-close:hover{background:rgba(255,255,255,.13);color:#fff}
+
+/* ===== DM LIST ===== */
+#dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.72);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center;padding:14px}
+#dmListOverlay.open{display:flex}
+.dm-list-modal{background:var(–panel);border:1px solid var(–border);border-radius:20px;width:100%;max-width:320px;padding:18px;box-shadow:0 20px 56px var(–shadow),0 0 36px var(–glow);animation:modalIn .28s cubic-bezier(.22,1,.36,1);max-height:68vh;display:flex;flex-direction:column}
+.dm-list-title{font-family:‘Unbounded’,sans-serif;font-size:10px;font-weight:700;color:var(–text);margin-bottom:12px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
+.dm-list-close{background:var(–indigo-f);border:1px solid var(–border2);border-radius:7px;width:24px;height:24px;color:var(–text2);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.dm-list-body{overflow-y:auto;flex:1}
+.dm-list-item{display:flex;align-items:center;gap:9px;padding:8px 9px;border-radius:10px;cursor:pointer;transition:all .2s;margin-bottom:2px;border:1px solid transparent;position:relative}
+.dm-list-item:hover{background:var(–indigo-f);border-color:var(–border2)}
+.dm-unread-dot{width:17px;height:17px;background:var(–accent);border-radius:50%;font-size:9px;font-weight:700;color:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:auto}
+
+/* ===== TOAST ===== */
+.toast{
+position:fixed;bottom:76px;left:50%;transform:translateX(-50%);
+background:linear-gradient(135deg,var(–indigo),var(–indigo2));
+color:#fff;padding:9px 18px;border-radius:18px;font-size:12px;
+z-index:99999;box-shadow:0 6px 22px var(–shadow);
+pointer-events:none;
+animation:fadeUp .28s ease;white-space:nowrap;
+}
+
+.hidden{display:none!important}
+
+/* ===== SCROLLBARS ===== */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:var(–panel2);border-radius:9px}
+::-webkit-scrollbar-thumb{background:var(–indigo2);border-radius:9px}
+::-webkit-scrollbar-thumb:hover{background:var(–accent)}
+</style>
+
+</head>
+<body class="night">
+
+<canvas id="bgCanvas"></canvas>
+
+<div id="hearts"></div>
+
+<!-- DM Notification -->
+
+<div id="dmNotif" onclick="handleDMNotifClick()">
+  <button class="dn-close" onclick="event.stopPropagation();hideDMNotif()">✕</button>
+  <div class="dn-row">
+    <div class="dn-av" id="dnAv">👤</div>
+    <div class="dn-info">
+      <div class="dn-name" id="dnName">-</div>
+      <div class="dn-text" id="dnText">-</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOP NAV -->
+
+<nav id="topnav">
+  <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
+  <button class="nav-btn active" id="navRooms" onclick="showPanel('rooms')">💬 <span class="label">ოთახები</span></button>
+  <button class="nav-btn" id="navFriends" onclick="showPanel('friends')">👥 <span class="label">მეგობრები</span><span class="badge" id="friendBadge"></span></button>
+  <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
+  <button class="nav-btn" id="navOnline" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
+  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span></button>
+  <div class="nav-spacer"></div>
+  <button id="installBtn" onclick="triggerInstall()">📲 <span>ინსტალაცია</span></button>
+  <button class="nav-btn" onclick="openMyProfile()">👤</button>
+  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn" style="font-size:17px">🌙</button>
+  <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
+</nav>
+
+<div id="app">
+  <!-- SIDEBAR -->
+  <div id="sidebar">
+    <div id="panelRooms">
+      <div class="sb-header"><div class="sb-dot"></div>ოთახები</div>
+      <div class="sb-body" id="roomList"></div>
+    </div>
+    <div id="panelFriends" class="hidden">
+      <div class="sb-header"><div class="sb-dot"></div>მეგობრები</div>
+      <div class="sb-body" id="friendsList"></div>
+    </div>
+    <div id="panelUsers" class="hidden">
+      <div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div>
+      <div class="sb-body">
+        <input class="search-box" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()">
+        <div id="usersListEl"></div>
+      </div>
+    </div>
+    <div id="panelOnline" class="hidden">
+      <div class="sb-header"><div class="sb-dot"></div>ონლაინი</div>
+      <div class="sb-body" id="onlineListEl"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+
+  <div id="main">
+    <div class="chat-header">
+      <div style="font-size:20px" id="roomIcon">💬</div>
+      <div class="chat-title" id="roomTitle">კაფე-ბარი</div>
+      <div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div>
+      <button class="play-btn" id="playHeaderBtn" onclick="openGame()">🎮 თამაში</button>
+      <a class="forum-open-btn" id="forumHeaderBtn" href="forum.html" target="_blank">💬 ფორუმი</a>
+    </div>
+
+```
+<div id="messages"></div>
+
+<!-- Game placeholder -->
+<div id="gameRoomPlaceholder">
+  <div class="grp-icon" id="grpIcon">🔐</div>
+  <div class="grp-title" id="grpTitle">შიფროგრამა</div>
+  <div class="grp-sub" id="grpDesc">200 ქართული სიტყვა · სწორი = 5 ქულა</div>
+  <div class="grp-score-row">
+    <span class="grp-score-label">შენი ქულა</span>
+    <span class="grp-score-val" id="grpMyScore">0</span>
+  </div>
+  <button class="grp-play-btn" onclick="openGame()">▶ თამაშის დაწყება</button>
+</div>
+
+<!-- Forum placeholder -->
+<div id="forumRoomPlaceholder">
+  <div class="frp-icon">💬</div>
+  <div class="frp-title">სოული კორნერი</div>
+  <div class="frp-desc">განიხილე საინტერესო თემები, დასვი კითხვები და გაიგე მეტი!</div>
+  <div class="frp-stats" id="frpStats"><div class="frp-stat">💬 0 თემა</div><div class="frp-stat">✉️ 0 პასუხი</div></div>
+  <a class="frp-open-btn" href="forum.html" target="_blank">💬 ფორუმის გახსნა ↗</a>
+  <div class="frp-role-note" id="frpRoleNote">👤 ყველას შეუძლია პასუხი გაცეს</div>
+</div>
+
+<!-- Emoji Panel -->
+<div id="emojiPanel">
+  <div class="ep-header"><span>სმაილები</span></div>
+  <div class="emoji-grid" id="emojiGrid"></div>
+  <div id="addEmojiSection" style="display:none">
+    <input type="file" id="emojiImgInput" accept="image/gif,image/png,image/jpeg,image/webp" multiple style="display:none" onchange="handleEmojiImages(event)">
+    <button class="ep-upload-btn" onclick="document.getElementById('emojiImgInput').click()">🖼️ სმაილის ატვირთვა</button>
+    <div class="ep-add">
+      <input class="inp" id="newEmojiInput" placeholder="😊" maxlength="6" style="margin:0;text-align:center;font-size:17px;width:52px;flex-shrink:0">
+      <button class="ep-add-btn" onclick="addTextEmoji()">+ დამატება</button>
+    </div>
+  </div>
+</div>
+
+<!-- Chat bar -->
+<div class="chat-bar" id="chatBar">
+  <div class="chat-toolbar">
+    <button class="fmt-btn" id="fmtBold" title="სქელი" onclick="toggleFormat('bold')"><b>B</b></button>
+    <button class="fmt-btn" id="fmtItalic" title="დახრილი" onclick="toggleFormat('italic')"><i>I</i></button>
+    <button class="fmt-btn" id="fmtUnder" title="ხაზგასმული" onclick="toggleFormat('underline')" style="text-decoration:underline">U</button>
+    <button class="fmt-btn" id="fmtStrike" title="გადახაზული" onclick="toggleFormat('strikethrough')" style="text-decoration:line-through">S</button>
+    <div class="fmt-sep"></div>
+    <button class="fmt-btn" onclick="insertMarkdown('`','`')" title="კოდი" style="font-family:monospace;font-size:11px">{ }</button>
+    <button class="fmt-btn" onclick="insertMarkdown('> ','')" title="ციტატა">❝</button>
+  </div>
+  <div id="typingIndicator" class="typing-indicator" style="min-height:14px"></div>
+  <div class="chat-bar-row">
+    <button class="icon-btn" onclick="toggleEmojiPanel()">😊</button>
+    <input id="msgInput" placeholder="დაწერე შეტყობინება..."
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}"
+      oninput="onTyping()">
+    <button class="send-btn" id="mainSendBtn" onclick="sendMessage()"><span class="send-plane">✈️</span></button>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- Profile Modal -->
+
+<div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('profileOverlay')">✕</button>
+    <div class="modal-title" id="profTitle">პროფილი</div>
+    <div class="av-big-wrap">
+      <div class="av-big" id="avBig" onclick="clickAvatar()">
+        <span id="avEmoji">😊</span>
+        <img id="avImg" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%">
+        <div class="av-edit" id="avEdit">✏️</div>
+      </div>
+      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+      <div class="prof-name" id="profName">-</div>
+      <span class="prof-role pr-member" id="profRole">წევრი</span>
+      <div class="prof-scores-row">
+        <div class="prof-game-score word" id="profWordScore">🔐 0</div>
+        <div class="prof-game-score quiz" id="profQuizScore">🏆 0</div>
+        <div class="prof-game-score hang" id="profHangScore">🪢 0</div>
+      </div>
+    </div>
+    <div class="gallery-tabs">
+      <button class="gtab active" id="gtabInfo" onclick="switchGalleryTab('info',this)">👤 ინფო</button>
+      <button class="gtab" id="gtabGallery" onclick="switchGalleryTab('gallery',this)">📸 ალბომი</button>
+      <button class="gtab hidden" id="gtabAppear" onclick="switchGalleryTab('appear',this)">🎨 გარეგნობა</button>
+    </div>
+
+```
+<div id="tabInfo">
+  <div class="sec-lbl">სტატუსი</div>
+  <input class="inp" id="statusInp" placeholder="სტატუსი...">
+  <div class="sec-lbl">ემოცია</div>
+  <div class="emo-row" id="emoRowMain">
+    <button class="emo-btn" onclick="pickEmo(this,'😊')">😊</button>
+    <button class="emo-btn" onclick="pickEmo(this,'😍')">😍</button>
+    <button class="emo-btn" onclick="pickEmo(this,'😴')">😴</button>
+    <button class="emo-btn" onclick="pickEmo(this,'😤')">😤</button>
+    <button class="emo-btn" onclick="pickEmo(this,'🥺')">🥺</button>
+    <button class="emo-btn" onclick="pickEmo(this,'🎮')">🎮</button>
+    <button class="emo-btn" onclick="pickEmo(this,'🎵')">🎵</button>
+    <button class="emo-btn" onclick="pickEmo(this,'💜')">💜</button>
+  </div>
+  <input class="inp" id="emoComment" placeholder="კომენტარი ემოციაზე...">
+  <button class="act-btn success" id="saveProfileBtn" onclick="saveProfile()">✅ შენახვა</button>
+  <div id="founderSec" class="hidden">
+    <div class="divider"></div>
+    <div class="sec-lbl">👑 დამფუძნებლის პანელი</div>
+    <div class="sec-lbl" style="margin-top:9px">როლის მინიჭება</div>
+    <select class="inp" id="roleSelect">
+      <option value="member">👤 წევრი</option>
+      <option value="admin">🛡️ ადმინი</option>
+      <option value="founder">👑 დამფუძნებელი</option>
+    </select>
+    <button class="act-btn" onclick="assignRole()">🎖️ როლის მინიჭება</button>
+    <button class="act-btn warn" onclick="removeRole()">🔄 წევრად გადახსნა</button>
+    <div class="sec-lbl">დაბლოკვა / განბლოკვა</div>
+    <input class="inp" id="blockReason" placeholder="დაბლოკვის მიზეზი...">
+    <button class="act-btn danger" onclick="blockUser()">🚫 დაბლოკვა</button>
+    <button class="act-btn success" onclick="unblockUser()">✅ განბლოკვა</button>
+  </div>
+  <div id="adminSec" class="hidden">
+    <div class="divider"></div>
+    <div class="sec-lbl">🛡️ ადმინის პანელი</div>
+    <input class="inp" id="blockReasonAdmin" placeholder="დაბლოკვის მიზეზი...">
+    <button class="act-btn danger" onclick="blockUserAdmin()">🚫 დაბლოკვა</button>
+    <button class="act-btn success" onclick="unblockUserAdmin()">✅ განბლოკვა</button>
+  </div>
+  <div class="divider"></div>
+  <button class="act-btn" id="friendBtn" onclick="toggleFriend()" style="display:none">➕ მეგობრად დამატება</button>
+  <button class="act-btn" id="dmBtn" onclick="openDMfromProfile()" style="display:none">✉️ პირადი შეტყობინება</button>
+</div>
+
+<div id="tabGallery" class="hidden">
+  <div id="galUploadZone" style="display:none">
+    <input type="file" id="galFileInput" accept="image/*" style="display:none" onchange="galFileChosen(event)">
+    <div class="gal-upload-area" onclick="document.getElementById('galFileInput').click()">
+      <div style="font-size:28px;margin-bottom:5px">📸</div>
+      <div style="font-size:11px;color:var(--text3)">დააჭირე ფოტოს ასატვირთად</div>
+    </div>
+    <div class="gal-form" id="galForm">
+      <img id="galPreviewImg" class="gal-preview" src="" alt="">
+      <div class="sec-lbl" style="margin-top:0">სათაური</div>
+      <input class="gal-inp" id="galTitle" placeholder="ფოტოს სათაური...">
+      <div class="sec-lbl">ალბომი</div>
+      <select class="gal-album-select" id="galAlbumSelect"><option value="">📂 ალბომის გარეშე</option></select>
+      <div class="sec-lbl">ემოცია</div>
+      <div class="gal-emo-row">
+        <button class="gal-emo-btn active" onclick="pickGalEmo(this,'😊')">😊</button>
+        <button class="gal-emo-btn" onclick="pickGalEmo(this,'❤️')">❤️</button>
+        <button class="gal-emo-btn" onclick="pickGalEmo(this,'🔥')">🔥</button>
+        <button class="gal-emo-btn" onclick="pickGalEmo(this,'😂')">😂</button>
+        <button class="gal-emo-btn" onclick="pickGalEmo(this,'🥺')">🥺</button>
+        <button class="gal-emo-btn" onclick="pickGalEmo(this,'💜')">💜</button>
+        <button class="gal-emo-btn" onclick="pickGalEmo(this,'✨')">✨</button>
+        <button class="gal-emo-btn" onclick="pickGalEmo(this,'🎉')">🎉</button>
+      </div>
+      <div class="sec-lbl">კომენტარი</div>
+      <input class="gal-inp" id="galComment" placeholder="კომენტარი ფოტოზე...">
+      <div style="display:flex;gap:5px;margin-top:7px">
+        <button class="act-btn success" style="margin:0;flex:1" onclick="uploadGalleryPhoto()">✅ ატვირთვა</button>
+        <button class="act-btn" style="margin:0;width:auto;padding:0 12px" onclick="cancelGalUpload()">✕</button>
+      </div>
+    </div>
+  </div>
+  <div class="sec-lbl">ალბომები</div>
+  <div class="album-bar" id="albumBar"></div>
+  <div class="album-create-form" id="albumCreateForm">
+    <input id="albumNameInp" placeholder="ალბომის სახელი..." maxlength="30">
+    <button onclick="createAlbum()">✅</button>
+    <button style="background:var(--indigo-f);border:1px solid var(--border2);border-radius:7px;color:var(--text2);padding:6px 9px;cursor:pointer;font-size:11px" onclick="document.getElementById('albumCreateForm').classList.remove('open')">✕</button>
+  </div>
+  <div class="gallery-grid" id="galGrid"></div>
+  <div class="gal-empty hidden" id="galEmpty">📷 ფოტო ჯერ არ არის</div>
+</div>
+
+<div id="tabAppear" class="hidden">
+  <div class="sec-lbl">🌙 თემა</div>
+  <div class="theme-toggle-big">
+    <div class="theme-card" id="themeCardNight" onclick="setTheme('night')"><div class="theme-card-icon">🌙</div><div class="theme-card-label">ბნელი</div></div>
+    <div class="theme-card" id="themeCardDay" onclick="setTheme('day')"><div class="theme-card-icon">☀️</div><div class="theme-card-label">ნათელი</div></div>
+  </div>
+  <div class="divider"></div>
+  <div class="sec-lbl">🎨 ფონის ფერი</div>
+  <div class="color-swatch-row" id="bgSwatches"></div>
+  <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+    <input type="color" class="color-custom-inp" id="bgColorPick" title="ფონის ფერი" onchange="applyCustomBg(this.value)">
+    <span style="font-size:11px;color:var(--text2)">სხვა ფერი...</span>
+  </div>
+  <div class="divider"></div>
+  <div class="sec-lbl">✨ აქცენტის ფერი</div>
+  <div class="color-swatch-row" id="accentSwatches"></div>
+  <div style="display:flex;align-items:center;gap:7px;margin-bottom:4px">
+    <input type="color" class="color-custom-inp" id="accentColorPick" title="აქცენტის ფერი" onchange="applyCustomAccent(this.value)">
+    <span style="font-size:11px;color:var(--text2)">სხვა ფერი...</span>
+  </div>
+  <button class="act-btn" style="margin-top:7px" onclick="resetColors()">🔄 ნაგულისხმევი ფერების დაბრუნება</button>
+  <div class="divider"></div>
+  <div class="sec-lbl">👁 გადახედვა</div>
+  <div style="background:var(--bg);border:1px solid var(--border2);border-radius:12px;padding:12px;font-size:12px;color:var(--text);display:flex;flex-direction:column;gap:7px">
+    <div style="display:flex;align-items:center;gap:7px">
+      <div style="width:30px;height:30px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:15px">😊</div>
+      <div>
+        <div style="font-size:10px;font-weight:600;color:var(--accent)">შენი სახელი</div>
+        <div style="font-size:12px;color:var(--text)">გამარჯობა! ეს preview-ა 💜</div>
+      </div>
+    </div>
+    <div style="background:var(--panel);border-radius:10px;padding:9px;font-size:11px;color:var(--text2)">ეს ფანჯარა შენი ფერებით გამოიყურება ⬆️</div>
+  </div>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- Friend request modal -->
+
+<div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')">
+  <div class="modal" style="max-width:300px">
+    <button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button>
+    <div class="modal-title">📬 მეგობრის მოთხოვნა</div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:12px" id="friendReqTxt"></p>
+    <button class="act-btn success" onclick="acceptFriend()">✅ დასტური</button>
+    <button class="act-btn danger" onclick="declineFriend()">❌ უარი</button>
+  </div>
+</div>
+
+<!-- DM list overlay -->
+
+<div id="dmListOverlay" onclick="bgCloseDMList(event)">
+  <div class="dm-list-modal">
+    <div class="dm-list-title">✉️ პირადი შეტყობინებები<button class="dm-list-close" onclick="closeDMList()">✕</button></div>
+    <input class="search-box" placeholder="🔍 ძებნა..." id="dmUserSearch" oninput="filterDMUsers()" style="margin-bottom:9px">
+    <div class="dm-list-body" id="dmUserList"></div>
+  </div>
+</div>
+
+<!-- DM Box -->
+
+<div id="dmBox">
+  <div class="dm-head">
+    <div class="avatar" style="width:26px;height:26px;font-size:13px;border:2px solid rgba(255,255,255,.28);flex-shrink:0" id="dmAv">👤</div>
+    <div class="dm-title" id="dmTitle">პირადი</div>
+    <button class="dm-x" onclick="closeDM()">✕</button>
+  </div>
+  <div id="dmMsgs"></div>
+  <div id="dmVoicePreview">
+    <audio id="dmVoiceAudio" controls></audio>
+    <button class="voice-send-btn" onclick="sendVoiceDM()">📤 გაგზავნა</button>
+    <button class="voice-cancel-btn" onclick="cancelVoice()">✕</button>
+  </div>
+  <div id="dmEmojiPanel">
+    <div class="ep-header"><span>სმაილები</span></div>
+    <div class="emoji-grid" id="dmEmojiGrid"></div>
+  </div>
+  <div class="dm-bar">
+    <button class="dm-icon-btn" onclick="toggleDMEmoji()" title="სმაილები">😊</button>
+    <button class="dm-icon-btn" id="voiceBtn" onclick="toggleVoiceRecording()" title="ხმოვანი">🎤</button>
+    <input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()">
+    <button class="dm-send" id="dmSendBtn" onclick="sendDM()"><span class="dm-plane">✈️</span></button>
+  </div>
+</div>
+
+<!-- Photo Viewer -->
+
+<div class="photo-viewer" id="photoViewer" onclick="pvBgClose(event)">
+  <button class="pv-close" onclick="closePhotoViewer()">✕</button>
+  <img class="pv-img" id="pvImg" src="" alt="">
+  <div class="pv-info">
+    <div class="pv-title" id="pvTitle"></div>
+    <div class="pv-emo" id="pvEmo"></div>
+    <div class="pv-comment-text" id="pvCommentText"></div>
+    <div class="pv-author" id="pvAuthor"></div>
+    <div class="pv-counter" id="pvCounter"></div>
+  </div>
+  <div class="pv-nav">
+    <button class="pv-nav-btn" onclick="pvNav(-1)">&#8249;</button>
+    <button class="pv-nav-btn" onclick="pvNav(1)">&#8250;</button>
+  </div>
+  <div class="pv-reactions-section" onclick="event.stopPropagation()">
+    <div style="font-size:9px;letter-spacing:1.5px;color:var(--text2);font-family:'Unbounded',sans-serif;text-transform:uppercase;margin-bottom:7px">რეაქციები</div>
+    <div class="pv-react-picker">
+      <button class="pv-react-btn" onclick="togglePhotoReaction('❤️')">❤️</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('😂')">😂</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('😮')">😮</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('🥺')">🥺</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('🔥')">🔥</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('💜')">💜</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('👍')">👍</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('✨')">✨</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('😍')">😍</button>
+      <button class="pv-react-btn" onclick="togglePhotoReaction('🎉')">🎉</button>
+    </div>
+    <div class="pv-reactions-bar" id="pvReactionsBar"></div>
+  </div>
+  <div class="pv-comments-section" onclick="event.stopPropagation()">
+    <div class="pv-comments-title">კომენტარები</div>
+    <div id="pvCommentsList"></div>
+    <div class="pv-comment-input-wrap">
+      <button class="pv-comment-emoji-btn" onclick="togglePVEmoji()">😊</button>
+      <textarea id="pvCommentInput" placeholder="დაწერე კომენტარი..." rows="1" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();submitPhotoComment()}"></textarea>
+      <button class="pv-comment-send" onclick="submitPhotoComment()">✈️</button>
+      <div id="pvEmojiPanel">
+        <div class="ep-header"><span>სმაილები</span></div>
+        <div class="emoji-grid" id="pvEmojiGrid"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== PWA =====
+let deferredPrompt=null;
+if('serviceWorker'in navigator){
+  navigator.serviceWorker.register('/sw.js').then(reg=>{
+    navigator.serviceWorker.addEventListener('message',ev=>{
+      if(ev.data&&ev.data.type==='DM_NOTIFICATION')showDMNotif(ev.data.uid,ev.data.text);
+    });
+  }).catch(()=>{});
+}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('installBtn').classList.add('show')});
+window.addEventListener('appinstalled',()=>{deferredPrompt=null;document.getElementById('installBtn').classList.remove('show');toast('✅ აპი დაინსტალირდა!')});
+function triggerInstall(){if(!deferredPrompt){toast('⚠️ გახსენი HTTPS-ზე ან Chrome-ში');return}deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{if(r.outcome==='accepted')toast('✅ ინსტალაცია!');deferredPrompt=null;document.getElementById('installBtn').classList.remove('show')})}
+
+// ===== SUPABASE =====
+const{createClient}=supabase;
+const sb=createClient("https://vjstuyxuhshsouqsnvxp.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE");
+
+// ===== ANIMATED BG CANVAS =====
+(function initBg(){
+  const canvas=document.getElementById('bgCanvas');
+  if(!canvas)return;
+  const ctx=canvas.getContext('2d');
+  let W,H,particles=[];
+  function resize(){W=canvas.width=window.innerWidth;H=canvas.height=window.innerHeight}
+  resize();
+  window.addEventListener('resize',resize);
+  function mkParticle(){
+    return{
+      x:Math.random()*W,y:Math.random()*H,
+      r:1+Math.random()*2.5,
+      dx:(Math.random()-.5)*.4,dy:(Math.random()-.5)*.4,
+      alpha:0.08+Math.random()*0.18,
+      color:Math.random()>.5?'157,78,221':'232,121,249'
+    };
+  }
+  for(let i=0;i<90;i++)particles.push(mkParticle());
+  function draw(){
+    ctx.clearRect(0,0,W,H);
+    for(let i=0;i<particles.length;i++){
+      for(let j=i+1;j<particles.length;j++){
+        const dx=particles[i].x-particles[j].x,dy=particles[i].y-particles[j].y;
+        const dist=Math.sqrt(dx*dx+dy*dy);
+        if(dist<110){
+          ctx.beginPath();
+          ctx.strokeStyle=`rgba(157,78,221,${0.04*(1-dist/110)})`;
+          ctx.lineWidth=.8;
+          ctx.moveTo(particles[i].x,particles[i].y);
+          ctx.lineTo(particles[j].x,particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    particles.forEach(p=>{
+      ctx.beginPath();
+      ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+      ctx.fillStyle=`rgba(${p.color},${p.alpha})`;
+      ctx.fill();
+      p.x+=p.dx;p.y+=p.dy;
+      if(p.x<0||p.x>W)p.dx*=-1;
+      if(p.y<0||p.y>H)p.dy*=-1;
+    });
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== FLOATING HEARTS & FLOWERS =====
+function spawnHearts(){
+  const hc=document.getElementById('hearts');if(!hc)return;
+  const symbols=['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿','✨','🦋','⭐','🌙','💫','🌟'];
+  let active=0;const MAX=28;
+  function make(){
+    if(active>=MAX)return;
+    const el=document.createElement('div');
+    el.className='heart';
+    el.textContent=symbols[Math.floor(Math.random()*symbols.length)];
+    const lp=2+Math.random()*96;
+    const drift=((Math.random()-.5)*90)+'px';
+    const dur=9+Math.random()*11;
+    const size=0.9+Math.random()*1.3;
+    el.style.cssText=`left:${lp}%;font-size:${size}rem;animation:heartFloat ${dur}s linear forwards;--drift:${drift}`;
+    hc.appendChild(el);
+    active++;
+    setTimeout(()=>{el.remove();active--},(dur+.5)*1000);
+  }
+  for(let i=0;i<14;i++)setTimeout(make,i*200);
+  setInterval(()=>{if(active<MAX)make()},1600);
+}
+
+// ===== THEME SYSTEM =====
+let theme=localStorage.getItem('kaif_theme')||'night';
+
+const BG_PRESETS=[
+  {label:'ნაგულისხმევი',night:'#12101f',day:'#f0e8ff'},
+  {label:'ლურჯი',night:'#0c1525',day:'#e8f2ff'},
+  {label:'მწვანე',night:'#0c1e18',day:'#e8fff8'},
+  {label:'წითელი',night:'#1e0c0c',day:'#fff0f0'},
+  {label:'მუქი',night:'#080808',day:'#f2f2f2'},
+  {label:'ოქრო',night:'#19140a',day:'#fffbe8'},
+  {label:'ვარდი',night:'#1e0a1a',day:'#fff0f8'},
+  {label:'ოკეანე',night:'#061620',day:'#e0f7ff'},
+  {label:'ყავა',night:'#180f06',day:'#fff8f0'},
+  {label:'ტყე',night:'#0a180a',day:'#f0fff4'},
+  {label:'მოლისფრო',night:'#0e0a1e',day:'#f5f0ff'},
+  {label:'ვულკანი',night:'#180900',day:'#fff4ec'},
+  {label:'ღამის ლურჯი',night:'#080e1e',day:'#eef4ff'},
+  {label:'ამეთისტი',night:'#120a20',day:'#f4eeff'},
+  {label:'ლარიჯა',night:'#1a0e00',day:'#fff8ee'},
+  {label:'ბნელი ყვავილი',night:'#14001a',day:'#fce8ff'},
+];
+const ACCENT_PRESETS=[
+  {label:'იისფერი',color:'#e879f9'},
+  {label:'ლურჯი',color:'#60a5fa'},
+  {label:'მწვანე',color:'#4ade80'},
+  {label:'ვარდი',color:'#f472b6'},
+  {label:'ოქრო',color:'#fbbf24'},
+  {label:'ნარინჯი',color:'#fb923c'},
+  {label:'წითელი',color:'#f87171'},
+  {label:'ელექტრო',color:'#00eaff'},
+  {label:'ამეთისტი',color:'#c77dff'},
+  {label:'მარჯანი',color:'#ff6b6b'},
+  {label:'ლიმონი',color:'#d4ff00'},
+  {label:'ოკეანე',color:'#0090ff'},
+  {label:'მინტი',color:'#00e5c3'},
+  {label:'მზე',color:'#ffdd00'},
+  {label:'ლალი',color:'#ff85c2'},
+  {label:'ცეცხლი',color:'#ff4500'},
+];
+
+function hexToRgb(hex){
+  let h=hex.replace('#','');
+  if(h.length===3)h=h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+  return{r:parseInt(h.slice(0,2),16),g:parseInt(h.slice(2,4),16),b:parseInt(h.slice(4,6),16)};
+}
+function lighten(hex,amount){
+  const{r,g,b}=hexToRgb(hex);
+  return`rgb(${Math.min(255,r+amount)},${Math.min(255,g+amount)},${Math.min(255,b+amount)})`;
+}
+function isLight(hex){const{r,g,b}=hexToRgb(hex);return(r*299+g*587+b*114)/1000>128}
+
+function applyBgColor(color){
+  // Set on body so it overrides body.night/day scoped vars
+  const root=document.body.style,light=isLight(color);
+  root.setProperty('--bg',color);
+  root.setProperty('--bg2',lighten(color,light?-8:7));
+  root.setProperty('--panel',lighten(color,light?-16:10));
+  root.setProperty('--panel2',lighten(color,light?-24:20));
+  root.setProperty('--panel3',lighten(color,light?-32:30));
+  root.setProperty('--bubble',lighten(color,light?-6:8));
+  root.setProperty('--bubble-mine',light?'rgba(106,13,173,0.10)':'rgba(106,24,184,0.28)');
+  root.setProperty('--input-bg',lighten(color,light?4:12));
+  root.setProperty('--text',light?'#1e0a36':'#ede0ff');
+  root.setProperty('--text2',light?'#6b3a9e':'#b08ad8');
+  root.setProperty('--text3',light?'#a882cc':'#7a5a9a');
+  root.setProperty('--border',light?'rgba(106,13,173,0.20)':'rgba(140,60,255,0.30)');
+  root.setProperty('--border2',light?'rgba(106,13,173,0.10)':'rgba(140,60,255,0.16)');
+  root.setProperty('--indigo-f',light?'rgba(90,24,154,0.07)':'rgba(106,24,184,0.16)');
+  root.setProperty('--glow',light?'rgba(106,13,173,0.20)':'rgba(157,78,221,0.32)');
+  root.setProperty('--shadow',light?'rgba(0,0,0,0.12)':'rgba(0,0,0,0.5)');
+  // Force immediate background repaint
+  document.body.style.background=color;
+}
+function applyAccentColor(color){
+  const root=document.body.style;
+  root.setProperty('--accent',color);
+  root.setProperty('--online',color);
+  root.setProperty('--indigo2',color);
+  const{r,g,b}=hexToRgb(color);
+  root.setProperty('--accent2',`rgb(${Math.max(0,r-30)},${Math.max(0,g-30)},${Math.max(0,b-20)})`);
+  root.setProperty('--indigo',`rgb(${Math.max(0,r-55)},${Math.max(0,g-55)},${Math.max(0,b-30)})`);
+}
+function applyStoredColors(){
+  const savedBg=localStorage.getItem('kaif_custom_bg');
+  const savedAcc=localStorage.getItem('kaif_custom_accent');
+  if(savedBg)applyBgColor(savedBg);
+  if(savedAcc)applyAccentColor(savedAcc);
+}
+function applyCustomBg(color){localStorage.setItem('kaif_custom_bg',color);applyBgColor(color);updateBgSwatchActive(color)}
+function applyCustomAccent(color){localStorage.setItem('kaif_custom_accent',color);applyAccentColor(color);updateAccentSwatchActive(color)}
+function resetColors(){
+  localStorage.removeItem('kaif_custom_bg');
+  localStorage.removeItem('kaif_custom_accent');
+  const props=['--bg','--bg2','--panel','--panel2','--panel3','--bubble','--bubble-mine','--input-bg','--text','--text2','--text3','--border','--border2','--indigo-f','--glow','--shadow','--accent','--accent2','--online','--indigo','--indigo2'];
+  props.forEach(v=>{document.body.style.removeProperty(v);document.documentElement.style.removeProperty(v)});
+  document.body.style.removeProperty('background');
+  buildColorSwatches();
+  toast('🔄 ფერები გადაყენდა!');
+}
+function updateBgSwatchActive(col){
+  document.querySelectorAll('#bgSwatches .color-swatch').forEach(x=>x.classList.toggle('active',x.dataset.color===col));
+}
+function updateAccentSwatchActive(col){
+  document.querySelectorAll('#accentSwatches .color-swatch').forEach(x=>x.classList.toggle('active',x.dataset.color===col));
+}
+function setTheme(t){
+  theme=t;
+  localStorage.setItem('kaif_theme',t);
+  const props=['--bg','--bg2','--panel','--panel2','--panel3','--bubble','--bubble-mine','--input-bg','--text','--text2','--text3','--border','--border2','--indigo-f','--glow','--shadow','--accent','--accent2','--online','--indigo','--indigo2'];
+  props.forEach(v=>{document.body.style.removeProperty(v);document.documentElement.style.removeProperty(v)});
+  document.body.style.removeProperty('background');
+  document.body.className=t;
+  applyStoredColors();
+  document.getElementById('themeBtn').textContent=t==='night'?'🌙':'☀️';
+  document.getElementById('themeCardNight')?.classList.toggle('active',t==='night');
+  document.getElementById('themeCardDay')?.classList.toggle('active',t==='day');
+  buildColorSwatches();
+}
+function buildColorSwatches(){
+  const bgEl=document.getElementById('bgSwatches'),accEl=document.getElementById('accentSwatches');
+  if(!bgEl||!accEl)return;
+  bgEl.innerHTML='';accEl.innerHTML='';
+  const currBg=localStorage.getItem('kaif_custom_bg');
+  BG_PRESETS.forEach(p=>{
+    const col=theme==='night'?p.night:p.day;
+    const s=document.createElement('div');
+    s.className='color-swatch'+(currBg===col?' active':'');
+    s.dataset.color=col;s.style.background=col;s.title=p.label;
+    s.onclick=()=>applyCustomBg(col);
+    bgEl.appendChild(s);
+  });
+  const currAcc=localStorage.getItem('kaif_custom_accent');
+  ACCENT_PRESETS.forEach(p=>{
+    const s=document.createElement('div');
+    s.className='color-swatch'+(currAcc===p.color?' active':'');
+    s.dataset.color=p.color;s.style.background=p.color;s.title=p.label;
+    s.onclick=()=>applyCustomAccent(p.color);
+    accEl.appendChild(s);
+  });
+  const bgPick=document.getElementById('bgColorPick'),accPick=document.getElementById('accentColorPick');
+  if(bgPick&&currBg)bgPick.value=currBg;
+  if(accPick&&currAcc)accPick.value=currAcc;
+  document.getElementById('themeCardNight')?.classList.toggle('active',theme==='night');
+  document.getElementById('themeCardDay')?.classList.toggle('active',theme==='day');
+}
+
+// Apply theme immediately on load
+document.body.className=theme;
+applyStoredColors();
+document.getElementById('themeBtn').textContent=theme==='night'?'🌙':'☀️';
+
+// ===== GLOBALS =====
+let ME=null,MYPROF=null,ROOM=1,VIEW_UID=null,DM_UID=null;
+let allUsers=[],myFriends=[],customEmojis=[];
+let emojiCache={};
+let selectedEmotion='😊',msgCh=null,dmCh=null;
+let galSelectedEmo='😊',galFileData=null;
+let currentGallery=[],pvIndex=0;
+let userAlbums=[],activeAlbumFilter=null,galleryViewUID=null;
+let activeGameRoom=null;
+let dmNotifUid=null,dmNotifTimer=null;
+let dmUnreadCounts={};
+let currentPhotoId=null;
+let pvPhotoReactionCh=null,pvPhotoCommentCh=null;
+let msgCache={};
+let typingTimeout=null,typingCh=null;
+
+// ===== FORMATTING =====
+let fmtActive={bold:false,italic:false,underline:false,strikethrough:false};
+function toggleFormat(type){
+  fmtActive[type]=!fmtActive[type];
+  document.getElementById('fmt'+type.charAt(0).toUpperCase()+type.slice(1))?.classList.toggle('active',fmtActive[type]);
+}
+function insertMarkdown(before,after){
+  const inp=document.getElementById('msgInput');
+  const s=inp.selectionStart,e=inp.selectionEnd,v=inp.value;
+  inp.value=v.slice(0,s)+before+v.slice(s,e)+after+v.slice(e);
+  inp.focus();inp.selectionStart=s+before.length;inp.selectionEnd=s+before.length+(e-s);
+}
+function applyFormattingToText(txt){
+  if(fmtActive.bold)txt=`**${txt}**`;
+  if(fmtActive.italic)txt=`_${txt}_`;
+  if(fmtActive.underline)txt=`__${txt}__`;
+  if(fmtActive.strikethrough)txt=`~~${txt}~~`;
+  return txt;
+}
+
+// ===== TYPING INDICATOR =====
+function onTyping(){
+  if(!ME||!MYPROF)return;
+  clearTimeout(typingTimeout);
+  if(typingCh)typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,name:MYPROF.username}});
+  typingTimeout=setTimeout(()=>{
+    if(typingCh)typingCh.send({type:'broadcast',event:'stop',payload:{uid:ME.id}});
+  },2000);
+}
+let typingUsers={};
+function watchTyping(roomId){
+  if(typingCh){try{sb.removeChannel(typingCh)}catch(e){}}
+  typingUsers={};
+  typingCh=sb.channel('typing-'+roomId)
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(payload.uid===ME?.id)return;
+      typingUsers[payload.uid]=payload.name;
+      updateTypingUI();
+      clearTimeout(typingUsers['_timer_'+payload.uid]);
+      typingUsers['_timer_'+payload.uid]=setTimeout(()=>{delete typingUsers[payload.uid];updateTypingUI()},3000);
+    })
+    .on('broadcast',{event:'stop'},({payload})=>{
+      delete typingUsers[payload.uid];updateTypingUI();
+    })
+    .subscribe();
+}
+function updateTypingUI(){
+  const el=document.getElementById('typingIndicator');if(!el)return;
+  const names=Object.entries(typingUsers).filter(([k])=>!k.startsWith('_timer_')).map(([,v])=>v);
+  if(!names.length){el.innerHTML='';return}
+  el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${names.join(', ')} წერს...</span>`;
+}
+
+function getDMTotal(){return Object.values(dmUnreadCounts).reduce((a,b)=>a+b,0)}
+function updateDMBadge(){
+  const total=getDMTotal(),b=document.getElementById('dmBadge');
+  if(!b)return;
+  if(total>0){b.textContent=total>99?'99+':total;b.classList.add('show')}
+  else{b.textContent='';b.classList.remove('show')}
+}
+
+// ===== VOICE =====
+let mediaRecorder=null,audioChunks=[],isRecording=false,voiceBlob=null,voiceStream=null;
+async function toggleVoiceRecording(){isRecording?stopVoiceRecording():startVoiceRecording()}
+async function startVoiceRecording(){
+  try{
+    voiceStream=await navigator.mediaDevices.getUserMedia({audio:true});
+    audioChunks=[];
+    let mimeType='audio/webm;codecs=opus';
+    if(!MediaRecorder.isTypeSupported(mimeType))mimeType='audio/webm';
+    if(!MediaRecorder.isTypeSupported(mimeType))mimeType='';
+    mediaRecorder=new MediaRecorder(voiceStream,mimeType?{mimeType}:{});
+    mediaRecorder.ondataavailable=e=>{if(e.data&&e.data.size>0)audioChunks.push(e.data)};
+    mediaRecorder.onstop=()=>{
+      const mime=mediaRecorder.mimeType||'audio/webm';
+      voiceBlob=new Blob(audioChunks,{type:mime});
+      const url=URL.createObjectURL(voiceBlob);
+      document.getElementById('dmVoiceAudio').src=url;
+      document.getElementById('dmVoicePreview').classList.add('show');
+      stopStream();
+    };
+    mediaRecorder.start(100);isRecording=true;
+    document.getElementById('voiceBtn').classList.add('recording');
+    document.getElementById('voiceBtn').textContent='⏹';
+    toast('🔴 ჩაწერა...');
+  }catch(err){toast('❌ მიკროფონი: '+err.message)}
+}
+function stopStream(){if(voiceStream){voiceStream.getTracks().forEach(t=>t.stop());voiceStream=null}}
+function stopVoiceRecording(){
+  if(mediaRecorder&&isRecording&&mediaRecorder.state!=='inactive'){
+    mediaRecorder.stop();isRecording=false;
+    document.getElementById('voiceBtn').classList.remove('recording');
+    document.getElementById('voiceBtn').textContent='🎤';
+  }
+}
+function cancelVoice(){
+  if(isRecording)stopVoiceRecording();stopStream();voiceBlob=null;
+  document.getElementById('dmVoicePreview').classList.remove('show');
+  document.getElementById('dmVoiceAudio').src='';
+}
+async function sendVoiceDM(){
+  if(!voiceBlob||!DM_UID){toast('❌ ჩაწერე ხმა!');return}
+  toast('⏳ იტვირთება...');
+  try{
+    const ext=voiceBlob.type.includes('ogg')?'ogg':'webm';
+    const fileName=`voice_${Date.now()}_${ME.id}.${ext}`;
+    const{error:upErr}=await sb.storage.from('voice-messages').upload(fileName,voiceBlob,{contentType:voiceBlob.type||'audio/webm',upsert:false});
+    if(upErr){toast('❌ '+upErr.message);return}
+    const{data:urlData}=sb.storage.from('voice-messages').getPublicUrl(fileName);
+    const rk=[ME.id,DM_UID].sort().join('_');
+    await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:`[voice:${urlData.publicUrl}]`});
+    appendDMMsg({sender_id:ME.id,content:`[voice:${urlData.publicUrl}]`,created_at:new Date().toISOString()});
+    document.getElementById('dmMsgs').scrollTop=9999;
+    cancelVoice();toast('✅ ხმოვანი გაიგზავნა!');
+  }catch(err){toast('❌ '+err.message)}
+}
+
+// ===== ROOMS =====
+const ROOMS=[
+  {id:1,icon:'🏠',name:'კაფე-ბარი'},
+  {id:2,icon:'🔐',name:'შიფროგრამა',isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},
+  {id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი = 5 ქულა',gameScoreField:'quiz_score'},
+  {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},
+  {id:5,icon:'📋',name:'ფორუმი',isForum:true,gameFile:'forum.html'},
+  {id:6,icon:'🎵',name:'მუსიკ კლაბი'},
+  {id:7,icon:'💜',name:'სოული კორნერ'},
+  {id:8,icon:'🌊',name:'ოშენ ვაიბ'},
+  {id:9,icon:'🦋',name:'ადმინისტრაცია'},
+  {id:10,icon:'🧠',name:'ბრეინ ზონ'},
+  {id:11,icon:'🌸',name:'სოფთ ჰარმონი'},
+  {id:12,icon:'💡',name:'დახმარება'}
+];
+const REACTION_EMOJIS=['❤️','😂','😮','😢','👍','🔥','💜','💔','🎉'];
+
+function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank')}
+window.addEventListener('message',async e=>{
+  if(!e.data||!e.data.type)return;
+  if(e.data.type==='GAME_SCORE_UPDATE'&&MYPROF){MYPROF.game_score=e.data.score;updateScoreUI()}
+  if(e.data.type==='QUIZ_SCORE_UPDATE'&&MYPROF){MYPROF.quiz_score=e.data.score;updateScoreUI()}
+  if(e.data.type==='HANGMAN_SCORE_UPDATE'&&MYPROF){MYPROF.hangman_score=e.data.score;updateScoreUI()}
+});
+function watchGameScore(){
+  if(!ME)return;
+  sb.channel('game-score-'+ME.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${ME.id}`},payload=>{
+    MYPROF={...MYPROF,...payload.new};updateScoreUI();
+    if(document.getElementById('gameRoomPlaceholder').style.display!=='none')refreshGamePlaceholder();
+  }).subscribe();
+}
+function updateScoreUI(){
+  [{id:'profWordScore',field:'game_score',label:'🔐'},{id:'profQuizScore',field:'quiz_score',label:'🏆'},{id:'profHangScore',field:'hangman_score',label:'🪢'}].forEach(({id,field,label})=>{
+    const el=document.getElementById(id);if(!el)return;
+    el.textContent=label+' '+(MYPROF?.[field]??0);
+    el.classList.remove('animate');void el.offsetWidth;el.classList.add('animate');
+  });
+}
+function refreshGamePlaceholder(){
+  if(!activeGameRoom)return;
+  const el=document.getElementById('grpMyScore');
+  if(el)el.textContent=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;
+}
+async function loadForumStats(){
+  const{count:qCount}=await sb.from('forum_topics').select('id',{count:'exact',head:true});
+  const{count:rCount}=await sb.from('forum_replies').select('id',{count:'exact',head:true});
+  const el=document.getElementById('frpStats');
+  if(el)el.innerHTML=`<div class="frp-stat">💬 ${qCount||0} თემა</div><div class="frp-stat">✉️ ${rCount||0} პასუხი</div>`;
+  const roleEl=document.getElementById('frpRoleNote');
+  if(roleEl&&MYPROF){const c=['admin','founder'].includes(MYPROF.role);roleEl.textContent=c?'✏️ შეგიძლია თემის შექმნა!':'👤 ყველას შეუძლია პასუხი გაცეს';roleEl.style.color=c?'#4ade80':''}
+}
+function setRoomView(mode,roomObj){
+  const msg=document.getElementById('messages'),bar=document.getElementById('chatBar');
+  const gamePH=document.getElementById('gameRoomPlaceholder'),forumPH=document.getElementById('forumRoomPlaceholder');
+  const playBtn=document.getElementById('playHeaderBtn'),forumBtn=document.getElementById('forumHeaderBtn');
+  const cnt=document.getElementById('onlineCnt');
+  msg.style.display='';bar.style.display='';gamePH.style.display='none';forumPH.style.display='none';
+  playBtn.style.display='none';forumBtn.style.display='none';cnt.style.display='';
+  if(mode==='game'&&roomObj){
+    activeGameRoom=roomObj;msg.style.display='none';bar.style.display='none';gamePH.style.display='flex';
+    playBtn.style.display='flex';cnt.style.display='none';
+    document.getElementById('grpIcon').textContent=roomObj.icon;
+    document.getElementById('grpTitle').textContent=roomObj.gameName;
+    document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';
+    document.getElementById('grpMyScore').textContent=roomObj.gameScoreField?(MYPROF?.[roomObj.gameScoreField]??0):0;
+  }else if(mode==='forum'){
+    activeGameRoom=null;msg.style.display='none';bar.style.display='none';
+    forumPH.style.display='flex';forumBtn.style.display='flex';cnt.style.display='none';loadForumStats();
+  }else{activeGameRoom=null}
+}
+
+// ===== UTILS =====
+function animateSendPlane(id){const b=document.getElementById(id);if(!b)return;b.classList.add('fly');setTimeout(()=>b.classList.remove('fly'),480)}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function renderMarkdown(text){
+  return text
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/_(.*?)_/g,'<em>$1</em>')
+    .replace(/__(.*?)__/g,'<span style="text-decoration:underline">$1</span>')
+    .replace(/~~(.*?)~~/g,'<span style="text-decoration:line-through">$1</span>')
+    .replace(/`(.*?)`/g,'<code style="background:rgba(0,0,0,.25);padding:1px 4px;border-radius:3px;font-size:11px">$1</code>')
+    .replace(/^> (.+)$/gm,'<blockquote style="border-left:3px solid var(--accent);padding-left:7px;color:var(--text2);margin:2px 0">$1</blockquote>');
+}
+function renderContent(s){
+  if(!s)return'';
+  if(s.startsWith('[voice:')&&s.endsWith(']')){
+    const url=s.slice(7,-1);
+    return`<audio controls src="${esc(url)}" style="height:30px;max-width:220px;accent-color:var(--indigo2)"></audio>`;
+  }
+  let result=esc(s);
+  result=result.replace(/\[e:(\d+)\]/g,(match,id)=>{
+    const numId=parseInt(id);const url=emojiCache[numId];
+    if(!url)return match;
+    if(url.startsWith('http')||url.startsWith('data:')){
+      if(url.includes('.gif')||url.includes('data:image/gif'))
+        return`<img src="${url}" class="chat-emoji-gif" loading="eager" decoding="async" onerror="this.style.display='none'" crossOrigin="anonymous">`;
+      return`<img src="${url}" class="chat-emoji" loading="eager" onerror="this.style.display='none'" crossOrigin="anonymous">`;
+    }
+    return`<span style="font-size:26px;vertical-align:middle">${url}</span>`;
+  });
+  result=renderMarkdown(result);
+  return result;
+}
+function renderContentDM(s){
+  if(!s)return'';
+  if(s.startsWith('[voice:')&&s.endsWith(']')){
+    const url=s.slice(7,-1);
+    return`<audio controls src="${esc(url)}" style="height:26px;max-width:195px;accent-color:var(--indigo2)"></audio>`;
+  }
+  let result=esc(s);
+  result=result.replace(/\[e:(\d+)\]/g,(match,id)=>{
+    const numId=parseInt(id);const url=emojiCache[numId];
+    if(!url)return match;
+    if(url.startsWith('http')||url.startsWith('data:')){
+      if(url.includes('.gif')||url.includes('data:image/gif'))
+        return`<img src="${url}" style="height:38px;vertical-align:middle;border-radius:6px" loading="eager" onerror="this.style.display='none'" crossOrigin="anonymous">`;
+      return`<img src="${url}" style="height:34px;vertical-align:middle;border-radius:6px" loading="eager">`;
+    }
+    return`<span style="font-size:20px;vertical-align:middle">${url}</span>`;
+  });
+  result=renderMarkdown(result);
+  return result;
+}
+function compressImage(file,maxSizePx=256,quality=0.85){
+  return new Promise((resolve,reject)=>{
+    if(file.type==='image/gif'){resolve(file);return}
+    const img=new Image(),url=URL.createObjectURL(file);
+    img.onload=()=>{
+      URL.revokeObjectURL(url);
+      let{width:w,height:h}=img;
+      if(w>maxSizePx||h>maxSizePx){if(w>h){h=Math.round(h*maxSizePx/w);w=maxSizePx}else{w=Math.round(w*maxSizePx/h);h=maxSizePx}}
+      const canvas=document.createElement('canvas');canvas.width=w;canvas.height=h;
+      canvas.getContext('2d').drawImage(img,0,0,w,h);
+      canvas.toBlob(blob=>{if(!blob){reject(new Error('კომპრესია ვერ'));return}resolve(new File([blob],file.name,{type:'image/webp',lastModified:Date.now()}))},'image/webp',quality);
+    };
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('სურათი ვერ ჩაიტვირთა'))};
+    img.src=url;
+  });
+}
+
+// ===== EMOJI MANAGEMENT =====
+async function handleEmojiImages(e){
+  const files=Array.from(e.target.files);if(!files.length)return;
+  if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return}
+  toast('⏳ იტვირთება...');let added=0;
+  for(const file of files){
+    try{
+      if(file.size>20*1024*1024){toast('❌ ძალიან დიდია!');continue}
+      let ft;try{ft=await compressImage(file,256,0.85)}catch(err){ft=file}
+      const isGif=file.type==='image/gif',ext=isGif?'gif':'webp';
+      const fn=`emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+      const{error:upErr}=await sb.storage.from('emojis').upload(fn,ft,{contentType:isGif?'image/gif':'image/webp',upsert:false});
+      if(upErr){toast('❌ '+upErr.message);continue}
+      const{data:urlData}=sb.storage.from('emojis').getPublicUrl(fn);
+      const{data:ins,error:insErr}=await sb.from('global_emojis').insert({url:urlData.publicUrl}).select().single();
+      if(insErr){toast('❌ '+insErr.message);await sb.storage.from('emojis').remove([fn]);continue}
+      if(ins){emojiCache[ins.id]=urlData.publicUrl;customEmojis.push(ins)}
+      added++;
+    }catch(err){toast('❌ '+err.message)}
+  }
+  if(added){toast('✅ '+added+' სმაილი!');await loadEmojis();buildEmojis()}
+  e.target.value='';
+}
+async function addTextEmoji(){
+  if(!['admin','founder'].includes(MYPROF?.role)){toast('❌');return}
+  const v=document.getElementById('newEmojiInput').value.trim();
+  if(!v||v.length>6){toast('❌ მაქს 6 სიმბოლო');return}
+  const{error}=await sb.from('global_emojis').insert({url:v});
+  if(error){toast('❌ '+error.message);return}
+  document.getElementById('newEmojiInput').value='';
+  toast('✅ სმაილი!');await loadEmojis();buildEmojis();
+}
+async function removeEmoji(id){
+  const emoji=customEmojis.find(e=>e.id===id);
+  await sb.from('global_emojis').delete().eq('id',id);
+  if(emoji?.url&&emoji.url.includes('/storage/v1/object/public/emojis/')){
+    try{const p=emoji.url.split('/storage/v1/object/public/emojis/');if(p.length>1)await sb.storage.from('emojis').remove([p[1].split('?')[0]])}catch(e){}
+  }
+  toast('🗑 წაიშალა');await loadEmojis();buildEmojis();
+}
+
+function buildEmojis(){
+  buildEmojiGrid('emojiGrid','msgInput',true);
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+  buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
+}
+function buildEmojiGrid(gridId,inputId,withManage){
+  const grid=document.getElementById(gridId);if(!grid)return;
+  grid.innerHTML='';
+  const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);
+  if(withManage){const s=document.getElementById('addEmojiSection');if(s)s.style.display=canManage?'block':'none'}
+  customEmojis.forEach(em=>{
+    const btn=document.createElement('button');btn.className='em-btn';
+    const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
+    if(isImg){
+      const img=document.createElement('img');
+      img.src=em.url;img.loading='lazy';
+      img.onerror=()=>{btn.innerHTML='';const sp=document.createElement('span');sp.className='em-emoji-text';sp.textContent='❓';btn.insertBefore(sp,btn.firstChild)};
+      btn.appendChild(img);
+    }else{
+      const span=document.createElement('span');span.className='em-emoji-text';span.textContent=em.url||'?';
+      btn.appendChild(span);
+    }
+    if(canManage){
+      const del=document.createElement('button');del.className='em-del vis';del.textContent='✕';
+      del.onclick=ev=>{ev.stopPropagation();removeEmoji(em.id)};
+      btn.appendChild(del);
+    }
+    btn.onclick=ev=>{
+      if(ev.target.classList.contains('em-del'))return;
+      const inp=document.getElementById(inputId);if(!inp)return;
+      const code=isImg?`[e:${em.id}]`:em.url;
+      const start=inp.selectionStart??inp.value.length;
+      const end=inp.selectionEnd??inp.value.length;
+      inp.value=inp.value.slice(0,start)+code+inp.value.slice(end);
+      inp.focus();inp.selectionStart=inp.selectionEnd=start+code.length;
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function toggleEmojiPanel(){
+  const p=document.getElementById('emojiPanel');
+  p.classList.toggle('open');
+  if(p.classList.contains('open'))buildEmojiGrid('emojiGrid','msgInput',true);
+  document.getElementById('dmEmojiPanel').classList.remove('open');
+}
+function toggleDMEmoji(){
+  document.getElementById('dmEmojiPanel').classList.toggle('open');
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+}
+function togglePVEmoji(){
+  const panel=document.getElementById('pvEmojiPanel');
+  panel.classList.toggle('open');
+  if(panel.classList.contains('open'))buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
+}
+document.addEventListener('click',e=>{
+  const p=document.getElementById('emojiPanel');
+  if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.remove('open');
+  const dp=document.getElementById('dmEmojiPanel');
+  if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-icon-btn'))dp.classList.remove('open');
+  const pvep=document.getElementById('pvEmojiPanel');
+  if(pvep&&pvep.classList.contains('open')&&!pvep.contains(e.target)&&!e.target.closest('.pv-comment-emoji-btn'))pvep.classList.remove('open');
+  if(!e.target.closest('.reaction-picker')&&!e.target.closest('.msg-react-btn'))document.querySelectorAll('.reaction-picker').forEach(rp=>rp.remove());
+});
+
+// ===== REACTIONS (chat) =====
+let reactionsCache={};
+async function loadReactions(messageIds){
+  if(!messageIds.length)return;
+  try{
+    const{data}=await sb.from('message_reactions').select('*').in('message_id',messageIds);
+    (data||[]).forEach(r=>{if(!reactionsCache[r.message_id])reactionsCache[r.message_id]=[];reactionsCache[r.message_id].push(r)});
+  }catch(e){}
+}
+function renderReactions(msgId,container){
+  let bar=container.querySelector('.msg-reactions');
+  if(!bar){bar=document.createElement('div');bar.className='msg-reactions';container.appendChild(bar)}
+  bar.innerHTML='';
+  const reactions=reactionsCache[msgId]||[];if(!reactions.length)return;
+  const groups={};reactions.forEach(r=>{if(!groups[r.emoji])groups[r.emoji]=[];groups[r.emoji].push(r)});
+  Object.entries(groups).forEach(([emoji,list],gi)=>{
+    const isMine=list.some(r=>r.user_id===ME?.id);
+    const chip=document.createElement('div');
+    chip.className='reaction-chip'+(isMine?' mine':'');
+    chip.style.animationDelay=(gi*.04)+'s';
+    chip.innerHTML=`${emoji} <span class="rc-count">${list.length}</span>`;
+    chip.title=list.map(r=>{const u=allUsers.find(u=>u.id===r.user_id);return u?.username||'?'}).join(', ');
+    chip.onclick=()=>toggleReaction(msgId,emoji);
+    bar.appendChild(chip);
+  });
+}
+function showReactionPicker(msgId,anchorEl){
+  document.querySelectorAll('.reaction-picker').forEach(rp=>rp.remove());
+  const picker=document.createElement('div');picker.className='reaction-picker';
+  REACTION_EMOJIS.forEach(em=>{
+    const btn=document.createElement('button');btn.className='rp-btn';btn.textContent=em;
+    btn.onclick=e=>{e.stopPropagation();picker.remove();toggleReaction(msgId,em)};
+    picker.appendChild(btn);
+  });
+  document.body.appendChild(picker);
+  const rect=anchorEl.getBoundingClientRect(),pw=300;
+  let left=rect.left,top=rect.top-52;
+  if(left+pw>window.innerWidth-8)left=window.innerWidth-pw-8;
+  if(left<8)left=8;if(top<8)top=rect.bottom+5;
+  picker.style.left=left+'px';picker.style.top=top+'px';
+}
+async function toggleReaction(msgId,emoji){
+  if(!ME)return;
+  const reactions=reactionsCache[msgId]||[];
+  const existing=reactions.find(r=>r.user_id===ME.id&&r.emoji===emoji);
+  try{
+    if(existing){
+      await sb.from('message_reactions').delete().eq('id',existing.id);
+      reactionsCache[msgId]=(reactionsCache[msgId]||[]).filter(r=>r.id!==existing.id);
+    }else{
+      const{data,error}=await sb.from('message_reactions').insert({message_id:msgId,user_id:ME.id,emoji}).select().single();
+      if(error){toast('❌ '+error.message);return}
+      if(!reactionsCache[msgId])reactionsCache[msgId]=[];
+      reactionsCache[msgId].push(data);
+    }
+    const row=document.getElementById('msg'+msgId);
+    if(row)renderReactions(msgId,row.querySelector('.msg-content'));
+  }catch(err){toast('❌ '+err.message)}
+}
+let reactionCh=null;
+function watchReactions(roomId){
+  if(reactionCh){sb.removeChannel(reactionCh);reactionCh=null}
+  reactionCh=sb.channel('reactions-room-'+roomId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reactions'},p=>{
+      const r=p.new;
+      if(!reactionsCache[r.message_id])reactionsCache[r.message_id]=[];
+      if(!reactionsCache[r.message_id].find(x=>x.id===r.id))reactionsCache[r.message_id].push(r);
+      const row=document.getElementById('msg'+r.message_id);
+      if(row)renderReactions(r.message_id,row.querySelector('.msg-content'));
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},p=>{
+      const r=p.old;
+      if(reactionsCache[r.message_id])reactionsCache[r.message_id]=reactionsCache[r.message_id].filter(x=>x.id!==r.id);
+      const row=document.getElementById('msg'+r.message_id);
+      if(row)renderReactions(r.message_id,row.querySelector('.msg-content'));
+    }).subscribe();
+}
+
+// ===== PHOTO REACTIONS =====
+let photoReactionsCache={};
+async function loadPhotoReactions(photoId){
+  try{
+    const{data}=await sb.from('photo_reactions').select('*').eq('photo_id',photoId);
+    photoReactionsCache[photoId]=data||[];
+  }catch(e){photoReactionsCache[photoId]=[]}
+  renderPhotoReactions(photoId);
+}
+function renderPhotoReactions(photoId){
+  const bar=document.getElementById('pvReactionsBar');if(!bar)return;bar.innerHTML='';
+  const reactions=photoReactionsCache[photoId]||[];
+  const groups={};reactions.forEach(r=>{if(!groups[r.emoji])groups[r.emoji]=[];groups[r.emoji].push(r)});
+  Object.entries(groups).forEach(([emoji,list])=>{
+    const isMine=list.some(r=>r.user_id===ME?.id);
+    const chip=document.createElement('div');chip.className='pv-reaction-chip'+(isMine?' mine':'');
+    chip.innerHTML=`${emoji} <span style="font-size:10px;color:var(--text2);font-weight:600">${list.length}</span>`;
+    chip.title=list.map(r=>{const u=allUsers.find(u=>u.id===r.user_id);return u?.username||'?'}).join(', ');
+    chip.onclick=()=>togglePhotoReaction(emoji);
+    bar.appendChild(chip);
+  });
+}
+async function togglePhotoReaction(emoji){
+  if(!ME||!currentPhotoId)return;
+  const reactions=photoReactionsCache[currentPhotoId]||[];
+  const existing=reactions.find(r=>r.user_id===ME.id&&r.emoji===emoji);
+  try{
+    if(existing){
+      await sb.from('photo_reactions').delete().eq('id',existing.id);
+      photoReactionsCache[currentPhotoId]=reactions.filter(r=>r.id!==existing.id);
+    }else{
+      const{data,error}=await sb.from('photo_reactions').insert({photo_id:currentPhotoId,user_id:ME.id,emoji}).select().single();
+      if(error){toast('❌ '+error.message);return}
+      if(!photoReactionsCache[currentPhotoId])photoReactionsCache[currentPhotoId]=[];
+      photoReactionsCache[currentPhotoId].push(data);
+    }
+    renderPhotoReactions(currentPhotoId);
+  }catch(err){toast('❌ '+err.message)}
+}
+function watchPhotoReactions(photoId){
+  if(pvPhotoReactionCh){try{sb.removeChannel(pvPhotoReactionCh)}catch(e){}pvPhotoReactionCh=null}
+  pvPhotoReactionCh=sb.channel('photo-reactions-'+photoId+'-'+Date.now())
+    .on('postgres_changes',{event:'*',schema:'public',table:'photo_reactions',filter:`photo_id=eq.${photoId}`},()=>loadPhotoReactions(photoId))
+    .subscribe();
+}
+
+// ===== PHOTO COMMENTS =====
+async function loadPhotoComments(photoId){
+  try{
+    const{data}=await sb.from('photo_comments').select('*, profiles(username,avatar_url,emotion)').eq('photo_id',photoId).order('created_at',{ascending:true});
+    renderPhotoComments(photoId,data||[]);
+  }catch(e){renderPhotoComments(photoId,[])}
+}
+function renderPhotoComments(photoId,comments){
+  const list=document.getElementById('pvCommentsList');if(!list)return;list.innerHTML='';
+  if(!comments.length){list.innerHTML='<div style="color:var(--text3);font-size:11px;text-align:center;padding:7px 0">კომენტარი ჯერ არ არის</div>';return}
+  comments.forEach(c=>{
+    const isMe=c.user_id===ME?.id;
+    const avHtml=c.profiles?.avatar_url?`<img src="${c.profiles.avatar_url}">`:(c.profiles?.emotion||'😊');
+    const t=new Date(c.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+    const div=document.createElement('div');div.className='pv-comment-item';
+    div.innerHTML=`<div class="pv-comment-av" style="cursor:pointer" onclick="openProfile('${c.user_id}')">${avHtml}</div>
+      <div class="pv-comment-body">
+        <div style="display:flex;align-items:center">
+          <span class="pv-comment-nick" onclick="openProfile('${c.user_id}')">${esc(c.profiles?.username||'?')}</span>
+          ${isMe?`<button class="pv-comment-del" onclick="deletePhotoComment('${c.id}')">🗑</button>`:''}
+          <span class="pv-comment-time" style="margin-left:auto">${t}</span>
+        </div>
+        <div class="pv-comment-content">${renderContent(c.content)}</div>
+      </div>`;
+    list.appendChild(div);
+  });
+  list.scrollTop=list.scrollHeight;
+}
+async function submitPhotoComment(){
+  const inp=document.getElementById('pvCommentInput');
+  const txt=inp.value.trim();if(!txt||!currentPhotoId)return;
+  inp.value='';document.getElementById('pvEmojiPanel').classList.remove('open');
+  try{
+    await sb.from('photo_comments').insert({photo_id:currentPhotoId,user_id:ME.id,content:txt});
+    await loadPhotoComments(currentPhotoId);
+  }catch(err){toast('❌ '+err.message)}
+}
+async function deletePhotoComment(id){
+  if(!confirm('წავშალო?'))return;
+  try{await sb.from('photo_comments').delete().eq('id',id)}catch(e){}
+  await loadPhotoComments(currentPhotoId);
+}
+function watchPhotoComments(photoId){
+  if(pvPhotoCommentCh){try{sb.removeChannel(pvPhotoCommentCh)}catch(e){}pvPhotoCommentCh=null}
+  pvPhotoCommentCh=sb.channel('photo-comments-'+photoId+'-'+Date.now())
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'photo_comments',filter:`photo_id=eq.${photoId}`},()=>loadPhotoComments(photoId))
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'photo_comments'},()=>loadPhotoComments(photoId))
+    .subscribe();
+}
+
+// ===== PROFILE =====
+function openMyProfile(){openProfile(ME.id)}
+async function openProfile(uid){
+  VIEW_UID=uid;
+  const p=await loadProf(uid);
+  const isSelf=(uid===ME.id);
+  const myRole=MYPROF?.role,viewRole=p?.role;
+  document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
+  document.getElementById('profName').textContent=p?.username||'?';
+  const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);
+  ['profWordScore','profQuizScore','profHangScore'].forEach((id,i)=>{
+    const fields=['game_score','quiz_score','hangman_score'];const labels=['🔐','🏆','🪢'];
+    const el=document.getElementById(id);if(el)el.textContent=labels[i]+' '+(p?.[fields[i]]||0);
+  });
+  if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none'}
+  else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊'}
+  document.getElementById('avEdit').style.display=isSelf?'':'none';
+  document.getElementById('statusInp').value=p?.status||'';document.getElementById('statusInp').disabled=!isSelf;
+  document.getElementById('emoComment').value=p?.emotion_comment||'';document.getElementById('emoComment').disabled=!isSelf;
+  document.getElementById('saveProfileBtn').style.display=isSelf?'':'none';
+  document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';
+  document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';
+  selectedEmotion=p?.emotion||'😊';
+  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
+  const at=document.getElementById('gtabAppear');if(at)at.classList.toggle('hidden',!isSelf);
+  const showFounder=(myRole==='founder')&&!isSelf;
+  document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
+  if(showFounder){document.getElementById('roleSelect').value=viewRole||'member';document.getElementById('blockReason').value=''}
+  const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');
+  document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
+  if(showAdmin)document.getElementById('blockReasonAdmin').value='';
+  document.getElementById('friendBtn').style.display=isSelf?'none':'';
+  document.getElementById('dmBtn').style.display=isSelf?'none':'';
+  const isFr=myFriends.includes(uid);
+  document.getElementById('friendBtn').textContent=isFr?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
+  document.getElementById('galUploadZone').style.display=isSelf?'':'none';
+  switchGalleryTab('info',document.getElementById('gtabInfo'));
+  openModal('profileOverlay');
+}
+function switchGalleryTab(tab,btn){
+  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+  ['info','gallery','appear'].forEach(t=>document.getElementById('tab'+t.charAt(0).toUpperCase()+t.slice(1))?.classList.toggle('hidden',t!==tab));
+  if(tab==='gallery'){activeAlbumFilter=null;loadAlbumsAndGallery(VIEW_UID)}
+  if(tab==='appear')buildColorSwatches();
+}
+async function saveProfile(){
+  const updates={status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value};
+  const{error}=await sb.from('profiles').update(updates).eq('id',ME.id);
+  if(error){toast('❌ '+error.message);return}
+  MYPROF={...MYPROF,...updates};toast('✅ შენახულია!');closeModal('profileOverlay');
+}
+function pickEmo(btn,em){selectedEmotion=em;document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+function clickAvatar(){if(VIEW_UID!==ME.id)return;document.getElementById('avatarInput').click()}
+async function uploadAvatar(e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>3*1024*1024){toast('❌ მაქს 3MB');e.target.value='';return}
+  toast('⏳ იტვირთება...');
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    await sb.from('profiles').update({avatar_url:ev.target.result}).eq('id',ME.id);
+    MYPROF.avatar_url=ev.target.result;
+    document.getElementById('avImg').src=ev.target.result;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';
+    toast('✅ ფოტო!');
+  };
+  reader.readAsDataURL(file);e.target.value='';
+}
+async function assignRole(){
+  if(MYPROF?.role!=='founder'||!VIEW_UID||VIEW_UID===ME.id){toast('❌');return}
+  const newRole=document.getElementById('roleSelect').value;
+  await sb.from('profiles').update({role:newRole}).eq('id',VIEW_UID);
+  document.getElementById('profRole').textContent=rLabel(newRole);document.getElementById('profRole').className='prof-role '+rClass(newRole);
+  const idx=allUsers.findIndex(u=>u.id===VIEW_UID);if(idx>=0)allUsers[idx].role=newRole;
+  toast('✅ '+rLabel(newRole));renderUserLists();
+}
+async function removeRole(){
+  if(MYPROF?.role!=='founder'){toast('❌');return}
+  const target=await loadProf(VIEW_UID);
+  if(target?.role==='founder'){toast('❌');return}
+  await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID);
+  document.getElementById('profRole').textContent=rLabel('member');document.getElementById('profRole').className='prof-role pr-member';
+  const idx=allUsers.findIndex(u=>u.id===VIEW_UID);if(idx>=0)allUsers[idx].role='member';
+  toast('✅ წევრი');renderUserLists();
+}
+async function blockUser(){
+  if(MYPROF?.role!=='founder'){toast('❌');return}
+  const target=await loadProf(VIEW_UID);
+  if(target?.role==='founder'){toast('❌');return}
+  const r=document.getElementById('blockReason').value||'';
+  await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);
+  toast('🚫 დაიბლოკა!');closeModal('profileOverlay');
+}
+async function unblockUser(){
+  if(MYPROF?.role!=='founder'){toast('❌');return}
+  await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);
+  toast('✅ განბლოკა!');
+}
+async function blockUserAdmin(){
+  if(MYPROF?.role!=='admin'){toast('❌');return}
+  const target=await loadProf(VIEW_UID);
+  if(!target||target.role!=='member'){toast('❌');return}
+  const r=document.getElementById('blockReasonAdmin').value||'';
+  await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);
+  toast('🚫 დაიბლოკა!');closeModal('profileOverlay');
+}
+async function unblockUserAdmin(){
+  if(MYPROF?.role!=='admin'){toast('❌');return}
+  const target=await loadProf(VIEW_UID);
+  if(!target||target.role!=='member'){toast('❌');return}
+  await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);
+  toast('✅ განბლოკა!');
+}
+function rLabel(r){return r==='founder'?'👑 დამფუძნებელი':r==='admin'?'🛡️ ადმინი':'👤 წევრი'}
+function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member'}
+function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':''}
+
+// ===== GALLERY =====
+async function loadAlbumsAndGallery(uid){
+  galleryViewUID=uid;const isSelf=uid===ME.id;
+  const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});
+  userAlbums=albs||[];
+  if(isSelf){
+    const sel=document.getElementById('galAlbumSelect');sel.innerHTML='<option value="">📂 ალბომის გარეშე</option>';
+    userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt)});
+  }
+  renderAlbumBar(isSelf);await loadGallery(uid);
+}
+function renderAlbumBar(isSelf){
+  const bar=document.getElementById('albumBar');bar.innerHTML='';
+  const allChip=document.createElement('div');allChip.className='album-chip'+(activeAlbumFilter===null?' active':'');
+  allChip.textContent='📷 ყველა';allChip.onclick=()=>{activeAlbumFilter=null;renderAlbumBar(isSelf);filterGalleryByAlbum()};bar.appendChild(allChip);
+  userAlbums.forEach(a=>{
+    const chip=document.createElement('div');chip.className='album-chip'+(activeAlbumFilter===a.id?' active':'');
+    chip.innerHTML=`<span>${a.name}</span>`;
+    if(isSelf){const del=document.createElement('span');del.className='chip-del';del.textContent='✕';del.onclick=ev=>{ev.stopPropagation();deleteAlbum(a.id)};chip.appendChild(del)}
+    chip.onclick=ev=>{if(ev.target.classList.contains('chip-del'))return;activeAlbumFilter=a.id;renderAlbumBar(isSelf);filterGalleryByAlbum()};
+    bar.appendChild(chip);
+  });
+  if(isSelf){
+    const nc=document.createElement('div');nc.className='album-chip new-album';nc.textContent='+ ახალი';
+    nc.onclick=()=>{const f=document.getElementById('albumCreateForm');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('albumNameInp').focus()};
+    bar.appendChild(nc);
+  }
+}
+async function createAlbum(){
+  const name=document.getElementById('albumNameInp').value.trim();if(!name){toast('❌ სახელი!');return}
+  await sb.from('albums').insert({user_id:ME.id,name});
+  document.getElementById('albumNameInp').value='';document.getElementById('albumCreateForm').classList.remove('open');
+  toast('✅ '+name);await loadAlbumsAndGallery(ME.id);
+}
+async function deleteAlbum(albumId){
+  if(!confirm('ალბომი წაიშალა? (ფოტოები დარჩება)'))return;
+  await sb.from('gallery').update({album_id:null}).eq('album_id',albumId).eq('user_id',ME.id);
+  await sb.from('albums').delete().eq('id',albumId).eq('user_id',ME.id);
+  if(activeAlbumFilter===albumId)activeAlbumFilter=null;
+  toast('🗑 ალბომი');await loadAlbumsAndGallery(ME.id);
+}
+function filterGalleryByAlbum(){renderGallery(galleryViewUID===ME.id)}
+async function loadGallery(uid){
+  const{data}=await sb.from('gallery').select('*').eq('user_id',uid).order('created_at',{ascending:false});
+  currentGallery=data||[];renderGallery(uid===ME.id);
+}
+function renderGallery(isSelf){
+  const grid=document.getElementById('galGrid'),empty=document.getElementById('galEmpty');grid.innerHTML='';
+  const filtered=activeAlbumFilter?currentGallery.filter(p=>p.album_id===activeAlbumFilter):currentGallery;
+  if(!filtered.length){empty.classList.remove('hidden');return}empty.classList.add('hidden');
+  filtered.forEach((photo,idx)=>{
+    const item=document.createElement('div');item.className='gal-item';item.style.animationDelay=(idx%3)*.05+'s';
+    item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:13px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;
+    item.addEventListener('click',e=>{if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx,filtered)});
+    grid.appendChild(item);
+  });
+}
+function galFileChosen(e){
+  const file=e.target.files[0];if(!file)return;
+  if(file.size>4*1024*1024){toast('❌ მაქს 4MB');e.target.value='';return}
+  const reader=new FileReader();
+  reader.onload=ev=>{
+    galFileData=ev.target.result;
+    const prev=document.getElementById('galPreviewImg');prev.src=galFileData;prev.classList.add('show');
+    document.getElementById('galForm').classList.add('open');
+    galSelectedEmo='😊';document.querySelectorAll('.gal-emo-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+    document.getElementById('galTitle').value='';document.getElementById('galComment').value='';
+  };
+  reader.readAsDataURL(file);e.target.value='';
+}
+function pickGalEmo(btn,em){galSelectedEmo=em;document.querySelectorAll('.gal-emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active')}
+function cancelGalUpload(){galFileData=null;document.getElementById('galForm').classList.remove('open');const p=document.getElementById('galPreviewImg');p.src='';p.classList.remove('show')}
+async function uploadGalleryPhoto(){
+  if(!galFileData){toast('❌ ფოტო!');return}toast('⏳ იტვირთება...');
+  try{
+    const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};
+    const t=document.getElementById('galTitle').value.trim(),c=document.getElementById('galComment').value.trim();
+    const albumId=document.getElementById('galAlbumSelect').value;
+    if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;
+    await sb.from('gallery').insert(d);
+    cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);
+  }catch(err){toast('❌ '+err.message)}
+}
+async function deleteGalPhoto(e,id){
+  e.stopPropagation();if(!confirm('წავშალო?'))return;
+  await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);
+  toast('🗑');loadAlbumsAndGallery(ME.id);
+}
+let _pvFiltered=[];
+function openPhotoViewer(idx,filtered){
+  _pvFiltered=filtered||currentGallery;pvIndex=idx;showPVPhoto();
+  document.getElementById('photoViewer').classList.add('open');
+}
+function showPVPhoto(){
+  const p=_pvFiltered[pvIndex];if(!p)return;
+  document.getElementById('pvImg').src=p.url;
+  document.getElementById('pvTitle').textContent=p.title||'';
+  document.getElementById('pvEmo').textContent=p.emotion||'';
+  document.getElementById('pvCommentText').textContent=p.comment||'';
+  const owner=allUsers.find(u=>u.id===p.user_id);
+  document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';
+  document.getElementById('pvCounter').textContent=(pvIndex+1)+' / '+_pvFiltered.length;
+  document.getElementById('pvCommentsList').innerHTML='';
+  document.getElementById('pvReactionsBar').innerHTML='';
+  document.getElementById('pvCommentInput').value='';
+  document.getElementById('pvEmojiPanel').classList.remove('open');
+  currentPhotoId=p.id;
+  loadPhotoReactions(p.id);loadPhotoComments(p.id);
+  watchPhotoReactions(p.id);watchPhotoComments(p.id);
+  buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
+}
+function pvNav(dir){
+  if(pvPhotoReactionCh){try{sb.removeChannel(pvPhotoReactionCh)}catch(e){}pvPhotoReactionCh=null}
+  if(pvPhotoCommentCh){try{sb.removeChannel(pvPhotoCommentCh)}catch(e){}pvPhotoCommentCh=null}
+  pvIndex=(pvIndex+dir+_pvFiltered.length)%_pvFiltered.length;showPVPhoto();
+}
+function closePhotoViewer(){
+  document.getElementById('photoViewer').classList.remove('open');
+  if(pvPhotoReactionCh){try{sb.removeChannel(pvPhotoReactionCh)}catch(e){}pvPhotoReactionCh=null}
+  if(pvPhotoCommentCh){try{sb.removeChannel(pvPhotoCommentCh)}catch(e){}pvPhotoCommentCh=null}
+  currentPhotoId=null;
+}
+function pvBgClose(e){if(e.target.id==='photoViewer')closePhotoViewer()}
+
+// ===== BUILD ROOMS =====
+function buildRooms(){
+  const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';
+  ROOMS.forEach((r,idx)=>{
+    const d=document.createElement('div');
+    let cls='room-item';if(r.isGame)cls+=' game-room';if(r.isForum)cls+=' forum-room';
+    d.className=cls;d.style.animationDelay=(idx*.03)+'s';
+    let badge='';if(r.isGame)badge='<span class="game-badge">GAME</span>';if(r.isForum)badge='<span class="forum-badge">FORUM</span>';
+    d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${badge}`;
+    d.onclick=()=>switchRoom(r,d);el.appendChild(d);
+  });
+}
+function switchRoom(r,clickedEl){
+  if(!r||!r.id)return;
+  ROOM=r.id;
+  document.getElementById('roomTitle').textContent=r.name;
+  document.getElementById('roomIcon').textContent=r.icon;
+  document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));
+  if(clickedEl)clickedEl.classList.add('active');
+  if(r.isGame)setRoomView('game',r);
+  else if(r.isForum)setRoomView('forum',r);
+  else{setRoomView('chat',null);loadMessages(r.id);}
+  document.getElementById('sidebar')?.classList.remove('mob-open');
+}
+
+// ===== MESSAGES =====
+async function loadMessages(roomId){
+  if(msgCh){try{sb.removeChannel(msgCh)}catch(e){}msgCh=null}
+  if(reactionCh){try{sb.removeChannel(reactionCh)}catch(e){}reactionCh=null}
+  if(typingCh){try{sb.removeChannel(typingCh)}catch(e){}typingCh=null}
+  typingUsers={};updateTypingUI();
+
+  const box=document.getElementById('messages');
+
+  if(msgCache[roomId]){
+    box.innerHTML='';
+    const cached=msgCache[roomId];
+    const msgIds=cached.map(m=>m.id).filter(id=>typeof id==='number');
+    if(msgIds.length)await loadReactions(msgIds);
+    cached.forEach(m=>appendMsg(m,true));
+    box.scrollTop=box.scrollHeight;
+  }
+
+  const{data}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('room_id',roomId).order('created_at',{ascending:true}).limit(80);
+  const msgs=data||[];
+  const cachedIds=new Set((msgCache[roomId]||[]).map(m=>String(m.id)));
+  const hasNew=msgs.some(m=>!cachedIds.has(String(m.id)));
+
+  msgCache[roomId]=msgs;
+  if(!cachedIds.size||hasNew){
+    box.innerHTML='';
+    reactionsCache={};
+    const msgIds=msgs.map(m=>m.id).filter(id=>typeof id==='number');
+    if(msgIds.length)await loadReactions(msgIds);
+    msgs.forEach(m=>appendMsg(m,true));
+    box.scrollTop=box.scrollHeight;
+  }
+
+  watchReactions(roomId);
+  watchTyping(roomId);
+
+  msgCh=sb.channel('room-'+roomId+'-'+Date.now())
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room_id=eq.${roomId}`},async payload=>{
+      if(document.getElementById('msg'+payload.new.id))return;
+      if(payload.new.user_id===ME?.id){
+        const tempEl=box.querySelector('[id^="msg_temp_"]');
+        if(tempEl){tempEl.id='msg'+payload.new.id;return}
+      }
+      const{data:msg}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id',payload.new.id).single();
+      if(!msg)return;
+      if(!msgCache[roomId])msgCache[roomId]=[];
+      if(!msgCache[roomId].find(m=>String(m.id)===String(payload.new.id)))msgCache[roomId].push(msg);
+      appendMsg(msg,true);
+      box.scrollTop=box.scrollHeight;
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{
+      document.getElementById('msg'+payload.old.id)?.remove();
+      if(msgCache[roomId])msgCache[roomId]=msgCache[roomId].filter(m=>m.id!==payload.old.id);
+    })
+    .subscribe();
+}
+
+function appendMsg(m,skipScroll){
+  const isMe=(m.user_id===ME?.id);
+  const myRole=MYPROF?.role,authorRole=m.profiles?.role;
+  const canDel=myRole==='founder'||(myRole==='admin'&&authorRole!=='founder')||isMe;
+  const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+  const role=m.profiles?.role;
+  const rbadge=role&&role!=='member'?`<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>`:'';
+  const avHtml=m.profiles?.avatar_url?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(m.profiles?.emotion||'😊');
+  const mineLabel=isMe?'<span style="font-size:8px;color:var(--indigo2);font-weight:600">შენ</span>':'';
+  const row=document.createElement('div');
+  row.className='msg-row';row.id='msg'+m.id;
+  row.innerHTML=`
+    <div class="avatar" style="cursor:pointer" onclick="openProfile('${m.user_id}')">${avHtml}</div>
+    <div class="msg-content">
+      <div class="msg-meta">
+        <span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>
+        ${rbadge}${mineLabel}
+        <span class="msg-time">${t}</span>
+      </div>
+      <div class="msg-bubble${isMe?' mine':''}">
+        ${renderContent(m.content)}
+        ${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}
+      </div>
+      <button class="msg-react-btn" onclick="showReactionPicker('${m.id}',this)">😊 +</button>
+    </div>`;
+  const msgContent=row.querySelector('.msg-content');
+  renderReactions(m.id,msgContent);
+  document.getElementById('messages').appendChild(row);
+}
+
+async function sendMessage(){
+  const inp=document.getElementById('msgInput');
+  let txt=inp.value.trim();if(!txt)return;
+  txt=applyFormattingToText(txt);
+  inp.value='';animateSendPlane('mainSendBtn');
+  clearTimeout(typingTimeout);
+
+  const tempId='_temp_'+Date.now();
+  const fakeMsg={
+    id:tempId,user_id:ME.id,room_id:ROOM,content:txt,
+    created_at:new Date().toISOString(),
+    profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}
+  };
+  if(!msgCache[ROOM])msgCache[ROOM]=[];
+  msgCache[ROOM].push(fakeMsg);
+  appendMsg(fakeMsg,true);
+  const box=document.getElementById('messages');box.scrollTop=box.scrollHeight;
+
+  const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();
+  if(data){
+    const fakeEl=document.getElementById('msg'+tempId);
+    if(fakeEl)fakeEl.id='msg'+data.id;
+    const idx=msgCache[ROOM].findIndex(m=>m.id===tempId);
+    if(idx>=0)msgCache[ROOM][idx].id=data.id;
+  }else if(error){
+    document.getElementById('msg'+tempId)?.remove();
+    msgCache[ROOM]=msgCache[ROOM].filter(m=>m.id!==tempId);
+    toast('❌ '+error.message);
+  }
+}
+async function delMsg(id){
+  if(!confirm('წავშალო?'))return;
+  document.getElementById('msg'+id)?.remove();
+  if(msgCache[ROOM])msgCache[ROOM]=msgCache[ROOM].filter(m=>m.id!==id);
+  await sb.from('messages').delete().eq('id',id);
+}
+
+// ===== USERS =====
+async function loadAllUsers(){
+  const{data}=await sb.from('profiles').select('*').order('username');
+  allUsers=data||[];renderUserLists();
+}
+function updateOnlineBadge(){
+  const cnt=document.getElementById('onlineCnt');
+  if(cnt)cnt.textContent=`● ${allUsers.filter(u=>isOnline(u.last_seen)).length} ონლაინი`;
+}
+function renderUserLists(){
+  const founders=[],admins=[],members=[];
+  allUsers.forEach(u=>{if(u.role==='founder')founders.push(u);else if(u.role==='admin')admins.push(u);else members.push(u)});
+  updateOnlineBadge();
+  function buildSection(el,groups){
+    const frag=document.createDocumentFragment();
+    groups.forEach(([icon,label,arr])=>{if(arr.length){frag.appendChild(roleHeader(icon,label));arr.forEach(u=>frag.appendChild(makeUserItem(u)))}});
+    el.innerHTML='';el.appendChild(frag);
+  }
+  const usEl=document.getElementById('usersListEl');
+  if(usEl)buildSection(usEl,[['👑','დამფუძნებლები',founders],['🛡️','ადმინები',admins],['👤','წევრები',members]]);
+  const onEl=document.getElementById('onlineListEl');
+  if(onEl){
+    const onF=founders.filter(u=>isOnline(u.last_seen)),onA=admins.filter(u=>isOnline(u.last_seen)),onM=members.filter(u=>isOnline(u.last_seen));
+    if(!onF.length&&!onA.length&&!onM.length){onEl.innerHTML='<div style="color:var(--text3);font-size:11px;text-align:center;padding:20px 0">ახლა არავინ ♦</div>'}
+    else buildSection(onEl,[['👑','დამფუძნებლები',onF],['🛡️','ადმინები',onA],['👤','წევრები',onM]]);
+  }
+  renderFriends();
+}
+function roleHeader(icon,label){
+  const d=document.createElement('div');d.className='role-header';
+  d.innerHTML=`<span style="font-size:11px">${icon}</span><div class="role-header-line"></div><span class="role-header-text">${label}</span>`;
+  return d;
+}
+function makeUserItem(u){
+  const d=document.createElement('div');d.className='list-item';d.dataset.q=(u.username||'').toLowerCase();
+  const on=isOnline(u.last_seen);
+  const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(u.emotion||'😊');
+  d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
+  d.onclick=()=>openProfile(u.id);return d;
+}
+function filterUsers(){const q=document.getElementById('userSearch').value.toLowerCase();document.querySelectorAll('#usersListEl .list-item').forEach(el=>{el.style.display=el.dataset.q.includes(q)?'':'none'})}
+function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<90000}
+async function pingOnline(){if(!ME)return;await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id)}
+
+// ===== FRIENDS =====
+async function loadFriends(){
+  const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');
+  myFriends=(data||[]).map(f=>f.friend_id);renderFriends();
+}
+function renderFriends(){
+  const el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';
+  const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);
+  if(!list.length){el.innerHTML='<div style="color:var(--text3);font-size:11px;text-align:center;padding:20px 0">მეგობრები ჯერ არ გყავს 💜</div>';return}
+  const frag=document.createDocumentFragment();list.forEach(u=>frag.appendChild(makeUserItem(u)));el.appendChild(frag);
+}
+async function toggleFriend(){
+  const isFr=myFriends.includes(VIEW_UID);
+  if(isFr){
+    await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);
+    myFriends=myFriends.filter(f=>f!==VIEW_UID);toast('💔 გაუქმდა');
+  }else{
+    await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});
+    toast('📨 გაიგზავნა!');
+  }
+  document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
+}
+async function checkFriendReqs(){
+  const{data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');
+  const badge=document.getElementById('friendBadge');
+  if(data&&data.length){
+    badge.textContent=data.length;badge.classList.add('show');
+    const req=data[0];
+    document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს მეგობრებში';
+    document.getElementById('friendReqOverlay').dataset.rid=req.id;
+    document.getElementById('friendReqOverlay').dataset.fid=req.user_id;
+    openModal('friendReqOverlay');
+  }else badge.classList.remove('show');
+}
+async function acceptFriend(){
+  const rid=document.getElementById('friendReqOverlay').dataset.rid,fid=document.getElementById('friendReqOverlay').dataset.fid;
+  await sb.from('friends').update({status:'accepted'}).eq('id',rid);
+  await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});
+  myFriends.push(fid);closeModal('friendReqOverlay');toast('✅ მეგობარი!');renderFriends();
+}
+async function declineFriend(){
+  await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);
+  closeModal('friendReqOverlay');toast('❌ უარი');
+}
+
+// ===== DM NOTIFICATION =====
+function showDMNotif(uid,text){
+  const u=allUsers.find(x=>x.id===uid);if(!u)return;
+  dmNotifUid=uid;
+  document.getElementById('dnAv').innerHTML=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'👤');
+  document.getElementById('dnName').textContent=u.username||'?';
+  const preview=text.startsWith('[voice:')?'🎤 ხმოვანი':(text.length>40?text.slice(0,40)+'...':text);
+  document.getElementById('dnText').textContent=preview;
+  document.getElementById('dmNotif').classList.add('show');
+  if(dmNotifTimer)clearTimeout(dmNotifTimer);
+  dmNotifTimer=setTimeout(()=>hideDMNotif(),5000);
+  if('Notification'in window&&Notification.permission==='granted'){
+    try{new Notification('💜 კაიფმანია — '+u.username,{body:preview,icon:'/icon-192.png',tag:'dm-'+uid,renotify:true})}catch(e){}
+  }
+}
+function hideDMNotif(){document.getElementById('dmNotif').classList.remove('show');if(dmNotifTimer){clearTimeout(dmNotifTimer);dmNotifTimer=null}}
+function handleDMNotifClick(){hideDMNotif();if(dmNotifUid)openDM(dmNotifUid)}
+
+async function requestNotifPermission(){
+  if(!('Notification'in window))return;
+  if(Notification.permission==='default')await Notification.requestPermission();
+  if('serviceWorker'in navigator&&Notification.permission==='granted'){
+    try{const reg=await navigator.serviceWorker.ready;reg.active?.postMessage({type:'SET_USER_ID',userId:ME?.id})}catch(e){}
+  }
+}
+
+// ===== DM LIST =====
+function openDMList(){document.getElementById('dmListOverlay').classList.add('open');buildDMUserList(allUsers)}
+function buildDMUserList(users){
+  const el=document.getElementById('dmUserList');el.innerHTML='';
+  const filtered=users.filter(u=>u.id!==ME?.id);
+  if(!filtered.length){el.innerHTML='<div style="color:var(--text3);font-size:11px;text-align:center;padding:14px">ვერ მოიძებნა</div>';return}
+  const frag=document.createDocumentFragment();
+  filtered.forEach(u=>{
+    const d=document.createElement('div');d.className='dm-list-item';
+    const on=isOnline(u.last_seen);
+    const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u.emotion||'😊');
+    const unread=dmUnreadCounts[u.id]||0;
+    d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div><div class="list-sub">${rLabel(u.role)}</div></div>${unread>0?`<div class="dm-unread-dot">${unread}</div>`:''}<span style="font-size:16px;margin-left:${unread?'4px':'auto'}">✉️</span>`;
+    d.onclick=()=>{closeDMList();openDM(u.id)};frag.appendChild(d);
+  });
+  el.appendChild(frag);
+}
+function filterDMUsers(){const q=document.getElementById('dmUserSearch').value.toLowerCase();buildDMUserList(allUsers.filter(u=>u.id!==ME?.id&&(u.username||'').toLowerCase().includes(q)))}
+function closeDMList(){document.getElementById('dmListOverlay').classList.remove('open')}
+function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList()}
+
+let globalDMCh=null;
+function startGlobalDMListener(){
+  if(!ME)return;
+  if(globalDMCh){try{sb.removeChannel(globalDMCh)}catch(e){}}
+  globalDMCh=sb.channel('global-dm-'+ME.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`receiver_id=eq.${ME.id}`},payload=>{
+      const msg=payload.new;
+      const isDMOpen=document.getElementById('dmBox').classList.contains('open');
+      const isSameConv=isDMOpen&&DM_UID===msg.sender_id;
+      if(!isSameConv){
+        showDMNotif(msg.sender_id,msg.content);
+        dmUnreadCounts[msg.sender_id]=(dmUnreadCounts[msg.sender_id]||0)+1;
+        updateDMBadge();
+      }
+    }).subscribe();
+}
+
+async function openDM(uid){
+  if(uid)DM_UID=uid;if(!DM_UID)return;
+  const u=allUsers.find(u=>u.id===DM_UID);
+  document.getElementById('dmTitle').textContent=u?.username||'პირადი';
+  const avHtml=u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u?.emotion||'👤');
+  document.getElementById('dmAv').innerHTML=avHtml;
+  document.getElementById('dmBox').classList.add('open');
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+  if(dmUnreadCounts[DM_UID]){dmUnreadCounts[DM_UID]=0;updateDMBadge()}
+  const rk=[ME.id,DM_UID].sort().join('_');
+  const{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(50);
+  const box=document.getElementById('dmMsgs');box.innerHTML='';
+  (data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;
+  if(dmCh){try{sb.removeChannel(dmCh)}catch(e){}}
+  dmCh=sb.channel('dm-'+rk+'-'+Date.now())
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
+      if(p.new.sender_id===ME.id)return;
+      appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;
+      if(dmUnreadCounts[p.new.sender_id]){dmUnreadCounts[p.new.sender_id]=0;updateDMBadge()}
+    }).subscribe();
+}
+function appendDMMsg(m){
+  const isMe=(m.sender_id===ME.id);
+  const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+  const box=document.getElementById('dmMsgs');const d=document.createElement('div');
+  const sender=isMe?MYPROF:(allUsers.find(u=>u.id===m.sender_id)||null);
+  const avHtml=sender?.avatar_url?`<img src="${sender.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(sender?.emotion||'👤');
+  const isVoice=m.content&&m.content.startsWith('[voice:')&&m.content.endsWith(']');
+  const avEl=`<div class="avatar" style="width:26px;height:26px;font-size:13px;margin-top:3px;flex-shrink:0;${!isMe?'cursor:pointer':''};" ${!isMe?`onclick="openProfile('${m.sender_id}')"`:''}}>${avHtml}</div>`;
+  const nameLine=!isMe?`<span style="font-weight:600;margin-right:3px;cursor:pointer;color:var(--indigo2);font-size:10px" onclick="openProfile('${m.sender_id}')">${esc(sender?.username||'?')}</span>`:'';
+  if(isVoice){
+    const url=m.content.slice(7,-1);
+    d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:7px;align-items:flex-start;gap:5px">${!isMe?avEl:''}<div style="max-width:85%;"><div class="dm-voice-bubble"><span style="font-size:15px">🎤</span><audio controls src="${esc(url)}" style="height:26px;flex:1;min-width:0;accent-color:var(--indigo2)"></audio></div><div style="font-size:9px;color:var(--text3);margin-top:2px;${isMe?'text-align:right':''}">${nameLine}${t}</div></div>${isMe?avEl:''}</div>`;
+  }else{
+    d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:7px;align-items:flex-start;gap:5px">${!isMe?avEl:''}<div style="max-width:80%;"><div style="background:${isMe?'rgba(106,24,184,0.26)':'var(--bubble)'};border:1px solid var(--border2);border-radius:${isMe?'14px 4px 14px 14px':'4px 14px 14px 14px'};padding:7px 11px;font-size:12px;color:var(--text);word-break:break-word">${renderContentDM(m.content)}</div><div style="font-size:9px;color:var(--text3);margin-top:2px;${isMe?'text-align:right':''}">${nameLine}${t}</div></div>${isMe?avEl:''}</div>`;
+  }
+  box.appendChild(d);
+}
+async function sendDM(){
+  const inp=document.getElementById('dmInput'),txt=inp.value.trim();
+  if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');
+  const rk=[ME.id,DM_UID].sort().join('_');
+  appendDMMsg({sender_id:ME.id,content:txt,created_at:new Date().toISOString()});
+  document.getElementById('dmMsgs').scrollTop=9999;
+  await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt});
+}
+function closeDM(){
+  if(isRecording)stopVoiceRecording();cancelVoice();
+  document.getElementById('dmBox').classList.remove('open');
+  document.getElementById('dmEmojiPanel').classList.remove('open');
+  DM_UID=null;if(dmCh){try{sb.removeChannel(dmCh)}catch(e){}dmCh=null}
+}
+function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID)}
+
+function showPanel(name){
+  ['rooms','friends','users','online'].forEach(p=>{
+    document.getElementById('panel'+cap(p))?.classList.toggle('hidden',p!==name);
+    document.getElementById('nav'+cap(p))?.classList.toggle('active',p===name);
+  });
+  document.getElementById('navDM')?.classList.remove('active');
+  if(window.innerWidth<=640)document.getElementById('sidebar').classList.add('mob-open');
+  if(name==='friends')loadFriends();
+  if(name==='users'||name==='online')loadAllUsers();
+}
+function toggleSidebar(){document.getElementById('sidebar').classList.toggle('mob-open')}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1)}
+function toggleTheme(){setTheme(theme==='night'?'day':'night')}
+
+function openModal(id){document.getElementById(id).classList.add('open')}
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+function bgClose(e,id){if(e.target.id===id)closeModal(id)}
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2500);
+}
+async function loadProf(uid){const{data}=await sb.from('profiles').select('*').eq('id',uid).single();return data}
+async function loadEmojis(){
+  const{data,error}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});
+  if(error){customEmojis=[];return}
+  customEmojis=(data||[]).filter(e=>e.url&&e.url.trim());
+  emojiCache={};
+  customEmojis.forEach(e=>{emojiCache[e.id]=e.url.trim()});
+}
+
+// ===== INIT =====
+async function init(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){location.href='index.html';return}
+  ME=user;MYPROF=await loadProf(ME.id);
+  if(!MYPROF){
+    const meta=user.user_metadata||{};
+    await sb.from('profiles').insert({id:ME.id,username:meta.username||meta.name||user.email?.split('@')[0]||'მომხმარებელი',role:'member',emotion:'😊'});
+    MYPROF=await loadProf(ME.id);
+  }
+  if(MYPROF?.is_blocked){
+    alert('შენი ანგარიში დაბლოკილია: '+(MYPROF.block_reason||''));
+    await sb.auth.signOut();location.href='index.html';return;
+  }
+
+  buildRooms();
+  await loadEmojis();
+  buildEmojis();
+  spawnHearts();
+
+  const firstRoom=ROOMS[0];
+  const firstEl=document.querySelector('.room-item');
+  switchRoom(firstRoom,firstEl);
+
+  await loadAllUsers();
+  await pingOnline();
+  setInterval(pingOnline,30000);
+  setInterval(loadAllUsers,45000);
+  checkFriendReqs();
+  watchGameScore();
+  startGlobalDMListener();
+  await requestNotifPermission();
+
+  sb.channel('profiles-watch-'+Date.now())
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{
+      const idx=allUsers.findIndex(u=>u.id===payload.new.id);
+      if(idx>=0)allUsers[idx]={...allUsers[idx],...payload.new};
+      else allUsers.push(payload.new);
+      updateOnlineBadge();
+      if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateScoreUI()}
+    }).subscribe();
+}
+
+async function logout(){await sb.auth.signOut();location.href='index.html'}
+
+init();
+</script>
+
+</body>
+</html>
