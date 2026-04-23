@@ -1,0 +1,1909 @@
+<!DOCTYPE html>
+<html lang="ka" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ChatVerse — ქართული ჩატი</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --bg: #0d0f14;
+  --bg2: #13161e;
+  --bg3: #1a1e2a;
+  --card: #1e2330;
+  --border: #2a3045;
+  --accent: #7c5cfc;
+  --accent2: #fc5c7d;
+  --accent3: #5cdfb5;
+  --text: #e8eaf6;
+  --text2: #8b92b8;
+  --online: #4ade80;
+  --warn: #fb923c;
+  --danger: #f87171;
+  --gold: #fbbf24;
+  --radius: 16px;
+  --shadow: 0 8px 32px rgba(0,0,0,0.4);
+  --user-color: #7c5cfc;
+  --font-size: 14px;
+}
+[data-theme="light"] {
+  --bg: #f0f2ff;
+  --bg2: #e8ebf7;
+  --bg3: #dde1f5;
+  --card: #ffffff;
+  --border: #c8ceea;
+  --text: #1a1e3a;
+  --text2: #5560a0;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  height: 100vh;
+  overflow: hidden;
+  font-size: var(--font-size);
+}
+
+/* ─── FLOATING HEARTS & FLOWERS ─── */
+.floaters { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+.floater {
+  position: absolute;
+  animation: floatUp linear infinite;
+  opacity: 0;
+  font-size: 20px;
+  user-select: none;
+}
+@keyframes floatUp {
+  0%   { transform: translateY(100vh) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.7; }
+  90%  { opacity: 0.4; }
+  100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+}
+
+/* ─── AUTH SCREEN ─── */
+#authScreen {
+  position: fixed; inset: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: center;
+  background: radial-gradient(ellipse at 30% 40%, rgba(124,92,252,0.3) 0%, transparent 60%),
+              radial-gradient(ellipse at 70% 60%, rgba(252,92,125,0.2) 0%, transparent 60%),
+              var(--bg);
+}
+.auth-box {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 40px;
+  width: 420px;
+  box-shadow: var(--shadow), 0 0 80px rgba(124,92,252,0.2);
+  position: relative;
+  overflow: hidden;
+}
+.auth-box::before {
+  content: '';
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, var(--accent), var(--accent2), var(--accent3));
+}
+.auth-logo {
+  font-size: 36px; font-weight: 900; text-align: center; margin-bottom: 8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+}
+.auth-sub { text-align: center; color: var(--text2); margin-bottom: 32px; font-size: 13px; }
+.auth-tabs { display: flex; gap: 4px; background: var(--bg); border-radius: 12px; padding: 4px; margin-bottom: 28px; }
+.auth-tab {
+  flex: 1; padding: 8px; border: none; border-radius: 9px; cursor: pointer;
+  background: transparent; color: var(--text2); font-family: inherit; font-size: 13px; font-weight: 600;
+  transition: all 0.2s;
+}
+.auth-tab.active { background: var(--accent); color: white; }
+.form-group { margin-bottom: 16px; }
+.form-group label { display: block; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.form-group input {
+  width: 100%; padding: 12px 16px; border: 1px solid var(--border);
+  border-radius: 12px; background: var(--bg); color: var(--text);
+  font-family: inherit; font-size: 14px; outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.form-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(124,92,252,0.15); }
+.btn-primary {
+  width: 100%; padding: 13px; border: none; border-radius: 12px;
+  background: linear-gradient(135deg, var(--accent), #9b7dff);
+  color: white; font-family: inherit; font-weight: 700; font-size: 15px;
+  cursor: pointer; transition: all 0.2s; margin-top: 8px;
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 24px rgba(124,92,252,0.4); }
+.auth-err { color: var(--danger); font-size: 12px; text-align: center; margin-top: 12px; }
+
+/* ─── MAIN LAYOUT ─── */
+#app { display: none; height: 100vh; flex-direction: column; position: relative; z-index: 1; }
+.topbar {
+  height: 56px; background: var(--bg2); border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; padding: 0 16px; gap: 12px; flex-shrink: 0;
+}
+.topbar-logo {
+  font-weight: 900; font-size: 18px;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  flex-shrink: 0;
+}
+.topbar-right { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 10px; border: none;
+  background: var(--bg3); color: var(--text2); cursor: pointer;
+  display: flex; align-items: center; justify-content: center; font-size: 18px;
+  transition: all 0.2s; position: relative;
+}
+.icon-btn:hover { background: var(--border); color: var(--text); }
+.badge {
+  position: absolute; top: -3px; right: -3px; background: var(--accent2);
+  color: white; border-radius: 99px; font-size: 9px; font-weight: 800;
+  padding: 1px 5px; min-width: 16px; text-align: center;
+}
+.main-body { display: flex; flex: 1; overflow: hidden; }
+
+/* ─── SIDEBAR ─── */
+.sidebar {
+  width: 260px; background: var(--bg2); border-right: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden; flex-shrink: 0;
+}
+.sidebar-section { padding: 12px; border-bottom: 1px solid var(--border); }
+.sidebar-label { font-size: 10px; font-weight: 800; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; padding: 0 4px; }
+.room-list { display: flex; flex-direction: column; gap: 2px; }
+.room-item {
+  display: flex; align-items: center; gap: 10px; padding: 9px 10px;
+  border-radius: 10px; cursor: pointer; transition: all 0.15s; position: relative;
+}
+.room-item:hover { background: var(--bg3); }
+.room-item.active { background: rgba(124,92,252,0.15); }
+.room-item.active::before {
+  content: ''; position: absolute; left: 0; top: 50%; transform: translateY(-50%);
+  width: 3px; height: 60%; background: var(--accent); border-radius: 99px;
+}
+.room-icon { font-size: 16px; width: 24px; text-align: center; }
+.room-name { font-size: 13px; font-weight: 600; flex: 1; }
+.room-unread {
+  background: var(--accent); color: white; border-radius: 99px;
+  font-size: 10px; font-weight: 800; padding: 1px 6px; min-width: 18px; text-align: center;
+}
+
+/* Online members */
+.members-list { overflow-y: auto; padding: 8px; flex: 1; }
+.member-item {
+  display: flex; align-items: center; gap: 8px; padding: 6px 8px;
+  border-radius: 8px; cursor: pointer; transition: all 0.15s;
+}
+.member-item:hover { background: var(--bg3); }
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%; display: flex;
+  align-items: center; justify-content: center; font-size: 13px; font-weight: 800;
+  flex-shrink: 0; position: relative;
+}
+.avatar .status-dot {
+  position: absolute; bottom: 0; right: 0; width: 9px; height: 9px;
+  border-radius: 50%; border: 2px solid var(--bg2);
+}
+.status-dot.online { background: var(--online); }
+.status-dot.offline { background: var(--text2); }
+.member-name { font-size: 12px; font-weight: 600; }
+.member-role { font-size: 10px; color: var(--text2); }
+.role-badge-owner { color: var(--gold); font-size: 14px; }
+.role-badge-admin { color: var(--accent2); font-size: 14px; }
+
+/* ─── CHAT AREA ─── */
+.chat-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+.chat-header {
+  height: 56px; border-bottom: 1px solid var(--border); display: flex;
+  align-items: center; padding: 0 20px; gap: 12px; flex-shrink: 0; background: var(--bg2);
+}
+.chat-header-name { font-weight: 800; font-size: 16px; }
+.chat-header-count { font-size: 12px; color: var(--text2); }
+.chat-header-right { margin-left: auto; display: flex; gap: 8px; }
+.messages { flex: 1; overflow-y: auto; padding: 16px; display: flex; flex-direction: column; gap: 2px; }
+.messages::-webkit-scrollbar { width: 4px; }
+.messages::-webkit-scrollbar-track { background: transparent; }
+.messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* Message */
+.msg-group { margin-bottom: 4px; }
+.msg-row {
+  display: flex; gap: 10px; padding: 2px 8px; border-radius: 12px;
+  transition: background 0.15s; position: relative; align-items: flex-start;
+}
+.msg-row:hover { background: var(--bg3); }
+.msg-avatar { width: 36px; height: 36px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 800; flex-shrink: 0; margin-top: 2px; }
+.msg-content { flex: 1; min-width: 0; }
+.msg-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 2px; }
+.msg-author { font-weight: 700; font-size: 13px; }
+.msg-time { font-size: 10px; color: var(--text2); }
+.msg-body { font-size: 14px; line-height: 1.5; word-break: break-word; }
+.msg-body.bold { font-weight: 800; }
+.msg-body.italic { font-style: italic; }
+.msg-body.strike { text-decoration: line-through; }
+.msg-reactions { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+.reaction-chip {
+  background: var(--bg3); border: 1px solid var(--border); border-radius: 99px;
+  padding: 2px 8px; font-size: 12px; cursor: pointer; transition: all 0.15s;
+  display: flex; align-items: center; gap: 3px;
+}
+.reaction-chip:hover, .reaction-chip.mine { background: rgba(124,92,252,0.2); border-color: var(--accent); }
+.msg-actions {
+  position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+  display: none; background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 4px; gap: 2px; box-shadow: var(--shadow);
+}
+.msg-row:hover .msg-actions { display: flex; }
+.msg-action-btn {
+  width: 28px; height: 28px; border: none; background: transparent;
+  cursor: pointer; border-radius: 7px; font-size: 14px; display: flex;
+  align-items: center; justify-content: center; transition: background 0.15s; color: var(--text2);
+}
+.msg-action-btn:hover { background: var(--bg3); color: var(--text); }
+.msg-deleted { font-style: italic; color: var(--text2); font-size: 12px; }
+.system-msg { text-align: center; font-size: 11px; color: var(--text2); padding: 8px; }
+
+/* Typing */
+.typing-area {
+  padding: 12px 16px; border-top: 1px solid var(--border); background: var(--bg2);
+}
+.typing-indicator { font-size: 11px; color: var(--text2); height: 16px; margin-bottom: 4px; }
+.input-box {
+  display: flex; gap: 8px; align-items: flex-end;
+  background: var(--bg); border: 1.5px solid var(--border);
+  border-radius: 16px; padding: 8px 12px; transition: border-color 0.2s;
+}
+.input-box:focus-within { border-color: var(--accent); }
+.msg-input {
+  flex: 1; border: none; background: transparent; color: var(--text);
+  font-family: inherit; font-size: 14px; outline: none; resize: none;
+  max-height: 120px; min-height: 22px; line-height: 1.5;
+}
+.input-tools { display: flex; gap: 4px; align-items: center; flex-shrink: 0; }
+.input-tool-btn {
+  width: 32px; height: 32px; border: none; background: transparent;
+  color: var(--text2); cursor: pointer; border-radius: 8px; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; transition: all 0.15s;
+}
+.input-tool-btn:hover { background: var(--border); color: var(--text); }
+.input-tool-btn.active { color: var(--accent); }
+.send-btn {
+  width: 36px; height: 36px; border: none; border-radius: 10px;
+  background: var(--accent); color: white; cursor: pointer; font-size: 16px;
+  display: flex; align-items: center; justify-content: center; transition: all 0.2s; flex-shrink: 0;
+}
+.send-btn:hover { background: #9b7dff; transform: scale(1.05); }
+
+/* Format toolbar */
+.format-bar {
+  display: none; gap: 4px; margin-bottom: 8px; flex-wrap: wrap;
+}
+.format-bar.show { display: flex; }
+.fmt-btn {
+  padding: 4px 10px; border: 1px solid var(--border); border-radius: 8px;
+  background: var(--bg); color: var(--text2); cursor: pointer; font-size: 12px;
+  font-family: inherit; transition: all 0.15s;
+}
+.fmt-btn:hover { border-color: var(--accent); color: var(--accent); }
+.color-btn-container { position: relative; }
+.color-picker-popup {
+  position: absolute; bottom: calc(100% + 8px); left: 0;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 8px; display: none; gap: 6px; flex-wrap: wrap;
+  width: 200px; box-shadow: var(--shadow); z-index: 100;
+}
+.color-picker-popup.show { display: flex; }
+.color-swatch {
+  width: 24px; height: 24px; border-radius: 6px; cursor: pointer; border: 2px solid transparent;
+  transition: all 0.15s;
+}
+.color-swatch:hover { transform: scale(1.2); border-color: white; }
+
+/* ─── EMOJI PANEL ─── */
+.emoji-panel {
+  position: absolute; bottom: 100%; right: 0; margin-bottom: 8px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 12px; width: 320px; box-shadow: var(--shadow); z-index: 200;
+  display: none;
+}
+.emoji-panel.show { display: block; }
+.emoji-search { width: 100%; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); color: var(--text); font-family: inherit; font-size: 13px; outline: none; margin-bottom: 10px; }
+.emoji-cats { display: flex; gap: 4px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 4px; }
+.emoji-cat-btn { padding: 4px 10px; border: none; border-radius: 8px; background: var(--bg); color: var(--text2); cursor: pointer; font-size: 12px; white-space: nowrap; font-family: inherit; transition: all 0.15s; }
+.emoji-cat-btn.active { background: var(--accent); color: white; }
+.emoji-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 2px; max-height: 200px; overflow-y: auto; }
+.emoji-btn { width: 36px; height: 36px; border: none; background: transparent; cursor: pointer; border-radius: 8px; font-size: 20px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.emoji-btn:hover { background: var(--bg3); }
+.custom-emojis-row { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 8px; padding-top: 8px; border-top: 1px solid var(--border); }
+.custom-emoji { width: 36px; height: 36px; border-radius: 8px; cursor: pointer; object-fit: cover; transition: transform 0.15s; }
+.custom-emoji:hover { transform: scale(1.2); }
+
+/* ─── PANELS (Profile, Friends, etc.) ─── */
+.panel-overlay {
+  position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 500;
+  display: none; align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.panel-overlay.show { display: flex; }
+.panel {
+  background: var(--card); border: 1px solid var(--border); border-radius: 24px;
+  width: 500px; max-width: 95vw; max-height: 85vh; overflow: hidden;
+  display: flex; flex-direction: column; box-shadow: var(--shadow);
+  animation: panelIn 0.2s ease;
+}
+@keyframes panelIn { from { opacity: 0; transform: scale(0.95) translateY(16px); } to { opacity: 1; transform: none; } }
+.panel-header {
+  padding: 20px 24px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.panel-title { font-weight: 800; font-size: 18px; flex: 1; }
+.panel-close { width: 32px; height: 32px; border: none; background: var(--bg); color: var(--text2); border-radius: 8px; cursor: pointer; font-size: 16px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+.panel-close:hover { background: var(--danger); color: white; }
+.panel-body { padding: 20px 24px; overflow-y: auto; flex: 1; }
+
+/* Profile panel */
+.profile-avatar-big {
+  width: 80px; height: 80px; border-radius: 50%; display: flex; align-items: center;
+  justify-content: center; font-size: 32px; font-weight: 800; margin: 0 auto 16px;
+  border: 3px solid var(--accent);
+}
+.profile-username { font-size: 22px; font-weight: 900; text-align: center; }
+.profile-status { text-align: center; color: var(--text2); font-size: 13px; margin: 4px 0 16px; }
+.profile-stats { display: flex; gap: 16px; justify-content: center; margin-bottom: 20px; }
+.stat-item { text-align: center; }
+.stat-val { font-size: 20px; font-weight: 800; }
+.stat-lbl { font-size: 11px; color: var(--text2); }
+.profile-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.action-btn {
+  flex: 1; min-width: 120px; padding: 10px 16px; border: none; border-radius: 12px;
+  font-family: inherit; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s;
+}
+.action-btn.primary { background: var(--accent); color: white; }
+.action-btn.primary:hover { background: #9b7dff; }
+.action-btn.danger { background: rgba(248,113,113,0.15); color: var(--danger); border: 1px solid rgba(248,113,113,0.3); }
+.action-btn.danger:hover { background: rgba(248,113,113,0.25); }
+.action-btn.warn { background: rgba(251,146,60,0.15); color: var(--warn); border: 1px solid rgba(251,146,60,0.3); }
+.action-btn.warn:hover { background: rgba(251,146,60,0.25); }
+.action-btn.success { background: rgba(74,222,128,0.15); color: var(--online); border: 1px solid rgba(74,222,128,0.3); }
+.action-btn.success:hover { background: rgba(74,222,128,0.25); }
+
+/* Status modal */
+.status-emojis { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; }
+.status-emoji-btn { font-size: 24px; cursor: pointer; padding: 4px; border-radius: 8px; transition: background 0.15s; border: 2px solid transparent; }
+.status-emoji-btn.selected { border-color: var(--accent); background: rgba(124,92,252,0.15); }
+
+/* Friends */
+.friend-item {
+  display: flex; align-items: center; gap: 12px; padding: 10px 12px;
+  border-radius: 12px; transition: background 0.15s;
+}
+.friend-item:hover { background: var(--bg); }
+.friend-info { flex: 1; }
+.friend-name { font-weight: 700; font-size: 14px; }
+.friend-status { font-size: 12px; color: var(--text2); }
+.friend-actions { display: flex; gap: 6px; }
+.sm-btn {
+  padding: 5px 12px; border: none; border-radius: 8px; font-family: inherit;
+  font-size: 12px; font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.sm-btn.primary { background: var(--accent); color: white; }
+.sm-btn.danger { background: rgba(248,113,113,0.2); color: var(--danger); }
+
+/* Album */
+.album-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.album-img { width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 10px; cursor: pointer; transition: transform 0.15s; }
+.album-img:hover { transform: scale(1.03); }
+
+/* PM / DM */
+.pm-panel {
+  position: fixed; right: 20px; bottom: 20px; width: 340px; z-index: 400;
+  background: var(--card); border: 1px solid var(--border); border-radius: 20px;
+  box-shadow: var(--shadow); display: none; flex-direction: column;
+  animation: panelIn 0.2s ease;
+  max-height: 480px;
+}
+.pm-panel.show { display: flex; }
+.pm-header {
+  padding: 14px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+.pm-title { font-weight: 800; font-size: 15px; flex: 1; }
+.pm-seen { font-size: 10px; color: var(--text2); text-align: right; }
+.pm-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 6px; min-height: 200px; }
+.pm-msg { max-width: 80%; }
+.pm-msg.mine { align-self: flex-end; }
+.pm-msg.mine .pm-bubble { background: var(--accent); color: white; border-radius: 14px 14px 4px 14px; }
+.pm-msg.theirs .pm-bubble { background: var(--bg3); border-radius: 14px 14px 14px 4px; }
+.pm-bubble { padding: 8px 12px; font-size: 13px; line-height: 1.4; }
+.pm-meta { font-size: 10px; color: var(--text2); margin-top: 2px; display: flex; gap: 6px; align-items: center; }
+.pm-meta.right { justify-content: flex-end; }
+.pm-reactions { display: flex; gap: 3px; margin-top: 3px; }
+.pm-input-row {
+  padding: 10px 12px; border-top: 1px solid var(--border);
+  display: flex; gap: 6px; align-items: center;
+}
+.pm-input {
+  flex: 1; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg); color: var(--text); padding: 7px 10px;
+  font-family: inherit; font-size: 13px; outline: none;
+}
+.pm-send {
+  width: 32px; height: 32px; border: none; border-radius: 8px;
+  background: var(--accent); color: white; cursor: pointer; font-size: 14px;
+}
+.voice-btn { background: var(--bg3); border: 1px solid var(--border); }
+.recording { background: rgba(248,113,113,0.2) !important; color: var(--danger) !important; border-color: var(--danger) !important; }
+.pm-voice-msg { display: flex; align-items: center; gap: 8px; padding: 8px 12px; }
+.voice-play { width: 28px; height: 28px; border: none; border-radius: 50%; background: var(--accent); color: white; cursor: pointer; font-size: 12px; }
+.voice-wave { flex: 1; height: 24px; background: rgba(124,92,252,0.2); border-radius: 99px; }
+.pm-minimized {
+  position: fixed; right: 20px; bottom: 20px; background: var(--card);
+  border: 1px solid var(--border); border-radius: 16px; padding: 10px 16px;
+  cursor: pointer; display: none; align-items: center; gap: 10px;
+  box-shadow: var(--shadow); z-index: 400;
+}
+.pm-minimized.show { display: flex; }
+.pm-unread-dot { width: 10px; height: 10px; background: var(--accent2); border-radius: 50%; }
+
+/* ─── ADMIN PANEL ─── */
+.admin-panel-content { display: flex; flex-direction: column; gap: 16px; }
+.admin-section { background: var(--bg); border-radius: 12px; padding: 16px; }
+.admin-section h3 { font-size: 14px; font-weight: 800; margin-bottom: 12px; color: var(--accent); }
+.admin-emoji-upload { display: flex; gap: 8px; margin-top: 8px; }
+.admin-input {
+  flex: 1; padding: 8px 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg2); color: var(--text); font-family: inherit; font-size: 13px; outline: none;
+}
+.custom-emoji-list { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+.custom-emoji-item { position: relative; }
+.custom-emoji-item .remove-emoji {
+  position: absolute; top: -4px; right: -4px; width: 16px; height: 16px;
+  background: var(--danger); color: white; border: none; border-radius: 50%;
+  font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center;
+}
+
+/* ─── SETTINGS ─── */
+.settings-row { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.settings-label { flex: 1; }
+.settings-lbl-main { font-weight: 600; font-size: 14px; }
+.settings-lbl-sub { font-size: 12px; color: var(--text2); }
+.toggle {
+  width: 44px; height: 24px; background: var(--border); border-radius: 99px;
+  cursor: pointer; position: relative; transition: background 0.2s; border: none;
+}
+.toggle.on { background: var(--accent); }
+.toggle::after {
+  content: ''; position: absolute; top: 3px; left: 3px; width: 18px; height: 18px;
+  background: white; border-radius: 50%; transition: transform 0.2s;
+}
+.toggle.on::after { transform: translateX(20px); }
+.theme-swatches { display: flex; gap: 8px; flex-wrap: wrap; }
+.theme-swatch {
+  width: 32px; height: 32px; border-radius: 8px; cursor: pointer;
+  border: 3px solid transparent; transition: all 0.15s;
+}
+.theme-swatch.active { border-color: white; transform: scale(1.1); }
+.font-size-slider { width: 120px; }
+
+/* ─── REACTIONS POPUP ─── */
+.reaction-popup {
+  position: absolute; z-index: 300; background: var(--card);
+  border: 1px solid var(--border); border-radius: 14px; padding: 8px;
+  display: flex; gap: 4px; box-shadow: var(--shadow);
+  animation: panelIn 0.15s ease; display: none;
+}
+.reaction-popup.show { display: flex; }
+.react-opt { font-size: 22px; cursor: pointer; width: 36px; height: 36px; border-radius: 8px; display: flex; align-items: center; justify-content: center; transition: background 0.15s; }
+.react-opt:hover { background: var(--bg3); transform: scale(1.2); }
+
+/* ─── PHOTO ALBUM ─── */
+.album-panel-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+/* ─── SCROLLBAR ─── */
+*::-webkit-scrollbar { width: 4px; height: 4px; }
+*::-webkit-scrollbar-track { background: transparent; }
+*::-webkit-scrollbar-thumb { background: var(--border); border-radius: 99px; }
+
+/* ─── COLOR THEME PRESETS ─── */
+.theme-preview {
+  width: 40px; height: 40px; border-radius: 10px; cursor: pointer;
+  border: 3px solid transparent; transition: all 0.2s; display: flex;
+  align-items: center; justify-content: center; font-size: 16px;
+}
+.theme-preview.active { border-color: var(--text); transform: scale(1.1); }
+
+/* ─── NOTIFICATION ─── */
+.notif-toast {
+  position: fixed; top: 70px; right: 20px; background: var(--card);
+  border: 1px solid var(--border); border-radius: 14px; padding: 12px 16px;
+  box-shadow: var(--shadow); z-index: 600; min-width: 260px;
+  animation: slideIn 0.2s ease; display: none;
+}
+.notif-toast.show { display: flex; gap: 12px; align-items: flex-start; }
+@keyframes slideIn { from { opacity: 0; transform: translateX(20px); } to { opacity: 1; transform: none; } }
+.notif-icon { font-size: 20px; }
+.notif-text { flex: 1; }
+.notif-title { font-weight: 700; font-size: 13px; }
+.notif-sub { font-size: 12px; color: var(--text2); }
+
+/* Misc */
+.divider { height: 1px; background: var(--border); margin: 12px 0; }
+.no-data { text-align: center; color: var(--text2); font-size: 13px; padding: 24px; }
+.loading { display: flex; align-items: center; justify-content: center; padding: 40px; }
+.spinner { width: 32px; height: 32px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.pm-indicator {
+  position: fixed; right: 20px; bottom: 76px; z-index: 399;
+  background: var(--card); border: 1px solid var(--border); border-radius: 99px;
+  padding: 6px 14px; font-size: 12px; display: none; gap: 6px; align-items: center;
+  box-shadow: var(--shadow); cursor: pointer; animation: pulse 2s infinite;
+}
+.pm-indicator.show { display: flex; }
+@keyframes pulse { 0%, 100% { box-shadow: 0 0 0 0 rgba(124,92,252,0.4); } 50% { box-shadow: 0 0 0 8px rgba(124,92,252,0); } }
+</style>
+</head>
+<body>
+
+<!-- Floating hearts & flowers -->
+<div class="floaters" id="floaters"></div>
+
+<!-- Notification -->
+<div class="notif-toast" id="notifToast">
+  <span class="notif-icon" id="notifIcon">💬</span>
+  <div class="notif-text">
+    <div class="notif-title" id="notifTitle"></div>
+    <div class="notif-sub" id="notifSub"></div>
+  </div>
+</div>
+
+<!-- PM Indicator (outside) -->
+<div class="pm-indicator" id="pmIndicator">
+  <span>💬</span><span id="pmIndicatorText">ახალი შეტყობინება</span>
+</div>
+
+<!-- ─── AUTH SCREEN ─── -->
+<div id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">✦ ChatVerse</div>
+    <div class="auth-sub">ქართული სოციალური ჩატი</div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuth('login')">შესვლა</button>
+      <button class="auth-tab" onclick="switchAuth('register')">რეგისტრაცია</button>
+    </div>
+    <div id="loginForm">
+      <div class="form-group"><label>ელ-ფოსტა</label><input type="email" id="loginEmail" placeholder="you@example.com"></div>
+      <div class="form-group"><label>პაროლი</label><input type="password" id="loginPass" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="doLogin()">🚀 შესვლა</button>
+    </div>
+    <div id="registerForm" style="display:none">
+      <div class="form-group"><label>სახელი</label><input type="text" id="regUsername" placeholder="თქვენი სახელი"></div>
+      <div class="form-group"><label>ელ-ფოსტა</label><input type="email" id="regEmail" placeholder="you@example.com"></div>
+      <div class="form-group"><label>პაროლი</label><input type="password" id="regPass" placeholder="••••••••"></div>
+      <button class="btn-primary" onclick="doRegister()">✨ რეგისტრაცია</button>
+    </div>
+    <div class="auth-err" id="authErr"></div>
+  </div>
+</div>
+
+<!-- ─── MAIN APP ─── -->
+<div id="app">
+  <!-- Topbar -->
+  <div class="topbar">
+    <span class="topbar-logo">✦ ChatVerse</span>
+    <div class="topbar-right">
+      <button class="icon-btn" onclick="openPanel('settingsPanel')" title="პარამეტრები">⚙️</button>
+      <button class="icon-btn" onclick="openPanel('albumPanel')" title="ფოტო ალბომი">🖼️</button>
+      <button class="icon-btn" onclick="openPanel('friendsPanel')" title="მეგობრები">👥</button>
+      <button class="icon-btn" id="pmTopBtn" onclick="openPM(null)" title="პირადი შეტყობინებები" style="position:relative">
+        💬<span class="badge" id="pmTopBadge" style="display:none">0</span>
+      </button>
+      <button class="icon-btn" id="adminBtn" onclick="openPanel('adminPanel')" title="ადმინ პანელი" style="display:none">🛡️</button>
+      <div class="member-item" style="cursor:pointer;padding:4px 8px;border-radius:10px" onclick="openMyProfile()">
+        <div class="avatar" id="myAvatar" style="background:var(--accent)"></div>
+        <span style="font-size:13px;font-weight:700" id="myName">...</span>
+      </div>
+      <button class="icon-btn" onclick="doLogout()" title="გამოსვლა">🚪</button>
+    </div>
+  </div>
+
+  <div class="main-body">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-label">ოთახები</div>
+        <div class="room-list" id="roomList"></div>
+      </div>
+      <div class="sidebar-section" style="flex:1;overflow:hidden;display:flex;flex-direction:column">
+        <div class="sidebar-label">ონლაინი</div>
+        <div class="members-list" id="membersList"></div>
+      </div>
+    </div>
+
+    <!-- Chat -->
+    <div class="chat-area">
+      <div class="chat-header">
+        <span class="room-icon" id="currentRoomIcon">💬</span>
+        <span class="chat-header-name" id="currentRoomName">ოთახი</span>
+        <span class="chat-header-count" id="currentRoomCount"></span>
+        <div class="chat-header-right">
+          <button class="icon-btn" onclick="scrollToBottom()">⬇️</button>
+        </div>
+      </div>
+      <div class="messages" id="messages"></div>
+      <div class="typing-area">
+        <div class="typing-indicator" id="typingIndicator"></div>
+        <div class="format-bar" id="formatBar">
+          <button class="fmt-btn" onclick="applyFmt('bold')"><b>Bold</b></button>
+          <button class="fmt-btn" onclick="applyFmt('italic')"><i>Italic</i></button>
+          <button class="fmt-btn" onclick="applyFmt('strike')"><s>Strike</s></button>
+          <div class="color-btn-container">
+            <button class="fmt-btn" onclick="toggleColorPicker()">🎨 ფერი</button>
+            <div class="color-picker-popup" id="colorPicker">
+              <div class="color-swatch" style="background:#7c5cfc" onclick="setTextColor('#7c5cfc')"></div>
+              <div class="color-swatch" style="background:#fc5c7d" onclick="setTextColor('#fc5c7d')"></div>
+              <div class="color-swatch" style="background:#5cdfb5" onclick="setTextColor('#5cdfb5')"></div>
+              <div class="color-swatch" style="background:#fbbf24" onclick="setTextColor('#fbbf24')"></div>
+              <div class="color-swatch" style="background:#60a5fa" onclick="setTextColor('#60a5fa')"></div>
+              <div class="color-swatch" style="background:#f87171" onclick="setTextColor('#f87171')"></div>
+              <div class="color-swatch" style="background:#a3e635" onclick="setTextColor('#a3e635')"></div>
+              <div class="color-swatch" style="background:#e879f9" onclick="setTextColor('#e879f9')"></div>
+              <div class="color-swatch" style="background:#ffffff" onclick="setTextColor('#ffffff')"></div>
+              <div class="color-swatch" style="background:#e8eaf6" onclick="setTextColor('#e8eaf6')"></div>
+            </div>
+          </div>
+        </div>
+        <div class="input-box">
+          <textarea class="msg-input" id="msgInput" placeholder="დაწერე შეტყობინება..." rows="1"
+            onkeydown="handleKey(event)" oninput="handleInput(this)"></textarea>
+          <div class="input-tools">
+            <button class="input-tool-btn" onclick="toggleFormatBar()" title="ფორმატი">𝗔</button>
+            <div style="position:relative">
+              <button class="input-tool-btn" onclick="toggleEmojiPanel()" id="emojiToggleBtn" title="სმაილები">😊</button>
+              <div class="emoji-panel" id="emojiPanel">
+                <input class="emoji-search" placeholder="🔍 სმაილის ძებნა..." oninput="filterEmoji(this.value)" id="emojiSearch">
+                <div class="emoji-cats" id="emojiCats"></div>
+                <div class="emoji-grid" id="emojiGrid"></div>
+                <div class="custom-emojis-row" id="customEmojisRow"></div>
+              </div>
+            </div>
+            <button class="send-btn" onclick="sendMessage()">➤</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── PM PANEL ─── -->
+<div class="pm-minimized" id="pmMinimized" onclick="openPM(null)">
+  <div class="pm-unread-dot"></div>
+  <span id="pmMinName">პირადი შეტყობინება</span>
+  <span>↑</span>
+</div>
+
+<div class="pm-panel" id="pmPanel">
+  <div class="pm-header">
+    <div class="avatar" id="pmAvatar" style="background:var(--accent2);width:32px;height:32px;font-size:13px;font-weight:800"></div>
+    <span class="pm-title" id="pmTitle">–</span>
+    <div style="display:flex;gap:4px">
+      <button class="icon-btn" style="width:28px;height:28px;font-size:14px" onclick="minimizePM()">–</button>
+      <button class="icon-btn" style="width:28px;height:28px;font-size:14px" onclick="closePM()">✕</button>
+    </div>
+  </div>
+  <div class="pm-messages" id="pmMessages"></div>
+  <div class="pm-seen" id="pmSeen"></div>
+  <div class="pm-input-row">
+    <button class="input-tool-btn voice-btn" id="voiceBtn" onclick="toggleVoice()" title="ვოის">🎙️</button>
+    <input class="pm-input" id="pmInput" placeholder="შეტყობინება..." onkeydown="pmKey(event)">
+    <div style="position:relative">
+      <button class="input-tool-btn" onclick="togglePmEmoji()" title="სმაილი">😊</button>
+      <div class="emoji-panel" id="pmEmojiPanel" style="right:0;bottom:40px">
+        <div class="emoji-grid" id="pmEmojiGrid"></div>
+      </div>
+    </div>
+    <button class="pm-send" onclick="sendPM()">➤</button>
+  </div>
+</div>
+
+<!-- Reaction popup -->
+<div class="reaction-popup" id="reactionPopup">
+  <span class="react-opt" onclick="addReaction('❤️')">❤️</span>
+  <span class="react-opt" onclick="addReaction('😂')">😂</span>
+  <span class="react-opt" onclick="addReaction('😮')">😮</span>
+  <span class="react-opt" onclick="addReaction('👍')">👍</span>
+  <span class="react-opt" onclick="addReaction('🔥')">🔥</span>
+  <span class="react-opt" onclick="addReaction('💎')">💎</span>
+  <span class="react-opt" onclick="addReaction('✨')">✨</span>
+</div>
+
+<!-- ─── PANELS ─── -->
+
+<!-- Profile panel -->
+<div class="panel-overlay" id="profilePanel">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">👤 პროფილი</span>
+      <button class="panel-close" onclick="closePanel('profilePanel')">✕</button>
+    </div>
+    <div class="panel-body" id="profileBody"></div>
+  </div>
+</div>
+
+<!-- Friends panel -->
+<div class="panel-overlay" id="friendsPanel">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">👥 მეგობრები</span>
+      <button class="panel-close" onclick="closePanel('friendsPanel')">✕</button>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <input class="admin-input" id="friendSearchInput" placeholder="სახელით ძებნა...">
+        <button class="sm-btn primary" onclick="searchUsers()">🔍</button>
+      </div>
+      <div id="userSearchResults" style="margin-bottom:16px"></div>
+      <div class="sidebar-label" style="padding:0;margin-bottom:8px">ჩემი მეგობრები</div>
+      <div id="friendsList"></div>
+      <div class="sidebar-label" style="padding:0;margin:12px 0 8px">განაცხადები</div>
+      <div id="friendRequests"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Admin panel -->
+<div class="panel-overlay" id="adminPanel">
+  <div class="panel" style="width:560px">
+    <div class="panel-header">
+      <span class="panel-title">🛡️ ადმინ პანელი</span>
+      <button class="panel-close" onclick="closePanel('adminPanel')">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="admin-panel-content">
+        <div class="admin-section">
+          <h3>👥 მომხარებლების მართვა</h3>
+          <div id="adminUserList"></div>
+        </div>
+        <div class="admin-section" id="customEmojiSection" style="display:none">
+          <h3>😄 Custom სმაილების დამატება (ადმინი/დამფუძვნებელი)</h3>
+          <div class="admin-emoji-upload">
+            <input class="admin-input" id="customEmojiUrl" placeholder="სმაილის URL...">
+            <input class="admin-input" id="customEmojiName" placeholder="სახელი...">
+            <button class="sm-btn primary" onclick="addCustomEmoji()">➕</button>
+          </div>
+          <div class="custom-emoji-list" id="customEmojiList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Settings panel -->
+<div class="panel-overlay" id="settingsPanel">
+  <div class="panel">
+    <div class="panel-header">
+      <span class="panel-title">⚙️ პარამეტრები</span>
+      <button class="panel-close" onclick="closePanel('settingsPanel')">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="settings-row">
+        <div class="settings-label">
+          <div class="settings-lbl-main">🌙 მუქი / ☀️ ნათელი რეჟიმი</div>
+          <div class="settings-lbl-sub">თემის შეცვლა</div>
+        </div>
+        <button class="toggle" id="themeToggle" onclick="toggleTheme(this)"></button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label">
+          <div class="settings-lbl-main">🎨 ფერის თემა</div>
+          <div class="settings-lbl-sub">Accent ფერის არჩევა</div>
+        </div>
+        <div class="theme-swatches">
+          <div class="theme-preview active" style="background:linear-gradient(135deg,#7c5cfc,#fc5c7d)" onclick="setAccentTheme('#7c5cfc','#fc5c7d',this)" title="Default">✦</div>
+          <div class="theme-preview" style="background:linear-gradient(135deg,#0ea5e9,#38bdf8)" onclick="setAccentTheme('#0ea5e9','#38bdf8',this)" title="Ocean">🌊</div>
+          <div class="theme-preview" style="background:linear-gradient(135deg,#10b981,#34d399)" onclick="setAccentTheme('#10b981','#34d399',this)" title="Forest">🌿</div>
+          <div class="theme-preview" style="background:linear-gradient(135deg,#f59e0b,#fbbf24)" onclick="setAccentTheme('#f59e0b','#fbbf24',this)" title="Gold">🌟</div>
+          <div class="theme-preview" style="background:linear-gradient(135deg,#ec4899,#f9a8d4)" onclick="setAccentTheme('#ec4899','#f9a8d4',this)" title="Pink">🌸</div>
+          <div class="theme-preview" style="background:linear-gradient(135deg,#ef4444,#f87171)" onclick="setAccentTheme('#ef4444','#f87171',this)" title="Red">🔴</div>
+        </div>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label">
+          <div class="settings-lbl-main">📝 სტატუსი</div>
+          <div class="settings-lbl-sub">შეცვალე შენი სტატუსი</div>
+        </div>
+        <button class="sm-btn primary" onclick="openStatusModal()">შეცვლა</button>
+      </div>
+      <div class="settings-row">
+        <div class="settings-label">
+          <div class="settings-lbl-main">🔤 შრიფტის ზომა</div>
+        </div>
+        <input type="range" class="font-size-slider" min="12" max="18" value="14" oninput="setFontSize(this.value)">
+      </div>
+      <div class="settings-row">
+        <div class="settings-label">
+          <div class="settings-lbl-main">💫 ანიმაციები</div>
+          <div class="settings-lbl-sub">გული/ყვავილი ანიმაციები</div>
+        </div>
+        <button class="toggle on" id="animToggle" onclick="toggleAnim(this)"></button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Status modal -->
+<div class="panel-overlay" id="statusModal">
+  <div class="panel" style="width:380px">
+    <div class="panel-header">
+      <span class="panel-title">✏️ სტატუსი</span>
+      <button class="panel-close" onclick="closePanel('statusModal')">✕</button>
+    </div>
+    <div class="panel-body">
+      <div class="status-emojis" id="statusEmojis">
+        <span class="status-emoji-btn selected" onclick="selectStatusEmoji(this,'😊')">😊</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'😴')">😴</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'🔥')">🔥</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'🎮')">🎮</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'🎵')">🎵</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'💼')">💼</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'❤️')">❤️</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'🍕')">🍕</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'✈️')">✈️</span>
+        <span class="status-emoji-btn" onclick="selectStatusEmoji(this,'🤫')">🤫</span>
+      </div>
+      <div class="form-group"><label>სტატუსის ტექსტი</label>
+        <input type="text" id="statusText" placeholder="რა ხდება?..." maxlength="100">
+      </div>
+      <button class="btn-primary" onclick="saveStatus()">💾 შენახვა</button>
+    </div>
+  </div>
+</div>
+
+<!-- Album panel -->
+<div class="panel-overlay" id="albumPanel">
+  <div class="panel" style="width:560px">
+    <div class="panel-header">
+      <span class="panel-title">🖼️ ფოტო ალბომი</span>
+      <button class="panel-close" onclick="closePanel('albumPanel')">✕</button>
+    </div>
+    <div class="panel-body">
+      <div style="display:flex;gap:8px;margin-bottom:16px">
+        <input class="admin-input" id="albumImgUrl" placeholder="ფოტოს URL...">
+        <button class="sm-btn primary" onclick="addAlbumPhoto()">➕ დამატება</button>
+      </div>
+      <div class="album-panel-grid" id="albumGrid"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ─── SUPABASE INIT ───
+const SUPA_URL = 'https://brggiyhfzfbmlirqfgpo.supabase.co';
+const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU';
+const { createClient } = supabase;
+const sb = createClient(SUPA_URL, SUPA_KEY);
+
+// ─── STATE ───
+let currentUser = null;
+let currentProfile = null;
+let currentRoom = null;
+let rooms = [];
+let profiles = {};
+let messagesChannel = null;
+let typingChannel = null;
+let presenceChannel = null;
+let typingTimeout = null;
+let msgFormat = { bold: false, italic: false, strike: false, color: null };
+let currentReactMsgId = null;
+let pmTarget = null;
+let pmChannel = null;
+let voiceRec = null;
+let voiceChunks = [];
+let isRecording = false;
+let selectedStatusEmoji = '😊';
+let customEmojis = [];
+let pmUnread = 0;
+let animEnabled = true;
+let allUsers = [];
+
+// ─── ROOMS DATA ───
+const ROOMS = [
+  { id: 1, name: 'ოთახი 1', icon: '🏠' },
+  { id: 2, name: 'ოთახი 2', icon: '🌙' },
+  { id: 3, name: 'ოთახი 3', icon: '🔥' },
+  { id: 4, name: 'ოთახი 4', icon: '🎮' },
+  { id: 5, name: 'ოთახი 5', icon: '🎵' },
+  { id: 6, name: 'ოთახი 6', icon: '💎' },
+  { id: 7, name: 'ოთახი 7', icon: '🌸' },
+  { id: 8, name: 'ოთახი 8', icon: '⚡' },
+  { id: 9, name: 'ოთახი 9', icon: '🌊' },
+  { id: 10, name: 'ოთახი 10', icon: '🍕' },
+  { id: 11, name: 'ოთახი 11', icon: '🎯' },
+  { id: 12, name: 'ოთახი 12', icon: '✨' },
+];
+
+const EMOJI_CATS = {
+  '😀': ['😀','😂','🥹','😊','😇','🥰','😍','🤩','😘','😋','😎','🤓','😜','😏','😒','😢','😭','😤','😡','🤬','🥳','🤗','🤔','🫡','🤐','😶','😑','🙄','😴','😷','🤒','🤕','🥴','😵','🤯','😲','😳','🥺','😦','😧','😨','😰','😥','😓','🫣','🤫','🫠','🥱','😮‍💨','😬'],
+  '❤️': ['❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💖','💗','💓','💞','💕','💟','❣️','💔','🫀','❤️‍🔥','❤️‍🩹'],
+  '🐱': ['🐶','🐱','🐭','🐹','🐰','🦊','🐻','🐼','🐨','🐯','🦁','🐮','🐷','🐸','🐵','🦆','🐦','🦅','🦉','🦋','🐛','🐝','🐞','🦀','🦞','🦐','🐙','🦑','🦈','🐳','🐬','🐊'],
+  '🍕': ['🍕','🍔','🌮','🌯','🥪','🥗','🍝','🍜','🍲','🍛','🍣','🍱','🍤','🍗','🥩','🧆','🥚','🍳','🥞','🧇','🥓','🥐','🍞','🥨','🧀','🥗','🍿','🍫','🍬','🍭','🧁','🎂','🍰','🥧','🍮','🍨','🍦','🍧','🍡','🍢'],
+  '⚽': ['⚽','🏀','🏈','⚾','🎾','🏐','🏉','🎱','🏓','🏸','🥊','🥅','⛳','🎣','🤿','🎿','🛷','🥌','🎯','🎮','🕹️','🎲','🧩','🎰'],
+  '🌍': ['🌍','🌎','🌏','🗺️','🗾','🧭','🏔️','⛰️','🌋','🗻','🏕️','🏖️','🏗️','🏘️','🏚️','🏠','🏡','🏢','🏣','🏤','🏥','🏦','🏨','🏩','🏪','🏫','🏬','🏭','🏯','🏰','💒','🗼','🗽','🗿','🎡','🎢','🎠'],
+  '💡': ['💡','🔦','🕯️','🪔','💰','💴','💵','💶','💷','💸','💳','🪙','💹','✉️','📧','📨','📩','📦','📫','📪','📬','📭','📮','🗳️','📝','📄','📃','📑','🗒️','📊','📈','📉','🗂️','📁','📂','🗃️','🗄️','🗑️'],
+};
+
+// ─── FLOATERS ───
+function initFloaters() {
+  const items = ['❤️','💖','🌸','🌺','🌼','💕','✨','🌻','💫','🌹','🦋','🌷'];
+  const c = document.getElementById('floaters');
+  for (let i = 0; i < 18; i++) {
+    const el = document.createElement('div');
+    el.className = 'floater';
+    el.textContent = items[Math.floor(Math.random() * items.length)];
+    el.style.left = Math.random() * 100 + '%';
+    el.style.animationDuration = (8 + Math.random() * 12) + 's';
+    el.style.animationDelay = (Math.random() * 15) + 's';
+    el.style.fontSize = (14 + Math.random() * 16) + 'px';
+    c.appendChild(el);
+  }
+}
+initFloaters();
+
+function toggleAnim(btn) {
+  animEnabled = !animEnabled;
+  btn.classList.toggle('on', animEnabled);
+  document.getElementById('floaters').style.display = animEnabled ? '' : 'none';
+}
+
+// ─── AUTH ───
+function switchAuth(mode) {
+  document.getElementById('loginForm').style.display = mode === 'login' ? '' : 'none';
+  document.getElementById('registerForm').style.display = mode === 'register' ? '' : 'none';
+  document.querySelectorAll('.auth-tab').forEach((t, i) => t.classList.toggle('active', (i === 0) === (mode === 'login')));
+  document.getElementById('authErr').textContent = '';
+}
+
+async function doLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass = document.getElementById('loginPass').value;
+  const { data, error } = await sb.auth.signInWithPassword({ email, password: pass });
+  if (error) { document.getElementById('authErr').textContent = error.message; return; }
+  await initApp(data.user);
+}
+
+async function doRegister() {
+  const username = document.getElementById('regUsername').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass = document.getElementById('regPass').value;
+  if (!username) { document.getElementById('authErr').textContent = 'სახელი სავალდებულოა'; return; }
+  const { data, error } = await sb.auth.signUp({ email, password: pass });
+  if (error) { document.getElementById('authErr').textContent = error.message; return; }
+  if (data.user) {
+    await sb.from('profiles').upsert({
+      id: data.user.id, username, email,
+      avatar_color: randomColor(), role: 'user',
+      status: '👋 გამარჯობა!', created_at: new Date().toISOString()
+    });
+    await initApp(data.user);
+  }
+}
+
+async function doLogout() {
+  if (presenceChannel) sb.removeChannel(presenceChannel);
+  await sb.auth.signOut();
+  location.reload();
+}
+
+// ─── INIT APP ───
+async function initApp(user) {
+  currentUser = user;
+  document.getElementById('authScreen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+
+  // Load profile
+  const { data: prof } = await sb.from('profiles').select('*').eq('id', user.id).single();
+  if (!prof) {
+    await sb.from('profiles').upsert({
+      id: user.id, username: user.email.split('@')[0],
+      email: user.email, avatar_color: randomColor(), role: 'user',
+      status: '👋 გამარჯობა!', created_at: new Date().toISOString()
+    });
+    const { data: p2 } = await sb.from('profiles').select('*').eq('id', user.id).single();
+    currentProfile = p2;
+  } else {
+    currentProfile = prof;
+  }
+
+  // Update online
+  await sb.from('profiles').update({ online: true, last_seen: new Date().toISOString() }).eq('id', user.id);
+
+  renderMyAvatar();
+  renderRooms();
+  loadAllUsers();
+  loadCustomEmojis();
+  loadAlbum();
+  initPresence();
+  initEmojiPanel();
+  checkAdminBadge();
+  joinRoom(ROOMS[0]);
+
+  // On unload set offline
+  window.addEventListener('beforeunload', async () => {
+    await sb.from('profiles').update({ online: false }).eq('id', user.id);
+  });
+
+  // PM channel subscribe
+  subscribePMChannel();
+}
+
+function renderMyAvatar() {
+  const av = document.getElementById('myAvatar');
+  const nm = document.getElementById('myName');
+  av.style.background = currentProfile?.avatar_color || 'var(--accent)';
+  av.textContent = (currentProfile?.username || '?')[0].toUpperCase();
+  nm.textContent = currentProfile?.username || '?';
+}
+
+function checkAdminBadge() {
+  const role = currentProfile?.role;
+  if (role === 'admin' || role === 'owner') {
+    document.getElementById('adminBtn').style.display = '';
+    if (role === 'admin' || role === 'owner') {
+      document.getElementById('customEmojiSection').style.display = '';
+    }
+  }
+}
+
+// ─── ROOMS ───
+function renderRooms() {
+  const list = document.getElementById('roomList');
+  list.innerHTML = ROOMS.map(r => `
+    <div class="room-item ${currentRoom?.id === r.id ? 'active' : ''}" onclick="joinRoom(${JSON.stringify(r).replace(/"/g, '&quot;')})">
+      <span class="room-icon">${r.icon}</span>
+      <span class="room-name">${r.name}</span>
+    </div>
+  `).join('');
+}
+
+async function joinRoom(room) {
+  if (messagesChannel) sb.removeChannel(messagesChannel);
+  if (typingChannel) sb.removeChannel(typingChannel);
+  currentRoom = room;
+  document.getElementById('currentRoomIcon').textContent = room.icon;
+  document.getElementById('currentRoomName').textContent = room.name;
+  renderRooms();
+  document.getElementById('messages').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+  await loadMessages();
+  subscribeMessages();
+  subscribeTyping();
+}
+
+// ─── MESSAGES ───
+async function loadMessages() {
+  const { data } = await sb.from('messages')
+    .select('*')
+    .eq('room_id', currentRoom.id)
+    .order('created_at', { ascending: true })
+    .limit(80);
+  const msgs = document.getElementById('messages');
+  if (!data?.length) { msgs.innerHTML = '<div class="no-data">პირველი შეტყობინება დაწერე! 👋</div>'; return; }
+  // Load authors
+  const uids = [...new Set(data.map(m => m.user_id))];
+  for (const uid of uids) await getProfile(uid);
+  msgs.innerHTML = data.map(m => renderMsg(m)).join('');
+  scrollToBottom();
+}
+
+function renderMsg(m) {
+  const prof = profiles[m.user_id] || { username: 'Unknown', avatar_color: '#888' };
+  const time = formatTime(m.created_at);
+  const reactions = m.reactions ? renderReactions(m.id, m.reactions) : '';
+  let body = m.deleted ? `<span class="msg-deleted">🗑 წაშლილია</span>` :
+    `<span class="msg-body${m.bold?' bold':''}${m.italic?' italic':''}${m.strike?' strike':''}" style="${m.color?'color:'+m.color:''}">${escHtml(m.content)}</span>`;
+  const canDelete = currentProfile?.role === 'admin' || currentProfile?.role === 'owner' || m.user_id === currentUser.id;
+  return `
+    <div class="msg-row" id="msg-${m.id}" data-id="${m.id}">
+      <div class="msg-avatar" style="background:${prof.avatar_color}">${prof.username[0].toUpperCase()}</div>
+      <div class="msg-content">
+        <div class="msg-header">
+          <span class="msg-author" style="color:${prof.avatar_color}" onclick="viewProfile('${m.user_id}')" style="cursor:pointer">${escHtml(prof.username)}</span>
+          ${roleIcon(prof.role)}
+          <span class="msg-time">${time}</span>
+        </div>
+        ${body}
+        ${reactions}
+      </div>
+      <div class="msg-actions">
+        <button class="msg-action-btn" onclick="showReactPopup('${m.id}',event)" title="რეაქცია">😊</button>
+        ${canDelete && !m.deleted ? `<button class="msg-action-btn" onclick="deleteMsg('${m.id}')" title="წაშლა">🗑</button>` : ''}
+      </div>
+    </div>`;
+}
+
+function roleIcon(role) {
+  if (role === 'owner') return '<span class="role-badge-owner" title="დამფუძვნებელი">👑</span>';
+  if (role === 'admin') return '<span class="role-badge-admin" title="ადმინი">🛡️</span>';
+  return '';
+}
+
+function renderReactions(msgId, reactions) {
+  if (!reactions || !Object.keys(reactions).length) return '';
+  return '<div class="msg-reactions">' + Object.entries(reactions).map(([emoji, users]) =>
+    `<span class="reaction-chip ${users.includes(currentUser?.id) ? 'mine' : ''}" onclick="addReactionTo('${msgId}','${emoji}')">${emoji} ${users.length}</span>`
+  ).join('') + '</div>';
+}
+
+function subscribeMessages() {
+  messagesChannel = sb.channel(`room-${currentRoom.id}`)
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'messages', filter: `room_id=eq.${currentRoom.id}` },
+      async payload => {
+        if (payload.eventType === 'INSERT') {
+          await getProfile(payload.new.user_id);
+          const msgs = document.getElementById('messages');
+          const noData = msgs.querySelector('.no-data');
+          if (noData) noData.remove();
+          const div = document.createElement('div');
+          div.innerHTML = renderMsg(payload.new);
+          msgs.appendChild(div.firstElementChild);
+          scrollToBottom();
+        } else if (payload.eventType === 'UPDATE') {
+          const el = document.getElementById(`msg-${payload.new.id}`);
+          if (el) {
+            const tmp = document.createElement('div');
+            tmp.innerHTML = renderMsg(payload.new);
+            el.replaceWith(tmp.firstElementChild);
+          }
+        }
+      }).subscribe();
+}
+
+function subscribeTyping() {
+  typingChannel = sb.channel(`typing-${currentRoom.id}`)
+    .on('broadcast', { event: 'typing' }, ({ payload }) => {
+      if (payload.user_id === currentUser.id) return;
+      const ind = document.getElementById('typingIndicator');
+      ind.textContent = `${payload.username} წერს...`;
+      clearTimeout(typingTimeout);
+      typingTimeout = setTimeout(() => ind.textContent = '', 2000);
+    }).subscribe();
+}
+
+// ─── SEND MESSAGE ───
+async function sendMessage() {
+  const inp = document.getElementById('msgInput');
+  const content = inp.value.trim();
+  if (!content) return;
+  inp.value = ''; inp.style.height = '';
+  const msg = {
+    room_id: currentRoom.id, user_id: currentUser.id, content,
+    bold: msgFormat.bold, italic: msgFormat.italic, strike: msgFormat.strike,
+    color: msgFormat.color, created_at: new Date().toISOString(), reactions: {}
+  };
+  await sb.from('messages').insert(msg);
+}
+
+function handleKey(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+}
+
+function handleInput(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  // Typing broadcast
+  if (typingChannel) {
+    typingChannel.send({ type: 'broadcast', event: 'typing', payload: { user_id: currentUser.id, username: currentProfile.username } });
+  }
+}
+
+// ─── FORMAT ───
+function toggleFormatBar() {
+  document.getElementById('formatBar').classList.toggle('show');
+}
+
+function applyFmt(type) {
+  msgFormat[type] = !msgFormat[type];
+  const btns = { bold: 0, italic: 1, strike: 2 };
+  document.querySelectorAll('.fmt-btn')[btns[type]]?.classList.toggle('active', msgFormat[type]);
+}
+
+function toggleColorPicker() {
+  document.getElementById('colorPicker').classList.toggle('show');
+}
+
+function setTextColor(color) {
+  msgFormat.color = color;
+  document.getElementById('colorPicker').classList.remove('show');
+}
+
+// ─── EMOJI PANEL ───
+function initEmojiPanel() {
+  const cats = document.getElementById('emojiCats');
+  cats.innerHTML = Object.keys(EMOJI_CATS).map((cat, i) =>
+    `<button class="emoji-cat-btn ${i===0?'active':''}" onclick="showEmojiCat('${cat}',this)">${cat}</button>`
+  ).join('');
+  showEmojiCat(Object.keys(EMOJI_CATS)[0], cats.firstChild);
+  renderPmEmoji();
+}
+
+function showEmojiCat(cat, btn) {
+  document.querySelectorAll('.emoji-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const grid = document.getElementById('emojiGrid');
+  grid.innerHTML = EMOJI_CATS[cat].map(e => `<button class="emoji-btn" onclick="insertEmoji('${e}')">${e}</button>`).join('');
+}
+
+function filterEmoji(q) {
+  const all = Object.values(EMOJI_CATS).flat();
+  const filtered = q ? all.filter(e => e.includes(q)) : Object.values(EMOJI_CATS)[0];
+  document.getElementById('emojiGrid').innerHTML = filtered.map(e => `<button class="emoji-btn" onclick="insertEmoji('${e}')">${e}</button>`).join('');
+}
+
+function insertEmoji(e) {
+  const inp = document.getElementById('msgInput');
+  inp.value += e; inp.focus();
+  document.getElementById('emojiPanel').classList.remove('show');
+}
+
+function toggleEmojiPanel() {
+  document.getElementById('emojiPanel').classList.toggle('show');
+  renderCustomEmojisInPanel();
+}
+
+function renderCustomEmojisInPanel() {
+  const row = document.getElementById('customEmojisRow');
+  row.innerHTML = customEmojis.map(em =>
+    `<img src="${em.url}" class="custom-emoji" title="${em.name}" onclick="insertEmoji(' ')">` // fallback
+  ).join('');
+}
+
+function renderPmEmoji() {
+  const grid = document.getElementById('pmEmojiGrid');
+  const emojis = Object.values(EMOJI_CATS)[0];
+  grid.innerHTML = emojis.map(e => `<button class="emoji-btn" onclick="insertPmEmoji('${e}')">${e}</button>`).join('');
+}
+
+function insertPmEmoji(e) {
+  const inp = document.getElementById('pmInput');
+  inp.value += e; inp.focus();
+  document.getElementById('pmEmojiPanel').classList.remove('show');
+}
+
+function togglePmEmoji() {
+  document.getElementById('pmEmojiPanel').classList.toggle('show');
+}
+
+// ─── DELETE MESSAGE ───
+async function deleteMsg(id) {
+  await sb.from('messages').update({ deleted: true, content: '' }).eq('id', id);
+}
+
+// ─── REACTIONS ───
+let currentReactPopupMsgId = null;
+
+function showReactPopup(msgId, e) {
+  e.stopPropagation();
+  currentReactPopupMsgId = msgId;
+  const popup = document.getElementById('reactionPopup');
+  popup.classList.add('show');
+  popup.style.top = (e.clientY - 60) + 'px';
+  popup.style.left = e.clientX + 'px';
+  popup.style.position = 'fixed';
+}
+
+async function addReaction(emoji) {
+  document.getElementById('reactionPopup').classList.remove('show');
+  if (!currentReactPopupMsgId) return;
+  await addReactionTo(currentReactPopupMsgId, emoji);
+}
+
+async function addReactionTo(msgId, emoji) {
+  const { data } = await sb.from('messages').select('reactions').eq('id', msgId).single();
+  const reactions = data?.reactions || {};
+  if (!reactions[emoji]) reactions[emoji] = [];
+  const idx = reactions[emoji].indexOf(currentUser.id);
+  if (idx >= 0) reactions[emoji].splice(idx, 1);
+  else reactions[emoji].push(currentUser.id);
+  if (!reactions[emoji].length) delete reactions[emoji];
+  await sb.from('messages').update({ reactions }).eq('id', msgId);
+}
+
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('#reactionPopup') && !e.target.closest('.msg-action-btn')) {
+    document.getElementById('reactionPopup').classList.remove('show');
+  }
+  if (!e.target.closest('#emojiPanel') && !e.target.closest('#emojiToggleBtn')) {
+    document.getElementById('emojiPanel').classList.remove('show');
+  }
+  if (!e.target.closest('#colorPicker')) {
+    document.getElementById('colorPicker').classList.remove('show');
+  }
+  if (!e.target.closest('#pmEmojiPanel') && !e.target.closest('.input-tool-btn')) {
+    // keep pm emoji if user clicked emoji toggle
+  }
+});
+
+// ─── PRESENCE ───
+function initPresence() {
+  presenceChannel = sb.channel('online-users')
+    .on('presence', { event: 'sync' }, () => { renderMembers(); })
+    .subscribe(async (status) => {
+      if (status === 'SUBSCRIBED') {
+        await presenceChannel.track({ user_id: currentUser.id, username: currentProfile.username });
+      }
+    });
+  // Also poll DB every 30s
+  renderMembers();
+  setInterval(renderMembers, 30000);
+}
+
+async function renderMembers() {
+  const { data } = await sb.from('profiles').select('*').eq('online', true).limit(50);
+  const list = document.getElementById('membersList');
+  if (!data?.length) { list.innerHTML = '<div class="no-data">ვინც ონლაინ არ არის</div>'; return; }
+  list.innerHTML = data.map(p => `
+    <div class="member-item" onclick="viewProfile('${p.id}')">
+      <div class="avatar" style="background:${p.avatar_color};font-size:13px;font-weight:800">
+        ${p.username[0].toUpperCase()}
+        <div class="status-dot ${p.online ? 'online' : 'offline'}"></div>
+      </div>
+      <div>
+        <div class="member-name">${escHtml(p.username)} ${roleIcon(p.role)}</div>
+        <div class="member-role">${p.status || ''}</div>
+      </div>
+    </div>
+  `).join('');
+  document.getElementById('currentRoomCount').textContent = `${data.length} ონლაინ`;
+}
+
+// ─── PROFILE ───
+async function getProfile(uid) {
+  if (profiles[uid]) return profiles[uid];
+  const { data } = await sb.from('profiles').select('*').eq('id', uid).single();
+  if (data) profiles[uid] = data;
+  return data;
+}
+
+async function viewProfile(uid) {
+  const prof = await getProfile(uid);
+  if (!prof) return;
+  const isMe = uid === currentUser.id;
+  const isFriend = await checkFriendship(uid);
+  const canManage = (currentProfile.role === 'admin' || currentProfile.role === 'owner') && !isMe;
+  const profBody = document.getElementById('profileBody');
+  profBody.innerHTML = `
+    <div class="profile-avatar-big" style="background:${prof.avatar_color}">${prof.username[0].toUpperCase()}</div>
+    <div class="profile-username">${escHtml(prof.username)}</div>
+    <div class="profile-status">${prof.status || '✨ სტატუსი არ არის'}</div>
+    <div class="profile-stats">
+      <div class="stat-item"><div class="stat-val">${roleIcon(prof.role)||'👤'}</div><div class="stat-lbl">როლი: ${prof.role||'user'}</div></div>
+    </div>
+    <div class="profile-actions">
+      ${!isMe ? `<button class="action-btn primary" onclick="openPM('${uid}');closePanel('profilePanel')">💬 პირადი შეტყობინება</button>` : ''}
+      ${!isMe && !isFriend ? `<button class="action-btn success" onclick="addFriend('${uid}')">➕ მეგობარი</button>` : ''}
+      ${!isMe && isFriend ? `<button class="action-btn danger" onclick="removeFriend('${uid}')">➖ მეგობრების წაშლა</button>` : ''}
+      ${canManage ? `
+        <button class="action-btn warn" onclick="setRole('${uid}','admin')">🛡️ ადმინი</button>
+        <button class="action-btn warn" onclick="setRole('${uid}','owner')">👑 დამფუძვნებელი</button>
+        <button class="action-btn" onclick="setRole('${uid}','user')" style="background:var(--bg3)">🔓 როლის ჩახსნა</button>
+        <button class="action-btn danger" onclick="blockUser('${uid}')">🚫 დაბლოკვა</button>
+      ` : ''}
+    </div>
+  `;
+  openPanel('profilePanel');
+}
+
+function openMyProfile() { viewProfile(currentUser.id); }
+
+async function setRole(uid, role) {
+  await sb.from('profiles').update({ role }).eq('id', uid);
+  delete profiles[uid];
+  showNotif('✅', 'როლი შეიცვალა', `მომხარებელს დაენიჭა: ${role}`);
+  closePanel('profilePanel');
+}
+
+async function blockUser(uid) {
+  await sb.from('profiles').update({ blocked: true, online: false }).eq('id', uid);
+  showNotif('🚫', 'დაბლოკვა', 'მომხარებელი დაიბლოკა');
+  closePanel('profilePanel');
+}
+
+// ─── FRIENDS ───
+async function checkFriendship(uid) {
+  const { data } = await sb.from('friendships')
+    .select('id')
+    .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${uid}),and(user_id.eq.${uid},friend_id.eq.${currentUser.id})`)
+    .eq('status', 'accepted')
+    .single();
+  return !!data;
+}
+
+async function addFriend(uid) {
+  await sb.from('friendships').insert({ user_id: currentUser.id, friend_id: uid, status: 'pending' });
+  showNotif('👥', 'მოთხოვნა გაიგზავნა', 'მეგობრობის მოთხოვნა გაიგზავნა!');
+}
+
+async function removeFriend(uid) {
+  await sb.from('friendships').delete()
+    .or(`and(user_id.eq.${currentUser.id},friend_id.eq.${uid}),and(user_id.eq.${uid},friend_id.eq.${currentUser.id})`);
+  showNotif('👋', 'მეგობრები', 'მეგობრებიდან წაიშალა');
+  await loadFriends();
+}
+
+async function loadFriends() {
+  const { data: accepted } = await sb.from('friendships')
+    .select('*')
+    .or(`user_id.eq.${currentUser.id},friend_id.eq.${currentUser.id}`)
+    .eq('status', 'accepted');
+  const { data: pending } = await sb.from('friendships')
+    .select('*').eq('friend_id', currentUser.id).eq('status', 'pending');
+
+  const fList = document.getElementById('friendsList');
+  if (accepted?.length) {
+    const fids = accepted.map(f => f.user_id === currentUser.id ? f.friend_id : f.user_id);
+    const profs = await Promise.all(fids.map(id => getProfile(id)));
+    fList.innerHTML = profs.filter(Boolean).map(p => `
+      <div class="friend-item">
+        <div class="avatar" style="background:${p.avatar_color};width:36px;height:36px;font-size:14px;font-weight:800">${p.username[0].toUpperCase()}</div>
+        <div class="friend-info">
+          <div class="friend-name">${escHtml(p.username)} ${roleIcon(p.role)}</div>
+          <div class="friend-status">${p.status || ''}</div>
+        </div>
+        <div class="friend-actions">
+          <button class="sm-btn primary" onclick="openPM('${p.id}');closePanel('friendsPanel')">💬</button>
+          <button class="sm-btn danger" onclick="removeFriend('${p.id}')">➖</button>
+        </div>
+      </div>
+    `).join('');
+  } else { fList.innerHTML = '<div class="no-data">მეგობრები არ გყავს ჯერ 😢</div>'; }
+
+  const rList = document.getElementById('friendRequests');
+  if (pending?.length) {
+    const profs = await Promise.all(pending.map(f => getProfile(f.user_id)));
+    rList.innerHTML = profs.filter(Boolean).map((p, i) => `
+      <div class="friend-item">
+        <div class="avatar" style="background:${p.avatar_color};width:36px;height:36px;font-size:14px;font-weight:800">${p.username[0].toUpperCase()}</div>
+        <div class="friend-info"><div class="friend-name">${escHtml(p.username)}</div></div>
+        <div class="friend-actions">
+          <button class="sm-btn primary" onclick="acceptFriend('${pending[i].id}')">✅</button>
+          <button class="sm-btn danger" onclick="rejectFriend('${pending[i].id}')">✕</button>
+        </div>
+      </div>
+    `).join('');
+  } else { rList.innerHTML = '<div class="no-data">განაცხადები არ არის</div>'; }
+}
+
+async function acceptFriend(id) {
+  await sb.from('friendships').update({ status: 'accepted' }).eq('id', id);
+  showNotif('🎉', 'მეგობარი!', 'მეგობრობა დადასტურდა!');
+  loadFriends();
+}
+
+async function rejectFriend(id) {
+  await sb.from('friendships').delete().eq('id', id);
+  loadFriends();
+}
+
+async function searchUsers() {
+  const q = document.getElementById('friendSearchInput').value.trim();
+  if (!q) return;
+  const { data } = await sb.from('profiles').select('*').ilike('username', `%${q}%`).neq('id', currentUser.id).limit(10);
+  const res = document.getElementById('userSearchResults');
+  if (!data?.length) { res.innerHTML = '<div class="no-data">ვერ მოიძებნა</div>'; return; }
+  res.innerHTML = data.map(p => `
+    <div class="friend-item">
+      <div class="avatar" style="background:${p.avatar_color};width:36px;height:36px;font-size:14px;font-weight:800">${p.username[0].toUpperCase()}</div>
+      <div class="friend-info"><div class="friend-name">${escHtml(p.username)}</div></div>
+      <div class="friend-actions">
+        <button class="sm-btn primary" onclick="addFriend('${p.id}')">➕</button>
+        <button class="sm-btn" onclick="viewProfile('${p.id}')" style="background:var(--bg3)">👤</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── PM / DM ───
+async function openPM(uid) {
+  if (uid) pmTarget = await getProfile(uid);
+  if (!pmTarget) return;
+  document.getElementById('pmPanel').classList.add('show');
+  document.getElementById('pmMinimized').classList.remove('show');
+  document.getElementById('pmTitle').textContent = pmTarget.username;
+  document.getElementById('pmAvatar').textContent = pmTarget.username[0].toUpperCase();
+  document.getElementById('pmAvatar').style.background = pmTarget.avatar_color;
+  pmUnread = 0;
+  updatePMBadge();
+  loadPMMessages();
+  subscribePMRoom();
+}
+
+async function loadPMMessages() {
+  const pmId = getPmRoomId(currentUser.id, pmTarget.id);
+  const { data } = await sb.from('pm_messages')
+    .select('*').eq('room_id', pmId)
+    .order('created_at', { ascending: true }).limit(50);
+  const msgs = document.getElementById('pmMessages');
+  msgs.innerHTML = '';
+  if (!data?.length) { msgs.innerHTML = '<div class="no-data" style="font-size:12px">დაიწყე საუბარი!</div>'; return; }
+  for (const m of data) msgs.appendChild(createPmMsgEl(m));
+  msgs.scrollTop = msgs.scrollHeight;
+  // Mark seen
+  await sb.from('pm_messages').update({ seen: true })
+    .eq('room_id', pmId).eq('to_id', currentUser.id).eq('seen', false);
+}
+
+function createPmMsgEl(m) {
+  const mine = m.from_id === currentUser.id;
+  const div = document.createElement('div');
+  div.className = `pm-msg ${mine ? 'mine' : 'theirs'}`;
+  div.dataset.id = m.id;
+  if (m.voice_url) {
+    div.innerHTML = `
+      <div class="pm-voice-msg">
+        <button class="voice-play" onclick="playVoice('${m.voice_url}')">▶</button>
+        <div class="voice-wave"></div>
+        <span style="font-size:11px;color:var(--text2)">${formatTime(m.created_at)}</span>
+      </div>`;
+  } else {
+    div.innerHTML = `
+      <div class="pm-bubble">${escHtml(m.content || '')}</div>
+      <div class="pm-meta ${mine?'right':''}">
+        <span>${formatTime(m.created_at)}</span>
+        ${mine ? `<span>${m.seen ? '👁 ნანახია' : '✓ გაგზავნილია'}</span>` : ''}
+      </div>
+      <div class="pm-reactions">${renderPmReactions(m)}</div>`;
+  }
+  // Long press for reaction
+  div.addEventListener('contextmenu', (e) => { e.preventDefault(); showPmReact(m.id, e); });
+  return div;
+}
+
+function renderPmReactions(m) {
+  if (!m.reactions) return '';
+  return Object.entries(m.reactions).map(([e, u]) =>
+    `<span class="reaction-chip ${u.includes(currentUser?.id)?'mine':''}" onclick="addPmReaction('${m.id}','${e}')">${e} ${u.length}</span>`
+  ).join('');
+}
+
+let currentPmReactId = null;
+function showPmReact(id, e) {
+  currentPmReactId = id;
+  const popup = document.getElementById('reactionPopup');
+  popup.classList.add('show');
+  popup.style.top = (e.clientY - 60) + 'px';
+  popup.style.left = e.clientX + 'px';
+  popup.style.position = 'fixed';
+  // override reaction handler for PM
+  document.querySelectorAll('.react-opt').forEach(el => {
+    el.onclick = () => { addPmReaction(currentPmReactId, el.textContent); popup.classList.remove('show'); };
+  });
+}
+
+async function addPmReaction(msgId, emoji) {
+  const { data } = await sb.from('pm_messages').select('reactions').eq('id', msgId).single();
+  const reactions = data?.reactions || {};
+  if (!reactions[emoji]) reactions[emoji] = [];
+  const idx = reactions[emoji].indexOf(currentUser.id);
+  if (idx >= 0) reactions[emoji].splice(idx, 1);
+  else reactions[emoji].push(currentUser.id);
+  if (!reactions[emoji].length) delete reactions[emoji];
+  await sb.from('pm_messages').update({ reactions }).eq('id', msgId);
+}
+
+function getPmRoomId(a, b) {
+  return [a, b].sort().join('_');
+}
+
+async function sendPM() {
+  const inp = document.getElementById('pmInput');
+  const content = inp.value.trim();
+  if (!content || !pmTarget) return;
+  inp.value = '';
+  const pmId = getPmRoomId(currentUser.id, pmTarget.id);
+  await sb.from('pm_messages').insert({
+    room_id: pmId, from_id: currentUser.id, to_id: pmTarget.id,
+    content, seen: false, created_at: new Date().toISOString(), reactions: {}
+  });
+  // Update seen
+  await sb.from('pm_messages').update({ seen: true })
+    .eq('room_id', pmId).eq('to_id', currentUser.id).eq('seen', false);
+}
+
+function pmKey(e) { if (e.key === 'Enter') sendPM(); }
+
+function subscribePMRoom() {
+  if (pmChannel) sb.removeChannel(pmChannel);
+  if (!pmTarget) return;
+  const pmId = getPmRoomId(currentUser.id, pmTarget.id);
+  pmChannel = sb.channel(`pm-${pmId}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pm_messages', filter: `room_id=eq.${pmId}` },
+      async payload => {
+        const msgs = document.getElementById('pmMessages');
+        const noData = msgs.querySelector('.no-data');
+        if (noData) noData.remove();
+        msgs.appendChild(createPmMsgEl(payload.new));
+        msgs.scrollTop = msgs.scrollHeight;
+        if (payload.new.to_id === currentUser.id) {
+          await sb.from('pm_messages').update({ seen: true }).eq('id', payload.new.id);
+        }
+        // Update seen indicator
+        loadPMMessages();
+      })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'pm_messages', filter: `room_id=eq.${pmId}` },
+      payload => {
+        const el = document.querySelector(`[data-id="${payload.new.id}"]`);
+        if (el) {
+          const newEl = createPmMsgEl(payload.new);
+          el.replaceWith(newEl);
+        }
+        // Show seen
+        const seen = document.getElementById('pmSeen');
+        if (payload.new.seen && payload.new.from_id === currentUser.id) {
+          seen.textContent = '👁 ნანახია';
+        }
+      })
+    .subscribe();
+}
+
+function subscribePMChannel() {
+  // Listen for any PM to this user
+  sb.channel(`pm-incoming-${currentUser.id}`)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'pm_messages', filter: `to_id=eq.${currentUser.id}` },
+      async payload => {
+        if (document.getElementById('pmPanel').classList.contains('show') && pmTarget?.id === payload.new.from_id) return;
+        pmUnread++;
+        updatePMBadge();
+        const sender = await getProfile(payload.new.from_id);
+        showNotif('💬', `${sender?.username}: ახალი PM`, payload.new.content?.substring(0, 50) || '🎙 ვოის');
+        document.getElementById('pmIndicator').classList.add('show');
+        document.getElementById('pmIndicatorText').textContent = `${sender?.username}: ${payload.new.content?.substring(0,30) || 'ვოის'}`;
+        document.getElementById('pmMinimized').classList.add('show');
+        document.getElementById('pmMinName').textContent = sender?.username || 'PM';
+      })
+    .subscribe();
+}
+
+function updatePMBadge() {
+  const badge = document.getElementById('pmTopBadge');
+  if (pmUnread > 0) { badge.style.display = ''; badge.textContent = pmUnread; }
+  else badge.style.display = 'none';
+}
+
+function minimizePM() {
+  document.getElementById('pmPanel').classList.remove('show');
+  document.getElementById('pmMinimized').classList.add('show');
+}
+
+function closePM() {
+  document.getElementById('pmPanel').classList.remove('show');
+  document.getElementById('pmMinimized').classList.remove('show');
+  document.getElementById('pmIndicator').classList.remove('show');
+}
+
+// ─── VOICE ───
+async function toggleVoice() {
+  const btn = document.getElementById('voiceBtn');
+  if (!isRecording) {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      voiceRec = new MediaRecorder(stream);
+      voiceChunks = [];
+      voiceRec.ondataavailable = e => voiceChunks.push(e.data);
+      voiceRec.onstop = async () => {
+        const blob = new Blob(voiceChunks, { type: 'audio/webm' });
+        const fileName = `voice_${Date.now()}.webm`;
+        const { data } = await sb.storage.from('voices').upload(fileName, blob);
+        if (data) {
+          const { data: url } = sb.storage.from('voices').getPublicUrl(fileName);
+          const pmId = getPmRoomId(currentUser.id, pmTarget.id);
+          await sb.from('pm_messages').insert({
+            room_id: pmId, from_id: currentUser.id, to_id: pmTarget.id,
+            voice_url: url.publicUrl, seen: false,
+            created_at: new Date().toISOString(), reactions: {}
+          });
+        }
+        stream.getTracks().forEach(t => t.stop());
+      };
+      voiceRec.start();
+      isRecording = true;
+      btn.classList.add('recording');
+      btn.textContent = '⏹';
+    } catch { showNotif('❌','ვოის','მიკროფონი არ ჩართულა'); }
+  } else {
+    voiceRec?.stop();
+    isRecording = false;
+    btn.classList.remove('recording');
+    btn.textContent = '🎙️';
+  }
+}
+
+function playVoice(url) {
+  const a = new Audio(url); a.play();
+}
+
+// ─── ADMIN ───
+async function loadAllUsers() {
+  const { data } = await sb.from('profiles').select('*').order('created_at');
+  allUsers = data || [];
+}
+
+async function openAdminPanel() {
+  await loadAllUsers();
+  const list = document.getElementById('adminUserList');
+  list.innerHTML = allUsers.map(u => `
+    <div class="friend-item">
+      <div class="avatar" style="background:${u.avatar_color};width:36px;height:36px;font-size:13px;font-weight:800">${u.username[0].toUpperCase()}</div>
+      <div class="friend-info">
+        <div class="friend-name">${escHtml(u.username)} ${roleIcon(u.role)} ${u.blocked?'🚫':''}</div>
+        <div class="friend-status">${u.email}</div>
+      </div>
+      ${u.id !== currentUser.id ? `
+      <div class="friend-actions" style="flex-wrap:wrap;gap:4px">
+        <button class="sm-btn" onclick="setRole('${u.id}','admin')" style="background:rgba(252,92,125,0.15);color:var(--accent2)">🛡️</button>
+        <button class="sm-btn" onclick="setRole('${u.id}','owner')" style="background:rgba(251,191,36,0.15);color:var(--gold)">👑</button>
+        <button class="sm-btn" onclick="setRole('${u.id}','user')" style="background:var(--bg3)">🔓</button>
+        <button class="sm-btn danger" onclick="blockUser('${u.id}')">🚫</button>
+      </div>` : '<span style="font-size:11px;color:var(--text2)">თქვენ</span>'}
+    </div>
+  `).join('');
+}
+
+// ─── CUSTOM EMOJIS ───
+async function loadCustomEmojis() {
+  const { data } = await sb.from('custom_emojis').select('*');
+  customEmojis = data || [];
+  renderCustomEmojiAdmin();
+}
+
+function renderCustomEmojiAdmin() {
+  const list = document.getElementById('customEmojiList');
+  list.innerHTML = customEmojis.map(em => `
+    <div class="custom-emoji-item">
+      <img src="${em.url}" class="custom-emoji" title="${em.name}">
+      ${(currentProfile?.role === 'admin' || currentProfile?.role === 'owner') ?
+        `<button class="remove-emoji" onclick="removeCustomEmoji('${em.id}')">✕</button>` : ''}
+    </div>
+  `).join('');
+}
+
+async function addCustomEmoji() {
+  const url = document.getElementById('customEmojiUrl').value.trim();
+  const name = document.getElementById('customEmojiName').value.trim();
+  if (!url || !name) return;
+  await sb.from('custom_emojis').insert({ url, name, added_by: currentUser.id });
+  document.getElementById('customEmojiUrl').value = '';
+  document.getElementById('customEmojiName').value = '';
+  loadCustomEmojis();
+}
+
+async function removeCustomEmoji(id) {
+  await sb.from('custom_emojis').delete().eq('id', id);
+  loadCustomEmojis();
+}
+
+// ─── STATUS ───
+function openStatusModal() {
+  document.getElementById('statusText').value = currentProfile?.status || '';
+  openPanel('statusModal');
+}
+
+function selectStatusEmoji(el, emoji) {
+  document.querySelectorAll('.status-emoji-btn').forEach(b => b.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedStatusEmoji = emoji;
+}
+
+async function saveStatus() {
+  const text = document.getElementById('statusText').value.trim();
+  const status = selectedStatusEmoji + ' ' + (text || '');
+  await sb.from('profiles').update({ status }).eq('id', currentUser.id);
+  currentProfile.status = status;
+  document.getElementById('myName').textContent = currentProfile.username;
+  showNotif('✅', 'სტატუსი', 'სტატუსი შეინახა!');
+  closePanel('statusModal');
+}
+
+// ─── ALBUM ───
+async function loadAlbum() {
+  const { data } = await sb.from('album_photos').select('*').eq('user_id', currentUser.id);
+  const grid = document.getElementById('albumGrid');
+  grid.innerHTML = (data || []).map(p => `
+    <img src="${p.url}" class="album-img" onclick="window.open('${p.url}','_blank')" alt="photo">
+  `).join('') + `<div style="display:flex;align-items:center;justify-content:center;aspect-ratio:1;border:2px dashed var(--border);border-radius:10px;cursor:pointer;color:var(--text2);font-size:24px" onclick="document.getElementById('albumImgUrl').focus()">➕</div>`;
+}
+
+async function addAlbumPhoto() {
+  const url = document.getElementById('albumImgUrl').value.trim();
+  if (!url) return;
+  await sb.from('album_photos').insert({ user_id: currentUser.id, url, created_at: new Date().toISOString() });
+  document.getElementById('albumImgUrl').value = '';
+  loadAlbum();
+}
+
+// ─── THEME ───
+function toggleTheme(btn) {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  btn.classList.toggle('on', !isDark);
+}
+
+function setAccentTheme(c1, c2, el) {
+  document.documentElement.style.setProperty('--accent', c1);
+  document.documentElement.style.setProperty('--accent2', c2);
+  document.querySelectorAll('.theme-preview').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function setFontSize(val) {
+  document.documentElement.style.setProperty('--font-size', val + 'px');
+}
+
+// ─── PANELS ───
+function openPanel(id) {
+  document.getElementById(id).classList.add('show');
+  if (id === 'friendsPanel') loadFriends();
+  if (id === 'adminPanel') openAdminPanel();
+  if (id === 'albumPanel') loadAlbum();
+}
+
+function closePanel(id) {
+  document.getElementById(id).classList.remove('show');
+}
+
+document.querySelectorAll('.panel-overlay').forEach(overlay => {
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) overlay.classList.remove('show');
+  });
+});
+
+// ─── NOTIFICATION ───
+let notifTimeout;
+function showNotif(icon, title, sub) {
+  clearTimeout(notifTimeout);
+  document.getElementById('notifIcon').textContent = icon;
+  document.getElementById('notifTitle').textContent = title;
+  document.getElementById('notifSub').textContent = sub;
+  document.getElementById('notifToast').classList.add('show');
+  notifTimeout = setTimeout(() => document.getElementById('notifToast').classList.remove('show'), 3500);
+}
+
+// ─── HELPERS ───
+function formatTime(ts) {
+  if (!ts) return '';
+  const d = new Date(ts);
+  const now = new Date();
+  const isToday = d.toDateString() === now.toDateString();
+  const time = d.toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit' });
+  if (isToday) return time;
+  return d.toLocaleDateString('ka-GE', { day: 'numeric', month: 'short' }) + ' ' + time;
+}
+
+function escHtml(str) {
+  return String(str || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function randomColor() {
+  const colors = ['#7c5cfc','#fc5c7d','#5cdfb5','#fbbf24','#60a5fa','#f87171','#a3e635','#e879f9','#0ea5e9','#f59e0b'];
+  return colors[Math.floor(Math.random() * colors.length)];
+}
+
+function scrollToBottom() {
+  const msgs = document.getElementById('messages');
+  msgs.scrollTop = msgs.scrollHeight;
+}
+
+// ─── AUTO LOGIN ───
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session?.user && !currentUser) {
+    await initApp(session.user);
+  }
+});
+
+// Check existing session
+(async () => {
+  const { data: { session } } = await sb.auth.getSession();
+  if (session?.user) await initApp(session.user);
+})();
+</script>
+</body>
+</html>
