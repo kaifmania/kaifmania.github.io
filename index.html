@@ -2,15 +2,92 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <title>ავტორიზაცია</title>
+    <title>Kaifmania - Welcome</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        body { margin: 0; background: #121212; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; font-family: sans-serif; overflow: hidden; }
-        .auth-card { background: #1e1e1e; padding: 30px; border-radius: 15px; border: 1px solid #ff4d6d; text-align: center; width: 300px; z-index: 10; }
-        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 8px; border: none; background: #252525; color: white; box-sizing: border-box; }
-        button { width: 100%; padding: 10px; background: #ff4d6d; border: none; border-radius: 8px; color: white; cursor: pointer; font-weight: bold; }
-        .floating { position: fixed; top: 100%; font-size: 24px; animation: moveUp 6s linear infinite; pointer-events: none; }
-        @keyframes moveUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-110vh); opacity: 0; } }
+        /* ფერების პალიტრა */
+        :root {
+            --bg: #0a0a0a;
+            --card: #151515;
+            --neon: #ff007f; /* ნეონ ვარდისფერი */
+            --glow: 0 0 15px #ff007f;
+        }
+
+        body { 
+            margin: 0; 
+            background: var(--bg); 
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            font-family: 'Segoe UI', sans-serif; 
+            overflow: hidden; 
+        }
+
+        /* ცენტრალური ბლოკი */
+        .auth-card { 
+            background: var(--card); 
+            padding: 40px; 
+            border-radius: 25px; 
+            border: 2px solid var(--neon); 
+            box-shadow: var(--glow); 
+            text-align: center; 
+            width: 320px; 
+            z-index: 10;
+            backdrop-filter: blur(5px);
+        }
+
+        h2 { color: var(--neon); text-transform: uppercase; letter-spacing: 2px; text-shadow: var(--glow); }
+
+        input { 
+            width: 100%; 
+            padding: 12px; 
+            margin: 10px 0; 
+            border-radius: 12px; 
+            border: 1px solid #333; 
+            background: #202020; 
+            color: white; 
+            box-sizing: border-box;
+            outline: none;
+            transition: 0.3s;
+        }
+
+        input:focus { border-color: var(--neon); box-shadow: inset 0 0 5px var(--neon); }
+
+        button { 
+            width: 100%; 
+            padding: 12px; 
+            background: var(--neon); 
+            border: none; 
+            border-radius: 12px; 
+            color: white; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px;
+            box-shadow: var(--glow);
+            transition: 0.3s;
+        }
+
+        button:hover { transform: translateY(-3px); opacity: 0.9; }
+
+        /* მცურავი გულები და ყვავილები */
+        .floating { 
+            position: fixed; 
+            top: 100%; 
+            font-size: 24px; 
+            animation: moveUp 6s linear infinite; 
+            pointer-events: none; 
+            filter: drop-shadow(0 0 5px var(--neon));
+        }
+
+        @keyframes moveUp { 
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; } 
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; } 
+        }
+
+        .toggle-btn { margin-top: 15px; font-size: 13px; cursor: pointer; color: #888; }
+        .toggle-btn b { color: var(--neon); }
     </style>
 </head>
 <body>
@@ -19,41 +96,49 @@
         <h2 id="title">რეგისტრაცია</h2>
         <input type="email" id="email" placeholder="ელ-ფოსტა">
         <input type="password" id="password" placeholder="პაროლი">
-        <button onclick="handleAuth()">დაწყება</button>
-        <p style="font-size: 12px; cursor: pointer; color: #ff4d6d;" onclick="toggle()">შესვლა / რეგისტრაცია</p>
+        <button onclick="handleAuth()">დავიწყოთ</button>
+        <p class="toggle-btn" id="toggleTxt" onclick="toggle()">უკვე გაქვს აქაუნთი? <b>შესვლა</b></p>
     </div>
 
     <script>
-        // შენი მონაცემები
+        // Supabase კავშირი
         const SB_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
-        const supabaseClient = supabase.createClient(SB_URL, SB_KEY);
+        const sb = supabase.createClient(SB_URL, SB_KEY);
 
         let isLogin = false;
-        function toggle() { isLogin = !isLogin; document.getElementById('title').innerText = isLogin ? 'შესვლა' : 'რეგისტრაცია'; }
+        function toggle() { 
+            isLogin = !isLogin; 
+            document.getElementById('title').innerText = isLogin ? 'შესვლა' : 'რეგისტრაცია';
+            document.getElementById('toggleTxt').innerHTML = isLogin ? 'არ გაქვს აქაუნთი? <b>რეგისტრაცია</b>' : 'უკვე გაქვს აქაუნთი? <b>შესვლა</b>';
+        }
 
         async function handleAuth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             
             if(isLogin) {
-                const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-                if(error) alert(error.message); else alert("შესულია!");
+                const { error } = await sb.auth.signInWithPassword({ email, password });
+                if(error) alert("შეცდომა: " + error.message); 
+                else alert("წარმატებით შეხვედით!");
             } else {
-                const { error } = await supabaseClient.auth.signUp({ email, password });
-                if(error) alert(error.message); else alert("რეგისტრაცია წარმატებულია! შეამოწმე მეილი.");
+                const { error } = await sb.auth.signUp({ email, password });
+                if(error) alert("შეცდომა: " + error.message); 
+                else alert("რეგისტრაცია დაწყებულია! ნახე მეილი.");
             }
         }
 
-        // გულების ანიმაცია
+        // გულების გენერატორი
         setInterval(() => {
             const el = document.createElement('div');
             el.className = 'floating';
-            el.innerText = ['❤️', '🌸', '💖'][Math.floor(Math.random()*3)];
+            const icons = ['❤️', '🌸', '💖', '✨', '🌹'];
+            el.innerText = icons[Math.floor(Math.random()*icons.length)];
             el.style.left = Math.random() * 100 + "vw";
+            el.style.animationDuration = (Math.random() * 2 + 4) + "s";
             document.body.appendChild(el);
             setTimeout(() => el.remove(), 6000);
-        }, 400);
+        }, 300);
     </script>
 </body>
 </html>
