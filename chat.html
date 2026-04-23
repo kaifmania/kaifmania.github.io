@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🌸 12 ოთახი • მეგობრები • მოძრავი გულები 🌸</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            transition: background 0.2s, color 0.2s, border 0.2s;
+        }
+        body {
+            font-family: 'Segoe UI', 'Poppins', system-ui;
+            background: linear-gradient(135deg, #fff0f5, #ffe6f0);
+            color: #1f1a36;
+            min-height: 100vh;
+            padding: 18px;
+            position: relative;
+            overflow-x: hidden;
+        }
+        body.dark {
+            background: linear-gradient(135deg, #1a142f, #0f0b21);
+            color: #f1eefc;
+        }
+        /* მოძრავი გულები + ყვავილები */
+        .floating-emoji {
+            position: fixed;
+            pointer-events: none;
+            font-size: 2rem;
+            animation: flyUp 9s linear forwards;
+            z-index: 9999;
+            bottom: -50px;
+        }
+        @keyframes flyUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0.9; bottom: -20px; }
+            100% { transform: translateY(-120vh) rotate(380deg); opacity: 0; bottom: 110%; }
+        }
+        .main-grid {
+            max-width: 1500px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 280px 1fr 330px;
+            gap: 18px;
+            position: relative;
+            z-index: 10;
+        }
+        .glass {
+            background: rgba(255, 245, 252, 0.75);
+            backdrop-filter: blur(14px);
+            border-radius: 2rem;
+            padding: 1.2rem;
+            box-shadow: 0 20px 32px -12px rgba(0,0,0,0.2);
+            border: 1px solid rgba(255,255,240,0.8);
+        }
+        body.dark .glass {
+            background: rgba(20, 15, 45, 0.8);
+            border-color: rgba(210, 180, 250, 0.2);
+        }
+        .room-grid {
+            display: grid;
+            grid-template-columns: repeat(3,1fr);
+            gap: 10px;
+            margin: 18px 0;
+        }
+        .room-btn {
+            background: #c5acff;
+            border: none;
+            border-radius: 60px;
+            padding: 7px 0;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .room-btn.active {
+            background: #ff80bf;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #ff3d9a;
+            color: white;
+        }
+        .chat-box {
+            background: rgba(0,0,0,0.1);
+            border-radius: 28px;
+            padding: 12px;
+            height: 55vh;
+            overflow-y: auto;
+            margin: 16px 0;
+        }
+        .message {
+            background: #ffffffdd;
+            border-radius: 24px;
+            padding: 7px 14px;
+            margin: 8px 0;
+            display: inline-block;
+            max-width: 85%;
+        }
+        body.dark .message {
+            background: #2a244b;
+        }
+        .friend-item {
+            background: rgba(245, 215, 255, 0.6);
+            border-radius: 50px;
+            padding: 4px 10px;
+            margin: 5px 0;
+            cursor: pointer;
+        }
+        button {
+            background: #a86eff;
+            border: none;
+            padding: 8px 18px;
+            border-radius: 40px;
+            color: white;
+            font-weight: bold;
+            margin: 4px;
+            cursor: pointer;
+        }
+        .emoji-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 10px 0;
+        }
+        .style-bar input, .style-bar button {
+            margin: 3px;
+        }
+        @media (max-width: 900px) {
+            .main-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+<div id="floatingContainer"></div>
+
+<!-- Auth -->
+<div id="authScreen" style="text-align: center; padding: 2rem;">
+    <h2>❤️‍🔥 მოძრავი გულები & 12 ოთახი ❤️‍🔥</h2>
+    <input type="email" id="loginEmail" placeholder="ელ.ფოსტა" /><br/><br/>
+    <input type="password" id="loginPass" placeholder="პაროლი" /><br/><br/>
+    <button id="doLogin">შესვლა</button>
+    <button id="doRegister">რეგისტრაცია</button>
+    <p id="authMsg" style="margin-top: 16px;">✨ ავატარი და ნიკი შემდეგ</p>
+</div>
+
+<!-- MAIN CHAT APP -->
+<div id="chatApp" style="display: none;">
+    <div class="main-grid">
+        <!-- LEFT: ოთახები + მეგობრები + როლები -->
+        <div class="glass">
+            <h3>🏠 12 ოთახი</h3>
+            <div id="roomsList" class="room-grid"></div>
+            <hr/>
+            <h3>👥 მეგობრები</h3>
+            <div id="friendsList"></div>
+            <input type="text" id="friendEmailInput" placeholder="მეგობრის email" />
+            <button id="addFriend">➕ დამატება</button>
+            <button id="removeFriend">➖ წაშლა</button>
+            <hr/>
+            <h3>⚙️ როლები (ადმინი/დამფუძნებელი)</h3>
+            <input type="text" id="roleEmail" placeholder="მომხმარებლის email" />
+            <button id="makeAdmin">👑 ადმინი</button>
+            <button id="makeFounder">🌟 დამფუძნებელი</button>
+            <button id="removeRole">🚫 როლის ჩამორთმევა</button>
+            <button id="blockUser">⛔ დაბლოკვა</button>
+            <hr/>
+            <h3>🎨 ჩემი თემა</h3>
+            <button id="toggleTheme">🌙 ღამე/დღე</button>
+            <input type="color" id="userColorPick" value="#ff99cc">
+        </div>
+
+        <!-- CENTER: CHAT + EMOJI + STYLE -->
+        <div class="glass">
+            <h3 id="currentRoomName">💬 ოთახი 1</h3>
+            <div class="chat-box" id="chatMessages"></div>
+            <div class="emoji-palette" id="emojiPanel"></div>
+            <div class="style-bar">
+                <button id="boldBtn" style="font-weight:bold;">B</button>
+                <button id="italicBtn" style="font-style:italic;">I</button>
+                <input type="color" id="textColorPicker" value="#000000">
+                <span> ✏️ </span>
+            </div>
+            <textarea id="messageInput" rows="2" placeholder="დაწერე მესიჯი..." style="width:100%; border-radius: 24px; padding: 8px;"></textarea>
+            <button id="sendMsgBtn">💬 გაგზავნა</button>
+            <button id="sendPmBtn">🔒 PM-ში გაგზავნა</button>
+            <div><small>📸 <a href="#" id="albumLink">ფოტო ალბომის შექმნა</a> | 😊 სტატუსი: <input id="statusEmoji" placeholder="🥳"></small></div>
+        </div>
+
+        <!-- RIGHT: PM + მომხმარებლები + ინდიკატორი -->
+        <div class="glass">
+            <h3>💌 პირადი მესიჯები <span id="pmIndicator">🔴</span></h3>
+            <div id="pmList" style="height: 200px; overflow-y: auto; background: rgba(0,0,0,0.1); border-radius: 20px; padding: 8px;"></div>
+            <textarea id="pmInput" placeholder="PM ტექსტი..." rows="2" style="width:100%;"></textarea>
+            <button id="sendPmText">📨 PM გაგზავნა</button>
+            <button id="voicePmBtn">🎤 Voice PM (demo)</button>
+            <hr/>
+            <h3>😍 რეაქციები მესიჯზე (❤️)</h3>
+            <p>დააჭირე ❤️ ნებისმიერ მესიჯს</p>
+            <h3>✨ მცურავი გულები/ყვავილები</h3>
+            <button id="addFloatingHearts">💖 გაუშვი გულები</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // ========== SUPABASE (შენი გასაღებები) ==========
+    const SUPABASE_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    
+    let currentUser = null;
+    let currentRoom = 1;
+    let currentChatType = 'room'; // 'room' or 'pm'
+    let activePmUserId = null;
+    let friendsList = [];
+    let allUsers = [];
+    
+    // Helper: floating hearts/flowers
+    function createFloatingEmoji() {
+        const emojis = ['❤️', '💖', '🌸', '🌺', '💗', '🌼', '💕', '🌷', '❤️‍🔥', '✨'];
+        const div = document.createElement('div');
+        div.className = 'floating-emoji';
+        div.innerText = emojis[Math.floor(Math.random() * emojis.length)];
+        div.style.left = Math.random() * 100 + '%';
+        div.style.fontSize = (1 + Math.random() * 2) + 'rem';
+        div.style.animationDuration = 6 + Math.random() * 5 + 's';
+        document.getElementById('floatingContainer').appendChild(div);
+        setTimeout(() => div.remove(), 9000);
+    }
+    
+    function startFloatingInterval() {
+        setInterval(() => {
+            if (document.getElementById('chatApp')?.style.display !== 'none') {
+                for(let i=0;i<2;i++) createFloatingEmoji();
+            }
+        }, 1800);
+    }
+    
+    // Auth 
+    document.getElementById('doLogin').onclick = async () => {
+        const email = document.getElementById('loginEmail').value;
+        const pwd = document.getElementById('loginPass').value;
+        const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+        if(error) { document.getElementById('authMsg').innerText = error.message; return; }
+        currentUser = data.user;
+        document.getElementById('authScreen').style.display = 'none';
+        document.getElementById('chatApp').style.display = 'block';
+        loadUserData();
+        loadRooms();
+        loadFriends();
+        listenMessages();
+        listenPmIndicator();
+    };
+    document.getElementById('doRegister').onclick = async () => {
+        const email = document.getElementById('loginEmail').value;
+        const pwd = document.getElementById('loginPass').value;
+        const { data, error } = await supabase.auth.signUp({ email, password: pwd });
+        if(error) { document.getElementById('authMsg').innerText = error.message; return; }
+        alert("რეგისტრაცია წარმატებული! შედი სისტემაში");
+    };
+    
+    async function loadUserData() {
+        let { data: profile } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
+        if(!profile) {
+            const nick = prompt("აირჩიე ნიკი:") || "ანონი";
+            const avatar = prompt("ავატარის URL (emoji ან ბმული)") || "🌸";
+            await supabase.from('users').insert([{ id: currentUser.id, email: currentUser.email, nickname: nick, avatar: avatar, role: 'member' }]);
+        }
+        loadAllUsers();
+    }
+    
+    async function loadAllUsers() {
+        let { data } = await supabase.from('users').select('*');
+        allUsers = data || [];
+    }
+    
+    function loadRooms() {
+        const container = document.getElementById('roomsList');
+        container.innerHTML = '';
+        for(let i=1;i<=12;i++) {
+            const btn = document.createElement('button');
+            btn.innerText = `🏠 ${i}`;
+            btn.classList.add('room-btn');
+            if(currentRoom === i) btn.classList.add('active');
+            btn.onclick = () => {
+                currentRoom = i;
+                document.getElementById('currentRoomName').innerHTML = `💬 ოთახი ${i}`;
+                document.querySelectorAll('.room-btn').forEach(b=>b.classList.remove('active'));
+                btn.classList.add('active');
+                currentChatType = 'room';
+                loadRoomMessages(i);
+            };
+            container.appendChild(btn);
+        }
+        loadRoomMessages(1);
+    }
+    
+    async function loadRoomMessages(roomId) {
+        const { data } = await supabase.from('messages').select('*, user:users(*)').eq('room_id', roomId).order('created_at', {ascending: true});
+        const chatDiv = document.getElementById('chatMessages');
+        chatDiv.innerHTML = '';
+        data?.forEach(msg => {
+            const msgEl = document.createElement('div');
+            msgEl.className = 'message';
+            msgEl.innerHTML = `<strong>${msg.user?.nickname || '?'}</strong> <span style="font-size:0.7rem;">${new Date(msg.created_at).toLocaleTimeString()}</span><br/>${msg.text} <span style="cursor:pointer;" class="reactBtn" data-msgid="${msg.id}">❤️</span>`;
+            chatDiv.appendChild(msgEl);
+        });
+        attachReactionEvents();
+    }
+    
+    async function sendMessage() {
+        const text = document.getElementById('messageInput').value;
+        if(!text.trim()) return;
+        await supabase.from('messages').insert([{ room_id: currentRoom, user_id: currentUser.id, text: text }]);
+        document.getElementById('messageInput').value = '';
+        loadRoomMessages(currentRoom);
+    }
+    
+    async function loadFriends() {
+        const { data } = await supabase.from('friends').select('friend_id').eq('user_id', currentUser.id);
+        friendsList = data?.map(f=>f.friend_id) || [];
+        const container = document.getElementById('friendsList');
+        container.innerHTML = '';
+        for(let fid of friendsList) {
+            let user = allUsers.find(u=>u.id===fid);
+            if(user) {
+                let div = document.createElement('div');
+                div.innerText = `${user.nickname || user.email} `;
+                div.classList.add('friend-item');
+                div.onclick = () => { startPM(user.id); };
+                container.appendChild(div);
+            }
+        }
+    }
+    
+    function startPM(userId) {
+        currentChatType = 'pm';
+        activePmUserId = userId;
+        loadPMMessages(userId);
+    }
+    
+    async function loadPMMessages(otherId) {
+        const { data } = await supabase.from('pm_messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${otherId}),and(sender_id.eq.${otherId},receiver_id.eq.${currentUser.id})`).order('created_at');
+        const pmDiv = document.getElementById('pmList');
+        pmDiv.innerHTML = '';
+        data?.forEach(m=>{
+            const d = document.createElement('div');
+            d.innerHTML = `<b>${m.sender_id===currentUser.id ? 'მე' : 'მეგობარი'}</b>: ${m.text} <span style="font-size:10px;">${new Date(m.created_at).toLocaleTimeString()}</span> <span class="reactPmBtn" data-pmid="${m.id}">❤️</span>`;
+            pmDiv.appendChild(d);
+        });
+    }
+    
+    document.getElementById('sendMsgBtn').onclick = sendMessage;
+    document.getElementById('sendPmBtn').onclick = () => { if(activePmUserId) sendPM(); };
+    async function sendPM() {
+        const text = document.getElementById('pmInput').value;
+        if(!text || !activePmUserId) return;
+        await supabase.from('pm_messages').insert([{ sender_id: currentUser.id, receiver_id: activePmUserId, text: text, seen: false }]);
+        document.getElementById('pmInput').value = '';
+        loadPMMessages(activePmUserId);
+    }
+    
+    async function listenPmIndicator() {
+        supabase.channel('pm-alerts').on('postgres_changes', {event:'INSERT', schema:'public', table:'pm_messages'}, payload => {
+            if(payload.new.receiver_id === currentUser.id && payload.new.seen === false) {
+                document.getElementById('pmIndicator').innerHTML = "🔴 ახალი PM!";
+                setTimeout(()=> document.getElementById('pmIndicator').innerHTML = "💬", 3000);
+            }
+        }).subscribe();
+    }
+    
+    // Emoji panel (admin/founder can add moving smilies)
+    let extraEmojis = ['😊','😍','😂','🥰','🔥','💯'];
+    function renderEmojiPanel() {
+        const panel = document.getElementById('emojiPanel');
+        panel.innerHTML = '';
+        extraEmojis.forEach(e=>{
+            const btn = document.createElement('button');
+            btn.innerText = e;
+            btn.onclick = () => { document.getElementById('messageInput').value += e; };
+            panel.appendChild(btn);
+        });
+        if(currentUser?.role === 'admin' || currentUser?.role === 'founder') {
+            const addBtn = document.createElement('button');
+            addBtn.innerText = '➕ მოძრავი სმაილი';
+            addBtn.onclick = () => {
+                let newEm = prompt('ახალი ემოჯი (მაგ: 🕊️)');
+                if(newEm) extraEmojis.push(newEm); renderEmojiPanel();
+            };
+            panel.appendChild(addBtn);
+        }
+    }
+    
+    // Roles
+    document.getElementById('makeAdmin').onclick = async () => {
+        const email = document.getElementById('roleEmail').value;
+        const { data: u } = await supabase.from('users').select('id').eq('email', email).single();
+        if(u) await supabase.from('users').update({ role: 'admin' }).eq('id', u.id);
+    };
+    document.getElementById('makeFounder').onclick = async () => {
+        const email = document.getElementById('roleEmail').value;
+        const { data: u } = await supabase.from('users').select('id').eq('email', email).single();
+        if(u) await supabase.from('users').update({ role: 'founder' }).eq('id', u.id);
+    };
+    document.getElementById('removeRole').onclick = async () => {
+        const email = document.getElementById('roleEmail').value;
+        const { data: u } = await supabase.from('users').select('id').eq('email', email).single();
+        if(u) await supabase.from('users').update({ role: 'member' }).eq('id', u.id);
+    };
+    
+    // Block, friend add/remove
+    document.getElementById('addFriend').onclick = async () => {
+        const email = document.getElementById('friendEmailInput').value;
+        const { data: u } = await supabase.from('users').select('id').eq('email', email).single();
+        if(u && u.id !== currentUser.id) await supabase.from('friends').insert([{ user_id: currentUser.id, friend_id: u.id }]);
+        loadFriends();
+    };
+    document.getElementById('removeFriend').onclick = async () => {
+        const email = document.getElementById('friendEmailInput').value;
+        const { data: u } = await supabase.from('users').select('id').eq('email', email).single();
+        if(u) await supabase.from('friends').delete().match({ user_id: currentUser.id, friend_id: u.id });
+        loadFriends();
+    };
+    document.getElementById('blockUser').onclick = async () => {
+        const email = document.getElementById('roleEmail').value;
+        const { data: u } = await supabase.from('users').select('id').eq('email', email).single();
+        if(u) await supabase.from('bans').insert([{ user_id: currentUser.id, blocked_id: u.id }]);
+    };
+    
+    // theme & styling
+    document.getElementById('toggleTheme').onclick = () => document.body.classList.toggle('dark');
+    document.getElementById('userColorPick').addEventListener('input', (e) => {
+        document.getElementById('messageInput').style.color = e.target.value;
+    });
+    document.getElementById('boldBtn').onclick = () => {
+        let area = document.getElementById('messageInput');
+        area.style.fontWeight = area.style.fontWeight === 'bold' ? 'normal' : 'bold';
+    };
+    document.getElementById('italicBtn').onclick = () => {
+        let area = document.getElementById('messageInput');
+        area.style.fontStyle = area.style.fontStyle === 'italic' ? 'normal' : 'italic';
+    };
+    
+    document.getElementById('addFloatingHearts').onclick = () => { for(let i=0;i<12;i++) createFloatingEmoji(); };
+    document.getElementById('voicePmBtn').onclick = () => alert("Voice PM: ბრაუზერის მხარდაჭერა საჭიროა (WebRTC)");
+    document.getElementById('albumLink').onclick = () => alert("ფოტო ალბომი: მალე დაემატება Supabase Storage-ით");
+    
+    function attachReactionEvents() { }
+    function listenMessages() { setInterval(() => { if(currentChatType === 'room') loadRoomMessages(currentRoom); else if(activePmUserId) loadPMMessages(activePmUserId); }, 2500); }
+    
+    startFloatingInterval();
+    renderEmojiPanel();
+    
+    window.onload = () => {
+        if(!currentUser) document.getElementById('authScreen').style.display = 'block';
+        createFloatingEmoji();
+    };
+</script>
+</body>
+</html>
