@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ჩემი სოციალური ქსელი</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --primary: #ff4d6d;
+            --dark: #121212;
+            --card: #1e1e1e;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--dark);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* --- მცურავი ელემენტების სტილი --- */
+        .floating {
+            position: fixed;
+            top: 100%;
+            font-size: 24px;
+            pointer-events: none;
+            z-index: 1;
+            animation: moveUp 6s linear infinite;
+        }
+
+        @keyframes moveUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+
+        /* --- ავტორიზაციის ფორმა --- */
+        .auth-container {
+            background: var(--card);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            width: 350px;
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            border: 1px solid rgba(255, 77, 109, 0.3);
+        }
+
+        h2 { color: var(--primary); margin-bottom: 25px; }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 10px;
+            border: 1px solid #333;
+            background: #252525;
+            color: white;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        input:focus { border-color: var(--primary); }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            margin-top: 20px;
+            border: none;
+            border-radius: 10px;
+            background: var(--primary);
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        button:hover { transform: scale(1.05); background: #ff758f; }
+
+        .switch-text {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #aaa;
+            cursor: pointer;
+        }
+
+        .switch-text b { color: var(--primary); }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container" id="authBox">
+        <h2 id="formTitle">რეგისტრაცია</h2>
+        <input type="email" id="email" placeholder="ელ-ფოსტა">
+        <input type="password" id="password" placeholder="პაროლი">
+        <button id="mainBtn" onclick="handleAuth()">დაწყება</button>
+        <p class="switch-text" id="toggleLink" onclick="toggleForm()">უკვე გაქვს აქაუნთი? <b>შესვლა</b></p>
+    </div>
+
+    <script>
+        // --- Supabase დაყენება შენი გასაღებით ---
+        const SB_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
+        const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
+        const supabase = supabase.createClient(SB_URL, SB_KEY);
+
+        let isLogin = false;
+
+        // 1. ფორმის გადართვა (რეგისტრაცია/შესვლა)
+        function toggleForm() {
+            isLogin = !isLogin;
+            document.getElementById('formTitle').innerText = isLogin ? 'შესვლა' : 'რეგისტრაცია';
+            document.getElementById('mainBtn').innerText = isLogin ? 'შესვლა' : 'რეგისტრაცია';
+            document.getElementById('toggleLink').innerHTML = isLogin ? 'არ გაქვს აქაუნთი? <b>რეგისტრაცია</b>' : 'უკვე გაქვს აქაუნთი? <b>შესვლა</b>';
+        }
+
+        // 2. რეგისტრაცია და შესვლა
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email || !password) return alert("შეავსე ველები!");
+
+            if (isLogin) {
+                // შესვლა
+                const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) alert(error.message);
+                else {
+                    alert("წარმატებით შეხვედით!");
+                    window.location.href = "chat.html"; // აქ გადავა ჩატის გვერდზე
+                }
+            } else {
+                // რეგისტრაცია
+                const { data, error } = await supabase.auth.signUp({ email, password });
+                if (error) alert(error.message);
+                else alert("რეგისტრაცია წარმატებულია! შეამოწმე მეილი (თუ დააყენე confirm).");
+            }
+        }
+
+        // 3. მცურავი გულები და ყვავილები
+        function createFloatingElement() {
+            const el = document.createElement('div');
+            el.className = 'floating';
+            const icons = ['❤️', '🌸', '💖', '✨', '🌹'];
+            el.innerText = icons[Math.floor(Math.random() * icons.length)];
+            el.style.left = Math.random() * 100 + "vw";
+            el.style.animationDuration = (Math.random() * 3 + 4) + "s";
+            document.body.appendChild(el);
+
+            setTimeout(() => { el.remove(); }, 6000);
+        }
+
+        setInterval(createFloatingElement, 300);
+    </script>
+</body>
+</html>
