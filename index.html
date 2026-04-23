@@ -2,119 +2,90 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <title>Kaifmania 3D</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaifmania</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        :root {
-            --neon: #ff007f;
-            --glass: rgba(255, 255, 255, 0.1);
-        }
-
         body {
             margin: 0;
-            background: radial-gradient(circle, #1a001a 0%, #000000 100%);
+            background: #050505;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Segoe UI', sans-serif;
+            font-family: sans-serif;
             overflow: hidden;
-            perspective: 1000px; /* 3D სივრცისთვის */
+            perspective: 1000px;
         }
 
-        /* --- 3D დახრილი ბარათი --- */
-        .auth-card {
-            background: var(--glass);
+        /* 3D მინის ბარათი */
+        .card {
+            background: rgba(255, 255, 255, 0.05);
             backdrop-filter: blur(15px);
             padding: 40px;
-            border-radius: 30px;
-            border: 1px solid rgba(255, 0, 127, 0.5);
-            width: 340px;
+            border-radius: 25px;
+            border: 1px solid rgba(255, 0, 127, 0.4);
+            width: 320px;
             text-align: center;
-            box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 20px rgba(255, 0, 127, 0.2);
-            transform: rotateY(-15deg) rotateX(5deg); /* აქ არის 3D დახრა */
-            transition: 0.5s ease;
-            z-index: 10;
+            transform: rotateY(-10deg) rotateX(5deg);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255, 0, 127, 0.2);
         }
 
-        .auth-card:hover {
-            transform: rotateY(0deg) rotateX(0deg) scale(1.02); /* მაუსის მიტანისას სწორდება */
-        }
-
-        h2 {
-            color: var(--neon);
-            font-size: 28px;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            text-shadow: 0 0 15px var(--neon);
+        h1 {
+            color: #ff007f;
+            letter-spacing: 4px;
+            text-shadow: 0 0 15px #ff007f;
             margin-bottom: 30px;
+            font-size: 24px;
         }
 
         input {
             width: 100%;
-            padding: 14px;
-            margin: 10px 0;
-            border-radius: 15px;
-            border: 1px solid rgba(255,255,255,0.1);
-            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 12px;
+            border: 1px solid #333;
+            background: rgba(0,0,0,0.5);
             color: white;
             box-sizing: border-box;
             outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--neon);
-            box-shadow: 0 0 10px var(--neon);
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            margin-top: 20px;
+            padding: 12px;
+            margin-top: 15px;
             border: none;
-            border-radius: 15px;
-            background: linear-gradient(45deg, #ff007f, #ff4d6d);
+            border-radius: 12px;
+            background: #ff007f;
             color: white;
             font-weight: bold;
-            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 5px 15px rgba(255, 0, 127, 0.4);
-            transition: 0.3s;
+            box-shadow: 0 0 10px #ff007f;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px var(--neon);
-        }
-
-        /* --- მცურავი გულები და ყვავილები --- */
-        .floating {
+        /* მცურავი გულები */
+        .heart {
             position: fixed;
             top: 100%;
+            animation: fly 6s linear infinite;
             pointer-events: none;
-            animation: moveUp 7s linear infinite;
-            filter: drop-shadow(0 0 5px var(--neon));
+            opacity: 0.8;
         }
 
-        @keyframes moveUp {
-            0% { transform: translateY(0) rotate(0deg) scale(0.5); opacity: 0; }
-            20% { opacity: 1; }
-            100% { transform: translateY(-120vh) rotate(360deg) scale(1.2); opacity: 0; }
+        @keyframes fly {
+            0% { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(-110vh) rotate(360deg); }
         }
-
-        .toggle-txt { margin-top: 15px; font-size: 13px; color: #aaa; cursor: pointer; }
-        .toggle-txt b { color: var(--neon); }
     </style>
 </head>
 <body>
 
-    <div class="auth-card">
-        <h2>KAIFMANIA</h2>
+    <div class="card">
+        <h1>KAIFMANIA</h1>
         <input type="email" id="email" placeholder="ელ-ფოსტა">
         <input type="password" id="pass" placeholder="პაროლი">
-        <button onclick="handleAuth()">დავიწყოთ ❤️</button>
-        <p class="toggle-txt" id="modeBtn" onclick="toggleMode()">უკვე გაქვს აქაუნთი? <b>შესვლა</b></p>
+        <button onclick="auth()">შესვლა / რეგისტრაცია</button>
     </div>
 
     <script>
@@ -122,38 +93,22 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
         const sb = supabase.createClient(SB_URL, SB_KEY);
 
-        let isLogin = false;
-        function toggleMode() {
-            isLogin = !isLogin;
-            document.querySelector('h2').innerText = isLogin ? 'შესვლა' : 'KAIFMANIA';
-            document.getElementById('modeBtn').innerHTML = isLogin ? 'არ გაქვს აქაუნთი? <b>რეგისტრაცია</b>' : 'უკვე გაქვს აქაუნთი? <b>შესვლა</b>';
-        }
-
-        async function handleAuth() {
+        async function auth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('pass').value;
-            if(!email || !password) return alert("შეავსე ველები!");
-
-            const { data, error } = isLogin 
-                ? await sb.auth.signInWithPassword({ email, password })
-                : await sb.auth.signUp({ email, password });
-
-            if(error) alert("შეცდომა: " + error.message);
-            else alert(isLogin ? "მოგესალმებით!" : "რეგისტრაცია წარმატებულია! ნახე მეილი.");
+            const { error } = await sb.auth.signUp({ email, password });
+            if(error) alert(error.message); else alert("შემოწმდე მეილი!");
         }
 
-        // გულების და ყვავილების გენერატორი
         setInterval(() => {
-            const el = document.createElement('div');
-            el.className = 'floating';
-            const items = ['❤️', '🌸', '💖', '✨', '🌹'];
-            el.innerText = items[Math.floor(Math.random() * items.length)];
-            el.style.left = Math.random() * 100 + "vw";
-            el.style.fontSize = (Math.random() * 20 + 15) + "px";
-            el.style.animationDuration = (Math.random() * 3 + 5) + "s";
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 7000);
-        }, 300);
+            const h = document.createElement('div');
+            h.className = 'heart';
+            h.innerHTML = ['❤️', '🌸'][Math.floor(Math.random()*2)];
+            h.style.left = Math.random() * 100 + "vw";
+            h.style.fontSize = (Math.random() * 20 + 10) + "px";
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 6000);
+        }, 500);
     </script>
 </body>
 </html>
