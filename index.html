@@ -6,130 +6,87 @@
     <title>კაიფმანია 😎🔥</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        /* მთავარი სტილები სკრინშოტის მიხედვით */
         body {
             margin: 0;
-            padding: 0;
-            background-color: #000000; /* შავი ფონი */
-            color: white;
+            background: radial-gradient(circle, #1a0000 0%, #000000 100%);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            overflow: hidden; /* რომ გულებმა ეკრანი არ გაზარდონ */
+            font-family: sans-serif;
+            overflow: hidden;
+            perspective: 1200px; /* სიღრმის ეფექტი */
         }
 
-        /* --- ცენტრალური, "მაფია" ბარათი --- */
+        /* --- 3D დახრილი ბარათი --- */
         .auth-card {
-            background-color: #111111; /* ოდნავ ღია შავი ბარათისთვის */
-            padding: 50px 30px;
-            border-radius: 25px; /* მომრგვალებული კუთხეები */
+            background: #111;
+            padding: 40px;
+            border-radius: 25px;
+            width: 320px;
             text-align: center;
-            width: 340px;
-            position: relative;
+            border: 2px solid #ff0000;
+            box-shadow: 0 0 30px rgba(255, 0, 0, 0.5);
+            
+            /* აი აქ არის მთავარი 3D დახრა */
+            transform: rotateY(-20deg) rotateX(10deg);
+            transform-style: preserve-3d;
+            transition: 0.5s ease;
             z-index: 10;
-            
-            /* წითელი ნეონის ნათება ბარათის გარშემო */
-            box-shadow: 0 0 20px #ff0000, 0 0 40px #aa0000;
-            border: 1px solid #440000;
-            
-            /* პატარა ანიმაცია გამოჩენისას */
-            animation: cardSpawn 0.6s ease-out;
+            display: block !important; /* რომ აუცილებლად გამოჩნდეს */
         }
 
-        @keyframes cardSpawn {
-            0% { transform: scale(0.9); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
+        .auth-card:hover {
+            transform: rotateY(0deg) rotateX(0deg) scale(1.05); /* მაუსის მიტანისას სწორდება */
         }
 
-        /* სათაური: კაიფმანია 😎🔥 */
         h2 {
-            font-size: 28px;
-            margin: 0 0 40px 0;
-            font-weight: bold;
             color: white;
-            text-shadow: 0 0 10px #ff0000; /* წითელი ნათება ტექსტზე */
+            text-shadow: 0 0 10px #ff0000;
+            margin-bottom: 30px;
+            font-size: 26px;
         }
 
-        /* --- ინპუტები (Email/Password) --- */
-        .input-group {
-            margin-bottom: 15px;
-            text-align: left;
-        }
-
+        /* ველების სტილი */
         input {
             width: 100%;
             padding: 15px;
+            margin: 10px 0;
             border-radius: 12px;
             border: 1px solid #333;
-            background-color: #222; /* მუქი ინპუტები */
+            background: #222;
             color: white;
-            font-size: 15px;
-            box-sizing: border-box; /* რომ padding-მა ზომა არ გაზარდოს */
+            box-sizing: border-box;
             outline: none;
-            transition: 0.3s;
+            display: block; /* რომ არ დაიმალოს */
         }
 
-        /* ინპუტის ფოკუსი: წითელი კანტი */
-        input:focus {
-            border-color: #ff0000;
-            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
-        }
+        input:focus { border-color: #ff0000; }
 
-        /* --- მკვეთრი წითელი ღილაკები --- */
         button {
             width: 100%;
             padding: 15px;
             margin-top: 15px;
             border: none;
             border-radius: 12px;
+            background: #ff0000;
             color: white;
             font-weight: bold;
-            font-size: 16px;
             cursor: pointer;
-            transition: 0.3s;
-            text-transform: uppercase; /* დიდი ასოები */
-            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(255, 0, 0, 0.4);
         }
 
-        /* მთავარი ღილაკი: რეგისტრაცია */
-        .btn-reg {
-            background-color: #ff0000; /* მკვეთრი წითელი */
-            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
-        }
-
-        .btn-reg:hover {
-            background-color: #ff3333;
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.6);
-        }
-
-        /* მეორე ღილაკი: შესვლა */
-        .btn-login {
-            background-color: #333; /* მუქი ნაცრისფერი */
-            margin-top: 10px;
-        }
-
-        .btn-login:hover {
-            background-color: #444;
-        }
-
-        /* --- მოძრავი ყვავილები და გულები --- */
-        .floating-item {
+        /* მცურავი გულები */
+        .heart {
             position: fixed;
-            top: 100%; /* იწყება ეკრანის დაბლიდან */
-            pointer-events: none; /* რომ მაუსმა ხელი არ შეუშალოს */
-            z-index: 1; /* ბარათის უკან */
-            animation: moveUp 7s linear infinite;
-            opacity: 0.8;
-            filter: drop-shadow(0 0 5px #ff0000); /* წითელი ნათება გულებზე */
+            top: 100%;
+            animation: fly 6s linear infinite;
+            pointer-events: none;
+            z-index: 1;
         }
 
-        @keyframes moveUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            10% { opacity: 1; }
-            90% { opacity: 1; }
+        @keyframes fly {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
             100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
         }
     </style>
@@ -138,71 +95,39 @@
 
     <div class="auth-card">
         <h2>კაიფმანია 😎🔥</h2>
-        
-        <div class="input-group">
-            <input type="email" id="email" placeholder="ელ-ფოსტა" required>
-        </div>
-        
-        <div class="input-group">
-            <input type="password" id="pass" placeholder="პაროლი" required>
-        </div>
-        
-        <button class="btn-reg" onclick="handleAuth('up')">რეგისტრაცია</button>
-        <button class="btn-login" onclick="handleAuth('in')">შესვლა</button>
+        <input type="email" id="email" placeholder="ელ-ფოსტა">
+        <input type="password" id="pass" placeholder="პაროლი">
+        <button onclick="handleAuth('up')">რეგისტრაცია</button>
+        <button onclick="handleAuth('in')" style="background: #333; margin-top: 10px;">შესვლა</button>
     </div>
 
     <script>
-        // Supabase-ის კონფიგურაცია შენი გასაღებით
         const SB_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
         const sb = supabase.createClient(SB_URL, SB_KEY);
 
-        // ავტორიზაციის ფუნქცია (Sign Up / Sign In)
         async function handleAuth(type) {
             const email = document.getElementById('email').value;
             const password = document.getElementById('pass').value;
-            
-            if(!email || !password) return alert("გთხოვთ, შეავსოთ ველები!");
+            if(!email || !password) return alert("შეავსე ველები!");
 
-            const { data, error } = type === 'up' 
+            const { error } = type === 'up' 
                 ? await sb.auth.signUp({ email, password }) 
                 : await sb.auth.signInWithPassword({ email, password });
 
-            if(error) alert("შეცდომა: " + error.message);
-            else alert(type === 'up' ? "რეგისტრაცია დაიწყო! ნახე მეილი." : "შესული ხარ!");
+            if(error) alert(error.message);
+            else alert("წარმატებით შესრულდა!");
         }
 
-        // --- მოძრავი გულების და ყვავილების გენერატორი ---
-        function createFloatingItems() {
-            const container = document.body;
-            const icons = ['❤️', '🌸', '💖', '✨', '🌹'];
-            
-            // ყოველ 400 მილიწამში ჩნდება ახალი
-            setInterval(() => {
-                const el = document.createElement('div');
-                el.className = 'floating-item';
-                el.innerText = icons[Math.floor(Math.random() * icons.length)];
-                
-                // შემთხვევითი პოზიცია ჰორიზონტალურად
-                el.style.left = Math.random() * 100 + "vw";
-                
-                // შემთხვევითი ზომა
-                el.style.fontSize = (Math.random() * 20 + 15) + "px";
-                
-                // შემთხვევითი სიჩქარე (ანიმაციის ხანგრძლივობა)
-                el.style.animationDuration = (Math.random() * 3 + 5) + "s"; // 5-დან 8 წამამდე
-
-                container.appendChild(el);
-
-                // წავშალოთ ელემენტი, როცა ანიმაცია დასრულდება
-                setTimeout(() => {
-                    el.remove();
-                }, 8000);
-            }, 400);
-        }
-
-        // ჩავრთოთ ანიმაცია
-        createFloatingItems();
+        setInterval(() => {
+            const h = document.createElement('div');
+            h.className = 'heart';
+            h.innerText = ['❤️', '🌸', '💖'][Math.floor(Math.random()*3)];
+            h.style.left = Math.random() * 100 + "vw";
+            h.style.fontSize = (Math.random() * 20 + 15) + "px";
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 6000);
+        }, 400);
     </script>
 </body>
 </html>
