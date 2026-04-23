@@ -1,0 +1,1308 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>🥀 კაიფმანია · დამპალი შინდისფერი</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#5c0a1a">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0a0a0a;
+  --bg2:#111111;
+  --panel:#141414;
+  --panel2:#1a1a1a;
+  --panel3:#222222;
+  --border:#5c0a1a;
+  --border2:rgba(92,10,26,0.35);
+  --text:#e6d5b8;
+  --text2:#c9a87c;
+  --text3:#8a6e4a;
+  --bubble:#1e1e1e;
+  --bubble-mine:rgba(92,10,26,0.35);
+  --input-bg:#1a1a1a;
+  --indigo:#5c0a1a;
+  --indigo2:#8b1a2b;
+  --indigo-f:rgba(92,10,26,0.25);
+  --glow:rgba(139,26,43,0.45);
+  --accent:#8b1a2b;
+  --accent2:#6b0f1f;
+  --online:#8b1a2b;
+  --shadow:rgba(0,0,0,0.7);
+  --heart:#ff3366;
+}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Floating Hearts Animation */
+#heartsCanvas{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:9999;
+}
+
+/* Animated Background */
+#bgCanvas{
+  position:fixed;
+  top:0;
+  left:0;
+  width:100%;
+  height:100%;
+  pointer-events:none;
+  z-index:0;
+  opacity:0.3;
+}
+
+/* Main Layout */
+#app{
+  position:relative;
+  z-index:2;
+  display:flex;
+  height:100vh;
+  flex-direction:column;
+}
+
+/* Top Navigation */
+#topnav{
+  display:flex;
+  align-items:center;
+  gap:4px;
+  background:var(--panel);
+  border-bottom:2px solid var(--border);
+  padding:8px 12px;
+  overflow-x:auto;
+  scrollbar-width:none;
+  flex-shrink:0;
+}
+#topnav::-webkit-scrollbar{display:none}
+.nav-logo{
+  font-size:26px;
+  cursor:pointer;
+  animation:pulse 2s ease-in-out infinite;
+  flex-shrink:0;
+}
+@keyframes pulse{
+  0%,100%{text-shadow:0 0 0px var(--accent);}
+  50%{text-shadow:0 0 15px var(--accent);}
+}
+.nav-btn{
+  background:transparent;
+  border:1px solid transparent;
+  border-radius:12px;
+  padding:8px 14px;
+  color:var(--text2);
+  font-size:13px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  gap:5px;
+  white-space:nowrap;
+  transition:all 0.2s;
+}
+.nav-btn:hover,.nav-btn.active{
+  background:var(--indigo-f);
+  border-color:var(--border);
+  color:var(--text);
+}
+.badge{
+  background:var(--accent);
+  color:white;
+  font-size:9px;
+  border-radius:10px;
+  padding:0 5px;
+  min-width:16px;
+  height:16px;
+  display:none;
+  align-items:center;
+  justify-content:center;
+}
+.badge.show{display:flex}
+.nav-spacer{flex:1}
+#installBtn{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;
+  border-radius:20px;
+  padding:6px 14px;
+  color:white;
+  font-size:11px;
+  cursor:pointer;
+  display:none;
+}
+#installBtn.show{display:flex}
+
+/* Main Area */
+#main{
+  flex:1;
+  display:flex;
+  overflow:hidden;
+  position:relative;
+}
+
+/* Sidebar */
+#sidebar{
+  width:280px;
+  background:var(--panel);
+  border-right:2px solid var(--border);
+  display:flex;
+  flex-direction:column;
+  flex-shrink:0;
+  transition:transform 0.3s;
+  z-index:10;
+}
+@media(max-width:700px){
+  #sidebar{position:fixed;top:52px;left:0;bottom:0;transform:translateX(-100%);z-index:100;}
+  #sidebar.mob-open{transform:translateX(0);}
+}
+.sb-header{
+  padding:12px 16px;
+  font-family:'Unbounded',sans-serif;
+  font-size:10px;
+  letter-spacing:2px;
+  color:var(--text2);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.sb-dot{
+  width:6px;
+  height:6px;
+  background:var(--accent);
+  border-radius:50%;
+  animation:pulse 1.5s infinite;
+}
+.sb-body{
+  flex:1;
+  overflow-y:auto;
+  padding:10px;
+}
+.search-box{
+  width:100%;
+  padding:10px 12px;
+  background:var(--input-bg);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  color:var(--text);
+  font-size:12px;
+  margin-bottom:10px;
+}
+.search-box:focus{outline:none;border-color:var(--indigo2);}
+
+/* Room Items */
+.room-item,.list-item{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px;
+  border-radius:12px;
+  cursor:pointer;
+  transition:all 0.2s;
+  margin-bottom:4px;
+  border:1px solid transparent;
+}
+.room-item:hover,.list-item:hover{
+  background:var(--indigo-f);
+  border-color:var(--border2);
+}
+.room-item.active{
+  background:linear-gradient(90deg,var(--indigo-f),transparent);
+  border-left:3px solid var(--accent);
+}
+.room-icon{
+  width:36px;
+  height:36px;
+  background:var(--indigo-f);
+  border-radius:10px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:18px;
+}
+.room-name{
+  font-size:13px;
+  font-weight:500;
+  flex:1;
+}
+.game-badge{
+  font-size:8px;
+  padding:2px 6px;
+  background:rgba(139,26,43,0.3);
+  border-radius:8px;
+  color:var(--accent);
+}
+
+/* Chat Area */
+#chatArea{
+  flex:1;
+  display:flex;
+  flex-direction:column;
+  background:var(--bg);
+}
+.chat-header{
+  background:var(--panel);
+  border-bottom:2px solid var(--border);
+  padding:12px 20px;
+  display:flex;
+  align-items:center;
+  gap:12px;
+  flex-shrink:0;
+}
+.chat-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:14px;
+  font-weight:700;
+  color:var(--text);
+}
+.chat-sub{
+  font-size:11px;
+  color:var(--text3);
+  background:var(--indigo-f);
+  padding:4px 10px;
+  border-radius:20px;
+}
+.play-btn{
+  margin-left:auto;
+  background:rgba(139,26,43,0.2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:6px 14px;
+  color:var(--accent);
+  font-size:11px;
+  cursor:pointer;
+  display:none;
+}
+.play-btn.show{display:flex;align-items:center;gap:5px;}
+
+/* Messages */
+#messages{
+  flex:1;
+  overflow-y:auto;
+  padding:16px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.msg-row{
+  display:flex;
+  align-items:flex-start;
+  gap:8px;
+  animation:fadeInUp 0.2s ease;
+}
+@keyframes fadeInUp{
+  from{opacity:0;transform:translateY(10px);}
+  to{opacity:1;transform:translateY(0);}
+}
+.avatar{
+  width:36px;
+  height:36px;
+  border-radius:50%;
+  background:var(--indigo-f);
+  border:2px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:16px;
+  flex-shrink:0;
+  overflow:hidden;
+  cursor:pointer;
+  position:relative;
+}
+.avatar img{width:100%;height:100%;object-fit:cover;}
+.online-dot{
+  position:absolute;
+  bottom:0;
+  right:0;
+  width:10px;
+  height:10px;
+  background:var(--online);
+  border-radius:50%;
+  border:2px solid var(--panel);
+}
+.msg-content{
+  max-width:70%;
+  display:flex;
+  flex-direction:column;
+}
+.msg-bubble{
+  background:var(--bubble);
+  border:1px solid var(--border2);
+  border-radius:4px 14px 14px 14px;
+  padding:8px 12px;
+  font-size:13px;
+  line-height:1.5;
+  position:relative;
+}
+.msg-bubble.mine{
+  background:var(--bubble-mine);
+  border-radius:14px 4px 14px 14px;
+}
+.msg-meta{
+  display:flex;
+  align-items:center;
+  gap:6px;
+  margin-bottom:4px;
+  font-size:10px;
+}
+.msg-nick{
+  font-weight:600;
+  color:var(--accent);
+  cursor:pointer;
+}
+.msg-time{
+  color:var(--text3);
+}
+.msg-del{
+  position:absolute;
+  top:4px;
+  right:8px;
+  background:none;
+  border:none;
+  color:var(--text3);
+  font-size:10px;
+  cursor:pointer;
+  opacity:0;
+  transition:opacity 0.2s;
+}
+.msg-bubble:hover .msg-del{opacity:1;}
+.msg-react-btn{
+  margin-top:4px;
+  padding:2px 8px;
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  font-size:10px;
+  cursor:pointer;
+  align-self:flex-start;
+}
+.msg-reactions{
+  display:flex;
+  flex-wrap:wrap;
+  gap:4px;
+  margin-top:4px;
+}
+.reaction-chip{
+  background:var(--panel2);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:2px 6px;
+  font-size:11px;
+  cursor:pointer;
+}
+.reaction-chip.mine{background:var(--indigo-f);border-color:var(--accent);}
+
+/* Chat Bar */
+.chat-bar{
+  background:var(--panel);
+  border-top:2px solid var(--border);
+  padding:12px;
+  flex-shrink:0;
+}
+.chat-toolbar{
+  display:flex;
+  gap:6px;
+  margin-bottom:8px;
+  flex-wrap:wrap;
+}
+.fmt-btn{
+  background:var(--indigo-f);
+  border:1px solid var(--border2);
+  border-radius:8px;
+  padding:5px 10px;
+  color:var(--text2);
+  font-size:12px;
+  cursor:pointer;
+}
+.fmt-btn.active{
+  background:var(--indigo);
+  color:white;
+  border-color:var(--accent);
+}
+.chat-input-row{
+  display:flex;
+  gap:8px;
+  align-items:center;
+}
+#msgInput{
+  flex:1;
+  background:var(--input-bg);
+  border:1px solid var(--border2);
+  border-radius:24px;
+  padding:12px 16px;
+  color:var(--text);
+  font-size:13px;
+  font-family:inherit;
+  resize:none;
+  max-height:100px;
+}
+#msgInput:focus{outline:none;border-color:var(--accent);}
+.icon-btn{
+  width:42px;
+  height:42px;
+  background:var(--indigo-f);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  font-size:18px;
+  cursor:pointer;
+}
+.send-btn{
+  width:48px;
+  height:42px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;
+  border-radius:24px;
+  color:white;
+  font-size:16px;
+  cursor:pointer;
+}
+.typing-indicator{
+  font-size:11px;
+  color:var(--text3);
+  padding:4px 0;
+  min-height:24px;
+}
+.typing-dots{
+  display:inline-flex;
+  gap:3px;
+  margin-right:5px;
+}
+.typing-dot{
+  width:5px;
+  height:5px;
+  background:var(--accent);
+  border-radius:50%;
+  animation:typing 1.4s infinite;
+}
+.typing-dot:nth-child(2){animation-delay:0.2s;}
+.typing-dot:nth-child(3){animation-delay:0.4s;}
+@keyframes typing{
+  0%,80%,100%{transform:scale(0.6);opacity:0.4;}
+  40%{transform:scale(1);opacity:1;}
+}
+
+/* Emoji Panel */
+#emojiPanel{
+  position:fixed;
+  bottom:80px;
+  left:16px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:20px;
+  padding:12px;
+  width:320px;
+  display:none;
+  z-index:1000;
+  box-shadow:0 10px 40px var(--shadow);
+}
+#emojiPanel.open{display:block;}
+.emoji-grid{
+  display:flex;
+  flex-wrap:wrap;
+  gap:6px;
+  max-height:200px;
+  overflow-y:auto;
+}
+.em-btn{
+  width:56px;
+  height:56px;
+  background:var(--indigo-f);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  cursor:pointer;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+.em-btn img{width:42px;height:42px;border-radius:8px;}
+
+/* Profile Modal */
+.overlay{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.85);
+  backdrop-filter:blur(8px);
+  display:none;
+  align-items:center;
+  justify-content:center;
+  z-index:10000;
+}
+.overlay.open{display:flex;}
+.modal{
+  background:var(--panel);
+  border:2px solid var(--border);
+  border-radius:24px;
+  width:90%;
+  max-width:450px;
+  max-height:85vh;
+  overflow-y:auto;
+  padding:20px;
+}
+.modal-x{
+  float:right;
+  background:var(--indigo-f);
+  border:1px solid var(--border);
+  border-radius:8px;
+  width:28px;
+  height:28px;
+  cursor:pointer;
+}
+.av-big{
+  width:80px;
+  height:80px;
+  border-radius:50%;
+  background:var(--indigo-f);
+  border:3px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:36px;
+  margin:0 auto 12px;
+  cursor:pointer;
+  position:relative;
+}
+.av-big img{width:100%;height:100%;border-radius:50%;object-fit:cover;}
+.prof-name{text-align:center;font-size:18px;font-weight:600;}
+.prof-role{text-align:center;font-size:11px;padding:4px 12px;border-radius:20px;display:inline-block;margin:8px auto;background:var(--indigo-f);}
+.act-btn{
+  width:100%;
+  padding:10px;
+  background:var(--indigo-f);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  color:var(--text);
+  cursor:pointer;
+  margin-bottom:8px;
+}
+.act-btn.success{background:linear-gradient(135deg,#5c0a1a,#8b1a2b);color:white;}
+.inp{
+  width:100%;
+  padding:10px;
+  background:var(--input-bg);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  color:var(--text);
+  margin-bottom:12px;
+}
+.emo-row{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.emo-btn{
+  background:var(--indigo-f);
+  border:1px solid var(--border2);
+  border-radius:12px;
+  padding:6px 12px;
+  font-size:18px;
+  cursor:pointer;
+}
+.emo-btn.active{background:var(--indigo);border-color:var(--accent);}
+
+/* Gallery */
+.gallery-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+.gal-item{
+  aspect-ratio:1;
+  border-radius:12px;
+  overflow:hidden;
+  cursor:pointer;
+  border:1px solid var(--border);
+}
+.gal-item img{width:100%;height:100%;object-fit:cover;}
+.album-bar{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  margin-bottom:12px;
+}
+.album-chip{
+  background:var(--indigo-f);
+  border:1px solid var(--border2);
+  border-radius:16px;
+  padding:4px 12px;
+  font-size:11px;
+  cursor:pointer;
+}
+.album-chip.active{background:var(--indigo);border-color:var(--accent);}
+
+/* DM Box */
+#dmBox{
+  position:fixed;
+  right:16px;
+  bottom:16px;
+  width:340px;
+  height:480px;
+  background:var(--panel);
+  border:2px solid var(--border);
+  border-radius:20px;
+  display:none;
+  flex-direction:column;
+  z-index:1000;
+  box-shadow:0 10px 40px var(--shadow);
+}
+#dmBox.open{display:flex;}
+.dm-head{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  padding:12px;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  border-radius:18px 18px 0 0;
+}
+.dm-title{flex:1;color:white;font-weight:600;}
+.dm-x{background:rgba(255,255,255,0.2);border:none;border-radius:8px;color:white;padding:4px 8px;cursor:pointer;}
+#dmMsgs{
+  flex:1;
+  overflow-y:auto;
+  padding:12px;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.dm-bar{
+  display:flex;
+  gap:8px;
+  padding:12px;
+  border-top:1px solid var(--border);
+}
+#dmInput{
+  flex:1;
+  background:var(--input-bg);
+  border:1px solid var(--border2);
+  border-radius:20px;
+  padding:10px;
+  color:var(--text);
+}
+.dm-send{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;
+  border-radius:12px;
+  width:44px;
+  color:white;
+  cursor:pointer;
+}
+
+/* Toast */
+.toast{
+  position:fixed;
+  bottom:100px;
+  left:50%;
+  transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:white;
+  padding:10px 20px;
+  border-radius:30px;
+  font-size:13px;
+  z-index:20000;
+  animation:fadeUp 0.3s ease;
+}
+@keyframes fadeUp{
+  from{opacity:0;transform:translateX(-50%) translateY(20px);}
+  to{opacity:1;transform:translateX(-50%) translateY(0);}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<canvas id="heartsCanvas"></canvas>
+
+<div id="app">
+  <nav id="topnav">
+    <div class="nav-logo" onclick="toggleSidebar()">🥀</div>
+    <button class="nav-btn active" id="navRooms" onclick="showPanel('rooms')">💬 ოთახები</button>
+    <button class="nav-btn" id="navFriends" onclick="showPanel('friends')">👥 მეგობრები</button>
+    <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 მომხმარებლები</button>
+    <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ PM</button>
+    <div class="nav-spacer"></div>
+    <button id="installBtn" onclick="installApp()">📲 ინსტალაცია</button>
+    <button class="nav-btn" onclick="openMyProfile()">👤</button>
+    <button class="nav-btn" onclick="toggleThemePreview()">🎨</button>
+    <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
+  </nav>
+
+  <div id="main">
+    <div id="sidebar">
+      <div id="panelRooms">
+        <div class="sb-header"><div class="sb-dot"></div>ოთახები</div>
+        <div class="sb-body" id="roomList"></div>
+      </div>
+      <div id="panelFriends" class="hidden">
+        <div class="sb-header"><div class="sb-dot"></div>მეგობრები</div>
+        <div class="sb-body" id="friendsList"></div>
+      </div>
+      <div id="panelUsers" class="hidden">
+        <div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div>
+        <div class="sb-body">
+          <input class="search-box" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()">
+          <div id="usersList"></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="chatArea">
+      <div class="chat-header">
+        <span style="font-size:24px" id="roomIcon">💬</span>
+        <div class="chat-title" id="roomTitle">კაფე-ბარი</div>
+        <div class="chat-sub" id="onlineCount">● 0 ონლაინი</div>
+        <button class="play-btn" id="gameBtn" onclick="openGame()">🎮 თამაში</button>
+      </div>
+      <div id="messages"></div>
+      <div class="chat-bar">
+        <div class="chat-toolbar">
+          <button class="fmt-btn" onclick="formatText('bold')"><b>B</b></button>
+          <button class="fmt-btn" onclick="formatText('italic')"><i>I</i></button>
+          <button class="fmt-btn" onclick="formatText('underline')"><u>U</u></button>
+          <input type="color" id="textColorPicker" style="width:30px;height:30px;border-radius:8px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer">
+        </div>
+        <div id="typingIndicator" class="typing-indicator"></div>
+        <div class="chat-input-row">
+          <button class="icon-btn" onclick="toggleEmoji()">😊</button>
+          <textarea id="msgInput" rows="1" placeholder="დაწერე შეტყობინება..." onkeydown="handleEnter(event)"></textarea>
+          <button class="send-btn" onclick="sendMessage()">✈️</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="emojiPanel">
+  <div class="emoji-grid" id="emojiGrid"></div>
+</div>
+
+<div id="dmBox">
+  <div class="dm-head">
+    <div class="avatar" id="dmAvatar" style="width:32px;height:32px">👤</div>
+    <div class="dm-title" id="dmTitle">-</div>
+    <button class="dm-x" onclick="closeDM()">✕</button>
+  </div>
+  <div id="dmMsgs"></div>
+  <div class="dm-bar">
+    <input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()">
+    <button class="dm-send" onclick="sendDM()">✈️</button>
+  </div>
+</div>
+
+<div class="overlay" id="profileModal" onclick="if(event.target===this)closeModal('profileModal')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('profileModal')">✕</button>
+    <div class="av-big" id="profileAvatar" onclick="uploadAvatar()">
+      <span id="avatarEmoji">😊</span>
+      <img id="avatarImg" style="display:none">
+    </div>
+    <div class="prof-name" id="profileName">-</div>
+    <div class="prof-role" id="profileRole">წევრი</div>
+    <input type="file" id="avatarFile" accept="image/*" style="display:none" onchange="handleAvatarUpload(event)">
+    
+    <div class="sec-lbl">📝 სტატუსი</div>
+    <input class="inp" id="statusInput" placeholder="შენი სტატუსი...">
+    
+    <div class="sec-lbl">😊 ემოცია</div>
+    <div class="emo-row">
+      <button class="emo-btn" onclick="selectEmotion('😊')">😊</button>
+      <button class="emo-btn" onclick="selectEmotion('😍')">😍</button>
+      <button class="emo-btn" onclick="selectEmotion('😴')">😴</button>
+      <button class="emo-btn" onclick="selectEmotion('😤')">😤</button>
+      <button class="emo-btn" onclick="selectEmotion('🥺')">🥺</button>
+      <button class="emo-btn" onclick="selectEmotion('🎮')">🎮</button>
+      <button class="emo-btn" onclick="selectEmotion('🎵')">🎵</button>
+      <button class="emo-btn" onclick="selectEmotion('💜')">💜</button>
+    </div>
+    <input class="inp" id="emotionComment" placeholder="ემოციის კომენტარი...">
+    
+    <div class="sec-lbl">🏆 თამაშების ქულები</div>
+    <div style="display:flex;gap:8px;margin-bottom:12px">
+      <div style="flex:1;background:var(--indigo-f);padding:8px;border-radius:12px;text-align:center"><div>🔐</div><div id="gameScore">0</div></div>
+      <div style="flex:1;background:var(--indigo-f);padding:8px;border-radius:12px;text-align:center"><div>🏆</div><div id="quizScore">0</div></div>
+      <div style="flex:1;background:var(--indigo-f);padding:8px;border-radius:12px;text-align:center"><div>🪢</div><div id="hangScore">0</div></div>
+    </div>
+    
+    <button class="act-btn success" onclick="saveProfile()">💾 შენახვა</button>
+    <button class="act-btn" onclick="closeModal('profileModal')">✕ დახურვა</button>
+  </div>
+</div>
+
+<script>
+const supabase = createClient(
+  "https://vjstuyxuhshsouqsnvxp.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE"
+);
+
+// ===== ROOMS =====
+const ROOMS = [
+  {id:1, icon:"🏠", name:"კაფე-ბარი"},
+  {id:2, icon:"🔐", name:"შიფროგრამა", isGame:true, gameFile:"wordBattle.html", gameScore:"game_score"},
+  {id:3, icon:"🏆", name:"ვიქტორინა", isGame:true, gameFile:"quiz.html", gameScore:"quiz_score"},
+  {id:4, icon:"🪢", name:"ჩამოხრჩობა", isGame:true, gameFile:"hangman.html", gameScore:"hangman_score"},
+  {id:5, icon:"📋", name:"ფორუმ", isForum:true},
+  {id:6, icon:"🎵", name:"მუსიკ კლაბი"},
+  {id:7, icon:"💜", name:"სოული კორნერი"},
+  {id:8, icon:"🌊", name:"ოშენ ვაიბი"},
+  {id:9, icon:"🦋", name:"ადმინისტრაცია"},
+  {id:10, icon:"🧠", name:"ბრეინ ზონა"},
+  {id:11, icon:"🌸", name:"სოფთ ჰარმონი"},
+  {id:12, icon:"💡", name:"დახმარება"}
+];
+
+let ME = null, MYPROF = null, currentRoom = 1, currentChannel = null, typingChannel = null;
+let allUsers = [], myFriends = [], typingUsers = {};
+let currentDMUser = null, dmChannel = null;
+let selectedEmotion = "😊";
+
+// ===== INIT =====
+async function init() {
+  const {data:{user}} = await supabase.auth.getUser();
+  if(!user) { location.href = "index.html"; return; }
+  ME = user;
+  
+  let {data:prof} = await supabase.from("profiles").select("*").eq("id", ME.id).single();
+  if(!prof) {
+    await supabase.from("profiles").insert({id:ME.id, username:ME.user_metadata?.username || "მომხმარებელი", emotion:"😊"});
+    prof = (await supabase.from("profiles").select("*").eq("id", ME.id).single()).data;
+  }
+  MYPROF = prof;
+  
+  buildRooms();
+  await loadAllUsers();
+  await loadFriends();
+  await loadMessages();
+  startTypingListener();
+  startHeartAnimation();
+  startBgAnimation();
+  
+  setInterval(() => { supabase.from("profiles").update({last_seen:new Date()}).eq("id",ME.id); }, 30000);
+  setInterval(loadAllUsers, 45000);
+}
+
+// ===== BUILD ROOMS =====
+function buildRooms() {
+  const container = document.getElementById("roomList");
+  container.innerHTML = "";
+  ROOMS.forEach(room => {
+    const div = document.createElement("div");
+    div.className = "room-item" + (room.id === currentRoom ? " active" : "");
+    div.innerHTML = `<div class="room-icon">${room.icon}</div><div class="room-name">${room.name}</div>${room.isGame ? '<span class="game-badge">GAME</span>' : ''}`;
+    div.onclick = () => switchRoom(room);
+    container.appendChild(div);
+  });
+}
+
+function switchRoom(room) {
+  currentRoom = room.id;
+  document.getElementById("roomTitle").textContent = room.name;
+  document.getElementById("roomIcon").textContent = room.icon;
+  document.querySelectorAll(".room-item").forEach(el => el.classList.remove("active"));
+  event.target.closest(".room-item")?.classList.add("active");
+  
+  const gameBtn = document.getElementById("gameBtn");
+  if(room.isGame) {
+    gameBtn.classList.add("show");
+    gameBtn.onclick = () => window.open(room.gameFile, "_blank");
+  } else {
+    gameBtn.classList.remove("show");
+  }
+  
+  loadMessages();
+}
+
+// ===== MESSAGES =====
+async function loadMessages() {
+  if(currentChannel) await supabase.removeChannel(currentChannel);
+  
+  const {data} = await supabase.from("messages").select("*, profiles(username,role,avatar_url,emotion)").eq("room_id", currentRoom).order("created_at", {ascending:true}).limit(100);
+  const container = document.getElementById("messages");
+  container.innerHTML = "";
+  (data || []).forEach(msg => appendMessage(msg));
+  container.scrollTop = container.scrollHeight;
+  
+  currentChannel = supabase.channel(`room-${currentRoom}`)
+    .on("postgres_changes", {event:"INSERT", schema:"public", table:"messages", filter:`room_id=eq.${currentRoom}`}, payload => {
+      appendMessage(payload.new);
+      document.getElementById("messages").scrollTop = 9999;
+    })
+    .subscribe();
+}
+
+function appendMessage(msg) {
+  const isMe = msg.user_id === ME.id;
+  const date = new Date(msg.created_at).toLocaleTimeString("ka-GE", {hour:"2-digit", minute:"2-digit"});
+  const avatarHtml = msg.profiles?.avatar_url ? `<img src="${msg.profiles.avatar_url}">` : (msg.profiles?.emotion || "😊");
+  
+  const div = document.createElement("div");
+  div.className = "msg-row";
+  div.innerHTML = `
+    <div class="avatar" onclick="openProfile('${msg.user_id}')">${avatarHtml}</div>
+    <div class="msg-content">
+      <div class="msg-meta">
+        <span class="msg-nick" onclick="openProfile('${msg.user_id}')">${escapeHtml(msg.profiles?.username || "?")}</span>
+        <span class="msg-time">${date}</span>
+      </div>
+      <div class="msg-bubble${isMe ? " mine" : ""}">
+        ${formatMessage(msg.content)}
+        ${isMe ? `<button class="msg-del" onclick="deleteMessage('${msg.id}')">🗑</button>` : ""}
+      </div>
+      <button class="msg-react-btn" onclick="showReactions('${msg.id}')">😊 +</button>
+    </div>
+  `;
+  document.getElementById("messages").appendChild(div);
+}
+
+function formatMessage(text) {
+  let html = escapeHtml(text);
+  html = html.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+  html = html.replace(/_(.*?)_/g, "<em>$1</em>");
+  html = html.replace(/__(.*?)__/g, "<u>$1</u>");
+  html = html.replace(/\[c:(.*?)\](.*?)\[\/c\]/g, '<span style="color:$1">$2</span>');
+  return html;
+}
+
+async function sendMessage() {
+  const input = document.getElementById("msgInput");
+  let text = input.value.trim();
+  if(!text) return;
+  
+  const color = document.getElementById("textColorPicker").value;
+  if(color !== "#000000") text = `[c:${color}]${text}[/c]`;
+  
+  input.value = "";
+  await supabase.from("messages").insert({room_id:currentRoom, user_id:ME.id, content:text});
+}
+
+async function deleteMessage(id) {
+  if(confirm("წავშალო?")) {
+    await supabase.from("messages").delete().eq("id", id);
+    document.getElementById(`msg-${id}`)?.remove();
+  }
+}
+
+let typingTimeout = null;
+function startTypingListener() {
+  if(typingChannel) supabase.removeChannel(typingChannel);
+  typingChannel = supabase.channel(`typing-${currentRoom}`)
+    .on("broadcast", {event:"typing"}, payload => {
+      if(payload.payload.userId !== ME.id) {
+        typingUsers[payload.payload.userId] = payload.payload.username;
+        updateTypingIndicator();
+        setTimeout(() => { delete typingUsers[payload.payload.userId]; updateTypingIndicator(); }, 3000);
+      }
+    })
+    .subscribe();
+}
+
+function onTyping() {
+  if(typingTimeout) clearTimeout(typingTimeout);
+  typingChannel.send({type:"broadcast", event:"typing", payload:{userId:ME.id, username:MYPROF?.username}});
+  typingTimeout = setTimeout(() => {}, 2000);
+}
+
+function updateTypingIndicator() {
+  const names = Object.values(typingUsers);
+  const el = document.getElementById("typingIndicator");
+  if(names.length) {
+    el.innerHTML = `<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>${names.join(", ")} წერს...`;
+  } else {
+    el.innerHTML = "";
+  }
+}
+
+// ===== USERS & FRIENDS =====
+async function loadAllUsers() {
+  const {data} = await supabase.from("profiles").select("*").order("username");
+  allUsers = data || [];
+  renderUsersList();
+  updateOnlineCount();
+}
+
+function renderUsersList() {
+  const container = document.getElementById("usersList");
+  if(!container) return;
+  container.innerHTML = "";
+  allUsers.filter(u => u.id !== ME.id).forEach(user => {
+    const isFriend = myFriends.includes(user.id);
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="avatar" style="position:relative">${user.avatar_url ? `<img src="${user.avatar_url}">` : (user.emotion || "😊")}${isOnline(user.last_seen) ? '<div class="online-dot"></div>' : ''}</div>
+      <div class="list-info"><div class="list-name">${escapeHtml(user.username)}</div>${user.status ? `<div class="list-sub">${escapeHtml(user.status)}</div>` : ''}</div>
+      <button style="background:none;border:none;font-size:18px;cursor:pointer" onclick="toggleFriend('${user.id}')">${isFriend ? "💔" : "➕"}</button>
+    `;
+    div.onclick = (e) => { if(!e.target.closest("button")) openProfile(user.id); };
+    container.appendChild(div);
+  });
+}
+
+async function loadFriends() {
+  const {data} = await supabase.from("friends").select("friend_id").eq("user_id", ME.id).eq("status", "accepted");
+  myFriends = data?.map(f => f.friend_id) || [];
+  renderFriendsList();
+}
+
+function renderFriendsList() {
+  const container = document.getElementById("friendsList");
+  if(!container) return;
+  container.innerHTML = "";
+  const friendsList = allUsers.filter(u => myFriends.includes(u.id));
+  if(!friendsList.length) { container.innerHTML = "<div style='text-align:center;padding:20px;color:var(--text3)'>მეგობრები ჯერ არ გყავს 💜</div>"; return; }
+  friendsList.forEach(friend => {
+    const div = document.createElement("div");
+    div.className = "list-item";
+    div.innerHTML = `
+      <div class="avatar">${friend.avatar_url ? `<img src="${friend.avatar_url}">` : (friend.emotion || "😊")}</div>
+      <div class="list-info"><div class="list-name">${escapeHtml(friend.username)}</div></div>
+      <button style="background:none;border:none;font-size:14px;cursor:pointer" onclick="openDM('${friend.id}')">✉️</button>
+    `;
+    div.onclick = (e) => { if(!e.target.closest("button")) openProfile(friend.id); };
+    container.appendChild(div);
+  });
+}
+
+async function toggleFriend(userId) {
+  if(myFriends.includes(userId)) {
+    await supabase.from("friends").delete().eq("user_id", ME.id).eq("friend_id", userId);
+    myFriends = myFriends.filter(id => id !== userId);
+  } else {
+    await supabase.from("friends").insert({user_id:ME.id, friend_id:userId, status:"accepted"});
+    myFriends.push(userId);
+  }
+  renderUsersList();
+  renderFriendsList();
+}
+
+// ===== DM =====
+async function openDM(userId) {
+  currentDMUser = userId;
+  const user = allUsers.find(u => u.id === userId);
+  document.getElementById("dmTitle").textContent = user?.username || "პირადი";
+  document.getElementById("dmAvatar").innerHTML = user?.avatar_url ? `<img src="${user.avatar_url}">` : (user?.emotion || "👤");
+  document.getElementById("dmBox").classList.add("open");
+  
+  const roomKey = [ME.id, userId].sort().join("_");
+  const {data} = await supabase.from("direct_messages").select("*").eq("room_key", roomKey).order("created_at", {ascending:true});
+  const container = document.getElementById("dmMsgs");
+  container.innerHTML = "";
+  (data || []).forEach(msg => appendDMMessage(msg));
+  container.scrollTop = container.scrollHeight;
+  
+  if(dmChannel) await supabase.removeChannel(dmChannel);
+  dmChannel = supabase.channel(`dm-${roomKey}`)
+    .on("postgres_changes", {event:"INSERT", schema:"public", table:"direct_messages", filter:`room_key=eq.${roomKey}`}, payload => {
+      appendDMMessage(payload.new);
+      document.getElementById("dmMsgs").scrollTop = 9999;
+    })
+    .subscribe();
+}
+
+function appendDMMessage(msg) {
+  const isMe = msg.sender_id === ME.id;
+  const date = new Date(msg.created_at).toLocaleTimeString("ka-GE", {hour:"2-digit", minute:"2-digit"});
+  const div = document.createElement("div");
+  div.style.display = "flex";
+  div.style.justifyContent = isMe ? "flex-end" : "flex-start";
+  div.style.marginBottom = "8px";
+  div.innerHTML = `
+    <div style="background:${isMe ? 'var(--bubble-mine)' : 'var(--bubble)'};border:1px solid var(--border2);border-radius:${isMe ? '14px 4px 14px 14px' : '4px 14px 14px 14px'};padding:6px 10px;max-width:80%">
+      <div style="font-size:12px">${formatMessage(msg.content)}</div>
+      <div style="font-size:9px;color:var(--text3);margin-top:2px">${date}</div>
+    </div>
+  `;
+  document.getElementById("dmMsgs").appendChild(div);
+}
+
+async function sendDM() {
+  const input = document.getElementById("dmInput");
+  const text = input.value.trim();
+  if(!text || !currentDMUser) return;
+  input.value = "";
+  const roomKey = [ME.id, currentDMUser].sort().join("_");
+  await supabase.from("direct_messages").insert({room_key:roomKey, sender_id:ME.id, receiver_id:currentDMUser, content:text});
+}
+
+function closeDM() {
+  document.getElementById("dmBox").classList.remove("open");
+  currentDMUser = null;
+  if(dmChannel) { supabase.removeChannel(dmChannel); dmChannel = null; }
+}
+
+function openDMList() { openDM(null); }
+
+// ===== PROFILE =====
+async function openProfile(userId) {
+  const {data:prof} = await supabase.from("profiles").select("*").eq("id", userId).single();
+  if(!prof) return;
+  
+  document.getElementById("profileName").textContent = prof.username;
+  document.getElementById("profileRole").textContent = prof.role === "founder" ? "👑 დამფუძნებელი" : (prof.role === "admin" ? "🛡️ ადმინი" : "👤 წევრი");
+  document.getElementById("statusInput").value = prof.status || "";
+  document.getElementById("emotionComment").value = prof.emotion_comment || "";
+  document.getElementById("gameScore").textContent = prof.game_score || 0;
+  document.getElementById("quizScore").textContent = prof.quiz_score || 0;
+  document.getElementById("hangScore").textContent = prof.hangman_score || 0;
+  
+  if(prof.avatar_url) {
+    document.getElementById("avatarImg").src = prof.avatar_url;
+    document.getElementById("avatarImg").style.display = "block";
+    document.getElementById("avatarEmoji").style.display = "none";
+  } else {
+    document.getElementById("avatarImg").style.display = "none";
+    document.getElementById("avatarEmoji").style.display = "block";
+    document.getElementById("avatarEmoji").textContent = prof.emotion || "😊";
+  }
+  
+  selectedEmotion = prof.emotion || "😊";
+  document.querySelectorAll(".emo-btn").forEach(btn => btn.classList.toggle("active", btn.textContent === selectedEmotion));
+  
+  document.getElementById("profileModal").classList.add("open");
+}
+
+function openMyProfile() { openProfile(ME.id); }
+
+async function saveProfile() {
+  const updates = {
+    status: document.getElementById("statusInput").value,
+    emotion: selectedEmotion,
+    emotion_comment: document.getElementById("emotionComment").value
+  };
+  await supabase.from("profiles").update(updates).eq("id", ME.id);
+  MYPROF = {...MYPROF, ...updates};
+  toast("✅ პროფილი განახლდა!");
+  closeModal("profileModal");
+}
+
+function selectEmotion(emoji) {
+  selectedEmotion = emoji;
+  document.querySelectorAll(".emo-btn").forEach(btn => btn.classList.toggle("active", btn.textContent === emoji));
+}
+
+async function uploadAvatar() {
+  document.getElementById("avatarFile").click();
+}
+
+async function handleAvatarUpload(event) {
+  const file = event.target.files[0];
+  if(!file) return;
+  if(file.size > 2*1024*1024) { toast("❌ მაქს 2MB"); return; }
+  
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    await supabase.from("profiles").update({avatar_url: e.target.result}).eq("id", ME.id);
+    toast("✅ ავატარი განახლდა!");
+    closeModal("profileModal");
+  };
+  reader.readAsDataURL(file);
+}
+
+// ===== GAME SCORE LISTENER =====
+window.addEventListener("message", (e) => {
+  if(e.data?.type === "GAME_SCORE_UPDATE" && MYPROF) {
+    MYPROF.game_score = e.data.score;
+    document.getElementById("gameScore").textContent = e.data.score;
+  }
+});
+
+function openGame() {
+  const room = ROOMS.find(r => r.id === currentRoom);
+  if(room?.isGame) window.open(room.gameFile, "_blank");
+}
+
+// ===== UTILITIES =====
+function isOnline(ts) { return ts && (Date.now() - new Date(ts).getTime() < 90000); }
+function updateOnlineCount() {
+  const online = allUsers.filter(u => isOnline(u.last_seen)).length;
+  document.getElementById("onlineCount").textContent = `● ${online} ონლაინი`;
+}
+function escapeHtml(str) { return (str || "").replace(/[&<>]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;'})[m]); }
+function toast(msg) { const t=document.createElement("div"); t.className="toast"; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+function toggleSidebar() { document.getElementById("sidebar").classList.toggle("mob-open"); }
+function showPanel(panel) { document.getElementById("sidebar").style.display = "flex"; }
+function filterUsers() { const q=document.getElementById("userSearch").value.toLowerCase(); document.querySelectorAll("#usersList .list-item").forEach(el=>{ el.style.display=el.innerText.toLowerCase().includes(q)?"flex":"none"; }); }
+function formatText(type) { const inp=document.getElementById("msgInput"); const s=inp.selectionStart, e=inp.selectionEnd, v=inp.value; const map={bold:"**",italic:"_",underline:"__"}; inp.value=v.slice(0,s)+map[type]+v.slice(s,e)+map[type]+v.slice(e); inp.focus(); }
+function toggleEmoji() { document.getElementById("emojiPanel").classList.toggle("open"); }
+function handleEnter(e) { if(e.key==="Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); } }
+function closeModal(id) { document.getElementById(id).classList.remove("open"); }
+function toggleThemePreview() { document.body.style.background = document.body.style.background === "var(--bg)" ? "#1a0a0a" : "var(--bg)"; }
+
+// ===== ANIMATIONS =====
+function startHeartAnimation() {
+  const canvas = document.getElementById("heartsCanvas");
+  const ctx = canvas.getContext("2d");
+  let hearts = [];
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize(); window.addEventListener("resize", resize);
+  function addHeart() {
+    hearts.push({ x: Math.random() * canvas.width, y: canvas.height + 10, size: 15 + Math.random() * 20, speed: 2 + Math.random() * 3, opacity: 0.7, char: ["💜","❤️","🖤","🥀"][Math.floor(Math.random()*4)] });
+    setTimeout(addHeart, 800 + Math.random() * 1500);
+  }
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for(let i=0; i<hearts.length; i++) {
+      const h = hearts[i];
+      h.y -= h.speed;
+      h.opacity -= 0.003;
+      if(h.y < -50 || h.opacity <= 0) { hearts.splice(i,1); i--; continue; }
+      ctx.font = `${h.size}px "Segoe UI Emoji"`;
+      ctx.globalAlpha = h.opacity;
+      ctx.fillText(h.char, h.x, h.y);
+    }
+    ctx.globalAlpha = 1;
+    requestAnimationFrame(animate);
+  }
+  animate();
+  addHeart();
+}
+
+function startBgAnimation() {
+  const canvas = document.getElementById("bgCanvas");
+  const ctx = canvas.getContext("2d");
+  let particles = [];
+  function resize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+  resize(); window.addEventListener("resize", resize);
+  for(let i=0; i<60; i++) particles.push({ x:Math.random()*canvas.width, y:Math.random()*canvas.height, r:1+Math.random()*2, dx:(Math.random()-.5)*0.3, dy:(Math.random()-.5)*0.3, alpha:0.1+Math.random()*0.15 });
+  function animate() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    for(let p of particles) {
+      ctx.beginPath(); ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(139,26,43,${p.alpha})`;
+      ctx.fill();
+      p.x += p.dx; p.y += p.dy;
+      if(p.x<0||p.x>canvas.width) p.dx*=-1;
+      if(p.y<0||p.y>canvas.height) p.dy*=-1;
+    }
+    requestAnimationFrame(animate);
+  }
+  animate();
+}
+
+// ===== LOGOUT =====
+async function logout() { await supabase.auth.signOut(); location.href = "index.html"; }
+
+// ===== INSTALL PWA =====
+let deferredPrompt;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferredPrompt = e; document.getElementById("installBtn").classList.add("show"); });
+function installApp() { if(deferredPrompt) { deferredPrompt.prompt(); deferredPrompt.userChoice.then(() => document.getElementById("installBtn").classList.remove("show")); } }
+
+init();
+</script>
+</body>
+</html>
