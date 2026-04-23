@@ -3,112 +3,257 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaifmania</title>
+    <title>Kaifmania - Welcome</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
+        /* ფერების და ეფექტების პალიტრა */
+        :root {
+            --neon: #ff007f; /* მთავარი ნეონ ვარდისფერი */
+            --neon-glow: 0 0 20px rgba(255, 0, 127, 0.7), 0 0 40px rgba(255, 0, 127, 0.5);
+            --glass: rgba(255, 255, 255, 0.03); /* მინის გამჭვირვალობა */
+            --bg: radial-gradient(circle at center, #1a001a 0%, #000000 100%);
+        }
+
         body {
             margin: 0;
-            background: #050505;
-            height: 100vh;
+            padding: 0;
+            background: var(--bg);
+            color: white;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: sans-serif;
+            height: 100vh;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
             overflow: hidden;
-            perspective: 1000px;
+            perspective: 1500px; /* 3D სივრცის სიღრმე */
         }
 
-        /* 3D მინის ბარათი */
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(15px);
-            padding: 40px;
-            border-radius: 25px;
-            border: 1px solid rgba(255, 0, 127, 0.4);
-            width: 320px;
+        /* --- 3D დახრილი, მინის ბარათი --- */
+        .auth-card {
+            background: var(--glass);
+            backdrop-filter: blur(20px); /* ბუნდოვანი ფონი მინისთვის */
+            padding: 50px 40px;
+            border-radius: 35px;
+            border: 1px solid rgba(255, 0, 127, 0.3);
+            width: 360px;
             text-align: center;
-            transform: rotateY(-10deg) rotateX(5deg);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6), 0 0 20px rgba(255, 0, 127, 0.2);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.7), inset 0 0 15px rgba(255, 255, 255, 0.05);
+            
+            /* აი აქ არის 3D დახრა */
+            transform: rotateY(-15deg) rotateX(7deg) translateZ(10px);
+            transition: transform 0.6s ease, box-shadow 0.6s ease;
+            z-index: 10;
+            position: relative;
         }
 
-        h1 {
-            color: #ff007f;
-            letter-spacing: 4px;
-            text-shadow: 0 0 15px #ff007f;
-            margin-bottom: 30px;
-            font-size: 24px;
+        /* მაუსის მიტანისას ბარათი სწორდება და ახლოვდება */
+        .auth-card:hover {
+            transform: rotateY(-3deg) rotateX(2deg) translateZ(30px);
+            box-shadow: 0 35px 80px rgba(0,0,0,0.8), var(--neon-glow);
+            border-color: rgba(255, 0, 127, 0.6);
+        }
+
+        h2 {
+            color: var(--neon);
+            font-size: 32px;
+            text-transform: uppercase;
+            letter-spacing: 5px;
+            text-shadow: var(--neon-glow);
+            margin: 0 0 40px 0;
+            font-weight: 800;
+        }
+
+        /* ინპუტების სტილი (Email/Password) */
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
         }
 
         input {
             width: 100%;
-            padding: 12px;
-            margin: 8px 0;
-            border-radius: 12px;
-            border: 1px solid #333;
+            padding: 16px 16px 16px 45px; /* ადგილი იკონკისთვის */
+            border-radius: 18px;
+            border: 1px solid rgba(255,255,255,0.05);
             background: rgba(0,0,0,0.5);
             color: white;
+            font-size: 15px;
             box-sizing: border-box;
             outline: none;
+            transition: 0.3s;
         }
 
+        input:focus {
+            border-color: var(--neon);
+            box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.2), 0 0 15px rgba(255, 0, 127, 0.1);
+        }
+
+        /* პატარა იკონკები ინპუტებში */
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #555;
+            font-size: 18px;
+            transition: 0.3s;
+        }
+
+        input:focus + .input-icon {
+            color: var(--neon);
+        }
+
+        /* --- ულამაზესი ნეონ ღილაკი --- */
         button {
             width: 100%;
-            padding: 12px;
-            margin-top: 15px;
+            padding: 16px;
+            margin-top: 25px;
             border: none;
-            border-radius: 12px;
-            background: #ff007f;
+            border-radius: 18px;
+            background: linear-gradient(45deg, #ff007f, #ff4d6d, #ff007f);
+            background-size: 200% auto;
             color: white;
             font-weight: bold;
+            font-size: 17px;
             cursor: pointer;
-            box-shadow: 0 0 10px #ff007f;
+            box-shadow: 0 8px 20px rgba(255, 0, 127, 0.3);
+            transition: 0.5s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
 
-        /* მცურავი გულები */
-        .heart {
+        button:hover {
+            background-position: right center; /* ანიმაცია ფერების */
+            transform: translateY(-3px) scale(1.03);
+            box-shadow: 0 12px 30px var(--neon), var(--neon-glow);
+        }
+
+        /* რეჟიმის გადასართველი ტექსტი */
+        .toggle-txt {
+            margin-top: 20px;
+            font-size: 13px;
+            color: #888;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        .toggle-txt:hover { color: #bbb; }
+        .toggle-txt b { color: var(--neon); text-shadow: 0 0 5px var(--neon); }
+
+        /* --- ბევრი მცურავი ელემენტი --- */
+        .floating {
             position: fixed;
             top: 100%;
-            animation: fly 6s linear infinite;
             pointer-events: none;
-            opacity: 0.8;
+            animation: moveUp 8s linear infinite;
+            filter: drop-shadow(0 0 8px var(--neon));
+            z-index: 1;
         }
 
-        @keyframes fly {
-            0% { transform: translateY(0) rotate(0deg); }
-            100% { transform: translateY(-110vh) rotate(360deg); }
+        @keyframes moveUp {
+            0% { transform: translateY(0) rotate(0deg) scale(0.4); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(-120vh) rotate(360deg) scale(1.3); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>KAIFMANIA</h1>
-        <input type="email" id="email" placeholder="ელ-ფოსტა">
-        <input type="password" id="pass" placeholder="პაროლი">
-        <button onclick="auth()">შესვლა / რეგისტრაცია</button>
+    <div class="auth-card">
+        <h2>KAIFMANIA</h2>
+        
+        <div class="input-group">
+            <input type="email" id="email" placeholder="ელ-ფოსტა" required>
+            <span class="input-icon">✉</span>
+        </div>
+        
+        <div class="input-group">
+            <input type="password" id="pass" placeholder="პაროლი" required>
+            <span class="input-icon">🔒</span>
+        </div>
+        
+        <button onclick="handleAuth()">დავიწყოთ ❤️</button>
+        
+        <p class="toggle-txt" id="modeBtn" onclick="toggleMode()">უკვე გაქვს აქაუნთი? <b>შესვლა</b></p>
     </div>
 
     <script>
+        // Supabase-ის კონფიგურაცია შენი გასაღებით
         const SB_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
         const sb = supabase.createClient(SB_URL, SB_KEY);
 
-        async function auth() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('pass').value;
-            const { error } = await sb.auth.signUp({ email, password });
-            if(error) alert(error.message); else alert("შემოწმდე მეილი!");
+        let isLogin = false;
+
+        // ფორმის გადართვა (რეგისტრაცია/შესვლა)
+        function toggleMode() {
+            isLogin = !isLogin;
+            const title = document.querySelector('h2');
+            const btn = document.querySelector('button');
+            const link = document.getElementById('modeBtn');
+
+            if (isLogin) {
+                title.innerText = 'შესვლა';
+                btn.innerText = 'შესვლა';
+                link.innerHTML = 'არ გაქვს აქაუნთი? <b>რეგისტრაცია</b>';
+            } else {
+                title.innerText = 'KAIFMANIA';
+                btn.innerText = 'დავიწყოთ ❤️';
+                link.innerHTML = 'უკვე გაქვს აქაუნთი? <b>შესვლა</b>';
+            }
         }
 
-        setInterval(() => {
-            const h = document.createElement('div');
-            h.className = 'heart';
-            h.innerHTML = ['❤️', '🌸'][Math.floor(Math.random()*2)];
-            h.style.left = Math.random() * 100 + "vw";
-            h.style.fontSize = (Math.random() * 20 + 10) + "px";
-            document.body.appendChild(h);
-            setTimeout(() => h.remove(), 6000);
-        }, 500);
+        // ავტორიზაციის ლოგიკა
+        async function handleAuth() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('pass').value;
+            
+            if(!email || !password) return alert("გთხოვთ, შეავსოთ ყველა ველი!");
+
+            if (isLogin) {
+                const { data, error } = await sb.auth.signInWithPassword({ email, password });
+                if(error) alert("შეცდომა შესვლისას: " + error.message);
+                else alert("მოგესალმებით, წარმატებით შეხვედით!");
+            } else {
+                const { data, error } = await sb.auth.signUp({ email, password });
+                if(error) alert("შეცდომა რეგისტრაციისას: " + error.message);
+                else alert("რეგისტრაცია დაწყებულია! გთხოვთ, შეამოწმოთ ელ-ფოსტა დასტურისთვის.");
+            }
+        }
+
+        // --- გულების, ყვავილების და ნაპერწკლების გენერატორი ---
+        function createFloatingElements() {
+            const container = document.body;
+            const items = ['❤️', '🌸', '💖', '✨', '🌹', '💎', '💫'];
+            
+            setInterval(() => {
+                const el = document.createElement('div');
+                el.className = 'floating';
+                el.innerText = items[Math.floor(Math.random() * items.length)];
+                
+                // შემთხვევითი პოზიცია და ზომა
+                el.style.left = Math.random() * 100 + "vw";
+                el.style.fontSize = (Math.random() * 25 + 15) + "px";
+                
+                // შემთხვევითი სიჩქარე (ანიმაციის ხანგრძლივობა)
+                const duration = Math.random() * 4 + 6; // 6-დან 10 წამამდე
+                el.style.animationDuration = duration + "s";
+                
+                // შემთხვევითი ბუნდოვანება სიღრმისთვის
+                const blur = Math.random() * 2;
+                el.style.filter = `drop-shadow(0 0 8px var(--neon)) blur(${blur}px)`;
+
+                container.appendChild(el);
+
+                // ელემენტის წაშლა ანიმაციის დასრულების შემდეგ
+                setTimeout(() => {
+                    el.remove();
+                }, duration * 1000);
+            }, 250); // ელემენტების გაჩენის სიხშირე
+        }
+
+        // ჩავრთოთ ანიმაცია გვერდის ჩატვირთვისას
+        window.onload = createFloatingElements;
     </script>
 </body>
 </html>
