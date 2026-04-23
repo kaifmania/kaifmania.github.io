@@ -3,352 +3,162 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>კაიფმანია · შესვლა</title>
+    <title>კაიფმანია · Premium Edition</title>
     <style>
+        :root {
+            --primary: #6c5ce7;
+            --secondary: #a29bfe;
+            --bg-gradient: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Poppins', system-ui, 'Segoe UI', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            min-height: 100vh;
-            background: linear-gradient(145deg, #f5a9b8 0%, #f9e6b3 50%, #b5f0e6 100%);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            overflow: hidden;
-            position: relative;
-        }
-
-        /* მცურავი გულები - უფრო ცოცხალი */
-        .hearts-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
+            background: var(--bg-gradient);
+            background-size: 400% 400%;
+            animation: gradientBG 15s ease infinite;
             overflow: hidden;
         }
 
-        .heart {
-            position: absolute;
-            bottom: 0;
-            font-size: 1.6rem;
-            opacity: 0.7;
-            animation: floatHeart 5s linear forwards;
-            user-select: none;
-            pointer-events: none;
-            filter: drop-shadow(0 0 4px rgba(255,255,200,0.8));
+        @keyframes gradientBG {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
 
-        @keyframes floatHeart {
-            0% {
-                transform: translateY(0) rotate(0deg);
-                opacity: 0.9;
-            }
-            100% {
-                transform: translateY(-100vh) rotate(400deg);
-                opacity: 0;
-            }
-        }
-
-        /* მხიარული, კაიფური ბარათი */
-        .login-card {
-            background: rgba(255, 245, 220, 0.92);
-            backdrop-filter: blur(14px);
-            border-radius: 3rem;
-            padding: 2rem 2rem 2.5rem;
-            width: 90%;
-            max-width: 420px;
-            box-shadow: 0 30px 40px rgba(255, 100, 120, 0.4), 0 10px 20px rgba(0,0,0,0.1), 0 0 0 3px #fff8, 0 0 0 6px #ffb347;
-            z-index: 10;
-            transition: 0.25s ease;
-            transform: rotate(-1.2deg);
-        }
-
-        .login-card:hover {
-            transform: rotate(0deg) scale(1.01);
-            box-shadow: 0 35px 45px rgba(255, 80, 100, 0.5), 0 0 0 3px #fff, 0 0 0 6px #ff9f4a;
-        }
-
-        .logo {
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 25px;
+            padding: 40px;
+            width: 380px;
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
             text-align: center;
-            font-size: 3rem;
-            margin-bottom: 0.3rem;
-            filter: drop-shadow(2px 4px 12px #ffb347);
+            color: white;
+            transition: transform 0.3s ease;
+        }
+
+        .glass-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .logo-area {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
         }
 
         h2 {
-            text-align: center;
-            background: linear-gradient(135deg, #d64045, #f4a261, #e9c46a);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-            margin-bottom: 1.8rem;
-            font-weight: 800;
-            font-size: 2rem;
-            letter-spacing: -0.5px;
+            font-weight: 300;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
         }
 
-        .input-group {
-            margin-bottom: 1.2rem;
+        .input-container {
+            position: relative;
+            margin-bottom: 20px;
         }
 
         input {
             width: 100%;
-            padding: 14px 18px;
-            border: none;
-            border-radius: 60px;
-            background: #fffef7;
-            font-size: 1rem;
+            padding: 12px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50px;
             outline: none;
-            transition: 0.2s;
-            color: #2d2a24;
-            border: 1px solid #ffcd94;
-            box-shadow: inset 0 1px 3px #0001, 0 2px 5px #ffb36740;
-        }
-
-        input:focus {
-            border-color: #ff9068;
-            box-shadow: 0 0 0 4px #ff906850, inset 0 1px 3px #0001;
-            background: #fffff2;
+            color: white;
+            font-size: 1rem;
+            transition: 0.3s;
         }
 
         input::placeholder {
-            color: #c0a080;
-            font-weight: 400;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        input:focus {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(255,255,255,0.2);
         }
 
         button {
             width: 100%;
-            padding: 14px;
-            background: linear-gradient(115deg, #ff8c5a, #ff3b6f);
+            padding: 12px;
             border: none;
-            border-radius: 60px;
-            color: white;
-            font-weight: 800;
-            font-size: 1.2rem;
+            border-radius: 50px;
+            background: white;
+            color: #e73c7e;
+            font-weight: bold;
+            font-size: 1.1rem;
             cursor: pointer;
-            transition: 0.2s;
-            margin-top: 12px;
-            box-shadow: 0 12px 20px #ff6b4a60;
-            letter-spacing: 0.5px;
+            transition: 0.3s;
+            margin-top: 10px;
         }
 
         button:hover {
-            transform: scale(0.96);
-            background: linear-gradient(115deg, #ff6e3a, #f7255a);
-            box-shadow: 0 5px 15px #ff4d4d;
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
         }
 
-        .toggle-text {
-            text-align: center;
-            margin-top: 1.5rem;
-            color: #b45f2b;
-            font-weight: 600;
+        .footer-text {
+            margin-top: 20px;
             font-size: 0.9rem;
+            opacity: 0.8;
         }
 
-        .toggle-text span {
-            font-weight: 800;
+        .footer-text span {
+            text-decoration: underline;
             cursor: pointer;
-            transition: 0.2s;
-            color: #d44c2f;
-            text-decoration: none;
-            border-bottom: 2px dotted #ffaa66;
+            font-weight: bold;
         }
 
-        .toggle-text span:hover {
-            color: #ff3a0e;
-            border-bottom-color: #ff3a0e;
-        }
-
-        .message {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-            background: #fce2c1cc;
-            border-radius: 50px;
-            padding: 8px 12px;
-            color: #a13e1a;
-            font-weight: 500;
-        }
-
-        footer {
-            text-align: center;
-            margin-top: 1.8rem;
-            font-size: 0.75rem;
-            color: #dd8844;
-            font-weight: 500;
+        /* პატარა დეკორატიული ელემენტები */
+        .orb {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(50px);
         }
     </style>
 </head>
 <body>
 
-<div class="hearts-container" id="heartsContainer"></div>
+<div class="orb" style="top: 10%; left: 20%;"></div>
+<div class="orb" style="bottom: 10%; right: 20%;"></div>
 
-<div class="login-card">
-    <div class="logo">🌈 კაიფმანია 🌈</div>
-    <h2 id="formTitle">✨ შემოდი და იკაიფე ✨</h2>
+<div class="glass-card">
+    <div class="logo-area">🪐</div>
+    <h2>კაიფმანია</h2>
     
-    <div class="input-group" id="nicknameGroup" style="display: none;">
-        <input type="text" id="nickname" placeholder="🌟 შენი ნიკი (მაგ: კაიფო)">
+    <div class="input-container">
+        <input type="email" placeholder="ელ.ფოსტა">
+    </div>
+    <div class="input-container">
+        <input type="password" placeholder="პაროლი">
     </div>
     
-    <div class="input-group">
-        <input type="email" id="email" placeholder="📧 ელ.ფოსტა">
+    <button>შესვლა</button>
+    
+    <div class="footer-text">
+        არ გაქვს ანგარიში? <span>რეგისტრაცია</span>
     </div>
-    <div class="input-group">
-        <input type="password" id="password" placeholder="🔐 პაროლი">
-    </div>
-    <button id="actionBtn">🚀 შესვლა</button>
-    <div class="toggle-text">
-        😎 არ გაქვს ანგარიში? <span id="toggleMode">ახლავე რეგისტრაცია</span>
-    </div>
-    <div class="message" id="messageArea"></div>
-    <footer>💖 მცურავი გულები + კაიფის ვიბრი 💖</footer>
 </div>
 
-<script>
-    (function() {
-        const heartsContainer = document.getElementById('heartsContainer');
-        const heartSymbols = ['❤️', '🧡', '💛', '💚', '💙', '💜', '🩷', '❤️‍🔥', '💖', '💗', '💓', '💕', '💞', '💘', '💝'];
-
-        function createFloatingHeart() {
-            const heart = document.createElement('div');
-            heart.classList.add('heart');
-            heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
-            const size = 1.2 + Math.random() * 2.2;
-            heart.style.fontSize = `${size}rem`;
-            heart.style.left = `${Math.random() * 100}%`;
-            const duration = 4 + Math.random() * 5;
-            heart.style.animationDuration = `${duration}s`;
-            heart.style.animationDelay = `${Math.random() * 2}s`;
-            heartsContainer.appendChild(heart);
-            setTimeout(() => heart.remove(), duration * 1000);
-        }
-
-        setInterval(createFloatingHeart, 350);
-
-        let isLoginMode = true;
-        const formTitle = document.getElementById('formTitle');
-        const actionBtn = document.getElementById('actionBtn');
-        const toggleSpan = document.getElementById('toggleMode');
-        const messageDiv = document.getElementById('messageArea');
-        const emailInput = document.getElementById('email');
-        const passwordInput = document.getElementById('password');
-        const nicknameInput = document.getElementById('nickname');
-        const nicknameGroup = document.getElementById('nicknameGroup');
-
-        function showMessage(msg, isError = true) {
-            messageDiv.textContent = msg;
-            messageDiv.style.background = isError ? '#ffe0d0' : '#d0ffd8';
-            messageDiv.style.color = isError ? '#b33c1a' : '#1f6e2f';
-            setTimeout(() => {
-                if(messageDiv.textContent === msg) messageDiv.textContent = '';
-            }, 2800);
-        }
-
-        function fakeRegister(email, password, nickname) {
-            if(!email.includes('@')) {
-                showMessage('📧 მეილი უნდა შეიცავდეს @', true);
-                return false;
-            }
-            if(password.length < 3) {
-                showMessage('🔒 პაროლი ≥ 3 სიმბოლო', true);
-                return false;
-            }
-            if(!nickname || nickname.trim().length < 2) {
-                showMessage('🌟 ნიკი მინიმუმ 2 სიმბოლო', true);
-                return false;
-            }
-
-            const users = JSON.parse(localStorage.getItem('kaifmania_users') || '{}');
-            if(users[email]) {
-                showMessage('⚠️ ეს მეილი უკვე არსებობს', true);
-                return false;
-            }
-            users[email] = { password: password, nickname: nickname.trim() };
-            localStorage.setItem('kaifmania_users', JSON.stringify(users));
-            showMessage(`✅ გილოცავ, ${nickname.trim()}! ახლა შემოდი`, false);
-            return true;
-        }
-
-        function fakeLogin(email, password) {
-            const users = JSON.parse(localStorage.getItem('kaifmania_users') || '{}');
-            if(!users[email]) {
-                showMessage('❌ მომხმარებელი არ არსებობს. დარეგისტრირდი', true);
-                return false;
-            }
-            if(users[email].password !== password) {
-                showMessage('🔒 პაროლი არასწორია', true);
-                return false;
-            }
-            const nickname = users[email].nickname;
-            localStorage.setItem('kaifmania_logged_in', email);
-            localStorage.setItem('kaifmania_nickname', nickname);
-            showMessage(`🎉 კაიფი დაიწყო, ${nickname}! გადაგვყავს...`, false);
-            setTimeout(() => {
-                window.location.href = 'chat.html';
-            }, 1200);
-            return true;
-        }
-
-        function handleMainAction() {
-            const email = emailInput.value.trim();
-            const password = passwordInput.value.trim();
-
-            if(!email || !password) {
-                showMessage('❗ მეილი და პაროლი სავალდებულოა', true);
-                return;
-            }
-
-            if(isLoginMode) {
-                fakeLogin(email, password);
-            } else {
-                const nickname = nicknameInput.value.trim();
-                const success = fakeRegister(email, password, nickname);
-                if(success) {
-                    isLoginMode = true;
-                    formTitle.innerText = '✨ შემოდი ✨';
-                    actionBtn.innerText = '🚀 შესვლა';
-                    toggleSpan.innerText = 'ახლავე რეგისტრაცია';
-                    nicknameGroup.style.display = 'none';
-                    emailInput.value = '';
-                    passwordInput.value = '';
-                    nicknameInput.value = '';
-                }
-            }
-        }
-
-        function toggleMode() {
-            isLoginMode = !isLoginMode;
-            if(isLoginMode) {
-                formTitle.innerText = '✨ შემოდი ✨';
-                actionBtn.innerText = '🚀 შესვლა';
-                toggleSpan.innerText = 'ახლავე რეგისტრაცია';
-                nicknameGroup.style.display = 'none';
-                messageDiv.textContent = '';
-            } else {
-                formTitle.innerText = '🎉 რეგისტრაცია 🎉';
-                actionBtn.innerText = '📝 რეგისტრაცია';
-                toggleSpan.innerText = 'უკვე გაქვს ანგარიში? შესვლა';
-                nicknameGroup.style.display = 'block';
-                messageDiv.textContent = '';
-            }
-        }
-
-        actionBtn.addEventListener('click', handleMainAction);
-        toggleSpan.addEventListener('click', toggleMode);
-
-        if(localStorage.getItem('kaifmania_logged_in')) {
-            window.location.href = 'chat.html';
-        }
-    })();
-</script>
 </body>
 </html>
