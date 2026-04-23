@@ -3,123 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>კაიფმანია 😎🔥</title>
+    <title>KAIFMANIA</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
         body {
             margin: 0;
-            background: radial-gradient(circle at center, #200000 0%, #000 100%);
+            background: #000;
             height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            font-family: 'Arial', sans-serif;
+            font-family: sans-serif;
             overflow: hidden;
-            /* 3D გარემო */
-            perspective: 2000px; 
+            perspective: 1200px; /* 3D-სთვის */
         }
 
-        /* --- სუპერ 3D ბარათი --- */
-        .card-container {
-            transform-style: preserve-3d;
-            animation: float 4s ease-in-out infinite;
-        }
-
-        .auth-card {
-            background: #0f0f0f;
-            padding: 50px 40px;
-            border-radius: 30px;
-            width: 340px;
+        /* 3D ბარათი */
+        .card {
+            background: #111;
+            padding: 40px;
+            border-radius: 20px;
+            width: 300px;
             text-align: center;
-            border: 3px solid #ff0000;
-            box-shadow: 0 0 40px rgba(255, 0, 0, 0.6), inset 0 0 20px rgba(255, 0, 0, 0.2);
-            
+            border: 2px solid #f00;
+            box-shadow: 0 0 20px #f00;
             /* ძლიერი დახრა */
-            transform: rotateY(-25deg) rotateX(15deg);
-            transform-style: preserve-3d;
-            transition: 0.5s ease;
+            transform: rotateY(-20deg) rotateX(10deg);
+            transition: 0.5s;
         }
 
-        .auth-card:hover {
-            transform: rotateY(0deg) rotateX(0deg) scale(1.05);
-        }
+        .card:hover { transform: rotate(0deg) scale(1.05); }
 
-        h2 {
-            color: #fff;
-            font-size: 30px;
-            text-shadow: 0 0 15px #ff0000;
-            margin-bottom: 40px;
-            transform: translateZ(50px); /* ტექსტი წინ გამოიწევა */
-        }
+        h1 { color: #fff; text-shadow: 0 0 10px #f00; margin-bottom: 30px; }
 
-        /* ველები */
         input {
             width: 100%;
-            padding: 16px;
-            margin: 12px 0;
-            border-radius: 15px;
-            border: 1px solid #444;
-            background: #1a1a1a;
-            color: white;
+            padding: 12px;
+            margin: 10px 0;
+            border-radius: 8px;
+            border: 1px solid #333;
+            background: #222;
+            color: #fff;
             box-sizing: border-box;
-            outline: none;
-            font-size: 16px;
-            transform: translateZ(30px);
         }
 
-        input:focus { border-color: #ff0000; box-shadow: 0 0 10px #ff0000; }
-
-        /* წითელი ღილაკები */
-        .btn {
+        button {
             width: 100%;
-            padding: 16px;
-            margin-top: 20px;
+            padding: 12px;
+            margin-top: 10px;
             border: none;
-            border-radius: 15px;
-            background: #ff0000;
-            color: white;
+            border-radius: 8px;
+            background: #f00;
+            color: #fff;
             font-weight: bold;
-            font-size: 18px;
             cursor: pointer;
-            box-shadow: 0 10px 20px rgba(255, 0, 0, 0.4);
-            transform: translateZ(40px);
-            transition: 0.3s;
         }
 
-        .btn:hover { background: #ff3333; transform: translateZ(60px) scale(1.05); }
-
-        /* მოძრავი გულები/ყვავილები */
-        .fly {
+        /* მოძრავი გულები */
+        .heart {
             position: fixed;
             top: 100%;
-            animation: moveUp 7s linear infinite;
+            animation: move 6s linear infinite;
+            color: #f00;
             pointer-events: none;
-            z-index: 1;
-            filter: drop-shadow(0 0 5px #ff0000);
         }
 
-        @keyframes moveUp {
-            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
-            15% { opacity: 1; }
-            100% { transform: translateY(-120vh) rotate(360deg); opacity: 0; }
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-15px); }
+        @keyframes move {
+            0% { transform: translateY(0); opacity: 1; }
+            100% { transform: translateY(-110vh); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <div class="card-container">
-        <div class="auth-card">
-            <h2>კაიფმანია 😎🔥</h2>
-            <input type="email" id="email" placeholder="ელ-ფოსტა">
-            <input type="password" id="pass" placeholder="პაროლი">
-            <button class="btn" onclick="auth('up')">რეგისტრაცია</button>
-            <button class="btn" onclick="auth('in')" style="background: #222; margin-top: 15px;">შესვლა</button>
-        </div>
+    <div class="card">
+        <h1>კაიფმანია 😎</h1>
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="pass" placeholder="Password">
+        <button onclick="auth()">შესვლა / რეგისტრაცია</button>
     </div>
 
     <script>
@@ -127,29 +88,21 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
         const sb = supabase.createClient(SB_URL, SB_KEY);
 
-        async function auth(type) {
+        async function auth() {
             const email = document.getElementById('email').value;
             const password = document.getElementById('pass').value;
-            if(!email || !password) return alert("შეავსე ველები!");
-
-            const { error } = type === 'up' 
-                ? await sb.auth.signUp({ email, password }) 
-                : await sb.auth.signInWithPassword({ email, password });
-
-            if(error) alert("ერორი: " + error.message);
-            else alert("წარმატებულია! შეამოწმე მეილი.");
+            const { error } = await sb.auth.signUp({ email, password });
+            if(error) alert(error.message); else alert("შესრულდა!");
         }
 
-        // გულების და ყვავილების გაშვება
         setInterval(() => {
-            const el = document.createElement('div');
-            el.className = 'fly';
-            el.innerText = ['❤️', '🌸', '💖', '🔥'][Math.floor(Math.random()*4)];
-            el.style.left = Math.random() * 100 + "vw";
-            el.style.fontSize = (Math.random() * 20 + 20) + "px";
-            document.body.appendChild(el);
-            setTimeout(() => el.remove(), 7000);
-        }, 350);
+            const h = document.createElement('div');
+            h.className = 'heart';
+            h.innerText = '❤️';
+            h.style.left = Math.random() * 100 + "vw";
+            document.body.appendChild(h);
+            setTimeout(() => h.remove(), 6000);
+        }, 500);
     </script>
 </body>
 </html>
