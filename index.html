@@ -3,178 +3,152 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaifmania - Welcome</title>
+    <title>კაიფმანია 😎🔥</title>
     <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
     <style>
-        /* ფერების და ეფექტების პალიტრა */
-        :root {
-            --neon: #ff007f; /* მთავარი ნეონ ვარდისფერი */
-            --neon-glow: 0 0 20px rgba(255, 0, 127, 0.7), 0 0 40px rgba(255, 0, 127, 0.5);
-            --glass: rgba(255, 255, 255, 0.03); /* მინის გამჭვირვალობა */
-            --bg: radial-gradient(circle at center, #1a001a 0%, #000000 100%);
-        }
-
+        /* მთავარი სტილები სკრინშოტის მიხედვით */
         body {
             margin: 0;
             padding: 0;
-            background: var(--bg);
+            background-color: #000000; /* შავი ფონი */
             color: white;
             display: flex;
             justify-content: center;
             align-items: center;
             height: 100vh;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            overflow: hidden;
-            perspective: 1500px; /* 3D სივრცის სიღრმე */
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            overflow: hidden; /* რომ გულებმა ეკრანი არ გაზარდონ */
         }
 
-        /* --- 3D დახრილი, მინის ბარათი --- */
+        /* --- ცენტრალური, "მაფია" ბარათი --- */
         .auth-card {
-            background: var(--glass);
-            backdrop-filter: blur(20px); /* ბუნდოვანი ფონი მინისთვის */
-            padding: 50px 40px;
-            border-radius: 35px;
-            border: 1px solid rgba(255, 0, 127, 0.3);
-            width: 360px;
+            background-color: #111111; /* ოდნავ ღია შავი ბარათისთვის */
+            padding: 50px 30px;
+            border-radius: 25px; /* მომრგვალებული კუთხეები */
             text-align: center;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.7), inset 0 0 15px rgba(255, 255, 255, 0.05);
-            
-            /* აი აქ არის 3D დახრა */
-            transform: rotateY(-15deg) rotateX(7deg) translateZ(10px);
-            transition: transform 0.6s ease, box-shadow 0.6s ease;
+            width: 340px;
+            position: relative;
             z-index: 10;
-            position: relative;
+            
+            /* წითელი ნეონის ნათება ბარათის გარშემო */
+            box-shadow: 0 0 20px #ff0000, 0 0 40px #aa0000;
+            border: 1px solid #440000;
+            
+            /* პატარა ანიმაცია გამოჩენისას */
+            animation: cardSpawn 0.6s ease-out;
         }
 
-        /* მაუსის მიტანისას ბარათი სწორდება და ახლოვდება */
-        .auth-card:hover {
-            transform: rotateY(-3deg) rotateX(2deg) translateZ(30px);
-            box-shadow: 0 35px 80px rgba(0,0,0,0.8), var(--neon-glow);
-            border-color: rgba(255, 0, 127, 0.6);
+        @keyframes cardSpawn {
+            0% { transform: scale(0.9); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
+        /* სათაური: კაიფმანია 😎🔥 */
         h2 {
-            color: var(--neon);
-            font-size: 32px;
-            text-transform: uppercase;
-            letter-spacing: 5px;
-            text-shadow: var(--neon-glow);
+            font-size: 28px;
             margin: 0 0 40px 0;
-            font-weight: 800;
+            font-weight: bold;
+            color: white;
+            text-shadow: 0 0 10px #ff0000; /* წითელი ნათება ტექსტზე */
         }
 
-        /* ინპუტების სტილი (Email/Password) */
+        /* --- ინპუტები (Email/Password) --- */
         .input-group {
-            position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            text-align: left;
         }
 
         input {
             width: 100%;
-            padding: 16px 16px 16px 45px; /* ადგილი იკონკისთვის */
-            border-radius: 18px;
-            border: 1px solid rgba(255,255,255,0.05);
-            background: rgba(0,0,0,0.5);
+            padding: 15px;
+            border-radius: 12px;
+            border: 1px solid #333;
+            background-color: #222; /* მუქი ინპუტები */
             color: white;
             font-size: 15px;
-            box-sizing: border-box;
+            box-sizing: border-box; /* რომ padding-მა ზომა არ გაზარდოს */
             outline: none;
             transition: 0.3s;
         }
 
+        /* ინპუტის ფოკუსი: წითელი კანტი */
         input:focus {
-            border-color: var(--neon);
-            box-shadow: inset 0 0 10px rgba(255, 0, 127, 0.2), 0 0 15px rgba(255, 0, 127, 0.1);
+            border-color: #ff0000;
+            box-shadow: 0 0 10px rgba(255, 0, 0, 0.3);
         }
 
-        /* პატარა იკონკები ინპუტებში */
-        .input-icon {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #555;
-            font-size: 18px;
-            transition: 0.3s;
-        }
-
-        input:focus + .input-icon {
-            color: var(--neon);
-        }
-
-        /* --- ულამაზესი ნეონ ღილაკი --- */
+        /* --- მკვეთრი წითელი ღილაკები --- */
         button {
             width: 100%;
-            padding: 16px;
-            margin-top: 25px;
+            padding: 15px;
+            margin-top: 15px;
             border: none;
-            border-radius: 18px;
-            background: linear-gradient(45deg, #ff007f, #ff4d6d, #ff007f);
-            background-size: 200% auto;
+            border-radius: 12px;
             color: white;
             font-weight: bold;
-            font-size: 17px;
+            font-size: 16px;
             cursor: pointer;
-            box-shadow: 0 8px 20px rgba(255, 0, 127, 0.3);
-            transition: 0.5s ease;
-            text-transform: uppercase;
+            transition: 0.3s;
+            text-transform: uppercase; /* დიდი ასოები */
             letter-spacing: 1px;
         }
 
-        button:hover {
-            background-position: right center; /* ანიმაცია ფერების */
-            transform: translateY(-3px) scale(1.03);
-            box-shadow: 0 12px 30px var(--neon), var(--neon-glow);
+        /* მთავარი ღილაკი: რეგისტრაცია */
+        .btn-reg {
+            background-color: #ff0000; /* მკვეთრი წითელი */
+            box-shadow: 0 5px 15px rgba(255, 0, 0, 0.4);
         }
 
-        /* რეჟიმის გადასართველი ტექსტი */
-        .toggle-txt {
-            margin-top: 20px;
-            font-size: 13px;
-            color: #888;
-            cursor: pointer;
-            transition: 0.3s;
+        .btn-reg:hover {
+            background-color: #ff3333;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 0, 0, 0.6);
         }
 
-        .toggle-txt:hover { color: #bbb; }
-        .toggle-txt b { color: var(--neon); text-shadow: 0 0 5px var(--neon); }
+        /* მეორე ღილაკი: შესვლა */
+        .btn-login {
+            background-color: #333; /* მუქი ნაცრისფერი */
+            margin-top: 10px;
+        }
 
-        /* --- ბევრი მცურავი ელემენტი --- */
-        .floating {
+        .btn-login:hover {
+            background-color: #444;
+        }
+
+        /* --- მოძრავი ყვავილები და გულები --- */
+        .floating-item {
             position: fixed;
-            top: 100%;
-            pointer-events: none;
-            animation: moveUp 8s linear infinite;
-            filter: drop-shadow(0 0 8px var(--neon));
-            z-index: 1;
+            top: 100%; /* იწყება ეკრანის დაბლიდან */
+            pointer-events: none; /* რომ მაუსმა ხელი არ შეუშალოს */
+            z-index: 1; /* ბარათის უკან */
+            animation: moveUp 7s linear infinite;
+            opacity: 0.8;
+            filter: drop-shadow(0 0 5px #ff0000); /* წითელი ნათება გულებზე */
         }
 
         @keyframes moveUp {
-            0% { transform: translateY(0) rotate(0deg) scale(0.4); opacity: 0; }
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
             10% { opacity: 1; }
             90% { opacity: 1; }
-            100% { transform: translateY(-120vh) rotate(360deg) scale(1.3); opacity: 0; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
         }
     </style>
 </head>
 <body>
 
     <div class="auth-card">
-        <h2>KAIFMANIA</h2>
+        <h2>კაიფმანია 😎🔥</h2>
         
         <div class="input-group">
             <input type="email" id="email" placeholder="ელ-ფოსტა" required>
-            <span class="input-icon">✉</span>
         </div>
         
         <div class="input-group">
             <input type="password" id="pass" placeholder="პაროლი" required>
-            <span class="input-icon">🔒</span>
         </div>
         
-        <button onclick="handleAuth()">დავიწყოთ ❤️</button>
-        
-        <p class="toggle-txt" id="modeBtn" onclick="toggleMode()">უკვე გაქვს აქაუნთი? <b>შესვლა</b></p>
+        <button class="btn-reg" onclick="handleAuth('up')">რეგისტრაცია</button>
+        <button class="btn-login" onclick="handleAuth('in')">შესვლა</button>
     </div>
 
     <script>
@@ -183,77 +157,52 @@
         const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
         const sb = supabase.createClient(SB_URL, SB_KEY);
 
-        let isLogin = false;
-
-        // ფორმის გადართვა (რეგისტრაცია/შესვლა)
-        function toggleMode() {
-            isLogin = !isLogin;
-            const title = document.querySelector('h2');
-            const btn = document.querySelector('button');
-            const link = document.getElementById('modeBtn');
-
-            if (isLogin) {
-                title.innerText = 'შესვლა';
-                btn.innerText = 'შესვლა';
-                link.innerHTML = 'არ გაქვს აქაუნთი? <b>რეგისტრაცია</b>';
-            } else {
-                title.innerText = 'KAIFMANIA';
-                btn.innerText = 'დავიწყოთ ❤️';
-                link.innerHTML = 'უკვე გაქვს აქაუნთი? <b>შესვლა</b>';
-            }
-        }
-
-        // ავტორიზაციის ლოგიკა
-        async function handleAuth() {
+        // ავტორიზაციის ფუნქცია (Sign Up / Sign In)
+        async function handleAuth(type) {
             const email = document.getElementById('email').value;
             const password = document.getElementById('pass').value;
             
-            if(!email || !password) return alert("გთხოვთ, შეავსოთ ყველა ველი!");
+            if(!email || !password) return alert("გთხოვთ, შეავსოთ ველები!");
 
-            if (isLogin) {
-                const { data, error } = await sb.auth.signInWithPassword({ email, password });
-                if(error) alert("შეცდომა შესვლისას: " + error.message);
-                else alert("მოგესალმებით, წარმატებით შეხვედით!");
-            } else {
-                const { data, error } = await sb.auth.signUp({ email, password });
-                if(error) alert("შეცდომა რეგისტრაციისას: " + error.message);
-                else alert("რეგისტრაცია დაწყებულია! გთხოვთ, შეამოწმოთ ელ-ფოსტა დასტურისთვის.");
-            }
+            const { data, error } = type === 'up' 
+                ? await sb.auth.signUp({ email, password }) 
+                : await sb.auth.signInWithPassword({ email, password });
+
+            if(error) alert("შეცდომა: " + error.message);
+            else alert(type === 'up' ? "რეგისტრაცია დაიწყო! ნახე მეილი." : "შესული ხარ!");
         }
 
-        // --- გულების, ყვავილების და ნაპერწკლების გენერატორი ---
-        function createFloatingElements() {
+        // --- მოძრავი გულების და ყვავილების გენერატორი ---
+        function createFloatingItems() {
             const container = document.body;
-            const items = ['❤️', '🌸', '💖', '✨', '🌹', '💎', '💫'];
+            const icons = ['❤️', '🌸', '💖', '✨', '🌹'];
             
+            // ყოველ 400 მილიწამში ჩნდება ახალი
             setInterval(() => {
                 const el = document.createElement('div');
-                el.className = 'floating';
-                el.innerText = items[Math.floor(Math.random() * items.length)];
+                el.className = 'floating-item';
+                el.innerText = icons[Math.floor(Math.random() * icons.length)];
                 
-                // შემთხვევითი პოზიცია და ზომა
+                // შემთხვევითი პოზიცია ჰორიზონტალურად
                 el.style.left = Math.random() * 100 + "vw";
-                el.style.fontSize = (Math.random() * 25 + 15) + "px";
+                
+                // შემთხვევითი ზომა
+                el.style.fontSize = (Math.random() * 20 + 15) + "px";
                 
                 // შემთხვევითი სიჩქარე (ანიმაციის ხანგრძლივობა)
-                const duration = Math.random() * 4 + 6; // 6-დან 10 წამამდე
-                el.style.animationDuration = duration + "s";
-                
-                // შემთხვევითი ბუნდოვანება სიღრმისთვის
-                const blur = Math.random() * 2;
-                el.style.filter = `drop-shadow(0 0 8px var(--neon)) blur(${blur}px)`;
+                el.style.animationDuration = (Math.random() * 3 + 5) + "s"; // 5-დან 8 წამამდე
 
                 container.appendChild(el);
 
-                // ელემენტის წაშლა ანიმაციის დასრულების შემდეგ
+                // წავშალოთ ელემენტი, როცა ანიმაცია დასრულდება
                 setTimeout(() => {
                     el.remove();
-                }, duration * 1000);
-            }, 250); // ელემენტების გაჩენის სიხშირე
+                }, 8000);
+            }, 400);
         }
 
-        // ჩავრთოთ ანიმაცია გვერდის ჩატვირთვისას
-        window.onload = createFloatingElements;
+        // ჩავრთოთ ანიმაცია
+        createFloatingItems();
     </script>
 </body>
 </html>
