@@ -1,1671 +1,353 @@
 <!DOCTYPE html>
-
-<html lang="ka" data-theme="dark">
+<html lang="ka">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ChatVerse</title>
-<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root {
-  --bg: #0d0d1a;
-  --bg2: #13132b;
-  --bg3: #1a1a35;
-  --panel: #16162e;
-  --border: #2a2a50;
-  --accent: #7c5cbf;
-  --accent2: #e040fb;
-  --accent3: #00e5ff;
-  --text: #e8e8ff;
-  --text2: #9090c0;
-  --online: #00e676;
-  --danger: #ff1744;
-  --gold: #ffd740;
-  --shadow: 0 8px 32px rgba(124,92,191,0.25);
-  --radius: 18px;
-  --user-color: #7c5cbf;
-}
-[data-theme="light"] {
-  --bg: #f0f0ff;
-  --bg2: #e8e8ff;
-  --bg3: #ffffff;
-  --panel: #f5f5ff;
-  --border: #d0d0f0;
-  --text: #1a1a3a;
-  --text2: #6060a0;
-  --shadow: 0 8px 32px rgba(124,92,191,0.15);
-}
-* { margin:0; padding:0; box-sizing:border-box; }
-body { font-family:'Nunito',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; overflow:hidden; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>კაიფმანია · შესვლა</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: system-ui, 'Segoe UI', 'Poppins', sans-serif;
+        }
 
-/* FLOATING PARTICLES */
-#particles { position:fixed; inset:0; pointer-events:none; z-index:0; overflow:hidden; }
-.particle { position:absolute; animation: floatUp linear infinite; opacity:0; font-size:20px; }
-@keyframes floatUp {
-0% { transform:translateY(100vh) rotate(0deg); opacity:0; }
-10% { opacity:0.7; }
-90% { opacity:0.5; }
-100% { transform:translateY(-10vh) rotate(360deg); opacity:0; }
-}
+        body {
+            min-height: 100vh;
+            background: linear-gradient(135deg, #1a1a2e, #16213e, #0f3460);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+        }
 
-/* AUTH */
-#auth-screen {
-position:fixed; inset:0; z-index:100;
-background:radial-gradient(ellipse at 30% 20%, #2a1a5e 0%, #0d0d1a 60%);
-display:flex; align-items:center; justify-content:center;
-}
-.auth-card {
-background:rgba(22,22,46,0.95);
-border:1px solid var(–border);
-border-radius:28px;
-padding:48px 40px;
-width:420px;
-box-shadow:0 0 80px rgba(124,92,191,0.3);
-position:relative; z-index:1;
-backdrop-filter:blur(20px);
-}
-.auth-logo { text-align:center; margin-bottom:32px; }
-.auth-logo h1 { font-size:2.5rem; font-weight:900; background:linear-gradient(135deg,#7c5cbf,#e040fb,#00e5ff); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.auth-logo p { color:var(–text2); font-size:.9rem; margin-top:4px; }
-.auth-tabs { display:flex; gap:4px; background:var(–bg); border-radius:12px; padding:4px; margin-bottom:28px; }
-.auth-tab { flex:1; padding:10px; border:none; border-radius:9px; cursor:pointer; font-family:inherit; font-weight:700; font-size:.9rem; transition:.2s; background:transparent; color:var(–text2); }
-.auth-tab.active { background:var(–accent); color:#fff; }
-.input-group { margin-bottom:16px; }
-.input-group label { display:block; font-size:.8rem; font-weight:700; color:var(–text2); margin-bottom:6px; text-transform:uppercase; letter-spacing:.05em; }
-.input-group input {
-width:100%; padding:13px 16px; border-radius:12px;
-border:1.5px solid var(–border); background:var(–bg2);
-color:var(–text); font-family:inherit; font-size:.95rem;
-transition:.2s; outline:none;
-}
-.input-group input:focus { border-color:var(–accent); box-shadow:0 0 0 3px rgba(124,92,191,0.2); }
-.btn-primary {
-width:100%; padding:14px; border:none; border-radius:14px;
-background:linear-gradient(135deg,var(–accent),var(–accent2));
-color:#fff; font-family:inherit; font-weight:800; font-size:1rem;
-cursor:pointer; transition:.2s; margin-top:8px;
-box-shadow:0 4px 20px rgba(124,92,191,0.4);
-}
-.btn-primary:hover { transform:translateY(-2px); box-shadow:0 8px 28px rgba(124,92,191,0.5); }
-.auth-error { color:#ff6b8a; font-size:.85rem; text-align:center; margin-top:12px; display:none; }
+        /* მცურავი გულები */
+        .hearts-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            overflow: hidden;
+        }
 
-/* LAYOUT */
-#app { display:none; height:100vh; flex-direction:column; position:relative; z-index:1; }
-.main-layout { display:flex; flex:1; overflow:hidden; }
+        .heart {
+            position: absolute;
+            bottom: 0;
+            font-size: 1.5rem;
+            opacity: 0.6;
+            animation: floatHeart 6s linear forwards;
+            user-select: none;
+            pointer-events: none;
+        }
 
-/* SIDEBAR */
-.sidebar {
-width:300px; background:var(–panel);
-border-right:1px solid var(–border);
-display:flex; flex-direction:column;
-transition:.3s;
-}
-.sidebar-header {
-padding:20px 16px 12px;
-border-bottom:1px solid var(–border);
-display:flex; align-items:center; gap:10px;
-}
-.sidebar-logo { font-size:1.3rem; font-weight:900; background:linear-gradient(135deg,#7c5cbf,#e040fb); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
-.sidebar-actions { margin-left:auto; display:flex; gap:6px; }
-.icon-btn {
-width:34px; height:34px; border:none; border-radius:9px;
-background:var(–bg3); color:var(–text2); cursor:pointer;
-display:flex; align-items:center; justify-content:center;
-font-size:16px; transition:.2s;
-}
-.icon-btn:hover { background:var(–accent); color:#fff; }
+        @keyframes floatHeart {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.7;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
 
-.sidebar-section { padding:12px 16px 6px; }
-.sidebar-section-title { font-size:.7rem; font-weight:800; color:var(–text2); text-transform:uppercase; letter-spacing:.1em; }
+        /* დახრილი მუქი ბარათი */
+        .login-card {
+            background: rgba(20, 20, 40, 0.85);
+            backdrop-filter: blur(15px);
+            border-radius: 2rem;
+            padding: 2rem 2rem 2.5rem;
+            width: 90%;
+            max-width: 420px;
+            box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.1);
+            z-index: 10;
+            transition: 0.3s;
+            transform: rotate(-1deg);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+        }
 
-.room-list { overflow-y:auto; flex:1; padding:8px; }
-.room-item {
-display:flex; align-items:center; gap:10px;
-padding:10px 12px; border-radius:12px; cursor:pointer;
-transition:.2s; margin-bottom:3px; position:relative;
-}
-.room-item:hover { background:var(–bg3); }
-.room-item.active { background:var(–accent); }
-.room-item.active .room-name { color:#fff; }
-.room-icon { width:36px; height:36px; border-radius:10px; background:var(–bg3); display:flex; align-items:center; justify-content:center; font-size:18px; flex-shrink:0; }
-.room-name { font-weight:700; font-size:.9rem; }
-.room-preview { font-size:.75rem; color:var(–text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; }
-.unread-badge { margin-left:auto; background:var(–accent2); color:#fff; border-radius:10px; padding:1px 7px; font-size:.72rem; font-weight:800; }
+        .login-card:hover {
+            transform: rotate(0deg) scale(1.01);
+            transition: 0.3s;
+        }
 
-/* TOP BAR */
-.topbar {
-height:60px; background:var(–panel);
-border-bottom:1px solid var(–border);
-display:flex; align-items:center; padding:0 20px; gap:12px;
-}
-.topbar-room { font-weight:800; font-size:1.05rem; }
-.topbar-info { font-size:.8rem; color:var(–text2); }
-.topbar-actions { margin-left:auto; display:flex; gap:6px; }
+        .logo {
+            text-align: center;
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+            filter: drop-shadow(0 0 10px #ff4d6d);
+        }
 
-/* CHAT AREA */
-.chat-area { flex:1; display:flex; flex-direction:column; min-width:0; }
-.messages {
-flex:1; overflow-y:auto; padding:20px;
-display:flex; flex-direction:column; gap:4px;
-}
-.messages::-webkit-scrollbar { width:6px; }
-.messages::-webkit-scrollbar-track { background:transparent; }
-.messages::-webkit-scrollbar-thumb { background:var(–border); border-radius:3px; }
+        h2 {
+            text-align: center;
+            color: #ffe6f0;
+            margin-bottom: 1.8rem;
+            font-weight: 600;
+            text-shadow: 0 2px 5px rgba(0,0,0,0.5);
+            font-size: 1.8rem;
+        }
 
-.msg-group { display:flex; flex-direction:column; gap:2px; }
-.msg-row { display:flex; align-items:flex-end; gap:10px; }
-.msg-row.own { flex-direction:row-reverse; }
-.msg-avatar {
-width:34px; height:34px; border-radius:50%; overflow:hidden;
-flex-shrink:0; cursor:pointer;
-}
-.msg-avatar img { width:100%; height:100%; object-fit:cover; }
-.msg-avatar-placeholder {
-width:34px; height:34px; border-radius:50%;
-display:flex; align-items:center; justify-content:center;
-font-weight:800; font-size:.9rem; flex-shrink:0; cursor:pointer;
-}
-.msg-content { max-width:65%; }
-.msg-header { display:flex; align-items:center; gap:6px; margin-bottom:3px; padding-left:4px; }
-.msg-nick { font-size:.8rem; font-weight:800; }
-.msg-role-badge { font-size:.65rem; padding:1px 6px; border-radius:6px; font-weight:800; }
-.role-founder { background:linear-gradient(135deg,#ffd740,#ff6d00); color:#000; }
-.role-admin { background:linear-gradient(135deg,#7c5cbf,#e040fb); color:#fff; }
-.msg-time { font-size:.7rem; color:var(–text2); }
-.msg-bubble {
-padding:10px 14px; border-radius:18px; font-size:.92rem; line-height:1.5;
-position:relative; word-break:break-word;
-cursor:pointer; transition:.1s;
-}
-.msg-bubble:hover { opacity:.92; }
-.msg-row:not(.own) .msg-bubble { background:var(–bg3); border-bottom-left-radius:5px; }
-.msg-row.own .msg-bubble { background:var(–accent); color:#fff; border-bottom-right-radius:5px; }
+        .input-group {
+            margin-bottom: 1.2rem;
+        }
 
-.msg-reactions { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
-.reaction-chip {
-background:var(–bg3); border:1px solid var(–border);
-border-radius:12px; padding:2px 8px; font-size:.78rem;
-cursor:pointer; transition:.2s; user-select:none;
-display:flex; align-items:center; gap:3px;
-}
-.reaction-chip:hover, .reaction-chip.mine { background:var(–accent); border-color:var(–accent); color:#fff; }
+        input {
+            width: 100%;
+            padding: 14px 18px;
+            border: none;
+            border-radius: 60px;
+            background: rgba(30, 30, 50, 0.9);
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+            color: #f0f0f0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
 
-.system-msg { text-align:center; font-size:.78rem; color:var(–text2); padding:8px; }
+        input:focus {
+            background: #1e1e3a;
+            box-shadow: 0 0 0 3px rgba(255, 77, 109, 0.4);
+            border-color: #ff4d6d;
+        }
 
-/* INPUT AREA */
-.input-area {
-padding:16px 20px;
-border-top:1px solid var(–border);
-background:var(–panel);
-}
-.input-toolbar { display:flex; gap:6px; margin-bottom:8px; }
-.toolbar-btn {
-padding:5px 10px; border:1px solid var(–border);
-border-radius:8px; background:transparent;
-color:var(–text2); cursor:pointer; font-size:.82rem;
-font-family:‘Fira Code’,monospace; transition:.2s;
-}
-.toolbar-btn:hover { background:var(–accent); color:#fff; border-color:var(–accent); }
-.input-row { display:flex; gap:10px; align-items:flex-end; }
-#msg-input {
-flex:1; padding:12px 16px; border-radius:14px;
-border:1.5px solid var(–border); background:var(–bg2);
-color:var(–text); font-family:inherit; font-size:.95rem;
-resize:none; outline:none; max-height:120px; line-height:1.5;
-transition:.2s;
-}
-#msg-input:focus { border-color:var(–accent); }
-.send-btn {
-width:46px; height:46px; border-radius:12px;
-background:linear-gradient(135deg,var(–accent),var(–accent2));
-border:none; color:#fff; cursor:pointer; font-size:20px;
-display:flex; align-items:center; justify-content:center;
-transition:.2s; flex-shrink:0;
-}
-.send-btn:hover { transform:scale(1.08); }
-.emoji-toggle {
-width:40px; height:40px; border-radius:11px;
-background:var(–bg3); border:1px solid var(–border);
-color:var(–text2); cursor:pointer; font-size:20px;
-display:flex; align-items:center; justify-content:center; transition:.2s;
-}
-.emoji-toggle:hover { background:var(–accent); color:#fff; }
+        input::placeholder {
+            color: #aaaacc;
+        }
 
-/* EMOJI PANEL */
-.emoji-panel {
-position:absolute; bottom:90px; left:20px;
-background:var(–panel); border:1px solid var(–border);
-border-radius:18px; padding:12px; width:340px;
-box-shadow:var(–shadow); z-index:50; display:none;
-}
-.emoji-panel.show { display:block; animation:fadeUp .2s; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-.emoji-cats { display:flex; gap:4px; margin-bottom:10px; overflow-x:auto; }
-.emoji-cat { padding:5px 10px; border-radius:8px; border:none; background:transparent; cursor:pointer; font-size:18px; transition:.2s; }
-.emoji-cat.active { background:var(–accent); }
-.emoji-grid { display:grid; grid-template-columns:repeat(8,1fr); gap:4px; max-height:200px; overflow-y:auto; }
-.emoji-grid span { font-size:22px; cursor:pointer; text-align:center; padding:4px; border-radius:6px; transition:.1s; }
-.emoji-grid span:hover { background:var(–bg3); transform:scale(1.2); }
-.custom-emoji-row { margin-top:10px; border-top:1px solid var(–border); padding-top:10px; display:flex; gap:6px; flex-wrap:wrap; }
-.custom-emoji-item { font-size:28px; cursor:pointer; padding:4px; border-radius:6px; transition:.2s; }
-.custom-emoji-item:hover { background:var(–bg3); transform:scale(1.2); }
-.custom-emoji-item img { width:32px; height:32px; border-radius:6px; }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: #ff4d6d;
+            border: none;
+            border-radius: 60px;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
 
-/* RIGHT PANEL */
-.right-panel {
-width:260px; background:var(–panel);
-border-left:1px solid var(–border);
-display:flex; flex-direction:column;
-transition:.3s;
-}
-.right-panel-tabs { display:flex; border-bottom:1px solid var(–border); }
-.rpanel-tab { flex:1; padding:12px; border:none; background:transparent; color:var(–text2); cursor:pointer; font-family:inherit; font-weight:700; font-size:.8rem; transition:.2s; }
-.rpanel-tab.active { color:var(–accent); border-bottom:2px solid var(–accent); }
-.members-list { overflow-y:auto; flex:1; padding:10px; }
-.member-item {
-display:flex; align-items:center; gap:9px;
-padding:8px 10px; border-radius:11px; cursor:pointer;
-transition:.2s; position:relative;
-}
-.member-item:hover { background:var(–bg3); }
-.member-avatar {
-width:34px; height:34px; border-radius:50%; overflow:hidden;
-position:relative; flex-shrink:0;
-}
-.member-avatar img { width:100%; height:100%; object-fit:cover; }
-.member-avatar-ph { width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:.85rem; }
-.online-dot {
-width:10px; height:10px; border-radius:50%; background:var(–online);
-position:absolute; bottom:1px; right:1px;
-border:2px solid var(–panel);
-}
-.member-info { flex:1; min-width:0; }
-.member-name { font-size:.85rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.member-status { font-size:.72rem; color:var(–text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.member-role { margin-left:auto; font-size:.65rem; }
+        button:hover {
+            background: #ff1e4d;
+            transform: scale(0.98);
+        }
 
-/* CONTEXT MENU */
-.ctx-menu {
-position:fixed; background:var(–panel);
-border:1px solid var(–border); border-radius:14px;
-padding:6px; min-width:180px; z-index:200;
-box-shadow:var(–shadow); display:none;
-animation:fadeUp .15s;
-}
-.ctx-menu.show { display:block; }
-.ctx-item {
-padding:9px 14px; border-radius:9px; cursor:pointer;
-font-size:.88rem; font-weight:600; display:flex; align-items:center; gap:8px;
-transition:.15s;
-}
-.ctx-item:hover { background:var(–bg3); }
-.ctx-item.danger { color:var(–danger); }
-.ctx-item.danger:hover { background:rgba(255,23,68,.1); }
-.ctx-sep { height:1px; background:var(–border); margin:4px 0; }
+        .toggle-text {
+            text-align: center;
+            margin-top: 1.5rem;
+            color: #ccccee;
+            font-size: 0.9rem;
+        }
 
-/* REACTION PICKER */
-.reaction-picker {
-position:fixed; background:var(–panel);
-border:1px solid var(–border); border-radius:50px;
-padding:8px 12px; z-index:200; display:none;
-box-shadow:var(–shadow); gap:6px;
-animation:fadeUp .15s;
-}
-.reaction-picker.show { display:flex; }
-.react-emoji { font-size:24px; cursor:pointer; padding:4px; border-radius:8px; transition:.15s; }
-.react-emoji:hover { transform:scale(1.3); background:var(–bg3); }
+        .toggle-text span {
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: underline;
+            transition: 0.2s;
+            color: #ff99aa;
+        }
 
-/* MODAL */
-.modal-overlay {
-position:fixed; inset:0; background:rgba(0,0,0,.6);
-z-index:300; display:none; align-items:center; justify-content:center;
-backdrop-filter:blur(4px);
-}
-.modal-overlay.show { display:flex; }
-.modal {
-background:var(–panel); border:1px solid var(–border);
-border-radius:24px; padding:32px; width:480px;
-max-width:95vw; box-shadow:var(–shadow);
-animation:fadeUp .2s;
-}
-.modal h2 { font-size:1.3rem; font-weight:800; margin-bottom:20px; }
-.modal-actions { display:flex; gap:10px; margin-top:20px; justify-content:flex-end; }
-.btn-secondary {
-padding:10px 20px; border-radius:11px;
-border:1px solid var(–border); background:transparent;
-color:var(–text); font-family:inherit; font-weight:700;
-cursor:pointer; transition:.2s;
-}
-.btn-secondary:hover { background:var(–bg3); }
-.btn-danger {
-padding:10px 20px; border-radius:11px;
-border:none; background:var(–danger);
-color:#fff; font-family:inherit; font-weight:700;
-cursor:pointer; transition:.2s;
-}
+        .toggle-text span:hover {
+            color: #ff4d6d;
+        }
 
-/* PM MODAL */
-.pm-modal {
-position:fixed; bottom:20px; right:20px;
-width:360px; height:480px;
-background:var(–panel); border:1px solid var(–border);
-border-radius:20px; z-index:150; display:none;
-flex-direction:column; box-shadow:var(–shadow);
-animation:fadeUp .2s;
-}
-.pm-modal.show { display:flex; }
-.pm-header {
-padding:14px 16px; border-bottom:1px solid var(–border);
-display:flex; align-items:center; gap:10px;
-}
-.pm-title { font-weight:800; font-size:.95rem; flex:1; }
-.pm-close { width:28px; height:28px; border:none; background:var(–bg3); border-radius:8px; cursor:pointer; color:var(–text2); font-size:16px; display:flex; align-items:center; justify-content:center; }
-.pm-messages { flex:1; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:6px; }
-.pm-msg-row { display:flex; align-items:flex-end; gap:6px; }
-.pm-msg-row.own { flex-direction:row-reverse; }
-.pm-bubble {
-padding:8px 12px; border-radius:14px; font-size:.88rem;
-max-width:70%; word-break:break-word; position:relative;
-}
-.pm-msg-row:not(.own) .pm-bubble { background:var(–bg3); }
-.pm-msg-row.own .pm-bubble { background:var(–accent); color:#fff; }
-.pm-seen { font-size:.68rem; color:var(–text2); margin-top:2px; text-align:right; }
-.pm-input-row { padding:12px; border-top:1px solid var(–border); display:flex; gap:8px; align-items:flex-end; }
-.pm-input {
-flex:1; padding:9px 12px; border-radius:11px;
-border:1px solid var(–border); background:var(–bg2);
-color:var(–text); font-family:inherit; font-size:.88rem;
-outline:none; resize:none; max-height:80px;
-}
-.pm-input:focus { border-color:var(–accent); }
-.pm-send-btn { width:36px; height:36px; border-radius:10px; background:var(–accent); border:none; color:#fff; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; }
-.pm-voice-btn { width:36px; height:36px; border-radius:10px; background:var(–bg3); border:1px solid var(–border); color:var(–text2); cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; transition:.2s; }
-.pm-voice-btn:hover { background:var(–danger); color:#fff; }
-.pm-voice-btn.recording { background:var(–danger); color:#fff; animation:pulse 1s infinite; }
-@keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
-.pm-indicator {
-position:fixed; bottom:20px; right:390px;
-background:var(–panel); border:1px solid var(–border);
-border-radius:50px; padding:8px 14px;
-display:none; align-items:center; gap:8px;
-z-index:149; cursor:pointer; box-shadow:var(–shadow);
-}
-.pm-indicator.show { display:flex; }
-.pm-unread-dot { width:8px; height:8px; border-radius:50%; background:var(–accent2); }
+        .message {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            background: rgba(0,0,0,0.6);
+            border-radius: 50px;
+            padding: 8px;
+            color: #f9f9f9;
+        }
 
-/* PROFILE PANEL */
-.profile-panel {
-position:fixed; right:-320px; top:0; bottom:0;
-width:320px; background:var(–panel);
-border-left:1px solid var(–border); z-index:100;
-transition:.3s; overflow-y:auto; padding:24px;
-}
-.profile-panel.open { right:0; }
-.profile-cover {
-height:100px; border-radius:16px; margin-bottom:-30px;
-background:linear-gradient(135deg,var(–accent),var(–accent2));
-position:relative;
-}
-.profile-avatar-wrap { display:flex; justify-content:center; margin-bottom:12px; }
-.profile-avatar {
-width:70px; height:70px; border-radius:50%;
-border:4px solid var(–panel); overflow:hidden;
-cursor:pointer; position:relative;
-}
-.profile-avatar img { width:100%; height:100%; object-fit:cover; }
-.profile-name { text-align:center; font-size:1.1rem; font-weight:800; }
-.profile-status { text-align:center; font-size:.82rem; color:var(–text2); margin-bottom:16px; }
-.profile-emotion { text-align:center; font-size:1.5rem; margin-bottom:12px; }
-.profile-section { margin-bottom:16px; }
-.profile-section-title { font-size:.72rem; font-weight:800; color:var(–text2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:8px; }
-.album-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:4px; border-radius:10px; overflow:hidden; }
-.album-photo { aspect-ratio:1; object-fit:cover; width:100%; cursor:pointer; transition:.2s; }
-.album-photo:hover { opacity:.8; }
-.add-photo-btn {
-aspect-ratio:1; border:2px dashed var(–border);
-border-radius:10px; display:flex; flex-direction:column;
-align-items:center; justify-content:center;
-cursor:pointer; color:var(–text2); font-size:.72rem;
-transition:.2s;
-}
-.add-photo-btn:hover { border-color:var(–accent); color:var(–accent); }
-
-/* USER PANEL */
-.user-panel {
-padding:12px 16px;
-border-top:1px solid var(–border);
-display:flex; align-items:center; gap:10px;
-}
-.user-panel-avatar { width:36px; height:36px; border-radius:50%; overflow:hidden; cursor:pointer; }
-.user-panel-avatar img { width:100%; height:100%; object-fit:cover; }
-.user-panel-ph { width:36px; height:36px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:800; cursor:pointer; }
-.user-panel-info { flex:1; min-width:0; }
-.user-panel-name { font-weight:800; font-size:.88rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-.user-panel-tag { font-size:.72rem; color:var(–text2); }
-.user-panel-actions { display:flex; gap:4px; }
-
-/* THEME PICKER */
-.theme-panel {
-position:fixed; bottom:80px; left:16px;
-background:var(–panel); border:1px solid var(–border);
-border-radius:16px; padding:14px; z-index:100;
-display:none; box-shadow:var(–shadow);
-}
-.theme-panel.show { display:block; }
-.theme-colors { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px; }
-.color-swatch { width:28px; height:28px; border-radius:50%; cursor:pointer; border:2px solid transparent; transition:.2s; }
-.color-swatch:hover { transform:scale(1.2); }
-.color-swatch.active { border-color:#fff; }
-.theme-toggle-row { display:flex; align-items:center; justify-content:space-between; }
-.toggle-switch { position:relative; width:40px; height:22px; }
-.toggle-switch input { opacity:0; width:0; height:0; }
-.toggle-slider {
-position:absolute; cursor:pointer; inset:0;
-background:var(–border); border-radius:11px; transition:.3s;
-}
-.toggle-slider::before {
-content:””; position:absolute; height:16px; width:16px;
-left:3px; bottom:3px; background:#fff; border-radius:50%;
-transition:.3s;
-}
-.toggle-switch input:checked + .toggle-slider { background:var(–accent); }
-.toggle-switch input:checked + .toggle-slider::before { transform:translateX(18px); }
-
-/* ADMIN PANEL */
-.admin-panel-modal .modal { width:600px; }
-.admin-section { margin-bottom:20px; }
-.admin-section h3 { font-size:.9rem; font-weight:800; color:var(–text2); text-transform:uppercase; letter-spacing:.08em; margin-bottom:10px; }
-.user-manage-row {
-display:flex; align-items:center; gap:10px;
-padding:10px 12px; border-radius:11px;
-background:var(–bg2); margin-bottom:6px;
-}
-.umr-name { flex:1; font-weight:700; font-size:.88rem; }
-.umr-actions { display:flex; gap:4px; }
-.umr-btn {
-padding:4px 10px; border-radius:7px; border:none;
-font-family:inherit; font-size:.75rem; font-weight:700; cursor:pointer; transition:.2s;
-}
-.umr-btn.block { background:rgba(255,23,68,.15); color:var(–danger); }
-.umr-btn.block:hover { background:var(–danger); color:#fff; }
-.umr-btn.admin { background:rgba(124,92,191,.15); color:var(–accent); }
-.umr-btn.admin:hover { background:var(–accent); color:#fff; }
-.umr-btn.founder { background:rgba(255,215,64,.15); color:var(–gold); }
-.umr-btn.founder:hover { background:var(–gold); color:#000; }
-.umr-btn.remove-role { background:rgba(0,229,255,.1); color:var(–accent3); }
-.umr-btn.remove-role:hover { background:var(–accent3); color:#000; }
-.custom-emoji-add { display:flex; gap:8px; margin-top:8px; }
-.custom-emoji-add input {
-flex:1; padding:8px 12px; border-radius:9px;
-border:1px solid var(–border); background:var(–bg2);
-color:var(–text); font-family:inherit; font-size:.88rem; outline:none;
-}
-.custom-emoji-add button {
-padding:8px 14px; border-radius:9px; border:none;
-background:var(–accent); color:#fff; font-family:inherit;
-font-weight:700; cursor:pointer;
-}
-
-/* VOICE MSG */
-.voice-msg {
-display:flex; align-items:center; gap:8px;
-padding:8px 12px; border-radius:14px;
-background:var(–bg2); min-width:160px;
-}
-.voice-play { width:32px; height:32px; border-radius:50%; background:var(–accent); border:none; color:#fff; cursor:pointer; font-size:14px; display:flex; align-items:center; justify-content:center; }
-.voice-wave { flex:1; height:24px; }
-.voice-dur { font-size:.72rem; color:var(–text2); }
-
-/* TOAST */
-.toast-container { position:fixed; top:20px; right:20px; z-index:400; display:flex; flex-direction:column; gap:8px; }
-.toast {
-background:var(–panel); border:1px solid var(–border);
-border-radius:12px; padding:12px 16px;
-font-size:.88rem; font-weight:600;
-box-shadow:var(–shadow); animation:slideIn .3s;
-max-width:300px;
-}
-@keyframes slideIn { from{opacity:0;transform:translateX(20px)} to{opacity:1;transform:translateX(0)} }
-.toast.success { border-color:var(–online); }
-.toast.error { border-color:var(–danger); }
-
-/* SCROLLBAR */
-::-webkit-scrollbar { width:5px; height:5px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:var(–border); border-radius:3px; }
-
-/* TYPING INDICATOR */
-.typing-indicator { display:flex; align-items:center; gap:3px; padding:6px 14px; border-radius:18px; background:var(–bg3); width:fit-content; }
-.typing-dot { width:6px; height:6px; border-radius:50%; background:var(–text2); animation:typingDot 1.2s infinite; }
-.typing-dot:nth-child(2) { animation-delay:.2s; }
-.typing-dot:nth-child(3) { animation-delay:.4s; }
-@keyframes typingDot { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
-
-/* STATUS INPUT */
-.status-modal .modal { width:400px; }
-.status-emotions { display:flex; gap:8px; flex-wrap:wrap; margin:10px 0; }
-.status-emotion { font-size:24px; cursor:pointer; padding:4px; border-radius:8px; transition:.2s; }
-.status-emotion:hover, .status-emotion.selected { background:var(–bg3); transform:scale(1.2); }
-</style>
-
+        footer {
+            text-align: center;
+            margin-top: 1.8rem;
+            font-size: 0.7rem;
+            color: #aaaacc;
+        }
+    </style>
 </head>
 <body>
 
-<div id="particles"></div>
-<div class="toast-container" id="toasts"></div>
+<div class="hearts-container" id="heartsContainer"></div>
 
-<!-- AUTH SCREEN -->
-
-<div id="auth-screen">
-  <div class="auth-card">
-    <div class="auth-logo">
-      <h1>✨ ChatVerse</h1>
-      <p>შეუერთდი საუბარს</p>
+<div class="login-card">
+    <div class="logo">🔥 კაიფმანია 🔥</div>
+    <h2 id="formTitle">✨ შესვლა ✨</h2>
+    
+    <!-- ნიკის ველი (რეგისტრაციის დროს გამოჩნდება) -->
+    <div class="input-group" id="nicknameGroup" style="display: none;">
+        <input type="text" id="nickname" placeholder="🏷️ ნიკი (მომხმარებლის სახელი)">
     </div>
-    <div class="auth-tabs">
-      <button class="auth-tab active" onclick="switchAuth('login')">შესვლა</button>
-      <button class="auth-tab" onclick="switchAuth('register')">რეგისტრაცია</button>
+    
+    <div class="input-group">
+        <input type="email" id="email" placeholder="📧 ელ. ფოსტა" autocomplete="email">
     </div>
-    <div id="login-form">
-      <div class="input-group"><label>ელ-ფოსტა</label><input type="email" id="login-email" placeholder="you@example.com"></div>
-      <div class="input-group"><label>პაროლი</label><input type="password" id="login-pass" placeholder="••••••••"></div>
-      <button class="btn-primary" onclick="doLogin()">🚀 შევიდე</button>
+    <div class="input-group">
+        <input type="password" id="password" placeholder="🔒 პაროლი">
     </div>
-    <div id="register-form" style="display:none">
-      <div class="input-group"><label>მომხმარებლის სახელი</label><input type="text" id="reg-nick" placeholder="CoolUser123"></div>
-      <div class="input-group"><label>ელ-ფოსტა</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
-      <div class="input-group"><label>პაროლი</label><input type="password" id="reg-pass" placeholder="••••••••"></div>
-      <button class="btn-primary" onclick="doRegister()">🌟 რეგისტრაცია</button>
+    <button id="actionBtn">შესვლა</button>
+    <div class="toggle-text">
+        არ გაქვს ანგარიში? <span id="toggleMode">რეგისტრაცია</span>
     </div>
-    <p class="auth-error" id="auth-error"></p>
-  </div>
-</div>
-
-<!-- MAIN APP -->
-
-<div id="app">
-  <div class="main-layout">
-    <!-- SIDEBAR -->
-    <div class="sidebar">
-      <div class="sidebar-header">
-        <span class="sidebar-logo">✨ ChatVerse</span>
-        <div class="sidebar-actions">
-          <button class="icon-btn" onclick="toggleThemePanel()" title="თემა">🎨</button>
-          <button class="icon-btn" id="admin-btn" onclick="openAdminPanel()" title="ადმინ პანელი" style="display:none">⚙️</button>
-        </div>
-      </div>
-      <div class="sidebar-section"><span class="sidebar-section-title">💬 ოთახები</span></div>
-      <div class="room-list" id="room-list"></div>
-      <div class="user-panel">
-        <div id="up-avatar-wrap"></div>
-        <div class="user-panel-info">
-          <div class="user-panel-name" id="up-name">-</div>
-          <div class="user-panel-tag" id="up-tag">#0000</div>
-        </div>
-        <div class="user-panel-actions">
-          <button class="icon-btn" onclick="openProfile(null)" title="პროფილი">👤</button>
-          <button class="icon-btn" onclick="doLogout()" title="გასვლა">🚪</button>
-        </div>
-      </div>
-    </div>
-
-```
-<!-- CHAT -->
-<div class="chat-area">
-  <div class="topbar">
-    <span id="topbar-icon" style="font-size:22px">💬</span>
-    <div>
-      <div class="topbar-room" id="topbar-room">ოთახი</div>
-      <div class="topbar-info" id="topbar-info">0 წევრი</div>
-    </div>
-    <div class="topbar-actions">
-      <button class="icon-btn" onclick="toggleRightPanel()" title="წევრები">👥</button>
-      <button class="icon-btn" id="friends-btn" onclick="openFriendsModal()" title="მეგობრები">🫂</button>
-    </div>
-  </div>
-  <div class="messages" id="messages"></div>
-  <div style="padding:0 20px 4px;position:relative;">
-    <div id="typing-area" style="min-height:24px;"></div>
-  </div>
-  <div class="input-area" style="position:relative">
-    <div class="input-toolbar">
-      <button class="toolbar-btn" onclick="applyFormat('bold')" title="Bold"><b>B</b></button>
-      <button class="toolbar-btn" onclick="applyFormat('italic')" title="Italic"><i>I</i></button>
-      <button class="toolbar-btn" onclick="applyFormat('underline')" title="Underline"><u>U</u></button>
-      <button class="toolbar-btn" onclick="applyFormat('strikethrough')" title="Strikethrough"><s>S</s></button>
-      <button class="toolbar-btn" onclick="pickTextColor()" title="ფერი" style="font-size:16px">🎨</button>
-      <input type="color" id="text-color-input" style="display:none" onchange="setTextColor(this.value)">
-    </div>
-    <div class="input-row">
-      <button class="emoji-toggle" onclick="toggleEmoji()">😊</button>
-      <textarea id="msg-input" rows="1" placeholder="დაწერე შეტყობინება..." oninput="autoResize(this);onTyping()" onkeydown="handleMsgKey(event)"></textarea>
-      <button class="send-btn" onclick="sendMessage()">➤</button>
-    </div>
-    <div class="emoji-panel" id="emoji-panel">
-      <div class="emoji-cats" id="emoji-cats"></div>
-      <div class="emoji-grid" id="emoji-grid"></div>
-      <div class="custom-emoji-row" id="custom-emojis-row"></div>
-    </div>
-  </div>
-</div>
-
-<!-- RIGHT PANEL -->
-<div class="right-panel" id="right-panel">
-  <div class="right-panel-tabs">
-    <button class="rpanel-tab active" onclick="switchRPanel('members')">წევრები</button>
-    <button class="rpanel-tab" onclick="switchRPanel('friends')">მეგობრები</button>
-  </div>
-  <div class="members-list" id="members-list"></div>
-</div>
-```
-
-  </div>
-</div>
-
-<!-- THEME PANEL -->
-
-<div class="theme-panel" id="theme-panel">
-  <div style="font-size:.8rem;font-weight:800;color:var(--text2);margin-bottom:8px;text-transform:uppercase;">ფერის თემა</div>
-  <div class="theme-colors" id="theme-colors"></div>
-  <div class="theme-toggle-row">
-    <span style="font-size:.85rem;font-weight:700">🌙 ბნელი რეჟიმი</span>
-    <label class="toggle-switch">
-      <input type="checkbox" id="dark-toggle" checked onchange="toggleDarkMode(this.checked)">
-      <span class="toggle-slider"></span>
-    </label>
-  </div>
-</div>
-
-<!-- CONTEXT MENU -->
-
-<div class="ctx-menu" id="ctx-menu"></div>
-
-<!-- REACTION PICKER -->
-
-<div class="reaction-picker" id="reaction-picker">
-  <span class="react-emoji" onclick="addReaction('❤️')">❤️</span>
-  <span class="react-emoji" onclick="addReaction('😂')">😂</span>
-  <span class="react-emoji" onclick="addReaction('😮')">😮</span>
-  <span class="react-emoji" onclick="addReaction('😢')">😢</span>
-  <span class="react-emoji" onclick="addReaction('😡')">😡</span>
-  <span class="react-emoji" onclick="addReaction('👍')">👍</span>
-  <span class="react-emoji" onclick="addReaction('🔥')">🔥</span>
-  <span class="react-emoji" onclick="addReaction('💯')">💯</span>
-</div>
-
-<!-- PM MODAL -->
-
-<div class="pm-modal" id="pm-modal">
-  <div class="pm-header">
-    <div id="pm-avatar-wrap"></div>
-    <div class="pm-title" id="pm-title">პირადი შეტყობინება</div>
-    <button class="pm-close" onclick="closePM()">✕</button>
-  </div>
-  <div class="pm-messages" id="pm-messages"></div>
-  <div class="pm-input-row">
-    <textarea class="pm-input" id="pm-input" rows="1" placeholder="შეტყობინება..." oninput="autoResize(this)" onkeydown="handlePMKey(event)"></textarea>
-    <button class="pm-voice-btn" id="pm-voice-btn" onclick="toggleVoiceRecord()">🎙️</button>
-    <button class="pm-send-btn" onclick="sendPM()">➤</button>
-  </div>
-</div>
-<div class="pm-indicator" id="pm-indicator" onclick="openPMIndicator()">
-  <div class="pm-unread-dot"></div>
-  <span id="pm-indicator-name" style="font-size:.85rem;font-weight:700"></span>
-</div>
-
-<!-- PROFILE PANEL -->
-
-<div class="profile-panel" id="profile-panel">
-  <button class="icon-btn" onclick="closeProfile()" style="margin-bottom:12px">✕ დახურვა</button>
-  <div class="profile-cover" id="profile-cover"></div>
-  <div class="profile-avatar-wrap" style="margin-top:0">
-    <div class="profile-avatar" id="profile-avatar-wrap">
-      <img id="profile-avatar-img" src="" style="display:none">
-      <div id="profile-avatar-ph" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center;font-size:1.8rem;font-weight:800;"></div>
-    </div>
-  </div>
-  <div class="profile-name" id="profile-name">-</div>
-  <div class="profile-emotion" id="profile-emotion"></div>
-  <div class="profile-status" id="profile-status"></div>
-  <div id="profile-self-actions" style="display:none;margin-bottom:12px">
-    <button class="btn-primary" onclick="openStatusModal()" style="font-size:.85rem;padding:9px">✏️ სტატუსის შეცვლა</button>
-    <input type="file" id="avatar-file-input" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
-    <button class="btn-secondary" onclick="document.getElementById('avatar-file-input').click()" style="width:100%;margin-top:6px;font-size:.85rem">📸 ავატარის შეცვლა</button>
-  </div>
-  <div id="profile-other-actions" style="display:none;margin-bottom:12px;display:flex;flex-direction:column;gap:6px">
-    <button class="btn-primary" onclick="sendFriendRequest()" id="friend-action-btn" style="font-size:.85rem;padding:9px">➕ მეგობრად დამატება</button>
-    <button class="btn-secondary" onclick="openPMFromProfile()" style="font-size:.85rem;padding:9px;width:100%">💬 პირადი შეტყობინება</button>
-  </div>
-  <div class="profile-section">
-    <div class="profile-section-title">📸 ფოტო ალბომი</div>
-    <div class="album-grid" id="profile-album"></div>
-  </div>
-</div>
-
-<!-- MODALS -->
-
-<!-- Friends Modal -->
-
-<div class="modal-overlay" id="friends-modal">
-  <div class="modal" style="width:500px">
-    <h2>🫂 მეგობრები</h2>
-    <div class="auth-tabs" style="margin-bottom:16px">
-      <button class="auth-tab active" onclick="switchFriendsTab('list')">სია</button>
-      <button class="auth-tab" onclick="switchFriendsTab('requests')">მოთხოვნები</button>
-    </div>
-    <div id="friends-list-content"></div>
-    <div class="modal-actions"><button class="btn-secondary" onclick="closeFriendsModal()">დახურვა</button></div>
-  </div>
-</div>
-
-<!-- Status Modal -->
-
-<div class="modal-overlay status-modal" id="status-modal">
-  <div class="modal">
-    <h2>✨ სტატუსი & ემოცია</h2>
-    <div class="input-group"><label>სტატუსის ტექსტი</label><input type="text" id="status-text-input" placeholder="რას აკეთებ?"></div>
-    <div style="font-size:.8rem;font-weight:800;color:var(--text2);margin-bottom:6px;text-transform:uppercase">ემოცია</div>
-    <div class="status-emotions" id="status-emotions"></div>
-    <div class="modal-actions">
-      <button class="btn-secondary" onclick="closeStatusModal()">გაუქმება</button>
-      <button class="btn-primary" style="width:auto;padding:10px 20px" onclick="saveStatus()">შენახვა</button>
-    </div>
-  </div>
-</div>
-
-<!-- Admin Panel -->
-
-<div class="modal-overlay admin-panel-modal" id="admin-modal">
-  <div class="modal" style="width:620px;max-height:80vh;overflow-y:auto">
-    <h2>⚙️ ადმინ პანელი</h2>
-    <div class="admin-section">
-      <h3>👥 მომხმარებლების მართვა</h3>
-      <div id="admin-users-list"></div>
-    </div>
-    <div id="founder-section" style="display:none">
-      <div class="admin-section">
-        <h3>🎭 მოძრავი სმაილების დამატება</h3>
-        <div style="font-size:.82rem;color:var(--text2);margin-bottom:8px">URL ან emoji შეიყვანეთ</div>
-        <div class="custom-emoji-add">
-          <input type="text" id="custom-emoji-input" placeholder="😎 ან https://...gif">
-          <button onclick="addCustomEmoji()">დამატება</button>
-        </div>
-        <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px" id="admin-custom-emojis"></div>
-      </div>
-    </div>
-    <div class="modal-actions"><button class="btn-secondary" onclick="closeAdminPanel()">დახურვა</button></div>
-  </div>
+    <div class="message" id="messageArea"></div>
+    <footer>❤️ მცურავი გულები + კაიფმანია ❤️</footer>
 </div>
 
 <script>
-const SUPABASE_URL = 'https://brggiyhfzfbmlirqfgpo.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-// STATE
-let currentUser = null, currentProfile = null, currentRoom = null;
-let rooms = [], messages = [], members = [];
-let customEmojis = [], msgSubscription = null, typingTimeout = null;
-let contextTarget = null, reactionTarget = null, pmTarget = null;
-let pmUnread = 0, isRecording = false, mediaRecorder = null, recordedChunks = [];
-let selectedEmotion = '', currentEmojiCat = 0, friendsList = [];
-
-const ROOMS = [
-  {id:1,name:'🌟 ოთახი 1',icon:'🌟'},{id:2,name:'🔥 ოთახი 2',icon:'🔥'},
-  {id:3,name:'💎 ოთახი 3',icon:'💎'},{id:4,name:'🎮 ოთახი 4',icon:'🎮'},
-  {id:5,name:'🎵 ოთახი 5',icon:'🎵'},{id:6,name:'🌊 ოთახი 6',icon:'🌊'},
-  {id:7,name:'🦋 ოთახი 7',icon:'🦋'},{id:8,name:'🌺 ოთახი 8',icon:'🌺'},
-  {id:9,name:'⚡ ოთახი 9',icon:'⚡'},{id:10,name:'🎭 ოთახი 10',icon:'🎭'},
-  {id:11,name:'🌙 ოთახი 11',icon:'🌙'},{id:12,name:'✨ ოთახი 12',icon:'✨'}
-];
-
-const EMOJI_CATS = [
-  {label:'😊',emojis:'😀😁😂🤣😃😄😅😆😉😊😋😎😍🥰😘🤩😗😙😚☺️🙂🤗😇'},
-  {label:'❤️',emojis:'❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕💞💓💗💖💘💝'},
-  {label:'👍',emojis:'👍👎👌✌️🤞🤟🤘🤙👋🤚🖐️✋🖖👏🙌🤲'},
-  {label:'🔥',emojis:'🔥💥⭐🌟✨💫🎉🎊🎈🎁🏆🥇🎯🎪🎭🎨🎬'},
-  {label:'🐱',emojis:'🐶🐱🐭🐹🐰🦊🐻🐼🐨🐯🦁🐮🐷🐸🐵🙈🙉🙊'},
-  {label:'🌸',emojis:'🌸🌺🌻🌹🌷💐🌼🌿🍀🌱🌲🌳🍁🍂🍃'}
-];
-
-const THEME_COLORS = [
-  {name:'Purple',accent:'#7c5cbf',accent2:'#e040fb',accent3:'#00e5ff'},
-  {name:'Blue',accent:'#1976d2',accent2:'#42a5f5',accent3:'#00bcd4'},
-  {name:'Green',accent:'#2e7d32',accent2:'#66bb6a',accent3:'#26c6da'},
-  {name:'Pink',accent:'#c2185b',accent2:'#f06292',accent3:'#f48fb1'},
-  {name:'Orange',accent:'#e65100',accent2:'#ff9800',accent3:'#ffd740'},
-  {name:'Teal',accent:'#00695c',accent2:'#26a69a',accent3:'#80cbc4'},
-  {name:'Red',accent:'#b71c1c',accent2:'#ef5350',accent3:'#ff8a65'},
-  {name:'Indigo',accent:'#283593',accent2:'#5c6bc0',accent3:'#80deea'},
-];
-
-const EMOTIONS = ['😊','🥰','😎','🤔','😴','🤩','😤','😢','🥳','😌','🫡','🔥','💪','🎉','🤗'];
-const STATUS_EMOTIONS = [...EMOTIONS];
-
-// INIT PARTICLES
-function initParticles() {
-  const container = document.getElementById('particles');
-  const symbols = ['❤️','💜','💙','💚','💛','🌸','🌺','🌼','✨','💫','🌟','⭐'];
-  for(let i=0;i<25;i++) {
-    const el = document.createElement('div');
-    el.className = 'particle';
-    el.textContent = symbols[Math.floor(Math.random()*symbols.length)];
-    el.style.left = Math.random()*100+'%';
-    el.style.animationDuration = (8+Math.random()*12)+'s';
-    el.style.animationDelay = (Math.random()*15)+'s';
-    el.style.fontSize = (14+Math.random()*12)+'px';
-    container.appendChild(el);
-  }
-}
-
-// AUTH
-function switchAuth(tab) {
-  document.querySelectorAll('.auth-tab').forEach((t,i)=>t.classList.toggle('active',i===(tab==='login'?0:1)));
-  document.getElementById('login-form').style.display=tab==='login'?'block':'none';
-  document.getElementById('register-form').style.display=tab==='register'?'block':'none';
-  document.getElementById('auth-error').style.display='none';
-}
-
-async function doLogin() {
-  const email=document.getElementById('login-email').value.trim();
-  const pass=document.getElementById('login-pass').value;
-  if(!email||!pass){showAuthError('შეავსე ყველა ველი');return;}
-  const {data,error}=await sb.auth.signInWithPassword({email,password:pass});
-  if(error){showAuthError(error.message);return;}
-  await initApp(data.user);
-}
-
-async function doRegister() {
-  const nick=document.getElementById('reg-nick').value.trim();
-  const email=document.getElementById('reg-email').value.trim();
-  const pass=document.getElementById('reg-pass').value;
-  if(!nick||!email||!pass){showAuthError('შეავსე ყველა ველი');return;}
-  const {data,error}=await sb.auth.signUp({email,password:pass,options:{data:{username:nick}}});
-  if(error){showAuthError(error.message);return;}
-  if(data.user){
-    await sb.from('profiles').upsert({id:data.user.id,username:nick,email,role:'member',created_at:new Date().toISOString()});
-    toast('✅ რეგისტრაცია წარმატებულია! შედი სისტემაში.','success');
-    switchAuth('login');
-  }
-}
-
-async function doLogout() {
-  await sb.auth.signOut();
-  currentUser=null; currentProfile=null;
-  document.getElementById('app').style.display='none';
-  document.getElementById('auth-screen').style.display='flex';
-  if(msgSubscription){sb.removeChannel(msgSubscription);}
-}
-
-function showAuthError(msg) {
-  const el=document.getElementById('auth-error');
-  el.textContent=msg; el.style.display='block';
-}
-
-// INIT APP
-async function initApp(user) {
-  currentUser=user;
-  const {data}=await sb.from('profiles').select('*').eq('id',user.id).single();
-  if(!data){
-    const nick=user.user_metadata?.username||user.email.split('@')[0];
-    await sb.from('profiles').upsert({id:user.id,username:nick,email:user.email,role:'member',created_at:new Date().toISOString()});
-    const {data:d2}=await sb.from('profiles').select('*').eq('id',user.id).single();
-    currentProfile=d2;
-  } else { currentProfile=data; }
-  document.getElementById('auth-screen').style.display='none';
-  document.getElementById('app').style.display='flex';
-  renderUserPanel();
-  renderRooms();
-  initThemePanel();
-  initEmojiPanel();
-  renderStatusEmotions();
-  loadCustomEmojis();
-  await selectRoom(ROOMS[0]);
-  if(currentProfile.role==='admin'||currentProfile.role==='founder'){
-    document.getElementById('admin-btn').style.display='flex';
-  }
-}
-
-// USER PANEL
-function renderUserPanel() {
-  const wrap=document.getElementById('up-avatar-wrap');
-  const color=getColor(currentProfile.username);
-  if(currentProfile.avatar_url){
-    wrap.innerHTML=`<div class="user-panel-avatar"><img src="${currentProfile.avatar_url}"></div>`;
-  } else {
-    wrap.innerHTML=`<div class="user-panel-ph" style="background:${color};color:#fff">${currentProfile.username[0].toUpperCase()}</div>`;
-  }
-  wrap.onclick=()=>openProfile(null);
-  document.getElementById('up-name').textContent=currentProfile.username;
-  document.getElementById('up-tag').textContent=currentProfile.role==='founder'?'👑 დამფუძვნებელი':currentProfile.role==='admin'?'⭐ ადმინი':'#'+currentProfile.id.slice(-4).toUpperCase();
-}
-
-// ROOMS
-function renderRooms() {
-  const list=document.getElementById('room-list');
-  list.innerHTML='';
-  ROOMS.forEach(r=>{
-    const el=document.createElement('div');
-    el.className='room-item'+(currentRoom?.id===r.id?' active':'');
-    el.innerHTML=`<div class="room-icon">${r.icon}</div><div><div class="room-name">${r.name}</div></div>`;
-    el.onclick=()=>selectRoom(r);
-    list.appendChild(el);
-  });
-}
-
-async function selectRoom(room) {
-  currentRoom=room;
-  renderRooms();
-  document.getElementById('topbar-room').textContent=room.name;
-  document.getElementById('topbar-icon').textContent=room.icon;
-  if(msgSubscription) sb.removeChannel(msgSubscription);
-  await loadMessages();
-  subscribeMessages();
-  await loadMembers();
-}
-
-// MESSAGES
-async function loadMessages() {
-  const {data}=await sb.from('messages').select('*,profiles(username,avatar_url,role)').eq('room_id',currentRoom.id).order('created_at',{ascending:true}).limit(100);
-  messages=data||[];
-  renderMessages();
-}
-
-function renderMessages() {
-  const container=document.getElementById('messages');
-  container.innerHTML='';
-  messages.forEach(msg=>container.appendChild(createMsgEl(msg)));
-  container.scrollTop=container.scrollHeight;
-}
-
-function createMsgEl(msg) {
-  const isOwn=msg.user_id===currentUser.id;
-  const isAdminOrFounder=(currentProfile.role==='admin'||currentProfile.role==='founder');
-  const profile=msg.profiles||{username:'?',role:'member'};
-  const color=getColor(profile.username);
-  const row=document.createElement('div');
-  row.className='msg-row'+(isOwn?' own':'');
-  row.dataset.msgId=msg.id;
-
-  // Avatar
-  let avatarHtml='';
-  if(profile.avatar_url){
-    avatarHtml=`<div class="msg-avatar" onclick="openProfile('${msg.user_id}')"><img src="${profile.avatar_url}"></div>`;
-  } else {
-    avatarHtml=`<div class="msg-avatar-placeholder" style="background:${color};color:#fff" onclick="openProfile('${msg.user_id}')">${profile.username[0].toUpperCase()}</div>`;
-  }
-
-  let roleBadge='';
-  if(profile.role==='founder') roleBadge='<span class="msg-role-badge role-founder">👑</span>';
-  else if(profile.role==='admin') roleBadge='<span class="msg-role-badge role-admin">⭐</span>';
-
-  const time=formatTime(msg.created_at);
-  let bodyHtml='';
-  if(msg.type==='voice'){
-    bodyHtml=`<div class="voice-msg"><button class="voice-play" onclick="playVoice('${msg.content}')">▶</button><svg class="voice-wave" viewBox="0 0 100 24"><rect x="5" y="8" width="3" height="8" rx="1.5" fill="var(--accent)"/><rect x="11" y="4" width="3" height="16" rx="1.5" fill="var(--accent)"/><rect x="17" y="6" width="3" height="12" rx="1.5" fill="var(--accent)"/><rect x="23" y="9" width="3" height="6" rx="1.5" fill="var(--accent)"/><rect x="29" y="3" width="3" height="18" rx="1.5" fill="var(--accent)"/><rect x="35" y="7" width="3" height="10" rx="1.5" fill="var(--accent)"/><rect x="41" y="5" width="3" height="14" rx="1.5" fill="var(--accent)"/><rect x="47" y="8" width="3" height="8" rx="1.5" fill="var(--accent)"/><rect x="53" y="2" width="3" height="20" rx="1.5" fill="var(--accent)"/><rect x="59" y="6" width="3" height="12" rx="1.5" fill="var(--accent)"/><rect x="65" y="9" width="3" height="6" rx="1.5" fill="var(--accent)"/><rect x="71" y="4" width="3" height="16" rx="1.5" fill="var(--accent)"/><rect x="77" y="7" width="3" height="10" rx="1.5" fill="var(--accent)"/><rect x="83" y="10" width="3" height="4" rx="1.5" fill="var(--accent)"/><rect x="89" y="8" width="3" height="8" rx="1.5" fill="var(--accent)"/></svg><span class="voice-dur">🎙️</span></div>`;
-  } else {
-    bodyHtml=`<span style="${msg.style||''}">${escHtml(msg.content||'')}</span>`;
-  }
-
-  let reactions=[];
-  try{ reactions=JSON.parse(msg.reactions||'[]'); }catch{}
-  let reactHtml='<div class="msg-reactions">';
-  const grouped={};
-  reactions.forEach(r=>{ if(!grouped[r.emoji])grouped[r.emoji]=[]; grouped[r.emoji].push(r.user_id); });
-  Object.entries(grouped).forEach(([emoji,users])=>{
-    const mine=users.includes(currentUser.id);
-    reactHtml+=`<div class="reaction-chip${mine?' mine':''}" onclick="addReactionToMsg('${msg.id}','${emoji}')">${emoji} ${users.length}</div>`;
-  });
-  reactHtml+='</div>';
-
-  let deleteBtn='';
-  if(isAdminOrFounder||isOwn){
-    deleteBtn=`<button onclick="deleteMsg('${msg.id}')" style="background:none;border:none;color:var(--text2);cursor:pointer;font-size:12px;padding:2px 4px;border-radius:4px;transition:.2s" onmouseover="this.style.color='var(--danger)'" onmouseout="this.style.color='var(--text2)'">🗑</button>`;
-  }
-
-  row.innerHTML=`
-    ${isOwn?'':avatarHtml}
-    <div class="msg-content">
-      ${isOwn?'':`<div class="msg-header">${roleBadge}<span class="msg-nick" style="color:${color}">${escHtml(profile.username)}</span><span class="msg-time">${time}</span>${deleteBtn}</div>`}
-      <div class="msg-bubble" oncontextmenu="showReactionPicker(event,'${msg.id}')" onclick="handleBubbleClick(event,'${msg.id}')">
-        ${bodyHtml}
-      </div>
-      ${isOwn?`<div style="display:flex;align-items:center;justify-content:flex-end;gap:4px;margin-top:2px"><span class="msg-time">${time}</span>${deleteBtn}</div>`:''}
-      ${reactHtml}
-    </div>
-    ${isOwn?avatarHtml:''}
-  `;
-  return row;
-}
-
-function subscribeMessages() {
-  msgSubscription=sb.channel('room-'+currentRoom.id)
-    .on('postgres_changes',{event:'*',schema:'public',table:'messages',filter:`room_id=eq.${currentRoom.id}`},payload=>{
-      if(payload.eventType==='INSERT'){
-        sb.from('messages').select('*,profiles(username,avatar_url,role)').eq('id',payload.new.id).single().then(({data})=>{
-          if(data){messages.push(data); const c=document.getElementById('messages'); c.appendChild(createMsgEl(data)); c.scrollTop=c.scrollHeight;}
-        });
-      } else if(payload.eventType==='DELETE'){
-        messages=messages.filter(m=>m.id!==payload.old.id);
-        const el=document.querySelector(`[data-msg-id="${payload.old.id}"]`);
-        if(el)el.remove();
-      } else if(payload.eventType==='UPDATE'){
-        const idx=messages.findIndex(m=>m.id===payload.new.id);
-        if(idx>-1){messages[idx]={...messages[idx],...payload.new};}
-        sb.from('messages').select('*,profiles(username,avatar_url,role)').eq('id',payload.new.id).single().then(({data})=>{
-          if(data){const el=document.querySelector(`[data-msg-id="${data.id}"]`);if(el)el.replaceWith(createMsgEl(data));}
-        });
-      }
-    }).subscribe();
-}
-
-async function sendMessage() {
-  const input=document.getElementById('msg-input');
-  const raw=input.value.trim(); if(!raw) return;
-  const style=currentTextStyle||'';
-  input.value=''; input.style.height='auto';
-  currentTextStyle='';
-  await sb.from('messages').insert({room_id:currentRoom.id,user_id:currentUser.id,content:raw,type:'text',style,created_at:new Date().toISOString(),reactions:'[]'});
-}
-
-function handleMsgKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}}
-
-async function deleteMsg(id) {
-  await sb.from('messages').delete().eq('id',id);
-}
-
-function handleBubbleClick(e,msgId){
-  if(e.target.closest('.reaction-chip'))return;
-}
-
-function showReactionPicker(e,msgId) {
-  e.preventDefault();
-  reactionTarget=msgId;
-  const picker=document.getElementById('reaction-picker');
-  picker.style.left=Math.min(e.clientX,window.innerWidth-300)+'px';
-  picker.style.top=(e.clientY-60)+'px';
-  picker.classList.add('show');
-  setTimeout(()=>document.addEventListener('click',hideReactionPicker,{once:true}),50);
-}
-
-function hideReactionPicker(){document.getElementById('reaction-picker').classList.remove('show');}
-
-async function addReaction(emoji) {
-  if(!reactionTarget)return;
-  addReactionToMsg(reactionTarget,emoji);
-  reactionTarget=null;
-}
-
-async function addReactionToMsg(msgId,emoji) {
-  const {data}=await sb.from('messages').select('reactions').eq('id',msgId).single();
-  let reactions=[]; try{reactions=JSON.parse(data.reactions||'[]');}catch{}
-  const idx=reactions.findIndex(r=>r.emoji===emoji&&r.user_id===currentUser.id);
-  if(idx>-1) reactions.splice(idx,1);
-  else reactions.push({emoji,user_id:currentUser.id});
-  await sb.from('messages').update({reactions:JSON.stringify(reactions)}).eq('id',msgId);
-}
-
-// TYPING
-let typingChannel=null;
-function onTyping(){
-  clearTimeout(typingTimeout);
-  typingTimeout=setTimeout(()=>{},2000);
-}
-
-// MEMBERS
-async function loadMembers() {
-  const {data}=await sb.from('profiles').select('*').neq('role','banned').limit(50);
-  members=data||[];
-  renderMembers();
-  document.getElementById('topbar-info').textContent=members.length+' წევრი';
-}
-
-function renderMembers(list,containerId='members-list') {
-  const target=list||members;
-  const container=document.getElementById(containerId);
-  container.innerHTML='';
-  target.forEach(m=>{
-    const color=getColor(m.username);
-    const el=document.createElement('div');
-    el.className='member-item';
-    let avatarHtml=m.avatar_url?`<div class="member-avatar"><img src="${m.avatar_url}"><div class="online-dot"></div></div>`:`<div class="member-avatar-ph" style="background:${color};color:#fff"><span>${m.username[0].toUpperCase()}</span><div class="online-dot" style="position:relative;display:inline-block;width:10px;height:10px;border-radius:50%;background:var(--online);margin-left:2px"></div></div>`;
-    // Simpler
-    const avEl=document.createElement('div');
-    avEl.style.position='relative';avEl.style.flexShrink='0';
-    if(m.avatar_url){
-      avEl.innerHTML=`<img src="${m.avatar_url}" style="width:34px;height:34px;border-radius:50%;object-fit:cover">`;
-    } else {
-      avEl.innerHTML=`<div style="width:34px;height:34px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">${m.username[0].toUpperCase()}</div>`;
-    }
-    avEl.innerHTML+=`<div class="online-dot"></div>`;
-    let roleBadge=m.role==='founder'?'👑':m.role==='admin'?'⭐':'';
-    el.appendChild(avEl);
-    el.innerHTML+=`<div class="member-info"><div class="member-name">${escHtml(m.username)} ${roleBadge}</div><div class="member-status">${escHtml(m.status_text||'')}</div></div>`;
-    el.onclick=()=>{openProfile(m.id);};
-    el.oncontextmenu=(e)=>{e.preventDefault();showMemberCtx(e,m);};
-    container.appendChild(el);
-  });
-}
-
-// CONTEXT MENU
-function showMemberCtx(e,member) {
-  const menu=document.getElementById('ctx-menu');
-  const isAdmin=currentProfile.role==='admin'||currentProfile.role==='founder';
-  const isFounder=currentProfile.role==='founder';
-  if(!isAdmin){menu.innerHTML='';return;}
-  let html=`<div class="ctx-item" onclick="startPM('${member.id}','${escHtml(member.username)}')">💬 პირადი შეტყობინება</div><div class="ctx-sep"></div>`;
-  if(isAdmin){
-    html+=`<div class="ctx-item" onclick="setRole('${member.id}','admin')">⭐ ადმინის მინიჭება</div>`;
-    html+=`<div class="ctx-item" onclick="setRole('${member.id}','member')">🔓 როლის მოხსნა</div>`;
-    html+=`<div class="ctx-item danger" onclick="banUser('${member.id}')">🚫 დაბლოკვა</div>`;
-  }
-  if(isFounder){
-    html+=`<div class="ctx-sep"></div><div class="ctx-item" onclick="setRole('${member.id}','founder')">👑 დამფუძვნებლის მინიჭება</div>`;
-  }
-  menu.innerHTML=html;
-  menu.style.left=Math.min(e.clientX,window.innerWidth-200)+'px';
-  menu.style.top=Math.min(e.clientY,window.innerHeight-200)+'px';
-  menu.classList.add('show');
-  setTimeout(()=>document.addEventListener('click',()=>menu.classList.remove('show'),{once:true}),50);
-}
-
-async function setRole(userId,role){
-  await sb.from('profiles').update({role}).eq('id',userId);
-  toast('✅ როლი შეიცვალა','success');
-  loadMembers();
-}
-async function banUser(userId){
-  await sb.from('profiles').update({role:'banned'}).eq('id',userId);
-  toast('🚫 მომხმარებელი დაბლოკილია','success');
-  loadMembers();
-}
-
-// PM
-let pmMessages=[], pmSubscription=null;
-
-function startPM(userId,username) {
-  pmTarget={id:userId,username};
-  document.getElementById('pm-title').textContent='💬 '+username;
-  const wrap=document.getElementById('pm-avatar-wrap');
-  const m=members.find(x=>x.id===userId);
-  if(m){
-    const color=getColor(m.username);
-    wrap.innerHTML=m.avatar_url?`<img src="${m.avatar_url}" style="width:32px;height:32px;border-radius:50%;object-fit:cover">`:`<div style="width:32px;height:32px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">${m.username[0].toUpperCase()}</div>`;
-  }
-  document.getElementById('pm-modal').classList.add('show');
-  loadPMMessages(userId);
-}
-
-async function loadPMMessages(userId){
-  const {data}=await sb.from('private_messages').select('*').or(`and(sender_id.eq.${currentUser.id},receiver_id.eq.${userId}),and(sender_id.eq.${userId},receiver_id.eq.${currentUser.id})`).order('created_at',{ascending:true}).limit(100);
-  pmMessages=data||[];
-  renderPMMessages();
-  await sb.from('private_messages').update({seen:true}).eq('receiver_id',currentUser.id).eq('sender_id',userId);
-}
-
-function renderPMMessages(){
-  const c=document.getElementById('pm-messages'); c.innerHTML='';
-  pmMessages.forEach(msg=>{
-    const isOwn=msg.sender_id===currentUser.id;
-    const row=document.createElement('div');
-    row.className='pm-msg-row'+(isOwn?' own':'');
-    let content='';
-    if(msg.type==='voice'){
-      content=`<div class="voice-msg" style="background:${isOwn?'rgba(255,255,255,0.1)':'var(--bg2)'}"><button class="voice-play" onclick="playVoice('${msg.content}')">▶</button><span class="voice-dur">🎙️ ხმა</span></div>`;
-    } else {
-      content=escHtml(msg.content||'');
-    }
-    let reactions=[];try{reactions=JSON.parse(msg.reactions||'[]');}catch{}
-    const grouped={};
-    reactions.forEach(r=>{if(!grouped[r.emoji])grouped[r.emoji]=[];grouped[r.emoji].push(r.user_id);});
-    let reactHtml='<div class="msg-reactions" style="justify-content:'+(isOwn?'flex-end':'flex-start')+'">';
-    Object.entries(grouped).forEach(([emoji,users])=>{
-      const mine=users.includes(currentUser.id);
-      reactHtml+=`<div class="reaction-chip${mine?' mine':''}" onclick="addPMReaction('${msg.id}','${emoji}')">${emoji} ${users.length}</div>`;
-    });
-    reactHtml+='</div>';
-    row.innerHTML=`<div class="pm-bubble" oncontextmenu="showPMReactionPicker(event,'${msg.id}')">${content}</div>`;
-    if(isOwn&&msg.seen) row.innerHTML+=`<div class="pm-seen">✓✓ ნანახია</div>`;
-    c.appendChild(row);
-    c.appendChild(Object.assign(document.createElement('div'),{innerHTML:reactHtml}));
-  });
-  c.scrollTop=c.scrollHeight;
-}
-
-async function sendPM(){
-  const input=document.getElementById('pm-input');
-  const text=input.value.trim(); if(!text||!pmTarget)return;
-  input.value=''; input.style.height='auto';
-  await sb.from('private_messages').insert({sender_id:currentUser.id,receiver_id:pmTarget.id,content:text,type:'text',created_at:new Date().toISOString(),seen:false,reactions:'[]'});
-  await loadPMMessages(pmTarget.id);
-}
-
-function handlePMKey(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendPM();}}
-function closePM(){document.getElementById('pm-modal').classList.remove('show');}
-
-async function toggleVoiceRecord(){
-  if(!isRecording){
-    try{
-      const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-      mediaRecorder=new MediaRecorder(stream);
-      recordedChunks=[];
-      mediaRecorder.ondataavailable=e=>{if(e.data.size>0)recordedChunks.push(e.data);};
-      mediaRecorder.onstop=async()=>{
-        const blob=new Blob(recordedChunks,{type:'audio/webm'});
-        const reader=new FileReader();
-        reader.onloadend=async()=>{
-          const base64=reader.result;
-          if(pmTarget){
-            await sb.from('private_messages').insert({sender_id:currentUser.id,receiver_id:pmTarget.id,content:base64,type:'voice',created_at:new Date().toISOString(),seen:false,reactions:'[]'});
-            await loadPMMessages(pmTarget.id);
-          }
-        };
-        reader.readAsDataURL(blob);
-        stream.getTracks().forEach(t=>t.stop());
-      };
-      mediaRecorder.start();
-      isRecording=true;
-      const btn=document.getElementById('pm-voice-btn');
-      btn.classList.add('recording'); btn.textContent='⏹️';
-    }catch(e){toast('🎙️ მიკროფონი მიუწვდომელია','error');}
-  } else {
-    mediaRecorder.stop(); isRecording=false;
-    const btn=document.getElementById('pm-voice-btn');
-    btn.classList.remove('recording'); btn.textContent='🎙️';
-  }
-}
-
-function playVoice(src){
-  const audio=new Audio(src); audio.play();
-}
-
-function showPMReactionPicker(e,msgId){
-  e.preventDefault();
-  reactionTarget='pm:'+msgId;
-  const picker=document.getElementById('reaction-picker');
-  picker.style.left=Math.min(e.clientX,window.innerWidth-300)+'px';
-  picker.style.top=(e.clientY-60)+'px';
-  picker.classList.add('show');
-  setTimeout(()=>document.addEventListener('click',hideReactionPicker,{once:true}),50);
-}
-
-async function addPMReaction(msgId,emoji){
-  const {data}=await sb.from('private_messages').select('reactions').eq('id',msgId).single();
-  let reactions=[]; try{reactions=JSON.parse(data?.reactions||'[]');}catch{}
-  const idx=reactions.findIndex(r=>r.emoji===emoji&&r.user_id===currentUser.id);
-  if(idx>-1)reactions.splice(idx,1);
-  else reactions.push({emoji,user_id:currentUser.id});
-  await sb.from('private_messages').update({reactions:JSON.stringify(reactions)}).eq('id',msgId);
-  if(pmTarget) await loadPMMessages(pmTarget.id);
-}
-
-// PROFILE
-let viewingProfile=null;
-async function openProfile(userId){
-  const id=userId||currentUser.id;
-  const {data}=await sb.from('profiles').select('*').eq('id',id).single();
-  if(!data)return;
-  viewingProfile=data;
-  const panel=document.getElementById('profile-panel');
-  const isSelf=id===currentUser.id;
-  document.getElementById('profile-name').textContent=data.username;
-  document.getElementById('profile-emotion').textContent=data.emotion||'';
-  document.getElementById('profile-status').textContent=data.status_text||'სტატუსი არ არის';
-  const color=getColor(data.username);
-  document.getElementById('profile-cover').style.background=`linear-gradient(135deg,${color},${adjustColor(color)})`;
-  const imgEl=document.getElementById('profile-avatar-img');
-  const phEl=document.getElementById('profile-avatar-ph');
-  if(data.avatar_url){imgEl.src=data.avatar_url;imgEl.style.display='block';phEl.style.display='none';}
-  else{phEl.textContent=data.username[0].toUpperCase();phEl.style.display='flex';imgEl.style.display='none';}
-  document.getElementById('profile-self-actions').style.display=isSelf?'block':'none';
-  document.getElementById('profile-other-actions').style.display=isSelf?'none':'flex';
-  // Album
-  const {data:photos}=await sb.from('photos').select('*').eq('user_id',id).limit(9);
-  const albumEl=document.getElementById('profile-album');
-  albumEl.innerHTML='';
-  (photos||[]).forEach(p=>{
-    const img=document.createElement('img');
-    img.className='album-photo'; img.src=p.url;
-    albumEl.appendChild(img);
-  });
-  if(isSelf){
-    const addBtn=document.createElement('div');
-    addBtn.className='add-photo-btn';
-    addBtn.innerHTML='<input type="file" accept="image/*" style="display:none" onchange="uploadPhoto(event)"><span style="font-size:20px">📷</span><span>დამატება</span>';
-    addBtn.onclick=()=>addBtn.querySelector('input').click();
-    albumEl.appendChild(addBtn);
-  }
-  panel.classList.add('open');
-}
-
-function closeProfile(){document.getElementById('profile-panel').classList.remove('open');}
-
-async function uploadAvatar(e){
-  const file=e.target.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onloadend=async()=>{
-    const base64=reader.result;
-    await sb.from('profiles').update({avatar_url:base64}).eq('id',currentUser.id);
-    const {data}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
-    currentProfile=data; renderUserPanel();
-    toast('✅ ავატარი განახლდა','success');
-  };
-  reader.readAsDataURL(file);
-}
-
-async function uploadPhoto(e){
-  const file=e.target.files[0]; if(!file)return;
-  const reader=new FileReader();
-  reader.onloadend=async()=>{
-    await sb.from('photos').insert({user_id:currentUser.id,url:reader.result,created_at:new Date().toISOString()});
-    openProfile(currentUser.id);
-    toast('✅ ფოტო დაემატა','success');
-  };
-  reader.readAsDataURL(file);
-}
-
-function openPMFromProfile(){
-  if(viewingProfile) startPM(viewingProfile.id,viewingProfile.username);
-  closeProfile();
-}
-
-async function sendFriendRequest(){
-  if(!viewingProfile)return;
-  const {data:ex}=await sb.from('friends').select('*').or(`and(user_id.eq.${currentUser.id},friend_id.eq.${viewingProfile.id}),and(user_id.eq.${viewingProfile.id},friend_id.eq.${currentUser.id})`).single();
-  if(ex){toast('უკვე მეგობრები ხართ ან მოთხოვნა გაგზავნილია','error');return;}
-  await sb.from('friends').insert({user_id:currentUser.id,friend_id:viewingProfile.id,status:'pending',created_at:new Date().toISOString()});
-  toast('✅ მეგობრობის მოთხოვნა გაგზავნილია','success');
-}
-
-// FRIENDS
-async function openFriendsModal(){
-  document.getElementById('friends-modal').classList.add('show');
-  loadFriendsList();
-}
-function closeFriendsModal(){document.getElementById('friends-modal').classList.remove('show');}
-
-async function loadFriendsList(){
-  const {data}=await sb.from('friends').select('*,profiles!friends_friend_id_fkey(username,avatar_url)').eq('user_id',currentUser.id).eq('status','accepted');
-  friendsList=data||[];
-  renderFriendsList();
-}
-
-function renderFriendsList(){
-  const c=document.getElementById('friends-list-content');
-  c.innerHTML='';
-  if(!friendsList.length){c.innerHTML='<p style="color:var(--text2);text-align:center">მეგობრები არ გყავს 😢</p>';return;}
-  friendsList.forEach(f=>{
-    const m=f.profiles||{username:'?'};
-    const color=getColor(m.username);
-    const el=document.createElement('div');
-    el.className='user-manage-row';
-    el.innerHTML=`<div style="width:32px;height:32px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">${m.username[0]?.toUpperCase()}</div><span class="umr-name">${escHtml(m.username)}</span><div class="umr-actions"><button class="umr-btn" onclick="startPM('${f.friend_id}','${escHtml(m.username)}')">💬</button><button class="umr-btn block" onclick="removeFriend('${f.id}')">❌</button></div>`;
-    c.appendChild(el);
-  });
-}
-
-function switchFriendsTab(tab){
-  document.querySelectorAll('#friends-modal .auth-tab').forEach((t,i)=>t.classList.toggle('active',i===(tab==='list'?0:1)));
-  if(tab==='list') loadFriendsList();
-  else loadFriendRequests();
-}
-
-async function loadFriendRequests(){
-  const {data}=await sb.from('friends').select('*,profiles!friends_user_id_fkey(username)').eq('friend_id',currentUser.id).eq('status','pending');
-  const c=document.getElementById('friends-list-content'); c.innerHTML='';
-  if(!data?.length){c.innerHTML='<p style="color:var(--text2);text-align:center">მოთხოვნები არ არის</p>';return;}
-  data.forEach(req=>{
-    const m=req.profiles||{username:'?'};
-    const el=document.createElement('div');
-    el.className='user-manage-row';
-    el.innerHTML=`<span class="umr-name">${escHtml(m.username)}</span><div class="umr-actions"><button class="umr-btn admin" onclick="acceptFriend('${req.id}')">✅</button><button class="umr-btn block" onclick="declineFriend('${req.id}')">❌</button></div>`;
-    c.appendChild(el);
-  });
-}
-
-async function acceptFriend(id){await sb.from('friends').update({status:'accepted'}).eq('id',id);loadFriendRequests();toast('✅ მეგობრობა მიღებულია','success');}
-async function declineFriend(id){await sb.from('friends').delete().eq('id',id);loadFriendRequests();}
-async function removeFriend(id){await sb.from('friends').delete().eq('id',id);loadFriendsList();toast('❌ მეგობარი წაიშალა','success');}
-
-// STATUS
-function openStatusModal(){document.getElementById('status-modal').classList.add('show');}
-function closeStatusModal(){document.getElementById('status-modal').classList.remove('show');}
-
-function renderStatusEmotions(){
-  const c=document.getElementById('status-emotions'); c.innerHTML='';
-  STATUS_EMOTIONS.forEach(e=>{
-    const el=document.createElement('span');
-    el.className='status-emotion'+(selectedEmotion===e?' selected':'');
-    el.textContent=e;
-    el.onclick=()=>{selectedEmotion=e; renderStatusEmotions();};
-    c.appendChild(el);
-  });
-}
-
-async function saveStatus(){
-  const text=document.getElementById('status-text-input').value;
-  await sb.from('profiles').update({status_text:text,emotion:selectedEmotion}).eq('id',currentUser.id);
-  const {data}=await sb.from('profiles').select('*').eq('id',currentUser.id).single();
-  currentProfile=data;
-  closeStatusModal(); toast('✅ სტატუსი განახლდა','success');
-  renderUserPanel();
-}
-
-// ADMIN
-async function openAdminPanel(){
-  document.getElementById('admin-modal').classList.add('show');
-  document.getElementById('founder-section').style.display=currentProfile.role==='founder'?'block':'none';
-  await loadAdminUsers();
-  await loadAdminCustomEmojis();
-}
-function closeAdminPanel(){document.getElementById('admin-modal').classList.remove('show');}
-
-async function loadAdminUsers(){
-  const {data}=await sb.from('profiles').select('*').neq('id',currentUser.id).limit(50);
-  const c=document.getElementById('admin-users-list'); c.innerHTML='';
-  (data||[]).forEach(u=>{
-    const el=document.createElement('div');
-    el.className='user-manage-row';
-    const roleBadge=u.role==='founder'?'👑':u.role==='admin'?'⭐':u.role==='banned'?'🚫':'👤';
-    el.innerHTML=`<span class="umr-name">${roleBadge} ${escHtml(u.username)}</span><div class="umr-actions">`;
-    if(currentProfile.role==='founder'){
-      el.innerHTML+=`<button class="umr-btn founder" onclick="setRole('${u.id}','founder')">👑</button>`;
-    }
-    el.innerHTML+=`<button class="umr-btn admin" onclick="setRole('${u.id}','admin')">⭐ ადმინი</button><button class="umr-btn remove-role" onclick="setRole('${u.id}','member')">🔓 მოხსნა</button><button class="umr-btn block" onclick="banUser('${u.id}')">🚫</button></div>`;
-    c.appendChild(el);
-  });
-}
-
-async function loadAdminCustomEmojis(){
-  const c=document.getElementById('admin-custom-emojis'); if(!c)return;
-  c.innerHTML='';
-  customEmojis.forEach((e,i)=>{
-    const el=document.createElement('div');
-    el.style.cssText='display:flex;align-items:center;gap:4px;background:var(--bg2);border-radius:8px;padding:4px 8px;';
-    el.innerHTML=e.startsWith('http')?`<img src="${e}" style="width:28px;height:28px;border-radius:4px">`:`<span style="font-size:24px">${e}</span>`;
-    el.innerHTML+=`<button onclick="removeCustomEmoji(${i})" style="background:none;border:none;color:var(--danger);cursor:pointer">✕</button>`;
-    c.appendChild(el);
-  });
-}
-
-async function addCustomEmoji(){
-  const val=document.getElementById('custom-emoji-input').value.trim();
-  if(!val)return;
-  customEmojis.push(val);
-  await sb.from('settings').upsert({key:'custom_emojis',value:JSON.stringify(customEmojis)});
-  document.getElementById('custom-emoji-input').value='';
-  renderCustomEmojis();
-  loadAdminCustomEmojis();
-  toast('✅ სმაილი დაემატა','success');
-}
-
-async function removeCustomEmoji(idx){
-  customEmojis.splice(idx,1);
-  await sb.from('settings').upsert({key:'custom_emojis',value:JSON.stringify(customEmojis)});
-  renderCustomEmojis(); loadAdminCustomEmojis();
-}
-
-async function loadCustomEmojis(){
-  const {data}=await sb.from('settings').select('value').eq('key','custom_emojis').single();
-  if(data){try{customEmojis=JSON.parse(data.value)||[];}catch{}}
-  renderCustomEmojis();
-}
-
-function renderCustomEmojis(){
-  const c=document.getElementById('custom-emojis-row'); if(!c)return;
-  c.innerHTML='';
-  customEmojis.forEach(e=>{
-    const el=document.createElement('div');
-    el.className='custom-emoji-item';
-    el.innerHTML=e.startsWith('http')?`<img src="${e}">`:`<span>${e}</span>`;
-    el.onclick=()=>insertEmoji(e);
-    c.appendChild(el);
-  });
-}
-
-// EMOJI PANEL
-function initEmojiPanel(){
-  const cats=document.getElementById('emoji-cats');
-  cats.innerHTML='';
-  EMOJI_CATS.forEach((cat,i)=>{
-    const btn=document.createElement('button');
-    btn.className='emoji-cat'+(i===0?' active':'');
-    btn.textContent=cat.label;
-    btn.onclick=()=>{currentEmojiCat=i;renderEmojiGrid();document.querySelectorAll('.emoji-cat').forEach((c,j)=>c.classList.toggle('active',j===i));};
-    cats.appendChild(btn);
-  });
-  renderEmojiGrid();
-}
-
-function renderEmojiGrid(){
-  const grid=document.getElementById('emoji-grid'); grid.innerHTML='';
-  const emojis=[...EMOJI_CATS[currentEmojiCat].emojis];
-  emojis.forEach(e=>{
-    const el=document.createElement('span'); el.textContent=e;
-    el.onclick=()=>insertEmoji(e);
-    grid.appendChild(el);
-  });
-}
-
-function toggleEmoji(){document.getElementById('emoji-panel').classList.toggle('show');}
-
-function insertEmoji(emoji){
-  const input=document.getElementById('msg-input');
-  const pos=input.selectionStart||input.value.length;
-  input.value=input.value.slice(0,pos)+emoji+input.value.slice(pos);
-  input.focus();
-  document.getElementById('emoji-panel').classList.remove('show');
-}
-
-// TEXT FORMATTING
-let currentTextStyle='';
-function applyFormat(type){
-  const input=document.getElementById('msg-input');
-  const start=input.selectionStart, end=input.selectionEnd;
-  const selected=input.value.slice(start,end);
-  if(!selected){
-    switch(type){
-      case 'bold': currentTextStyle+='font-weight:800;'; break;
-      case 'italic': currentTextStyle+='font-style:italic;'; break;
-      case 'underline': currentTextStyle+='text-decoration:underline;'; break;
-      case 'strikethrough': currentTextStyle+='text-decoration:line-through;'; break;
-    }
-    toast('✅ ფორმატი მიმდინარე ტექსტზე გამოვა','success');
-    return;
-  }
-}
-
-function pickTextColor(){document.getElementById('text-color-input').click();}
-function setTextColor(color){currentTextStyle+=`color:${color};`;toast('🎨 ფერი დაყენებულია','success');}
-
-// THEME
-function initThemePanel(){
-  const c=document.getElementById('theme-colors'); c.innerHTML='';
-  THEME_COLORS.forEach((t,i)=>{
-    const el=document.createElement('div');
-    el.className='color-swatch'+(i===0?' active':'');
-    el.style.background=`linear-gradient(135deg,${t.accent},${t.accent2})`;
-    el.title=t.name;
-    el.onclick=()=>{applyTheme(t);document.querySelectorAll('.color-swatch').forEach((s,j)=>s.classList.toggle('active',j===i));};
-    c.appendChild(el);
-  });
-}
-
-function applyTheme(t){
-  const r=document.documentElement.style;
-  r.setProperty('--accent',t.accent);
-  r.setProperty('--accent2',t.accent2);
-  r.setProperty('--accent3',t.accent3);
-}
-
-function toggleThemePanel(){document.getElementById('theme-panel').classList.toggle('show');}
-function toggleDarkMode(isDark){document.documentElement.setAttribute('data-theme',isDark?'dark':'light');}
-
-// RIGHT PANEL
-function toggleRightPanel(){
-  const p=document.getElementById('right-panel');
-  p.style.display=p.style.display==='none'?'flex':'none';
-}
-
-function switchRPanel(tab){
-  document.querySelectorAll('.rpanel-tab').forEach((t,i)=>t.classList.toggle('active',i===(tab==='members'?0:1)));
-  if(tab==='members') renderMembers();
-  else {
-    const c=document.getElementById('members-list');
-    c.innerHTML='';
-    loadFriendsInPanel();
-  }
-}
-
-async function loadFriendsInPanel(){
-  const {data}=await sb.from('friends').select('*,profiles!friends_friend_id_fkey(id,username,avatar_url,status_text)').eq('user_id',currentUser.id).eq('status','accepted');
-  const c=document.getElementById('members-list'); c.innerHTML='';
-  (data||[]).forEach(f=>{
-    const m=f.profiles||{username:'?',id:''};
-    const color=getColor(m.username);
-    const el=document.createElement('div');
-    el.className='member-item';
-    el.innerHTML=`<div style="position:relative;flex-shrink:0"><div style="width:34px;height:34px;border-radius:50%;background:${color};color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800">${m.username[0]?.toUpperCase()}</div><div class="online-dot"></div></div><div class="member-info"><div class="member-name">${escHtml(m.username)}</div><div class="member-status">${escHtml(m.status_text||'')}</div></div>`;
-    el.onclick=()=>startPM(m.id,m.username);
-    c.appendChild(el);
-  });
-}
-
-// PM INDICATOR
-function openPMIndicator(){
-  if(pmTarget) document.getElementById('pm-modal').classList.add('show');
-}
-
-// HELPERS
-function escHtml(str){return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
-function getColor(str){const colors=['#7c5cbf','#e040fb','#00e5ff','#ff6d00','#00e676','#ffd740','#ff1744','#00bcd4','#8bc34a','#ff5722'];let h=0;for(let i=0;i<str.length;i++)h=str.charCodeAt(i)+((h<<5)-h);return colors[Math.abs(h)%colors.length];}
-function adjustColor(c){return c.replace(/[0-9a-f]{2}/gi,h=>Math.min(255,parseInt(h,16)+30).toString(16).padStart(2,'0'));}
-function formatTime(iso){const d=new Date(iso);return d.toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});}
-function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
-
-function toast(msg,type=''){
-  const c=document.getElementById('toasts');
-  const el=document.createElement('div');
-  el.className='toast '+(type||'');
-  el.textContent=msg;
-  c.appendChild(el);
-  setTimeout(()=>{el.style.opacity='0';el.style.transition='opacity .3s';setTimeout(()=>el.remove(),300);},3000);
-}
-
-// Close panels on outside click
-document.addEventListener('click',e=>{
-  if(!e.target.closest('.emoji-panel')&&!e.target.closest('.emoji-toggle')) document.getElementById('emoji-panel').classList.remove('show');
-  if(!e.target.closest('.theme-panel')&&!e.target.closest('[onclick*="toggleThemePanel"]')) document.getElementById('theme-panel').classList.remove('show');
-});
-
-// Init
-initParticles();
-(async()=>{
-  const {data:{session}}=await sb.auth.getSession();
-  if(session?.user) await initApp(session.user);
-})();
+    (function() {
+        // ---------- მცურავი გულები ----------
+        const heartsContainer = document.getElementById('heartsContainer');
+        const heartSymbols = ['❤️', '💖', '💗', '💓', '💕', '💞', '❤️‍🔥', '🧡', '💛', '💚', '💙', '💜', '🩷', '❤️‍🩹', '💝', '💘'];
+
+        function createFloatingHeart() {
+            const heart = document.createElement('div');
+            heart.classList.add('heart');
+            heart.textContent = heartSymbols[Math.floor(Math.random() * heartSymbols.length)];
+            const size = 1 + Math.random() * 2.5;
+            heart.style.fontSize = `${size}rem`;
+            heart.style.left = `${Math.random() * 100}%`;
+            const duration = 4 + Math.random() * 6;
+            heart.style.animationDuration = `${duration}s`;
+            heart.style.animationDelay = `${Math.random() * 2}s`;
+            heartsContainer.appendChild(heart);
+            setTimeout(() => heart.remove(), duration * 1000);
+        }
+
+        setInterval(createFloatingHeart, 350);
+
+        // ---------- DOM ელემენტები ----------
+        let isLoginMode = true;
+        const formTitle = document.getElementById('formTitle');
+        const actionBtn = document.getElementById('actionBtn');
+        const toggleSpan = document.getElementById('toggleMode');
+        const messageDiv = document.getElementById('messageArea');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const nicknameInput = document.getElementById('nickname');
+        const nicknameGroup = document.getElementById('nicknameGroup');
+
+        function showMessage(msg, isError = true) {
+            messageDiv.textContent = msg;
+            messageDiv.style.color = isError ? '#ffaaaa' : '#aaffaa';
+            setTimeout(() => {
+                if(messageDiv.textContent === msg) messageDiv.textContent = '';
+            }, 3000);
+        }
+
+        // რეგისტრაცია (ნიკი + მეილი + პაროლი)
+        function fakeRegister(email, password, nickname) {
+            if(!email.includes('@')) {
+                showMessage('📧 გთხოვთ შეიყვანოთ სწორი ელ.ფოსტა', true);
+                return false;
+            }
+            if(password.length < 3) {
+                showMessage('🔒 პაროლი უნდა იყოს მინიმუმ 3 სიმბოლო', true);
+                return false;
+            }
+            if(!nickname || nickname.trim().length < 2) {
+                showMessage('🏷️ გთხოვთ შეიყვანოთ ნიკი (მინ. 2 სიმბოლო)', true);
+                return false;
+            }
+
+            const users = JSON.parse(localStorage.getItem('kaifmania_users') || '{}');
+            if(users[email]) {
+                showMessage('⚠️ ეს ელ.ფოსტა უკვე რეგისტრირებულია', true);
+                return false;
+            }
+            // ვინახავთ მომხმარებელს ნიკით
+            users[email] = { 
+                password: password,
+                nickname: nickname.trim()
+            };
+            localStorage.setItem('kaifmania_users', JSON.stringify(users));
+            showMessage(`✅ რეგისტრაცია წარმატებული! ახლა შედით, ${nickname.trim()}`, false);
+            return true;
+        }
+
+        // შესვლა
+        function fakeLogin(email, password) {
+            const users = JSON.parse(localStorage.getItem('kaifmania_users') || '{}');
+            if(!users[email]) {
+                showMessage('❌ მომხმარებელი არ არსებობს. გაიარეთ რეგისტრაცია', true);
+                return false;
+            }
+            if(users[email].password !== password) {
+                showMessage('🔒 პაროლი არასწორია', true);
+                return false;
+            }
+            const nickname = users[email].nickname;
+            // წარმატებული შესვლა – ვინახავთ სესიას ნიკით
+            localStorage.setItem('kaifmania_logged_in', email);
+            localStorage.setItem('kaifmania_nickname', nickname);
+            showMessage(`🎉 კაიფი მოდის, ${nickname}! გადაგვყავს chat.html-ზე...`, false);
+            setTimeout(() => {
+                window.location.href = 'chat.html';
+            }, 1200);
+            return true;
+        }
+
+        function handleMainAction() {
+            const email = emailInput.value.trim();
+            const password = passwordInput.value.trim();
+
+            if(!email || !password) {
+                showMessage('❗ შეიყვანეთ ელ.ფოსტა და პაროლი', true);
+                return;
+            }
+
+            if(isLoginMode) {
+                fakeLogin(email, password);
+            } else {
+                const nickname = nicknameInput.value.trim();
+                const success = fakeRegister(email, password, nickname);
+                if(success) {
+                    // რეგისტრაციის შემდეგ ვრთავთ შესვლის რეჟიმს
+                    isLoginMode = true;
+                    formTitle.innerText = '✨ შესვლა ✨';
+                    actionBtn.innerText = 'შესვლა';
+                    toggleSpan.innerText = 'რეგისტრაცია';
+                    nicknameGroup.style.display = 'none';
+                    emailInput.value = '';
+                    passwordInput.value = '';
+                    nicknameInput.value = '';
+                }
+            }
+        }
+
+        function toggleMode() {
+            isLoginMode = !isLoginMode;
+            if(isLoginMode) {
+                formTitle.innerText = '✨ შესვლა ✨';
+                actionBtn.innerText = 'შესვლა';
+                toggleSpan.innerText = 'რეგისტრაცია';
+                nicknameGroup.style.display = 'none';
+                messageDiv.textContent = '';
+            } else {
+                formTitle.innerText = '📝 რეგისტრაცია';
+                actionBtn.innerText = 'რეგისტრაცია';
+                toggleSpan.innerText = 'შესვლა';
+                nicknameGroup.style.display = 'block';
+                messageDiv.textContent = '';
+            }
+        }
+
+        actionBtn.addEventListener('click', handleMainAction);
+        toggleSpan.addEventListener('click', toggleMode);
+
+        // თუ უკვე შესულია, პირდაპირ chat.html-ზე გადავის
+        if(localStorage.getItem('kaifmania_logged_in')) {
+            window.location.href = 'chat.html';
+        }
+    })();
 </script>
-
 </body>
 </html>
