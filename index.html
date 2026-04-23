@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>კაიფმანია - შესვლა</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #120a22 0%, #2a1840 50%, #0e0518 100%);
+            position: relative;
+        }
+        .container {
+            background: rgba(30, 12, 48, 0.85);
+            backdrop-filter: blur(14px);
+            border-radius: 48px;
+            padding: 40px 32px;
+            width: 100%;
+            max-width: 450px;
+            box-shadow: 0 25px 45px rgba(0,0,0,0.5);
+            position: relative;
+            z-index: 1;
+        }
+        h1 {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+        input {
+            width: 100%;
+            padding: 14px 20px;
+            margin-bottom: 15px;
+            background: rgba(0,0,0,0.5);
+            border: 1px solid rgba(156,81,255,0.6);
+            border-radius: 40px;
+            color: white;
+            font-size: 16px;
+        }
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(105deg, #8b3fe0, #bf7eff);
+            border: none;
+            border-radius: 44px;
+            color: white;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .switch {
+            text-align: center;
+            margin-top: 20px;
+            color: #c792ff;
+            cursor: pointer;
+        }
+        .error, .success {
+            padding: 12px;
+            border-radius: 28px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        .error {
+            color: #ffaaaa;
+            background: rgba(255,70,70,0.15);
+        }
+        .success {
+            color: #c2ff9e;
+            background: rgba(120,220,60,0.12);
+        }
+        .floating-item {
+            position: fixed;
+            bottom: -40px;
+            font-size: 22px;
+            pointer-events: none;
+            animation: floatUp linear forwards;
+            z-index: 0;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            20% { opacity: 0.7; }
+            100% { transform: translateY(-110vh) rotate(360deg); opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>💜 კაიფმანია 💜</h1>
+    
+    <div id="loginForm">
+        <input type="email" id="loginEmail" placeholder="📧 ელ. ფოსტა">
+        <input type="password" id="loginPassword" placeholder="🔒 პაროლი">
+        <button id="loginBtn">✨ შესვლა ✨</button>
+        <div class="switch" id="showRegister">🔑 არ გაქვს ანგარიში? რეგისტრაცია</div>
+    </div>
+
+    <div id="registerForm" style="display:none">
+        <input type="text" id="regUsername" placeholder="👤 მომხმარებლის სახელი">
+        <input type="email" id="regEmail" placeholder="📧 ელ. ფოსტა">
+        <input type="password" id="regPassword" placeholder="🔒 პაროლი (მინ 6)">
+        <button id="registerBtn">🚀 რეგისტრაცია 🚀</button>
+        <div class="switch" id="showLogin">✅ უკვე გაქვს ანგარიში? შესვლა</div>
+    </div>
+
+    <div id="errorMsg" class="error"></div>
+    <div id="successMsg" class="success"></div>
+</div>
+
+<script>
+    // თქვენი გასაღებები
+    const supabaseUrl = "https://vjstuyxuhshsouqsnvxp.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZqc3R1eXh1aHNoc291cXNudnhwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzU0MDExOTQsImV4cCI6MjA5MDk3NzE5NH0.sVzu2GTaMwskp8lGb0C9F15Iy7RKT1FxQrwd5JgHquE";
+    const sb = supabase.createClient(supabaseUrl, supabaseKey);
+
+    // მოძრავი გულები
+    function spawnHearts() {
+        setInterval(() => {
+            const heart = document.createElement('div');
+            heart.className = 'floating-item';
+            heart.textContent = ['💜','❤️','🌸','💖','🌷'][Math.floor(Math.random()*5)];
+            heart.style.left = Math.random() * 100 + '%';
+            heart.style.fontSize = (15 + Math.random() * 25) + 'px';
+            heart.style.animationDuration = (4 + Math.random() * 8) + 's';
+            document.body.appendChild(heart);
+            setTimeout(() => heart.remove(), 8000);
+        }, 500);
+    }
+    spawnHearts();
+
+    // ელემენტები
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const showRegister = document.getElementById('showRegister');
+    const showLogin = document.getElementById('showLogin');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const errorDiv = document.getElementById('errorMsg');
+    const successDiv = document.getElementById('successMsg');
+
+    function showError(msg) {
+        errorDiv.textContent = msg;
+        errorDiv.style.display = 'block';
+        successDiv.style.display = 'none';
+        setTimeout(() => errorDiv.style.display = 'none', 4000);
+    }
+
+    function showSuccess(msg) {
+        successDiv.textContent = msg;
+        successDiv.style.display = 'block';
+        errorDiv.style.display = 'none';
+        setTimeout(() => successDiv.style.display = 'none', 3000);
+    }
+
+    showRegister.onclick = () => {
+        loginForm.style.display = 'none';
+        registerForm.style.display = 'block';
+    };
+
+    showLogin.onclick = () => {
+        registerForm.style.display = 'none';
+        loginForm.style.display = 'block';
+    };
+
+    // 🚀 რეგისტრაცია (მხოლოდ auth, profiles-ის გარეშე)
+    registerBtn.onclick = async () => {
+        const username = document.getElementById('regUsername').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value;
+
+        if (!username || !email || !password) {
+            showError('შეავსე ყველა ველი!');
+            return;
+        }
+        if (password.length < 6) {
+            showError('პაროლი მინიმუმ 6 სიმბოლო!');
+            return;
+        }
+
+        try {
+            const { data, error } = await sb.auth.signUp({
+                email: email,
+                password: password,
+                options: {
+                    data: {
+                        username: username
+                    }
+                }
+            });
+
+            if (error) {
+                showError('შეცდომა: ' + error.message);
+                return;
+            }
+
+            if (data.user) {
+                showSuccess('✅ რეგისტრაცია წარმატებულია! შედი სისტემაში');
+                setTimeout(() => {
+                    registerForm.style.display = 'none';
+                    loginForm.style.display = 'block';
+                }, 1500);
+            }
+        } catch (err) {
+            showError('ქსელის შეცდომა!');
+        }
+    };
+
+    // 🔑 შესვლა
+    loginBtn.onclick = async () => {
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value;
+
+        if (!email || !password) {
+            showError('შეიყვანე ელ.ფოსტა და პაროლი');
+            return;
+        }
+
+        try {
+            const { data, error } = await sb.auth.signInWithPassword({
+                email: email,
+                password: password
+            });
+
+            if (error) {
+                showError('შეცდომა: ' + error.message);
+                return;
+            }
+
+            if (data.user) {
+                showSuccess('✅ წარმატებული შესვლა!');
+                localStorage.setItem('user', JSON.stringify(data.user));
+                setTimeout(() => {
+                    window.location.href = 'chat.html';
+                }, 1000);
+            }
+        } catch (err) {
+            showError('ქსელის შეცდომა!');
+        }
+    };
+
+    // უკვე შესულია?
+    sb.auth.getSession().then(({ data: { session } }) => {
+        if (session) {
+            window.location.href = 'chat.html';
+        }
+    });
+</script>
+</body>
+</html>
