@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>კაიფმანია - პრემიუმ ჩატი</title>
+<title>🔥 კაიფმანია - პრემიუმ ჩატი</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#7a1fc8">
 <meta name="mobile-web-app-capable" content="yes">
@@ -18,7 +18,7 @@
   --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
   --online:#4ade80;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
   --accent:#f07aff;--typing:#a78bfa;--read:#34d399;--shadow:rgba(0,0,0,0.4);
-  --heart:#ff6b8a;
+  --heart:#ff6b8a;--success:#10b981;--danger:#ef4444;
 }
 body.light-mode{
   --bg:#f0ebff;--panel:#ffffff;--panel2:#ede0ff;--border:rgba(120,30,200,0.25);
@@ -56,18 +56,16 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 
 /* LAYOUT */
 #app{display:flex;flex:1;min-height:0}
-#sidebar{width:270px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:background .3s}
+#sidebar{width:280px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;transition:background .3s}
 @media(max-width:640px){#sidebar{display:none}}
 .sb-header{padding:13px 16px;border-bottom:1px solid var(--border);font-size:9px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
 .sb-body{flex:1;overflow-y:auto;padding:10px}
 
-/* ROOMS */
+/* ROOMS & USERS */
 .room-item,.user-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:14px;cursor:pointer;margin-bottom:2px;border:1px solid transparent;transition:all .2s}
 .room-item.active,.room-item:hover,.user-item:hover{background:var(--indigo-f);border-color:var(--border)}
 .room-icon,.avatar{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;position:relative;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-
-/* ONLINE INDICATOR */
 .online-dot{width:10px;height:10px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0;box-shadow:0 0 6px var(--online)}
 .online-dot.offline{background:var(--text3);box-shadow:none}
 
@@ -78,17 +76,22 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .chat-sub{font-size:11px;background:var(--indigo-f);padding:3px 12px;border-radius:20px;margin-left:auto;color:var(--online);font-weight:600}
 
 #messages{flex:1;overflow-y:auto;padding:16px;display:flex;flex-direction:column;gap:10px}
-.msg-row{display:flex;align-items:flex-end;gap:8px}
+.msg-row{display:flex;align-items:flex-start;gap:8px}
 .msg-content{max-width:72%;display:flex;flex-direction:column}
 .msg-bubble{background:var(--bubble);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:14px;word-break:break-word;line-height:1.5;transition:background .3s}
 .msg-bubble.mine{background:rgba(120,30,200,0.28);border-radius:16px 4px 16px 16px}
-.msg-meta{display:flex;gap:6px;margin-bottom:4px;font-size:10px;align-items:center}
+.msg-meta{display:flex;gap:6px;margin-bottom:4px;font-size:10px;align-items:center;flex-wrap:wrap}
 .msg-nick{font-weight:600;color:var(--indigo2);cursor:pointer}
 .msg-time{font-size:9px;color:var(--text3)}
 .msg-del{background:none;border:none;color:var(--text3);cursor:pointer;font-size:11px;margin-left:4px;opacity:0;transition:opacity .2s}
 .msg-row:hover .msg-del{opacity:1}
+.reply-badge{font-size:10px;color:var(--accent);margin-bottom:4px;cursor:pointer}
+.message-reactions{display:flex;gap:4px;margin-top:4px;flex-wrap:wrap}
+.reaction-badge{background:var(--panel2);border-radius:20px;padding:2px 6px;font-size:11px;cursor:pointer;display:inline-flex;align-items:center;gap:2px}
+.reaction-badge:hover{background:var(--indigo)}
+.reaction-picker{position:fixed;background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:6px;display:flex;gap:4px;z-index:10000;box-shadow:0 4px 12px black}
 
-/* VOICE IN CHAT */
+/* VOICE */
 .msg-audio{display:flex;align-items:center;gap:8px;background:var(--panel2);border-radius:20px;padding:7px 14px}
 .audio-play{background:var(--indigo);border:none;border-radius:50%;width:30px;height:30px;color:#fff;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:transform .2s}
 .audio-play:hover{transform:scale(1.1)}
@@ -98,56 +101,46 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .audio-wave span:nth-child(3){animation-delay:.4s;height:40%}
 .audio-wave span:nth-child(4){animation-delay:.6s;height:90%}
 .audio-wave span:nth-child(5){animation-delay:.8s;height:55%}
-.audio-wave span:nth-child(1){height:50%}
 
 /* TYPING */
 .typing-indicator{font-size:11px;color:var(--typing);padding:2px 8px;font-style:italic;min-height:18px}
 .typing-dots span{animation:blink 1.2s infinite}
-.typing-dots span:nth-child(2){animation-delay:.2s}
-.typing-dots span:nth-child(3){animation-delay:.4s}
 
-/* CHAT BAR */
+/* RICH TEXT & CHAT BAR */
+.rich-toolbar{display:flex;gap:4px;margin-bottom:8px;flex-wrap:wrap;background:var(--panel2);padding:6px 12px;border-radius:20px}
+.rich-btn{background:transparent;border:none;padding:6px 10px;border-radius:12px;cursor:pointer;font-size:14px;color:var(--text2);transition:all .2s}
+.rich-btn:hover{background:var(--indigo-f);color:var(--text)}
+.rich-btn.active{background:var(--indigo);color:#fff}
+.color-picker{width:32px;height:32px;border-radius:50%;border:2px solid var(--border);cursor:pointer}
+.reply-preview{background:var(--indigo-f);padding:6px 12px;border-radius:12px;margin-bottom:6px;font-size:12px;display:flex;align-items:center;gap:8px;border-left:3px solid var(--indigo2)}
+.cancel-reply{margin-left:auto;cursor:pointer;background:none;border:none;color:var(--text3)}
 .chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:10px 16px;transition:background .3s}
 .input-row{display:flex;gap:8px;align-items:flex-end}
 #msgInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:24px;padding:10px 16px;color:var(--text);outline:none;resize:none;max-height:100px;font-family:inherit;font-size:14px;transition:border-color .2s}
 #msgInput:focus{border-color:var(--indigo2)}
-.send-btn,.mic-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;cursor:pointer;font-size:18px;flex-shrink:0;transition:transform .15s,box-shadow .15s}
-.send-btn:hover{transform:scale(1.08);box-shadow:0 0 14px var(--indigo2)}
+.send-btn,.mic-btn{width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;cursor:pointer;font-size:18px;flex-shrink:0;transition:transform .15s}
+.send-btn:hover,.mic-btn:hover{transform:scale(1.08)}
 .mic-btn{background:var(--panel2);border:1px solid var(--border)}
-.mic-btn.recording{background:#ef4444;animation:pulse 1s infinite;border:none}
-.voice-preview{display:flex;align-items:center;gap:8px;background:var(--indigo-f);border-radius:20px;padding:5px 12px;margin-top:6px;font-size:12px;color:var(--text2)}
+.mic-btn.recording{background:var(--danger);animation:pulse 1s infinite}
+.voice-preview{display:flex;align-items:center;gap:8px;background:var(--indigo-f);border-radius:20px;padding:5px 12px;margin-top:6px;font-size:12px}
 
 /* EMOJI BOARD */
 .emoji-board{display:none;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:12px;margin-bottom:8px;max-height:180px;overflow-y:auto}
 .emoji-board.open{display:block;animation:slideUp .2s ease}
-.emoji-board-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.emoji-board-title{font-size:11px;color:var(--text2);text-transform:uppercase;letter-spacing:1px}
 .emoji-grid{display:flex;flex-wrap:wrap;gap:6px}
 .emoji-btn{font-size:26px;cursor:pointer;border-radius:10px;padding:4px;border:1px solid transparent;transition:all .15s;background:none}
-.emoji-btn:hover{background:var(--indigo-f);border-color:var(--border);transform:scale(1.2)}
-.emoji-upload-btn{font-size:12px;padding:6px 12px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:inherit}
-.emoji-del{font-size:9px;position:absolute;top:-4px;right:-4px;background:#ef4444;border-radius:50%;width:14px;height:14px;display:none;align-items:center;justify-content:center;color:#fff;cursor:pointer}
+.emoji-btn:hover{background:var(--indigo-f);transform:scale(1.2)}
+.emoji-upload-btn{font-size:12px;padding:6px 12px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text);cursor:pointer}
 .emoji-wrapper{position:relative;display:inline-block}
+.emoji-del{font-size:9px;position:absolute;top:-4px;right:-4px;background:var(--danger);border-radius:50%;width:14px;height:14px;display:none;align-items:center;justify-content:center;color:#fff;cursor:pointer}
 .emoji-wrapper:hover .emoji-del{display:flex}
 
-/* MODAL */
-.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:10000;display:none;align-items:center;justify-content:center}
-.modal.open{display:flex}
-.modal-card{background:var(--panel);border-radius:26px;width:92%;max-width:400px;padding:26px;border:1px solid var(--border);animation:slideUp .25s ease}
-.modal-card h3{margin-bottom:16px;font-size:16px}
-.user-action-btn{width:100%;padding:12px;margin:5px 0;border-radius:16px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:inherit;font-size:14px;transition:all .2s;text-align:left}
-.user-action-btn:hover{background:var(--indigo);color:#fff}
-.user-action-btn.danger{border-color:rgba(239,68,68,0.5);color:#ef4444}
-.user-action-btn.danger:hover{background:#ef4444;color:#fff}
-select.user-action-btn{appearance:none}
-
-/* DM BOX */
-.dm-box{position:fixed;right:16px;bottom:16px;width:350px;height:520px;background:var(--panel);border-radius:24px;border:1px solid var(--border);display:none;flex-direction:column;z-index:15000;box-shadow:0 20px 60px var(--shadow);animation:slideUp .25s ease}
+/* DM PANEL */
+.dm-box{position:fixed;right:16px;bottom:16px;width:380px;height:560px;background:var(--panel);border-radius:24px;border:1px solid var(--border);display:none;flex-direction:column;z-index:15000;box-shadow:0 20px 60px var(--shadow);animation:slideUp .25s ease}
 .dm-box.open{display:flex}
 .dm-header{padding:12px 16px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-radius:24px 24px 0 0;display:flex;align-items:center;gap:10px}
 .dm-title{flex:1;font-weight:600;font-size:14px;color:#fff}
-.dm-status-line{font-size:10px;color:rgba(255,255,255,0.7)}
-.dm-close{background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:16px;cursor:pointer;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s}
+.dm-close{background:rgba(255,255,255,0.2);border:none;color:#fff;font-size:16px;cursor:pointer;width:28px;height:28px;border-radius:50%}
 .dm-close:hover{background:rgba(255,255,255,0.35)}
 .dm-msgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:4px}
 .dm-msg-wrap{display:flex;flex-direction:column}
@@ -155,22 +148,34 @@ select.user-action-btn{appearance:none}
 .dm-msg{max-width:82%;padding:9px 13px;border-radius:18px;font-size:13px;line-height:1.5}
 .dm-msg.mine{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;border-radius:18px 4px 18px 18px}
 .dm-msg.theirs{background:var(--bubble);color:var(--text);border-radius:4px 18px 18px 18px}
-.dm-msg-voice{background:var(--indigo-f);border-radius:20px;padding:7px 12px;display:flex;align-items:center;gap:8px}
 .dm-meta{display:flex;align-items:center;gap:4px;margin-top:3px}
 .dm-time{font-size:9px;color:var(--text3)}
 .dm-read{font-size:10px;color:var(--read)}
 .dm-read.pending{color:var(--text3)}
-.dm-typing{font-size:11px;color:var(--typing);padding:2px 14px;min-height:18px;font-style:italic}
+.dm-typing{font-size:11px;color:var(--typing);padding:2px 14px;min-height:18px}
 .dm-bar{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border);align-items:flex-end}
-#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:20px;padding:9px 14px;color:var(--text);font-family:inherit;font-size:13px;outline:none;resize:none;max-height:80px;transition:border-color .2s}
-#dmInput:focus{border-color:var(--indigo2)}
-.dm-mic-btn{width:36px;height:36px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.dm-mic-btn.recording{background:#ef4444;border:none;animation:pulse 1s infinite}
-.dm-send-btn{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;cursor:pointer;font-size:15px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:transform .15s}
-.dm-send-btn:hover{transform:scale(1.1)}
-.dm-voice-preview{font-size:11px;color:var(--accent);padding:4px 12px;text-align:center}
+#dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:20px;padding:9px 14px;color:var(--text);font-family:inherit;font-size:13px;outline:none;resize:none;max-height:80px}
+.dm-mic-btn,.dm-send-btn{width:36px;height:36px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);color:var(--text2);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center}
+.dm-send-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff}
+.dm-mic-btn.recording{background:var(--danger);animation:pulse 1s infinite}
 
-@media(max-width:420px){.dm-box{width:calc(100vw - 16px);right:8px}}
+/* MODAL */
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(10px);z-index:20000;display:none;align-items:center;justify-content:center}
+.modal.open{display:flex}
+.modal-card{background:var(--panel);border-radius:26px;width:92%;max-width:400px;padding:26px;border:1px solid var(--border);animation:slideUp .25s ease}
+.modal-card h3{margin-bottom:16px;font-size:16px}
+.user-action-btn{width:100%;padding:12px;margin:5px 0;border-radius:16px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text);cursor:pointer;font-family:inherit;font-size:14px;transition:all .2s;text-align:left}
+.user-action-btn:hover{background:var(--indigo);color:#fff}
+.user-action-btn.danger{border-color:rgba(239,68,68,0.5);color:var(--danger)}
+.user-action-btn.danger:hover{background:var(--danger);color:#fff}
+
+/* FRIENDS SECTION */
+.friends-section{margin-top:16px;border-top:1px solid var(--border);padding-top:12px}
+.friend-request{background:var(--indigo-f);border-radius:12px;padding:8px;margin-bottom:8px;display:flex;align-items:center;justify-content:space-between}
+
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--panel)}
+::-webkit-scrollbar-thumb{background:var(--indigo2);border-radius:10px}
 </style>
 </head>
 <body>
@@ -179,20 +184,21 @@ select.user-action-btn{appearance:none}
   <div class="nav-logo" onclick="document.getElementById('sidebar').classList.toggle('hidden')">🔥</div>
   <button class="nav-btn active" id="navRooms" onclick="showPanel('rooms')">💬 ოთახები</button>
   <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 მომხმარებლები</button>
+  <button class="nav-btn" id="navFriends" onclick="showPanel('friends')">👥 მეგობრები</button>
   <div class="nav-spacer"></div>
-  <button id="themeToggle" onclick="toggleTheme()" title="დღე/ღამის რეჟიმი">🌙</button>
+  <button id="themeToggle" onclick="toggleTheme()">🌙</button>
   <button class="nav-btn" onclick="toggleEmojiBoard()">😊 სმაილები</button>
   <button class="nav-btn" onclick="openMyProfile()">👤</button>
   <button class="nav-btn" onclick="logout()">🚪</button>
 </div>
 
-<!-- EMOJI BOARD (admin upload panel) -->
+<!-- EMOJI BOARD -->
 <div id="emojiBoard" class="emoji-board">
-  <div class="emoji-board-header">
-    <span class="emoji-board-title">მოძრავი სმაილები</span>
-    <div id="emojiAdminControls" style="display:none;gap:6px;display:none">
-      <input type="file" id="emojiFileInput" accept="image/gif,image/webp,image/png,image/apng" style="display:none" onchange="uploadEmoji(this)">
-      <button class="emoji-upload-btn" onclick="document.getElementById('emojiFileInput').click()">📤 ატვირთვა</button>
+  <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+    <span class="sb-header" style="padding:0">📦 მოძრავი სმაილები</span>
+    <div id="emojiAdminControls" style="display:none">
+      <input type="file" id="emojiFileInput" accept="image/gif,image/webp,image/png" style="display:none" onchange="uploadEmoji(this)">
+      <button class="emoji-upload-btn" onclick="document.getElementById('emojiFileInput').click()">➕ ატვირთვა</button>
     </div>
   </div>
   <div class="emoji-grid" id="emojiGrid"></div>
@@ -207,9 +213,13 @@ select.user-action-btn{appearance:none}
     <div id="panelUsers" class="hidden">
       <div class="sb-header">👥 მომხმარებლები</div>
       <div class="sb-body">
-        <input class="nav-btn" id="userSearch" placeholder="🔍 ძებნა..." oninput="filterUsers()" style="width:100%;margin-bottom:8px;padding:8px 14px;border-radius:20px;background:var(--input-bg);border:1px solid var(--border);color:var(--text);font-family:inherit">
+        <input class="nav-btn" id="userSearch" placeholder="🔍 ძებნა..." oninput="filterUsers()" style="width:100%;margin-bottom:8px;padding:8px 14px;border-radius:20px;background:var(--input-bg);border:1px solid var(--border);color:var(--text)">
         <div id="usersList"></div>
       </div>
+    </div>
+    <div id="panelFriends" class="hidden">
+      <div class="sb-header">👥 მეგობრები</div>
+      <div class="sb-body" id="friendsList"></div>
     </div>
   </div>
 
@@ -221,10 +231,22 @@ select.user-action-btn{appearance:none}
     </div>
     <div id="messages"></div>
     <div class="chat-bar">
-      <div id="voicePreviewBar" class="voice-preview hidden">🎤 ხმა მზადაა → <span style="color:var(--accent)">გაგზავნა ✈️</span> <button onclick="cancelVoice()" style="background:none;border:none;color:var(--text3);cursor:pointer;margin-left:8px">✕ გაუქმება</button></div>
+      <div id="voicePreviewBar" class="voice-preview hidden">🎤 ხმა მზადაა → <button onclick="cancelVoice()" style="background:none;border:none;color:var(--text3);cursor:pointer">✕ გაუქმება</button></div>
+      <div class="rich-toolbar" id="richToolbar">
+        <button class="rich-btn" onclick="formatText('bold')"><b>B</b></button>
+        <button class="rich-btn" onclick="formatText('italic')"><i>I</i></button>
+        <button class="rich-btn" onclick="formatText('underline')"><u>U</u></button>
+        <input type="color" id="textColorPicker" class="color-picker" onchange="formatText('color', this.value)">
+        <button class="rich-btn" onclick="insertEmojiPicker()">😊</button>
+        <button class="rich-btn" onclick="clearRichFormat()">✕</button>
+      </div>
+      <div id="replyPreview" class="reply-preview hidden">
+        <span>💬 პასუხი: <span id="replyPreviewText"></span></span>
+        <button class="cancel-reply" onclick="cancelReply()">✕</button>
+      </div>
       <div class="input-row">
         <textarea id="msgInput" placeholder="შეტყობინება..." rows="1" oninput="autoResize(this)" onkeydown="handleMsgKey(event)"></textarea>
-        <button class="mic-btn" id="micBtn" onclick="toggleVoiceRecord(false)" title="ხმოვანი შეტყობინება">🎙️</button>
+        <button class="mic-btn" id="micBtn" onclick="toggleVoiceRecord(false)" title="ხმოვანი">🎙️</button>
         <button class="send-btn" onclick="sendMessage()">✈️</button>
       </div>
       <div id="typingStatus" class="typing-indicator"></div>
@@ -244,43 +266,41 @@ select.user-action-btn{appearance:none}
   </div>
   <div id="dmMsgs" class="dm-msgs"></div>
   <div id="dmTyping" class="dm-typing"></div>
-  <div id="dmVoicePreview" class="dm-voice-preview hidden">🎤 ხმა მზადაა → გაგზავნა</div>
+  <div id="dmVoicePreview" class="dm-voice-preview hidden">🎤 ხმა მზადაა</div>
   <div class="dm-bar">
     <textarea id="dmInput" placeholder="შეტყობინება..." rows="1" oninput="autoResize(this)" onkeydown="handleDmKey(event)"></textarea>
-    <button class="dm-mic-btn" id="dmMicBtn" onclick="toggleVoiceRecord(true)" title="ხმოვანი">🎙️</button>
+    <button class="dm-mic-btn" id="dmMicBtn" onclick="toggleVoiceRecord(true)">🎙️</button>
     <button class="dm-send-btn" onclick="sendDM()">✈️</button>
   </div>
 </div>
 
-<!-- USER ACTIONS MODAL -->
+<!-- USER MODAL -->
 <div id="userModal" class="modal">
   <div class="modal-card">
     <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px">
       <div class="avatar" id="modalAvatar" style="width:48px;height:48px;font-size:24px">😊</div>
-      <div>
-        <h3 id="modalUserName" style="margin:0"></h3>
-        <div id="modalUserRole" style="font-size:11px;color:var(--text2)"></div>
-        <div id="modalUserStatus" style="font-size:10px;color:var(--text3)"></div>
-      </div>
+      <div><h3 id="modalUserName"></h3><div id="modalUserRole" style="font-size:11px;color:var(--text2)"></div><div id="modalUserStatus" style="font-size:10px;color:var(--text3)"></div></div>
     </div>
     <div id="modalActions"></div>
-    <button class="user-action-btn" onclick="closeModal()" style="margin-top:4px">✕ დახურვა</button>
+    <button class="user-action-btn" onclick="closeModal()">✕ დახურვა</button>
   </div>
 </div>
 
 <script>
+// ========== SUPABASE CONFIG ==========
 const SUPABASE_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
 const SUPABASE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
 const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// ========== GLOBALS ==========
 let ME = null, MY_ROLE = 'member', MY_USERNAME = '', CURRENT_ROOM = 1, DM_WITH = null;
-let allUsers = [], customEmojis = [];
+let allUsers = [], customEmojis = [], myFriends = [], pendingRequests = [];
 let typingTimeout = null, dmTypingTimeout = null;
 let mediaRecorder = null, audioChunks = [], isRecording = false, isDMRecording = false;
 let currentVoiceBlob = null, currentDMVoiceBlob = null;
-let dmChannel = null;
+let dmChannel = null, currentReplyTo = null;
 
-// ===== HELPERS =====
+// ========== HELPERS ==========
 function toast(msg, dur=2200){
   let t=document.createElement('div'); t.className='toast'; t.innerText=msg;
   document.body.appendChild(t); setTimeout(()=>t.remove(),dur);
@@ -291,433 +311,523 @@ function formatTime(iso){return new Date(iso).toLocaleTimeString([],{hour:'2-dig
 function isOnline(ts){return ts && (Date.now()-new Date(ts).getTime()<90000);}
 function canManage(){return MY_ROLE==='admin'||MY_ROLE==='founder';}
 
-// ===== THEME =====
+// ========== THEME ==========
 function toggleTheme(){
   document.body.classList.toggle('light-mode');
   const isLight = document.body.classList.contains('light-mode');
   document.getElementById('themeToggle').textContent = isLight ? '🌙' : '☀️';
   localStorage.setItem('theme', isLight ? 'light' : 'dark');
+  if(ME) sb.from('profiles').update({theme: isLight ? 'light' : 'dark'}).eq('id',ME.id);
 }
 function initTheme(){
-  if(localStorage.getItem('theme')==='light'){
-    document.body.classList.add('light-mode');
-    document.getElementById('themeToggle').textContent='🌙';
-  } else {
-    document.getElementById('themeToggle').textContent='☀️';
-  }
+  const saved = localStorage.getItem('theme');
+  if(saved==='light'){ document.body.classList.add('light-mode'); document.getElementById('themeToggle').textContent='🌙';}
+  else { document.getElementById('themeToggle').textContent='☀️';}
 }
 
-// ===== FLOATING HEARTS =====
+// ========== FLOATING HEARTS ==========
 function spawnHeart(x,y){
-  const hearts=['❤️','💜','💖','💗','🩷','💕','✨'];
+  const hearts=['❤️','💜','💖','💗','🩷','💕','✨','🔥'];
   let h=document.createElement('div'); h.className='floating-heart';
   h.style.left=(x-14)+'px'; h.style.top=(y-14)+'px';
   h.textContent=hearts[Math.floor(Math.random()*hearts.length)];
   document.body.appendChild(h); setTimeout(()=>h.remove(),2300);
 }
-document.addEventListener('dblclick',e=>{
-  spawnHeart(e.clientX,e.clientY);
-  spawnHeart(e.clientX+20,e.clientY-10);
-});
+document.addEventListener('dblclick',e=>{ spawnHeart(e.clientX,e.clientY); spawnHeart(e.clientX+25,e.clientY-15); });
 
-// ===== ONLINE =====
+// ========== ONLINE STATUS ==========
 async function updateLastSeen(){
-  if(ME) await sb.from('profiles').update({last_seen:new Date()}).eq('id',ME.id);
+  if(ME) await sb.from('profiles').update({last_seen:new Date(), status:'online'}).eq('id',ME.id);
 }
 setInterval(updateLastSeen,30000);
 
-// ===== USERS =====
+// ========== USERS ==========
 async function loadUsers(){
   let {data}=await sb.from('profiles').select('*').order('username');
   allUsers=data||[];
   renderUserList();
   const onlineCnt=allUsers.filter(u=>isOnline(u.last_seen)).length;
   document.getElementById('onlineCnt').innerHTML=`● ${onlineCnt} ონლაინი`;
-  // update DM status
   if(DM_WITH){
     const partner=allUsers.find(u=>u.id===DM_WITH);
     if(partner) document.getElementById('dmStatusLine').textContent=isOnline(partner.last_seen)?'🟢 ონლაინი':'⚫ ოფლაინი';
   }
 }
-
 function renderUserList(){
   const container=document.getElementById('usersList'); if(!container)return;
   const q=(document.getElementById('userSearch')?.value||'').toLowerCase();
   container.innerHTML=allUsers.filter(u=>u.id!==ME?.id&&(!q||u.username?.toLowerCase().includes(q))).map(u=>`
     <div class="user-item" onclick="openUserActions('${u.id}','${esc(u.username)}')">
       <div class="avatar">${u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊')}<div class="online-dot ${isOnline(u.last_seen)?'':'offline'}"></div></div>
-      <div>
-        <div>${esc(u.username)}</div>
-        <div style="font-size:10px;color:var(--text2)">${u.role||'member'} ${isOnline(u.last_seen)?'• <span style="color:var(--online)">ონლაინი</span>':'• <span style="color:var(--text3)">ოფლაინი</span>'}</div>
-      </div>
+      <div><div>${esc(u.username)}</div><div style="font-size:10px;color:var(--text2)">${u.role||'member'} ${isOnline(u.last_seen)?'• 🟢 ონლაინი':'• ⚫ ოფლაინი'}</div></div>
+      <button class="emoji-upload-btn" style="margin-left:auto" onclick="event.stopPropagation();sendFriendRequest('${u.id}')">➕ მეგობრად</button>
     </div>
   `).join('');
 }
 function filterUsers(){renderUserList();}
 
-// ===== ROOMS =====
-const ROOMS=[{id:1,icon:'🏠',name:'მთავარი'},{id:2,icon:'🎭',name:'დისკუსია'},{id:3,icon:'🎮',name:'გართობა'}];
-function buildRooms(){
-  let el=document.getElementById('roomList'); el.innerHTML='';
-  ROOMS.forEach(r=>{
-    let div=document.createElement('div'); div.className=`room-item${r.id===CURRENT_ROOM?' active':''}`;
-    div.innerHTML=`<div class="room-icon">${r.icon}</div><div>${r.name}</div>`;
-    div.onclick=()=>{document.querySelectorAll('.room-item').forEach(x=>x.classList.remove('active'));div.classList.add('active');switchRoom(r.id);};
-    el.appendChild(div);
-  });
+// ========== FRIENDS SYSTEM ==========
+async function loadFriends(){
+  if(!ME) return;
+  const { data: sent } = await sb.from('friends').select('*, friend:friend_id(*)').eq('user_id', ME.id).eq('status', 'accepted');
+  const { data: received } = await sb.from('friends').select('*, friend:user_id(*)').eq('friend_id', ME.id).eq('status', 'accepted');
+  const { data: pending } = await sb.from('friends').select('*, friend:friend_id(*)').eq('user_id', ME.id).eq('status', 'pending');
+  const { data: requests } = await sb.from('friends').select('*, friend:user_id(*)').eq('friend_id', ME.id).eq('status', 'pending');
+  myFriends = [...(sent||[]), ...(received||[])].map(f => f.friend).filter(Boolean);
+  pendingRequests = requests||[];
+  renderFriendsList();
+}
+async function sendFriendRequest(friendId){
+  const exists = await sb.from('friends').select('*').or(`and(user_id.eq.${ME.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${ME.id})`);
+  if(exists.data?.length){ toast('⏳ მოთხოვნა უკვე გაგზავნილია'); return; }
+  await sb.from('friends').insert({ user_id: ME.id, friend_id: friendId, status: 'pending' });
+  toast('✉️ მოთხოვნა გაგზავნილია');
+  loadFriends();
+}
+async function acceptFriendRequest(requestId, friendId){
+  await sb.from('friends').update({ status: 'accepted' }).eq('id', requestId);
+  toast('✅ მეგობარი დაემატა');
+  loadFriends(); loadUsers();
+}
+async function removeFriend(friendId){
+  await sb.from('friends').delete().or(`and(user_id.eq.${ME.id},friend_id.eq.${friendId}),and(user_id.eq.${friendId},friend_id.eq.${ME.id})`);
+  toast('❌ მეგობარი წაიშალა');
+  loadFriends();
+}
+function renderFriendsList(){
+  const container = document.getElementById('friendsList');
+  if(!container) return;
+  const pendingHtml = pendingRequests.map(r => `
+    <div class="friend-request">
+      <div>👤 ${esc(r.friend?.username || 'მომხმარებელი')}</div>
+      <button class="emoji-upload-btn" onclick="acceptFriendRequest('${r.id}','${r.friend_id}')">✅ მიღება</button>
+    </div>
+  `).join('');
+  const friendsHtml = myFriends.map(f => `
+    <div class="user-item" style="justify-content:space-between">
+      <div style="display:flex;align-items:center;gap:8px;flex:1" onclick="openDM('${f.id}','${esc(f.username)}')">
+        <div class="avatar">${f.avatar_url?`<img src="${f.avatar_url}">`:(f.emotion||'😊')}<div class="online-dot ${isOnline(f.last_seen)?'':'offline'}"></div></div>
+        <div><div>${esc(f.username)}</div><div style="font-size:10px">${f.status_text||''}</div></div>
+      </div>
+      <button class="emoji-upload-btn" style="background:#ef444430" onclick="event.stopPropagation();removeFriend('${f.id}')">🗑</button>
+    </div>
+  `).join('');
+  container.innerHTML = `
+    ${pendingHtml ? `<div class="sb-header">📨 მოთხოვნები</div>${pendingHtml}` : ''}
+    <div class="sb-header">👥 მეგობრები (${myFriends.length})</div>
+    ${friendsHtml || '<div style="color:var(--text3);padding:12px;text-align:center">ჯერ არ გყავთ მეგობრები<br><button class="emoji-upload-btn" onclick="showPanel(\'users\')" style="margin-top:8px">➕ მეგობრების ძებნა</button></div>'}
+  `;
 }
 
+// ========== ROOMS (DYNAMIC) ==========
+let allRooms = [];
+async function loadRooms(){
+  let query = sb.from('rooms').select('*');
+  if(!canManage()) query = query.or(`is_private.eq.false,created_by.eq.${ME?.id||''}`);
+  const { data } = await query.order('id');
+  allRooms = data || [];
+  renderRoomsList();
+}
+function renderRoomsList(){
+  const el = document.getElementById('roomList'); if(!el) return;
+  el.innerHTML = allRooms.map(r => `
+    <div class="room-item ${r.id === CURRENT_ROOM ? 'active' : ''}" onclick="switchRoom(${r.id})">
+      <div class="room-icon">${r.icon || '🏠'}</div>
+      <div style="flex:1">${esc(r.name)}</div>
+      ${canManage() ? `<button class="emoji-upload-btn" style="padding:2px 6px" onclick="event.stopPropagation();deleteRoom(${r.id})">🗑</button>` : ''}
+    </div>
+  `).join('');
+  if(canManage()){
+    el.innerHTML += `<div class="room-item" onclick="createRoomPrompt()"><div class="room-icon">➕</div><div>ახალი ოთახი...</div></div>`;
+  }
+}
+async function createRoom(name, icon='🏠', isPrivate=false){
+  const { data, error } = await sb.from('rooms').insert({ name, icon, is_private: isPrivate, created_by: ME.id }).select().single();
+  if(!error){ toast(`✅ ოთახი "${name}" შეიქმნა`); await loadRooms(); switchRoom(data.id); }
+  else toast('❌ შეცდომა');
+}
+function createRoomPrompt(){ const name = prompt('ოთახის სახელი:'); if(name) createRoom(name); }
+async function deleteRoom(roomId){
+  if(!confirm('წაშლა?')) return;
+  await sb.from('rooms').delete().eq('id', roomId);
+  toast('🗑 ოთახი წაიშალა');
+  await loadRooms();
+  if(CURRENT_ROOM === roomId) switchRoom(allRooms[0]?.id || 1);
+}
 async function switchRoom(roomId){
-  CURRENT_ROOM=roomId;
-  const room=ROOMS.find(r=>r.id===roomId);
-  document.getElementById('roomTitle').textContent=room?.name||'';
-  document.getElementById('roomIcon').textContent=room?.icon||'🏠';
+  CURRENT_ROOM = roomId;
+  const room = allRooms.find(r=>r.id===roomId);
+  document.getElementById('roomTitle').textContent = room?.name || 'Chat';
+  document.getElementById('roomIcon').textContent = room?.icon || '🏠';
   await loadRoomMessages();
   if(window.roomChannel) sb.removeChannel(window.roomChannel);
-  window.roomChannel=sb.channel(`room:${roomId}`)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room_id=eq.${roomId}`},p=>addMessageToUI(p.new,false))
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},p=>document.getElementById(`msg-${p.old.id}`)?.remove())
+  window.roomChannel = sb.channel(`room_${roomId}`)
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages', filter:`room_id=eq.${roomId}` }, p => addMessageToUI(p.new, false))
+    .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages' }, p => document.getElementById(`msg-${p.old.id}`)?.remove())
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'message_reactions' }, p => updateReactionUI(p.new))
     .subscribe();
-  // typing broadcast
   if(window.typingChannel) sb.removeChannel(window.typingChannel);
-  window.typingChannel=sb.channel(`typing:${roomId}`)
-    .on('broadcast',{event:'typing'},({payload})=>{if(payload.userId!==ME?.id) showTyping(payload.username);})
+  window.typingChannel = sb.channel(`typing_${roomId}`)
+    .on('broadcast', { event:'typing' }, ({payload})=>{ if(payload.userId !== ME?.id) showTyping(payload.username, payload.avatar); })
     .subscribe();
 }
-
 async function loadRoomMessages(){
-  const {data}=await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('room_id',CURRENT_ROOM).order('created_at',{ascending:true}).limit(200);
-  const container=document.getElementById('messages'); container.innerHTML='';
-  (data||[]).forEach(m=>addMessageToUI(m,true));
-  container.scrollTop=container.scrollHeight;
+  const { data } = await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('room_id', CURRENT_ROOM).order('created_at', {ascending:true}).limit(300);
+  const container = document.getElementById('messages'); container.innerHTML = '';
+  (data||[]).forEach(m => addMessageToUI(m, true));
+  container.scrollTop = container.scrollHeight;
+  await loadReactionsForMessages(data||[]);
+}
+async function loadReactionsForMessages(messages){
+  const ids = messages.map(m => m.id);
+  if(!ids.length) return;
+  const { data } = await sb.from('message_reactions').select('*').in('message_id', ids);
+  (data||[]).forEach(r => updateReactionUI(r, false));
+}
+function updateReactionUI(reaction, showEffect=true){
+  const msgDiv = document.getElementById(`msg-${reaction.message_id}`);
+  if(!msgDiv) return;
+  let reactionsDiv = msgDiv.querySelector('.message-reactions');
+  if(!reactionsDiv){
+    reactionsDiv = document.createElement('div'); reactionsDiv.className = 'message-reactions';
+    msgDiv.querySelector('.msg-content').appendChild(reactionsDiv);
+  }
+  // group reactions
+  const userReactions = allReactions?.filter(r=>r.message_id===reaction.message_id) || [];
+  // simplified for now - will refresh
+}
+async function addReaction(messageId, reaction){
+  await sb.from('message_reactions').upsert({ message_id: messageId, user_id: ME.id, reaction }, { onConflict: 'message_id,user_id' });
+}
+function showReactionPicker(messageId, element){
+  const reactions = ['❤️','👍','😂','😮','😢','🔥','💯','🎉'];
+  const picker = document.createElement('div'); picker.className = 'reaction-picker';
+  const rect = element.getBoundingClientRect();
+  picker.style.left = rect.left + 'px'; picker.style.top = (rect.top - 50) + 'px';
+  reactions.forEach(emoji => {
+    const btn = document.createElement('button'); btn.textContent = emoji; btn.style.fontSize = '24px'; btn.style.background = 'transparent'; btn.style.border = 'none'; btn.style.cursor = 'pointer';
+    btn.onclick = () => { addReaction(messageId, emoji); picker.remove(); };
+    picker.appendChild(btn);
+  });
+  document.body.appendChild(picker);
+  setTimeout(() => picker.remove(), 3000);
 }
 
-function addMessageToUI(msg,isHistory){
-  const isMine=msg.user_id===ME.id;
-  const prof=msg.profiles||{};
-  const avatarHtml=prof.avatar_url?`<img src="${prof.avatar_url}">`:(prof.emotion||'😊');
-  let contentHtml='';
+// ========== MESSAGES UI ==========
+function addMessageToUI(msg, isHistory){
+  const isMine = msg.user_id === ME.id;
+  const prof = msg.profiles || {};
+  const avatarHtml = prof.avatar_url ? `<img src="${prof.avatar_url}">` : (prof.emotion || '😊');
+  let contentHtml = '';
   if(msg.voice_url){
-    contentHtml=`<div class="msg-audio"><button class="audio-play" onclick="playAudio('${msg.voice_url}')">▶️</button><div class="audio-wave"><span></span><span></span><span></span><span></span><span></span></div><span style="font-size:11px;color:var(--text2)">ხმოვანი</span></div>`;
+    contentHtml = `<div class="msg-audio"><button class="audio-play" onclick="playAudio('${msg.voice_url}')">▶️</button><div class="audio-wave"><span></span><span></span><span></span><span></span><span></span></div><span style="font-size:11px">ხმოვანი</span></div>`;
   } else {
-    contentHtml=esc(msg.content).replace(/\n/g,'<br>');
-    // render custom emoji images
-    customEmojis.forEach(em=>{
-      contentHtml=contentHtml.replaceAll(`:${em.name}:`,`<img src="${em.url}" style="height:22px;vertical-align:middle">`);
-    });
+    let text = esc(msg.content || '');
+    text = text.replace(/\*\*(.*?)\*\*/g, '<b>$1</b>').replace(/_(.*?)_/g, '<i>$1</i>').replace(/__(.*?)__/g, '<u>$1</u>').replace(/<color="(.*?)">(.*?)<\/color>/g, '<span style="color:$1">$2</span>');
+    customEmojis.forEach(em => { text = text.replaceAll(`:${em.name}:`, `<img src="${em.url}" style="height:20px;vertical-align:middle">`); });
+    contentHtml = text;
   }
-  let delBtn='';
-  if(isMine||canManage()) delBtn=`<button class="msg-del" onclick="deleteMessage('${msg.id}')" title="წაშლა">🗑</button>`;
-  const div=document.createElement('div'); div.className='msg-row'; div.id=`msg-${msg.id}`;
-  div.innerHTML=`
+  let replyHtml = '';
+  if(msg.reply_to){
+    replyHtml = `<div class="reply-badge" onclick="scrollToMessage('${msg.reply_to}')">💬 პასუხი შეტყობინებაზე</div>`;
+  }
+  let delBtn = '';
+  if(isMine || canManage()) delBtn = `<button class="msg-del" onclick="deleteMessage('${msg.id}')">🗑</button>`;
+  const div = document.createElement('div'); div.className = 'msg-row'; div.id = `msg-${msg.id}`;
+  div.innerHTML = `
     <div class="avatar" style="cursor:pointer" onclick="openUserActions('${msg.user_id}','${esc(prof.username)}')">${avatarHtml}</div>
     <div class="msg-content">
       <div class="msg-meta">
         <span class="msg-nick" onclick="openUserActions('${msg.user_id}','${esc(prof.username)}')">${esc(prof.username)}</span>
         <span class="msg-time">${formatTime(msg.created_at)}</span>
         ${delBtn}
+        <button class="rich-btn" style="padding:2px 6px" onclick="setReplyTo('${msg.id}','${esc(msg.content||'ხმოვანი შეტყობინება')}','${esc(prof.username)}')">💬 პასუხი</button>
+        <button class="rich-btn" style="padding:2px 6px" onclick="showReactionPicker('${msg.id}', this)">😊</button>
       </div>
+      ${replyHtml}
       <div class="msg-bubble ${isMine?'mine':''}">${contentHtml}</div>
+      <div class="message-reactions" id="reactions-${msg.id}"></div>
     </div>
   `;
   document.getElementById('messages').appendChild(div);
-  if(!isHistory) document.getElementById('messages').scrollTop=1e9;
+  if(!isHistory) document.getElementById('messages').scrollTop = 1e9;
 }
-
-async function sendMessage(){
-  const inp=document.getElementById('msgInput'); const text=inp.value.trim();
-  if(!text&&!currentVoiceBlob) return;
-  let voiceUrl=null;
-  if(currentVoiceBlob){
-    const fn=`voice_${ME.id}_${Date.now()}.webm`;
-    const {data,error}=await sb.storage.from('voices').upload(fn,currentVoiceBlob);
-    if(!error) voiceUrl=sb.storage.from('voices').getPublicUrl(fn).data.publicUrl;
-    cancelVoice();
-  }
-  if(text||voiceUrl){
-    await sb.from('messages').insert({room_id:CURRENT_ROOM,user_id:ME.id,content:text||'',voice_url:voiceUrl,created_at:new Date()});
-    inp.value=''; inp.style.height='auto';
-  }
-}
-
 async function deleteMessage(msgId){
   if(!confirm('წაშლა?')) return;
-  await sb.from('messages').delete().eq('id',msgId);
+  await sb.from('messages').delete().eq('id', msgId);
+}
+function playAudio(url){ new Audio(url).play(); }
+function scrollToMessage(msgId){ document.getElementById(`msg-${msgId}`)?.scrollIntoView({ behavior:'smooth', block:'center' }); }
+
+// ========== RICH TEXT & REPLY ==========
+function formatText(type, value){
+  const input = document.getElementById('msgInput');
+  const start = input.selectionStart, end = input.selectionEnd;
+  const selected = input.value.substring(start, end);
+  let prefix='', suffix='';
+  if(type==='bold'){ prefix='**'; suffix='**'; }
+  else if(type==='italic'){ prefix='_'; suffix='_'; }
+  else if(type==='underline'){ prefix='__'; suffix='__'; }
+  else if(type==='color' && value){ prefix=`<color="${value}">`; suffix='</color>'; }
+  if(!selected && type!=='color') return;
+  const newText = input.value.substring(0,start) + prefix + selected + suffix + input.value.substring(end);
+  input.value = newText;
+  input.focus();
+  input.selectionStart = start + prefix.length;
+  input.selectionEnd = end + prefix.length;
+}
+function clearRichFormat(){
+  const input = document.getElementById('msgInput');
+  let text = input.value;
+  text = text.replace(/\*\*/g,'').replace(/_/g,'').replace(/__/g,'').replace(/<color=".*?">/g,'').replace(/<\/color>/g,'');
+  input.value = text;
+}
+function insertEmojiPicker(){ toggleEmojiBoard(); }
+function setReplyTo(msgId, content, username){
+  currentReplyTo = msgId;
+  document.getElementById('replyPreviewText').innerText = `${username}: ${content.substring(0,50)}...`;
+  document.getElementById('replyPreview').classList.remove('hidden');
+}
+function cancelReply(){ currentReplyTo = null; document.getElementById('replyPreview').classList.add('hidden'); }
+async function sendMessage(){
+  const inp = document.getElementById('msgInput'); const text = inp.value.trim();
+  if(!text && !currentVoiceBlob) return;
+  let voiceUrl = null;
+  if(currentVoiceBlob){
+    const fn = `voice_${ME.id}_${Date.now()}.webm`;
+    const { error } = await sb.storage.from('voices').upload(fn, currentVoiceBlob);
+    if(!error) voiceUrl = sb.storage.from('voices').getPublicUrl(fn).data.publicUrl;
+    cancelVoice();
+  }
+  if(text || voiceUrl){
+    await sb.from('messages').insert({ room_id: CURRENT_ROOM, user_id: ME.id, content: text || '', voice_url: voiceUrl, reply_to: currentReplyTo, created_at: new Date() });
+    inp.value = ''; inp.style.height = 'auto';
+    cancelReply();
+  }
 }
 
-function playAudio(url){new Audio(url).play();}
-
-// ===== TYPING (ROOM) =====
-function showTyping(username){
-  const el=document.getElementById('typingStatus');
-  el.innerHTML=`<span class="typing-dots">${esc(username)} წერს<span>.</span><span>.</span><span>.</span></span>`;
-  clearTimeout(el._t); el._t=setTimeout(()=>el.innerHTML='',2500);
+// ========== TYPING ==========
+function showTyping(username, avatar){
+  const el = document.getElementById('typingStatus');
+  el.innerHTML = `<span class="typing-dots">✍️ ${esc(username)} წერს<span>.</span><span>.</span><span>.</span></span>`;
+  clearTimeout(el._t); el._t = setTimeout(()=>el.innerHTML='', 2500);
 }
 function emitTyping(){
-  if(window.typingChannel) window.typingChannel.send({type:'broadcast',event:'typing',payload:{userId:ME.id,username:MY_USERNAME}});
+  if(window.typingChannel) window.typingChannel.send({ type:'broadcast', event:'typing', payload:{ userId: ME.id, username: MY_USERNAME, avatar: '' } });
 }
 function handleMsgKey(e){
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendMessage();}
-  else emitTyping();
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendMessage(); }
+  else { emitTyping(); clearTimeout(typingTimeout); typingTimeout = setTimeout(()=>{}, 500); }
 }
 
-// ===== VOICE RECORDING =====
+// ========== VOICE RECORDING ==========
 async function toggleVoiceRecord(isDM=false){
-  const btnId=isDM?'dmMicBtn':'micBtn';
-  const previewId=isDM?'dmVoicePreview':'voicePreviewBar';
-  const btn=document.getElementById(btnId);
+  const btnId = isDM ? 'dmMicBtn' : 'micBtn';
+  const btn = document.getElementById(btnId);
   if(isRecording){
-    mediaRecorder?.stop(); isRecording=false; isDMRecording=isDM;
-    btn.classList.remove('recording'); return;
+    mediaRecorder?.stop(); isRecording = false;
+    btn?.classList.remove('recording'); return;
   }
   try {
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    mediaRecorder=new MediaRecorder(stream); audioChunks=[];
-    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
-    mediaRecorder.onstop=()=>{
-      const blob=new Blob(audioChunks,{type:'audio/webm'});
-      if(isDM){ currentDMVoiceBlob=blob; document.getElementById('dmVoicePreview').classList.remove('hidden');}
-      else { currentVoiceBlob=blob; document.getElementById('voicePreviewBar').classList.remove('hidden');}
+    const stream = await navigator.mediaDevices.getUserMedia({ audio:true });
+    mediaRecorder = new MediaRecorder(stream); audioChunks = [];
+    mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
+    mediaRecorder.onstop = () => {
+      const blob = new Blob(audioChunks, { type:'audio/webm' });
+      if(isDM){ currentDMVoiceBlob = blob; document.getElementById('dmVoicePreview')?.classList.remove('hidden'); }
+      else { currentVoiceBlob = blob; document.getElementById('voicePreviewBar')?.classList.remove('hidden'); }
       stream.getTracks().forEach(t=>t.stop());
     };
-    mediaRecorder.start(); isRecording=true;
-    btn.classList.add('recording');
-    setTimeout(()=>{if(mediaRecorder?.state==='recording'){mediaRecorder.stop();btn.classList.remove('recording');isRecording=false;}},60000);
-  } catch(err){toast('🎙️ მიკროფონის წვდომა უარყოფილია');}
+    mediaRecorder.start(); isRecording = true;
+    btn?.classList.add('recording');
+    setTimeout(()=>{ if(mediaRecorder?.state === 'recording'){ mediaRecorder.stop(); btn?.classList.remove('recording'); isRecording=false; }}, 60000);
+  } catch(err){ toast('🎙️ მიკროფონი საჭიროა'); }
 }
-function cancelVoice(){
-  currentVoiceBlob=null; document.getElementById('voicePreviewBar').classList.add('hidden');
-}
-function cancelDMVoice(){
-  currentDMVoiceBlob=null; document.getElementById('dmVoicePreview').classList.add('hidden');
-}
+function cancelVoice(){ currentVoiceBlob = null; document.getElementById('voicePreviewBar')?.classList.add('hidden'); }
 
-// ===== DM =====
-async function openDM(userId,username){
-  DM_WITH=userId;
-  const partner=allUsers.find(u=>u.id===userId);
-  document.getElementById('dmTitle').textContent=username;
-  document.getElementById('dmStatusLine').textContent=partner&&isOnline(partner.last_seen)?'🟢 ონლაინი':'⚫ ოფლაინი';
-  document.getElementById('dmAvatar').innerHTML=partner?.avatar_url?`<img src="${partner.avatar_url}">`:(partner?.emotion||'👤');
+// ========== DM SYSTEM ==========
+async function openDM(userId, username){
+  DM_WITH = userId;
+  const partner = allUsers.find(u=>u.id===userId);
+  document.getElementById('dmTitle').textContent = username;
+  document.getElementById('dmStatusLine').textContent = partner && isOnline(partner.last_seen) ? '🟢 ონლაინი' : '⚫ ოფლაინი';
+  document.getElementById('dmAvatar').innerHTML = partner?.avatar_url ? `<img src="${partner.avatar_url}">` : (partner?.emotion || '👤');
   document.getElementById('dmBox').classList.add('open');
   await loadDMMessages();
-  // realtime
   if(dmChannel) sb.removeChannel(dmChannel);
-  const roomKey=[ME.id,userId].sort().join('_');
-  dmChannel=sb.channel(`dm:${roomKey}`)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${roomKey}`},async p=>{
-      addDMToUI(p.new,false);
-      if(p.new.receiver_id===ME.id) await markDMRead(p.new.id);
+  const roomKey = [ME.id, userId].sort().join('_');
+  dmChannel = sb.channel(`dm_${roomKey}`)
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'direct_messages', filter:`room_key=eq.${roomKey}` }, async p => {
+      addDMToUI(p.new, false);
+      if(p.new.receiver_id === ME.id) await markDMRead(p.new.id);
     })
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'direct_messages'},p=>{
-      // update read tick on sender's side
-      const el=document.getElementById(`dm-${p.new.id}`);
-      if(el&&p.new.is_read){
-        const tick=el.querySelector('.dm-read');
-        if(tick){tick.textContent='✓✓';tick.classList.remove('pending');}
-      }
+    .on('postgres_changes', { event:'UPDATE', schema:'public', table:'direct_messages' }, p => {
+      const el = document.getElementById(`dm-${p.new.id}`);
+      if(el && p.new.is_read){ const tick = el.querySelector('.dm-read'); if(tick){ tick.textContent='✓✓'; tick.classList.remove('pending'); } }
     })
-    .on('broadcast',{event:'dm_typing'},({payload})=>{
-      if(payload.sender===userId){
-        const el=document.getElementById('dmTyping');
-        el.innerHTML=`<span class="typing-dots">წერს<span>.</span><span>.</span><span>.</span></span>`;
-        clearTimeout(el._t); el._t=setTimeout(()=>el.innerHTML='',2000);
-      }
-    })
+    .on('broadcast', { event:'dm_typing' }, ({payload}) => { if(payload.sender === userId) showDMTyping(); })
     .subscribe();
 }
-
 async function loadDMMessages(){
-  const roomKey=[ME.id,DM_WITH].sort().join('_');
-  const {data}=await sb.from('direct_messages').select('*').eq('room_key',roomKey).order('created_at',{ascending:true}).limit(300);
-  const container=document.getElementById('dmMsgs'); container.innerHTML='';
-  (data||[]).forEach(m=>addDMToUI(m,true));
-  container.scrollTop=container.scrollHeight;
-  // mark unread as read
-  const unread=(data||[]).filter(m=>!m.is_read&&m.receiver_id===ME.id);
+  const roomKey = [ME.id, DM_WITH].sort().join('_');
+  const { data } = await sb.from('direct_messages').select('*').eq('room_key', roomKey).order('created_at', {ascending:true}).limit(300);
+  const container = document.getElementById('dmMsgs'); container.innerHTML = '';
+  (data||[]).forEach(m => addDMToUI(m, true));
+  container.scrollTop = container.scrollHeight;
+  const unread = (data||[]).filter(m => !m.is_read && m.receiver_id === ME.id);
   for(const m of unread) await markDMRead(m.id);
 }
-
-function addDMToUI(msg,isHistory){
-  const isMine=msg.sender_id===ME.id;
-  const time=formatTime(msg.created_at);
-  const wrap=document.createElement('div'); wrap.className=`dm-msg-wrap ${isMine?'mine':''}`; wrap.id=`dm-${msg.id}`;
-  let contentHtml='';
+function addDMToUI(msg, isHistory){
+  const isMine = msg.sender_id === ME.id;
+  const time = formatTime(msg.created_at);
+  const wrap = document.createElement('div'); wrap.className = `dm-msg-wrap ${isMine ? 'mine' : ''}`; wrap.id = `dm-${msg.id}`;
+  let contentHtml = '';
   if(msg.voice_url){
-    contentHtml=`<div class="dm-msg-voice"><button class="audio-play" onclick="playAudio('${msg.voice_url}')">▶️</button><div class="audio-wave"><span></span><span></span><span></span><span></span><span></span></div><span style="font-size:10px;color:var(--text2)">ხმოვანი</span></div>`;
+    contentHtml = `<div class="dm-msg-voice"><button class="audio-play" onclick="playAudio('${msg.voice_url}')">▶️</button><span>ხმოვანი</span></div>`;
   } else {
-    contentHtml=`<div class="dm-msg ${isMine?'mine':'theirs'}">${esc(msg.content).replace(/\n/g,'<br>')}</div>`;
+    let text = esc(msg.content || '');
+    text = text.replace(/\*\*(.*?)\*\*/g,'<b>$1</b>').replace(/_(.*?)_/g,'<i>$1</i>').replace(/__(.*?)__/g,'<u>$1</u>').replace(/<color="(.*?)">(.*?)<\/color>/g,'<span style="color:$1">$2</span>');
+    contentHtml = `<div class="dm-msg ${isMine?'mine':'theirs'}">${text}</div>`;
   }
-  let readHtml='';
-  if(isMine) readHtml=`<span class="dm-read ${msg.is_read?'':'pending'}">${msg.is_read?'✓✓':'✓'}</span>`;
-  wrap.innerHTML=`${contentHtml}<div class="dm-meta"><span class="dm-time">${time}</span>${readHtml}</div>`;
+  let readHtml = isMine ? `<span class="dm-read ${msg.is_read?'':'pending'}">${msg.is_read?'✓✓':'✓'}</span>` : '';
+  wrap.innerHTML = `${contentHtml}<div class="dm-meta"><span class="dm-time">${time}</span>${readHtml}</div>`;
   document.getElementById('dmMsgs').appendChild(wrap);
-  if(!isHistory) document.getElementById('dmMsgs').scrollTop=1e9;
+  if(!isHistory) document.getElementById('dmMsgs').scrollTop = 1e9;
 }
-
 async function sendDM(){
-  const inp=document.getElementById('dmInput'); const text=inp.value.trim();
-  if(!text&&!currentDMVoiceBlob) return;
-  let voiceUrl=null;
+  const inp = document.getElementById('dmInput'); const text = inp.value.trim();
+  if(!text && !currentDMVoiceBlob) return;
+  let voiceUrl = null;
   if(currentDMVoiceBlob){
-    const fn=`dm_voice_${ME.id}_${Date.now()}.webm`;
-    const {data,error}=await sb.storage.from('voices').upload(fn,currentDMVoiceBlob);
-    if(!error) voiceUrl=sb.storage.from('voices').getPublicUrl(fn).data.publicUrl;
+    const fn = `dm_voice_${ME.id}_${Date.now()}.webm`;
+    const { error } = await sb.storage.from('voices').upload(fn, currentDMVoiceBlob);
+    if(!error) voiceUrl = sb.storage.from('voices').getPublicUrl(fn).data.publicUrl;
     cancelDMVoice();
   }
-  if(text||voiceUrl){
-    const roomKey=[ME.id,DM_WITH].sort().join('_');
-    await sb.from('direct_messages').insert({room_key:roomKey,sender_id:ME.id,receiver_id:DM_WITH,content:text||'',voice_url:voiceUrl||null,is_read:false,created_at:new Date()});
-    inp.value=''; inp.style.height='auto';
+  if(text || voiceUrl){
+    const roomKey = [ME.id, DM_WITH].sort().join('_');
+    await sb.from('direct_messages').insert({ room_key: roomKey, sender_id: ME.id, receiver_id: DM_WITH, content: text || '', voice_url: voiceUrl, is_read: false, created_at: new Date() });
+    inp.value = ''; inp.style.height = 'auto';
   }
 }
-
 function emitDMTyping(){
-  if(dmChannel) dmChannel.send({type:'broadcast',event:'dm_typing',payload:{sender:ME.id}});
-  clearTimeout(dmTypingTimeout); dmTypingTimeout=setTimeout(()=>{},1000);
+  if(dmChannel) dmChannel.send({ type:'broadcast', event:'dm_typing', payload:{ sender: ME.id } });
+  clearTimeout(dmTypingTimeout); dmTypingTimeout = setTimeout(()=>{}, 1000);
 }
 function handleDmKey(e){
-  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendDM();}
+  if(e.key==='Enter' && !e.shiftKey){ e.preventDefault(); sendDM(); }
   else emitDMTyping();
 }
-
-async function markDMRead(msgId){
-  await sb.from('direct_messages').update({is_read:true}).eq('id',msgId);
+function showDMTyping(){
+  const el = document.getElementById('dmTyping');
+  el.innerHTML = `<span class="typing-dots">✍️ წერს<span>.</span><span>.</span><span>.</span></span>`;
+  clearTimeout(el._t); el._t = setTimeout(()=>el.innerHTML='', 2000);
 }
-
+async function markDMRead(msgId){
+  await sb.from('direct_messages').update({ is_read: true }).eq('id', msgId);
+}
 function closeDM(){
   document.getElementById('dmBox').classList.remove('open');
   if(dmChannel) sb.removeChannel(dmChannel); dmChannel=null; DM_WITH=null;
 }
+function cancelDMVoice(){ currentDMVoiceBlob = null; document.getElementById('dmVoicePreview')?.classList.add('hidden'); }
 
-// ===== EMOJI BOARD =====
-function toggleEmojiBoard(){
-  const board=document.getElementById('emojiBoard');
-  board.classList.toggle('open');
-  if(board.classList.contains('open')) loadEmojiBoard();
-}
+// ========== EMOJI BOARD ==========
 async function loadEmojiBoard(){
-  const {data}=await sb.from('custom_emojis').select('*').order('created_at');
-  customEmojis=data||[];
-  renderEmojiGrid();
-  // show upload controls if admin/founder
-  const ctrl=document.getElementById('emojiAdminControls');
-  if(ctrl) ctrl.style.display=canManage()?'flex':'none';
+  const { data } = await sb.from('custom_emojis').select('*').order('created_at');
+  customEmojis = data||[];
+  const grid = document.getElementById('emojiGrid'); if(!grid) return;
+  grid.innerHTML = customEmojis.map(em => `<div class="emoji-wrapper"><button class="emoji-btn" onclick="insertEmoji(':${em.name}:')"><img src="${em.url}" style="height:28px"></button>${canManage()?`<div class="emoji-del" onclick="deleteEmoji(${em.id})">✕</div>`:''}</div>`).join('');
+  ['😊','😂','❤️','🔥','👍','😍','🎉','💜','✨','😎','🤔','😭','🙏','💪','🥳'].forEach(e => { const btn = document.createElement('button'); btn.className='emoji-btn'; btn.textContent=e; btn.onclick=()=>insertEmoji(e); grid.appendChild(btn); });
+  const ctrl = document.getElementById('emojiAdminControls');
+  if(ctrl) ctrl.style.display = canManage() ? 'flex' : 'none';
 }
-function renderEmojiGrid(){
-  const grid=document.getElementById('emojiGrid'); grid.innerHTML='';
-  customEmojis.forEach(em=>{
-    const wrap=document.createElement('div'); wrap.className='emoji-wrapper';
-    wrap.innerHTML=`<button class="emoji-btn" onclick="insertEmoji(':${em.name}:')" title="${em.name}"><img src="${em.url}" style="height:28px;width:28px;object-fit:contain"></button>`;
-    if(canManage()){
-      const del=document.createElement('div'); del.className='emoji-del'; del.textContent='✕';
-      del.onclick=(e)=>{e.stopPropagation();deleteEmoji(em.id,em.name);};
-      wrap.appendChild(del);
-    }
-    grid.appendChild(wrap);
-  });
-  // static emojis
-  ['😊','😂','❤️','🔥','👍','😍','🎉','💜','✨','😎','🤔','😭','🙏','💪','🥳'].forEach(e=>{
-    const btn=document.createElement('button'); btn.className='emoji-btn'; btn.textContent=e;
-    btn.onclick=()=>insertEmoji(e); grid.appendChild(btn);
-  });
-}
+function toggleEmojiBoard(){ document.getElementById('emojiBoard')?.classList.toggle('open'); if(document.getElementById('emojiBoard')?.classList.contains('open')) loadEmojiBoard(); }
 function insertEmoji(code){
-  const inp=document.getElementById('msgInput');
-  const pos=inp.selectionStart; const val=inp.value;
-  inp.value=val.slice(0,pos)+code+val.slice(pos);
-  inp.focus(); inp.selectionStart=inp.selectionEnd=pos+code.length;
+  const inp = document.getElementById('msgInput');
+  const pos = inp.selectionStart;
+  inp.value = inp.value.slice(0,pos) + code + inp.value.slice(pos);
+  inp.focus(); inp.selectionStart = inp.selectionEnd = pos + code.length;
 }
 async function uploadEmoji(input){
-  const file=input.files[0]; if(!file) return;
-  const name=prompt('სმაილის სახელი (მაგ. dance):'); if(!name) return;
-  const fn=`emoji_${Date.now()}_${file.name}`;
-  const {data,error}=await sb.storage.from('emojis').upload(fn,file);
-  if(error){toast('❌ ატვირთვის შეცდომა'); return;}
-  const url=sb.storage.from('emojis').getPublicUrl(fn).data.publicUrl;
-  await sb.from('custom_emojis').insert({name,url,uploaded_by:ME.id});
-  toast(`✅ :${name}: დამატებულია!`); loadEmojiBoard(); input.value='';
+  const file = input.files[0]; if(!file) return;
+  const name = prompt('სახელი (ლათინურად):'); if(!name) return;
+  const fn = `emoji_${Date.now()}_${file.name}`;
+  const { error } = await sb.storage.from('emojis').upload(fn, file);
+  if(error){ toast('❌ შეცდომა'); return; }
+  const url = sb.storage.from('emojis').getPublicUrl(fn).data.publicUrl;
+  await sb.from('custom_emojis').insert({ name, url, uploaded_by: ME.id });
+  toast(`✅ :${name}: დაემატა`);
+  loadEmojiBoard(); input.value='';
 }
-async function deleteEmoji(id,name){
-  if(!confirm(`წავშალო :${name}:?`)) return;
-  await sb.from('custom_emojis').delete().eq('id',id);
-  toast('🗑 სმაილი წაიშალა'); loadEmojiBoard();
-}
+async function deleteEmoji(id){ if(confirm('წაშლა?')){ await sb.from('custom_emojis').delete().eq('id', id); loadEmojiBoard(); toast('🗑 წაიშალა'); } }
 
-// ===== USER ACTIONS MODAL =====
-async function openUserActions(uid,uname){
-  const targetUser=allUsers.find(u=>u.id===uid); if(!targetUser&&uid!==ME.id) return;
-  const user=targetUser||{id:ME.id,username:MY_USERNAME,role:MY_ROLE};
-  document.getElementById('modalUserName').textContent=user.username||uname;
-  document.getElementById('modalUserRole').textContent=`📌 ${user.role||'member'}`;
-  document.getElementById('modalUserStatus').textContent=isOnline(user.last_seen)?'🟢 ონლაინი':'⚫ ოფლაინი';
-  const avatarEl=document.getElementById('modalAvatar');
-  avatarEl.innerHTML=user.avatar_url?`<img src="${user.avatar_url}">`:(user.emotion||'😊');
-  const acts=document.getElementById('modalActions'); acts.innerHTML='';
-  // DM
-  if(uid!==ME.id){
-    addModalBtn(acts,`✉️ პირადი შეტყობინება`,()=>{closeModal();openDM(uid,user.username||uname);});
+// ========== USER ACTIONS MODAL ==========
+async function openUserActions(uid, uname){
+  const targetUser = allUsers.find(u=>u.id===uid);
+  const user = targetUser || { id:uid, username:uname, role:'member' };
+  document.getElementById('modalUserName').textContent = user.username;
+  document.getElementById('modalUserRole').textContent = `📌 ${user.role || 'member'}`;
+  document.getElementById('modalUserStatus').textContent = isOnline(user.last_seen) ? '🟢 ონლაინი' : '⚫ ოფლაინი';
+  const avatarEl = document.getElementById('modalAvatar');
+  avatarEl.innerHTML = user.avatar_url ? `<img src="${user.avatar_url}">` : (user.emotion || '😊');
+  const acts = document.getElementById('modalActions'); acts.innerHTML = '';
+  if(uid !== ME.id){
+    addModalBtn(acts, `✉️ პირადი შეტყობინება`, ()=>{ closeModal(); openDM(uid, user.username); });
+    addModalBtn(acts, `👥 მეგობრად დამატება`, ()=>{ sendFriendRequest(uid); closeModal(); });
   }
-  if(canManage()&&uid!==ME.id){
-    // Role select
-    const sel=document.createElement('select'); sel.className='user-action-btn';
-    sel.innerHTML=`<option value="">📋 როლის შეცვლა...</option><option value="admin">👑 ადმინი</option><option value="founder">⭐ დამფუძნებელი</option><option value="member">👤 წევრი</option>`;
-    sel.onchange=async(e)=>{
-      if(!e.target.value) return;
-      await sb.from('profiles').update({role:e.target.value}).eq('id',uid);
-      toast(`✅ როლი: ${e.target.value}`); loadUsers(); closeModal();
-    };
+  if(canManage() && uid !== ME.id){
+    const sel = document.createElement('select'); sel.className = 'user-action-btn';
+    sel.innerHTML = `<option value="">📋 როლის შეცვლა...</option><option value="admin">👑 ადმინი</option><option value="founder">⭐ დამფუძნებელი</option><option value="member">👤 წევრი</option>`;
+    sel.onchange = async(e) => { if(e.target.value){ await sb.from('profiles').update({ role:e.target.value }).eq('id', uid); toast(`✅ როლი: ${e.target.value}`); loadUsers(); closeModal(); } };
     acts.appendChild(sel);
-    // Block / Unblock
-    const isBlocked=user.is_blocked;
-    const blockBtn=addModalBtn(acts,isBlocked?'🔓 განბლოკვა':'🔨 დაბლოკვა',async()=>{
-      await sb.from('profiles').update({is_blocked:!isBlocked}).eq('id',uid);
-      toast(isBlocked?'✅ განბლოკილია':'🔒 დაბლოკილია'); loadUsers(); closeModal();
-    });
+    const isBlocked = user.is_blocked;
+    const blockBtn = addModalBtn(acts, isBlocked ? '🔓 განბლოკვა' : '🔨 დაბლოკვა', async()=>{ await sb.from('profiles').update({ is_blocked: !isBlocked }).eq('id', uid); toast(isBlocked?'✅ განბლოკილია':'🔒 დაბლოკილია'); loadUsers(); closeModal(); });
     if(!isBlocked) blockBtn.classList.add('danger');
   }
   document.getElementById('userModal').classList.add('open');
 }
-function addModalBtn(parent,label,onclick){
-  const btn=document.createElement('button'); btn.className='user-action-btn';
-  btn.textContent=label; btn.onclick=onclick; parent.appendChild(btn); return btn;
-}
-function closeModal(){document.getElementById('userModal').classList.remove('open');}
-function openMyProfile(){openUserActions(ME.id,MY_USERNAME);}
+function addModalBtn(parent, label, onclick){ const btn = document.createElement('button'); btn.className = 'user-action-btn'; btn.textContent = label; btn.onclick = onclick; parent.appendChild(btn); return btn; }
+function closeModal(){ document.getElementById('userModal').classList.remove('open'); }
+function openMyProfile(){ openUserActions(ME.id, MY_USERNAME); }
 
-// ===== PANEL TOGGLE =====
+// ========== PANEL TOGGLE ==========
 function showPanel(name){
-  document.getElementById('panelRooms').classList.toggle('hidden',name!=='rooms');
-  document.getElementById('panelUsers').classList.toggle('hidden',name!=='users');
-  document.getElementById('navRooms').classList.toggle('active',name==='rooms');
-  document.getElementById('navUsers').classList.toggle('active',name==='users');
+  document.getElementById('panelRooms').classList.toggle('hidden', name !== 'rooms');
+  document.getElementById('panelUsers').classList.toggle('hidden', name !== 'users');
+  document.getElementById('panelFriends').classList.toggle('hidden', name !== 'friends');
+  document.getElementById('navRooms').classList.toggle('active', name === 'rooms');
+  document.getElementById('navUsers').classList.toggle('active', name === 'users');
+  const friendsBtn = document.getElementById('navFriends');
+  if(friendsBtn) friendsBtn.classList.toggle('active', name === 'friends');
+  if(name === 'friends') loadFriends();
 }
 
-// ===== INIT =====
+// ========== INIT ==========
 async function init(){
   initTheme();
-  const {data:{user}}=await sb.auth.getUser();
-  if(!user){location.href='index.html';return;}
-  ME=user;
-  let {data:prof}=await sb.from('profiles').select('*').eq('id',ME.id).single();
+  const { data:{user} } = await sb.auth.getUser();
+  if(!user){ location.href = 'index.html'; return; }
+  ME = user;
+  let { data:prof } = await sb.from('profiles').select('*').eq('id', ME.id).single();
   if(!prof){
-    const emailName=user.email?.split('@')[0]||'მომხმარებელი';
-    await sb.from('profiles').insert({id:ME.id,username:emailName,role:'member',emotion:'😊'});
-    MY_ROLE='member'; MY_USERNAME=emailName;
+    const emailName = user.email?.split('@')[0] || 'მომხმარებელი';
+    await sb.from('profiles').insert({ id:ME.id, username:emailName, role:'member', emotion:'😊', theme: localStorage.getItem('theme')||'dark' });
+    MY_ROLE = 'member'; MY_USERNAME = emailName;
   } else {
-    MY_ROLE=prof.role||'member'; MY_USERNAME=prof.username;
+    MY_ROLE = prof.role || 'member'; MY_USERNAME = prof.username;
+    if(prof.theme && prof.theme !== (localStorage.getItem('theme')||'dark')){ localStorage.setItem('theme', prof.theme); initTheme(); }
   }
   await updateLastSeen();
-  buildRooms();
+  await loadRooms();
   await loadUsers();
+  await loadFriends();
   await switchRoom(1);
-  // realtime profile updates
-  sb.channel('profiles_live').on('postgres_changes',{event:'*',schema:'public',table:'profiles'},()=>loadUsers()).subscribe();
-  // periodic refresh
-  setInterval(loadUsers,35000);
+  sb.channel('profiles_live').on('postgres_changes', { event:'*', schema:'public', table:'profiles' }, () => { loadUsers(); loadFriends(); }).subscribe();
+  setInterval(()=>{ loadUsers(); loadFriends(); }, 35000);
 }
-async function logout(){await sb.auth.signOut();location.href='index.html';}
-window.onload=init;
+async function logout(){ await sb.auth.signOut(); location.href = 'index.html'; }
+window.onload = init;
 </script>
 </body>
 </html>
