@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="ka" data-theme="dark">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>კაიფმანია — ჩატი 😎🔥</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;500;700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root {
+  --accent: #ff4400;
+  --accent2: #cc1100;
+  --bg: #0a0a0a;
+  --bg2: #111;
+  --bg3: #1a1a1a;
+  --bg4: #222;
+  --border: #2a2a2a;
+  --text: #f0f0f0;
+  --text2: #aaa;
+  --text3: #666;
+  --online: #22cc66;
+  --sidebar-w: 240px;
+  --panel-w: 280px;
+  --header-h: 56px;
+  --radius: 16px;
+  --glow: rgba(255,68,0,0.3);
+}
+[data-theme="light"] {
+  --bg: #f5f5f5; --bg2: #fff; --bg3: #eee; --bg4: #e0e0e0;
+  --border: #ddd; --text: #111; --text2: #555; --text3: #999;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; overflow: hidden; }
+body {
+  font-family: 'Noto Sans Georgian', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+/* ── FLOATING PARTICLES ── */
+#particles {
+  position: fixed; inset: 0; pointer-events: none; z-index: 0;
+  overflow: hidden;
+}
+.particle {
+  position: absolute; bottom: -40px;
+  animation: particleUp linear infinite;
+  opacity: 0; user-select: none;
+  filter: drop-shadow(0 0 4px var(--accent));
+}
+@keyframes particleUp {
+  0%   { transform: translateY(0) rotate(-10deg) scale(1); opacity: 0; }
+  5%   { opacity: 0.8; }
+  80%  { opacity: 0.3; }
+  100% { transform: translateY(-105vh) rotate(20deg) scale(0.2); opacity: 0; }
+}
+
+/* ── LAYOUT ── */
+#app {
+  position: relative; z-index: 1;
+  display: flex; flex-direction: column;
+  height: 100vh;
+}
+#topbar {
+  height: var(--header-h);
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center;
+  padding: 0 16px; gap: 12px;
+  flex-shrink: 0;
+  box-shadow: 0 2px 20px rgba(0,0,0,0.4);
+}
+#logo {
+  font-weight: 900; font-size: 1.1rem;
+  background: linear-gradient(135deg, #ff6600, #ff2200);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  white-space: nowrap;
+}
+.topbar-spacer { flex: 1; }
+.icon-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: none; background: var(--bg3); color: var(--text);
+  cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s, transform 0.1s;
+  position: relative;
+}
+.icon-btn:hover { background: var(--bg4); transform: scale(1.05); }
+.badge {
+  position: absolute; top: -4px; right: -4px;
+  background: var(--accent); color: #fff;
+  font-size: 0.58rem; font-weight: 900;
+  padding: 1px 4px; border-radius: 99px; min-width: 16px; text-align: center;
+}
+
+#main { display: flex; flex: 1; overflow: hidden; }
+
+/* ── SIDEBAR ── */
+#sidebar {
+  width: var(--sidebar-w); flex-shrink: 0;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex; flex-direction: column;
+  overflow: hidden;
+}
+#sidebar-header {
+  padding: 12px; border-bottom: 1px solid var(--border);
+}
+#sidebar-header h3 {
+  font-size: 0.7rem; font-weight: 700; color: var(--text3);
+  text-transform: uppercase; letter-spacing: 0.08em;
+  margin-bottom: 8px;
+}
+.search-box {
+  width: 100%; padding: 8px 12px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 10px; color: var(--text);
+  font-family: inherit; font-size: 0.8rem; outline: none;
+}
+.search-box:focus { border-color: var(--accent); }
+#room-list { flex: 1; overflow-y: auto; padding: 8px; }
+.room-item {
+  padding: 10px 12px; border-radius: 12px;
+  cursor: pointer; transition: background 0.15s;
+  display: flex; align-items: center; gap: 10px;
+  margin-bottom: 2px;
+}
+.room-item:hover { background: var(--bg3); }
+.room-item.active { background: rgba(255,68,0,0.15); border: 1px solid rgba(255,68,0,0.3); }
+.room-icon { font-size: 1.1rem; flex-shrink: 0; }
+.room-info { flex: 1; min-width: 0; }
+.room-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.room-num { font-size: 0.68rem; color: var(--text3); }
+.room-unread {
+  background: var(--accent); color: #fff;
+  font-size: 0.62rem; font-weight: 900;
+  padding: 2px 6px; border-radius: 99px; flex-shrink: 0;
+}
+
+/* ── CHAT AREA ── */
+#chat-area {
+  flex: 1; display: flex; flex-direction: column; overflow: hidden;
+  position: relative;
+}
+#chat-header {
+  height: var(--header-h); padding: 0 16px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg2); flex-shrink: 0;
+}
+#chat-header-name { font-weight: 900; font-size: 1rem; }
+#online-count {
+  font-size: 0.72rem; color: var(--online);
+  background: rgba(34,204,102,0.1); padding: 3px 8px; border-radius: 99px;
+}
+#messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+.msg-group { display: flex; flex-direction: column; gap: 1px; }
+.msg-row {
+  display: flex; align-items: flex-end; gap: 8px;
+  padding: 2px 0;
+}
+.msg-row.own { flex-direction: row-reverse; }
+.avatar {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), var(--accent2));
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.75rem; flex-shrink: 0;
+  cursor: pointer;
+}
+.msg-bubble {
+  max-width: 65%; padding: 8px 12px; border-radius: 16px;
+  font-size: 0.84rem; line-height: 1.5;
+  position: relative; cursor: pointer;
+  background: var(--bg3); border: 1px solid var(--border);
+}
+.msg-row.own .msg-bubble {
+  background: linear-gradient(135deg, rgba(255,68,0,0.25), rgba(180,20,0,0.2));
+  border-color: rgba(255,68,0,0.35);
+}
+.msg-meta {
+  font-size: 0.62rem; color: var(--text3);
+  margin-top: 3px; display: flex; align-items: center; gap: 4px;
+}
+.msg-row.own .msg-meta { justify-content: flex-end; }
+.seen-tick { color: #4af; font-size: 0.7rem; }
+.msg-sender {
+  font-size: 0.68rem; font-weight: 700;
+  margin-bottom: 2px; padding-left: 4px;
+}
+.role-badge {
+  font-size: 0.55rem; padding: 1px 5px; border-radius: 4px;
+  font-weight: 700; letter-spacing: 0.04em;
+}
+.role-founder { background: rgba(255,200,0,0.2); color: #ffcc00; border: 1px solid rgba(255,200,0,0.4); }
+.role-admin   { background: rgba(255,68,0,0.2);  color: #ff6600; border: 1px solid rgba(255,68,0,0.4); }
+.msg-reactions {
+  display: flex; gap: 4px; flex-wrap: wrap; margin-top: 4px;
+}
+.reaction-chip {
+  background: var(--bg4); border: 1px solid var(--border);
+  border-radius: 99px; padding: 2px 7px;
+  font-size: 0.75rem; cursor: pointer; transition: transform 0.1s;
+  display: flex; align-items: center; gap: 3px;
+}
+.reaction-chip:hover { transform: scale(1.1); }
+.reaction-chip.mine { border-color: var(--accent); background: rgba(255,68,0,0.1); }
+
+/* typing indicator */
+#typing-indicator {
+  padding: 6px 16px; font-size: 0.72rem; color: var(--text3);
+  min-height: 22px;
+}
+
+/* ── INPUT BAR ── */
+#input-area {
+  border-top: 1px solid var(--border);
+  background: var(--bg2);
+  padding: 10px 12px; flex-shrink: 0;
+}
+#format-bar {
+  display: flex; gap: 4px; margin-bottom: 8px;
+}
+.fmt-btn {
+  padding: 4px 8px; border: 1px solid var(--border);
+  border-radius: 8px; background: var(--bg3); color: var(--text2);
+  cursor: pointer; font-size: 0.75rem; font-weight: 700;
+  transition: all 0.15s;
+}
+.fmt-btn:hover { background: var(--bg4); color: var(--text); }
+.fmt-btn.active { background: rgba(255,68,0,0.2); border-color: var(--accent); color: var(--accent); }
+#color-picker-input {
+  width: 24px; height: 24px; border: none; padding: 0;
+  border-radius: 6px; cursor: pointer; background: none;
+}
+#input-row { display: flex; gap: 8px; align-items: flex-end; }
+#msg-input {
+  flex: 1; padding: 10px 14px;
+  background: var(--bg3); border: 1.5px solid var(--border);
+  border-radius: 14px; color: var(--text);
+  font-family: inherit; font-size: 0.87rem;
+  outline: none; resize: none;
+  min-height: 42px; max-height: 120px;
+  transition: border-color 0.2s;
+  line-height: 1.4;
+}
+#msg-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--glow); }
+.send-btn {
+  width: 42px; height: 42px; border-radius: 12px;
+  border: none; background: linear-gradient(135deg, #ff5500, #cc1100);
+  color: #fff; font-size: 1.1rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: transform 0.15s, box-shadow 0.15s;
+  box-shadow: 0 4px 16px rgba(255,68,0,0.35);
+  flex-shrink: 0;
+}
+.send-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 22px rgba(255,68,0,0.5); }
+
+/* emoji picker toggle */
+#emoji-toggle {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg3);
+  font-size: 1.1rem; cursor: pointer; display: flex;
+  align-items: center; justify-content: center; flex-shrink: 0;
+}
+#emoji-panel {
+  display: none; position: absolute; bottom: 80px; right: 12px;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 12px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.5);
+  z-index: 100; width: 300px;
+}
+#emoji-panel.open { display: block; }
+#emoji-panel h4 { font-size: 0.7rem; color: var(--text3); margin-bottom: 8px; }
+.emoji-grid {
+  display: grid; grid-template-columns: repeat(8, 1fr); gap: 4px;
+}
+.emoji-cell {
+  font-size: 1.25rem; text-align: center; padding: 4px;
+  border-radius: 8px; cursor: pointer; transition: background 0.1s;
+}
+.emoji-cell:hover { background: var(--bg3); }
+.animated-emoji {
+  animation: emojiPulse 1.5s ease-in-out infinite;
+}
+@keyframes emojiPulse {
+  0%,100% { transform: scale(1); }
+  50% { transform: scale(1.3) rotate(10deg); }
+}
+
+/* ── RIGHT PANEL ── */
+#right-panel {
+  width: var(--panel-w); flex-shrink: 0;
+  background: var(--bg2); border-left: 1px solid var(--border);
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.panel-tabs {
+  display: flex; border-bottom: 1px solid var(--border);
+}
+.ptab {
+  flex: 1; padding: 12px 4px;
+  border: none; background: none; color: var(--text3);
+  font-family: inherit; font-size: 0.72rem; font-weight: 700;
+  cursor: pointer; transition: color 0.15s, border-bottom 0.15s;
+  border-bottom: 2px solid transparent;
+}
+.ptab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.panel-content { flex: 1; overflow-y: auto; padding: 10px; }
+.panel-section { display: none; }
+.panel-section.active { display: block; }
+
+/* user card in panel */
+.user-card {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px; border-radius: 12px; margin-bottom: 4px;
+  transition: background 0.15s; cursor: pointer;
+  position: relative;
+}
+.user-card:hover { background: var(--bg3); }
+.user-card .av {
+  width: 34px; height: 34px; border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent), #660000);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 900; font-size: 0.8rem; flex-shrink: 0; position: relative;
+}
+.online-dot {
+  position: absolute; bottom: 0; right: 0;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--online); border: 2px solid var(--bg2);
+}
+.offline-dot {
+  position: absolute; bottom: 0; right: 0;
+  width: 9px; height: 9px; border-radius: 50%;
+  background: var(--text3); border: 2px solid var(--bg2);
+}
+.user-info { flex: 1; min-width: 0; }
+.user-name { font-size: 0.8rem; font-weight: 700; }
+.user-status { font-size: 0.65rem; color: var(--text3); }
+.user-actions { display: flex; gap: 4px; }
+.ua-btn {
+  width: 26px; height: 26px; border-radius: 8px;
+  border: 1px solid var(--border); background: var(--bg3);
+  color: var(--text2); font-size: 0.75rem; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.ua-btn:hover { background: var(--accent); color: #fff; border-color: var(--accent); }
+
+/* ── MODALS ── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7); z-index: 200;
+  align-items: center; justify-content: center;
+  backdrop-filter: blur(4px);
+}
+.modal-overlay.open { display: flex; }
+.modal {
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 20px; padding: 24px; width: 340px;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+  animation: modalIn 0.3s cubic-bezier(0.34,1.56,0.64,1);
+}
+@keyframes modalIn {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+.modal h3 { font-size: 1rem; font-weight: 900; margin-bottom: 16px; }
+.modal-close {
+  float: right; background: none; border: none;
+  color: var(--text3); font-size: 1.2rem; cursor: pointer;
+}
+.modal-field { margin-bottom: 12px; }
+.modal-field label { font-size: 0.7rem; color: var(--text3); display: block; margin-bottom: 4px; }
+.modal-input {
+  width: 100%; padding: 10px 13px;
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: 12px; color: var(--text);
+  font-family: inherit; font-size: 0.85rem; outline: none;
+}
+.modal-input:focus { border-color: var(--accent); }
+.modal-btn {
+  width: 100%; padding: 11px; border: none;
+  border-radius: 12px; background: linear-gradient(135deg, #ff5500, #cc1100);
+  color: #fff; font-family: inherit; font-size: 0.9rem; font-weight: 900;
+  cursor: pointer; margin-top: 4px;
+}
+.modal-btn:hover { opacity: 0.9; }
+.modal-btn.danger { background: linear-gradient(135deg, #cc0000, #880000); }
+.modal-btn.safe   { background: linear-gradient(135deg, #00aa44, #006622); }
+
+/* reaction picker (context) */
+#reaction-picker {
+  display: none; position: fixed;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 16px; padding: 8px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+  z-index: 300; gap: 4px;
+}
+#reaction-picker.open { display: flex; }
+.rp-emoji {
+  font-size: 1.4rem; padding: 4px 6px; border-radius: 10px;
+  cursor: pointer; transition: transform 0.1s;
+}
+.rp-emoji:hover { transform: scale(1.3); }
+
+/* ── THEME PICKER ── */
+#theme-modal .color-grid {
+  display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; margin: 12px 0;
+}
+.color-swatch {
+  width: 40px; height: 40px; border-radius: 10px;
+  cursor: pointer; border: 2px solid transparent;
+  transition: transform 0.15s, border-color 0.15s;
+}
+.color-swatch:hover, .color-swatch.sel { transform: scale(1.1); border-color: #fff; }
+
+/* ── PM PANEL ── */
+#pm-panel {
+  display: none; position: fixed; right: 0; top: 0; bottom: 0;
+  width: 360px; background: var(--bg2);
+  border-left: 1px solid var(--border);
+  z-index: 150; flex-direction: column;
+  box-shadow: -8px 0 40px rgba(0,0,0,0.5);
+}
+#pm-panel.open { display: flex; }
+#pm-header {
+  padding: 12px 16px; border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 10px;
+}
+#pm-close {
+  margin-left: auto; background: none; border: none;
+  color: var(--text3); font-size: 1.2rem; cursor: pointer;
+}
+#pm-messages { flex: 1; overflow-y: auto; padding: 12px; display: flex; flex-direction: column; gap: 4px; }
+#pm-input-row { padding: 10px; border-top: 1px solid var(--border); display: flex; gap: 8px; }
+#pm-input {
+  flex: 1; padding: 9px 12px; background: var(--bg3);
+  border: 1px solid var(--border); border-radius: 12px;
+  color: var(--text); font-family: inherit; font-size: 0.84rem; outline: none;
+}
+#pm-voice-btn {
+  width: 36px; height: 36px; border-radius: 10px;
+  border: 1px solid var(--border); background: var(--bg3);
+  color: var(--text); cursor: pointer; font-size: 1rem;
+  display: flex; align-items: center; justify-content: center;
+}
+#pm-voice-btn.recording { background: rgba(255,0,0,0.2); border-color: red; animation: pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1}50%{opacity:0.5} }
+
+/* ── STATUS BAR ── */
+#status-bar {
+  padding: 4px 12px; font-size: 0.68rem; color: var(--text3);
+  border-bottom: 1px solid var(--border); background: var(--bg);
+  display: flex; align-items: center; gap: 8px;
+}
+.status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--online); }
+
+/* album */
+.album-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-top: 8px; }
+.album-thumb {
+  aspect-ratio: 1; border-radius: 8px; background: var(--bg3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.5rem; cursor: pointer; overflow: hidden;
+  border: 1px solid var(--border);
+}
+.album-thumb img { width: 100%; height: 100%; object-fit: cover; }
+
+/* voice msg */
+.voice-msg {
+  display: flex; align-items: center; gap: 8px;
+  padding: 8px 12px; background: var(--bg3); border-radius: 12px;
+  min-width: 160px;
+}
+.voice-play { background: var(--accent); border: none; color: #fff;
+  width: 28px; height: 28px; border-radius: 50%; cursor: pointer;
+  font-size: 0.8rem; display: flex; align-items: center; justify-content: center;
+}
+.voice-waveform { flex: 1; height: 20px; display: flex; align-items: center; gap: 2px; }
+.wv-bar { width: 3px; border-radius: 2px; background: var(--accent); opacity: 0.6; }
+
+/* day separator */
+.day-sep {
+  text-align: center; font-size: 0.68rem; color: var(--text3);
+  margin: 10px 0; position: relative;
+}
+.day-sep::before {
+  content: ''; position: absolute; left: 0; right: 0; top: 50%;
+  height: 1px; background: var(--border);
+}
+.day-sep span { background: var(--bg); padding: 0 10px; position: relative; }
+
+/* context menu */
+#ctx-menu {
+  display: none; position: fixed; z-index: 400;
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 14px; padding: 6px;
+  box-shadow: 0 8px 30px rgba(0,0,0,0.5); min-width: 160px;
+}
+#ctx-menu.open { display: block; }
+.ctx-item {
+  padding: 8px 12px; border-radius: 10px;
+  font-size: 0.82rem; cursor: pointer; transition: background 0.1s;
+  display: flex; align-items: center; gap: 8px;
+}
+.ctx-item:hover { background: var(--bg3); }
+.ctx-item.danger { color: #ff4444; }
+
+/* notification toast */
+#toast {
+  position: fixed; bottom: 80px; left: 50%;
+  transform: translateX(-50%) translateY(20px);
+  background: var(--bg2); border: 1px solid var(--border);
+  border-radius: 12px; padding: 10px 18px;
+  font-size: 0.82rem; opacity: 0;
+  transition: all 0.3s; z-index: 500;
+  box-shadow: 0 6px 30px rgba(0,0,0,0.4); pointer-events: none;
+}
+#toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+/* PM indicator outer (topbar) */
+#pm-indicator { position: relative; }
+
+/* scrollbar thumb color */
+#messages::-webkit-scrollbar-thumb { background: #2a2a2a; }
+</style>
+</head>
+<body>
+
+<div id="particles"></div>
+
+<div id="app">
+
+<!-- STATUS BAR -->
+<div id="status-bar">
+  <div class="status-dot"></div>
+  <span id="sb-nick">loading...</span>
+  <span>•</span>
+  <span id="sb-room">ოთახი 1</span>
+  <span id="sb-online" style="margin-left:auto"></span>
+</div>
+
+<!-- TOPBAR -->
+<div id="topbar">
+  <div id="logo">კაიფმანია 😎🔥</div>
+  <div class="topbar-spacer"></div>
+
+  <!-- day/night -->
+  <button class="icon-btn" title="თემა" onclick="toggleTheme()">🌙</button>
+  <!-- color theme -->
+  <button class="icon-btn" title="ფერი" onclick="openModal('theme-modal')">🎨</button>
+  <!-- album -->
+  <button class="icon-btn" title="ალბომი" onclick="openModal('album-modal')">🖼️</button>
+  <!-- status -->
+  <button class="icon-btn" title="სტატუსი" onclick="openModal('status-modal')">💬</button>
+  <!-- PM -->
+  <div class="icon-btn" id="pm-indicator" title="პმ" onclick="openPmList()">
+    💌 <span class="badge" id="pm-badge" style="display:none">0</span>
+  </div>
+  <!-- profile -->
+  <button class="icon-btn" title="პროფილი" onclick="openModal('profile-modal')">👤</button>
+  <!-- logout -->
+  <button class="icon-btn" title="გასვლა" onclick="doLogout()">🚪</button>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- SIDEBAR: rooms -->
+  <div id="sidebar">
+    <div id="sidebar-header">
+      <h3>ოთახები</h3>
+      <input class="search-box" placeholder="🔍 ძებნა..." oninput="filterRooms(this.value)"/>
+    </div>
+    <div id="room-list"></div>
+  </div>
+
+  <!-- CHAT -->
+  <div id="chat-area">
+    <div id="chat-header">
+      <span id="chat-header-name">ოთახი 1</span>
+      <span id="online-count">0 ონლაინ</span>
+      <div style="flex:1"></div>
+      <button class="icon-btn" onclick="document.getElementById('emoji-panel').classList.toggle('open')" title="სმაილები">😀</button>
+    </div>
+    <div id="messages">
+      <div class="day-sep"><span>დღეს</span></div>
+    </div>
+    <div id="typing-indicator"></div>
+
+    <!-- emoji panel -->
+    <div id="emoji-panel">
+      <h4>სმაილები</h4>
+      <div class="emoji-grid" id="emoji-grid"></div>
+      <div id="animated-emojis-section" style="display:none; margin-top:10px;">
+        <h4>ანიმაციური (ადმინი)</h4>
+        <div class="emoji-grid" id="anim-emoji-grid"></div>
+      </div>
+    </div>
+
+    <div id="input-area">
+      <div id="format-bar">
+        <button class="fmt-btn" id="fmt-bold" onclick="toggleFmt('bold')" title="სქლად"><b>B</b></button>
+        <button class="fmt-btn" id="fmt-italic" onclick="toggleFmt('italic')" title="დახრილი"><i>I</i></button>
+        <button class="fmt-btn" id="fmt-reply" onclick="toggleReply()" title="პასუხი">↩ პასუხი</button>
+        <input type="color" id="color-picker-input" value="#ff4400" onchange="setTextColor(this.value)" title="ფერი"/>
+      </div>
+      <div id="input-row">
+        <button id="emoji-toggle" onclick="document.getElementById('emoji-panel').classList.toggle('open')">😊</button>
+        <textarea id="msg-input" rows="1" placeholder="დაწერე შეტყობინება..." oninput="autoGrow(this); onTyping();" onkeydown="inputKeydown(event)"></textarea>
+        <button class="send-btn" onclick="sendMsg()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT PANEL: online / friends / admin -->
+  <div id="right-panel">
+    <div class="panel-tabs">
+      <button class="ptab active" onclick="switchPanelTab('online',this)">ონლაინ</button>
+      <button class="ptab" onclick="switchPanelTab('friends',this)">მეგობრები</button>
+      <button class="ptab" onclick="switchPanelTab('admin',this)" id="admin-tab" style="display:none">ადმინი</button>
+    </div>
+    <div class="panel-content">
+      <div class="panel-section active" id="ps-online"></div>
+      <div class="panel-section" id="ps-friends">
+        <button class="modal-btn" style="margin-bottom:8px; padding:8px;" onclick="openModal('add-friend-modal')">+ მეგობრის დამატება</button>
+        <div id="friends-list"></div>
+      </div>
+      <div class="panel-section" id="ps-admin">
+        <div style="font-size:0.75rem; color:var(--text3); margin-bottom:8px;">ადმინ პანელი</div>
+        <button class="modal-btn" style="padding:8px; margin-bottom:6px;" onclick="openModal('add-anim-emoji-modal')">+ ანიმ. სმაილი</button>
+        <div id="admin-user-list"></div>
+      </div>
+    </div>
+  </div>
+
+</div><!-- end #main -->
+</div><!-- end #app -->
+
+<!-- PM PANEL -->
+<div id="pm-panel">
+  <div id="pm-header">
+    <div class="av" id="pm-av">?</div>
+    <div>
+      <div id="pm-name" style="font-weight:900; font-size:0.9rem"></div>
+      <div id="pm-seen" style="font-size:0.65rem; color:var(--text3)"></div>
+    </div>
+    <button id="pm-close" onclick="closePm()">✕</button>
+  </div>
+  <div id="pm-messages"></div>
+  <div id="pm-input-row">
+    <button id="pm-voice-btn" onclick="toggleVoiceRecord()" title="ვოისი">🎤</button>
+    <input id="pm-input" placeholder="პმ..." onkeydown="pmInputKey(event)" oninput="sendPmTyping()"/>
+    <button class="send-btn" style="width:36px;height:36px;" onclick="sendPm()">➤</button>
+  </div>
+</div>
+
+<!-- REACTION PICKER -->
+<div id="reaction-picker">
+  <span class="rp-emoji" onclick="addReaction('❤️')">❤️</span>
+  <span class="rp-emoji" onclick="addReaction('😂')">😂</span>
+  <span class="rp-emoji" onclick="addReaction('🔥')">🔥</span>
+  <span class="rp-emoji" onclick="addReaction('👍')">👍</span>
+  <span class="rp-emoji" onclick="addReaction('😍')">😍</span>
+  <span class="rp-emoji" onclick="addReaction('💯')">💯</span>
+  <span class="rp-emoji" onclick="addReaction('😢')">😢</span>
+  <span class="rp-emoji" onclick="addReaction('😮')">😮</span>
+</div>
+
+<!-- CONTEXT MENU -->
+<div id="ctx-menu">
+  <div class="ctx-item" onclick="ctxReact()">😊 რეაქცია</div>
+  <div class="ctx-item" onclick="ctxReply()">↩ პასუხი</div>
+  <div class="ctx-item" id="ctx-delete" onclick="ctxDelete()" style="display:none" class="danger">🗑️ წაშლა</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<!-- ═══ MODALS ═══ -->
+
+<!-- PROFILE MODAL -->
+<div class="modal-overlay" id="profile-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('profile-modal')">✕</button>
+    <h3>👤 პროფილი</h3>
+    <div class="modal-field">
+      <label>ნიკნეიმი</label>
+      <input class="modal-input" id="prof-nick" placeholder="ნიკნეიმი"/>
+    </div>
+    <div class="modal-field">
+      <label>სტატუსი / ემოცია</label>
+      <input class="modal-input" id="prof-status" placeholder="რას გრძნობ? 🔥"/>
+    </div>
+    <div class="modal-field">
+      <label>საყვარელი ფერი</label>
+      <input type="color" id="prof-color" style="width:100%;height:40px;border-radius:10px;border:none;cursor:pointer;"/>
+    </div>
+    <button class="modal-btn" onclick="saveProfile()">შენახვა ✅</button>
+  </div>
+</div>
+
+<!-- STATUS MODAL -->
+<div class="modal-overlay" id="status-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('status-modal')">✕</button>
+    <h3>💬 სტატუსი</h3>
+    <div class="modal-field">
+      <label>სტატუსი</label>
+      <input class="modal-input" id="status-input" placeholder="ვარ ონლაინ 😎"/>
+    </div>
+    <div style="display:flex; gap:6px; flex-wrap:wrap; margin:8px 0;">
+      <span style="cursor:pointer;font-size:1.3rem;" onclick="document.getElementById('status-input').value='😴 ვძინავ'">😴</span>
+      <span style="cursor:pointer;font-size:1.3rem;" onclick="document.getElementById('status-input').value='🎮 ვთამაშობ'">🎮</span>
+      <span style="cursor:pointer;font-size:1.3rem;" onclick="document.getElementById('status-input').value='🎵 ვუსმენ'">🎵</span>
+      <span style="cursor:pointer;font-size:1.3rem;" onclick="document.getElementById('status-input').value='📚 ვსწავლობ'">📚</span>
+      <span style="cursor:pointer;font-size:1.3rem;" onclick="document.getElementById('status-input').value='💪 ვარ ვარ!'">💪</span>
+      <span style="cursor:pointer;font-size:1.3rem;" onclick="document.getElementById('status-input').value='🔥 ცხელი'">🔥</span>
+    </div>
+    <button class="modal-btn" onclick="saveStatus()">შენახვა</button>
+  </div>
+</div>
+
+<!-- THEME MODAL -->
+<div class="modal-overlay" id="theme-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('theme-modal')">✕</button>
+    <h3>🎨 ფერის თემა</h3>
+    <div class="color-grid">
+      <div class="color-swatch" style="background:#ff4400" onclick="setAccent('#ff4400','#cc1100')"></div>
+      <div class="color-swatch" style="background:#ff0066" onclick="setAccent('#ff0066','#bb0044')"></div>
+      <div class="color-swatch" style="background:#00ccff" onclick="setAccent('#00ccff','#0088bb')"></div>
+      <div class="color-swatch" style="background:#00ff88" onclick="setAccent('#00ff88','#00aa55')"></div>
+      <div class="color-swatch" style="background:#aa44ff" onclick="setAccent('#aa44ff','#7700cc')"></div>
+      <div class="color-swatch" style="background:#ffcc00" onclick="setAccent('#ffcc00','#cc9900')"></div>
+      <div class="color-swatch" style="background:#ff6600" onclick="setAccent('#ff6600','#cc4400')"></div>
+      <div class="color-swatch" style="background:#00ddaa" onclick="setAccent('#00ddaa','#009977')"></div>
+      <div class="color-swatch" style="background:#ff44aa" onclick="setAccent('#ff44aa','#cc2288')"></div>
+      <div class="color-swatch" style="background:#44aaff" onclick="setAccent('#44aaff','#2277cc')"></div>
+    </div>
+    <div class="modal-field">
+      <label>ან აირჩიე ნებისმიერი ფერი</label>
+      <input type="color" id="custom-color" style="width:100%;height:40px;border-radius:10px;border:none;cursor:pointer;" onchange="setAccent(this.value, shadeColor(this.value,-30))"/>
+    </div>
+  </div>
+</div>
+
+<!-- ALBUM MODAL -->
+<div class="modal-overlay" id="album-modal">
+  <div class="modal" style="width:360px;">
+    <button class="modal-close" onclick="closeModal('album-modal')">✕</button>
+    <h3>🖼️ ფოტო ალბომი</h3>
+    <button class="modal-btn" style="padding:8px;margin-bottom:10px;" onclick="document.getElementById('album-upload').click()">+ ფოტოს ატვირთვა</button>
+    <input type="file" id="album-upload" accept="image/*" style="display:none" onchange="uploadAlbumPhoto(this)"/>
+    <div class="album-grid" id="album-grid">
+      <div class="album-thumb">📷</div>
+    </div>
+  </div>
+</div>
+
+<!-- ADD FRIEND MODAL -->
+<div class="modal-overlay" id="add-friend-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-friend-modal')">✕</button>
+    <h3>👥 მეგობრის დამატება</h3>
+    <div class="modal-field">
+      <label>ნიკნეიმი</label>
+      <input class="modal-input" id="friend-nick-input" placeholder="მეგობრის ნიკნეიმი"/>
+    </div>
+    <button class="modal-btn" onclick="addFriend()">დამატება</button>
+  </div>
+</div>
+
+<!-- ADD ANIMATED EMOJI (admin) -->
+<div class="modal-overlay" id="add-anim-emoji-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('add-anim-emoji-modal')">✕</button>
+    <h3>✨ ანიმ. სმაილის დამატება</h3>
+    <div class="modal-field">
+      <label>Emoji / სიმბოლო</label>
+      <input class="modal-input" id="anim-emoji-input" placeholder="🎉" maxlength="4"/>
+    </div>
+    <button class="modal-btn" onclick="addAnimatedEmoji()">დამატება</button>
+  </div>
+</div>
+
+<!-- USER PROFILE MODAL -->
+<div class="modal-overlay" id="user-profile-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('user-profile-modal')">✕</button>
+    <h3 id="up-name">მომხმარებელი</h3>
+    <div id="up-role" style="margin-bottom:12px;"></div>
+    <div id="up-status" style="font-size:0.8rem; color:var(--text3); margin-bottom:16px;"></div>
+    <div style="display:flex; flex-direction:column; gap:6px;" id="up-actions"></div>
+  </div>
+</div>
+
+<!-- PM LIST MODAL -->
+<div class="modal-overlay" id="pm-list-modal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('pm-list-modal')">✕</button>
+    <h3>💌 პირადი შეტყობინებები</h3>
+    <div id="pm-list-content" style="max-height:300px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = 'https://brggiyhfzfbmlirqfgpo.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU';
+const { createClient } = supabase;
+const sb = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ── STATE ── */
+let ME = null; // {id, email, nickname, role, status, color}
+let currentRoom = 1;
+let currentPmUser = null;
+let replyTo = null;
+let typingTimeout = null;
+let activeCtxMsgId = null;
+let msgFormat = { bold: false, italic: false, color: null };
+let animatedEmojis = ['🎉','💥','✨','🌟','🚀','💫'];
+let mediaRecorder = null;
+let recordChunks = [];
+let channelRoom = null;
+let channelPresence = null;
+let channelPm = null;
+let onlineUsers = {};
+let friends = [];
+let pmUnread = 0;
+
+const ROOMS = Array.from({length:12},(_,i)=>({
+  id: i+1,
+  name: `ოთახი ${i+1}`,
+  icon: ['🔥','💖','🎮','🎵','😎','💬','🌙','⚡','🌸','💎','🎯','🏆'][i]
+}));
+
+const EMOJIS = ['😀','😂','🥰','😍','🤩','😎','🥳','😜','🤪','😏',
+  '❤️','💖','💗','🔥','✨','💯','👍','🙌','💪','🫶',
+  '😢','😭','😤','🤔','🤯','😱','🥹','🫠','😴','🤑'];
+
+/* ── INIT ── */
+async function init() {
+  const { data:{ session } } = await sb.auth.getSession();
+  if (!session) { window.location.href='index.html'; return; }
+
+  const u = session.user;
+  const meta = u.user_metadata || {};
+  ME = {
+    id: u.id,
+    email: u.email,
+    nickname: meta.nickname || u.email.split('@')[0],
+    role: meta.role || 'user',
+    status: meta.status || '😎 ონლაინ',
+    color: meta.color || '#ff4400'
+  };
+
+  document.getElementById('sb-nick').textContent = ME.nickname;
+  document.documentElement.style.setProperty('--accent', ME.color);
+  if (ME.role === 'admin' || ME.role === 'founder') {
+    document.getElementById('admin-tab').style.display = 'block';
+  }
+
+  loadThemeFromStorage();
+  buildRooms();
+  buildEmojiGrid();
+  spawnParticles();
+  await joinRoom(1);
+  loadFriends();
+  subscribePm();
+}
+
+/* ── ROOMS ── */
+function buildRooms() {
+  const list = document.getElementById('room-list');
+  list.innerHTML = '';
+  ROOMS.forEach(r => {
+    const div = document.createElement('div');
+    div.className = 'room-item' + (r.id === currentRoom ? ' active' : '');
+    div.id = `room-${r.id}`;
+    div.innerHTML = `<div class="room-icon">${r.icon}</div>
+      <div class="room-info">
+        <div class="room-name">${r.name}</div>
+        <div class="room-num">#${r.id}</div>
+      </div>`;
+    div.onclick = () => joinRoom(r.id);
+    list.appendChild(div);
+  });
+}
+
+function filterRooms(q) {
+  ROOMS.forEach(r => {
+    const el = document.getElementById(`room-${r.id}`);
+    if (el) el.style.display = r.name.includes(q) ? '' : 'none';
+  });
+}
+
+async function joinRoom(id) {
+  if (channelRoom) await sb.removeChannel(channelRoom);
+  if (channelPresence) await sb.removeChannel(channelPresence);
+
+  currentRoom = id;
+  document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+  const ri = document.getElementById(`room-${id}`);
+  if (ri) ri.classList.add('active');
+
+  const room = ROOMS.find(r=>r.id===id);
+  document.getElementById('chat-header-name').textContent = room ? `${room.icon} ${room.name}` : `ოთახი ${id}`;
+  document.getElementById('sb-room').textContent = room ? room.name : `ოთახი ${id}`;
+
+  document.getElementById('messages').innerHTML = '<div class="day-sep"><span>დღეს</span></div>';
+  await loadMessages(id);
+
+  // realtime
+  channelRoom = sb.channel(`room-${id}`)
+    .on('postgres_changes', { event:'INSERT', schema:'public', table:'messages', filter:`room_id=eq.${id}` }, payload => {
+      if (payload.new.user_id !== ME.id) appendMessage(payload.new);
+    })
+    .on('postgres_changes', { event:'DELETE', schema:'public', table:'messages', filter:`room_id=eq.${id}` }, payload => {
+      const el = document.getElementById(`msg-${payload.old.id}`);
+      if (el) el.remove();
+    })
+    .on('broadcast', { event: 'typing' }, payload => {
+      if (payload.payload.user_id !== ME.id)
+        showTyping(payload.payload.nickname);
+    })
+    .on('broadcast', { event: 'reaction' }, payload => {
+      updateReactionUI(payload.payload);
+    })
+    .subscribe();
+
+  // presence
+  channelPresence = sb.channel(`presence-${id}`, { config:{ presence:{ key: ME.id }}});
+  channelPresence
+    .on('presence', { event:'sync' }, () => {
+      const state = channelPresence.presenceState();
+      onlineUsers = {};
+      Object.values(state).forEach(arr => arr.forEach(u => { onlineUsers[u.user_id] = u; }));
+      renderOnlineList();
+    })
+    .subscribe(async status => {
+      if (status === 'SUBSCRIBED') {
+        await channelPresence.track({ user_id: ME.id, nickname: ME.nickname, role: ME.role, status: ME.status, color: ME.color });
+      }
+    });
+}
+
+/* ── MESSAGES ── */
+async function loadMessages(roomId) {
+  const { data } = await sb.from('messages')
+    .select('*').eq('room_id', roomId)
+    .order('created_at', { ascending:true }).limit(80);
+  if (data) data.forEach(m => appendMessage(m, true));
+  scrollBottom();
+}
+
+function appendMessage(m, initial=false) {
+  const isOwn = m.user_id === ME.id;
+  const container = document.getElementById('messages');
+
+  const row = document.createElement('div');
+  row.className = 'msg-row' + (isOwn ? ' own' : '');
+  row.id = `msg-${m.id}`;
+
+  const time = new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+  const nick = m.nickname || '?';
+  const roleTag = m.role === 'founder' ? `<span class="role-badge role-founder">👑 დამფ.</span>`
+                : m.role === 'admin'   ? `<span class="role-badge role-admin">⚡ ადმ.</span>` : '';
+
+  const reactions = m.reactions ? Object.entries(m.reactions).map(([e,u]) =>
+    `<span class="reaction-chip${u.includes(ME.id)?' mine':''}" onclick="addReaction('${e}','${m.id}')">${e}<span style="font-size:0.65rem;opacity:0.8">${u.length}</span></span>`
+  ).join('') : '';
+
+  let content = m.content || '';
+  let style = '';
+  if (m.format) {
+    const f = m.format;
+    if (f.bold)   content = `<b>${content}</b>`;
+    if (f.italic) content = `<i>${content}</i>`;
+    if (f.color)  style = `color:${f.color};`;
+  }
+
+  const replyHtml = m.reply_to ? `<div style="font-size:0.68rem;color:var(--text3);border-left:2px solid var(--accent);padding-left:6px;margin-bottom:4px;opacity:0.8">${m.reply_text||'...'}</div>` : '';
+
+  let bodyHtml = '';
+  if (m.type === 'voice') {
+    bodyHtml = `<div class="voice-msg">${voiceWaveform()}<button class="voice-play" onclick="playVoice('${m.voice_url}')">▶</button><span style="font-size:0.68rem;color:var(--text3)">${m.duration||'0:00'}</span></div>`;
+  } else {
+    bodyHtml = `<div style="${style}">${replyHtml}${content}</div>`;
+  }
+
+  row.innerHTML = `
+    ${!isOwn ? `<div class="avatar" onclick="openUserProfile('${m.user_id}','${nick}','${m.role||'user'}')">${nick[0]?.toUpperCase()||'?'}</div>` : ''}
+    <div>
+      ${!isOwn ? `<div class="msg-sender">${nick} ${roleTag}</div>` : ''}
+      <div class="msg-bubble" data-id="${m.id}" oncontextmenu="openCtxMenu(event,'${m.id}',${isOwn})">
+        ${bodyHtml}
+        ${reactions ? `<div class="msg-reactions">${reactions}</div>` : ''}
+      </div>
+      <div class="msg-meta">
+        <span>${time}</span>
+        ${isOwn ? `<span class="seen-tick">${m.seen ? '👁️' : '✓'}</span>` : ''}
+      </div>
+    </div>
+    ${isOwn ? `<div class="avatar">${ME.nickname[0]?.toUpperCase()||'?'}</div>` : ''}
+  `;
+
+  container.appendChild(row);
+  if (!initial) scrollBottom();
+}
+
+async function sendMsg() {
+  const ta = document.getElementById('msg-input');
+  let text = ta.value.trim();
+  if (!text) return;
+  ta.value = ''; autoGrow(ta);
+
+  const payload = {
+    room_id: currentRoom,
+    user_id: ME.id,
+    nickname: ME.nickname,
+    role: ME.role,
+    content: text,
+    format: { ...msgFormat },
+    reply_to: replyTo?.id || null,
+    reply_text: replyTo?.text || null,
+    reactions: {}
+  };
+
+  clearReply();
+  const { data } = await sb.from('messages').insert([payload]).select().single();
+  if (data) appendMessage(data);
+}
+
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+}
+
+function inputKeydown(e) {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); }
+}
+
+function scrollBottom() {
+  const m = document.getElementById('messages');
+  m.scrollTop = m.scrollHeight;
+}
+
+/* typing */
+function onTyping() {
+  if (channelRoom) channelRoom.send({ type:'broadcast', event:'typing', payload:{ user_id: ME.id, nickname: ME.nickname }});
+  clearTimeout(typingTimeout);
+  typingTimeout = setTimeout(() => document.getElementById('typing-indicator').textContent='', 2500);
+}
+let typingHideTimer = null;
+function showTyping(nick) {
+  document.getElementById('typing-indicator').textContent = `${nick} წერს...`;
+  clearTimeout(typingHideTimer);
+  typingHideTimer = setTimeout(() => document.getElementById('typing-indicator').textContent='', 3000);
+}
+
+/* ── FORMAT ── */
+function toggleFmt(key) {
+  msgFormat[key] = !msgFormat[key];
+  document.getElementById(`fmt-${key}`).classList.toggle('active', msgFormat[key]);
+}
+function setTextColor(c) { msgFormat.color = c; }
+function toggleReply() {
+  if (replyTo) { clearReply(); return; }
+  showToast('დააჭირე შეტყობინებაზე პასუხად');
+}
+function clearReply() {
+  replyTo = null;
+  document.getElementById('fmt-reply').classList.remove('active');
+  document.getElementById('fmt-reply').textContent = '↩ პასუხი';
+}
+
+/* ── REACTIONS ── */
+function openCtxMenu(e, msgId, isOwn) {
+  e.preventDefault();
+  activeCtxMsgId = msgId;
+  const m = document.getElementById('ctx-menu');
+  document.getElementById('ctx-delete').style.display = (isOwn || ME.role==='admin' || ME.role==='founder') ? 'flex' : 'none';
+  m.style.left = Math.min(e.clientX, window.innerWidth-170) + 'px';
+  m.style.top  = Math.min(e.clientY, window.innerHeight-160) + 'px';
+  m.classList.add('open');
+  document.addEventListener('click', closeCtx, {once:true});
+}
+function closeCtx() { document.getElementById('ctx-menu').classList.remove('open'); }
+function ctxReact() {
+  closeCtx();
+  const rp = document.getElementById('reaction-picker');
+  const el = document.getElementById(`msg-${activeCtxMsgId}`);
+  if (!el) return;
+  const r = el.getBoundingClientRect();
+  rp.style.left = r.left + 'px'; rp.style.top = (r.top - 50) + 'px';
+  rp.classList.add('open');
+  document.addEventListener('click', () => rp.classList.remove('open'), {once:true});
+}
+function ctxReply() {
+  closeCtx();
+  const el = document.getElementById(`msg-${activeCtxMsgId}`);
+  const text = el?.querySelector('.msg-bubble div')?.textContent || '...';
+  replyTo = { id: activeCtxMsgId, text };
+  document.getElementById('fmt-reply').classList.add('active');
+  document.getElementById('fmt-reply').textContent = `↩ "${text.slice(0,20)}..."`;
+  document.getElementById('msg-input').focus();
+}
+async function ctxDelete() {
+  closeCtx();
+  if (!activeCtxMsgId) return;
+  await sb.from('messages').delete().eq('id', activeCtxMsgId);
+  const el = document.getElementById(`msg-${activeCtxMsgId}`);
+  if (el) el.remove();
+}
+
+async function addReaction(emoji, msgId) {
+  const id = msgId || activeCtxMsgId;
+  if (!id) return;
+  document.getElementById('reaction-picker').classList.remove('open');
+
+  const { data } = await sb.from('messages').select('reactions').eq('id', id).single();
+  if (!data) return;
+  const rxns = data.reactions || {};
+  if (!rxns[emoji]) rxns[emoji] = [];
+  const idx = rxns[emoji].indexOf(ME.id);
+  if (idx > -1) rxns[emoji].splice(idx, 1);
+  else rxns[emoji].push(ME.id);
+  if (rxns[emoji].length === 0) delete rxns[emoji];
+
+  await sb.from('messages').update({ reactions: rxns }).eq('id', id);
+
+  if (channelRoom) channelRoom.send({ type:'broadcast', event:'reaction', payload:{ id, reactions: rxns }});
+  updateReactionUI({ id, reactions: rxns });
+}
+
+function updateReactionUI({ id, reactions }) {
+  const el = document.getElementById(`msg-${id}`);
+  if (!el) return;
+  let rxDiv = el.querySelector('.msg-reactions');
+  if (!rxDiv) {
+    rxDiv = document.createElement('div');
+    rxDiv.className = 'msg-reactions';
+    el.querySelector('.msg-bubble').appendChild(rxDiv);
+  }
+  rxDiv.innerHTML = Object.entries(reactions||{}).map(([e,u]) =>
+    `<span class="reaction-chip${u.includes(ME.id)?' mine':''}" onclick="addReaction('${e}','${id}')">${e}<span style="font-size:0.65rem;opacity:0.8">${u.length}</span></span>`
+  ).join('');
+}
+
+/* ── EMOJI ── */
+function buildEmojiGrid() {
+  const grid = document.getElementById('emoji-grid');
+  grid.innerHTML = '';
+  EMOJIS.forEach(e => {
+    const span = document.createElement('span');
+    span.className = 'emoji-cell';
+    span.textContent = e;
+    span.onclick = () => { insertEmoji(e); };
+    grid.appendChild(span);
+  });
+  rebuildAnimEmoji();
+}
+
+function rebuildAnimEmoji() {
+  const g = document.getElementById('anim-emoji-grid');
+  g.innerHTML = '';
+  if (ME?.role === 'admin' || ME?.role === 'founder') {
+    document.getElementById('animated-emojis-section').style.display = 'block';
+  }
+  animatedEmojis.forEach(e => {
+    const span = document.createElement('span');
+    span.className = 'emoji-cell animated-emoji';
+    span.textContent = e;
+    span.onclick = () => insertEmoji(e);
+    g.appendChild(span);
+  });
+}
+
+function addAnimatedEmoji() {
+  const v = document.getElementById('anim-emoji-input').value.trim();
+  if (!v) return;
+  animatedEmojis.push(v);
+  rebuildAnimEmoji();
+  closeModal('add-anim-emoji-modal');
+  showToast('ემოჯი დამატებულია ✅');
+}
+
+function insertEmoji(e) {
+  const ta = document.getElementById('msg-input');
+  ta.value += e;
+  ta.focus();
+}
+
+/* ── ONLINE / PRESENCE ── */
+function renderOnlineList() {
+  const cnt = Object.keys(onlineUsers).length;
+  document.getElementById('online-count').textContent = `${cnt} ონლაინ`;
+  document.getElementById('sb-online').textContent = `${cnt} ონლაინ`;
+
+  const panel = document.getElementById('ps-online');
+  panel.innerHTML = '<div style="font-size:0.68rem;color:var(--text3);margin-bottom:6px;">ახლა ონლაინ</div>';
+  Object.values(onlineUsers).forEach(u => {
+    panel.appendChild(makeUserCard(u, true));
+  });
+
+  const adm = document.getElementById('admin-user-list');
+  adm.innerHTML = '';
+  Object.values(onlineUsers).forEach(u => {
+    adm.appendChild(makeAdminCard(u));
+  });
+}
+
+function makeUserCard(u, showPm=false) {
+  const div = document.createElement('div');
+  div.className = 'user-card';
+  div.innerHTML = `
+    <div class="av" style="background:linear-gradient(135deg,${u.color||'#ff4400'},#660000)">
+      ${u.nickname?.[0]?.toUpperCase()||'?'}
+      <div class="online-dot"></div>
+    </div>
+    <div class="user-info">
+      <div class="user-name">${u.nickname||'?'}</div>
+      <div class="user-status">${u.status||'ონლაინ'}</div>
+    </div>
+    <div class="user-actions">
+      ${showPm && u.user_id !== ME.id ? `<button class="ua-btn" onclick="openPm('${u.user_id}','${u.nickname||'?'}')">💌</button>` : ''}
+      <button class="ua-btn" onclick="openUserProfile('${u.user_id}','${u.nickname||'?'}','${u.role||'user'}')">👤</button>
+    </div>`;
+  return div;
+}
+
+function makeAdminCard(u) {
+  if (ME.role !== 'admin' && ME.role !== 'founder') return document.createElement('div');
+  const div = document.createElement('div');
+  div.className = 'user-card';
+  div.innerHTML = `
+    <div class="av">${u.nickname?.[0]?.toUpperCase()||'?'}</div>
+    <div class="user-info">
+      <div class="user-name">${u.nickname||'?'}</div>
+      <div class="user-status">${u.role||'user'}</div>
+    </div>
+    <div class="user-actions">
+      <button class="ua-btn" title="ადმინი" onclick="assignRole('${u.user_id}','admin')">⚡</button>
+      ${ME.role==='founder' ? `<button class="ua-btn" title="დამფ." onclick="assignRole('${u.user_id}','founder')">👑</button>` : ''}
+      <button class="ua-btn" title="ჩახსნა" onclick="assignRole('${u.user_id}','user')">👤</button>
+      <button class="ua-btn" title="ბლოკი" onclick="blockUser('${u.user_id}')">🚫</button>
+    </div>`;
+  return div;
+}
+
+async function assignRole(uid, role) {
+  const { error } = await sb.auth.admin?.updateUserById(uid, { user_metadata:{ role }}).catch(()=>({error:'no admin'}));
+  showToast(error ? 'მხოლოდ Supabase Dashboard-ზე შეიძლება 🔒' : `როლი მინიჭებულია: ${role}`);
+}
+
+async function blockUser(uid) {
+  showToast('ბლოკი: ' + uid.slice(0,8) + '... (Supabase Dashboard)');
+}
+
+/* ── USER PROFILE MODAL ── */
+function openUserProfile(uid, nick, role) {
+  document.getElementById('up-name').textContent = nick;
+  document.getElementById('up-role').innerHTML =
+    role==='founder' ? '<span class="role-badge role-founder">👑 დამფუძვნებელი</span>' :
+    role==='admin'   ? '<span class="role-badge role-admin">⚡ ადმინი</span>' : '👤 მომხ.';
+
+  const actions = document.getElementById('up-actions');
+  actions.innerHTML = '';
+
+  if (uid !== ME.id) {
+    const pmBtn = document.createElement('button');
+    pmBtn.className = 'modal-btn'; pmBtn.textContent = '💌 პირადი შეტყობინება';
+    pmBtn.onclick = () => { closeModal('user-profile-modal'); openPm(uid, nick); };
+    actions.appendChild(pmBtn);
+
+    const frBtn = document.createElement('button');
+    frBtn.className = 'modal-btn safe'; frBtn.textContent = '👥 მეგობრებში დამატება';
+    frBtn.onclick = () => { saveFriend(uid, nick); closeModal('user-profile-modal'); };
+    actions.appendChild(frBtn);
+
+    if (ME.role === 'admin' || ME.role === 'founder') {
+      const blBtn = document.createElement('button');
+      blBtn.className = 'modal-btn danger'; blBtn.textContent = '🚫 დაბლოკვა';
+      blBtn.onclick = () => blockUser(uid);
+      actions.appendChild(blBtn);
+    }
+    if (ME.role === 'founder') {
+      const admBtn = document.createElement('button');
+      admBtn.className = 'modal-btn'; admBtn.textContent = '⚡ ადმინი';
+      admBtn.onclick = () => assignRole(uid,'admin');
+      actions.appendChild(admBtn);
+    }
+  }
+  openModal('user-profile-modal');
+}
+
+/* ── FRIENDS ── */
+function loadFriends() {
+  try { friends = JSON.parse(localStorage.getItem('kf_friends')||'[]'); }
+  catch { friends = []; }
+  renderFriends();
+}
+function saveFriend(uid, nick) {
+  if (friends.find(f=>f.uid===uid)) { showToast('უკვე მეგობარი ხარ 💖'); return; }
+  friends.push({ uid, nick });
+  localStorage.setItem('kf_friends', JSON.stringify(friends));
+  renderFriends();
+  showToast(`${nick} მეგობრებში დაემატა! 💖`);
+}
+function removeFriend(uid) {
+  friends = friends.filter(f=>f.uid!==uid);
+  localStorage.setItem('kf_friends', JSON.stringify(friends));
+  renderFriends();
+}
+function renderFriends() {
+  const list = document.getElementById('friends-list');
+  list.innerHTML = '';
+  if (!friends.length) { list.innerHTML = '<div style="font-size:0.75rem;color:var(--text3)">მეგობრები არ გყავს ჯერ 💔</div>'; return; }
+  friends.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'user-card';
+    const isOn = !!onlineUsers[f.uid];
+    div.innerHTML = `
+      <div class="av">${f.nick[0]?.toUpperCase()||'?'}<div class="${isOn?'online':'offline'}-dot"></div></div>
+      <div class="user-info"><div class="user-name">${f.nick}</div><div class="user-status">${isOn?'ონლაინ':'ოფლაინ'}</div></div>
+      <div class="user-actions">
+        <button class="ua-btn" onclick="openPm('${f.uid}','${f.nick}')">💌</button>
+        <button class="ua-btn" onclick="removeFriend('${f.uid}')">🗑️</button>
+      </div>`;
+    list.appendChild(div);
+  });
+}
+function addFriend() {
+  const nick = document.getElementById('friend-nick-input').value.trim();
+  if (!nick) return;
+  const u = Object.values(onlineUsers).find(u=>u.nickname===nick);
+  if (u) saveFriend(u.user_id, nick);
+  else showToast('მომხმარებელი ვერ მოიძებნა');
+  closeModal('add-friend-modal');
+}
+
+/* ── PM ── */
+function subscribePm() {
+  channelPm = sb.channel(`pm-${ME.id}`)
+    .on('broadcast', { event:'pm' }, payload => {
+      const d = payload.payload;
+      if (currentPmUser && currentPmUser.uid === d.from_id) {
+        appendPmMsg(d, false);
+        markPmSeen(d.from_id);
+      } else {
+        pmUnread++;
+        updatePmBadge();
+        showToast(`💌 ${d.from_nick}: ${d.content}`);
+      }
+    })
+    .on('broadcast', { event:'pm-typing' }, payload => {
+      if (currentPmUser?.uid === payload.payload.uid)
+        document.getElementById('pm-seen').textContent = 'წერს...';
+    })
+    .on('broadcast', { event:'pm-seen' }, payload => {
+      if (payload.payload.uid === currentPmUser?.uid)
+        document.getElementById('pm-seen').textContent = 'ნანახია ✓';
+    })
+    .subscribe();
+}
+
+function updatePmBadge() {
+  const b = document.getElementById('pm-badge');
+  b.style.display = pmUnread > 0 ? 'block' : 'none';
+  b.textContent = pmUnread;
+}
+
+function openPmList() {
+  const c = document.getElementById('pm-list-content');
+  c.innerHTML = '<div style="color:var(--text3);font-size:0.8rem">ბოლო მიმოწერები:</div>';
+  friends.forEach(f => {
+    const div = document.createElement('div');
+    div.className = 'user-card';
+    div.innerHTML = `<div class="av">${f.nick[0]?.toUpperCase()||'?'}</div><div class="user-info"><div class="user-name">${f.nick}</div></div>`;
+    div.onclick = () => { closeModal('pm-list-modal'); openPm(f.uid, f.nick); };
+    c.appendChild(div);
+  });
+  if (!friends.length) c.innerHTML += '<div style="font-size:0.75rem;color:var(--text3);margin-top:8px;">მეგობარი არ გყავს 💔</div>';
+  openModal('pm-list-modal');
+}
+
+function openPm(uid, nick) {
+  currentPmUser = { uid, nick };
+  pmUnread = 0; updatePmBadge();
+  document.getElementById('pm-name').textContent = nick;
+  document.getElementById('pm-av').textContent = nick[0]?.toUpperCase()||'?';
+  document.getElementById('pm-seen').textContent = '';
+  document.getElementById('pm-messages').innerHTML = '';
+  document.getElementById('pm-panel').classList.add('open');
+  loadPmHistory(uid);
+}
+function closePm() {
+  document.getElementById('pm-panel').classList.remove('open');
+  currentPmUser = null;
+}
+
+async function loadPmHistory(uid) {
+  const { data } = await sb.from('pm_messages')
+    .select('*')
+    .or(`and(from_id.eq.${ME.id},to_id.eq.${uid}),and(from_id.eq.${uid},to_id.eq.${ME.id})`)
+    .order('created_at', {ascending:true}).limit(60);
+  if (data) data.forEach(m => appendPmMsg(m, m.from_id === ME.id));
+  const pmMsgs = document.getElementById('pm-messages');
+  pmMsgs.scrollTop = pmMsgs.scrollHeight;
+}
+
+function appendPmMsg(m, isOwn) {
+  const cont = document.getElementById('pm-messages');
+  const div = document.createElement('div');
+  const time = new Date(m.created_at||Date.now()).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+
+  let body = '';
+  if (m.type === 'voice') {
+    body = `<div class="voice-msg">${voiceWaveform()}<button class="voice-play" onclick="playVoice('${m.voice_url}')">▶</button></div>`;
+  } else {
+    body = m.content||'';
+  }
+
+  div.innerHTML = `
+    <div style="display:flex;justify-content:${isOwn?'flex-end':'flex-start'};margin-bottom:6px;">
+      <div style="max-width:75%;padding:8px 12px;background:${isOwn?'linear-gradient(135deg,rgba(255,68,0,0.25),rgba(180,20,0,0.2))':'var(--bg3)'};border-radius:14px;border:1px solid ${isOwn?'rgba(255,68,0,0.35)':'var(--border)'};font-size:0.84rem;">
+        ${body}
+        <div style="font-size:0.6rem;color:var(--text3);margin-top:3px;text-align:${isOwn?'right':'left'}">${time} ${isOwn&&m.seen?'👁️':''}</div>
+      </div>
+    </div>`;
+  cont.appendChild(div);
+}
+
+async function sendPm() {
+  if (!currentPmUser) return;
+  const input = document.getElementById('pm-input');
+  const text = input.value.trim(); if (!text) return;
+  input.value = '';
+
+  const msg = { from_id: ME.id, to_id: currentPmUser.uid, from_nick: ME.nickname, content: text, type:'text', seen: false };
+  const { data } = await sb.from('pm_messages').insert([msg]).select().single().catch(()=>({data:null}));
+  if (data) appendPmMsg(data, true);
+  else appendPmMsg({...msg, created_at: new Date().toISOString()}, true);
+
+  const toCh = sb.channel(`pm-${currentPmUser.uid}`);
+  toCh.send({ type:'broadcast', event:'pm', payload:{ from_id: ME.id, from_nick: ME.nickname, to_id: currentPmUser.uid, content: text }});
+}
+
+function pmInputKey(e) { if (e.key==='Enter') sendPm(); }
+function sendPmTyping() {
+  if (!currentPmUser) return;
+  const toCh = sb.channel(`pm-${currentPmUser.uid}`);
+  toCh.send({ type:'broadcast', event:'pm-typing', payload:{ uid: ME.id }});
+}
+function markPmSeen(uid) {
+  const toCh = sb.channel(`pm-${uid}`);
+  toCh.send({ type:'broadcast', event:'pm-seen', payload:{ uid: ME.id }});
+}
+
+/* ── VOICE RECORDING ── */
+function toggleVoiceRecord() {
+  const btn = document.getElementById('pm-voice-btn');
+  if (!mediaRecorder || mediaRecorder.state === 'inactive') {
+    navigator.mediaDevices.getUserMedia({ audio:true }).then(stream => {
+      mediaRecorder = new MediaRecorder(stream);
+      recordChunks = [];
+      mediaRecorder.ondataavailable = e => recordChunks.push(e.data);
+      mediaRecorder.onstop = async () => {
+        const blob = new Blob(recordChunks, { type:'audio/webm' });
+        const url = URL.createObjectURL(blob);
+        const msg = { from_id: ME.id, to_id: currentPmUser?.uid, from_nick: ME.nickname, content:'🎤 ვოის', type:'voice', voice_url: url, seen:false };
+        appendPmMsg({...msg, created_at: new Date().toISOString()}, true);
+        stream.getTracks().forEach(t=>t.stop());
+      };
+      mediaRecorder.start();
+      btn.classList.add('recording');
+      btn.textContent = '⏹';
+    }).catch(()=>showToast('მიკროფონი მიუწვდომელია'));
+  } else {
+    mediaRecorder.stop();
+    btn.classList.remove('recording');
+    btn.textContent = '🎤';
+  }
+}
+
+function playVoice(url) {
+  const a = new Audio(url);
+  a.play();
+}
+
+function voiceWaveform() {
+  let bars = '';
+  for (let i=0;i<10;i++) {
+    const h = 4 + Math.random()*14;
+    bars += `<div class="wv-bar" style="height:${h}px"></div>`;
+  }
+  return `<div class="voice-waveform">${bars}</div>`;
+}
+
+/* ── PROFILE ── */
+async function saveProfile() {
+  const nick  = document.getElementById('prof-nick').value.trim() || ME.nickname;
+  const status = document.getElementById('prof-status').value.trim() || ME.status;
+  const color  = document.getElementById('prof-color').value;
+  await sb.auth.updateUser({ data:{ nickname:nick, status, color }});
+  ME.nickname = nick; ME.status = status; ME.color = color;
+  document.getElementById('sb-nick').textContent = nick;
+  document.documentElement.style.setProperty('--accent', color);
+  if (channelPresence) await channelPresence.track({ user_id:ME.id, nickname:nick, role:ME.role, status, color });
+  closeModal('profile-modal');
+  showToast('შენახულია ✅');
+}
+
+async function saveStatus() {
+  const s = document.getElementById('status-input').value.trim();
+  ME.status = s;
+  await sb.auth.updateUser({ data:{ status:s }});
+  if (channelPresence) channelPresence.track({ user_id:ME.id, nickname:ME.nickname, role:ME.role, status:s, color:ME.color });
+  closeModal('status-modal');
+  showToast('სტატუსი განახლდა ✅');
+}
+
+/* ── THEME ── */
+function setAccent(c1, c2) {
+  document.documentElement.style.setProperty('--accent', c1);
+  document.documentElement.style.setProperty('--accent2', c2);
+  document.documentElement.style.setProperty('--glow', hexToRgba(c1, 0.3));
+  localStorage.setItem('kf_accent', c1);
+  localStorage.setItem('kf_accent2', c2);
+  document.querySelectorAll('.color-swatch').forEach(el => {
+    el.classList.toggle('sel', el.style.background === c1);
+  });
+  closeModal('theme-modal');
+  showToast('თემა შეცვლილია 🎨');
+}
+function shadeColor(c, p) {
+  const n = parseInt(c.replace('#',''),16), r=Math.min(255,Math.max(0,(n>>16)+p)),
+        g=Math.min(255,Math.max(0,(n>>8&0xff)+p)),b=Math.min(255,Math.max(0,(n&0xff)+p));
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+function hexToRgba(h, a) {
+  const n = parseInt(h.replace('#',''),16);
+  return `rgba(${n>>16},${n>>8&0xff},${n&0xff},${a})`;
+}
+function loadThemeFromStorage() {
+  const c1 = localStorage.getItem('kf_accent');
+  const c2 = localStorage.getItem('kf_accent2');
+  if (c1) { document.documentElement.style.setProperty('--accent',c1); }
+  if (c2) { document.documentElement.style.setProperty('--accent2',c2); }
+  const dark = localStorage.getItem('kf_dark') !== 'false';
+  document.documentElement.setAttribute('data-theme', dark?'dark':'light');
+  document.querySelector('[onclick="toggleTheme()"]').textContent = dark ? '🌙' : '☀️';
+}
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  document.querySelector('[onclick="toggleTheme()"]').textContent = isDark ? '☀️' : '🌙';
+  localStorage.setItem('kf_dark', String(!isDark));
+}
+
+/* ── ALBUM ── */
+function uploadAlbumPhoto(input) {
+  const file = input.files[0]; if (!file) return;
+  const url = URL.createObjectURL(file);
+  const grid = document.getElementById('album-grid');
+  const thumb = document.createElement('div');
+  thumb.className = 'album-thumb';
+  thumb.innerHTML = `<img src="${url}" alt="photo"/>`;
+  grid.insertBefore(thumb, grid.firstChild);
+}
+
+/* ── PANEL TABS ── */
+function switchPanelTab(id, btn) {
+  document.querySelectorAll('.panel-section').forEach(el => el.classList.remove('active'));
+  document.querySelectorAll('.ptab').forEach(el => el.classList.remove('active'));
+  document.getElementById(`ps-${id}`).classList.add('active');
+  btn.classList.add('active');
+}
+
+/* ── MODALS ── */
+function openModal(id) {
+  if (id==='profile-modal') {
+    document.getElementById('prof-nick').value = ME.nickname;
+    document.getElementById('prof-status').value = ME.status;
+    document.getElementById('prof-color').value = ME.color || '#ff4400';
+  }
+  document.getElementById(id).classList.add('open');
+}
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target===el) el.classList.remove('open'); });
+});
+
+/* ── TOAST ── */
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+/* ── PARTICLES ── */
+function spawnParticles() {
+  const canvas = document.getElementById('particles');
+  const chars = ['🩷','💖','💗','❤️','🔥','💫','✨','🌸','💝','💞','🌺','⭐'];
+  function spawn() {
+    const el = document.createElement('div');
+    el.className = 'particle';
+    el.textContent = chars[Math.floor(Math.random()*chars.length)];
+    const size = 10 + Math.random()*18;
+    const left = Math.random()*98;
+    const dur  = 6 + Math.random()*9;
+    const del  = Math.random()*3;
+    el.style.cssText = `left:${left}%;font-size:${size}px;animation-duration:${dur}s;animation-delay:${del}s;`;
+    canvas.appendChild(el);
+    setTimeout(()=>el.remove(),(dur+del+1.5)*1000);
+  }
+  for (let i=0;i<30;i++) spawn();
+  setInterval(spawn, 300);
+}
+
+/* ── LOGOUT ── */
+async function doLogout() {
+  await sb.auth.signOut();
+  window.location.href = 'index.html';
+}
+
+/* ── START ── */
+init();
+</script>
+</body>
+</html>
