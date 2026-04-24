@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>კაიფმანია 😎🔥</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;700;900&display=swap" rel="stylesheet"/>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+```
+body {
+  min-height: 100vh;
+  background: #000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Noto Sans Georgian', sans-serif;
+  overflow: hidden;
+  position: relative;
+}
+
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(ellipse 70% 60% at 50% 55%, rgba(180,20,0,0.55) 0%, rgba(80,0,0,0.3) 45%, #000 100%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.hearts-canvas {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.heart {
+  position: absolute;
+  bottom: -60px;
+  animation: floatUp linear infinite;
+  opacity: 0;
+  user-select: none;
+  filter: drop-shadow(0 0 5px rgba(255,60,0,0.8));
+}
+@keyframes floatUp {
+  0%   { transform: translateY(0) rotate(-10deg) scale(1); opacity: 0; }
+  8%   { opacity: 0.9; }
+  80%  { opacity: 0.5; }
+  100% { transform: translateY(-110vh) rotate(20deg) scale(0.3); opacity: 0; }
+}
+
+.card-wrap {
+  position: relative;
+  z-index: 10;
+}
+
+.card {
+  position: relative;
+  background: #111;
+  border: 2px solid #cc2200;
+  border-radius: 24px;
+  padding: 40px 32px 36px;
+  width: 340px;
+  box-shadow:
+    0 0 40px rgba(200,30,0,0.6),
+    0 0 80px rgba(180,10,0,0.3),
+    inset 0 1px 0 rgba(255,80,40,0.1);
+  animation: cardIn 0.6s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+
+@keyframes cardIn {
+  from { opacity: 0; transform: scale(0.88) translateY(30px); }
+  to   { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.card-title {
+  text-align: center;
+  font-size: 1.85rem;
+  font-weight: 900;
+  color: #fff;
+  margin-bottom: 28px;
+  letter-spacing: 0.02em;
+  text-shadow: 0 0 20px rgba(255,60,0,0.5);
+}
+
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 22px;
+}
+.tab-btn {
+  flex: 1;
+  padding: 11px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Noto Sans Georgian', sans-serif;
+  font-size: 0.83rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.tab-btn.active {
+  background: linear-gradient(135deg, #ff4400, #cc1100);
+  color: #fff;
+  box-shadow: 0 4px 16px rgba(255,60,0,0.4);
+}
+.tab-btn.inactive {
+  background: #1e1e1e;
+  color: #777;
+  border: 1px solid #333;
+}
+.tab-btn.inactive:hover { background: #282828; color: #bbb; }
+
+.panel { display: none; }
+.panel.active { display: block; }
+
+.field { margin-bottom: 13px; }
+.field label {
+  display: block;
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: #cc4422;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 5px;
+}
+.field input {
+  width: 100%;
+  padding: 12px 15px;
+  background: #1a1a1a;
+  border: 1.5px solid #3a1a10;
+  border-radius: 12px;
+  color: #fff;
+  font-family: 'Noto Sans Georgian', sans-serif;
+  font-size: 0.88rem;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.field input::placeholder { color: #555; }
+.field input:focus {
+  border-color: #cc2200;
+  box-shadow: 0 0 0 3px rgba(204,34,0,0.18);
+  background: #1f1a18;
+}
+
+.msg {
+  display: none;
+  border-radius: 10px;
+  padding: 9px 13px;
+  font-size: 0.79rem;
+  text-align: center;
+  margin-bottom: 13px;
+}
+.msg.error   { background: rgba(200,0,0,0.12); border: 1px solid rgba(200,0,0,0.3); color: #ff6644; }
+.msg.success { background: rgba(0,200,80,0.1);  border: 1px solid rgba(0,200,80,0.25); color: #44ff88; }
+
+.btn-action {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #ff5500 0%, #cc1100 100%);
+  color: #fff;
+  font-family: 'Noto Sans Georgian', sans-serif;
+  font-size: 0.97rem;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  box-shadow: 0 4px 20px rgba(255,60,0,0.4);
+  transition: transform 0.15s, box-shadow 0.15s, opacity 0.15s;
+  margin-top: 4px;
+  position: relative;
+  overflow: hidden;
+}
+.btn-action::before {
+  content:'';
+  position:absolute;inset:0;
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, transparent 55%);
+  border-radius: inherit;
+}
+.btn-action:hover  { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(255,60,0,0.5); }
+.btn-action:active { transform: translateY(0); opacity: 0.85; }
+.btn-action.loading { pointer-events:none; opacity:0.7; }
+
+.spinner {
+  display:none;
+  width:17px;height:17px;
+  border:2.5px solid rgba(255,255,255,0.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin 0.7s linear infinite;
+  margin:0 auto;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+```
+
+  </style>
+</head>
+<body>
+
+<div class="bg-glow"></div>
+<div class="hearts-canvas" id="heartsCanvas"></div>
+
+<div class="card-wrap">
+  <div class="card">
+
+```
+<div class="card-title">კაიფმანია 😎🔥</div>
+
+<div class="tabs">
+  <button class="tab-btn active"   id="tabReg"   onclick="switchTab('reg')">რეგისტრაცია</button>
+  <button class="tab-btn inactive" id="tabLogin" onclick="switchTab('login')">შესვლა</button>
+</div>
+
+<!-- REGISTER PANEL -->
+<div class="panel active" id="panelReg">
+  <div class="field">
+    <label>ელ. ფოსტა</label>
+    <input type="email" id="regEmail" placeholder="example@mail.com"/>
+  </div>
+  <div class="field">
+    <label>პაროლი</label>
+    <input type="password" id="regPass" placeholder="••••••••"/>
+  </div>
+  <div class="field">
+    <label>პაროლის დადასტურება</label>
+    <input type="password" id="regPass2" placeholder="••••••••"/>
+  </div>
+  <div class="msg" id="regMsg"></div>
+  <button class="btn-action" id="regBtn" onclick="doRegister()">
+    <span id="regBtnText">რეგისტრაცია 🔥</span>
+    <div class="spinner" id="regSpinner"></div>
+  </button>
+</div>
+
+<!-- LOGIN PANEL -->
+<div class="panel" id="panelLogin">
+  <div class="field">
+    <label>ელ. ფოსტა</label>
+    <input type="email" id="loginEmail" placeholder="example@mail.com"/>
+  </div>
+  <div class="field">
+    <label>პაროლი</label>
+    <input type="password" id="loginPass" placeholder="••••••••"/>
+  </div>
+  <div class="msg" id="loginMsg"></div>
+  <button class="btn-action" id="loginBtn" onclick="doLogin()">
+    <span id="loginBtnText">შესვლა 😎</span>
+    <div class="spinner" id="loginSpinner"></div>
+  </button>
+</div>
+```
+
+  </div>
+</div>
+
+<script>
+  const { createClient } = supabase;
+  const sb = createClient(
+    'https://brggiyhfzfbmlirqfgpo.supabase.co',
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU'
+  );
+
+  function switchTab(tab) {
+    document.getElementById('panelReg').classList.toggle('active', tab==='reg');
+    document.getElementById('panelLogin').classList.toggle('active', tab==='login');
+    document.getElementById('tabReg').className   = 'tab-btn ' + (tab==='reg'   ? 'active' : 'inactive');
+    document.getElementById('tabLogin').className = 'tab-btn ' + (tab==='login' ? 'active' : 'inactive');
+  }
+
+  function showMsg(id, text, type) {
+    const el = document.getElementById(id);
+    el.textContent = text;
+    el.className = 'msg ' + type;
+    el.style.display = 'block';
+  }
+  function hideMsg(id) { document.getElementById(id).style.display='none'; }
+
+  function setLoading(btn, txt, spin, on) {
+    document.getElementById(btn).classList.toggle('loading', on);
+    document.getElementById(txt).style.display  = on ? 'none'  : 'block';
+    document.getElementById(spin).style.display = on ? 'block' : 'none';
+  }
+
+  async function doRegister() {
+    hideMsg('regMsg');
+    const email = document.getElementById('regEmail').value.trim();
+    const pass  = document.getElementById('regPass').value;
+    const pass2 = document.getElementById('regPass2').value;
+    if (!email || !pass)  return showMsg('regMsg','შეავსე ყველა ველი 🔥','error');
+    if (pass !== pass2)   return showMsg('regMsg','პაროლები არ ემთხვევა 💔','error');
+    if (pass.length < 6)  return showMsg('regMsg','პაროლი მინ. 6 სიმბოლო','error');
+    setLoading('regBtn','regBtnText','regSpinner', true);
+    try {
+      const { error } = await sb.auth.signUp({ email, password: pass });
+      if (error) throw error;
+      showMsg('regMsg','წარმატება! ✅ შეამოწმე ელ. ფოსტა','success');
+    } catch(e) {
+      showMsg('regMsg', e.message||'შეცდომა, სცადე თავიდან','error');
+    } finally {
+      setLoading('regBtn','regBtnText','regSpinner', false);
+    }
+  }
+
+  async function doLogin() {
+    hideMsg('loginMsg');
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPass').value;
+    if (!email || !pass) return showMsg('loginMsg','შეავსე ყველა ველი 🔥','error');
+    setLoading('loginBtn','loginBtnText','loginSpinner', true);
+    try {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) throw error;
+      window.location.href = 'chat.html';
+    } catch(e) {
+      const m = e.message==='Invalid login credentials'
+        ? 'არასწორი ელ. ფოსტა ან პაროლი 💀'
+        : (e.message||'შეცდომა');
+      showMsg('loginMsg', m, 'error');
+    } finally {
+      setLoading('loginBtn','loginBtnText','loginSpinner', false);
+    }
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Enter') return;
+    if (document.getElementById('panelReg').classList.contains('active')) doRegister();
+    else doLogin();
+  });
+
+  /* floating hearts */
+  const canvas = document.getElementById('heartsCanvas');
+  const chars  = ['🩷','💖','💗','❤️\u200d🔥','🔥','💞','💓','✨','💝','❤️','🌸'];
+
+  function spawnHeart() {
+    const el = document.createElement('div');
+    el.className = 'heart';
+    el.textContent = chars[Math.floor(Math.random() * chars.length)];
+    const size  = 13 + Math.random() * 18;
+    const left  = Math.random() * 97;
+    const dur   = 6 + Math.random() * 9;
+    const delay = Math.random() * 4;
+    el.style.cssText = `left:${left}%;font-size:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;`;
+    canvas.appendChild(el);
+    setTimeout(() => el.remove(), (dur + delay + 1) * 1000);
+  }
+
+  for (let i = 0; i < 24; i++) spawnHeart();
+  setInterval(spawnHeart, 340);
+</script>
+
+</body>
+</html>
