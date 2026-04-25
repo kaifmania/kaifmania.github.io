@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🌸 12 ოთახი · მეგობრები · Chat</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Poppins', system-ui;
+            background: linear-gradient(145deg, #fdf2f8 0%, #f8e8f0 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* მცურავი გულები */
+        .floating {
+            position: fixed;
+            pointer-events: none;
+            font-size: 1.8rem;
+            animation: floatUp 8s ease-out forwards;
+            z-index: 9999;
+            bottom: -50px;
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0.9;
+                bottom: -30px;
+            }
+            100% {
+                transform: translateY(-110vh) rotate(420deg);
+                opacity: 0;
+                bottom: 110%;
+            }
+        }
+
+        /* კარტა */
+        .card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(16px);
+            border-radius: 48px;
+            padding: 48px 44px;
+            width: 460px;
+            text-align: center;
+            box-shadow: 0 30px 50px -20px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 200, 220, 0.6);
+            z-index: 10;
+            transition: 0.2s;
+        }
+
+        .card h1 {
+            font-size: 2.4rem;
+            color: #b83b6e;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .card .sub {
+            color: #b87c9c;
+            margin-bottom: 32px;
+            font-size: 0.9rem;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 14px 20px;
+            background: white;
+            border: 1.5px solid #f0c4d8;
+            border-radius: 60px;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.2s;
+        }
+
+        .input-group input:focus {
+            border-color: #ff8ab5;
+            box-shadow: 0 0 0 3px rgba(255, 140, 180, 0.2);
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 60px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: 0.2s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #ff8ab5, #ff6a9e);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.01);
+            background: linear-gradient(135deg, #ff75a3, #ff578d);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 2px solid #ff8ab5;
+            color: #b83b6e;
+        }
+
+        .btn-secondary:hover {
+            background: #ff8ab5;
+            color: white;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 0.85rem;
+            color: #b83b6e;
+        }
+
+        hr {
+            margin: 24px 0;
+            border: none;
+            border-top: 1px solid #f0c4d8;
+        }
+
+        .footer-text {
+            font-size: 0.75rem;
+            color: #c29ab0;
+        }
+    </style>
+</head>
+<body>
+<div id="floatContainer"></div>
+
+<div class="card">
+    <h1>🌸 12 ოთახი</h1>
+    <div class="sub">მეგობრები · PM · ხმოვანი · მოძრავი გულები</div>
+
+    <div class="input-group">
+        <input type="email" id="email" placeholder="ელ. ფოსტა">
+    </div>
+    <div class="input-group">
+        <input type="password" id="password" placeholder="პაროლი">
+    </div>
+    <div class="input-group" id="nicknameField" style="display: none;">
+        <input type="text" id="nickname" placeholder="შენი ნიკი">
+    </div>
+    <div class="input-group" id="avatarField" style="display: none;">
+        <input type="text" id="avatar" placeholder="ავატარი 🌸" value="🌸">
+    </div>
+
+    <button class="btn btn-primary" id="loginBtn">🚪 შესვლა</button>
+    <button class="btn btn-secondary" id="switchBtn">✨ რეგისტრაცია</button>
+
+    <div id="msg" class="message"></div>
+    <hr>
+    <div class="footer-text">❤️ მცურავი გულები და ყვავილები ❤️</div>
+</div>
+
+<script>
+    const SUPABASE_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let isRegister = false;
+
+    // მოძრავი გულები
+    function createFloating() {
+        const list = ['❤️', '💖', '🌸', '🌺', '💗', '🌼', '💕', '🌷', '❤️‍🔥', '✨', '🕊️', '💘', '🌹', '🌸'];
+        const el = document.createElement('div');
+        el.className = 'floating';
+        el.innerText = list[Math.floor(Math.random() * list.length)];
+        el.style.left = Math.random() * 100 + '%';
+        el.style.fontSize = (1.2 + Math.random() * 2) + 'rem';
+        el.style.animationDuration = 5 + Math.random() * 7 + 's';
+        document.getElementById('floatContainer').appendChild(el);
+        setTimeout(() => el.remove(), 9000);
+    }
+
+    setInterval(() => { for(let i=0;i<2;i++) createFloating(); }, 1500);
+    for(let i=0;i<6;i++) setTimeout(createFloating, i*200);
+
+    // ფორმის გადართვა
+    document.getElementById('switchBtn').onclick = () => {
+        isRegister = !isRegister;
+        const nickDiv = document.getElementById('nicknameField');
+        const avatarDiv = document.getElementById('avatarField');
+        const loginBtn = document.getElementById('loginBtn');
+        const switchBtn = document.getElementById('switchBtn');
+
+        if(isRegister) {
+            nickDiv.style.display = 'block';
+            avatarDiv.style.display = 'block';
+            loginBtn.innerText = '📝 რეგისტრაცია';
+            switchBtn.innerText = '🔙 უკვე გაქვთ ანგარიში?';
+        } else {
+            nickDiv.style.display = 'none';
+            avatarDiv.style.display = 'none';
+            loginBtn.innerText = '🚪 შესვლა';
+            switchBtn.innerText = '✨ რეგისტრაცია';
+        }
+    };
+
+    document.getElementById('loginBtn').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const pwd = document.getElementById('password').value;
+
+        if(!email || !pwd) {
+            document.getElementById('msg').innerText = '❓ შეავსეთ ყველა ველი';
+            return;
+        }
+
+        if(isRegister) {
+            const nickname = document.getElementById('nickname').value;
+            const avatar = document.getElementById('avatar').value || '🌸';
+            if(!nickname) {
+                document.getElementById('msg').innerText = '❓ გთხოვთ აირჩიეთ ნიკი';
+                return;
+            }
+            const { data, error } = await supabase.auth.signUp({ email, password: pwd });
+            if(error) { document.getElementById('msg').innerText = error.message; return; }
+            if(data.user) {
+                await supabase.from('users').insert([{
+                    id: data.user.id,
+                    email,
+                    nickname,
+                    avatar,
+                    role: 'member',
+                    status: '😊'
+                }]);
+                document.getElementById('msg').innerHTML = '✅ რეგისტრაცია წარმატებული! <br> ახლა შედით';
+                isRegister = false;
+                document.getElementById('nicknameField').style.display = 'none';
+                document.getElementById('avatarField').style.display = 'none';
+                document.getElementById('loginBtn').innerText = '🚪 შესვლა';
+                document.getElementById('switchBtn').innerText = '✨ რეგისტრაცია';
+            }
+        } else {
+            const { data, error } = await supabase.auth.signInWithPassword({ email, password: pwd });
+            if(error) { document.getElementById('msg').innerText = error.message; return; }
+            if(data.user) {
+                localStorage.setItem('userId', data.user.id);
+                localStorage.setItem('userEmail', data.user.email);
+                window.location.href = 'chat.html';
+            }
+        }
+    };
+</script>
+</body>
+</html>
