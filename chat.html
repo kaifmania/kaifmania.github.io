@@ -9,7 +9,6 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 
-/* ========== THEMES ========== */
 body.night{
   --bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);
   --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
@@ -67,7 +66,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .msg-bubble img.chat-emoji{width:52px!important;height:52px!important;object-fit:cover;vertical-align:middle;margin:0 3px;display:inline-block;border-radius:8px}
 .msg-bubble img.chat-emoji-gif{width:64px!important;height:64px!important;object-fit:contain;vertical-align:middle;margin:0 3px;display:inline-block;border-radius:10px}
 
-/* ========== TOPNAV ========== */
 #topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto;scrollbar-width:none;box-shadow:0 2px 20px rgba(0,0,0,.25)}
 #topnav::-webkit-scrollbar{display:none}
 .nav-logo{font-size:24px;margin-right:8px;animation:flicker 2.5s ease-in-out infinite;flex-shrink:0;cursor:pointer}
@@ -78,7 +76,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .badge.show{display:flex}
 .nav-spacer{flex:1}
 
-/* ========== LAYOUT ========== */
 #app{display:flex;flex:1;min-height:0;position:relative;z-index:1}
 #sidebar{width:260px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:2;transition:all 0.3s ease}
 @media(max-width:640px){#sidebar{display:none}#sidebar.mob-open{display:flex;position:fixed;inset:0;top:50px;z-index:200;width:100%}}
@@ -113,7 +110,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0;box-shadow:0 0 5px var(--online)}
 
-/* ========== MAIN AREA ========== */
 #main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;z-index:1;background:var(--bg)}
 .chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;z-index:2}
 .chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
@@ -123,12 +119,10 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .forum-open-btn{margin-left:auto;display:none;align-items:center;gap:6px;padding:6px 14px;border-radius:20px;background:rgba(96,165,250,0.12);border:1px solid rgba(96,165,250,0.4);color:#60a5fa;font-size:12px;font-weight:600;cursor:pointer;transition:all .2s;text-decoration:none;font-family:'Noto Sans Georgian',sans-serif}
 .forum-open-btn:hover{background:rgba(96,165,250,0.22);transform:scale(1.04)}
 
-/* ========== MESSAGES ========== */
 #messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:6px;position:relative;z-index:1}
 #messages::-webkit-scrollbar{width:3px}
 #messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-/* MSG ROW — actions go BELOW bubble now */
 .msg-row{display:flex;align-items:flex-start;gap:8px;position:relative;flex-direction:column}
 .msg-row-inner{display:flex;align-items:flex-start;gap:8px;width:100%}
 .msg-content{max-width:78%;display:flex;flex-direction:column}
@@ -138,7 +132,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .msg-act-btn:hover{background:var(--indigo-f);color:var(--text);transform:scale(1.05)}
 .msg-act-btn span{font-size:10px;font-family:'Unbounded',sans-serif}
 
-/* Reply preview */
 .reply-preview{background:var(--indigo-f);border-left:3px solid var(--accent);border-radius:8px;padding:5px 10px;margin-bottom:4px;font-size:11px;color:var(--text3);max-width:100%}
 .reply-preview strong{color:var(--indigo2);display:block;margin-bottom:2px;font-size:10px}
 .reply-preview span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:block}
@@ -155,18 +148,15 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .msg-del{background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;padding:2px 5px;border-radius:5px;margin-left:4px;transition:all .15s}
 .msg-del:hover{background:rgba(220,0,0,.15);color:#ff6666}
 
-/* Reactions */
 .msg-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:5px;padding-left:50px}
 .react-chip{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);font-size:13px;cursor:pointer;transition:all .15s;animation:reactionPop .2s ease}
 .react-chip:hover,.react-chip.mine{background:var(--indigo);border-color:var(--indigo2)}
 .react-chip span{font-size:10px;color:var(--text2);font-weight:600}
 
-/* Formatting */
 .msg-bubble b,.msg-bubble strong{font-weight:700}
 .msg-bubble i,.msg-bubble em{font-style:italic}
 .msg-bubble u{text-decoration:underline}
 
-/* Voice message */
 .voice-msg{display:flex;align-items:center;gap:8px;padding:4px 0}
 .voice-play{width:32px;height:32px;border-radius:50%;background:var(--indigo);border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
 .voice-play:hover{background:var(--indigo2);transform:scale(1.08)}
@@ -174,7 +164,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .voice-bar{width:3px;border-radius:2px;background:var(--indigo2);flex-shrink:0}
 .voice-dur{font-size:10px;color:var(--text3);flex-shrink:0}
 
-/* ========== GAME ROOM — REDESIGNED ========== */
 #gameRoomPlaceholder{display:none;flex:1;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;overflow-y:auto}
 .game-header-area{text-align:center;position:relative}
 .game-big-icon{font-size:80px;display:block;filter:drop-shadow(0 0 30px var(--glow));animation:gameCardFloat 3s ease-in-out infinite}
@@ -212,7 +201,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .frp-open-btn:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(96,165,250,0.45)}
 .frp-role-note{font-size:11px;color:var(--text3);text-align:center;font-family:'Unbounded',sans-serif;letter-spacing:.5px;padding:6px 14px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border)}
 
-/* ========== REPLY BAR ========== */
 #replyBar{background:var(--panel2);border-top:1px solid var(--border);padding:8px 18px;display:none;align-items:center;gap:8px;flex-shrink:0}
 #replyBar.open{display:flex}
 .reply-to-info{flex:1;font-size:12px;color:var(--text2)}
@@ -220,17 +208,15 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .reply-cancel{background:none;border:none;color:var(--text3);font-size:14px;cursor:pointer;padding:2px 6px;border-radius:6px}
 .reply-cancel:hover{background:var(--indigo-f);color:var(--text)}
 
-/* ========== FORMATTING BAR ========== */
 #formatBar{background:var(--panel2);border-top:1px solid var(--border);padding:5px 18px;display:none;align-items:center;gap:4px;flex-shrink:0}
 #formatBar.open{display:flex}
 .fmt-btn{width:30px;height:30px;border-radius:7px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
 .fmt-btn:hover,.fmt-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
 .fmt-sep{width:1px;height:20px;background:var(--border);margin:0 3px;flex-shrink:0}
-.color-btn{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s;flex-shrink:0}
+.color-btn{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15px;flex-shrink:0}
 .color-btn:hover,.color-btn.active{transform:scale(1.25);border-color:white}
 #fontFamilySelect{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;padding:3px 6px;cursor:pointer;outline:none;height:28px}
 
-/* ========== CHAT BAR ========== */
 .chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:8px;flex-shrink:0;position:relative;z-index:2;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
 .icon-btn{width:38px;height:38px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.1)}
 .icon-btn:hover{background:var(--border);transform:scale(1.05)}
@@ -243,7 +229,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .send-plane{display:inline-block}
 .send-btn.fly .send-plane{animation:planeShoot .45s ease forwards}
 
-/* ========== EMOJI PANEL ========== */
 #emojiPanel{position:absolute;bottom:64px;left:18px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:14px;width:360px;z-index:1000;box-shadow:0 10px 40px rgba(0,0,0,.4);display:none}
 #emojiPanel.open{display:block}
 .ep-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-size:9px;color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:1.5px;text-transform:uppercase}
@@ -262,13 +247,11 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .ep-add{display:flex;gap:6px}
 .ep-add-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:0 12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;white-space:nowrap;height:38px}
 
-/* ========== QUICK REACTIONS PANEL ========== */
 #quickReactPanel{position:fixed;background:var(--panel2);border:1px solid var(--border);border-radius:30px;padding:6px 10px;display:none;gap:4px;align-items:center;z-index:2000;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #quickReactPanel.open{display:flex}
 .qr-btn{font-size:20px;cursor:pointer;padding:4px 6px;border-radius:12px;transition:all .15s;border:none;background:none}
 .qr-btn:hover{background:var(--indigo-f);transform:scale(1.3)}
 
-/* ========== MODALS ========== */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
 .modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;padding:26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);z-index:10001;animation:modalFloat 0.4s cubic-bezier(0.34,1.3,0.64,1)}
@@ -351,7 +334,6 @@ select.inp{cursor:pointer}
 .gal-inp::placeholder{color:var(--text3)}
 .gal-album-select{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;cursor:pointer}
 
-/* ========== THEME PICKER ========== */
 #themeModal .theme-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
 .theme-swatch{border-radius:12px;overflow:hidden;cursor:pointer;border:2px solid transparent;transition:all .2s;position:relative}
 .theme-swatch:hover,.theme-swatch.active{border-color:white;transform:scale(1.06)}
@@ -365,7 +347,6 @@ select.inp{cursor:pointer}
 .color-picker-group label{font-size:9px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:.5px;text-align:center}
 .color-picker-group input[type=color]{width:40px;height:32px;border:none;background:none;cursor:pointer;border-radius:8px;padding:0}
 
-/* ========== PHOTO VIEWER ========== */
 .photo-viewer{position:fixed;inset:0;background:rgba(0,0,0,.95);z-index:20000;display:none;flex-direction:column;align-items:center;justify-content:center;padding:16px}
 .photo-viewer.open{display:flex}
 .pv-close{position:absolute;top:16px;right:16px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:38px;height:38px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
@@ -380,7 +361,6 @@ select.inp{cursor:pointer}
 .pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pv-nav-btn:hover{background:var(--border)}
 
-/* ========== DM ========== */
 #dmBox{position:fixed;right:16px;bottom:16px;width:320px;height:440px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
 #dmBox.open{display:flex;animation:dmSlideUp .35s cubic-bezier(0.2,0.9,0.4,1.1)}
 .dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0}
@@ -418,10 +398,8 @@ select.inp{cursor:pointer}
 .dm-msg-wrap:hover .dm-react-btn{opacity:1}
 .dm-react-btn{position:absolute;top:-8px;background:var(--panel2);border:1px solid var(--border);border-radius:14px;font-size:11px;cursor:pointer;padding:2px 6px;opacity:0;transition:opacity .15s;z-index:2}
 
-/* ========== TOAST ========== */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:messagePop .3s ease;white-space:nowrap}
 
-/* Typing indicator */
 .typing-indicator{display:flex;align-items:center;gap:6px;padding:4px 14px 4px 56px;font-size:12px;color:var(--text3);font-style:italic}
 .typing-dots{display:flex;gap:3px;align-items:center}
 .typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:waveform .8s ease infinite}
@@ -490,8 +468,6 @@ select.inp{cursor:pointer}
       <a class="forum-open-btn" id="forumHeaderBtn" href="forum.html" target="_blank">💬 ფორუმი</a>
     </div>
     <div id="messages"></div>
-
-    <!-- GAME PLACEHOLDER — redesigned -->
     <div id="gameRoomPlaceholder">
       <div class="game-header-area">
         <span class="game-big-icon" id="grpIcon">🎮</span>
@@ -514,7 +490,6 @@ select.inp{cursor:pointer}
       </div>
       <button class="grp-play-btn" onclick="openGame()">▶ თამაშის დაწყება</button>
     </div>
-
     <div id="forumRoomPlaceholder">
       <div class="frp-icon">💬</div>
       <div class="frp-title">სოული კორნერი</div>
@@ -526,7 +501,6 @@ select.inp{cursor:pointer}
       <a class="frp-open-btn" href="forum.html" target="_blank">💬 ფორუმის გახსნა ↗</a>
       <div class="frp-role-note" id="frpRoleNote">👤 ყველას შეუძლია პასუხი გაცეს</div>
     </div>
-
     <div id="replyBar">
       <span style="font-size:14px;color:var(--accent)">↩️</span>
       <div class="reply-to-info" id="replyBarInfo">პასუხი: <strong id="replyBarNick">-</strong></div>
@@ -583,7 +557,7 @@ select.inp{cursor:pointer}
   <div class="modal" id="themeModal" style="max-width:520px">
     <button class="modal-x" onclick="closeModal('themeOverlay')">✕</button>
     <div class="modal-title">🎨 თემა და ფერები</div>
-    <div class="sec-lbl">მზა თემები (16)</div>
+    <div class="sec-lbl">მზა თემები</div>
     <div class="theme-grid" id="themeGrid"></div>
     <div class="divider"></div>
     <div class="sec-lbl">საკუთარი ფერები</div>
@@ -780,9 +754,6 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-// ============================================================
-// STATE
-// ============================================================
 let ME = null, MYPROF = null, ROOM = 1, VIEW_UID = null, DM_UID = null;
 let allUsers = [], myFriends = [], customEmojis = [];
 let emojiCache = {};
@@ -798,28 +769,25 @@ let dmMediaRecorder=null,dmAudioChunks=[],dmIsRecording=false;
 let typingTimeout=null,typingCh=null,typingUsers={};
 const roomMsgCache={};
 
-// ============================================================
-// THEMES — 16 total
-// ============================================================
 const THEMES=[
-  {id:'night',        label:'ღამე',     bg:'#1c1a30',accent:'#f07aff'},
-  {id:'day',          label:'დღე',      bg:'#f5eeff',accent:'#c040ff'},
-  {id:'theme-ocean',  label:'ოკეანე',   bg:'#0a1628',accent:'#00e5ff'},
-  {id:'theme-forest', label:'ტყე',      bg:'#0a1a0f',accent:'#00ff80'},
-  {id:'theme-sunset', label:'მზ.ჩ.',    bg:'#1a0a1a',accent:'#ff8c50'},
-  {id:'theme-rose',   label:'ვარდი',    bg:'#1a0a12',accent:'#ff5090'},
-  {id:'theme-gold',   label:'ოქრო',     bg:'#160f00',accent:'#ffd040'},
-  {id:'theme-cyber',  label:'კიბერ',    bg:'#000a0a',accent:'#00ffe8'},
-  {id:'theme-lavender',label:'ლავანდა', bg:'#f0ecff',accent:'#9060e0'},
-  {id:'theme-midnight',label:'შუაღამე', bg:'#05050f',accent:'#8080ff'},
-  {id:'theme-cherry', label:'ალუბალი',  bg:'#1a000a',accent:'#ff4080'},
-  {id:'theme-mint',   label:'პიტნა',    bg:'#001a12',accent:'#00ffbb'},
-  {id:'theme-ember',  label:'ნაკვერჩხ.',bg:'#1a0800',accent:'#ffaa00'},
-  {id:'theme-storm',  label:'ქარიშხ.',  bg:'#080d14',accent:'#80c8ff'},
-  {id:'theme-galaxy', label:'გალაქტ.',  bg:'#080010',accent:'#e060ff'},
-  {id:'theme-arctic', label:'არქტ.',    bg:'#e8f4ff',accent:'#0090e0'},
-  {id:'theme-neon',   label:'ნეონი',    bg:'#000508',accent:'#00ff88'},
-  {id:'theme-sand',   label:'ქვიშა',    bg:'#f5e8d0',accent:'#d08040'},
+  {id:'night',label:'ღამე',bg:'#1c1a30',accent:'#f07aff'},
+  {id:'day',label:'დღე',bg:'#f5eeff',accent:'#c040ff'},
+  {id:'theme-ocean',label:'ოკეანე',bg:'#0a1628',accent:'#00e5ff'},
+  {id:'theme-forest',label:'ტყე',bg:'#0a1a0f',accent:'#00ff80'},
+  {id:'theme-sunset',label:'მზ.ჩ.',bg:'#1a0a1a',accent:'#ff8c50'},
+  {id:'theme-rose',label:'ვარდი',bg:'#1a0a12',accent:'#ff5090'},
+  {id:'theme-gold',label:'ოქრო',bg:'#160f00',accent:'#ffd040'},
+  {id:'theme-cyber',label:'კიბერ',bg:'#000a0a',accent:'#00ffe8'},
+  {id:'theme-lavender',label:'ლავანდა',bg:'#f0ecff',accent:'#9060e0'},
+  {id:'theme-midnight',label:'შუაღამე',bg:'#05050f',accent:'#8080ff'},
+  {id:'theme-cherry',label:'ალუბალი',bg:'#1a000a',accent:'#ff4080'},
+  {id:'theme-mint',label:'პიტნა',bg:'#001a12',accent:'#00ffbb'},
+  {id:'theme-ember',label:'ნაკვერჩხ.',bg:'#1a0800',accent:'#ffaa00'},
+  {id:'theme-storm',label:'ქარიშხ.',bg:'#080d14',accent:'#80c8ff'},
+  {id:'theme-galaxy',label:'გალაქტ.',bg:'#080010',accent:'#e060ff'},
+  {id:'theme-arctic',label:'არქტ.',bg:'#e8f4ff',accent:'#0090e0'},
+  {id:'theme-neon',label:'ნეონი',bg:'#000508',accent:'#00ff88'},
+  {id:'theme-sand',label:'ქვიშა',bg:'#f5e8d0',accent:'#d08040'},
 ];
 
 let currentTheme=localStorage.getItem('kaif_theme')||'night';
@@ -834,9 +802,7 @@ function applyThemeById(id){
   if(s)s.remove();
   updateThemeGrid();
 }
-
 function openThemeModal(){buildThemeGrid();openModal('themeOverlay');}
-
 function buildThemeGrid(){
   const grid=document.getElementById('themeGrid');
   grid.innerHTML='';
@@ -848,11 +814,9 @@ function buildThemeGrid(){
     grid.appendChild(div);
   });
 }
-
 function updateThemeGrid(){
   document.querySelectorAll('.theme-swatch').forEach((el,i)=>{el.classList.toggle('active',THEMES[i]?.id===currentTheme);});
 }
-
 function applyCustomTheme(){
   const bg=document.getElementById('cp_bg').value,panel=document.getElementById('cp_panel').value,text=document.getElementById('cp_text').value,accent=document.getElementById('cp_accent').value,indigo=document.getElementById('cp_indigo').value;
   THEMES.forEach(t=>document.body.classList.remove(t.id));
@@ -861,10 +825,9 @@ function applyCustomTheme(){
   if(!style){style=document.createElement('style');style.id='customThemeStyle';document.head.appendChild(style);}
   style.textContent=`body{--bg:${bg};--panel:${panel};--panel2:${panel};--border:rgba(128,128,128,0.3);--text:${text};--text2:${lightenHex(text,-30)};--text3:${lightenHex(text,-60)};--bubble:${panel};--input-bg:${bg};--online:${accent};--indigo:${indigo};--indigo2:${lightenHex(indigo,20)};--indigo-f:${hexToRgba(indigo,0.15)};--glow:${hexToRgba(accent,0.25)};--accent:${accent};}`;
 }
-
 function hexToRgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return `rgba(${r},${g},${b},${a})`;}
 function lightenHex(h,amt){let r=parseInt(h.slice(1,3),16)+amt,g=parseInt(h.slice(3,5),16)+amt,b=parseInt(h.slice(5,7),16)+amt;r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
-function saveCustomTheme(){const bg=document.getElementById('cp_bg').value,panel=document.getElementById('cp_panel').value,text=document.getElementById('cp_text').value,accent=document.getElementById('cp_accent').value,indigo=document.getElementById('cp_indigo').value;localStorage.setItem('kaif_custom_colors',JSON.stringify({bg,panel,text,accent,indigo}));currentTheme='custom';localStorage.setItem('kaif_theme','custom');toast('✅ კასტომ თემა შენახულია!');}
+function saveCustomTheme(){localStorage.setItem('kaif_custom_colors',JSON.stringify({bg:document.getElementById('cp_bg').value,panel:document.getElementById('cp_panel').value,text:document.getElementById('cp_text').value,accent:document.getElementById('cp_accent').value,indigo:document.getElementById('cp_indigo').value}));currentTheme='custom';localStorage.setItem('kaif_theme','custom');toast('✅ კასტომ თემა შენახულია!');}
 function resetTheme(){applyThemeById('night');toast('🔄 ნაგულისხმევი თემა');}
 function loadSavedTheme(){
   const saved=localStorage.getItem('kaif_theme')||'night';
@@ -874,9 +837,6 @@ function loadSavedTheme(){
   }else{applyThemeById(saved);}
 }
 
-// ============================================================
-// FORMATTING
-// ============================================================
 function toggleFormatBar(){formatBarOpen=!formatBarOpen;document.getElementById('formatBar').classList.toggle('open',formatBarOpen);document.getElementById('fmtToggleBtn').classList.toggle('active',formatBarOpen);}
 function applyFmt(type){if(type==='bold'){fmtBold=!fmtBold;document.getElementById('fmtBold').classList.toggle('active',fmtBold);}if(type==='italic'){fmtItalic=!fmtItalic;document.getElementById('fmtItalic').classList.toggle('active',fmtItalic);}if(type==='under'){fmtUnder=!fmtUnder;document.getElementById('fmtUnder').classList.toggle('active',fmtUnder);}}
 function applyColor(color,el){fmtColor=(fmtColor===color)?null:color;document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('active'));if(fmtColor&&el)el.classList.add('active');}
@@ -893,9 +853,6 @@ function wrapFormatting(text){
   return open+text+close;
 }
 
-// ============================================================
-// CONTENT RENDERING
-// ============================================================
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderContent(s){
   if(!s)return'';
@@ -909,9 +866,6 @@ function renderContent(s){
   return h;
 }
 
-// ============================================================
-// VOICE RECORDING
-// ============================================================
 async function toggleVoiceRecord(){if(!isRecording)await startVoiceRecord();else stopVoiceRecord();}
 async function startVoiceRecord(){
   try{
@@ -983,9 +937,6 @@ function renderVoiceContent(raw){
 }
 function playVoice(btn,base64){if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(base64);currentAudio=a;btn.textContent='⏸';a.play();a.onended=()=>{btn.textContent='▶';currentAudio=null;};a.onerror=()=>{btn.textContent='▶';toast('❌ ვოისი ვერ დაუკრა');};}
 
-// ============================================================
-// REPLY
-// ============================================================
 function setReply(msgId,nick,content){
   replyToMsg={id:msgId,nick,content:content.substring(0,80)};
   document.getElementById('replyBar').classList.add('open');
@@ -997,9 +948,6 @@ function cancelReply(){replyToMsg=null;document.getElementById('replyBar').class
 function setDMReply(nick,content){dmReplyTo={nick,content:content.substring(0,60)};document.getElementById('dmReplyBar').classList.add('open');document.getElementById('dmReplyNick').textContent=nick;document.getElementById('dmInput').focus();}
 function cancelDMReply(){dmReplyTo=null;document.getElementById('dmReplyBar').classList.remove('open');}
 
-// ============================================================
-// REACTIONS
-// ============================================================
 function showQuickReact(msgId,btn){
   reactTargetMsgId=msgId;
   const panel=document.getElementById('quickReactPanel');
@@ -1022,7 +970,6 @@ function openFullReactions(){closeQRPanel();toast('😊 სმაილები
 async function refreshReactions(msgId){
   const{data}=await sb.from('message_reactions').select('emoji,user_id').eq('message_id',msgId);
   const row=document.getElementById('msg'+msgId);if(!row)return;
-  // Reactions now rendered in separate .msg-reactions div OUTSIDE the bubble
   let reactEl=row.querySelector('.msg-reactions');
   if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}
   const grouped={};
@@ -1038,9 +985,6 @@ async function refreshReactions(msgId){
   });
 }
 
-// ============================================================
-// TYPING
-// ============================================================
 function onTyping(){
   if(!ME||!ROOM)return;
   if(typingCh)typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});
@@ -1065,22 +1009,19 @@ function renderTyping(){
   document.getElementById('typingText').textContent=Object.values(typingUsers).slice(0,3).map(u=>u.nick).join(', ')+' წერს...';
 }
 
-// ============================================================
-// ROOMS
-// ============================================================
 const ROOMS=[
-  {id:1,  icon:'🏠',name:'მთავარი მოედანი'},
-  {id:2,  icon:'🔐',name:'შიფროგრამა',  isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},
-  {id:3,  icon:'🏆',name:'ვიქტორინა',   isGame:true,gameFile:'game-quiz.html',    gameName:'ვიქტორინა', gameDesc:'200 კითხვა · სწორი პასუხი = 5 ქულა',gameScoreField:'quiz_score'},
-  {id:4,  icon:'🪢',name:'ჩამოხრჩობა', isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო · კაცი ეწყობა ნაწილ-ნაწილ',gameScoreField:'hangman_score'},
-  {id:5,  icon:'📋',name:'ფორუმი',isForum:true,gameFile:'forum.html'},
-  {id:6,  icon:'🎵',name:'მუსიკ კლაბი'},
-  {id:7,  icon:'💜',name:'სოული კორნერ'},
-  {id:8,  icon:'🌊',name:'ოშენ ვაიბ'},
-  {id:9,  icon:'🦋',name:'ფლაი ზონ'},
-  {id:10, icon:'🧠',name:'ბრეინ ზონ'},
-  {id:11, icon:'🌸',name:'სოფთ ჰარმონი'},
-  {id:12, icon:'💡',name:'ბრეინსტორმ'},
+  {id:1,icon:'🏠',name:'მთავარი მოედანი'},
+  {id:2,icon:'🔐',name:'შიფროგრამა',isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},
+  {id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი პასუხი = 5 ქულა',gameScoreField:'quiz_score'},
+  {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო · კაცი ეწყობა ნაწილ-ნაწილ',gameScoreField:'hangman_score'},
+  {id:5,icon:'📋',name:'ფორუმი',isForum:true,gameFile:'forum.html'},
+  {id:6,icon:'🎵',name:'მუსიკ კლაბი'},
+  {id:7,icon:'💜',name:'სოული კორნერ'},
+  {id:8,icon:'🌊',name:'ოშენ ვაიბ'},
+  {id:9,icon:'🦋',name:'ფლაი ზონ'},
+  {id:10,icon:'🧠',name:'ბრეინ ზონ'},
+  {id:11,icon:'🌸',name:'სოფთ ჰარმონი'},
+  {id:12,icon:'💡',name:'ბრეინსტორმ'},
 ];
 
 function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank');}
@@ -1172,27 +1113,17 @@ function setRoomView(mode,roomObj){
 
 function animateSendPlane(btnId){const btn=document.getElementById(btnId);if(!btn)return;btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}
 
-// ============================================================
-// MESSAGES — FIX: proper dedup, username from profiles table
-// ============================================================
 async function loadMessages(roomId){
   if(msgCh){sb.removeChannel(msgCh);msgCh=null;}
   if(typingCh){sb.removeChannel(typingCh);typingCh=null;}
   const box=document.getElementById('messages');
-
-  // Show cache instantly
   if(roomMsgCache[roomId]){box.innerHTML='';roomMsgCache[roomId].forEach(m=>appendMsg(m,true));box.scrollTop=box.scrollHeight;}
-
-  // Fetch fresh — JOIN profiles by user_id to get username/role/avatar
   const{data}=await sb.from('messages')
     .select('*, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
     .eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
-
   box.innerHTML='';
   roomMsgCache[roomId]=data||[];
   (data||[]).forEach(m=>appendMsg(m,true));
-
-  // Load all reactions in one query
   if(data&&data.length){
     const msgIds=data.map(m=>m.id);
     const{data:reactions}=await sb.from('message_reactions').select('*').in('message_id',msgIds);
@@ -1213,14 +1144,11 @@ async function loadMessages(roomId){
       });
     }
   }
-
   box.scrollTop=box.scrollHeight;
   setupTypingChannel(roomId);
-
   msgCh=sb.channel('room'+roomId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room_id=eq.${roomId}`},async payload=>{
       if(document.getElementById('msg'+payload.new.id))return;
-      // fetch with profile join
       const{data:msg}=await sb.from('messages')
         .select('*, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
         .eq('id',payload.new.id).single();
@@ -1247,12 +1175,9 @@ function appendMsg(m,skipAnim){
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const role=m.profiles?.role;
   const rbadge=role&&role!=='member'?`<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>`:'';
-
-  // Avatar: prefer avatar_url from profiles, else emotion
   const avHtml=m.profiles?.avatar_url
     ?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`
     :(m.profiles?.emotion||'😊');
-
   const isVoice=m.content&&m.content.startsWith('[voice:');
   let replyHtml='',displayContent=m.content;
   if(m.content&&m.content.startsWith('[reply:')){
@@ -1260,13 +1185,9 @@ function appendMsg(m,skipAnim){
     if(rMatch){const rNick=rMatch[1],rContent=rMatch[2];displayContent=rMatch[3];replyHtml=`<div class="reply-preview"><strong>${esc(rNick)}</strong><span>${esc(rContent.substring(0,60))}</span></div>`;}
   }
   const bubbleContent=isVoice?renderVoiceContent(displayContent):renderContent(displayContent);
-
   const row=document.createElement('div');
   row.className='msg-row';row.id='msg'+m.id;
-
-  // Use registered username from profiles — not email
   const displayName=m.profiles?.username||'?';
-
   row.innerHTML=`
     <div class="msg-row-inner">
       <div class="avatar" style="cursor:pointer;flex-shrink:0" onclick="openProfile('${m.user_id}')">${avHtml}</div>
@@ -1300,15 +1221,13 @@ async function sendMessage(){
   const fakeId='temp_'+Date.now();
   appendMsg({id:fakeId,user_id:ME.id,room_id:ROOM,content:txt,created_at:new Date().toISOString(),profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}});
   const box=document.getElementById('messages');box.scrollTop=box.scrollHeight;
-  const{data}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();
+  const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();
+  if(error){toast('❌ შეტყობინება ვერ გაიგზავნა: '+error.message);return;}
   if(data){const fakeEl=document.getElementById('msg'+fakeId);if(fakeEl)fakeEl.id='msg'+data.id;}
 }
 
 async function delMsg(id){if(!confirm('წავშალო?'))return;document.getElementById('msg'+id)?.remove();await sb.from('messages').delete().eq('id',id);}
 
-// ============================================================
-// EMOJI SYSTEM
-// ============================================================
 async function handleEmojiImages(e){
   const files=Array.from(e.target.files);if(!files.length)return;
   if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს/დამფუძნებელს შეუძლია!');return;}
@@ -1316,11 +1235,13 @@ async function handleEmojiImages(e){
   for(const file of files){
     try{
       if(file.size>20*1024*1024){toast('❌ '+file.name+' ძალიან დიდია!');continue;}
-      let fileToUpload;try{fileToUpload=await compressImage(file,256,0.85);}catch(e){fileToUpload=file;}
-      const isGif=file.type==='image/gif';const ext=isGif?'gif':'webp';
+      const isGif=file.type==='image/gif';
+      let fileToUpload;
+      try{fileToUpload=isGif?file:await compressImage(file,256,0.85);}catch(e){fileToUpload=file;}
+      const ext=isGif?'gif':'webp';
       const fileName=`emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const{data:uploadData,error:uploadError}=await sb.storage.from('emojis').upload(fileName,fileToUpload,{contentType:isGif?'image/gif':'image/webp',upsert:false});
-      if(uploadError){toast('❌ '+uploadError.message);continue;}
+      if(uploadError){toast('❌ ატვირთვის შეცდომა: '+uploadError.message);continue;}
       const{data:urlData}=sb.storage.from('emojis').getPublicUrl(fileName);
       const{data:insertData,error:insertError}=await sb.from('global_emojis').insert({url:urlData.publicUrl}).select().single();
       if(insertError){toast('❌ '+insertError.message);await sb.storage.from('emojis').remove([fileName]);continue;}
@@ -1355,7 +1276,6 @@ async function removeEmoji(id){
 }
 
 function buildEmojis(){buildEmojiGrid('emojiGrid','msgInput',true);buildEmojiGrid('dmEmojiGrid','dmInput',false);}
-
 function buildEmojiGrid(gridId,inputId,withManage){
   const grid=document.getElementById(gridId);if(!grid)return;
   grid.innerHTML='';
@@ -1388,9 +1308,6 @@ document.addEventListener('click',e=>{
   if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-emoji-btn'))dp.classList.remove('open');
 });
 
-// ============================================================
-// PROFILE & USERS
-// ============================================================
 function openMyProfile(){openProfile(ME.id);}
 async function openProfile(uid){
   VIEW_UID=uid;
@@ -1399,7 +1316,6 @@ async function openProfile(uid){
   document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
   document.getElementById('profName').textContent=p?.username||'?';
   const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);
-  // Update all score badges
   const wordEl=document.getElementById('profWordScore');const quizEl=document.getElementById('profQuizScore');const hangEl=document.getElementById('profHangScore');
   if(wordEl)wordEl.textContent='🔐 '+(p?.game_score||0);
   if(quizEl)quizEl.textContent='🏆 '+(p?.quiz_score||0);
@@ -1472,9 +1388,6 @@ function rLabel(r){return r==='founder'?'👑 დამფუძნებელ�
 function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member';}
 function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
 
-// ============================================================
-// GALLERY
-// ============================================================
 async function loadAlbumsAndGallery(uid){
   galleryViewUID=uid;const isSelf=uid===ME.id;
   const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});
@@ -1496,7 +1409,7 @@ function renderGallery(isSelf){
   const grid=document.getElementById('galGrid');const empty=document.getElementById('galEmpty');grid.innerHTML='';
   const filtered=activeAlbumFilter?currentGallery.filter(p=>p.album_id===activeAlbumFilter):currentGallery;
   if(!filtered.length){empty.classList.remove('hidden');return;}empty.classList.add('hidden');
-  filtered.forEach((photo,idx)=>{const item=document.createElement('div');item.className='gal-item';item.style.animationDelay=(idx%3)*0.05+'s';item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:14px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;item.addEventListener('click',e=>{if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx,filtered);});grid.appendChild(item);});
+  filtered.forEach((photo,idx)=>{const item=document.createElement('div');item.className='gal-item';item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:14px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" onclick="deleteGalPhoto(event,'${photo.id}')">🗑</button>`:''}`;item.addEventListener('click',e=>{if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx,filtered);});grid.appendChild(item);});
 }
 function galFileChosen(e){const file=e.target.files[0];if(!file)return;if(file.size>4*1024*1024){toast('❌ მაქსიმუმი 4MB');e.target.value='';return;}const reader=new FileReader();reader.onload=ev=>{galFileData=ev.target.result;const prev=document.getElementById('galPreviewImg');prev.src=galFileData;prev.classList.add('show');document.getElementById('galForm').classList.add('open');galSelectedEmo='😊';document.querySelectorAll('.gal-emo-btn').forEach((b,i)=>b.classList.toggle('active',i===0));document.getElementById('galTitle').value='';document.getElementById('galComment').value='';};reader.onerror=()=>toast('❌ ფოტოს წაკითხვა ვერ');reader.readAsDataURL(file);e.target.value='';}
 function pickGalEmo(btn,em){galSelectedEmo=em;document.querySelectorAll('.gal-emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
@@ -1513,15 +1426,12 @@ function pvNav(dir){pvIndex=(pvIndex+dir+_pvFiltered.length)%_pvFiltered.length;
 function closePhotoViewer(){document.getElementById('photoViewer').classList.remove('open');}
 function pvBgClose(e){if(e.target.id==='photoViewer')closePhotoViewer();}
 
-// ============================================================
-// ROOMS SIDEBAR
-// ============================================================
 function buildRooms(){
   const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';
   ROOMS.forEach((r,idx)=>{
     const d=document.createElement('div');
     let cls='room-item';if(r.isGame)cls+=' game-room';if(r.isForum)cls+=' forum-room';
-    d.className=cls;d.style.animationDelay=(idx*0.03)+'s';
+    d.className=cls;
     let badge='';if(r.isGame)badge='<span class="game-badge">GAME</span>';if(r.isForum)badge='<span class="forum-badge">FORUM</span>';
     d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${badge}`;
     d.onclick=()=>switchRoom(r,d);el.appendChild(d);
@@ -1538,9 +1448,6 @@ function switchRoom(r,clickedEl){
   document.getElementById('sidebar')?.classList.remove('mob-open');
 }
 
-// ============================================================
-// USERS / ONLINE — FIX: proper online detection
-// ============================================================
 async function loadAllUsers(){
   const{data}=await sb.from('profiles').select('*').order('username');
   allUsers=data||[];renderUserLists();
@@ -1586,17 +1493,14 @@ function makeUserItem(u){
 
 function filterUsers(){const q=document.getElementById('userSearch').value.toLowerCase();document.querySelectorAll('#usersListEl .list-item').forEach(el=>{el.style.display=el.dataset.q.includes(q)?'':'none';});}
 
-// FIX: 90 seconds window for online detection; ping every 30s
-function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<90000;}
+// FIX: 60 seconds window - ping every 20s so users don't disappear
+function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<60000;}
 
 async function pingOnline(){
   if(!ME)return;
   await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);
 }
 
-// ============================================================
-// FRIENDS
-// ============================================================
 async function loadFriends(){const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');myFriends=(data||[]).map(f=>f.friend_id);renderFriends();}
 function renderFriends(){const el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);if(!list.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='მეგობრები ჯერ არ გყავს 💜';el.appendChild(e);return;}const frag=document.createDocumentFragment();list.forEach(u=>frag.appendChild(makeUserItem(u)));el.appendChild(frag);}
 async function toggleFriend(){const isFr=myFriends.includes(VIEW_UID);if(isFr){await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);myFriends=myFriends.filter(f=>f!==VIEW_UID);toast('💔 მეგობრობა გაუქმდა');}else{await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});toast('📨 მოთხოვნა გაიგზავნა!');}document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';}
@@ -1604,9 +1508,6 @@ async function checkFriendReqs(){const{data}=await sb.from('friends').select('*,
 async function acceptFriend(){const rid=document.getElementById('friendReqOverlay').dataset.rid;const fid=document.getElementById('friendReqOverlay').dataset.fid;await sb.from('friends').update({status:'accepted'}).eq('id',rid);await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});myFriends.push(fid);closeModal('friendReqOverlay');toast('✅ მეგობარი დაემატა!');renderFriends();}
 async function declineFriend(){await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);closeModal('friendReqOverlay');toast('❌ უარყოფილია');}
 
-// ============================================================
-// DM
-// ============================================================
 function openDMList(){document.getElementById('dmListOverlay').classList.add('open');buildDMUserList(allUsers);}
 function buildDMUserList(users){
   const el=document.getElementById('dmUserList');el.innerHTML='';
@@ -1669,9 +1570,6 @@ async function sendDM(){
 function closeDM(){document.getElementById('dmBox').classList.remove('open');document.getElementById('dmEmojiPanel').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;if(dmCh){sb.removeChannel(dmCh);dmCh=null;}cancelDMReply();}
 function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
 
-// ============================================================
-// SIDEBAR PANELS
-// ============================================================
 function showPanel(name){
   ['rooms','friends','users','online'].forEach(p=>{document.getElementById('panel'+cap(p))?.classList.toggle('hidden',p!==name);document.getElementById('nav'+cap(p))?.classList.toggle('active',p===name);});
   document.getElementById('navDM')?.classList.remove('active');
@@ -1681,20 +1579,14 @@ function showPanel(name){
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('mob-open');}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-// ============================================================
-// HEARTS
-// ============================================================
 function spawnHearts(){
   const hc=document.getElementById('hearts');if(!hc)return;
   const emojis=['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿'];
   let active=0;const MAX=35;
-  function make(){if(active>=MAX)return;const h=document.createElement('div');h.className='heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];const leftPct=Math.random()*100,drift=(Math.random()-0.5)*80,dur=8+Math.random()*10,size=1.2+Math.random()*1.4;h.style.cssText=`left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;hc.appendChild(h);active++;setTimeout(()=>{h.remove();active--;},( dur+0.5)*1000);}
+  function make(){if(active>=MAX)return;const h=document.createElement('div');h.className='heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];const leftPct=Math.random()*100,drift=(Math.random()-0.5)*80,dur=8+Math.random()*10,size=1.2+Math.random()*1.4;h.style.cssText=`left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;hc.appendChild(h);active++;setTimeout(()=>{h.remove();active--;},(dur+0.5)*1000);}
   for(let i=0;i<15;i++)setTimeout(make,i*250);setInterval(()=>{if(active<MAX)make();},1800);
 }
 
-// ============================================================
-// UTILITIES
-// ============================================================
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function bgClose(e,id){if(e.target.id===id)closeModal(id);}
@@ -1702,11 +1594,11 @@ function toast(msg){const t=document.createElement('div');t.className='toast';t.
 async function loadProf(uid){const{data}=await sb.from('profiles').select('*').eq('id',uid).single();return data;}
 async function loadEmojis(){const{data,error}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});if(error){customEmojis=[];return;}customEmojis=data||[];emojiCache={};customEmojis.forEach(e=>{emojiCache[e.id]=e.url;});}
 
-// ============================================================
-// INIT — FIX: pull username from profiles, not auth metadata
-// ============================================================
 async function logout(){await sb.auth.signOut();location.href='index.html';}
 
+// ============================================================
+// INIT — ყველა ფიქსი აქ არის
+// ============================================================
 async function init(){
   loadSavedTheme();
   const{data:{user}}=await sb.auth.getUser();
@@ -1715,10 +1607,11 @@ async function init(){
   MYPROF=await loadProf(ME.id);
 
   if(!MYPROF){
-    // FIX: use username from user_metadata (set during registration), NOT email prefix
+    // FIX 1: username სწორად ინახება - email prefix-ს იყენებს თუ username არ არის
     const meta=user.user_metadata||{};
-    const username=meta.username||meta.name||meta.full_name||'მომხმარებელი_'+Math.floor(Math.random()*9999);
-    await sb.from('profiles').insert({id:ME.id,username,role:'member',emotion:'😊'});
+    const username=meta.username||meta.name||meta.full_name||user.email?.split('@')[0]||'user_'+Math.floor(Math.random()*9999);
+    const{error}=await sb.from('profiles').insert({id:ME.id,username,role:'member',emotion:'😊'});
+    if(error&&!error.message.includes('duplicate')){toast('❌ პროფილის შეცდომა: '+error.message);}
     MYPROF=await loadProf(ME.id);
   }
 
@@ -1730,13 +1623,23 @@ async function init(){
   switchRoom(ROOMS[0],document.querySelector('.room-item'));
   await loadAllUsers();
   await pingOnline();
-  // FIX: ping every 30s AND update local allUsers too
-  setInterval(async()=>{await pingOnline();const idx=allUsers.findIndex(u=>u.id===ME.id);if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();updateOnlineBadge();},30000);
-  setInterval(loadAllUsers,60000);
+
+  // FIX 2: ping ყოველ 20 წამში + renderUserLists() რომ ონლაინი სიაში ჩანდეს
+  setInterval(async()=>{
+    await pingOnline();
+    const idx=allUsers.findIndex(u=>u.id===ME.id);
+    if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();
+    updateOnlineBadge();
+    renderUserLists();
+  },20000);
+
+  // FIX 3: loadAllUsers ყოველ 30 წამში (ახლო online-ის განახლება)
+  setInterval(loadAllUsers,30000);
+
   checkFriendReqs();
   watchGameScore();
 
-  // Real-time profile updates (including last_seen for online indicator)
+  // Real-time profile updates
   sb.channel('profiles-watch')
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{
       const idx=allUsers.findIndex(u=>u.id===payload.new.id);
@@ -1751,7 +1654,7 @@ async function init(){
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async()=>{await loadEmojis();buildEmojis();})
     .subscribe();
 
-  setTimeout(()=>toast(`👋 გამარჯობა, ${MYPROF?.username||''}!`),800);
+  setTimeout(()=>toast('👋 გამარჯობა, '+(MYPROF?.username||'')+'!'),800);
 }
 
 init();
