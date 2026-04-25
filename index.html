@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია — ერთად ვიკაიფოთ ყველაფერზე</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:#04081f;
+  --navy2:#070d2a;
+  --navy3:#0b1235;
+  --blue:#1a2a6c;
+  --cyan:#00d4ff;
+  --cyan2:#00aaff;
+  --cyan3:rgba(0,212,255,0.15);
+  --text:#e8f4ff;
+  --muted:rgba(180,210,255,0.5);
+  --border:rgba(0,180,255,0.12);
+  --surface:rgba(0,40,120,0.25);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--navy);
+  font-family:'DM Sans',sans-serif;
+  min-height:100vh;
+  display:flex;align-items:center;justify-content:center;
+  overflow:hidden;position:relative;
+}
+
+/* ── Background ── */
+.bg{
+  position:fixed;inset:0;z-index:0;
+  background:
+    radial-gradient(ellipse 70% 60% at 15% 25%,rgba(0,80,180,0.25) 0%,transparent 60%),
+    radial-gradient(ellipse 60% 70% at 85% 75%,rgba(0,180,255,0.12) 0%,transparent 60%),
+    radial-gradient(ellipse 40% 40% at 50% 50%,rgba(26,42,108,0.4) 0%,transparent 70%),
+    var(--navy);
+}
+
+/* Stars */
+.stars{position:fixed;inset:0;z-index:1;pointer-events:none}
+.star{
+  position:absolute;border-radius:50%;
+  background:#fff;animation:twinkle ease-in-out infinite alternate;
+}
+@keyframes twinkle{from{opacity:0.1;transform:scale(0.8)}to{opacity:0.9;transform:scale(1.2)}}
+
+/* Orbs */
+.orb{position:fixed;border-radius:50%;filter:blur(100px);pointer-events:none;z-index:0}
+.o1{width:400px;height:400px;background:rgba(0,100,220,0.15);top:-100px;left:-100px;animation:od 10s ease-in-out infinite alternate}
+.o2{width:300px;height:300px;background:rgba(0,200,255,0.1);bottom:-80px;right:-80px;animation:od 13s ease-in-out infinite alternate-reverse}
+.o3{width:200px;height:200px;background:rgba(0,60,180,0.12);top:40%;left:65%;animation:od 8s ease-in-out infinite alternate}
+@keyframes od{from{transform:translate(0,0) scale(1)}to{transform:translate(40px,50px) scale(1.2)}}
+
+/* Floaters */
+.floater{
+  position:fixed;pointer-events:none;z-index:1;
+  animation:flt linear infinite;
+  filter:drop-shadow(0 0 6px rgba(0,200,255,0.7));
+}
+@keyframes flt{
+  0%{transform:translateY(110vh) rotate(0deg) scale(0.6);opacity:0}
+  12%{opacity:0.85}88%{opacity:0.85}
+  100%{transform:translateY(-8vh) rotate(360deg) scale(1.1);opacity:0}
+}
+
+/* ── Card ── */
+.card{
+  position:relative;z-index:10;
+  width:420px;
+  background:rgba(5,15,50,0.75);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:48px 44px;
+  backdrop-filter:blur(28px);
+  box-shadow:
+    0 0 0 1px rgba(0,180,255,0.06),
+    0 0 60px rgba(0,100,220,0.2),
+    0 32px 80px rgba(0,0,0,0.6),
+    inset 0 1px 0 rgba(0,200,255,0.08);
+  animation:cardIn 0.9s cubic-bezier(0.34,1.56,0.64,1) both;
+}
+@keyframes cardIn{from{opacity:0;transform:translateY(50px) scale(0.93)}to{opacity:1;transform:none}}
+
+/* Glow border */
+.card::before{
+  content:'';position:absolute;inset:-1px;border-radius:29px;
+  background:linear-gradient(135deg,rgba(0,180,255,0.15),transparent 40%,rgba(0,100,220,0.1) 100%);
+  z-index:-1;
+}
+
+.logo{text-align:center;margin-bottom:36px}
+.logo-icon{
+  font-size:2.6rem;display:block;margin-bottom:8px;
+  animation:iconPulse 3s ease-in-out infinite;
+}
+@keyframes iconPulse{
+  0%,100%{filter:drop-shadow(0 0 10px rgba(0,200,255,0.6))}
+  50%{filter:drop-shadow(0 0 26px rgba(0,200,255,1)) drop-shadow(0 0 40px rgba(0,100,220,0.6))}
+}
+.logo h1{
+  font-family:'Cinzel',serif;font-size:1.9rem;color:var(--text);
+  letter-spacing:2px;
+  background:linear-gradient(135deg,#a8d8ff,var(--cyan));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.logo p{color:var(--muted);font-size:0.8rem;margin-top:6px;letter-spacing:0.8px}
+
+/* Tabs */
+.tabs{
+  display:flex;background:rgba(0,20,80,0.4);
+  border-radius:12px;padding:4px;margin-bottom:28px;
+  border:1px solid var(--border);
+}
+.tab{
+  flex:1;padding:10px;border:none;background:transparent;
+  color:var(--muted);font-family:'DM Sans',sans-serif;
+  font-size:0.88rem;font-weight:500;cursor:pointer;
+  border-radius:9px;transition:all 0.25s;
+}
+.tab.active{
+  background:linear-gradient(135deg,rgba(0,120,220,0.6),rgba(0,180,255,0.4));
+  color:#fff;border:1px solid rgba(0,200,255,0.25);
+  box-shadow:0 4px 20px rgba(0,150,255,0.3);
+}
+
+/* Form */
+.form-group{margin-bottom:18px}
+.form-group label{
+  display:block;color:var(--muted);font-size:0.75rem;
+  letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;
+}
+.form-group input{
+  width:100%;background:rgba(0,30,100,0.35);
+  border:1px solid var(--border);border-radius:12px;
+  padding:13px 16px;color:var(--text);
+  font-family:'DM Sans',sans-serif;font-size:0.95rem;
+  transition:all 0.25s;outline:none;
+}
+.form-group input:focus{
+  border-color:var(--cyan2);
+  background:rgba(0,50,150,0.25);
+  box-shadow:0 0 0 3px rgba(0,180,255,0.12);
+}
+.form-group input::placeholder{color:rgba(180,210,255,0.25)}
+
+.btn-main{
+  width:100%;padding:14px;border:none;border-radius:14px;
+  background:linear-gradient(135deg,#005fcc 0%,var(--cyan2) 50%,var(--cyan) 100%);
+  color:#fff;font-family:'DM Sans',sans-serif;
+  font-size:1rem;font-weight:500;cursor:pointer;
+  margin-top:8px;transition:all 0.3s;
+  position:relative;overflow:hidden;letter-spacing:0.5px;
+  box-shadow:0 6px 24px rgba(0,150,255,0.35);
+}
+.btn-main:hover{transform:translateY(-2px);box-shadow:0 12px 36px rgba(0,180,255,0.5)}
+.btn-main:active{transform:translateY(0)}
+
+.msg{font-size:0.83rem;text-align:center;margin-top:14px;min-height:20px}
+.msg.error{color:#ff7070}.msg.success{color:var(--cyan)}
+
+.panel{display:none}.panel.active{display:block}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+<div class="o1 orb"></div><div class="o2 orb"></div><div class="o3 orb"></div>
+<div class="stars" id="stars"></div>
+
+<div class="card">
+  <div class="logo">
+    <span class="logo-icon">🌌</span>
+    <h1>NebulaChat</h1>
+    <p>სამყარო სადაც სიტყვები ცოცხლდება</p>
+  </div>
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('login')">შესვლა</button>
+    <button class="tab" onclick="switchTab('register')">რეგისტრაცია</button>
+  </div>
+  <div class="panel active" id="panel-login">
+    <div class="form-group"><label>Email</label><input type="email" id="login-email" placeholder="შენი email…"></div>
+    <div class="form-group"><label>პაროლი</label><input type="password" id="login-pass" placeholder="••••••••"></div>
+    <button class="btn-main" onclick="doLogin()">✦ შესვლა</button>
+    <div class="msg" id="login-msg"></div>
+  </div>
+  <div class="panel" id="panel-register">
+    <div class="form-group"><label>ნიქნეიმი</label><input type="text" id="reg-nick" placeholder="შენი სახელი…"></div>
+    <div class="form-group"><label>Email</label><input type="email" id="reg-email" placeholder="email…"></div>
+    <div class="form-group"><label>პაროლი</label><input type="password" id="reg-pass" placeholder="მინ. 6 სიმბოლო"></div>
+    <button class="btn-main" onclick="doRegister()">🌊 რეგისტრაცია</button>
+    <div class="msg" id="reg-msg"></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const sb=supabase.createClient('https://brggiyhfzfbmlirqfgpo.supabase.co','eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU');
+sb.auth.getSession().then(({data:{session}})=>{if(session)window.location.href='chat.html';});
+
+function switchTab(t){
+  document.querySelectorAll('.tab').forEach((b,i)=>b.classList.toggle('active',(i===0&&t==='login')||(i===1&&t==='register')));
+  document.getElementById('panel-login').classList.toggle('active',t==='login');
+  document.getElementById('panel-register').classList.toggle('active',t==='register');
+}
+function setMsg(id,txt,cls){const e=document.getElementById(id);e.textContent=txt;e.className='msg '+cls;}
+
+async function doLogin(){
+  const email=document.getElementById('login-email').value.trim();
+  const pass=document.getElementById('login-pass').value;
+  if(!email||!pass)return setMsg('login-msg','შეავსე ყველა ველი','error');
+  setMsg('login-msg','⏳ მოიცადე…','');
+  const{error}=await sb.auth.signInWithPassword({email,password:pass});
+  if(error)return setMsg('login-msg',error.message,'error');
+  setMsg('login-msg','✓ წარმატება!','success');
+  setTimeout(()=>window.location.href='chat.html',700);
+}
+async function doRegister(){
+  const nick=document.getElementById('reg-nick').value.trim();
+  const email=document.getElementById('reg-email').value.trim();
+  const pass=document.getElementById('reg-pass').value;
+  if(!nick||!email||!pass)return setMsg('reg-msg','შეავსე ყველა ველი','error');
+  if(pass.length<6)return setMsg('reg-msg','პაროლი მინ. 6 სიმბოლო','error');
+  setMsg('reg-msg','⏳ ვქმნით ანგარიშს…','');
+  const{data,error}=await sb.auth.signUp({email,password:pass});
+  if(error)return setMsg('reg-msg',error.message,'error');
+  if(data.user){await sb.from('profiles').upsert({id:data.user.id,username:nick,email,role:'member',avatar_url:null,status_emoji:'😊',theme:'dark',accent_color:'#00d4ff',created_at:new Date().toISOString()});}
+  setMsg('reg-msg','🌊 ანგარიში შეიქმნა! შეამოწმე Email.','success');
+}
+
+// Stars
+const sc=document.getElementById('stars');
+for(let i=0;i<120;i++){
+  const s=document.createElement('div');s.className='star';
+  const sz=0.5+Math.random()*2;
+  s.style.cssText=`width:${sz}px;height:${sz}px;top:${Math.random()*100}%;left:${Math.random()*100}%;animation-duration:${2+Math.random()*4}s;animation-delay:${Math.random()*4}s;opacity:${0.1+Math.random()*0.7}`;
+  sc.appendChild(s);
+}
+
+// Floaters
+const FL=['❄️','💙','🌊','✨','⭐','💫','🔷','🌀','💎','🫧'];
+function spawnF(){
+  const el=document.createElement('div');el.className='floater';
+  el.textContent=FL[Math.floor(Math.random()*FL.length)];
+  el.style.left=Math.random()*100+'vw';
+  el.style.fontSize=(0.8+Math.random()*1.1)+'rem';
+  const d=8+Math.random()*12;
+  el.style.animationDuration=d+'s';
+  el.style.animationDelay=Math.random()*4+'s';
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),(d+5)*1000);
+}
+for(let i=0;i<20;i++)setTimeout(spawnF,i*350);
+setInterval(spawnF,1600);
+</script>
+</body>
+</html>
