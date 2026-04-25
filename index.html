@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია — შესვლა</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#1c1a30;
+  --panel:#252240;
+  --panel2:#2e2a50;
+  --border:rgba(160,80,255,0.35);
+  --text:#ede0ff;
+  --text2:#b580e0;
+  --text3:#7a5a9a;
+  --input-bg:#221f3a;
+  --indigo:#7a1fc8;
+  --indigo2:#a855f7;
+  --indigo-f:rgba(120,30,200,0.18);
+  --glow:rgba(168,85,247,0.28);
+  --accent:#f07aff;
+}
+
+html,body{height:100%;overflow:hidden}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  min-height:100dvh;
+  position:relative;
+}
+
+/* ===== CANVAS BACKGROUND ===== */
+#bgCanvas{
+  position:fixed;inset:0;z-index:0;
+  pointer-events:none;
+}
+
+/* ===== FLOATING PARTICLES ===== */
+#particles{
+  position:fixed;inset:0;z-index:1;
+  pointer-events:none;overflow:hidden;
+}
+
+@keyframes floatUp{
+  0%{transform:translate3d(0,0,0) rotate(0deg) scale(0.6);opacity:0}
+  8%{opacity:0.9}
+  90%{opacity:0.2}
+  100%{transform:translate3d(var(--dx,0px),-110vh,0) rotate(var(--rot,15deg)) scale(1.4);opacity:0}
+}
+
+.particle{
+  position:absolute;
+  bottom:-60px;
+  font-size:var(--fs,1.4rem);
+  animation:floatUp var(--dur,12s) ease-in var(--delay,0s) infinite;
+  will-change:transform,opacity;
+  user-select:none;
+}
+
+/* ===== CARD ===== */
+.card{
+  position:relative;z-index:10;
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:28px;
+  padding:42px 40px 38px;
+  width:100%;max-width:420px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6), 0 0 60px var(--glow), inset 0 1px 0 rgba(255,255,255,.07);
+  animation:cardIn .7s cubic-bezier(.22,1,.36,1) both;
+  margin:16px;
+}
+
+@keyframes cardIn{
+  from{opacity:0;transform:translateY(40px) scale(.94)}
+  to{opacity:1;transform:translateY(0) scale(1)}
+}
+
+/* shimmer border */
+.card::before{
+  content:'';
+  position:absolute;inset:-1px;
+  border-radius:29px;
+  background:linear-gradient(135deg,rgba(168,85,247,.5),transparent 50%,rgba(240,122,255,.3));
+  z-index:-1;
+  opacity:.7;
+  animation:shimmer 4s linear infinite;
+}
+@keyframes shimmer{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+
+/* ===== LOGO ===== */
+.logo{
+  text-align:center;margin-bottom:28px;
+}
+.logo-icon{
+  font-size:52px;
+  display:block;
+  margin-bottom:8px;
+  animation:logoFlicker 2.5s ease-in-out infinite;
+  filter:drop-shadow(0 0 12px var(--accent));
+}
+@keyframes logoFlicker{
+  0%,100%{filter:drop-shadow(0 0 8px var(--glow))}
+  50%{filter:drop-shadow(0 0 28px var(--accent)) drop-shadow(0 0 50px rgba(240,122,255,.4))}
+}
+.logo-title{
+  font-family:'Unbounded',sans-serif;
+  font-size:22px;
+  font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--indigo2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  letter-spacing:.5px;
+}
+.logo-sub{
+  font-size:11px;color:var(--text3);
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:2px;text-transform:uppercase;
+  margin-top:4px;
+}
+
+/* ===== TABS ===== */
+.tabs{
+  display:flex;gap:6px;
+  background:var(--input-bg);
+  border:1px solid var(--border);
+  border-radius:14px;
+  padding:5px;
+  margin-bottom:26px;
+}
+.tab{
+  flex:1;padding:9px;
+  border-radius:10px;
+  border:none;
+  background:transparent;
+  color:var(--text2);
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;font-weight:500;
+  cursor:pointer;
+  transition:all .25s cubic-bezier(.4,0,.2,1);
+}
+.tab.active{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;
+  box-shadow:0 4px 16px rgba(120,30,200,.45);
+}
+
+/* ===== FORM ===== */
+.form-group{margin-bottom:14px;position:relative}
+.form-label{
+  font-size:10px;
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:1.5px;
+  color:var(--text2);
+  text-transform:uppercase;
+  margin-bottom:7px;
+  display:block;
+}
+.inp{
+  width:100%;
+  padding:13px 16px;
+  background:var(--input-bg);
+  border:1.5px solid var(--border);
+  border-radius:13px;
+  color:var(--text);
+  font-size:14px;
+  font-family:'Noto Sans Georgian',sans-serif;
+  outline:none;
+  transition:border-color .2s,box-shadow .2s,background .2s;
+}
+.inp:focus{
+  border-color:var(--indigo2);
+  box-shadow:0 0 0 3px var(--indigo-f);
+  background:#28234a;
+}
+.inp::placeholder{color:var(--text3)}
+.inp-icon{
+  position:absolute;right:14px;top:38px;
+  font-size:16px;pointer-events:none;
+  color:var(--text3);
+}
+
+/* ===== NICK HINT ===== */
+.nick-hint{
+  font-size:10px;color:var(--text3);
+  margin-top:5px;padding-left:4px;
+  font-family:'Noto Sans Georgian',sans-serif;
+  display:none;
+}
+#regForm .nick-hint{display:block}
+
+/* ===== SUBMIT BTN ===== */
+.submit-btn{
+  width:100%;
+  padding:14px;
+  border-radius:50px;
+  border:none;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;
+  font-family:'Unbounded',sans-serif;
+  font-size:13px;font-weight:700;
+  letter-spacing:.5px;
+  cursor:pointer;
+  transition:transform .2s,box-shadow .2s,opacity .2s;
+  box-shadow:0 6px 28px rgba(120,30,200,.5);
+  margin-top:6px;
+  position:relative;overflow:hidden;
+}
+.submit-btn:hover:not(:disabled){
+  transform:translateY(-2px);
+  box-shadow:0 10px 36px rgba(120,30,200,.65);
+}
+.submit-btn:active:not(:disabled){transform:translateY(0)}
+.submit-btn:disabled{opacity:.6;cursor:not-allowed}
+.submit-btn::after{
+  content:'';
+  position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.15),transparent);
+  pointer-events:none;
+}
+
+/* ===== LOADER ===== */
+@keyframes spin{to{transform:rotate(360deg)}}
+.spinner{
+  width:18px;height:18px;
+  border:2.5px solid rgba(255,255,255,.3);
+  border-top-color:#fff;
+  border-radius:50%;
+  animation:spin .7s linear infinite;
+  display:inline-block;vertical-align:middle;
+  margin-right:8px;
+}
+
+/* ===== MESSAGE ===== */
+.msg{
+  padding:10px 14px;
+  border-radius:11px;
+  font-size:13px;
+  margin-bottom:14px;
+  text-align:center;
+  font-family:'Noto Sans Georgian',sans-serif;
+  animation:msgIn .3s ease;
+  display:none;
+}
+@keyframes msgIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.msg.show{display:block}
+.msg.error{background:rgba(220,50,50,.15);border:1px solid rgba(220,50,50,.35);color:#ff8888}
+.msg.success{background:rgba(80,200,100,.12);border:1px solid rgba(80,200,100,.3);color:#88ee88}
+
+/* ===== DIVIDER ===== */
+.divider{
+  display:flex;align-items:center;gap:10px;
+  margin:20px 0;
+  color:var(--text3);font-size:11px;
+  font-family:'Unbounded',sans-serif;letter-spacing:1px;
+}
+.divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* ===== EMOTION PICKER ===== */
+.emo-picker{
+  display:flex;flex-wrap:wrap;gap:7px;margin-top:8px;
+}
+.emo-opt{
+  width:36px;height:36px;
+  border-radius:10px;
+  background:var(--input-bg);
+  border:1.5px solid var(--border);
+  font-size:18px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .18s;
+}
+.emo-opt:hover{background:var(--indigo-f);transform:scale(1.1)}
+.emo-opt.active{
+  background:var(--indigo-f);
+  border-color:var(--indigo2);
+  box-shadow:0 0 10px var(--glow);
+  transform:scale(1.12);
+}
+
+/* ===== SCROLL for mobile ===== */
+@media(max-height:700px){
+  .card{
+    overflow-y:auto;
+    max-height:95dvh;
+    padding:28px 24px;
+  }
+}
+@media(max-width:440px){
+  .card{padding:30px 22px 26px;border-radius:22px}
+  .logo-title{font-size:18px}
+}
+</style>
+</head>
+<body>
+
+<!-- Animated background canvas -->
+<canvas id="bgCanvas"></canvas>
+
+<!-- Floating particles -->
+<div id="particles"></div>
+
+<!-- Auth Card -->
+<div class="card">
+  <div class="logo">
+    <span class="logo-icon">🔥</span>
+    <div class="logo-title">კაიფმანია</div>
+    <div class="logo-sub">შემოგვიერთდი</div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab active" id="tabLogin" onclick="switchTab('login')">🔑 შესვლა</button>
+    <button class="tab" id="tabReg" onclick="switchTab('reg')">✨ რეგისტრაცია</button>
+  </div>
+
+  <div id="msgBox" class="msg"></div>
+
+  <!-- LOGIN -->
+  <form id="loginForm" onsubmit="doLogin(event)">
+    <div class="form-group">
+      <label class="form-label">📧 იმეილი</label>
+      <input class="inp" type="email" id="loginEmail" placeholder="შენი იმეილი..." required autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔒 პაროლი</label>
+      <input class="inp" type="password" id="loginPass" placeholder="••••••••" required autocomplete="current-password">
+    </div>
+    <button class="submit-btn" type="submit" id="loginBtn">🚀 შესვლა</button>
+  </form>
+
+  <!-- REGISTER -->
+  <form id="regForm" style="display:none" onsubmit="doRegister(event)">
+    <div class="form-group">
+      <label class="form-label">👤 ნიკნეიმი</label>
+      <input class="inp" type="text" id="regNick" placeholder="კაიფური ნიკი..." required minlength="2" maxlength="20" autocomplete="username">
+      <div class="nick-hint">💜 ჩატში ეს სახელი გამოჩნდება!</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">📧 იმეილი</label>
+      <input class="inp" type="email" id="regEmail" placeholder="შენი იმეილი..." required autocomplete="email">
+    </div>
+    <div class="form-group">
+      <label class="form-label">🔒 პაროლი</label>
+      <input class="inp" type="password" id="regPass" placeholder="მინ. 6 სიმბოლო..." required minlength="6" autocomplete="new-password">
+    </div>
+    <div class="form-group">
+      <label class="form-label">😊 ემოცია</label>
+      <div class="emo-picker" id="emoPicker">
+        <div class="emo-opt active" onclick="pickEmo(this,'😊')">😊</div>
+        <div class="emo-opt" onclick="pickEmo(this,'😍')">😍</div>
+        <div class="emo-opt" onclick="pickEmo(this,'😎')">😎</div>
+        <div class="emo-opt" onclick="pickEmo(this,'🥰')">🥰</div>
+        <div class="emo-opt" onclick="pickEmo(this,'😴')">😴</div>
+        <div class="emo-opt" onclick="pickEmo(this,'🤩')">🤩</div>
+        <div class="emo-opt" onclick="pickEmo(this,'🎮')">🎮</div>
+        <div class="emo-opt" onclick="pickEmo(this,'🎵')">🎵</div>
+        <div class="emo-opt" onclick="pickEmo(this,'💜')">💜</div>
+        <div class="emo-opt" onclick="pickEmo(this,'🔥')">🔥</div>
+      </div>
+    </div>
+    <button class="submit-btn" type="submit" id="regBtn">✨ გახდი კაიფმანიელი</button>
+  </form>
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+// ===== CHECK IF ALREADY LOGGED IN =====
+(async()=>{
+  const {data:{user}} = await sb.auth.getUser();
+  if(user) location.href='chat.html';
+})();
+
+let selectedEmo = '😊';
+
+function pickEmo(el, em){
+  selectedEmo = em;
+  document.querySelectorAll('.emo-opt').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function switchTab(tab){
+  document.getElementById('loginForm').style.display = tab==='login'?'':'none';
+  document.getElementById('regForm').style.display   = tab==='reg'?'':'none';
+  document.getElementById('tabLogin').classList.toggle('active', tab==='login');
+  document.getElementById('tabReg').classList.toggle('active',   tab==='reg');
+  hideMsg();
+}
+
+function showMsg(txt, type='error'){
+  const el = document.getElementById('msgBox');
+  el.textContent = txt;
+  el.className = 'msg show ' + type;
+}
+function hideMsg(){
+  const el = document.getElementById('msgBox');
+  el.className = 'msg';
+}
+
+// ===== LOGIN =====
+async function doLogin(e){
+  e.preventDefault();
+  hideMsg();
+  const btn = document.getElementById('loginBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>შედი...';
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  const {error} = await sb.auth.signInWithPassword({email, password: pass});
+  if(error){
+    showMsg('❌ ' + translateError(error.message));
+    btn.disabled = false;
+    btn.innerHTML = '🚀 შესვლა';
+    return;
+  }
+  showMsg('✅ კეთილი იყოს შენი მობრძანება!', 'success');
+  btn.innerHTML = '✅ გადადი ჩატში...';
+  setTimeout(()=>{ location.href='chat.html'; }, 900);
+}
+
+// ===== REGISTER =====
+async function doRegister(e){
+  e.preventDefault();
+  hideMsg();
+  const btn = document.getElementById('regBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>ვქმნი...';
+
+  const nick  = document.getElementById('regNick').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const pass  = document.getElementById('regPass').value;
+
+  if(nick.length < 2){
+    showMsg('❌ ნიკი მინ. 2 სიმბოლო უნდა იყოს!');
+    btn.disabled=false; btn.innerHTML='✨ გახდი კაიფმანიელი'; return;
+  }
+
+  // Check nickname unique
+  const {data: existing} = await sb.from('profiles').select('id').ilike('username', nick).maybeSingle();
+  if(existing){
+    showMsg('❌ ეს ნიკი დაკავებულია! სხვა ამოარჩიე 💜');
+    btn.disabled=false; btn.innerHTML='✨ გახდი კაიფმანიელი'; return;
+  }
+
+  // Register
+  const {data, error} = await sb.auth.signUp({
+    email,
+    password: pass,
+    options:{
+      data: { username: nick, emotion: selectedEmo }
+    }
+  });
+
+  if(error){
+    showMsg('❌ ' + translateError(error.message));
+    btn.disabled=false; btn.innerHTML='✨ გახდი კაიფმანიელი'; return;
+  }
+
+  // Create profile immediately
+  if(data?.user){
+    await sb.from('profiles').upsert({
+      id: data.user.id,
+      username: nick,
+      emotion: selectedEmo,
+      role: 'member'
+    });
+    showMsg('🎉 კაიფმანიელი გახდი! შემოდი...', 'success');
+    btn.innerHTML = '✅ მიდი ჩატში...';
+    setTimeout(()=>{ location.href='chat.html'; }, 1200);
+  } else {
+    showMsg('📧 შეამოწმე იმეილი — დადასტურება საჭიროა!', 'success');
+    btn.disabled=false; btn.innerHTML='✨ გახდი კაიფმანიელი';
+  }
+}
+
+function translateError(msg){
+  if(msg.includes('Invalid login')) return 'იმეილი ან პაროლი არასწორია!';
+  if(msg.includes('Email not confirmed')) return 'დაადასტურე შენი იმეილი!';
+  if(msg.includes('User already registered')) return 'ეს იმეილი უკვე დარეგისტრირებულია!';
+  if(msg.includes('Password should be')) return 'პაროლი მინ. 6 სიმბოლო უნდა იყოს!';
+  if(msg.includes('rate limit')) return 'ძალიან ბევრი მცდელობა! ცოტა დაელოდე.';
+  return msg;
+}
+
+// ===== CANVAS BACKGROUND (mesh gradient) =====
+(function(){
+  const canvas = document.getElementById('bgCanvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, t = 0;
+
+  function resize(){
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  const orbs = [
+    {x:.2,y:.3,r:.35,c:'rgba(120,30,200,'},
+    {x:.8,y:.2,r:.3, c:'rgba(240,122,255,'},
+    {x:.5,y:.8,r:.4, c:'rgba(90,24,154,'},
+    {x:.1,y:.9,r:.25,c:'rgba(168,85,247,'},
+    {x:.9,y:.7,r:.3, c:'rgba(60,20,120,'},
+  ];
+
+  function draw(){
+    t += 0.003;
+    ctx.clearRect(0,0,W,H);
+
+    // base
+    ctx.fillStyle='#1c1a30';
+    ctx.fillRect(0,0,W,H);
+
+    orbs.forEach((o,i)=>{
+      const ox = o.x + Math.sin(t + i*1.3)*.06;
+      const oy = o.y + Math.cos(t + i*0.9)*.06;
+      const rad = Math.min(W,H) * (o.r + Math.sin(t+i)*.03);
+      const grad = ctx.createRadialGradient(ox*W, oy*H, 0, ox*W, oy*H, rad);
+      grad.addColorStop(0, o.c + '0.22)');
+      grad.addColorStop(1, o.c + '0)');
+      ctx.fillStyle = grad;
+      ctx.fillRect(0,0,W,H);
+    });
+
+    // grid lines
+    ctx.strokeStyle = 'rgba(168,85,247,0.04)';
+    ctx.lineWidth = 1;
+    const step = 60;
+    for(let x=0;x<W;x+=step){ ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke(); }
+    for(let y=0;y<H;y+=step){ ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(W,y);ctx.stroke(); }
+
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ===== FLOATING PARTICLES =====
+(function(){
+  const container = document.getElementById('particles');
+  const symbols = ['💜','🌸','🌺','💙','🌷','💗','🌼','💕','🌻','💖','🌿','✨','🦋','🌙','⭐','💫','🫧','🌈'];
+
+  let count = 0;
+  const MAX = 30;
+
+  function makeParticle(){
+    if(count >= MAX) return;
+    const el = document.createElement('div');
+    el.className = 'particle';
+    const sym = symbols[Math.floor(Math.random()*symbols.length)];
+    el.textContent = sym;
+    const left = Math.random()*100;
+    const dur  = 10 + Math.random()*14;
+    const delay = Math.random()*8;
+    const dx   = (Math.random()-.5)*120;
+    const rot  = (Math.random()-.5)*40 + 'deg';
+    const fs   = (1 + Math.random()*1.2) + 'rem';
+    el.style.cssText = `left:${left}%;--dur:${dur}s;--delay:${delay}s;--dx:${dx}px;--rot:${rot};--fs:${fs};animation-duration:${dur}s;animation-delay:${delay}s`;
+    container.appendChild(el);
+    count++;
+    setTimeout(()=>{ el.remove(); count--; }, (dur + delay)*1000 + 500);
+  }
+
+  // Initial burst
+  for(let i=0;i<20;i++) setTimeout(makeParticle, i*200);
+  // Continuous
+  setInterval(()=>{ if(count<MAX) makeParticle(); }, 1200);
+})();
+</script>
+</body>
+</html>
