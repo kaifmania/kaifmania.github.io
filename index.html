@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+<title>კაიფმანია 😎🔥</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Georgian:wght@400;600;700;900&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{
+  --bg:#0d0b1a;
+  --acc:#7c5cbf;--acc2:#9b7de8;--acc3:#b89ff0;
+  --glow:rgba(124,92,191,.4);
+  --border:#2e2b50;
+  --text:#e8e4ff;--text2:#a09ac0;--text3:#5f5880;
+  --danger:#f87171;--founder:#f472b6;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{min-height:100vh;background:var(--bg);font-family:'Noto Sans Georgian',sans-serif;color:var(--text);overflow:hidden;}
+
+/* BG GRADIENT */
+.bg-grad{
+  position:fixed;inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 30% 40%,rgba(124,92,191,.35) 0%,transparent 65%),
+    radial-gradient(ellipse 60% 50% at 75% 70%,rgba(244,114,182,.2) 0%,transparent 60%),
+    #0d0b1a;
+  z-index:0;pointer-events:none;
+}
+
+/* FLOATING PARTICLES */
+#particles{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden;}
+.pt{
+  position:absolute;bottom:-60px;
+  animation:ptUp linear forwards;opacity:0;
+  user-select:none;
+}
+@keyframes ptUp{
+  0%{transform:translateY(0) rotate(-10deg) scale(1);opacity:0;}
+  7%{opacity:1;}
+  50%{transform:translateY(-55vh) rotate(12deg) scale(.8);opacity:.8;}
+  100%{transform:translateY(-115vh) rotate(28deg) scale(.2);opacity:0;}
+}
+
+/* CARD */
+.wrap{
+  position:relative;z-index:10;
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:20px;
+}
+.card{
+  background:rgba(22,20,42,.92);
+  border:1px solid rgba(124,92,191,.35);
+  border-radius:24px;padding:36px 28px 32px;
+  width:min(360px,100%);
+  box-shadow:
+    0 0 60px rgba(124,92,191,.25),
+    0 0 120px rgba(124,92,191,.1),
+    inset 0 1px 0 rgba(185,159,240,.1);
+  backdrop-filter:blur(20px);
+  animation:cardIn .55s cubic-bezier(.34,1.56,.64,1) both;
+}
+@keyframes cardIn{
+  from{opacity:0;transform:scale(.88) translateY(28px);}
+  to{opacity:1;transform:none;}
+}
+
+.logo{
+  text-align:center;margin-bottom:6px;
+  font-size:2rem;font-weight:900;
+  background:linear-gradient(135deg,var(--acc3),var(--founder),var(--acc2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 20px rgba(185,159,240,.5));
+}
+.subtitle{text-align:center;font-size:.75rem;color:var(--text3);margin-bottom:26px;}
+
+/* TABS */
+.tabs{display:flex;gap:6px;margin-bottom:22px;background:rgba(255,255,255,.04);border-radius:14px;padding:4px;}
+.tab{
+  flex:1;padding:9px;border-radius:10px;
+  font-family:'Noto Sans Georgian',sans-serif;font-size:.78rem;font-weight:700;
+  cursor:pointer;border:none;transition:all .18s;
+  background:transparent;color:var(--text3);
+}
+.tab.active{
+  background:linear-gradient(135deg,var(--acc2),var(--acc));
+  color:#fff;box-shadow:0 3px 12px var(--glow);
+}
+
+.panel{display:none;}.panel.active{display:block;}
+
+/* FIELDS */
+.field{margin-bottom:12px;}
+.field label{
+  display:block;font-size:.63rem;font-weight:900;
+  color:var(--acc3);letter-spacing:.08em;
+  text-transform:uppercase;margin-bottom:4px;
+}
+.field input{
+  width:100%;padding:11px 14px;
+  background:rgba(255,255,255,.05);
+  border:1.5px solid var(--border);
+  border-radius:11px;color:var(--text);
+  font-family:'Noto Sans Georgian',sans-serif;font-size:.85rem;
+  outline:none;transition:border-color .18s,box-shadow .18s,background .18s;
+}
+.field input::placeholder{color:var(--text3);}
+.field input:focus{
+  border-color:var(--acc2);
+  box-shadow:0 0 0 3px var(--glow);
+  background:rgba(124,92,191,.08);
+}
+
+/* MSG */
+.msg{
+  display:none;border-radius:10px;
+  padding:8px 12px;font-size:.76rem;
+  text-align:center;margin-bottom:11px;
+}
+.msg.err{background:rgba(248,113,113,.1);border:1px solid rgba(248,113,113,.25);color:#f87171;}
+.msg.ok{background:rgba(110,231,183,.07);border:1px solid rgba(110,231,183,.2);color:#6ee7b7;}
+
+/* BTN */
+.btn{
+  width:100%;padding:13px;border:none;
+  border-radius:13px;cursor:pointer;
+  font-family:'Noto Sans Georgian',sans-serif;
+  font-size:.93rem;font-weight:900;
+  background:linear-gradient(135deg,var(--acc2),var(--acc));
+  color:#fff;
+  box-shadow:0 4px 20px var(--glow);
+  transition:transform .14s,box-shadow .14s,opacity .14s;
+  position:relative;overflow:hidden;
+}
+.btn::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,.12) 0%,transparent 55%);
+  border-radius:inherit;
+}
+.btn:hover{transform:translateY(-2px);box-shadow:0 6px 26px var(--glow);}
+.btn:active{transform:translateY(0);opacity:.85;}
+.btn.loading{pointer-events:none;opacity:.65;}
+
+/* SPINNER */
+.spin{
+  display:none;width:16px;height:16px;
+  border:2.5px solid rgba(255,255,255,.25);
+  border-top-color:#fff;border-radius:50%;
+  animation:sp .65s linear infinite;margin:0 auto;
+}
+@keyframes sp{to{transform:rotate(360deg);}}
+
+/* AVATAR PREVIEW */
+.av-wrap{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+.av-prev{
+  width:46px;height:46px;border-radius:50%;
+  background:linear-gradient(135deg,var(--acc),#3b1f7a);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.1rem;font-weight:900;flex-shrink:0;
+  box-shadow:0 0 14px var(--glow);
+  transition:all .2s;
+}
+.av-info{font-size:.75rem;color:var(--text2);}
+.av-nick{font-size:.88rem;font-weight:700;color:var(--text);}
+</style>
+</head>
+<body>
+<div class="bg-grad"></div>
+<div id="particles"></div>
+
+<div class="wrap">
+  <div class="card">
+    <div class="logo">კაიფმანია 😎</div>
+    <div class="subtitle">✨ შემოგვიერთდი და ისარგებლე</div>
+
+    <div class="tabs">
+      <button class="tab active" id="tabReg" onclick="switchTab('reg')">რეგისტრაცია</button>
+      <button class="tab" id="tabLogin" onclick="switchTab('login')">შესვლა</button>
+    </div>
+
+    <!-- REGISTER -->
+    <div class="panel active" id="panelReg">
+      <!-- avatar preview -->
+      <div class="av-wrap" id="avWrap">
+        <div class="av-prev" id="avPrev">?</div>
+        <div>
+          <div class="av-nick" id="avNick">შენი სახელი</div>
+          <div class="av-info">ნიკნეიმი გამოჩნდება ჩატში</div>
+        </div>
+      </div>
+      <div class="field">
+        <label>ნიკნეიმი</label>
+        <input type="text" id="regNick" placeholder="შენი სახელი 😎" maxlength="30" oninput="updatePreview()"/>
+      </div>
+      <div class="field">
+        <label>ელ. ფოსტა</label>
+        <input type="email" id="regEmail" placeholder="example@mail.com"/>
+      </div>
+      <div class="field">
+        <label>პაროლი</label>
+        <input type="password" id="regPass" placeholder="••••••••"/>
+      </div>
+      <div class="field">
+        <label>პაროლის დადასტურება</label>
+        <input type="password" id="regPass2" placeholder="••••••••"/>
+      </div>
+      <div class="msg" id="regMsg"></div>
+      <button class="btn" id="regBtn" onclick="doReg()">
+        <span id="regTxt">რეგისტრაცია 🔥</span>
+        <div class="spin" id="regSpin"></div>
+      </button>
+    </div>
+
+    <!-- LOGIN -->
+    <div class="panel" id="panelLogin">
+      <div class="field">
+        <label>ელ. ფოსტა</label>
+        <input type="email" id="loginEmail" placeholder="example@mail.com"/>
+      </div>
+      <div class="field">
+        <label>პაროლი</label>
+        <input type="password" id="loginPass" placeholder="••••••••"/>
+      </div>
+      <div class="msg" id="loginMsg"></div>
+      <button class="btn" id="loginBtn" onclick="doLogin()">
+        <span id="loginTxt">შესვლა 😎</span>
+        <div class="spin" id="loginSpin"></div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://brggiyhfzfbmlirqfgpo.supabase.co';
+const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU';
+const{createClient}=supabase;
+const sb=createClient(SB_URL,SB_KEY);
+
+// Check if already logged in
+sb.auth.getSession().then(({data:{session}})=>{
+  if(session) location.href='chat.html';
+});
+
+function switchTab(t){
+  document.getElementById('panelReg').classList.toggle('active',t==='reg');
+  document.getElementById('panelLogin').classList.toggle('active',t==='login');
+  document.getElementById('tabReg').classList.toggle('active',t==='reg');
+  document.getElementById('tabLogin').classList.toggle('active',t==='login');
+}
+
+function updatePreview(){
+  const nick=document.getElementById('regNick').value.trim();
+  document.getElementById('avNick').textContent=nick||'შენი სახელი';
+  document.getElementById('avPrev').textContent=nick?nick[0].toUpperCase():'?';
+}
+
+function showMsg(id,txt,type){
+  const el=document.getElementById(id);
+  el.textContent=txt;el.className='msg '+type;el.style.display='block';
+}
+function hideMsg(id){document.getElementById(id).style.display='none';}
+function setLoad(btn,txt,spin,on){
+  document.getElementById(btn).classList.toggle('loading',on);
+  document.getElementById(txt).style.display=on?'none':'block';
+  document.getElementById(spin).style.display=on?'block':'none';
+}
+
+async function doReg(){
+  hideMsg('regMsg');
+  const nick=document.getElementById('regNick').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const pass=document.getElementById('regPass').value;
+  const pass2=document.getElementById('regPass2').value;
+  if(!nick||nick.length<2)return showMsg('regMsg','ნიკნეიმი მინ. 2 სიმბოლო 😤','err');
+  if(!email)return showMsg('regMsg','შეიყვანე ელ. ფოსტა','err');
+  if(pass.length<6)return showMsg('regMsg','პაროლი მინ. 6 სიმბოლო','err');
+  if(pass!==pass2)return showMsg('regMsg','პაროლები არ ემთხვევა 💔','err');
+  setLoad('regBtn','regTxt','regSpin',true);
+  try{
+    const{data,error}=await sb.auth.signUp({email,password:pass,options:{data:{nickname:nick}}});
+    if(error)throw error;
+    showMsg('regMsg','✅ გაგზავნილია! შეამოწმე ელ. ფოსტა','ok');
+  }catch(e){showMsg('regMsg',e.message||'შეცდომა','err');}
+  finally{setLoad('regBtn','regTxt','regSpin',false);}
+}
+
+async function doLogin(){
+  hideMsg('loginMsg');
+  const email=document.getElementById('loginEmail').value.trim();
+  const pass=document.getElementById('loginPass').value;
+  if(!email||!pass)return showMsg('loginMsg','შეავსე ველები 🔥','err');
+  setLoad('loginBtn','loginTxt','loginSpin',true);
+  try{
+    const{error}=await sb.auth.signInWithPassword({email,password:pass});
+    if(error)throw error;
+    location.href='chat.html';
+  }catch(e){
+    showMsg('loginMsg',e.message==='Invalid login credentials'?'არასწორი მონაცემები 💀':e.message||'შეცდომა','err');
+  }finally{setLoad('loginBtn','loginTxt','loginSpin',false);}
+}
+
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  if(document.getElementById('panelReg').classList.contains('active'))doReg();
+  else doLogin();
+});
+
+// PARTICLES
+const pLayer=document.getElementById('particles');
+const pChars=['🩷','💖','💗','❤️‍🔥','💜','💞','💓','✨','💝','💘','💫','🌸','🌺','🌻','🌹','🍀','⭐','🌟','🦋','🌙'];
+function spawnP(){
+  const el=document.createElement('div');el.className='pt';
+  el.textContent=pChars[Math.floor(Math.random()*pChars.length)];
+  const size=12+Math.random()*20,left=Math.random()*97,dur=6+Math.random()*9,delay=Math.random()*3;
+  el.style.cssText=`left:${left}%;font-size:${size}px;animation-duration:${dur}s;animation-delay:${delay}s;`;
+  pLayer.appendChild(el);
+  setTimeout(()=>el.remove(),(dur+delay+1)*1000);
+}
+for(let i=0;i<30;i++)spawnP();
+setInterval(spawnP,280);
+</script>
+</body>
+</html>
