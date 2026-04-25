@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია — ჩატი</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+body.night{
+  --bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);
+  --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
+  --online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
+  --glow:rgba(168,85,247,0.28);--accent:#f07aff;
+}
+body.day{
+  --bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);
+  --text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;
+  --online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);
+  --glow:rgba(106,13,173,0.2);--accent:#c040ff;
+}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+#hearts{position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden}
+.heart{position:absolute;bottom:-60px;animation:heartFloat linear;z-index:999999}
+@keyframes heartFloat{
+  0%{transform:translate3d(0,0,0) rotate(-5deg) scale(0.6);opacity:0}
+  8%{opacity:.75}50%{opacity:.45}92%{opacity:.15}
+  100%{transform:translate3d(var(--drift,0px),-115vh,0) rotate(8deg) scale(1.3);opacity:0}
+}
+@keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 20px var(--glow))}}
+@keyframes messagePop{from{opacity:0;transform:translateY(15px)}to{opacity:1;transform:translateY(0)}}
+#topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto}
+.nav-logo{font-size:24px;margin-right:8px;animation:flicker 2.5s ease-in-out infinite;flex-shrink:0;cursor:pointer}
+.nav-btn{height:36px;border-radius:10px;background:transparent;border:1px solid transparent;color:var(--text2);font-size:16px;cursor:pointer;display:flex;align-items:center;gap:5px;padding:0 12px;flex-shrink:0;position:relative}
+.nav-btn:hover,.nav-btn.active{background:var(--indigo-f);border-color:var(--border);color:var(--text)}
+.nav-btn span.label{font-size:10px;font-family:'Unbounded',sans-serif}
+.badge{position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;font-size:9px;min-width:14px;height:14px;border-radius:7px;display:none;align-items:center;justify-content:center}
+.badge.show{display:flex}
+.nav-spacer{flex:1}
+#app{display:flex;flex:1;min-height:0}
+#sidebar{width:260px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+@media(max-width:640px){#sidebar{display:none}#sidebar.mob-open{display:flex;position:fixed;inset:0;top:50px;z-index:200;width:100%}}
+.sb-header{padding:14px 16px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:2.5px;color:var(--text2);text-transform:uppercase;display:flex;align-items:center;gap:8px}
+.sb-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
+.sb-body{flex:1;overflow-y:auto;padding:10px 8px}
+.search-box{width:100%;padding:9px 13px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px}
+.room-item,.list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:16px;cursor:pointer;transition:all 0.2s;margin-bottom:2px;border:1px solid transparent}
+.room-item:hover,.list-item:hover{background:var(--indigo-f);border-color:var(--border);transform:translateX(4px)}
+.room-item.active{background:linear-gradient(135deg,var(--indigo-f),rgba(168,85,247,0.1));border-left:3px solid var(--accent)}
+.room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px}
+.room-name{font-size:13px;font-weight:500;color:var(--text)}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;position:relative;overflow:hidden}
+.avatar img{width:100%;height:100%;object-fit:cover}
+.online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0}
+.list-info{flex:1;min-width:0}
+.list-name{font-size:13px;font-weight:500;color:var(--text)}
+.list-sub{font-size:11px;color:var(--text3)}
+#main{flex:1;display:flex;flex-direction:column;min-width:0}
+.chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px}
+.chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700}
+.chat-sub{font-size:11px;color:var(--text2);margin-left:auto}
+#messages{flex:1;overflow-y:auto;padding:16px 18px;display:flex;flex-direction:column;gap:4px}
+.msg-row{display:flex;align-items:flex-start;gap:8px;animation:messagePop 0.35s ease backwards}
+.msg-content{max-width:78%;display:flex;flex-direction:column}
+.msg-meta{display:flex;align-items:center;gap:5px;margin-bottom:3px;flex-wrap:wrap}
+.msg-nick{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
+.msg-time{font-size:10px;color:var(--text3)}
+.msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 16px 16px 16px;padding:10px 14px;font-size:14px;color:var(--text);line-height:1.55;position:relative}
+.msg-bubble.mine{background:rgba(120,30,200,0.22)}
+.msg-del{position:absolute;top:4px;right:8px;background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;opacity:0}
+.msg-bubble:hover .msg-del{opacity:1}
+.msg-reactions{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.reaction-chip{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);font-size:13px;cursor:pointer}
+.chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:14px 18px;display:flex;gap:8px}
+#msgInput{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:22px;padding:12px 20px;color:var(--text);font-size:14px;outline:none}
+#msgInput:focus{border-color:var(--indigo2)}
+.send-btn{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:20px;cursor:pointer}
+.icon-btn{width:42px;height:42px;border-radius:13px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer}
+#emojiPanel{position:absolute;bottom:74px;left:18px;background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:14px;width:360px;z-index:1000;display:none}
+#emojiPanel.open{display:block}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:8px;max-height:220px;overflow-y:auto}
+.em-btn{width:60px;height:60px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center}
+.em-btn img{width:46px;height:46px;border-radius:8px;object-fit:contain}
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:460px;max-height:90vh;overflow-y:auto;padding:26px;position:relative}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:28px;height:28px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:12px;margin-bottom:20px}
+.av-big{width:88px;height:88px;border-radius:50%;background:var(--indigo-f);border:3px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:40px;cursor:pointer;margin:0 auto 10px;position:relative;overflow:hidden}
+.av-big img{width:100%;height:100%;object-fit:cover}
+.inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:8px}
+.act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text);cursor:pointer;margin-bottom:6px}
+.act-btn.success{background:rgba(74,222,128,0.2);border-color:rgba(74,222,128,0.4);color:#4ade80}
+.sec-lbl{font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;font-family:'Unbounded',sans-serif;margin:14px 0 7px}
+.emo-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px}
+.emo-btn{padding:6px 11px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer}
+.emo-btn.active,.emo-btn:hover{background:var(--indigo);color:#fff}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;animation:messagePop .3s ease}
+.hidden{display:none!important}
+::-webkit-scrollbar{width:3px}
+::-webkit-scrollbar-thumb{background:var(--border)}
+</style>
+</head>
+<body class="night">
+<div id="hearts"></div>
+<nav id="topnav">
+  <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
+  <button class="nav-btn active" id="navRooms" onclick="showPanel('rooms')">💬 <span class="label">ოთახები</span></button>
+  <button class="nav-btn" id="navFriends" onclick="showPanel('friends')">👥 <span class="label">მეგობრები</span><span class="badge" id="friendBadge"></span></button>
+  <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
+  <button class="nav-btn" id="navOnline" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
+  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span></button>
+  <div class="nav-spacer"></div>
+  <button class="nav-btn" onclick="openMyProfile()">👤</button>
+  <button class="nav-btn" onclick="toggleTheme()" id="themeBtn">🌙</button>
+  <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
+</nav>
+<div id="app">
+  <div id="sidebar">
+    <div id="panelRooms">
+      <div class="sb-header"><div class="sb-dot"></div>ოთახები</div>
+      <div class="sb-body" id="roomList"></div>
+    </div>
+    <div id="panelFriends" class="hidden">
+      <div class="sb-header"><div class="sb-dot"></div>მეგობრები</div>
+      <div class="sb-body" id="friendsList"></div>
+    </div>
+    <div id="panelUsers" class="hidden">
+      <div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div>
+      <div class="sb-body">
+        <input class="search-box" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()">
+        <div id="usersListEl"></div>
+      </div>
+    </div>
+    <div id="panelOnline" class="hidden">
+      <div class="sb-header"><div class="sb-dot"></div>ონლაინი</div>
+      <div class="sb-body" id="onlineListEl"></div>
+    </div>
+  </div>
+  <div id="main">
+    <div class="chat-header">
+      <div style="font-size:22px" id="roomIcon">💬</div>
+      <div class="chat-title" id="roomTitle">მთავარი მოედანი</div>
+      <div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div>
+    </div>
+    <div id="messages"></div>
+    <div class="chat-bar">
+      <button class="icon-btn" onclick="toggleEmojiPanel()">😊</button>
+      <input id="msgInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}">
+      <button class="send-btn" onclick="sendMessage()">✈️</button>
+    </div>
+    <div id="emojiPanel">
+      <div class="emoji-grid" id="emojiGrid"></div>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('profileOverlay')">✕</button>
+    <div class="modal-title">👤 პროფილი</div>
+    <div class="av-big" id="avBig" onclick="clickAvatar()">
+      <span id="avEmoji">😊</span>
+      <img id="avImg" style="display:none">
+    </div>
+    <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
+    <div class="list-name" style="text-align:center;font-size:18px;margin-bottom:5px" id="profName"></div>
+    <div class="sec-lbl">სტატუსი</div>
+    <input class="inp" id="statusInp" placeholder="სტატუსი...">
+    <div class="sec-lbl">ემოცია</div>
+    <div class="emo-row" id="emoRowMain">
+      <button class="emo-btn" onclick="pickEmo(this,'😊')">😊</button>
+      <button class="emo-btn" onclick="pickEmo(this,'😍')">😍</button>
+      <button class="emo-btn" onclick="pickEmo(this,'😎')">😎</button>
+      <button class="emo-btn" onclick="pickEmo(this,'🥰')">🥰</button>
+      <button class="emo-btn" onclick="pickEmo(this,'😴')">😴</button>
+      <button class="emo-btn" onclick="pickEmo(this,'🤩')">🤩</button>
+      <button class="emo-btn" onclick="pickEmo(this,'🎮')">🎮</button>
+      <button class="emo-btn" onclick="pickEmo(this,'🎵')">🎵</button>
+      <button class="emo-btn" onclick="pickEmo(this,'💜')">💜</button>
+    </div>
+    <input class="inp" id="emoComment" placeholder="კომენტარი ემოციაზე...">
+    <button class="act-btn success" onclick="saveProfile()">✅ შენახვა</button>
+    <div class="divider"></div>
+    <button class="act-btn" id="friendBtn" onclick="toggleFriend()" style="display:none">➕ მეგობრად დამატება</button>
+    <button class="act-btn" id="dmBtn" onclick="openDMfromProfile()" style="display:none">✉️ პირადი შეტყობინება</button>
+  </div>
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+let ME = null, MYPROF = null, ROOM = 1, VIEW_UID = null, DM_UID = null;
+let allUsers = [], myFriends = [], customEmojis = [], emojiCache = {};
+let selectedEmotion = '😊', msgCh = null, dmCh = null;
+
+const ROOMS = [
+  {id:1, icon:'🏠', name:'მთავარი მოედანი'},
+  {id:2, icon:'🔐', name:'შიფროგრამა'},
+  {id:3, icon:'🏆', name:'ვიქტორინა'},
+  {id:4, icon:'🎵', name:'მუსიკ კლაბი'},
+  {id:5, icon:'💜', name:'სოული კორნერ'},
+  {id:6, icon:'🌊', name:'ოშენ ვაიბ'},
+  {id:7, icon:'🦋', name:'ფლაი ზონ'},
+  {id:8, icon:'🧠', name:'ბრეინ ზონ'},
+  {id:9, icon:'🌸', name:'სოფთ ჰარმონი'},
+  {id:10, icon:'💡', name:'ბრეინსტორმ'}
+];
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function init() {
+  const {data:{user}} = await sb.auth.getUser();
+  if(!user) { location.href = 'index.html'; return; }
+  ME = user;
+  MYPROF = await loadProf(ME.id);
+  if(!MYPROF) {
+    await sb.from('profiles').insert({id: ME.id, username: user.email?.split('@')[0] || 'მომხმარებელი', role: 'member', emotion: '😊'});
+    MYPROF = await loadProf(ME.id);
+  }
+  if(MYPROF?.is_blocked) {
+    alert('შენი ანგარიში დაბლოკილია!');
+    await sb.auth.signOut();
+    location.href = 'index.html';
+    return;
+  }
+  document.getElementById('profName').textContent = MYPROF.username;
+  buildRooms();
+  await loadEmojis();
+  buildEmojis();
+  spawnHearts();
+  switchRoom(ROOMS[0], null);
+  await loadAllUsers();
+  await pingOnline();
+  setInterval(pingOnline, 30000);
+  setInterval(loadAllUsers, 45000);
+  setInterval(checkFriendReqs, 10000);
+}
+
+async function loadProf(uid) {
+  const {data} = await sb.from('profiles').select('*').eq('id', uid).single();
+  return data;
+}
+
+function buildRooms() {
+  const el = document.getElementById('roomList');
+  el.innerHTML = '';
+  ROOMS.forEach((r, idx) => {
+    const d = document.createElement('div');
+    d.className = 'room-item';
+    d.style.animationDelay = (idx * 0.03) + 's';
+    d.innerHTML = `<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>`;
+    d.onclick = () => switchRoom(r, d);
+    el.appendChild(d);
+  });
+}
+
+function switchRoom(r, element) {
+  ROOM = r.id;
+  document.getElementById('roomTitle').textContent = r.name;
+  document.getElementById('roomIcon').textContent = r.icon;
+  document.querySelectorAll('.room-item').forEach(el => el.classList.remove('active'));
+  if(element) element.classList.add('active');
+  loadMessages(r.id);
+}
+
+async function loadMessages(roomId) {
+  if(msgCh) { sb.removeChannel(msgCh); msgCh = null; }
+  const {data} = await sb.from('messages')
+    .select('*, profiles(username,role,avatar_url,emotion)')
+    .eq('room_id', roomId).order('created_at', {ascending:true}).limit(80);
+  const box = document.getElementById('messages');
+  box.innerHTML = '';
+  (data || []).forEach(m => appendMsg(m));
+  box.scrollTop = box.scrollHeight;
+  
+  const ids = (data||[]).map(m => m.id);
+  if(ids.length) {
+    const {data: rxns} = await sb.from('message_reactions').select('message_id,emoji,user_id').in('message_id', ids);
+    if(rxns) {
+      const byMsg = {};
+      rxns.forEach(r => { if(!byMsg[r.message_id]) byMsg[r.message_id] = []; byMsg[r.message_id].push(r); });
+      Object.entries(byMsg).forEach(([msgId, list]) => {
+        const row = document.getElementById('reactions_' + msgId);
+        if(row) row.innerHTML = buildReactionHtml(list, msgId);
+      });
+    }
+  }
+
+  msgCh = sb.channel('room' + roomId)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'messages', filter:`room_id=eq.${roomId}`}, async payload => {
+      const {data: msg} = await sb.from('messages').select('*, profiles(username,role,avatar_url,emotion)').eq('id', payload.new.id).single();
+      if(msg) { appendMsg(msg); box.scrollTop = box.scrollHeight; }
+    })
+    .on('postgres_changes', {event:'DELETE', schema:'public', table:'messages'}, payload => {
+      document.getElementById('msg' + payload.old.id)?.remove();
+    })
+    .subscribe();
+}
+
+function appendMsg(m) {
+  const isMe = (m.user_id === ME?.id);
+  const canDel = MYPROF?.role === 'admin' || MYPROF?.role === 'founder' || isMe;
+  const t = new Date(m.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit', minute:'2-digit'});
+  const avHtml = m.profiles?.avatar_url ? `<img src="${m.profiles.avatar_url}">` : (m.profiles?.emotion || '😊');
+  const bubbleContent = m.content || '';
+  
+  const row = document.createElement('div');
+  row.className = 'msg-row';
+  row.id = 'msg' + m.id;
+  row.innerHTML = `
+    <div class="avatar" style="cursor:pointer" onclick="openProfile('${m.user_id}')">${avHtml}</div>
+    <div class="msg-content">
+      <div class="msg-meta">
+        <span class="msg-nick" onclick="openProfile('${m.user_id}')">${esc(m.profiles?.username||'?')}</span>
+        <span class="msg-time">${t}</span>
+      </div>
+      <div class="msg-bubble${isMe?' mine':''}">
+        ${bubbleContent}
+        ${canDel?`<button class="msg-del" onclick="delMsg('${m.id}')">🗑</button>`:''}
+      </div>
+      <div class="msg-reactions" id="reactions_${m.id}"></div>
+    </div>
+  `;
+  document.getElementById('messages').appendChild(row);
+}
+
+async function sendMessage() {
+  const inp = document.getElementById('msgInput');
+  const txt = inp.value.trim();
+  if(!txt) return;
+  inp.value = '';
+  await sb.from('messages').insert({room_id: ROOM, user_id: ME.id, content: txt});
+}
+
+async function delMsg(id) {
+  if(!confirm('წავშალო?')) return;
+  await sb.from('messages').delete().eq('id', id);
+}
+
+async function addReaction(msgId, emoji) {
+  const {data: existing} = await sb.from('message_reactions').select('id').eq('message_id', msgId).eq('user_id', ME.id).eq('emoji', emoji).maybeSingle();
+  if(existing) {
+    await sb.from('message_reactions').delete().eq('id', existing.id);
+  } else {
+    await sb.from('message_reactions').insert({message_id: msgId, user_id: ME.id, emoji});
+  }
+  refreshMsgReactions(msgId);
+}
+
+async function refreshMsgReactions(msgId) {
+  const {data} = await sb.from('message_reactions').select('emoji,user_id').eq('message_id', msgId);
+  const row = document.getElementById('reactions_' + msgId);
+  if(row) row.innerHTML = buildReactionHtml(data || [], msgId);
+}
+
+function buildReactionHtml(reactions, msgId) {
+  const grouped = {};
+  reactions.forEach(r => { if(!grouped[r.emoji]) grouped[r.emoji] = []; grouped[r.emoji].push(r.user_id); });
+  return Object.entries(grouped).map(([em, users]) =>
+    `<span class="reaction-chip" onclick="addReaction('${msgId}','${em}')">${em}<span style="font-size:11px;margin-left:3px">${users.length}</span></span>`
+  ).join('');
+}
+
+async function loadAllUsers() {
+  const {data} = await sb.from('profiles').select('*').order('username');
+  allUsers = data || [];
+  updateOnlineBadge();
+  renderUserLists();
+}
+
+function updateOnlineBadge() {
+  const onlineNow = allUsers.filter(u => isOnline(u.last_seen));
+  const cnt = document.getElementById('onlineCnt');
+  if(cnt) cnt.textContent = `● ${onlineNow.length} ონლაინი`;
+}
+
+function isOnline(ts) { if(!ts) return false; return Date.now() - new Date(ts).getTime() < 90000; }
+
+function renderUserLists() {
+  const founders = allUsers.filter(u => u.role === 'founder');
+  const admins = allUsers.filter(u => u.role === 'admin');
+  const members = allUsers.filter(u => u.role === 'member');
+  
+  const usEl = document.getElementById('usersListEl');
+  if(usEl) {
+    usEl.innerHTML = '';
+    if(founders.length) { usEl.appendChild(roleHeader('👑','დამფუძნებლები')); founders.forEach(u => usEl.appendChild(makeUserItem(u))); }
+    if(admins.length) { usEl.appendChild(roleHeader('🛡️','ადმინები')); admins.forEach(u => usEl.appendChild(makeUserItem(u))); }
+    if(members.length) { usEl.appendChild(roleHeader('👤','წევრები')); members.forEach(u => usEl.appendChild(makeUserItem(u))); }
+  }
+  
+  const onEl = document.getElementById('onlineListEl');
+  if(onEl) {
+    onEl.innerHTML = '';
+    const online = allUsers.filter(u => isOnline(u.last_seen));
+    const onFounders = online.filter(u => u.role === 'founder');
+    const onAdmins = online.filter(u => u.role === 'admin');
+    const onMembers = online.filter(u => u.role === 'member');
+    if(!online.length) {
+      const e = document.createElement('div');
+      e.style.cssText = 'color:var(--text3);font-size:12px;text-align:center;padding:24px 0';
+      e.textContent = 'ახლა არავინ არის ონლაინი';
+      onEl.appendChild(e);
+    } else {
+      if(onFounders.length) { onEl.appendChild(roleHeader('👑','დამფუძნებლები')); onFounders.forEach(u => onEl.appendChild(makeUserItem(u))); }
+      if(onAdmins.length) { onEl.appendChild(roleHeader('🛡️','ადმინები')); onAdmins.forEach(u => onEl.appendChild(makeUserItem(u))); }
+      if(onMembers.length) { onEl.appendChild(roleHeader('👤','წევრები')); onMembers.forEach(u => onEl.appendChild(makeUserItem(u))); }
+    }
+  }
+  renderFriends();
+}
+
+function roleHeader(icon, label) {
+  const d = document.createElement('div');
+  d.className = 'role-header';
+  d.innerHTML = `<span style="font-size:12px">${icon}</span><div class="role-header-line" style="flex:1;height:1px;background:var(--border);margin:0 8px"></div><span class="role-header-text" style="font-size:9px;letter-spacing:1.5px;color:var(--text3);text-transform:uppercase">${label}</span>`;
+  return d;
+}
+
+function makeUserItem(u) {
+  const d = document.createElement('div');
+  d.className = 'list-item';
+  d.dataset.q = (u.username||'').toLowerCase();
+  const on = isOnline(u.last_seen);
+  const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion||'😊');
+  d.innerHTML = `<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
+  d.onclick = () => openProfile(u.id);
+  return d;
+}
+
+function filterUsers() {
+  const q = document.getElementById('userSearch').value.toLowerCase();
+  document.querySelectorAll('#usersListEl .list-item').forEach(el => { el.style.display = el.dataset.q.includes(q) ? '' : 'none'; });
+}
+
+async function loadFriends() {
+  const {data} = await sb.from('friends').select('friend_id').eq('user_id', ME.id).eq('status', 'accepted');
+  myFriends = (data||[]).map(f => f.friend_id);
+  renderFriends();
+}
+
+function renderFriends() {
+  const el = document.getElementById('friendsList');
+  if(!el) return;
+  el.innerHTML = '';
+  const list = myFriends.map(fid => allUsers.find(u => u.id === fid)).filter(Boolean);
+  if(!list.length) {
+    const e = document.createElement('div');
+    e.style.cssText = 'color:var(--text3);font-size:12px;text-align:center;padding:24px 0';
+    e.textContent = 'მეგობრები ჯერ არ გყავს 💜';
+    el.appendChild(e);
+    return;
+  }
+  list.forEach(u => el.appendChild(makeUserItem(u)));
+}
+
+async function toggleFriend() {
+  const isFr = myFriends.includes(VIEW_UID);
+  if(isFr) {
+    await sb.from('friends').delete().eq('user_id', ME.id).eq('friend_id', VIEW_UID);
+    myFriends = myFriends.filter(f => f !== VIEW_UID);
+    toast('💔 მეგობრობა გაუქმდა');
+  } else {
+    await sb.from('friends').upsert({user_id: ME.id, friend_id: VIEW_UID, status: 'pending'});
+    toast('📨 მოთხოვნა გაიგზავნა!');
+  }
+  const btn = document.getElementById('friendBtn');
+  if(btn) btn.textContent = myFriends.includes(VIEW_UID) ? '💔 მეგობრობის გაუქმება' : '➕ მეგობრად დამატება';
+}
+
+async function checkFriendReqs() {
+  const {data} = await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id', ME.id).eq('status', 'pending');
+  const badge = document.getElementById('friendBadge');
+  if(data && data.length) {
+    badge.textContent = data.length;
+    badge.classList.add('show');
+  } else {
+    badge.classList.remove('show');
+  }
+}
+
+async function pingOnline() {
+  if(!ME) return;
+  await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
+}
+
+async function loadEmojis() {
+  const {data} = await sb.from('global_emojis').select('id,url,is_animated').order('id', {ascending:true});
+  customEmojis = data || [];
+  emojiCache = {};
+  customEmojis.forEach(e => { emojiCache[e.id] = e.url; });
+}
+
+function buildEmojis() {
+  const grid = document.getElementById('emojiGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  customEmojis.forEach(em => {
+    const btn = document.createElement('button');
+    btn.className = 'em-btn';
+    const isImg = em.url && (em.url.startsWith('http') || em.url.startsWith('data:'));
+    if(isImg) {
+      const img = document.createElement('img');
+      img.src = em.url;
+      btn.appendChild(img);
+    } else {
+      btn.textContent = em.url || '?';
+    }
+    btn.onclick = () => {
+      const inp = document.getElementById('msgInput');
+      inp.value += isImg ? `[e:${em.id}]` : em.url;
+      inp.focus();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function toggleEmojiPanel() {
+  document.getElementById('emojiPanel').classList.toggle('open');
+}
+
+function toggleSidebar() { document.getElementById('sidebar').classList.toggle('mob-open'); }
+
+function showPanel(name) {
+  ['rooms','friends','users','online'].forEach(p => {
+    const panel = document.getElementById('panel' + p.charAt(0).toUpperCase() + p.slice(1));
+    if(panel) panel.classList.toggle('hidden', p !== name);
+    const nav = document.getElementById('nav' + p.charAt(0).toUpperCase() + p.slice(1));
+    if(nav) nav.classList.toggle('active', p === name);
+  });
+  if(name === 'friends') loadFriends();
+  if(name === 'users' || name === 'online') loadAllUsers();
+}
+
+function openProfile(uid) {
+  VIEW_UID = uid;
+  const user = allUsers.find(u => u.id === uid);
+  if(!user) return;
+  const isSelf = (uid === ME.id);
+  document.getElementById('profName').textContent = user.username || '?';
+  document.getElementById('statusInp').value = user.status || '';
+  const isFr = myFriends.includes(uid);
+  const friendBtn = document.getElementById('friendBtn');
+  const dmBtn = document.getElementById('dmBtn');
+  if(friendBtn) {
+    friendBtn.style.display = isSelf ? 'none' : '';
+    friendBtn.textContent = isFr ? '💔 მეგობრობის გაუქმება' : '➕ მეგობრად დამატება';
+  }
+  if(dmBtn) dmBtn.style.display = isSelf ? 'none' : '';
+  openModal('profileOverlay');
+}
+
+function openMyProfile() { openProfile(ME.id); }
+
+async function saveProfile() {
+  const updates = {status: document.getElementById('statusInp').value, emotion: selectedEmotion};
+  await sb.from('profiles').update(updates).eq('id', ME.id);
+  MYPROF = {...MYPROF, ...updates};
+  toast('✅ შენახულია!');
+  closeModal('profileOverlay');
+}
+
+function pickEmo(btn, em) { 
+  selectedEmotion = em; 
+  document.querySelectorAll('#emoRowMain .emo-btn').forEach(b => b.classList.remove('active')); 
+  btn.classList.add('active'); 
+}
+
+function clickAvatar() { if(VIEW_UID !== ME.id) return; document.getElementById('avatarInput').click(); }
+
+async function uploadAvatar(e) {
+  const file = e.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = async ev => {
+    await sb.from('profiles').update({avatar_url: ev.target.result}).eq('id', ME.id);
+    MYPROF.avatar_url = ev.target.result;
+    toast('✅ ფოტო განახლდა!');
+  };
+  reader.readAsDataURL(file);
+  e.target.value = '';
+}
+
+function openDMList() {
+  const modal = document.createElement('div');
+  modal.className = 'overlay open';
+  modal.id = 'tempDMList';
+  modal.innerHTML = `
+    <div class="modal" style="max-width:340px">
+      <button class="modal-x" onclick="this.closest('.overlay').remove()">✕</button>
+      <div class="modal-title">✉️ პირადი შეტყობინებები</div>
+      <input class="search-box" placeholder="🔍 ძებნა..." id="dmSearchTemp" oninput="filterTempDM(this.value)">
+      <div id="tempDMListBody"></div>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  renderTempDMList('');
+}
+
+function renderTempDMList(search='') {
+  const el = document.getElementById('tempDMListBody');
+  if(!el) return;
+  const filtered = allUsers.filter(u => u.id !== ME.id && (u.username||'').toLowerCase().includes(search.toLowerCase()));
+  el.innerHTML = '';
+  filtered.forEach(u => {
+    const d = document.createElement('div');
+    d.className = 'list-item';
+    d.onclick = () => { openDM(u.id); document.getElementById('tempDMList')?.remove(); };
+    const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion||'😊');
+    d.innerHTML = `<div class="avatar">${avHtml}</div><div class="list-info"><div class="list-name">${esc(u.username)}</div></div>`;
+    el.appendChild(d);
+  });
+}
+
+function filterTempDM(q) { renderTempDMList(q); }
+
+function openDM(uid) {
+  DM_UID = uid;
+  const user = allUsers.find(u => u.id === uid);
+  const box = document.createElement('div');
+  box.id = 'dmBox';
+  box.className = 'overlay open';
+  box.innerHTML = `
+    <div class="modal" style="max-width:360px;height:500px;display:flex;flex-direction:column">
+      <button class="modal-x" onclick="closeDM()">✕</button>
+      <div class="modal-title" id="dmTitle">${esc(user?.username||'')}</div>
+      <div id="dmMsgs" style="flex:1;overflow-y:auto;padding:10px;border:1px solid var(--border);border-radius:12px;margin-bottom:8px"></div>
+      <div style="display:flex;gap:8px">
+        <input id="dmInput" class="inp" style="margin:0" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()">
+        <button class="send-btn" style="width:46px;height:46px" onclick="sendDM()">✈️</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(box);
+  loadDMs();
+}
+
+async function loadDMs() {
+  const rk = [ME.id, DM_UID].sort().join('_');
+  const {data} = await sb.from('direct_messages').select('*').eq('room_key', rk).order('created_at', {ascending:true}).limit(60);
+  const box = document.getElementById('dmMsgs');
+  if(!box) return;
+  box.innerHTML = '';
+  (data||[]).forEach(m => appendDMMsg(m));
+  box.scrollTop = box.scrollHeight;
+  
+  if(dmCh) sb.removeChannel(dmCh);
+  dmCh = sb.channel('dm' + rk)
+    .on('postgres_changes', {event:'INSERT', schema:'public', table:'direct_messages', filter:`room_key=eq.${rk}`}, async p => {
+      if(p.new.sender_id === ME.id) return;
+      appendDMMsg(p.new);
+      box.scrollTop = 9999;
+      const badge = document.getElementById('dmBadge');
+      if(badge) {
+        badge.textContent = parseInt(badge.textContent||0) + 1;
+        badge.classList.add('show');
+      }
+    })
+    .subscribe();
+}
+
+function appendDMMsg(m) {
+  const isMe = (m.sender_id === ME.id);
+  const t = new Date(m.created_at).toLocaleTimeString('ka-GE', {hour:'2-digit', minute:'2-digit'});
+  const box = document.getElementById('dmMsgs');
+  if(!box) return;
+  const wrap = document.createElement('div');
+  wrap.style.display = 'flex';
+  wrap.style.justifyContent = isMe ? 'flex-end' : 'flex-start';
+  wrap.style.marginBottom = '6px';
+  wrap.innerHTML = `
+    <div style="max-width:82%;background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px;color:var(--text)">
+      ${esc(m.content)}
+      <span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span>
+    </div>
+  `;
+  box.appendChild(wrap);
+}
+
+async function sendDM() {
+  const inp = document.getElementById('dmInput');
+  const txt = inp.value.trim();
+  if(!txt || !DM_UID) return;
+  inp.value = '';
+  const rk = [ME.id, DM_UID].sort().join('_');
+  appendDMMsg({sender_id: ME.id, content: txt, created_at: new Date().toISOString()});
+  await sb.from('direct_messages').insert({room_key: rk, sender_id: ME.id, receiver_id: DM_UID, content: txt});
+  const box = document.getElementById('dmMsgs');
+  if(box) box.scrollTop = 9999;
+}
+
+function closeDM() {
+  document.getElementById('dmBox')?.remove();
+  DM_UID = null;
+  if(dmCh) { sb.removeChannel(dmCh); dmCh = null; }
+}
+
+function openDMfromProfile() { closeModal('profileOverlay'); openDM(VIEW_UID); }
+
+function spawnHearts() {
+  const hc = document.getElementById('hearts');
+  if(!hc) return;
+  const emojis = ['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖'];
+  let active = 0;
+  const MAX = 25;
+  function make() {
+    if(active >= MAX) return;
+    const h = document.createElement('div');
+    h.className = 'heart';
+    h.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+    const left = Math.random() * 100;
+    const drift = (Math.random() - 0.5) * 80;
+    const dur = 8 + Math.random() * 10;
+    const size = 1 + Math.random() * 1.2;
+    h.style.cssText = `left:${left}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;
+    hc.appendChild(h);
+    active++;
+    setTimeout(() => { h.remove(); active--; }, (dur + 0.5) * 1000);
+  }
+  for(let i=0;i<12;i++) setTimeout(make, i * 200);
+  setInterval(() => { if(active < MAX) make(); }, 1500);
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+function toggleTheme() {
+  const isNight = document.body.classList.contains('night');
+  document.body.classList.remove(isNight ? 'night' : 'day');
+  document.body.classList.add(isNight ? 'day' : 'night');
+  document.getElementById('themeBtn').textContent = isNight ? '☀️' : '🌙';
+}
+
+function logout() { sb.auth.signOut(); location.href = 'index.html'; }
+
+function openModal(id) { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+function bgClose(e, id) { if(e.target.id === id) closeModal(id); }
+
+init();
+</script>
+</body>
+</html>
