@@ -358,27 +358,26 @@ select.inp{cursor:pointer}
 .pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pv-nav-btn:hover{background:var(--border)}
 
-/* ====== DM BOX — FIX 3: Mobile safe positioning ====== */
+/* ====== DM BOX — FIXED ====== */
 #dmBox{
-  position:fixed;right:16px;bottom:16px;width:340px;height:480px;
+  position:fixed;right:16px;bottom:16px;width:300px;height:460px;
   background:var(--panel);border:1px solid var(--border);border-radius:20px;
-  display:none;flex-direction:column;z-index:15000;
+  display:none;flex-direction:column;z-index:5000;
   box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden
 }
 #dmBox.open{display:flex;animation:dmSlideUp .35s cubic-bezier(0.2,0.9,0.4,1.1)}
 #dmBox.minimized{height:52px!important;max-height:52px!important}
 #dmBox.minimized #dmMsgs,#dmBox.minimized #dmReplyBar,#dmBox.minimized .dm-bar,#dmBox.minimized #dmEmojiPanel{display:none!important}
-/* Mobile: full-width bottom sheet, doesn't cover main chat when minimized */
+/* მობილეზე — chat bar-ის ზემოთ (62px) */
 @media(max-width:640px){
   #dmBox{
-    right:0;left:0;bottom:0;width:100%;border-radius:20px 20px 0 0;
-    max-height:60vh;
+    right:0;left:0;bottom:62px;width:100%;border-radius:20px 20px 0 0;
+    max-height:55vh;z-index:5000;
   }
-  #dmBox.open:not(.minimized){height:60vh}
+  #dmBox.open:not(.minimized){height:55vh}
   #dmBox.minimized{
     height:52px!important;max-height:52px!important;
-    /* Push minimized bar to not cover sidebar toggle */
-    bottom:0;
+    bottom:62px;
   }
 }
 
@@ -409,14 +408,12 @@ select.inp{cursor:pointer}
 .dm-bubble-row{display:flex}
 .dm-bubble-row.me{justify-content:flex-end}
 
-/* ====== FIX 4: DM bubble + react button ====== */
 .dm-bubble{
   max-width:82%;background:var(--bubble);border:1px solid var(--border);
   border-radius:4px 16px 16px 16px;padding:8px 12px;font-size:13px;
   color:var(--text);word-break:break-word;position:relative;cursor:pointer
 }
 .dm-bubble.me{background:rgba(120,30,200,0.28);border-color:rgba(168,85,247,0.4);border-radius:16px 4px 16px 16px}
-/* Visible react button — shows on hover, always tappable on mobile */
 .dm-react-trigger{
   position:absolute;top:-14px;right:8px;
   background:var(--panel2);border:1px solid var(--border);
@@ -427,7 +424,6 @@ select.inp{cursor:pointer}
 }
 .dm-react-trigger.me-side{right:auto;left:8px}
 .dm-bubble-row:hover .dm-react-trigger{opacity:1}
-/* On touch devices always show react button */
 @media(hover:none){.dm-react-trigger{opacity:.7}}
 
 .dm-bubble img.dm-img{max-width:180px;max-height:140px;border-radius:8px;display:block;margin-top:4px;cursor:pointer;object-fit:cover;border:1px solid var(--border)}
@@ -446,7 +442,6 @@ select.inp{cursor:pointer}
 .dm-unread-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-left:auto;box-shadow:0 0 5px var(--accent);flex-shrink:0}
 .dm-list-typing{font-size:10px;color:var(--accent);font-style:italic;margin-top:1px}
 
-/* ====== FIX 1: Typing indicator styles ====== */
 .typing-indicator{display:flex;align-items:center;gap:6px;padding:6px 14px 4px 56px;font-size:12px;color:var(--text3);font-style:italic}
 .typing-dots{display:flex;gap:3px;align-items:center}
 .typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:typingBounce .8s ease infinite}
@@ -828,11 +823,8 @@ let fmtBold=false,fmtItalic=false,fmtUnder=false,fmtColor=null,fmtFont=null,form
 let replyToMsg=null,dmReplyTo=null,reactTargetMsgId=null;
 let mediaRecorder=null,audioChunks=[],isRecording=false;
 let dmMediaRecorder=null,dmAudioChunks=[],dmIsRecording=false;
-
-// ====== Typing channels ======
 let typingCh=null,typingChReady=false,typingUsers={};
 let dmTypingCh=null,dmTypingChReady=false,dmTypingUsers={};
-
 const roomMsgCache={};
 const sentMsgIds=new Set();
 let dmMinimized=false;
@@ -863,44 +855,16 @@ const THEMES=[
 ];
 let currentTheme='night';
 
-function applyThemeById(id){
-  THEMES.forEach(t=>document.body.classList.remove(t.id));
-  document.body.classList.remove('theme-custom');
-  document.body.classList.add(id);
-  currentTheme=id;
-  localStorage.setItem('kaif_theme',id);
-  if(ME&&MYPROF)sb.from('profiles').update({theme:id}).eq('id',ME.id).then(()=>{});
-  const s=document.getElementById('customThemeStyle');if(s)s.remove();
-  updateThemeGrid();
-}
+function applyThemeById(id){THEMES.forEach(t=>document.body.classList.remove(t.id));document.body.classList.remove('theme-custom');document.body.classList.add(id);currentTheme=id;localStorage.setItem('kaif_theme',id);if(ME&&MYPROF)sb.from('profiles').update({theme:id}).eq('id',ME.id).then(()=>{});const s=document.getElementById('customThemeStyle');if(s)s.remove();updateThemeGrid();}
 function openThemeModal(){buildThemeGrid();openModal('themeOverlay');}
-function buildThemeGrid(){
-  const grid=document.getElementById('themeGrid');grid.innerHTML='';
-  THEMES.forEach(t=>{
-    const div=document.createElement('div');div.className='theme-swatch'+(currentTheme===t.id?' active':'');
-    div.innerHTML=`<div class="sw-preview"><div class="sw-half" style="background:${t.bg}"></div><div class="sw-half" style="background:${t.accent}"></div></div><div class="sw-label">${t.label}</div><span class="sw-check">✓</span>`;
-    div.onclick=()=>applyThemeById(t.id);grid.appendChild(div);
-  });
-}
+function buildThemeGrid(){const grid=document.getElementById('themeGrid');grid.innerHTML='';THEMES.forEach(t=>{const div=document.createElement('div');div.className='theme-swatch'+(currentTheme===t.id?' active':'');div.innerHTML=`<div class="sw-preview"><div class="sw-half" style="background:${t.bg}"></div><div class="sw-half" style="background:${t.accent}"></div></div><div class="sw-label">${t.label}</div><span class="sw-check">✓</span>`;div.onclick=()=>applyThemeById(t.id);grid.appendChild(div);});}
 function updateThemeGrid(){document.querySelectorAll('.theme-swatch').forEach((el,i)=>{el.classList.toggle('active',THEMES[i]?.id===currentTheme);});}
-function applyCustomTheme(){
-  const bg=document.getElementById('cp_bg').value,panel=document.getElementById('cp_panel').value,text=document.getElementById('cp_text').value,accent=document.getElementById('cp_accent').value,indigo=document.getElementById('cp_indigo').value;
-  THEMES.forEach(t=>document.body.classList.remove(t.id));document.body.classList.remove('theme-custom');
-  let style=document.getElementById('customThemeStyle');
-  if(!style){style=document.createElement('style');style.id='customThemeStyle';document.head.appendChild(style);}
-  style.textContent=`body{--bg:${bg};--panel:${panel};--panel2:${panel};--border:rgba(128,128,128,0.3);--text:${text};--text2:${lightenHex(text,-30)};--text3:${lightenHex(text,-60)};--bubble:${panel};--input-bg:${bg};--online:${accent};--indigo:${indigo};--indigo2:${lightenHex(indigo,20)};--indigo-f:${hexToRgba(indigo,0.15)};--glow:${hexToRgba(accent,0.25)};--accent:${accent};}`;
-}
+function applyCustomTheme(){const bg=document.getElementById('cp_bg').value,panel=document.getElementById('cp_panel').value,text=document.getElementById('cp_text').value,accent=document.getElementById('cp_accent').value,indigo=document.getElementById('cp_indigo').value;THEMES.forEach(t=>document.body.classList.remove(t.id));document.body.classList.remove('theme-custom');let style=document.getElementById('customThemeStyle');if(!style){style=document.createElement('style');style.id='customThemeStyle';document.head.appendChild(style);}style.textContent=`body{--bg:${bg};--panel:${panel};--panel2:${panel};--border:rgba(128,128,128,0.3);--text:${text};--text2:${lightenHex(text,-30)};--text3:${lightenHex(text,-60)};--bubble:${panel};--input-bg:${bg};--online:${accent};--indigo:${indigo};--indigo2:${lightenHex(indigo,20)};--indigo-f:${hexToRgba(indigo,0.15)};--glow:${hexToRgba(accent,0.25)};--accent:${accent};}`;}
 function hexToRgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 function lightenHex(h,amt){let r=parseInt(h.slice(1,3),16)+amt,g=parseInt(h.slice(3,5),16)+amt,b=parseInt(h.slice(5,7),16)+amt;r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
 function saveCustomTheme(){localStorage.setItem('kaif_custom_colors',JSON.stringify({bg:document.getElementById('cp_bg').value,panel:document.getElementById('cp_panel').value,text:document.getElementById('cp_text').value,accent:document.getElementById('cp_accent').value,indigo:document.getElementById('cp_indigo').value}));currentTheme='custom';localStorage.setItem('kaif_theme','custom');toast('✅ კასტომ თემა!');}
 function resetTheme(){applyThemeById('night');toast('🔄 ნაგულისხმევი');}
-function loadSavedTheme(profileTheme){
-  const saved=profileTheme||localStorage.getItem('kaif_theme')||'night';
-  if(saved==='custom'){
-    const colors=JSON.parse(localStorage.getItem('kaif_custom_colors')||'{}');
-    if(colors.bg){document.getElementById('cp_bg').value=colors.bg;document.getElementById('cp_panel').value=colors.panel;document.getElementById('cp_text').value=colors.text;document.getElementById('cp_accent').value=colors.accent;document.getElementById('cp_indigo').value=colors.indigo;applyCustomTheme();}
-  }else{applyThemeById(saved);}
-}
+function loadSavedTheme(profileTheme){const saved=profileTheme||localStorage.getItem('kaif_theme')||'night';if(saved==='custom'){const colors=JSON.parse(localStorage.getItem('kaif_custom_colors')||'{}');if(colors.bg){document.getElementById('cp_bg').value=colors.bg;document.getElementById('cp_panel').value=colors.panel;document.getElementById('cp_text').value=colors.text;document.getElementById('cp_accent').value=colors.accent;document.getElementById('cp_indigo').value=colors.indigo;applyCustomTheme();}}else{applyThemeById(saved);}}
 
 /* ===================== FORMAT ===================== */
 function toggleFormatBar(){formatBarOpen=!formatBarOpen;document.getElementById('formatBar').classList.toggle('open',formatBarOpen);document.getElementById('fmtToggleBtn').classList.toggle('active',formatBarOpen);}
@@ -908,16 +872,7 @@ function applyFmt(type){if(type==='bold'){fmtBold=!fmtBold;document.getElementBy
 function applyColor(color,el){fmtColor=(fmtColor===color)?null:color;document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('active'));if(fmtColor&&el)el.classList.add('active');}
 function applyFont(val){fmtFont=val||null;}
 function clearFmt(){fmtBold=fmtItalic=fmtUnder=false;fmtColor=null;fmtFont=null;document.getElementById('fmtBold').classList.remove('active');document.getElementById('fmtItalic').classList.remove('active');document.getElementById('fmtUnder').classList.remove('active');document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('active'));document.getElementById('fontFamilySelect').value='';}
-function wrapFormatting(text){
-  if(!fmtBold&&!fmtItalic&&!fmtUnder&&!fmtColor&&!fmtFont)return text;
-  let open='',close='';
-  if(fmtFont){open+=`[ff:${fmtFont}]`;close='[/ff]'+close;}
-  if(fmtColor){open+=`[c:${fmtColor}]`;close='[/c]'+close;}
-  if(fmtBold){open+='[b]';close='[/b]'+close;}
-  if(fmtItalic){open+='[i]';close='[/i]'+close;}
-  if(fmtUnder){open+='[u]';close='[/u]'+close;}
-  return open+text+close;
-}
+function wrapFormatting(text){if(!fmtBold&&!fmtItalic&&!fmtUnder&&!fmtColor&&!fmtFont)return text;let open='',close='';if(fmtFont){open+=`[ff:${fmtFont}]`;close='[/ff]'+close;}if(fmtColor){open+=`[c:${fmtColor}]`;close='[/c]'+close;}if(fmtBold){open+='[b]';close='[/b]'+close;}if(fmtItalic){open+='[i]';close='[/i]'+close;}if(fmtUnder){open+='[u]';close='[/u]'+close;}return open+text+close;}
 
 /* ===================== RENDER ===================== */
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
@@ -935,303 +890,48 @@ function renderContent(s){
 
 /* ===================== VOICE ===================== */
 async function toggleVoiceRecord(){if(!isRecording)await startVoiceRecord();else stopVoiceRecord();}
-async function startVoiceRecord(){
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    audioChunks=[];mediaRecorder=new MediaRecorder(stream);
-    mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);
-    mediaRecorder.onstop=async()=>{
-      const blob=new Blob(audioChunks,{type:'audio/webm'});
-      const reader=new FileReader();
-      reader.onload=async ev=>{const base64=ev.target.result;const dur=Math.max(1,Math.round(audioChunks.reduce((a,c)=>a+c.size,0)/5000));await sendVoiceMessage(base64,dur);};
-      reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());
-    };
-    mediaRecorder.start();isRecording=true;
-    document.getElementById('voiceBtn').classList.add('recording');document.getElementById('voiceBtn').textContent='⏹️';
-    toast('🔴 ჩაწერა...');
-  }catch(e){toast('❌ მიკროფონი ვერ');}
-}
+async function startVoiceRecord(){try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});audioChunks=[];mediaRecorder=new MediaRecorder(stream);mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);mediaRecorder.onstop=async()=>{const blob=new Blob(audioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const dur=Math.max(1,Math.round(audioChunks.reduce((a,c)=>a+c.size,0)/5000));await sendVoiceMessage(base64,dur);};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start();isRecording=true;document.getElementById('voiceBtn').classList.add('recording');document.getElementById('voiceBtn').textContent='⏹️';toast('🔴 ჩაწერა...');}catch(e){toast('❌ მიკროფონი ვერ');}}
 function stopVoiceRecord(){if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();isRecording=false;document.getElementById('voiceBtn').classList.remove('recording');document.getElementById('voiceBtn').textContent='🎙️';}
-async function sendVoiceMessage(base64,dur){
-  if(!ROOM)return;
-  const content=`[voice:${dur}]${base64}[/voice]`;
-  const{data}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content}).select('id').single();
-  if(data){
-    sentMsgIds.add(data.id);
-    const prof=MYPROF;
-    appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content,created_at:new Date().toISOString(),profiles:{username:prof?.username,role:prof?.role,avatar_url:prof?.avatar_url,emotion:prof?.emotion}});
-    document.getElementById('messages').scrollTop=99999;
-  }
-  toast('✅ ვოისი!');
-}
+async function sendVoiceMessage(base64,dur){if(!ROOM)return;const content=`[voice:${dur}]${base64}[/voice]`;const{data}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content}).select('id').single();if(data){sentMsgIds.add(data.id);const prof=MYPROF;appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content,created_at:new Date().toISOString(),profiles:{username:prof?.username,role:prof?.role,avatar_url:prof?.avatar_url,emotion:prof?.emotion}});document.getElementById('messages').scrollTop=99999;}toast('✅ ვოისი!');}
 async function toggleDMVoice(){if(!dmIsRecording)await startDMVoiceRecord();else stopDMVoiceRecord();}
-async function startDMVoiceRecord(){
-  try{
-    const stream=await navigator.mediaDevices.getUserMedia({audio:true});
-    dmAudioChunks=[];dmMediaRecorder=new MediaRecorder(stream);
-    dmMediaRecorder.ondataavailable=e=>dmAudioChunks.push(e.data);
-    dmMediaRecorder.onstop=async()=>{
-      const blob=new Blob(dmAudioChunks,{type:'audio/webm'});
-      const reader=new FileReader();
-      reader.onload=async ev=>{
-        const base64=ev.target.result;const dur=Math.max(1,Math.round(dmAudioChunks.reduce((a,c)=>a+c.size,0)/5000));
-        const content=`[voice:${dur}]${base64}[/voice]`;
-        if(!DM_UID)return;
-        const rk=[ME.id,DM_UID].sort().join('_');
-        const{data}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();
-        if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});
-        document.getElementById('dmMsgs').scrollTop=9999;
-        toast('✅ ვოისი!');
-      };
-      reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());
-    };
-    dmMediaRecorder.start();dmIsRecording=true;
-    document.getElementById('dmVoiceBtn').classList.add('recording');document.getElementById('dmVoiceBtn').textContent='⏹️';
-    toast('🔴 ჩაწერა...');
-  }catch(e){toast('❌ მიკროფონი ვერ');}
-}
+async function startDMVoiceRecord(){try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});dmAudioChunks=[];dmMediaRecorder=new MediaRecorder(stream);dmMediaRecorder.ondataavailable=e=>dmAudioChunks.push(e.data);dmMediaRecorder.onstop=async()=>{const blob=new Blob(dmAudioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const dur=Math.max(1,Math.round(dmAudioChunks.reduce((a,c)=>a+c.size,0)/5000));const content=`[voice:${dur}]${base64}[/voice]`;if(!DM_UID)return;const rk=[ME.id,DM_UID].sort().join('_');const{data}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ ვოისი!');};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());};dmMediaRecorder.start();dmIsRecording=true;document.getElementById('dmVoiceBtn').classList.add('recording');document.getElementById('dmVoiceBtn').textContent='⏹️';toast('🔴 ჩაწერა...');}catch(e){toast('❌ მიკროფონი ვერ');}}
 function stopDMVoiceRecord(){if(dmMediaRecorder&&dmMediaRecorder.state!=='inactive')dmMediaRecorder.stop();dmIsRecording=false;document.getElementById('dmVoiceBtn').classList.remove('recording');document.getElementById('dmVoiceBtn').textContent='🎙️';}
 
 let currentAudio=null;
-document.addEventListener('click',e=>{
-  if(e.target.classList.contains('voice-play')){
-    const src=decodeURIComponent(e.target.dataset.src||'');if(!src)return;
-    if(currentAudio){currentAudio.pause();currentAudio=null;}
-    const a=new Audio(src);currentAudio=a;e.target.textContent='⏸';
-    a.play();a.onended=()=>{e.target.textContent='▶';currentAudio=null;};
-    a.onerror=()=>{e.target.textContent='▶';toast('❌ ვოისი ვერ');};
-  }
-});
+document.addEventListener('click',e=>{if(e.target.classList.contains('voice-play')){const src=decodeURIComponent(e.target.dataset.src||'');if(!src)return;if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;e.target.textContent='⏸';a.play();a.onended=()=>{e.target.textContent='▶';currentAudio=null;};a.onerror=()=>{e.target.textContent='▶';toast('❌ ვოისი ვერ');};}});
 
-/* ===================== DM FILE/PHOTO SEND ===================== */
-async function sendDMFile(e){
-  const file=e.target.files[0];if(!file||!DM_UID)return;
-  if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}
-  toast('⏳ იგზავნება...');
-  const reader=new FileReader();
-  reader.onload=async ev=>{
-    const base64=ev.target.result;
-    const isImg=file.type.startsWith('image/');
-    const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;
-    const rk=[ME.id,DM_UID].sort().join('_');
-    const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();
-    if(error){toast('❌ '+error.message);return;}
-    if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});
-    document.getElementById('dmMsgs').scrollTop=9999;
-    toast('✅ გაიგზავნა!');
-  };
-  reader.readAsDataURL(file);e.target.value='';
-}
+/* ===================== DM FILE ===================== */
+async function sendDMFile(e){const file=e.target.files[0];if(!file||!DM_UID)return;if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}toast('⏳ იგზავნება...');const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const isImg=file.type.startsWith('image/');const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ გაიგზავნა!');};reader.readAsDataURL(file);e.target.value='';}
 
-/* ===================== FIX 1: TYPING — MAIN CHAT =====================
-   KEY CHANGES:
-   - Added presence config so channel handshake succeeds reliably
-   - Added retry on CHANNEL_ERROR / TIMED_OUT
-   - Increased debounce to 3500ms for better UX
-*/
-function onTyping(){
-  if(!ME||!ROOM)return;
-  if(typingCh&&typingChReady){
-    try{
-      typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});
-    }catch(e){}
-  }
-}
-
-function setupTypingChannel(roomId){
-  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
-  typingChReady=false;typingUsers={};removeTypingIndicator();
-
-  typingCh=sb.channel('typing_room_'+roomId,{
-    config:{broadcast:{self:false},presence:{key:(ME?.id||'anon')}}
-  })
-  .on('broadcast',{event:'typing'},({payload})=>{
-    if(!payload||!payload.uid||payload.uid===ME?.id)return;
-    const uid=payload.uid;
-    if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);
-    typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};
-    renderTyping();
-  })
-  .subscribe(status=>{
-    if(status==='SUBSCRIBED'){
-      typingChReady=true;
-    } else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
-      typingChReady=false;
-      // Auto-retry after 2 seconds
-      setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},2000);
-    }
-  });
-}
-
+/* ===================== TYPING — MAIN CHAT ===================== */
+function onTyping(){if(!ME||!ROOM)return;if(typingCh&&typingChReady){try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
+function setupTypingChannel(roomId){if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}typingChReady=false;typingUsers={};removeTypingIndicator();typingCh=sb.channel('typing_room_'+roomId,{config:{broadcast:{self:false},presence:{key:(ME?.id||'anon')}}}).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};renderTyping();}).subscribe(status=>{if(status==='SUBSCRIBED'){typingChReady=true;}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},2000);}});}
 function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
-function renderTyping(){
-  const users=Object.values(typingUsers).filter(u=>u.nick);
-  removeTypingIndicator();
-  if(!users.length)return;
-  const msgs=document.getElementById('messages');if(!msgs)return;
-  const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';
-  el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>esc(u.nick)).join(', ')} წერს...</span>`;
-  msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
-}
+function renderTyping(){const users=Object.values(typingUsers).filter(u=>u.nick);removeTypingIndicator();if(!users.length)return;const msgs=document.getElementById('messages');if(!msgs)return;const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>esc(u.nick)).join(', ')} წერს...</span>`;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 
-/* ===================== FIX 1: TYPING — DM ===================== */
-function onDMTyping(){
-  if(!ME||!DM_UID)return;
-  if(dmTypingCh&&dmTypingChReady){
-    try{
-      dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});
-    }catch(e){}
-  }
-}
-
-function setupDMTypingChannel(rk){
-  if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}
-  dmTypingChReady=false;dmTypingUsers={};removeDMTyping();
-
-  dmTypingCh=sb.channel('dmtyping_'+rk,{
-    config:{broadcast:{self:false},presence:{key:(ME?.id||'anon')}}
-  })
-  .on('broadcast',{event:'typing'},({payload})=>{
-    if(!payload||!payload.uid||payload.uid===ME?.id)return;
-    const uid=payload.uid;
-    if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);
-    dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};
-    renderDMTyping();
-  })
-  .subscribe(status=>{
-    if(status==='SUBSCRIBED'){
-      dmTypingChReady=true;
-    } else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
-      dmTypingChReady=false;
-      setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},2000);
-    }
-  });
-}
-
-function removeDMTyping(){
-  document.getElementById('dmTypingRow')?.remove();
-  const nb=document.getElementById('navDMTypingBadge');
-  if(nb){nb.textContent='';nb.classList.remove('show');}
-  const ti=document.getElementById('dmTypingInfo');
-  if(ti)ti.textContent='';
-}
-
-function renderDMTyping(){
-  const users=Object.values(dmTypingUsers).filter(u=>u.nick);
-  removeDMTyping();
-  if(!users.length)return;
-  const names=users.map(u=>u.nick).join(', ');
-  const box=document.getElementById('dmMsgs');
-  if(box&&document.getElementById('dmBox').classList.contains('open')){
-    const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';
-    el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;
-    box.appendChild(el);box.scrollTop=box.scrollHeight;
-  }
-  const ti=document.getElementById('dmTypingInfo');
-  if(ti)ti.textContent=names+' წერს...';
-  const nb=document.getElementById('navDMTypingBadge');
-  if(nb&&(!document.getElementById('dmBox').classList.contains('open')||dmMinimized)){
-    nb.textContent=names+' ✍️';nb.classList.add('show');
-  }
-}
+/* ===================== TYPING — DM ===================== */
+function onDMTyping(){if(!ME||!DM_UID)return;if(dmTypingCh&&dmTypingChReady){try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
+function setupDMTypingChannel(rk){if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}dmTypingChReady=false;dmTypingUsers={};removeDMTyping();dmTypingCh=sb.channel('dmtyping_'+rk,{config:{broadcast:{self:false},presence:{key:(ME?.id||'anon')}}}).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};renderDMTyping();}).subscribe(status=>{if(status==='SUBSCRIBED'){dmTypingChReady=true;}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},2000);}});}
+function removeDMTyping(){document.getElementById('dmTypingRow')?.remove();const nb=document.getElementById('navDMTypingBadge');if(nb){nb.textContent='';nb.classList.remove('show');}const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent='';}
+function renderDMTyping(){const users=Object.values(dmTypingUsers).filter(u=>u.nick);removeDMTyping();if(!users.length)return;const names=users.map(u=>u.nick).join(', ');const box=document.getElementById('dmMsgs');if(box&&document.getElementById('dmBox').classList.contains('open')){const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;box.appendChild(el);box.scrollTop=box.scrollHeight;}const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent=names+' წერს...';const nb=document.getElementById('navDMTypingBadge');if(nb&&(!document.getElementById('dmBox').classList.contains('open')||dmMinimized)){nb.textContent=names+' ✍️';nb.classList.add('show');}}
 
 /* ===================== REPLY ===================== */
-function setReply(msgId,nick,content){
-  replyToMsg={id:msgId,nick,content:content.substring(0,80)};
-  document.getElementById('replyBar').classList.add('open');
-  document.getElementById('replyBarNick').textContent=nick;
-  document.getElementById('replyBarInfo').innerHTML=`↩️ <strong>${esc(nick)}</strong>: ${esc(replyToMsg.content)}`;
-  document.getElementById('msgInput').focus();
-}
+function setReply(msgId,nick,content){replyToMsg={id:msgId,nick,content:content.substring(0,80)};document.getElementById('replyBar').classList.add('open');document.getElementById('replyBarNick').textContent=nick;document.getElementById('replyBarInfo').innerHTML=`↩️ <strong>${esc(nick)}</strong>: ${esc(replyToMsg.content)}`;document.getElementById('msgInput').focus();}
 function cancelReply(){replyToMsg=null;document.getElementById('replyBar').classList.remove('open');}
 function setDMReply(nick,content){dmReplyTo={nick,content:content.substring(0,60)};document.getElementById('dmReplyBar').classList.add('open');document.getElementById('dmReplyNick').textContent=nick;document.getElementById('dmInput').focus();}
 function cancelDMReply(){dmReplyTo=null;document.getElementById('dmReplyBar').classList.remove('open');}
 
 /* ===================== QUICK REACT ===================== */
-document.querySelectorAll('.qr-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>{
-    const emoji=btn.textContent.trim();
-    if(qrMode==='dm'){quickDMReact(emoji);}
-    else{quickReact(emoji);}
-    closeQRPanel();
-  });
-});
-
-function showQuickReact(msgId,btn){
-  reactTargetMsgId=msgId;qrMode='chat';
-  const panel=document.getElementById('quickReactPanel');
-  const rect=btn.getBoundingClientRect();
-  panel.style.top=Math.max(60,(rect.top-54))+'px';
-  panel.style.left=Math.min(rect.left,window.innerWidth-300)+'px';
-  panel.classList.add('open');
-  setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);
-}
-
-function showDMQuickReact(msgId,el,isMe){
-  if(!msgId){toast('❌ ID ვერ');return;}
-  dmReactTargetId=msgId;qrMode='dm';
-  const panel=document.getElementById('quickReactPanel');
-  const rect=el.getBoundingClientRect();
-  panel.style.top=Math.max(60,rect.top-54)+'px';
-  panel.style.left=Math.min(
-    isMe?Math.max(8,rect.right-280):rect.left,
-    window.innerWidth-290
-  )+'px';
-  panel.classList.add('open');
-  setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);
-}
+document.querySelectorAll('.qr-btn').forEach(btn=>{btn.addEventListener('click',()=>{const emoji=btn.textContent.trim();if(qrMode==='dm'){quickDMReact(emoji);}else{quickReact(emoji);}closeQRPanel();});});
+function showQuickReact(msgId,btn){reactTargetMsgId=msgId;qrMode='chat';const panel=document.getElementById('quickReactPanel');const rect=btn.getBoundingClientRect();panel.style.top=Math.max(60,(rect.top-54))+'px';panel.style.left=Math.min(rect.left,window.innerWidth-300)+'px';panel.classList.add('open');setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);}
+function showDMQuickReact(msgId,el,isMe){if(!msgId){toast('❌ ID ვერ');return;}dmReactTargetId=msgId;qrMode='dm';const panel=document.getElementById('quickReactPanel');const rect=el.getBoundingClientRect();panel.style.top=Math.max(60,rect.top-54)+'px';panel.style.left=Math.min(isMe?Math.max(8,rect.right-280):rect.left,window.innerWidth-290)+'px';panel.classList.add('open');setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);}
 function closeQRPanel(){document.getElementById('quickReactPanel').classList.remove('open');}
+async function quickReact(emoji){if(!reactTargetMsgId||!ME)return;const{data:ex}=await sb.from('message_reactions').select('id').eq('message_id',reactTargetMsgId).eq('user_id',ME.id).eq('emoji',emoji).maybeSingle();if(ex)await sb.from('message_reactions').delete().eq('id',ex.id);else await sb.from('message_reactions').upsert({message_id:reactTargetMsgId,user_id:ME.id,emoji});await refreshReactions(reactTargetMsgId);}
+async function refreshReactions(msgId){const{data}=await sb.from('message_reactions').select('emoji,user_id').eq('message_id',Number(msgId)||msgId);const row=document.getElementById('msg'+msgId);if(!row)return;let reactEl=row.querySelector(':scope>.msg-reactions');if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}const grouped={};(data||[]).forEach(r=>{if(!grouped[r.emoji])grouped[r.emoji]=[];grouped[r.emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.title=uids.map(id=>allUsers.find(u=>u.id===id)?.username||'?').join(', ');chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});reactEl.appendChild(chip);});}
 
-async function quickReact(emoji){
-  if(!reactTargetMsgId||!ME)return;
-  const{data:ex}=await sb.from('message_reactions').select('id').eq('message_id',reactTargetMsgId).eq('user_id',ME.id).eq('emoji',emoji).maybeSingle();
-  if(ex)await sb.from('message_reactions').delete().eq('id',ex.id);
-  else await sb.from('message_reactions').upsert({message_id:reactTargetMsgId,user_id:ME.id,emoji});
-  await refreshReactions(reactTargetMsgId);
-}
-
-async function refreshReactions(msgId){
-  const{data}=await sb.from('message_reactions').select('emoji,user_id').eq('message_id',Number(msgId)||msgId);
-  const row=document.getElementById('msg'+msgId);if(!row)return;
-  let reactEl=row.querySelector(':scope>.msg-reactions');
-  if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}
-  const grouped={};
-  (data||[]).forEach(r=>{if(!grouped[r.emoji])grouped[r.emoji]=[];grouped[r.emoji].push(r.user_id);});
-  reactEl.innerHTML='';
-  Object.entries(grouped).forEach(([emoji,uids])=>{
-    const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');
-    chip.innerHTML=`${emoji}<span>${uids.length}</span>`;
-    chip.title=uids.map(id=>allUsers.find(u=>u.id===id)?.username||'?').join(', ');
-    chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});
-    reactEl.appendChild(chip);
-  });
-}
-
-/* ===================== FIX 4: DM REACTIONS ===================== */
-async function quickDMReact(emoji){
-  if(!dmReactTargetId||!ME){toast('❌ რეაქცია ვერ');return;}
-  const tag=`dmreact:${dmReactTargetId}:${emoji}`;
-  const{data:ex}=await sb.from('comments').select('id').eq('user_id',ME.id).eq('content',tag).maybeSingle();
-  if(ex)await sb.from('comments').delete().eq('id',ex.id);
-  else await sb.from('comments').insert({user_id:ME.id,content:tag});
-  await refreshDMReactions(dmReactTargetId);
-}
-
-async function refreshDMReactions(msgId){
-  if(!msgId)return;
-  const tag=`dmreact:${msgId}:`;
-  const{data}=await sb.from('comments').select('user_id,content').like('content',tag+'%');
-  const el=document.getElementById('dmreact_'+msgId);if(!el)return;
-  const grouped={};
-  (data||[]).forEach(r=>{const parts=r.content.split(':');const emoji=parts[2];if(emoji&&!grouped[emoji])grouped[emoji]=[];if(emoji)grouped[emoji].push(r.user_id);});
-  el.innerHTML='';
-  Object.entries(grouped).forEach(([emoji,uids])=>{
-    const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');
-    chip.innerHTML=`${emoji}<span>${uids.length}</span>`;
-    chip.addEventListener('click',()=>{dmReactTargetId=msgId;quickDMReact(emoji);});
-    el.appendChild(chip);
-  });
-}
+/* ===================== DM REACTIONS ===================== */
+async function quickDMReact(emoji){if(!dmReactTargetId||!ME){toast('❌ რეაქცია ვერ');return;}const tag=`dmreact:${dmReactTargetId}:${emoji}`;const{data:ex}=await sb.from('comments').select('id').eq('user_id',ME.id).eq('content',tag).maybeSingle();if(ex)await sb.from('comments').delete().eq('id',ex.id);else await sb.from('comments').insert({user_id:ME.id,content:tag});await refreshDMReactions(dmReactTargetId);}
+async function refreshDMReactions(msgId){if(!msgId)return;const tag=`dmreact:${msgId}:`;const{data}=await sb.from('comments').select('user_id,content').like('content',tag+'%');const el=document.getElementById('dmreact_'+msgId);if(!el)return;const grouped={};(data||[]).forEach(r=>{const parts=r.content.split(':');const emoji=parts[2];if(emoji&&!grouped[emoji])grouped[emoji]=[];if(emoji)grouped[emoji].push(r.user_id);});el.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>{dmReactTargetId=msgId;quickDMReact(emoji);});el.appendChild(chip);});}
 
 /* ===================== ROOMS / GAME ===================== */
 const ROOMS=[
@@ -1248,50 +948,11 @@ const ROOMS=[
 ];
 
 function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank');}
-
-function watchGameScore(){
-  if(!ME)return;
-  sb.channel('game-score-'+ME.id)
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${ME.id}`},payload=>{
-      MYPROF={...MYPROF,...payload.new};updateGameScoreUI();
-      if(document.getElementById('gameRoomPlaceholder').style.display!=='none')refreshGamePlaceholder();
-    }).subscribe();
-}
-function updateGameScoreUI(){
-  const w=document.getElementById('profWordScore'),q=document.getElementById('profQuizScore'),h=document.getElementById('profHangScore');
-  if(w){w.textContent='🔐 '+(MYPROF?.game_score||0);w.classList.remove('animate');void w.offsetWidth;w.classList.add('animate');}
-  if(q){q.textContent='🏆 '+(MYPROF?.quiz_score||0);q.classList.remove('animate');void q.offsetWidth;q.classList.add('animate');}
-  if(h){h.textContent='🪢 '+(MYPROF?.hangman_score||0);h.classList.remove('animate');void h.offsetWidth;h.classList.add('animate');}
-}
-function refreshGamePlaceholder(){
-  if(!activeGameRoom)return;
-  const sc=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;
-  const el=document.getElementById('grpMyScore');if(el)el.textContent=sc;
-}
-async function loadGameLeaderboard(){
-  if(!activeGameRoom?.gameScoreField)return;
-  const field=activeGameRoom.gameScoreField;
-  const{data}=await sb.from('profiles').select(`id,username,${field}`).order(field,{ascending:false}).limit(5);
-  const lbEl=document.getElementById('lbRows');if(!lbEl)return;lbEl.innerHTML='';
-  (data||[]).forEach((u,i)=>{
-    const rankClass=['gold','silver','bronze'][i]||'';const medal=['🥇','🥈','🥉'][i]||i+1;
-    const d=document.createElement('div');d.className='glb-row';
-    d.innerHTML=`<span class="glb-rank ${rankClass}">${medal}</span><span class="glb-name">${esc(u.username||'?')}</span><span class="glb-score">${u[field]||0}</span>`;
-    lbEl.appendChild(d);
-  });
-  if(data){const myIdx=data.findIndex(u=>u.id===ME?.id);const rankEl=document.getElementById('grpMyRank');const rankCard=document.getElementById('grpRankCard');if(rankEl&&rankCard){rankCard.classList.remove('hidden');rankEl.textContent=myIdx>=0?'#'+(myIdx+1):'—';}}
-}
-
-function setRoomView(mode,roomObj){
-  const messagesEl=document.getElementById('messages'),chatBar=document.getElementById('chatBar'),gamePlaceholder=document.getElementById('gameRoomPlaceholder'),playBtn=document.getElementById('playHeaderBtn'),onlineCnt=document.getElementById('onlineCnt');
-  messagesEl.style.display='';chatBar.style.display='';cancelReply();gamePlaceholder.style.display='none';playBtn.style.display='none';onlineCnt.style.display='';
-  if(mode==='game'&&roomObj){
-    activeGameRoom=roomObj;messagesEl.style.display='none';chatBar.style.display='none';gamePlaceholder.style.display='flex';playBtn.style.display='flex';onlineCnt.style.display='none';
-    document.getElementById('grpIcon').textContent=roomObj.icon;document.getElementById('grpTitle').textContent=roomObj.gameName;document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';
-    document.getElementById('grpMyScore').textContent=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;
-    loadGameLeaderboard();
-  }else{activeGameRoom=null;}
-}
+function watchGameScore(){if(!ME)return;sb.channel('game-score-'+ME.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${ME.id}`},payload=>{MYPROF={...MYPROF,...payload.new};updateGameScoreUI();if(document.getElementById('gameRoomPlaceholder').style.display!=='none')refreshGamePlaceholder();}).subscribe();}
+function updateGameScoreUI(){const w=document.getElementById('profWordScore'),q=document.getElementById('profQuizScore'),h=document.getElementById('profHangScore');if(w){w.textContent='🔐 '+(MYPROF?.game_score||0);w.classList.remove('animate');void w.offsetWidth;w.classList.add('animate');}if(q){q.textContent='🏆 '+(MYPROF?.quiz_score||0);q.classList.remove('animate');void q.offsetWidth;q.classList.add('animate');}if(h){h.textContent='🪢 '+(MYPROF?.hangman_score||0);h.classList.remove('animate');void h.offsetWidth;h.classList.add('animate');}}
+function refreshGamePlaceholder(){if(!activeGameRoom)return;const sc=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;const el=document.getElementById('grpMyScore');if(el)el.textContent=sc;}
+async function loadGameLeaderboard(){if(!activeGameRoom?.gameScoreField)return;const field=activeGameRoom.gameScoreField;const{data}=await sb.from('profiles').select(`id,username,${field}`).order(field,{ascending:false}).limit(5);const lbEl=document.getElementById('lbRows');if(!lbEl)return;lbEl.innerHTML='';(data||[]).forEach((u,i)=>{const rankClass=['gold','silver','bronze'][i]||'';const medal=['🥇','🥈','🥉'][i]||i+1;const d=document.createElement('div');d.className='glb-row';d.innerHTML=`<span class="glb-rank ${rankClass}">${medal}</span><span class="glb-name">${esc(u.username||'?')}</span><span class="glb-score">${u[field]||0}</span>`;lbEl.appendChild(d);});if(data){const myIdx=data.findIndex(u=>u.id===ME?.id);const rankEl=document.getElementById('grpMyRank');const rankCard=document.getElementById('grpRankCard');if(rankEl&&rankCard){rankCard.classList.remove('hidden');rankEl.textContent=myIdx>=0?'#'+(myIdx+1):'—';}}}
+function setRoomView(mode,roomObj){const messagesEl=document.getElementById('messages'),chatBar=document.getElementById('chatBar'),gamePlaceholder=document.getElementById('gameRoomPlaceholder'),playBtn=document.getElementById('playHeaderBtn'),onlineCnt=document.getElementById('onlineCnt');messagesEl.style.display='';chatBar.style.display='';cancelReply();gamePlaceholder.style.display='none';playBtn.style.display='none';onlineCnt.style.display='';if(mode==='game'&&roomObj){activeGameRoom=roomObj;messagesEl.style.display='none';chatBar.style.display='none';gamePlaceholder.style.display='flex';playBtn.style.display='flex';onlineCnt.style.display='none';document.getElementById('grpIcon').textContent=roomObj.icon;document.getElementById('grpTitle').textContent=roomObj.gameName;document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';document.getElementById('grpMyScore').textContent=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;loadGameLeaderboard();}else{activeGameRoom=null;}}
 
 /* ===================== MESSAGES ===================== */
 function animateSendPlane(btnId){const btn=document.getElementById(btnId);if(!btn)return;btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}
@@ -1301,40 +962,13 @@ async function loadMessages(roomId){
   if(typingCh){try{await sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
   removeTypingIndicator();typingChReady=false;typingUsers={};
   sentMsgIds.clear();
-
   const box=document.getElementById('messages');box.innerHTML='';
-  const{data}=await sb.from('messages')
-    .select('id,room_id,user_id,content,created_at,profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
-    .eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
-
+  const{data}=await sb.from('messages').select('id,room_id,user_id,content,created_at,profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)').eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
   roomMsgCache[roomId]=data||[];
-  (data||[]).forEach(m=>{
-    sentMsgIds.add(m.id);
-    appendMsg(m,true);
-  });
-
-  if(data&&data.length){
-    const{data:reactions}=await sb.from('message_reactions').select('*').in('message_id',data.map(m=>m.id));
-    if(reactions&&reactions.length){
-      const grouped={};reactions.forEach(r=>{if(!grouped[r.message_id])grouped[r.message_id]=[];grouped[r.message_id].push(r);});
-      Object.entries(grouped).forEach(([msgId,reacts])=>{
-        const row=document.getElementById('msg'+msgId);if(!row)return;
-        let reactEl=row.querySelector(':scope>.msg-reactions');
-        if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}
-        const g2={};reacts.forEach(r=>{if(!g2[r.emoji])g2[r.emoji]=[];g2[r.emoji].push(r.user_id);});
-        reactEl.innerHTML='';
-        Object.entries(g2).forEach(([emoji,uids])=>{
-          const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');
-          chip.innerHTML=`${emoji}<span>${uids.length}</span>`;
-          chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});
-          reactEl.appendChild(chip);
-        });
-      });
-    }
-  }
+  (data||[]).forEach(m=>{sentMsgIds.add(m.id);appendMsg(m,true);});
+  if(data&&data.length){const{data:reactions}=await sb.from('message_reactions').select('*').in('message_id',data.map(m=>m.id));if(reactions&&reactions.length){const grouped={};reactions.forEach(r=>{if(!grouped[r.message_id])grouped[r.message_id]=[];grouped[r.message_id].push(r);});Object.entries(grouped).forEach(([msgId,reacts])=>{const row=document.getElementById('msg'+msgId);if(!row)return;let reactEl=row.querySelector(':scope>.msg-reactions');if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}const g2={};reacts.forEach(r=>{if(!g2[r.emoji])g2[r.emoji]=[];g2[r.emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(g2).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});reactEl.appendChild(chip);});});}}
   box.scrollTop=box.scrollHeight;
   setupTypingChannel(roomId);
-
   msgCh=sb.channel('msgs_r'+roomId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async payload=>{
       const newId=payload.new.id,newRoomId=payload.new.room_id;
@@ -1342,27 +976,16 @@ async function loadMessages(roomId){
       if(sentMsgIds.has(newId))return;
       if(document.getElementById('msg'+newId))return;
       sentMsgIds.add(newId);
-      const{data:msg}=await sb.from('messages')
-        .select('id,room_id,user_id,content,created_at,profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
-        .eq('id',newId).single();
+      const{data:msg}=await sb.from('messages').select('id,room_id,user_id,content,created_at,profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)').eq('id',newId).single();
       if(msg&&Number(msg.room_id)===Number(roomId)){appendMsg(msg);box.scrollTop=box.scrollHeight;}
     })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{
-      document.getElementById('msg'+payload.old.id)?.remove();
-      sentMsgIds.delete(payload.old.id);
-    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{document.getElementById('msg'+payload.old.id)?.remove();sentMsgIds.delete(payload.old.id);})
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reactions'},async payload=>{await refreshReactions(payload.new.message_id);})
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},async payload=>{await refreshReactions(payload.old.message_id);})
     .subscribe();
 }
 
-function renderVoiceContent(raw){
-  const m=raw.match(/\[voice:(\d+)\]([\s\S]+)\[\/voice\]/);
-  if(!m)return renderContent(raw);
-  const dur=parseInt(m[1])||0,base64=m[2];
-  const bars=Array.from({length:20},()=>{const h=4+Math.round(Math.random()*12);return`<div class="voice-bar" style="height:${h}px"></div>`;}).join('');
-  return`<div class="voice-msg"><button class="voice-play" data-src="${encodeURIComponent(base64)}">▶</button><div class="voice-wave">${bars}</div><span class="voice-dur">${dur}s</span></div>`;
-}
+function renderVoiceContent(raw){const m=raw.match(/\[voice:(\d+)\]([\s\S]+)\[\/voice\]/);if(!m)return renderContent(raw);const dur=parseInt(m[1])||0,base64=m[2];const bars=Array.from({length:20},()=>{const h=4+Math.round(Math.random()*12);return`<div class="voice-bar" style="height:${h}px"></div>`;}).join('');return`<div class="voice-msg"><button class="voice-play" data-src="${encodeURIComponent(base64)}">▶</button><div class="voice-wave">${bars}</div><span class="voice-dur">${dur}s</span></div>`;}
 
 function appendMsg(m,skipScroll){
   const isMe=(m.user_id===ME?.id);
@@ -1375,12 +998,8 @@ function appendMsg(m,skipScroll){
   const avHtml=m.profiles?.avatar_url?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(m.profiles?.emotion||'😊');
   const isVoice=m.content&&m.content.startsWith('[voice:');
   let replyHtml='',displayContent=m.content;
-  if(m.content&&m.content.startsWith('[reply:')){
-    const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);
-    if(rMatch){const rNick=rMatch[1],rContent=rMatch[2];displayContent=rMatch[3];replyHtml=`<div class="reply-preview"><strong>${esc(rNick)}</strong><span>${esc(rContent.substring(0,60))}</span></div>`;}
-  }
+  if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){const rNick=rMatch[1],rContent=rMatch[2];displayContent=rMatch[3];replyHtml=`<div class="reply-preview"><strong>${esc(rNick)}</strong><span>${esc(rContent.substring(0,60))}</span></div>`;}}
   const bubbleContent=isVoice?renderVoiceContent(displayContent):renderContent(displayContent);
-
   const row=document.createElement('div');row.className='msg-row';row.id='msg'+m.id;
   row.innerHTML=`
     <div class="msg-row-inner">
@@ -1407,167 +1026,29 @@ function appendMsg(m,skipScroll){
   document.getElementById('messages').appendChild(row);
 }
 
-async function sendMessage(){
-  const inp=document.getElementById('msgInput');let txt=inp.value.trim();if(!txt)return;
-  inp.value='';txt=wrapFormatting(txt);
-  if(replyToMsg){txt=`[reply:${replyToMsg.nick}|${replyToMsg.content}]${txt}`;cancelReply();}
-  animateSendPlane('mainSendBtn');
-  const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();
-  if(error){toast('❌ '+error.message);inp.value=txt;return;}
-  if(data){
-    sentMsgIds.add(data.id);
-    appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content:txt,created_at:new Date().toISOString(),profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}});
-    document.getElementById('messages').scrollTop=99999;
-  }
-}
+async function sendMessage(){const inp=document.getElementById('msgInput');let txt=inp.value.trim();if(!txt)return;inp.value='';txt=wrapFormatting(txt);if(replyToMsg){txt=`[reply:${replyToMsg.nick}|${replyToMsg.content}]${txt}`;cancelReply();}animateSendPlane('mainSendBtn');const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();if(error){toast('❌ '+error.message);inp.value=txt;return;}if(data){sentMsgIds.add(data.id);appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content:txt,created_at:new Date().toISOString(),profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}});document.getElementById('messages').scrollTop=99999;}}
 async function delMsg(id){if(!confirm('წავშალო?'))return;document.getElementById('msg'+id)?.remove();sentMsgIds.delete(id);await sb.from('messages').delete().eq('id',id);}
 
 /* ===================== EMOJI ===================== */
-async function handleEmojiImages(e){
-  const files=Array.from(e.target.files);if(!files.length)return;
-  if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}
-  toast('⏳...');let added=0;
-  for(const file of files){
-    try{
-      if(file.size>20*1024*1024){toast('❌ '+file.name+' დიდია!');continue;}
-      const isGif=file.type==='image/gif';
-      let fileToUpload;try{fileToUpload=isGif?file:await compressImage(file,256,0.85);}catch(e){fileToUpload=file;}
-      const ext=isGif?'gif':'webp';
-      const fileName=`emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
-      const{data:uploadData,error:uploadError}=await sb.storage.from('emojis').upload(fileName,fileToUpload,{contentType:isGif?'image/gif':'image/webp',upsert:false});
-      if(uploadError){toast('❌ '+uploadError.message);continue;}
-      const{data:urlData}=sb.storage.from('emojis').getPublicUrl(fileName);
-      const{data:insertData,error:insertError}=await sb.from('global_emojis').insert({url:urlData.publicUrl}).select().single();
-      if(insertError){toast('❌ '+insertError.message);await sb.storage.from('emojis').remove([fileName]);continue;}
-      if(insertData){emojiCache[insertData.id]=urlData.publicUrl;customEmojis.push(insertData);}
-      added++;
-    }catch(err){toast('❌ '+err.message);}
-  }
-  if(added){toast('✅ '+added+' სმაილი!');buildEmojis();}
-  e.target.value='';
-}
-async function addTextEmoji(){
-  if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}
-  const v=document.getElementById('newEmojiInput').value.trim();if(!v||v.length>6){toast('❌ მაქს 6');return;}
-  const{data,error}=await sb.from('global_emojis').insert({url:v}).select().single();
-  if(error){toast('❌ '+error.message);return;}
-  document.getElementById('newEmojiInput').value='';
-  if(data){emojiCache[data.id]=v;customEmojis.push(data);}
-  toast('✅');buildEmojis();
-}
-async function removeEmoji(id){
-  if(!['admin','founder'].includes(MYPROF?.role)){toast('❌');return;}
-  if(!confirm('წაიშალოს?'))return;
-  const emoji=customEmojis.find(e=>e.id===id);
-  await sb.from('global_emojis').delete().eq('id',id);
-  if(emoji?.url&&emoji.url.includes('/storage/v1/object/public/emojis/')){
-    try{const p=emoji.url.split('/emojis/');if(p.length>1)await sb.storage.from('emojis').remove([p[1].split('?')[0]]);}catch(e){}
-  }
-  customEmojis=customEmojis.filter(e=>e.id!==id);delete emojiCache[id];toast('🗑');buildEmojis();
-}
-function buildEmojis(){
-  buildEmojiGrid('emojiGrid','msgInput',true);
-  buildEmojiGrid('dmEmojiGrid','dmInput',false);
-  buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
-}
-function togglePvEmoji(){
-  const p=document.getElementById('pvEmojiPanel');if(!p)return;
-  const isOpen=p.style.display!=='none';p.style.display=isOpen?'none':'block';
-  if(!isOpen){
-    const grid=document.getElementById('pvEmojiGrid');if(!grid)return;grid.innerHTML='';
-    customEmojis.forEach(em=>{
-      const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0';
-      const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
-      if(isImg){const img=document.createElement('img');img.src=em.url;img.style.cssText='width:34px;height:34px;border-radius:6px;object-fit:contain;pointer-events:none';btn.appendChild(img);}
-      else{const span=document.createElement('span');span.textContent=em.url||'?';span.style.cssText='font-size:24px;pointer-events:none';btn.appendChild(span);}
-      btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});
-      grid.appendChild(btn);
-    });
-    const basics=['😊','😍','😂','🔥','💜','❤️','👍','😮','🥺','✨','🎉','😴','🤩','💫','🌸'];
-    basics.forEach(e=>{
-      const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0';
-      btn.textContent=e;btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=e;inp.focus();});grid.appendChild(btn);
-    });
-  }
-}
-function buildEmojiGrid(gridId,inputId,withManage){
-  const grid=document.getElementById(gridId);if(!grid)return;grid.innerHTML='';
-  const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);
-  if(withManage){const s=document.getElementById('addEmojiSection');if(s)s.style.display=canManage?'block':'none';}
-  customEmojis.forEach(em=>{
-    const btn=document.createElement('button');btn.className='em-btn';
-    const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
-    if(isImg){const img=document.createElement('img');img.src=em.url;img.loading='lazy';btn.appendChild(img);}
-    else{const span=document.createElement('span');span.className='em-emoji-text';span.textContent=em.url||'?';btn.appendChild(span);}
-    if(canManage){const del=document.createElement('button');del.className='em-del vis';del.textContent='✕';del.addEventListener('click',ev=>{ev.stopPropagation();removeEmoji(em.id);});btn.appendChild(del);}
-    btn.addEventListener('click',ev=>{if(ev.target.classList.contains('em-del'))return;const inp=document.getElementById(inputId);if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});
-    grid.appendChild(btn);
-  });
-}
+async function handleEmojiImages(e){const files=Array.from(e.target.files);if(!files.length)return;if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}toast('⏳...');let added=0;for(const file of files){try{if(file.size>20*1024*1024){toast('❌ '+file.name+' დიდია!');continue;}const isGif=file.type==='image/gif';let fileToUpload;try{fileToUpload=isGif?file:await compressImage(file,256,0.85);}catch(e){fileToUpload=file;}const ext=isGif?'gif':'webp';const fileName=`emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;const{data:uploadData,error:uploadError}=await sb.storage.from('emojis').upload(fileName,fileToUpload,{contentType:isGif?'image/gif':'image/webp',upsert:false});if(uploadError){toast('❌ '+uploadError.message);continue;}const{data:urlData}=sb.storage.from('emojis').getPublicUrl(fileName);const{data:insertData,error:insertError}=await sb.from('global_emojis').insert({url:urlData.publicUrl}).select().single();if(insertError){toast('❌ '+insertError.message);await sb.storage.from('emojis').remove([fileName]);continue;}if(insertData){emojiCache[insertData.id]=urlData.publicUrl;customEmojis.push(insertData);}added++;}catch(err){toast('❌ '+err.message);}}if(added){toast('✅ '+added+' სმაილი!');buildEmojis();}e.target.value='';}
+async function addTextEmoji(){if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}const v=document.getElementById('newEmojiInput').value.trim();if(!v||v.length>6){toast('❌ მაქს 6');return;}const{data,error}=await sb.from('global_emojis').insert({url:v}).select().single();if(error){toast('❌ '+error.message);return;}document.getElementById('newEmojiInput').value='';if(data){emojiCache[data.id]=v;customEmojis.push(data);}toast('✅');buildEmojis();}
+async function removeEmoji(id){if(!['admin','founder'].includes(MYPROF?.role)){toast('❌');return;}if(!confirm('წაიშალოს?'))return;const emoji=customEmojis.find(e=>e.id===id);await sb.from('global_emojis').delete().eq('id',id);if(emoji?.url&&emoji.url.includes('/storage/v1/object/public/emojis/')){try{const p=emoji.url.split('/emojis/');if(p.length>1)await sb.storage.from('emojis').remove([p[1].split('?')[0]]);}catch(e){}}customEmojis=customEmojis.filter(e=>e.id!==id);delete emojiCache[id];toast('🗑');buildEmojis();}
+function buildEmojis(){buildEmojiGrid('emojiGrid','msgInput',true);buildEmojiGrid('dmEmojiGrid','dmInput',false);buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);}
+function togglePvEmoji(){const p=document.getElementById('pvEmojiPanel');if(!p)return;const isOpen=p.style.display!=='none';p.style.display=isOpen?'none':'block';if(!isOpen){const grid=document.getElementById('pvEmojiGrid');if(!grid)return;grid.innerHTML='';customEmojis.forEach(em=>{const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0';const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));if(isImg){const img=document.createElement('img');img.src=em.url;img.style.cssText='width:34px;height:34px;border-radius:6px;object-fit:contain;pointer-events:none';btn.appendChild(img);}else{const span=document.createElement('span');span.textContent=em.url||'?';span.style.cssText='font-size:24px;pointer-events:none';btn.appendChild(span);}btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});grid.appendChild(btn);});const basics=['😊','😍','😂','🔥','💜','❤️','👍','😮','🥺','✨','🎉','😴','🤩','💫','🌸'];basics.forEach(e=>{const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0';btn.textContent=e;btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=e;inp.focus();});grid.appendChild(btn);});}}
+function buildEmojiGrid(gridId,inputId,withManage){const grid=document.getElementById(gridId);if(!grid)return;grid.innerHTML='';const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);if(withManage){const s=document.getElementById('addEmojiSection');if(s)s.style.display=canManage?'block':'none';}customEmojis.forEach(em=>{const btn=document.createElement('button');btn.className='em-btn';const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));if(isImg){const img=document.createElement('img');img.src=em.url;img.loading='lazy';btn.appendChild(img);}else{const span=document.createElement('span');span.className='em-emoji-text';span.textContent=em.url||'?';btn.appendChild(span);}if(canManage){const del=document.createElement('button');del.className='em-del vis';del.textContent='✕';del.addEventListener('click',ev=>{ev.stopPropagation();removeEmoji(em.id);});btn.appendChild(del);}btn.addEventListener('click',ev=>{if(ev.target.classList.contains('em-del'))return;const inp=document.getElementById(inputId);if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});grid.appendChild(btn);});}
 function toggleEmojiPanel(){document.getElementById('emojiPanel').classList.toggle('open');document.getElementById('dmEmojiPanel').classList.remove('open');}
 function toggleDMEmoji(){document.getElementById('dmEmojiPanel').classList.toggle('open');buildEmojiGrid('dmEmojiGrid','dmInput',false);}
-document.addEventListener('click',e=>{
-  const p=document.getElementById('emojiPanel');
-  if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.remove('open');
-  const dp=document.getElementById('dmEmojiPanel');
-  if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-icon-btn'))dp.classList.remove('open');
-});
+document.addEventListener('click',e=>{const p=document.getElementById('emojiPanel');if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.remove('open');const dp=document.getElementById('dmEmojiPanel');if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-icon-btn'))dp.classList.remove('open');});
 
 /* ===================== PROFILE ===================== */
 function openMyProfile(){openProfile(ME.id);}
-async function openProfile(uid){
-  VIEW_UID=uid;
-  const p=await loadProf(uid);
-  const isSelf=(uid===ME.id),myRole=MYPROF?.role,viewRole=p?.role;
-  document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
-  document.getElementById('profName').textContent=p?.username||'?';
-  const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);
-  document.getElementById('profWordScore').textContent='🔐 '+(p?.game_score||0);
-  document.getElementById('profQuizScore').textContent='🏆 '+(p?.quiz_score||0);
-  document.getElementById('profHangScore').textContent='🪢 '+(p?.hangman_score||0);
-  if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';}
-  else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊';}
-  document.getElementById('avEdit').style.display=isSelf?'':'none';
-  document.getElementById('statusInp').value=p?.status||'';document.getElementById('statusInp').disabled=!isSelf;
-  document.getElementById('emoComment').value=p?.emotion_comment||'';document.getElementById('emoComment').disabled=!isSelf;
-  document.getElementById('saveProfileBtn').style.display=isSelf?'':'none';
-  document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';
-  selectedEmotion=p?.emotion||'😊';document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
-  const showFounder=(myRole==='founder')&&!isSelf;document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
-  if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';
-  const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
-  document.getElementById('friendBtn').style.display=isSelf?'none':'';document.getElementById('dmBtn').style.display=isSelf?'none':'';
-  const isFr=myFriends.includes(uid);document.getElementById('friendBtn').textContent=isFr?'💔 გაუქმება':'➕ მეგობრად';
-  document.getElementById('galUploadZone').style.display=isSelf?'':'none';
-  switchGalleryTab('info',document.getElementById('gtabInfo'));
-  openModal('profileOverlay');
-}
-function compressImage(file,maxSizePx=256,quality=0.85){
-  return new Promise((resolve,reject)=>{
-    if(file.type==='image/gif'){resolve(file);return;}
-    const img=new Image();const url=URL.createObjectURL(file);
-    img.onload=()=>{URL.revokeObjectURL(url);let{width,height}=img;if(width>maxSizePx||height>maxSizePx){if(width>height){height=Math.round(height*maxSizePx/width);width=maxSizePx;}else{width=Math.round(width*maxSizePx/height);height=maxSizePx;}}const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.getContext('2d').drawImage(img,0,0,width,height);canvas.toBlob(blob=>{if(!blob){reject(new Error('კომპ.'));return;}resolve(new File([blob],file.name,{type:'image/webp',lastModified:Date.now()}));},'image/webp',quality);};
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('ვერ'));};img.src=url;
-  });
-}
-function switchGalleryTab(tab,btn){
-  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
-  document.getElementById('tabInfo').classList.toggle('hidden',tab!=='info');
-  document.getElementById('tabGallery').classList.toggle('hidden',tab!=='gallery');
-  if(tab==='gallery'){activeAlbumFilter=null;loadAlbumsAndGallery(VIEW_UID);}
-}
-async function saveProfile(){
-  const updates={status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value};
-  const{error}=await sb.from('profiles').update(updates).eq('id',ME.id);
-  if(error){toast('❌ '+error.message);return;}
-  MYPROF={...MYPROF,...updates};toast('✅ შენახულია!');closeModal('profileOverlay');
-}
+async function openProfile(uid){VIEW_UID=uid;const p=await loadProf(uid);const isSelf=(uid===ME.id),myRole=MYPROF?.role,viewRole=p?.role;document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';document.getElementById('profName').textContent=p?.username||'?';const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);document.getElementById('profWordScore').textContent='🔐 '+(p?.game_score||0);document.getElementById('profQuizScore').textContent='🏆 '+(p?.quiz_score||0);document.getElementById('profHangScore').textContent='🪢 '+(p?.hangman_score||0);if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';}else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊';}document.getElementById('avEdit').style.display=isSelf?'':'none';document.getElementById('statusInp').value=p?.status||'';document.getElementById('statusInp').disabled=!isSelf;document.getElementById('emoComment').value=p?.emotion_comment||'';document.getElementById('emoComment').disabled=!isSelf;document.getElementById('saveProfileBtn').style.display=isSelf?'':'none';document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';selectedEmotion=p?.emotion||'😊';document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));const showFounder=(myRole==='founder')&&!isSelf;document.getElementById('founderSec').classList.toggle('hidden',!showFounder);if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);document.getElementById('friendBtn').style.display=isSelf?'none':'';document.getElementById('dmBtn').style.display=isSelf?'none':'';const isFr=myFriends.includes(uid);document.getElementById('friendBtn').textContent=isFr?'💔 გაუქმება':'➕ მეგობრად';document.getElementById('galUploadZone').style.display=isSelf?'':'none';switchGalleryTab('info',document.getElementById('gtabInfo'));openModal('profileOverlay');}
+function compressImage(file,maxSizePx=256,quality=0.85){return new Promise((resolve,reject)=>{if(file.type==='image/gif'){resolve(file);return;}const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);let{width,height}=img;if(width>maxSizePx||height>maxSizePx){if(width>height){height=Math.round(height*maxSizePx/width);width=maxSizePx;}else{width=Math.round(width*maxSizePx/height);height=maxSizePx;}}const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.getContext('2d').drawImage(img,0,0,width,height);canvas.toBlob(blob=>{if(!blob){reject(new Error('კომპ.'));return;}resolve(new File([blob],file.name,{type:'image/webp',lastModified:Date.now()}));},'image/webp',quality);};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('ვერ'));};img.src=url;});}
+function switchGalleryTab(tab,btn){document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('tabInfo').classList.toggle('hidden',tab!=='info');document.getElementById('tabGallery').classList.toggle('hidden',tab!=='gallery');if(tab==='gallery'){activeAlbumFilter=null;loadAlbumsAndGallery(VIEW_UID);}}
+async function saveProfile(){const updates={status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value};const{error}=await sb.from('profiles').update(updates).eq('id',ME.id);if(error){toast('❌ '+error.message);return;}MYPROF={...MYPROF,...updates};toast('✅ შენახულია!');closeModal('profileOverlay');}
 function pickEmo(btn,em){selectedEmotion=em;document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function clickAvatar(){if(VIEW_UID!==ME.id)return;document.getElementById('avatarInput').click();}
-async function uploadAvatar(e){
-  const file=e.target.files[0];if(!file)return;if(file.size>3*1024*1024){toast('❌ მაქს 3MB');e.target.value='';return;}toast('⏳...');
-  const reader=new FileReader();reader.onload=async ev=>{const{error}=await sb.from('profiles').update({avatar_url:ev.target.result}).eq('id',ME.id);if(error){toast('❌ '+error.message);return;}MYPROF.avatar_url=ev.target.result;document.getElementById('avImg').src=ev.target.result;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';toast('✅ ფოტო!');};reader.readAsDataURL(file);e.target.value='';
-}
+async function uploadAvatar(e){const file=e.target.files[0];if(!file)return;if(file.size>3*1024*1024){toast('❌ მაქს 3MB');e.target.value='';return;}toast('⏳...');const reader=new FileReader();reader.onload=async ev=>{const{error}=await sb.from('profiles').update({avatar_url:ev.target.result}).eq('id',ME.id);if(error){toast('❌ '+error.message);return;}MYPROF.avatar_url=ev.target.result;document.getElementById('avImg').src=ev.target.result;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';toast('✅ ფოტო!');};reader.readAsDataURL(file);e.target.value='';}
 async function assignRole(){if(MYPROF?.role!=='founder')return;const newRole=document.getElementById('roleSelect').value;const{error}=await sb.from('profiles').update({role:newRole}).eq('id',VIEW_UID);if(error){toast('❌');return;}toast('✅ '+rLabel(newRole));renderUserLists();}
 async function removeRole(){if(MYPROF?.role!=='founder')return;await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID);toast('✅');renderUserLists();}
 async function blockUser(){if(MYPROF?.role!=='founder')return;const r=document.getElementById('blockReason').value||'მიზეზი';const{error}=await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);if(error){toast('❌');return;}toast('🚫');closeModal('profileOverlay');}
@@ -1579,183 +1060,59 @@ function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-
 function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
 
 /* ===================== GALLERY ===================== */
-async function loadAlbumsAndGallery(uid){
-  galleryViewUID=uid;const isSelf=uid===ME.id;
-  const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});
-  userAlbums=albs||[];
-  if(isSelf){const sel=document.getElementById('galAlbumSelect');sel.innerHTML='<option value="">📂 გარეშე</option>';userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt);});}
-  renderAlbumBar(isSelf);await loadGallery(uid);
-}
-function renderAlbumBar(isSelf){
-  const bar=document.getElementById('albumBar');bar.innerHTML='';
-  const allChip=document.createElement('div');allChip.className='album-chip'+(activeAlbumFilter===null?' active':'');allChip.textContent='📷 ყველა';allChip.onclick=()=>{activeAlbumFilter=null;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(allChip);
-  userAlbums.forEach(a=>{const chip=document.createElement('div');chip.className='album-chip'+(activeAlbumFilter===a.id?' active':'');chip.innerHTML=`<span>${a.name}</span>`;if(isSelf){const del=document.createElement('span');del.className='chip-del';del.textContent='✕';del.onclick=ev=>{ev.stopPropagation();deleteAlbum(a.id);};chip.appendChild(del);}chip.onclick=ev=>{if(ev.target.classList.contains('chip-del'))return;activeAlbumFilter=a.id;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(chip);});
-  if(isSelf){const nc=document.createElement('div');nc.className='album-chip new-album';nc.textContent='+ ახალი';nc.onclick=()=>{const f=document.getElementById('albumCreateForm');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('albumNameInp').focus();};bar.appendChild(nc);}
-}
+async function loadAlbumsAndGallery(uid){galleryViewUID=uid;const isSelf=uid===ME.id;const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});userAlbums=albs||[];if(isSelf){const sel=document.getElementById('galAlbumSelect');sel.innerHTML='<option value="">📂 გარეშე</option>';userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt);});}renderAlbumBar(isSelf);await loadGallery(uid);}
+function renderAlbumBar(isSelf){const bar=document.getElementById('albumBar');bar.innerHTML='';const allChip=document.createElement('div');allChip.className='album-chip'+(activeAlbumFilter===null?' active':'');allChip.textContent='📷 ყველა';allChip.onclick=()=>{activeAlbumFilter=null;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(allChip);userAlbums.forEach(a=>{const chip=document.createElement('div');chip.className='album-chip'+(activeAlbumFilter===a.id?' active':'');chip.innerHTML=`<span>${a.name}</span>`;if(isSelf){const del=document.createElement('span');del.className='chip-del';del.textContent='✕';del.onclick=ev=>{ev.stopPropagation();deleteAlbum(a.id);};chip.appendChild(del);}chip.onclick=ev=>{if(ev.target.classList.contains('chip-del'))return;activeAlbumFilter=a.id;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(chip);});if(isSelf){const nc=document.createElement('div');nc.className='album-chip new-album';nc.textContent='+ ახალი';nc.onclick=()=>{const f=document.getElementById('albumCreateForm');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('albumNameInp').focus();};bar.appendChild(nc);}}
 async function createAlbum(){const name=document.getElementById('albumNameInp').value.trim();if(!name){toast('❌');return;}const{error}=await sb.from('albums').insert({user_id:ME.id,name});if(error){toast('❌ '+error.message);return;}document.getElementById('albumNameInp').value='';document.getElementById('albumCreateForm').classList.remove('open');toast('✅ '+name);await loadAlbumsAndGallery(ME.id);}
 async function deleteAlbum(albumId){if(!confirm('ალბომი წაიშალა?'))return;await sb.from('albums').update({album_id:null}).eq('album_id',albumId).eq('user_id',ME.id);await sb.from('albums').delete().eq('id',albumId).eq('user_id',ME.id);if(activeAlbumFilter===albumId)activeAlbumFilter=null;toast('🗑');await loadAlbumsAndGallery(ME.id);}
 function filterGalleryByAlbum(){renderGallery(galleryViewUID===ME.id);}
 async function loadGallery(uid){const{data,error}=await sb.from('gallery').select('*').eq('user_id',uid).order('created_at',{ascending:false});currentGallery=error?[]:(data||[]);renderGallery(uid===ME.id);}
-function renderGallery(isSelf){
-  const grid=document.getElementById('galGrid'),empty=document.getElementById('galEmpty');grid.innerHTML='';
-  const filtered=activeAlbumFilter?currentGallery.filter(p=>p.album_id===activeAlbumFilter):currentGallery;
-  if(!filtered.length){empty.classList.remove('hidden');return;}empty.classList.add('hidden');
-  filtered.forEach((photo,idx)=>{
-    const item=document.createElement('div');item.className='gal-item';
-    item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:14px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" data-id="${photo.id}">🗑</button>`:''}`;
-    if(isSelf)item.querySelector('.gal-del').addEventListener('click',e=>{e.stopPropagation();deleteGalPhoto(photo.id);});
-    item.addEventListener('click',e=>{if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx,filtered);});
-    grid.appendChild(item);
-  });
-}
+function renderGallery(isSelf){const grid=document.getElementById('galGrid'),empty=document.getElementById('galEmpty');grid.innerHTML='';const filtered=activeAlbumFilter?currentGallery.filter(p=>p.album_id===activeAlbumFilter):currentGallery;if(!filtered.length){empty.classList.remove('hidden');return;}empty.classList.add('hidden');filtered.forEach((photo,idx)=>{const item=document.createElement('div');item.className='gal-item';item.innerHTML=`<img src="${photo.url}" alt="" loading="lazy"><div class="gal-overlay"><div style="font-size:14px">${photo.emotion||''}</div>${photo.title?`<div class="gal-cap">${esc(photo.title)}</div>`:''}</div>${isSelf?`<button class="gal-del" data-id="${photo.id}">🗑</button>`:''}`;if(isSelf)item.querySelector('.gal-del').addEventListener('click',e=>{e.stopPropagation();deleteGalPhoto(photo.id);});item.addEventListener('click',e=>{if(!e.target.classList.contains('gal-del'))openPhotoViewer(idx,filtered);});grid.appendChild(item);});}
 function galFileChosen(e){const file=e.target.files[0];if(!file)return;if(file.size>4*1024*1024){toast('❌ 4MB max');e.target.value='';return;}const reader=new FileReader();reader.onload=ev=>{galFileData=ev.target.result;const prev=document.getElementById('galPreviewImg');prev.src=galFileData;prev.classList.add('show');document.getElementById('galForm').classList.add('open');galSelectedEmo='😊';document.querySelectorAll('.gal-emo-btn').forEach((b,i)=>b.classList.toggle('active',i===0));document.getElementById('galTitle').value='';document.getElementById('galComment').value='';};reader.readAsDataURL(file);e.target.value='';}
 function pickGalEmo(btn,em){galSelectedEmo=em;document.querySelectorAll('.gal-emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function cancelGalUpload(){galFileData=null;document.getElementById('galForm').classList.remove('open');const prev=document.getElementById('galPreviewImg');prev.src='';prev.classList.remove('show');}
-async function uploadGalleryPhoto(){
-  if(!galFileData){toast('❌ ფოტო ამოარჩიე!');return;}toast('⏳...');
-  try{const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};const t=document.getElementById('galTitle').value.trim(),c=document.getElementById('galComment').value.trim(),albumId=document.getElementById('galAlbumSelect').value;if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;const{error}=await sb.from('gallery').insert(d);if(error){toast('❌ '+error.message);return;}cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);}catch(err){toast('❌ '+err.message);}
-}
+async function uploadGalleryPhoto(){if(!galFileData){toast('❌ ფოტო ამოარჩიე!');return;}toast('⏳...');try{const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};const t=document.getElementById('galTitle').value.trim(),c=document.getElementById('galComment').value.trim(),albumId=document.getElementById('galAlbumSelect').value;if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;const{error}=await sb.from('gallery').insert(d);if(error){toast('❌ '+error.message);return;}cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);}catch(err){toast('❌ '+err.message);}}
 async function deleteGalPhoto(id){if(!confirm('წავშალო?'))return;await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);toast('🗑');loadAlbumsAndGallery(ME.id);}
 
 /* ===================== PHOTO VIEWER ===================== */
 let currentPhotoId=null;
 function openPhotoViewer(idx,filtered){_pvFiltered=filtered||currentGallery;pvIndex=idx;showPVPhoto();document.getElementById('photoViewer').classList.add('open');}
-async function showPVPhoto(){
-  const p=_pvFiltered[pvIndex];if(!p)return;currentPhotoId=p.id;
-  document.getElementById('pvImg').src=p.url;document.getElementById('pvTitle').textContent=p.title||'';document.getElementById('pvEmo').textContent=p.emotion||'';document.getElementById('pvComment').textContent=p.comment||'';
-  const owner=allUsers.find(u=>u.id===p.user_id);document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';document.getElementById('pvCounter').textContent=(pvIndex+1)+' / '+_pvFiltered.length;
-  await loadPhotoReactions(p.id);await loadPhotoComments(p.id);
-}
+async function showPVPhoto(){const p=_pvFiltered[pvIndex];if(!p)return;currentPhotoId=p.id;document.getElementById('pvImg').src=p.url;document.getElementById('pvTitle').textContent=p.title||'';document.getElementById('pvEmo').textContent=p.emotion||'';document.getElementById('pvComment').textContent=p.comment||'';const owner=allUsers.find(u=>u.id===p.user_id);document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';document.getElementById('pvCounter').textContent=(pvIndex+1)+' / '+_pvFiltered.length;await loadPhotoReactions(p.id);await loadPhotoComments(p.id);}
 function pvNav(dir){pvIndex=(pvIndex+dir+_pvFiltered.length)%_pvFiltered.length;showPVPhoto();}
 function closePhotoViewer(){document.getElementById('photoViewer').classList.remove('open');currentPhotoId=null;}
 function pvBgClose(e){if(e.target.id==='photoViewer')closePhotoViewer();}
-async function reactToPhoto(emoji){
-  if(!currentPhotoId||!ME)return;
-  const{data:ex}=await sb.from('comments').select('id').eq('gallery_id',currentPhotoId).eq('user_id',ME.id).eq('content','react:'+emoji).maybeSingle();
-  if(ex)await sb.from('comments').delete().eq('id',ex.id);
-  else await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:'react:'+emoji});
-  await loadPhotoReactions(currentPhotoId);
-}
-async function loadPhotoReactions(photoId){
-  const{data}=await sb.from('comments').select('user_id,content').eq('gallery_id',photoId).like('content','react:%');
-  const reactEl=document.getElementById('pvReactions');if(!reactEl)return;
-  const grouped={};(data||[]).forEach(r=>{const emoji=r.content.replace('react:','');if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});
-  reactEl.innerHTML='';
-  Object.entries(grouped).forEach(([emoji,uids])=>{
-    const chip=document.createElement('div');chip.className='gal-react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>reactToPhoto(emoji));reactEl.appendChild(chip);
-  });
-}
-async function loadPhotoComments(photoId){
-  const{data}=await sb.from('comments').select('*').eq('gallery_id',photoId).not('content','like','react:%').order('created_at',{ascending:true});
-  const list=document.getElementById('pvCommentsList');if(!list)return;list.innerHTML='';
-  (data||[]).forEach(c=>{const owner=allUsers.find(u=>u.id===c.user_id);const div=document.createElement('div');div.className='gal-comment-item';const t=new Date(c.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});div.innerHTML=`<span class="gal-comment-nick">${esc(owner?.username||'?')}</span><span class="gal-comment-text">${esc(c.content)}</span><span class="gal-comment-time">${t}</span>`;list.appendChild(div);});
-  list.scrollTop=list.scrollHeight;
-}
-async function sendPhotoComment(){
-  const inp=document.getElementById('pvCommentInput');const txt=inp.value.trim();if(!txt||!currentPhotoId)return;inp.value='';
-  const{error}=await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:txt});if(error){toast('❌ '+error.message);return;}await loadPhotoComments(currentPhotoId);
-}
+async function reactToPhoto(emoji){if(!currentPhotoId||!ME)return;const{data:ex}=await sb.from('comments').select('id').eq('gallery_id',currentPhotoId).eq('user_id',ME.id).eq('content','react:'+emoji).maybeSingle();if(ex)await sb.from('comments').delete().eq('id',ex.id);else await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:'react:'+emoji});await loadPhotoReactions(currentPhotoId);}
+async function loadPhotoReactions(photoId){const{data}=await sb.from('comments').select('user_id,content').eq('gallery_id',photoId).like('content','react:%');const reactEl=document.getElementById('pvReactions');if(!reactEl)return;const grouped={};(data||[]).forEach(r=>{const emoji=r.content.replace('react:','');if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='gal-react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>reactToPhoto(emoji));reactEl.appendChild(chip);});}
+async function loadPhotoComments(photoId){const{data}=await sb.from('comments').select('*').eq('gallery_id',photoId).not('content','like','react:%').order('created_at',{ascending:true});const list=document.getElementById('pvCommentsList');if(!list)return;list.innerHTML='';(data||[]).forEach(c=>{const owner=allUsers.find(u=>u.id===c.user_id);const div=document.createElement('div');div.className='gal-comment-item';const t=new Date(c.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});div.innerHTML=`<span class="gal-comment-nick">${esc(owner?.username||'?')}</span><span class="gal-comment-text">${esc(c.content)}</span><span class="gal-comment-time">${t}</span>`;list.appendChild(div);});list.scrollTop=list.scrollHeight;}
+async function sendPhotoComment(){const inp=document.getElementById('pvCommentInput');const txt=inp.value.trim();if(!txt||!currentPhotoId)return;inp.value='';const{error}=await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:txt});if(error){toast('❌ '+error.message);return;}await loadPhotoComments(currentPhotoId);}
 
 /* ===================== USERS / FRIENDS ===================== */
-function buildRooms(){
-  const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';
-  ROOMS.forEach(r=>{
-    const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');
-    d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;
-    d.onclick=()=>switchRoom(r,d);el.appendChild(d);
-  });
-}
-function switchRoom(r,clickedEl){
-  if(!r||!r.id)return;ROOM=r.id;
-  document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;
-  document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');
-  if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}
-  document.getElementById('sidebar')?.classList.remove('mob-open');
-}
+function buildRooms(){const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';ROOMS.forEach(r=>{const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;d.onclick=()=>switchRoom(r,d);el.appendChild(d);});}
+function switchRoom(r,clickedEl){if(!r||!r.id)return;ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
 async function loadAllUsers(){const{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];renderUserLists();}
 function updateOnlineBadge(){const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));const cnt=document.getElementById('onlineCnt');if(cnt)cnt.textContent=`● ${onlineNow.length} ონლაინი`;}
-function renderUserLists(){
-  const founders=[],admins=[],members=[];
-  allUsers.forEach(u=>{if(u.role==='founder')founders.push(u);else if(u.role==='admin')admins.push(u);else members.push(u);});
-  updateOnlineBadge();
-  const usEl=document.getElementById('usersListEl');
-  if(usEl){const frag=document.createDocumentFragment();if(founders.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));founders.forEach(u=>frag.appendChild(makeUserItem(u)));}if(admins.length){frag.appendChild(roleHeader('🛡️','ადმინები'));admins.forEach(u=>frag.appendChild(makeUserItem(u)));}if(members.length){frag.appendChild(roleHeader('👤','წევრები'));members.forEach(u=>frag.appendChild(makeUserItem(u)));}usEl.innerHTML='';usEl.appendChild(frag);}
-  const onEl=document.getElementById('onlineListEl');
-  if(onEl){const frag=document.createDocumentFragment();const onF=founders.filter(u=>isOnline(u.last_seen)),onA=admins.filter(u=>isOnline(u.last_seen)),onM=members.filter(u=>isOnline(u.last_seen));if(!onF.length&&!onA.length&&!onM.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='ახლა არავინ';frag.appendChild(e);}else{if(onF.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));onF.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onA.length){frag.appendChild(roleHeader('🛡️','ადმინები'));onA.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onM.length){frag.appendChild(roleHeader('👤','წევრები'));onM.forEach(u=>frag.appendChild(makeUserItem(u)));}}onEl.innerHTML='';onEl.appendChild(frag);}
-  renderFriends();
-}
+function renderUserLists(){const founders=[],admins=[],members=[];allUsers.forEach(u=>{if(u.role==='founder')founders.push(u);else if(u.role==='admin')admins.push(u);else members.push(u);});updateOnlineBadge();const usEl=document.getElementById('usersListEl');if(usEl){const frag=document.createDocumentFragment();if(founders.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));founders.forEach(u=>frag.appendChild(makeUserItem(u)));}if(admins.length){frag.appendChild(roleHeader('🛡️','ადმინები'));admins.forEach(u=>frag.appendChild(makeUserItem(u)));}if(members.length){frag.appendChild(roleHeader('👤','წევრები'));members.forEach(u=>frag.appendChild(makeUserItem(u)));}usEl.innerHTML='';usEl.appendChild(frag);}const onEl=document.getElementById('onlineListEl');if(onEl){const frag=document.createDocumentFragment();const onF=founders.filter(u=>isOnline(u.last_seen)),onA=admins.filter(u=>isOnline(u.last_seen)),onM=members.filter(u=>isOnline(u.last_seen));if(!onF.length&&!onA.length&&!onM.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='ახლა არავინ';frag.appendChild(e);}else{if(onF.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));onF.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onA.length){frag.appendChild(roleHeader('🛡️','ადმინები'));onA.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onM.length){frag.appendChild(roleHeader('👤','წევრები'));onM.forEach(u=>frag.appendChild(makeUserItem(u)));}}onEl.innerHTML='';onEl.appendChild(frag);}renderFriends();}
 function roleHeader(icon,label){const d=document.createElement('div');d.className='role-header';d.innerHTML=`<span style="font-size:12px">${icon}</span><div class="role-header-line"></div><span class="role-header-text">${label}</span>`;return d;}
-function makeUserItem(u){
-  const d=document.createElement('div');d.className='list-item';d.dataset.q=(u.username||'').toLowerCase();
-  const on=isOnline(u.last_seen);const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(u.emotion||'😊');
-  d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
-  d.onclick=()=>openProfile(u.id);return d;
-}
+function makeUserItem(u){const d=document.createElement('div');d.className='list-item';d.dataset.q=(u.username||'').toLowerCase();const on=isOnline(u.last_seen);const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(u.emotion||'😊');d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;d.onclick=()=>openProfile(u.id);return d;}
 function filterUsers(){const q=document.getElementById('userSearch').value.toLowerCase();document.querySelectorAll('#usersListEl .list-item').forEach(el=>{el.style.display=el.dataset.q.includes(q)?'':'none';});}
 function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<60000;}
 async function pingOnline(){if(!ME)return;await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}
 
 /* ===================== FRIENDS ===================== */
 async function loadFriends(){const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');myFriends=(data||[]).map(f=>f.friend_id);renderFriends();}
-function renderFriends(){
-  const el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';
-  const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);
-  if(!list.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='მეგობრები ჯერ არ გყავს 💜';el.appendChild(e);return;}
-  const frag=document.createDocumentFragment();list.forEach(u=>frag.appendChild(makeUserItem(u)));el.appendChild(frag);
-}
-async function toggleFriend(){
-  const isFr=myFriends.includes(VIEW_UID);
-  if(isFr){await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);myFriends=myFriends.filter(f=>f!==VIEW_UID);toast('💔 გაუქმდა');}
-  else{await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});toast('📨 გაიგზავნა!');}
-  document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 გაუქმება':'➕ მეგობრად';
-}
-async function checkFriendReqs(){
-  const{data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');
-  const badge=document.getElementById('friendBadge');
-  if(data&&data.length){badge.textContent=data.length;badge.classList.add('show');const req=data[0];document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს';document.getElementById('friendReqOverlay').dataset.rid=req.id;document.getElementById('friendReqOverlay').dataset.fid=req.user_id;openModal('friendReqOverlay');}
-  else{badge.classList.remove('show');}
-}
-function watchFriendRequests(){
-  if(friendCh){try{sb.removeChannel(friendCh);}catch(e){}friendCh=null;}
-  friendCh=sb.channel('friend-reqs-'+ME.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},()=>checkFriendReqs())
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},payload=>{if(payload.new.status==='accepted'){loadFriends();toast('✅ მეგობრობა!');} })
-    .subscribe();
-}
-async function acceptFriend(){
-  const rid=document.getElementById('friendReqOverlay').dataset.rid,fid=document.getElementById('friendReqOverlay').dataset.fid;
-  await sb.from('friends').update({status:'accepted'}).eq('id',rid);await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});
-  myFriends.push(fid);closeModal('friendReqOverlay');toast('✅ მეგობარი!');renderFriends();
-}
+function renderFriends(){const el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);if(!list.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='მეგობრები ჯერ არ გყავს 💜';el.appendChild(e);return;}const frag=document.createDocumentFragment();list.forEach(u=>frag.appendChild(makeUserItem(u)));el.appendChild(frag);}
+async function toggleFriend(){const isFr=myFriends.includes(VIEW_UID);if(isFr){await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);myFriends=myFriends.filter(f=>f!==VIEW_UID);toast('💔 გაუქმდა');}else{await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});toast('📨 გაიგზავნა!');}document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 გაუქმება':'➕ მეგობრად';}
+async function checkFriendReqs(){const{data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');const badge=document.getElementById('friendBadge');if(data&&data.length){badge.textContent=data.length;badge.classList.add('show');const req=data[0];document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს';document.getElementById('friendReqOverlay').dataset.rid=req.id;document.getElementById('friendReqOverlay').dataset.fid=req.user_id;openModal('friendReqOverlay');}else{badge.classList.remove('show');}}
+function watchFriendRequests(){if(friendCh){try{sb.removeChannel(friendCh);}catch(e){}friendCh=null;}friendCh=sb.channel('friend-reqs-'+ME.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},()=>checkFriendReqs()).on('postgres_changes',{event:'UPDATE',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},payload=>{if(payload.new.status==='accepted'){loadFriends();toast('✅ მეგობრობა!');}}).subscribe();}
+async function acceptFriend(){const rid=document.getElementById('friendReqOverlay').dataset.rid,fid=document.getElementById('friendReqOverlay').dataset.fid;await sb.from('friends').update({status:'accepted'}).eq('id',rid);await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});myFriends.push(fid);closeModal('friendReqOverlay');toast('✅ მეგობარი!');renderFriends();}
 async function declineFriend(){await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);closeModal('friendReqOverlay');toast('❌');}
 
 /* ===================== DM ===================== */
 function openDMList(){document.getElementById('dmListOverlay').classList.add('open');buildDMUserList(allUsers);}
-function buildDMUserList(users){
-  const el=document.getElementById('dmUserList');el.innerHTML='';
-  const filtered=users.filter(u=>u.id!==ME?.id);
-  if(!filtered.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">ვერ მოიძებნა</div>';return;}
-  const frag=document.createDocumentFragment();
-  filtered.forEach(u=>{
-    const d=document.createElement('div');d.className='dm-list-item';
-    const on=isOnline(u.last_seen);const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u.emotion||'😊');
-    const unread=dmUnread[u.id]||0;
-    d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div></div>${unread?`<div class="dm-unread-dot"></div>`:''}✉️`;
-    d.onclick=()=>{closeDMList();openDM(u.id);};frag.appendChild(d);
-  });
-  el.appendChild(frag);
-}
+function buildDMUserList(users){const el=document.getElementById('dmUserList');el.innerHTML='';const filtered=users.filter(u=>u.id!==ME?.id);if(!filtered.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">ვერ მოიძებნა</div>';return;}const frag=document.createDocumentFragment();filtered.forEach(u=>{const d=document.createElement('div');d.className='dm-list-item';const on=isOnline(u.last_seen);const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u.emotion||'😊');const unread=dmUnread[u.id]||0;d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div></div>${unread?`<div class="dm-unread-dot"></div>`:''}✉️`;d.onclick=()=>{closeDMList();openDM(u.id);};frag.appendChild(d);});el.appendChild(frag);}
 function filterDMUsers(){const q=document.getElementById('dmUserSearch').value.toLowerCase();buildDMUserList(allUsers.filter(u=>u.id!==ME?.id&&(u.username||'').toLowerCase().includes(q)));}
 function closeDMList(){document.getElementById('dmListOverlay').classList.remove('open');}
 function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
-
-function toggleDMMinimize(e){
-  if(e&&e.target.closest('.dm-head-btns'))return;
-  dmMinimized=!dmMinimized;
-  document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);
-  document.getElementById('dmMinBtn').textContent=dmMinimized?'▲':'—';
-  if(!dmMinimized){removeDMTyping();renderDMTyping();}
-}
+function toggleDMMinimize(e){if(e&&e.target.closest('.dm-head-btns'))return;dmMinimized=!dmMinimized;document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);document.getElementById('dmMinBtn').textContent=dmMinimized?'▲':'—';if(!dmMinimized){removeDMTyping();renderDMTyping();}}
 
 async function openDM(uid){
   if(uid)DM_UID=uid;if(!DM_UID)return;
@@ -1766,27 +1123,30 @@ async function openDM(uid){
   document.getElementById('dmBox').classList.add('open');
   document.getElementById('dmBox').classList.remove('minimized');dmMinimized=false;
   document.getElementById('dmMinBtn').textContent='—';
+  // FIX: სწორი badge განახლება
   delete dmUnread[DM_UID];
-  const b=document.getElementById('dmBadge');b.textContent='';b.classList.remove('show');
+  const _totalU=Object.values(dmUnread).reduce((a,v)=>a+v,0);
+  const b=document.getElementById('dmBadge');
+  if(_totalU>0){b.textContent=_totalU;b.classList.add('show');}
+  else{b.textContent='';b.classList.remove('show');}
   buildEmojiGrid('dmEmojiGrid','dmInput',false);
   const rk=[ME.id,DM_UID].sort().join('_');
   const{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(80);
   const box=document.getElementById('dmMsgs');box.innerHTML='';
   (data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;
-  // Load DM reactions
-  if(data&&data.length){
-    for(const m of data){if(m.id)await refreshDMReactions(m.id);}
-  }
+  if(data&&data.length){for(const m of data){if(m.id)await refreshDMReactions(m.id);}}
   if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}
   dmCh=sb.channel('dm_'+rk)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},async p=>{
       if(p.new.sender_id===ME.id)return;
       appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;
-      if(dmMinimized){
-        dmUnread[DM_UID]=(dmUnread[DM_UID]||0)+1;
-        const b=document.getElementById('dmBadge');b.textContent=dmUnread[DM_UID];b.classList.add('show');
-      }
       const sender=allUsers.find(u=>u.id===p.new.sender_id);
+      // FIX: badge ყოველთვის ინთება
+      if(!document.getElementById('dmBox').classList.contains('open')||dmMinimized){
+        dmUnread[DM_UID]=(dmUnread[DM_UID]||0)+1;
+        const totalUB=Object.values(dmUnread).reduce((a,v)=>a+v,0);
+        const bEl=document.getElementById('dmBadge');bEl.textContent=totalUB;bEl.classList.add('show');
+      }
       if(sender&&(dmMinimized||!document.getElementById('dmBox').classList.contains('open'))){
         const nb=document.getElementById('navDMTypingBadge');
         if(nb){nb.textContent=sender.username+' ✉️';nb.classList.add('show');setTimeout(()=>{nb.textContent='';nb.classList.remove('show');},4000);}
@@ -1796,37 +1156,22 @@ async function openDM(uid){
 }
 
 /* ====== DM content renderer ====== */
-function renderDMContent(content){
-  if(!content)return'';
-  if(content.startsWith('[dmimg]')){
-    const src=content.replace('[dmimg]','').replace('[/dmimg]','');
-    return`<img src="${src}" class="dm-img" onclick="window.open('${src}','_blank')" alt="ფოტო">`;
-  }
-  const fm=content.match(/^\[dmfile:([^\]]+)\]([\s\S]+)\[\/dmfile\]$/);
-  if(fm){
-    const fname=fm[1],fdata=fm[2];
-    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;margin-top:4px;cursor:pointer" onclick="downloadDMFile('${encodeURIComponent(fdata)}','${fname}')">📎 <span style="font-size:12px;color:var(--text)">${esc(fname)}</span></div>`;
-  }
-  if(content.startsWith('[voice:'))return renderVoiceContent(content);
-  return renderContent(content);
-}
-function downloadDMFile(encodedData,fname){
-  const a=document.createElement('a');a.href=decodeURIComponent(encodedData);a.download=fname;a.click();
-}
+function renderDMContent(content){if(!content)return'';if(content.startsWith('[dmimg]')){const src=content.replace('[dmimg]','').replace('[/dmimg]','');return`<img src="${src}" class="dm-img" onclick="window.open('${src}','_blank')" alt="ფოტო">`;}const fm=content.match(/^\[dmfile:([^\]]+)\]([\s\S]+)\[\/dmfile\]$/);if(fm){const fname=fm[1],fdata=fm[2];return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;margin-top:4px;cursor:pointer" onclick="downloadDMFile('${encodeURIComponent(fdata)}','${fname}')">📎 <span style="font-size:12px;color:var(--text)">${esc(fname)}</span></div>`;}if(content.startsWith('[voice:'))return renderVoiceContent(content);return renderContent(content);}
+function downloadDMFile(encodedData,fname){const a=document.createElement('a');a.href=decodeURIComponent(encodedData);a.download=fname;a.click();}
 
-/* ====== FIX 4: appendDMMsg — visible react button + reliable ID ====== */
+/* ====== appendDMMsg — FIX: sender name + reliable react ====== */
 function appendDMMsg(m){
   const isMe=(m.sender_id===ME.id);
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const box=document.getElementById('dmMsgs');
   let replyHtml='',displayContent=m.content;
-  if(m.content&&m.content.startsWith('[reply:')){
-    const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);
-    if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}
-  }
+  if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}}
   const bubbleContent=renderDMContent(displayContent);
   const msgId=m.id;
   const reactId=msgId?('dmreact_'+msgId):('dmreact_tmp_'+Date.now());
+  // FIX: გამომჩენი სახელი
+  const senderUser=isMe?null:allUsers.find(u=>u.id===m.sender_id);
+  const senderNick=senderUser?.username||'';
 
   const wrapper=document.createElement('div');
   wrapper.className='dm-msg-wrap';
@@ -1835,6 +1180,7 @@ function appendDMMsg(m){
   wrapper.innerHTML=`
     <div class="dm-bubble-row${isMe?' me':''}">
       <div class="dm-bubble${isMe?' me':''}">
+        ${!isMe&&senderNick?`<div style="font-size:10px;font-weight:600;color:var(--indigo2);margin-bottom:3px">${esc(senderNick)}</div>`:''}
         ${replyHtml}${bubbleContent}
         <span class="dm-time">${t}</span>
         ${msgId?`<span class="dm-react-trigger${isMe?' me-side':''}" title="რეაქცია">😊</span>`:''}
@@ -1845,77 +1191,29 @@ function appendDMMsg(m){
 
   const bubble=wrapper.querySelector('.dm-bubble');
   if(msgId){
-    // Tap-and-hold on mobile
     let lpt;
-    bubble.addEventListener('touchstart',ev=>{
-      if(ev.target.classList.contains('dm-react-trigger'))return;
-      lpt=setTimeout(()=>showDMQuickReact(msgId,bubble,isMe),600);
-    },{passive:true});
+    bubble.addEventListener('touchstart',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;lpt=setTimeout(()=>showDMQuickReact(msgId,bubble,isMe),600);},{passive:true});
     bubble.addEventListener('touchend',()=>clearTimeout(lpt));
     bubble.addEventListener('touchmove',()=>clearTimeout(lpt),{passive:true});
-    // Right-click on desktop
-    bubble.addEventListener('contextmenu',ev=>{
-      if(ev.target.classList.contains('dm-react-trigger'))return;
-      ev.preventDefault();showDMQuickReact(msgId,bubble,isMe);
-    });
-    // Visible react button click
+    bubble.addEventListener('contextmenu',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;ev.preventDefault();showDMQuickReact(msgId,bubble,isMe);});
     const reactTrig=wrapper.querySelector('.dm-react-trigger');
-    if(reactTrig){
-      reactTrig.addEventListener('click',ev=>{
-        ev.stopPropagation();
-        showDMQuickReact(msgId,reactTrig,isMe);
-      });
-    }
+    if(reactTrig){reactTrig.addEventListener('click',ev=>{ev.stopPropagation();showDMQuickReact(msgId,reactTrig,isMe);});}
   }
-  // Double-tap to reply
-  bubble.addEventListener('dblclick',ev=>{
-    if(ev.target.classList.contains('dm-react-trigger'))return;
-    const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');
-    setDMReply(nick,displayContent);
-  });
-
+  bubble.addEventListener('dblclick',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');setDMReply(nick,displayContent);});
   box.appendChild(wrapper);
 }
 
-async function sendDM(){
-  const inp=document.getElementById('dmInput');let txt=inp.value.trim();if(!txt||!DM_UID)return;
-  inp.value='';animateSendPlane('dmSendBtn');
-  if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}
-  const rk=[ME.id,DM_UID].sort().join('_');
-  const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt}).select('id').single();
-  if(error){toast('❌ '+error.message);return;}
-  if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString()});
-  document.getElementById('dmMsgs').scrollTop=9999;
-}
+async function sendDM(){const inp=document.getElementById('dmInput');let txt=inp.value.trim();if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString()});document.getElementById('dmMsgs').scrollTop=9999;}
 
-function closeDM(){
-  document.getElementById('dmBox').classList.remove('open','minimized');
-  document.getElementById('dmEmojiPanel').classList.remove('open');
-  document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');
-  DM_UID=null;dmMinimized=false;
-  if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}
-  if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}
-  removeDMTyping();cancelDMReply();
-}
+function closeDM(){document.getElementById('dmBox').classList.remove('open','minimized');document.getElementById('dmEmojiPanel').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;dmMinimized=false;if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}removeDMTyping();cancelDMReply();}
 function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
 
 /* ===================== NAV/UI ===================== */
-function showPanel(name){
-  ['rooms','friends','users','online'].forEach(p=>{document.getElementById('panel'+cap(p))?.classList.toggle('hidden',p!==name);document.getElementById('nav'+cap(p))?.classList.toggle('active',p===name);});
-  document.getElementById('navDM')?.classList.remove('active');
-  if(window.innerWidth<=640)document.getElementById('sidebar').classList.add('mob-open');
-  if(name==='friends')loadFriends();if(name==='users'||name==='online')loadAllUsers();
-}
+function showPanel(name){['rooms','friends','users','online'].forEach(p=>{document.getElementById('panel'+cap(p))?.classList.toggle('hidden',p!==name);document.getElementById('nav'+cap(p))?.classList.toggle('active',p===name);});document.getElementById('navDM')?.classList.remove('active');if(window.innerWidth<=640)document.getElementById('sidebar').classList.add('mob-open');if(name==='friends')loadFriends();if(name==='users'||name==='online')loadAllUsers();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('mob-open');}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 
-function spawnHearts(){
-  const hc=document.getElementById('hearts');if(!hc)return;
-  const emojis=['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿'];
-  let active=0;const MAX=35;
-  function make(){if(active>=MAX)return;const h=document.createElement('div');h.className='heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];const leftPct=Math.random()*100,drift=(Math.random()-0.5)*80,dur=8+Math.random()*10,size=1.2+Math.random()*1.4;h.style.cssText=`left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;hc.appendChild(h);active++;setTimeout(()=>{h.remove();active--;},(dur+0.5)*1000);}
-  for(let i=0;i<15;i++)setTimeout(make,i*250);setInterval(()=>{if(active<MAX)make();},1800);
-}
+function spawnHearts(){const hc=document.getElementById('hearts');if(!hc)return;const emojis=['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿'];let active=0;const MAX=35;function make(){if(active>=MAX)return;const h=document.createElement('div');h.className='heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];const leftPct=Math.random()*100,drift=(Math.random()-0.5)*80,dur=8+Math.random()*10,size=1.2+Math.random()*1.4;h.style.cssText=`left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;hc.appendChild(h);active++;setTimeout(()=>{h.remove();active--;},(dur+0.5)*1000);}for(let i=0;i<15;i++)setTimeout(make,i*250);setInterval(()=>{if(active<MAX)make();},1800);}
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function bgClose(e,id){if(e.target.id===id)closeModal(id);}
@@ -1929,42 +1227,21 @@ async function init(){
   document.body.classList.add('night');
   const savedThemeLocal=localStorage.getItem('kaif_theme')||'night';
   if(savedThemeLocal!=='custom')applyThemeById(savedThemeLocal);
-
   const{data:{user}}=await sb.auth.getUser();
   if(!user){location.href='index.html';return;}
   ME=user;MYPROF=await loadProf(ME.id);
-
-  if(!MYPROF){
-    const meta=user.user_metadata||{};
-    const username=meta.username||meta.name||meta.full_name||user.email?.split('@')[0]||'user_'+Math.floor(Math.random()*9999);
-    await sb.from('profiles').insert({id:ME.id,username,role:'member',emotion:'😊'});
-    MYPROF=await loadProf(ME.id);
-  }
+  if(!MYPROF){const meta=user.user_metadata||{};const username=meta.username||meta.name||meta.full_name||user.email?.split('@')[0]||'user_'+Math.floor(Math.random()*9999);await sb.from('profiles').insert({id:ME.id,username,role:'member',emotion:'😊'});MYPROF=await loadProf(ME.id);}
   if(MYPROF?.is_blocked){alert('დაბლოკილია: '+(MYPROF.block_reason||''));await sb.auth.signOut();location.href='index.html';return;}
   if(MYPROF?.theme)loadSavedTheme(MYPROF.theme);else loadSavedTheme(null);
-
   buildRooms();await loadEmojis();buildEmojis();spawnHearts();
   switchRoom(ROOMS[0],document.querySelector('.room-item'));
   await loadAllUsers();await pingOnline();
-
   setInterval(async()=>{await pingOnline();const idx=allUsers.findIndex(u=>u.id===ME.id);if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();updateOnlineBadge();renderUserLists();},20000);
   setInterval(loadAllUsers,30000);
   setInterval(checkFriendReqs,60000);
-
   checkFriendReqs();watchFriendRequests();watchGameScore();
-
-  sb.channel('profiles-watch')
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{
-      const idx=allUsers.findIndex(u=>u.id===payload.new.id);
-      if(idx>=0)allUsers[idx]={...allUsers[idx],...payload.new};else allUsers.push(payload.new);
-      updateOnlineBadge();if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateGameScoreUI();}
-    }).subscribe();
-
-  sb.channel('emoji-watch')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},async payload=>{if(!emojiCache[payload.new.id]){emojiCache[payload.new.id]=payload.new.url;customEmojis.push(payload.new);}buildEmojis();})
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async payload=>{customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);delete emojiCache[payload.old.id];buildEmojis();})
-    .subscribe();
-
+  sb.channel('profiles-watch').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{const idx=allUsers.findIndex(u=>u.id===payload.new.id);if(idx>=0)allUsers[idx]={...allUsers[idx],...payload.new};else allUsers.push(payload.new);updateOnlineBadge();if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateGameScoreUI();}}).subscribe();
+  sb.channel('emoji-watch').on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},async payload=>{if(!emojiCache[payload.new.id]){emojiCache[payload.new.id]=payload.new.url;customEmojis.push(payload.new);}buildEmojis();}).on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async payload=>{customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);delete emojiCache[payload.old.id];buildEmojis();}).subscribe();
   setTimeout(()=>toast('👋 გამარჯობა, '+(MYPROF?.username||'')+'!'),800);
 }
 init();
