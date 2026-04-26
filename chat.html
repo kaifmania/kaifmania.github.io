@@ -725,7 +725,12 @@ select.inp{cursor:pointer}
     <div class="gal-comments-section">
       <div style="font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);margin-bottom:8px">💬 კომენტარები</div>
       <div id="pvCommentsList" style="max-height:120px;overflow-y:auto;margin-bottom:8px"></div>
+      <!-- Emoji panel for photo comments -->
+      <div id="pvEmojiPanel" style="display:none;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:8px;position:relative">
+        <div class="emoji-grid" id="pvEmojiGrid" style="max-height:140px"></div>
+      </div>
       <div class="gal-comment-bar">
+        <button class="gal-comment-send" onclick="togglePvEmoji()" style="background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)">😊</button>
         <input class="gal-comment-input" id="pvCommentInput" placeholder="კომენტარი..." onkeydown="if(event.key==='Enter')sendPhotoComment()">
         <button class="gal-comment-send" onclick="sendPhotoComment()">✈️</button>
       </div>
@@ -1307,7 +1312,19 @@ async function removeEmoji(id){
   toast('🗑 სმაილი წაიშალა');buildEmojis();
 }
 
-function buildEmojis(){buildEmojiGrid('emojiGrid','msgInput',true);buildEmojiGrid('dmEmojiGrid','dmInput',false);}
+function buildEmojis(){
+  buildEmojiGrid('emojiGrid','msgInput',true);
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+  buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
+}
+
+function togglePvEmoji(){
+  const p=document.getElementById('pvEmojiPanel');
+  if(!p)return;
+  const isOpen=p.style.display!=='none';
+  p.style.display=isOpen?'none':'block';
+  if(!isOpen)buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
+}
 function buildEmojiGrid(gridId,inputId,withManage){
   const grid=document.getElementById(gridId);if(!grid)return;
   grid.innerHTML='';
