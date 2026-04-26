@@ -57,6 +57,10 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 @keyframes reactionPop{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
 @keyframes modalFloat{from{opacity:0;transform:translateY(30px) scale(0.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes dmSlideUp{from{opacity:0;transform:translateY(30px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes typingBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
+
+/* DM badge pulse */
+@keyframes badgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 
 #hearts{position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden}
 .heart{position:absolute;bottom:-60px;will-change:transform,opacity;transform:translateZ(0);user-select:none;z-index:999999;animation:heartFloat linear;}
@@ -71,7 +75,7 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .nav-btn:hover,.nav-btn.active{background:var(--indigo-f);border-color:var(--border);color:var(--text)}
 .nav-btn span.label{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
 .badge{position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;min-width:14px;height:14px;border-radius:7px;display:none;align-items:center;justify-content:center;padding:0 3px}
-.badge.show{display:flex}
+.badge.show{display:flex;animation:badgePulse .6s ease}
 .nav-spacer{flex:1}
 
 #app{display:flex;flex:1;min-height:0;position:relative;z-index:1}
@@ -104,6 +108,10 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0;box-shadow:0 0 5px var(--online)}
 
+/* DM typing indicator badge on nav */
+.dm-typing-badge{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--accent);display:none;box-shadow:0 0 6px var(--accent)}
+.dm-typing-badge.show{display:block;animation:badgePulse .6s ease infinite}
+
 #main{flex:1;display:flex;flex-direction:column;min-width:0;position:relative;z-index:1;background:var(--bg)}
 .chat-header{height:54px;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 18px;gap:10px;flex-shrink:0;z-index:2}
 .chat-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
@@ -115,7 +123,6 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 #messages::-webkit-scrollbar{width:3px}
 #messages::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-/* ======= MESSAGE ROW ======= */
 .msg-row{display:flex;flex-direction:column;position:relative;animation:messagePop .25s ease;margin-bottom:4px}
 .msg-row-inner{display:flex;align-items:flex-start;gap:8px;width:100%}
 .msg-content{max-width:78%;display:flex;flex-direction:column}
@@ -141,7 +148,6 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .msg-del{background:none;border:none;font-size:11px;color:var(--text3);cursor:pointer;padding:2px 5px;border-radius:5px;margin-left:4px;transition:all .15s}
 .msg-del:hover{background:rgba(220,0,0,.15);color:#ff6666}
 
-/* ======= REACTIONS - ALWAYS VISIBLE BELOW BUBBLE ======= */
 .msg-reactions{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;padding-left:50px;min-height:0}
 .react-chip{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);font-size:13px;cursor:pointer;transition:all .15s;animation:reactionPop .2s ease}
 .react-chip:hover,.react-chip.mine{background:var(--indigo);border-color:var(--indigo2)}
@@ -150,6 +156,9 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .msg-bubble b,.msg-bubble strong{font-weight:700}
 .msg-bubble i,.msg-bubble em{font-style:italic}
 .msg-bubble u{text-decoration:underline}
+
+/* Image in chat bubble */
+.msg-bubble img.chat-img{max-width:220px;max-height:180px;border-radius:10px;display:block;margin-top:6px;cursor:pointer;object-fit:cover;border:1px solid var(--border)}
 
 .voice-msg{display:flex;align-items:center;gap:8px;padding:4px 0}
 .voice-play{width:32px;height:32px;border-radius:50%;background:var(--indigo);border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
@@ -227,7 +236,6 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .ep-add{display:flex;gap:6px}
 .ep-add-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:0 12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;white-space:nowrap;height:38px}
 
-/* Quick react panel - z-index fix */
 #quickReactPanel{position:fixed;background:var(--panel2);border:1px solid var(--border);border-radius:30px;padding:6px 10px;display:none;gap:4px;align-items:center;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #quickReactPanel.open{display:flex}
 .qr-btn{font-size:20px;cursor:pointer;padding:4px 6px;border-radius:12px;transition:all .15s;border:none;background:none}
@@ -311,7 +319,6 @@ select.inp{cursor:pointer}
 .gal-inp:focus{border-color:var(--indigo2)}
 .gal-album-select{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;cursor:pointer}
 
-/* Gallery photo comments */
 .gal-comments-section{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
 .gal-comment-item{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
 .gal-comment-nick{font-size:11px;font-weight:600;color:var(--indigo2);margin-right:4px}
@@ -322,7 +329,6 @@ select.inp{cursor:pointer}
 .gal-comment-input:focus{border-color:var(--indigo2)}
 .gal-comment-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:0 14px;cursor:pointer}
 
-/* Gallery photo reactions */
 .gal-react-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .gal-react-btn{font-size:18px;cursor:pointer;padding:3px 8px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);transition:all .15s}
 .gal-react-btn:hover{background:var(--indigo);transform:scale(1.15)}
@@ -357,12 +363,18 @@ select.inp{cursor:pointer}
 .pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pv-nav-btn:hover{background:var(--border)}
 
-#dmBox{position:fixed;right:16px;bottom:16px;width:320px;height:440px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
+/* ====== DM BOX ====== */
+#dmBox{position:fixed;right:16px;bottom:16px;width:340px;height:480px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
 #dmBox.open{display:flex;animation:dmSlideUp .35s cubic-bezier(0.2,0.9,0.4,1.1)}
-.dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0}
+/* minimized state */
+#dmBox.minimized{height:52px}
+#dmBox.minimized #dmMsgs,#dmBox.minimized #dmReplyBar,#dmBox.minimized .dm-bar,#dmBox.minimized #dmEmojiPanel{display:none!important}
+.dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer;user-select:none}
 .dm-title{flex:1;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.dm-x{background:rgba(255,255,255,.2);border:none;border-radius:7px;color:#fff;font-size:11px;cursor:pointer;padding:3px 8px}
-#dmMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.dm-head-btns{display:flex;gap:5px;flex-shrink:0}
+.dm-x,.dm-min{background:rgba(255,255,255,.2);border:none;border-radius:7px;color:#fff;font-size:11px;cursor:pointer;padding:3px 8px}
+.dm-typing-info{font-size:10px;color:rgba(255,255,255,.7);font-style:italic;margin-left:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100px}
+#dmMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:2px}
 #dmMsgs::-webkit-scrollbar{width:3px}
 #dmMsgs::-webkit-scrollbar-thumb{background:var(--border)}
 #dmReplyBar{background:var(--panel2);border-top:1px solid var(--border);padding:6px 10px;display:none;align-items:center;gap:6px;font-size:11px;color:var(--text3)}
@@ -370,31 +382,56 @@ select.inp{cursor:pointer}
 .dm-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;align-items:center;position:relative}
 #dmInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
 #dmInput:focus{border-color:var(--indigo2)}
-.dm-emoji-btn,.dm-voice-btn{width:32px;height:32px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-.dm-voice-btn.recording{background:rgba(255,60,60,0.2);border-color:rgba(255,60,60,0.5);animation:recordPulse 1s infinite}
-.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;font-size:16px;cursor:pointer;padding:0 13px;height:34px;overflow:hidden;position:relative}
+.dm-icon-btn{width:32px;height:32px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.dm-icon-btn:hover{background:var(--border)}
+.dm-icon-btn.recording{background:rgba(255,60,60,0.2);border-color:rgba(255,60,60,0.5);animation:recordPulse 1s infinite}
+.dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;font-size:16px;cursor:pointer;padding:0 13px;height:34px;overflow:hidden;position:relative;flex-shrink:0}
 .dm-plane{display:inline-block}
 .dm-send.fly .dm-plane{animation:planeShoot .45s ease forwards}
 #dmEmojiPanel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:300px;z-index:1000;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
 #dmEmojiPanel.open{display:block}
 #dmEmojiPanel .emoji-grid{max-height:180px;margin-bottom:0}
+
+/* DM message bubble */
+.dm-msg-wrap{margin-bottom:4px}
+.dm-bubble-row{display:flex}
+.dm-bubble-row.me{justify-content:flex-end}
+.dm-bubble{max-width:82%;background:var(--bubble);border:1px solid var(--border);border-radius:4px 16px 16px 16px;padding:8px 12px;font-size:13px;color:var(--text);word-break:break-word;position:relative}
+.dm-bubble.me{background:rgba(120,30,200,0.28);border-color:rgba(168,85,247,0.4);border-radius:16px 4px 16px 16px}
+.dm-bubble img.dm-img{max-width:180px;max-height:140px;border-radius:8px;display:block;margin-top:4px;cursor:pointer;object-fit:cover;border:1px solid var(--border)}
+.dm-time{font-size:10px;color:var(--text3);margin-left:8px}
+.dm-reactions-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 4px;min-height:0}
+.dm-reactions-row.me{justify-content:flex-end}
+
 #dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center;padding:16px}
 #dmListOverlay.open{display:flex}
 .dm-list-modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:340px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:modalFloat 0.3s cubic-bezier(.22,1,.36,1);max-height:70vh;display:flex;flex-direction:column}
 .dm-list-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--text);margin-bottom:14px;letter-spacing:1px;text-transform:uppercase;display:flex;align-items:center;justify-content:space-between}
 .dm-list-close{background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;width:26px;height:26px;color:var(--text2);font-size:12px;cursor:pointer;display:flex;align-items:center;justify-content:center}
 .dm-list-body{overflow-y:auto;flex:1}
-.dm-list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;transition:all .2s;margin-bottom:2px;border:1px solid transparent}
+.dm-list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;transition:all .2s;margin-bottom:2px;border:1px solid transparent;position:relative}
 .dm-list-item:hover{background:var(--indigo-f);border-color:var(--border)}
+/* unread indicator on DM list */
+.dm-unread-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-left:auto;box-shadow:0 0 5px var(--accent);flex-shrink:0}
+/* who is typing — on DM list */
+.dm-list-typing{font-size:10px;color:var(--accent);font-style:italic;margin-top:1px}
 
 /* Typing indicator */
-.typing-indicator{display:flex;align-items:center;gap:6px;padding:4px 14px 4px 56px;font-size:12px;color:var(--text3);font-style:italic}
+.typing-indicator{display:flex;align-items:center;gap:6px;padding:6px 14px 4px 56px;font-size:12px;color:var(--text3);font-style:italic}
 .typing-dots{display:flex;gap:3px;align-items:center}
-.typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:waveform .8s ease infinite}
+.typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:typingBounce .8s ease infinite}
 .typing-dot:nth-child(2){animation-delay:.15s}
 .typing-dot:nth-child(3){animation-delay:.3s}
 
+/* DM typing inline */
+.dm-typing-row{display:flex;align-items:center;gap:5px;padding:4px 6px;font-size:11px;color:var(--text3);font-style:italic}
+.dm-typing-row .typing-dot{background:var(--accent)}
+
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:messagePop .3s ease;white-space:nowrap}
+
+/* Nav DM indicator — who is typing in DM */
+#navDMTypingBadge{font-size:9px;color:var(--accent);font-style:italic;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none}
+#navDMTypingBadge.show{display:block}
 
 .hidden{display:none!important}
 ::-webkit-scrollbar{width:5px;height:5px}
@@ -405,13 +442,13 @@ select.inp{cursor:pointer}
 <body>
 <div id="hearts"></div>
 <div id="quickReactPanel">
-  <button class="qr-btn" id="qr1">❤️</button>
-  <button class="qr-btn" id="qr2">😂</button>
-  <button class="qr-btn" id="qr3">🔥</button>
-  <button class="qr-btn" id="qr4">👍</button>
-  <button class="qr-btn" id="qr5">😮</button>
-  <button class="qr-btn" id="qr6">💜</button>
-  <button class="qr-btn" id="qr7">😢</button>
+  <button class="qr-btn">❤️</button>
+  <button class="qr-btn">😂</button>
+  <button class="qr-btn">🔥</button>
+  <button class="qr-btn">👍</button>
+  <button class="qr-btn">😮</button>
+  <button class="qr-btn">💜</button>
+  <button class="qr-btn">😢</button>
 </div>
 <nav id="topnav">
   <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
@@ -419,7 +456,7 @@ select.inp{cursor:pointer}
   <button class="nav-btn" id="navFriends" onclick="showPanel('friends')">👥 <span class="label">მეგობრები</span><span class="badge" id="friendBadge"></span></button>
   <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
   <button class="nav-btn" id="navOnline" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
-  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span></button>
+  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span><span id="navDMTypingBadge"></span></button>
   <div class="nav-spacer"></div>
   <button class="nav-btn" onclick="openMyProfile()">👤</button>
   <button class="nav-btn" onclick="openThemeModal()" title="თემა">🎨</button>
@@ -479,7 +516,7 @@ select.inp{cursor:pointer}
     </div>
     <div id="replyBar">
       <span style="font-size:14px;color:var(--accent)">↩️</span>
-      <div class="reply-to-info" id="replyBarInfo">პასუხი: <strong id="replyBarNick">-</strong></div>
+      <div class="reply-to-info" id="replyBarInfo">↩️ <strong id="replyBarNick">-</strong></div>
       <button class="reply-cancel" onclick="cancelReply()">✕</button>
     </div>
     <div id="formatBar">
@@ -678,15 +715,21 @@ select.inp{cursor:pointer}
 
 <!-- DM Box -->
 <div id="dmBox">
-  <div class="dm-head">
-    <div class="avatar" style="width:28px;height:28px;font-size:14px;border:2px solid rgba(255,255,255,.3);flex-shrink:0" id="dmAv">👤</div>
-    <div class="dm-title" id="dmTitle">პირადი</div>
-    <button class="dm-x" onclick="closeDM()">✕</button>
+  <div class="dm-head" onclick="toggleDMMinimize(event)">
+    <div class="avatar" style="width:28px;height:28px;font-size:14px;border:2px solid rgba(255,255,255,.3);flex-shrink:0;pointer-events:none" id="dmAv">👤</div>
+    <div style="flex:1;min-width:0;pointer-events:none">
+      <div class="dm-title" id="dmTitle">პირადი</div>
+      <div class="dm-typing-info" id="dmTypingInfo"></div>
+    </div>
+    <div class="dm-head-btns">
+      <button class="dm-min" id="dmMinBtn" onclick="event.stopPropagation();toggleDMMinimize()">—</button>
+      <button class="dm-x" onclick="event.stopPropagation();closeDM()">✕</button>
+    </div>
   </div>
   <div id="dmMsgs"></div>
   <div id="dmReplyBar">
     <span style="color:var(--accent)">↩️</span>
-    <span style="flex:1">პასუხი: <strong id="dmReplyNick">-</strong></span>
+    <span style="flex:1;font-size:11px">↩️ <strong id="dmReplyNick">-</strong></span>
     <button style="background:none;border:none;color:var(--text3);cursor:pointer" onclick="cancelDMReply()">✕</button>
   </div>
   <div id="dmEmojiPanel">
@@ -694,9 +737,11 @@ select.inp{cursor:pointer}
     <div class="emoji-grid" id="dmEmojiGrid"></div>
   </div>
   <div class="dm-bar">
-    <button class="dm-emoji-btn" onclick="toggleDMEmoji()">😊</button>
-    <button class="dm-voice-btn" id="dmVoiceBtn" onclick="toggleDMVoice()">🎙️</button>
-    <input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()">
+    <button class="dm-icon-btn" onclick="toggleDMEmoji()" title="სმაილები">😊</button>
+    <button class="dm-icon-btn" id="dmImgBtn" onclick="document.getElementById('dmImgInput').click()" title="ფოტო/ფაილი">📎</button>
+    <input type="file" id="dmImgInput" accept="image/*,video/*,.pdf,.zip,.doc,.docx" style="display:none" onchange="sendDMFile(event)">
+    <button class="dm-icon-btn" id="dmVoiceBtn" onclick="toggleDMVoice()" title="ვოისი">🎙️</button>
+    <input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()" oninput="onDMTyping()">
     <button class="dm-send" id="dmSendBtn" onclick="sendDM()"><span class="dm-plane">✈️</span></button>
   </div>
 </div>
@@ -711,7 +756,6 @@ select.inp{cursor:pointer}
     <div class="pv-comment" id="pvComment"></div>
     <div class="pv-author" id="pvAuthor"></div>
     <div class="pv-counter" id="pvCounter"></div>
-    <!-- Reactions on photo -->
     <div class="gal-react-row" id="pvReactions"></div>
     <div style="display:flex;gap:6px;margin-top:8px;justify-content:center;flex-wrap:wrap" id="pvReactBtns">
       <button class="gal-react-btn" onclick="reactToPhoto('❤️')">❤️</button>
@@ -721,11 +765,9 @@ select.inp{cursor:pointer}
       <button class="gal-react-btn" onclick="reactToPhoto('💜')">💜</button>
       <button class="gal-react-btn" onclick="reactToPhoto('😮')">😮</button>
     </div>
-    <!-- Comments on photo -->
     <div class="gal-comments-section" style="position:relative">
       <div style="font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);margin-bottom:8px">💬 კომენტარები</div>
       <div id="pvCommentsList" style="max-height:120px;overflow-y:auto;margin-bottom:8px"></div>
-      <!-- Emoji panel for photo comments -->
       <div id="pvEmojiPanel" style="display:none;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:8px;max-height:160px;overflow-y:auto">
         <div style="display:flex;flex-wrap:wrap;gap:6px" id="pvEmojiGrid"></div>
       </div>
@@ -743,28 +785,40 @@ select.inp{cursor:pointer}
 </div>
 
 <script>
-const {createClient} = supabase;
-const sb = createClient(
+const {createClient}=supabase;
+const sb=createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-let ME = null, MYPROF = null, ROOM = 1, VIEW_UID = null, DM_UID = null;
-let allUsers = [], myFriends = [], customEmojis = [];
-let emojiCache = {};
-let selectedEmotion = '😊', msgCh = null, dmCh = null, friendCh = null;
-let galSelectedEmo = '😊', galFileData = null;
-let currentGallery = [], pvIndex = 0, _pvFiltered = [];
-let userAlbums = [], activeAlbumFilter = null, galleryViewUID = null;
-let activeGameRoom = null;
+let ME=null,MYPROF=null,ROOM=1,VIEW_UID=null,DM_UID=null;
+let allUsers=[],myFriends=[],customEmojis=[];
+let emojiCache={};
+let selectedEmotion='😊',msgCh=null,dmCh=null,friendCh=null;
+let galSelectedEmo='😊',galFileData=null;
+let currentGallery=[],pvIndex=0,_pvFiltered=[];
+let userAlbums=[],activeAlbumFilter=null,galleryViewUID=null;
+let activeGameRoom=null;
 let fmtBold=false,fmtItalic=false,fmtUnder=false,fmtColor=null,fmtFont=null,formatBarOpen=false;
 let replyToMsg=null,dmReplyTo=null,reactTargetMsgId=null;
 let mediaRecorder=null,audioChunks=[],isRecording=false;
 let dmMediaRecorder=null,dmAudioChunks=[],dmIsRecording=false;
-let typingTimeout=null,typingCh=null,typingUsers={};
+
+// typing — main chat
+let typingCh=null,typingChReady=false,typingUsers={};
+// typing — DM
+let dmTypingCh=null,dmTypingChReady=false,dmTypingUsers={};
+
 const roomMsgCache={};
-// Track sent message IDs to avoid duplicates from realtime
-const sentMsgIds = new Set();
+const sentMsgIds=new Set();
+let dmMinimized=false;
+
+// unread DM tracking per user
+const dmUnread={}; // {uid: count}
+// dm reactions target
+let dmReactTargetId=null;
+// quick react mode: 'chat' | 'dm'
+let qrMode='chat';
 
 /* ===================== THEME ===================== */
 const THEMES=[
@@ -794,57 +848,38 @@ function applyThemeById(id){
   document.body.classList.remove('theme-custom');
   document.body.classList.add(id);
   currentTheme=id;
-  // FIX: save theme to Supabase profiles so it persists across devices
   localStorage.setItem('kaif_theme',id);
-  if(ME&&MYPROF){
-    sb.from('profiles').update({theme:id}).eq('id',ME.id).then(()=>{});
-  }
-  const s=document.getElementById('customThemeStyle');
-  if(s)s.remove();
+  if(ME&&MYPROF)sb.from('profiles').update({theme:id}).eq('id',ME.id).then(()=>{});
+  const s=document.getElementById('customThemeStyle');if(s)s.remove();
   updateThemeGrid();
 }
 function openThemeModal(){buildThemeGrid();openModal('themeOverlay');}
 function buildThemeGrid(){
   const grid=document.getElementById('themeGrid');grid.innerHTML='';
   THEMES.forEach(t=>{
-    const div=document.createElement('div');
-    div.className='theme-swatch'+(currentTheme===t.id?' active':'');
+    const div=document.createElement('div');div.className='theme-swatch'+(currentTheme===t.id?' active':'');
     div.innerHTML=`<div class="sw-preview"><div class="sw-half" style="background:${t.bg}"></div><div class="sw-half" style="background:${t.accent}"></div></div><div class="sw-label">${t.label}</div><span class="sw-check">✓</span>`;
-    div.onclick=()=>applyThemeById(t.id);
-    grid.appendChild(div);
+    div.onclick=()=>applyThemeById(t.id);grid.appendChild(div);
   });
 }
-function updateThemeGrid(){
-  document.querySelectorAll('.theme-swatch').forEach((el,i)=>{el.classList.toggle('active',THEMES[i]?.id===currentTheme);});
-}
+function updateThemeGrid(){document.querySelectorAll('.theme-swatch').forEach((el,i)=>{el.classList.toggle('active',THEMES[i]?.id===currentTheme);});}
 function applyCustomTheme(){
   const bg=document.getElementById('cp_bg').value,panel=document.getElementById('cp_panel').value,text=document.getElementById('cp_text').value,accent=document.getElementById('cp_accent').value,indigo=document.getElementById('cp_indigo').value;
-  THEMES.forEach(t=>document.body.classList.remove(t.id));
-  document.body.classList.remove('theme-custom');
+  THEMES.forEach(t=>document.body.classList.remove(t.id));document.body.classList.remove('theme-custom');
   let style=document.getElementById('customThemeStyle');
   if(!style){style=document.createElement('style');style.id='customThemeStyle';document.head.appendChild(style);}
   style.textContent=`body{--bg:${bg};--panel:${panel};--panel2:${panel};--border:rgba(128,128,128,0.3);--text:${text};--text2:${lightenHex(text,-30)};--text3:${lightenHex(text,-60)};--bubble:${panel};--input-bg:${bg};--online:${accent};--indigo:${indigo};--indigo2:${lightenHex(indigo,20)};--indigo-f:${hexToRgba(indigo,0.15)};--glow:${hexToRgba(accent,0.25)};--accent:${accent};}`;
 }
 function hexToRgba(h,a){const r=parseInt(h.slice(1,3),16),g=parseInt(h.slice(3,5),16),b=parseInt(h.slice(5,7),16);return`rgba(${r},${g},${b},${a})`;}
 function lightenHex(h,amt){let r=parseInt(h.slice(1,3),16)+amt,g=parseInt(h.slice(3,5),16)+amt,b=parseInt(h.slice(5,7),16)+amt;r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
-function saveCustomTheme(){localStorage.setItem('kaif_custom_colors',JSON.stringify({bg:document.getElementById('cp_bg').value,panel:document.getElementById('cp_panel').value,text:document.getElementById('cp_text').value,accent:document.getElementById('cp_accent').value,indigo:document.getElementById('cp_indigo').value}));currentTheme='custom';localStorage.setItem('kaif_theme','custom');toast('✅ კასტომ თემა შენახულია!');}
-function resetTheme(){applyThemeById('night');toast('🔄 ნაგულისხმევი თემა');}
+function saveCustomTheme(){localStorage.setItem('kaif_custom_colors',JSON.stringify({bg:document.getElementById('cp_bg').value,panel:document.getElementById('cp_panel').value,text:document.getElementById('cp_text').value,accent:document.getElementById('cp_accent').value,indigo:document.getElementById('cp_indigo').value}));currentTheme='custom';localStorage.setItem('kaif_theme','custom');toast('✅ კასტომ თემა!');}
+function resetTheme(){applyThemeById('night');toast('🔄 ნაგულისხმევი');}
 function loadSavedTheme(profileTheme){
-  // FIX: prefer profile theme (Supabase) over localStorage
-  const saved = profileTheme || localStorage.getItem('kaif_theme') || 'night';
+  const saved=profileTheme||localStorage.getItem('kaif_theme')||'night';
   if(saved==='custom'){
     const colors=JSON.parse(localStorage.getItem('kaif_custom_colors')||'{}');
-    if(colors.bg){
-      document.getElementById('cp_bg').value=colors.bg;
-      document.getElementById('cp_panel').value=colors.panel;
-      document.getElementById('cp_text').value=colors.text;
-      document.getElementById('cp_accent').value=colors.accent;
-      document.getElementById('cp_indigo').value=colors.indigo;
-      applyCustomTheme();
-    }
-  } else {
-    applyThemeById(saved);
-  }
+    if(colors.bg){document.getElementById('cp_bg').value=colors.bg;document.getElementById('cp_panel').value=colors.panel;document.getElementById('cp_text').value=colors.text;document.getElementById('cp_accent').value=colors.accent;document.getElementById('cp_indigo').value=colors.indigo;applyCustomTheme();}
+  }else{applyThemeById(saved);}
 }
 
 /* ===================== FORMAT ===================== */
@@ -893,7 +928,7 @@ async function startVoiceRecord(){
     };
     mediaRecorder.start();isRecording=true;
     document.getElementById('voiceBtn').classList.add('recording');document.getElementById('voiceBtn').textContent='⏹️';
-    toast('🔴 ჩაწერა დაიწყო...');
+    toast('🔴 ჩაწერა...');
   }catch(e){toast('❌ მიკროფონი ვერ');}
 }
 function stopVoiceRecord(){if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();isRecording=false;document.getElementById('voiceBtn').classList.remove('recording');document.getElementById('voiceBtn').textContent='🎙️';}
@@ -903,11 +938,11 @@ async function sendVoiceMessage(base64,dur){
   const{data}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content}).select('id').single();
   if(data){
     sentMsgIds.add(data.id);
-    const prof=await loadProf(ME.id);
+    const prof=MYPROF;
     appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content,created_at:new Date().toISOString(),profiles:{username:prof?.username,role:prof?.role,avatar_url:prof?.avatar_url,emotion:prof?.emotion}});
     document.getElementById('messages').scrollTop=99999;
   }
-  toast('✅ ვოისი გაიგზავნა!');
+  toast('✅ ვოისი!');
 }
 async function toggleDMVoice(){if(!dmIsRecording)await startDMVoiceRecord();else stopDMVoiceRecord();}
 async function startDMVoiceRecord(){
@@ -923,10 +958,10 @@ async function startDMVoiceRecord(){
         const content=`[voice:${dur}]${base64}[/voice]`;
         if(!DM_UID)return;
         const rk=[ME.id,DM_UID].sort().join('_');
-        await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content});
-        appendDMMsg({sender_id:ME.id,content,created_at:new Date().toISOString()});
+        const{data}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();
+        if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});
         document.getElementById('dmMsgs').scrollTop=9999;
-        toast('✅ ვოისი გაიგზავნა!');
+        toast('✅ ვოისი!');
       };
       reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());
     };
@@ -938,24 +973,122 @@ async function startDMVoiceRecord(){
 function stopDMVoiceRecord(){if(dmMediaRecorder&&dmMediaRecorder.state!=='inactive')dmMediaRecorder.stop();dmIsRecording=false;document.getElementById('dmVoiceBtn').classList.remove('recording');document.getElementById('dmVoiceBtn').textContent='🎙️';}
 
 let currentAudio=null;
-function renderVoiceContent(raw){
-  const m=raw.match(/\[voice:(\d+)\]([\s\S]+)\[\/voice\]/);
-  if(!m)return renderContent(raw);
-  const dur=parseInt(m[1])||0,base64=m[2];
-  const bars=Array.from({length:20},()=>{const h=4+Math.round(Math.random()*12);return`<div class="voice-bar" style="height:${h}px"></div>`;}).join('');
-  const id='vp_'+Math.random().toString(36).slice(2);
-  return`<div class="voice-msg"><button class="voice-play" id="${id}" data-src="${encodeURIComponent(base64)}">▶</button><div class="voice-wave">${bars}</div><span class="voice-dur">${dur}s</span></div>`;
-}
 document.addEventListener('click',e=>{
   if(e.target.classList.contains('voice-play')){
-    const src=decodeURIComponent(e.target.dataset.src||'');
-    if(!src)return;
+    const src=decodeURIComponent(e.target.dataset.src||'');if(!src)return;
     if(currentAudio){currentAudio.pause();currentAudio=null;}
     const a=new Audio(src);currentAudio=a;e.target.textContent='⏸';
     a.play();a.onended=()=>{e.target.textContent='▶';currentAudio=null;};
-    a.onerror=()=>{e.target.textContent='▶';toast('❌ ვოისი ვერ დაუკრა');};
+    a.onerror=()=>{e.target.textContent='▶';toast('❌ ვოისი ვერ');};
   }
 });
+
+/* ===================== DM FILE/PHOTO SEND ===================== */
+async function sendDMFile(e){
+  const file=e.target.files[0];if(!file||!DM_UID)return;
+  if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}
+  toast('⏳ იგზავნება...');
+  const reader=new FileReader();
+  reader.onload=async ev=>{
+    const base64=ev.target.result;
+    const isImg=file.type.startsWith('image/');
+    const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;
+    const rk=[ME.id,DM_UID].sort().join('_');
+    const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();
+    if(error){toast('❌ '+error.message);return;}
+    if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});
+    document.getElementById('dmMsgs').scrollTop=9999;
+    toast('✅ გაიგზავნა!');
+  };
+  reader.readAsDataURL(file);e.target.value='';
+}
+
+/* ===================== TYPING — MAIN CHAT ===================== */
+function onTyping(){
+  if(!ME||!ROOM)return;
+  if(typingCh&&typingChReady){
+    try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}
+  }
+}
+
+function setupTypingChannel(roomId){
+  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
+  typingChReady=false;typingUsers={};removeTypingIndicator();
+  typingCh=sb.channel('typing_r'+roomId,{config:{broadcast:{self:false}}})
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(!payload||payload.uid===ME?.id)return;
+      if(typingUsers[payload.uid]?._timer)clearTimeout(typingUsers[payload.uid]._timer);
+      typingUsers[payload.uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[payload.uid];renderTyping();},3000)};
+      renderTyping();
+    })
+    .subscribe(status=>{if(status==='SUBSCRIBED')typingChReady=true;});
+}
+
+function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
+function renderTyping(){
+  const users=Object.values(typingUsers).filter(u=>u.nick);
+  removeTypingIndicator();
+  if(!users.length)return;
+  const msgs=document.getElementById('messages');if(!msgs)return;
+  const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';
+  el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>u.nick).join(', ')} წერს...</span>`;
+  msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
+}
+
+/* ===================== TYPING — DM ===================== */
+function onDMTyping(){
+  if(!ME||!DM_UID)return;
+  if(dmTypingCh&&dmTypingChReady){
+    try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}
+  }
+}
+
+function setupDMTypingChannel(rk){
+  if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}
+  dmTypingChReady=false;dmTypingUsers={};removeDMTyping();
+  dmTypingCh=sb.channel('dmtyping_'+rk,{config:{broadcast:{self:false}}})
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(!payload||payload.uid===ME?.id)return;
+      if(dmTypingUsers[payload.uid]?._timer)clearTimeout(dmTypingUsers[payload.uid]._timer);
+      dmTypingUsers[payload.uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[payload.uid];renderDMTyping();},3000)};
+      renderDMTyping();
+    })
+    .subscribe(status=>{if(status==='SUBSCRIBED')dmTypingChReady=true;});
+}
+
+function removeDMTyping(){
+  document.getElementById('dmTypingRow')?.remove();
+  // also clear nav badge
+  const nb=document.getElementById('navDMTypingBadge');
+  if(nb){nb.textContent='';nb.classList.remove('show');}
+  const ti=document.getElementById('dmTypingInfo');
+  if(ti)ti.textContent='';
+}
+
+function renderDMTyping(){
+  const users=Object.values(dmTypingUsers).filter(u=>u.nick);
+  removeDMTyping();
+  if(!users.length)return;
+  const names=users.map(u=>u.nick).join(', ');
+
+  // inside DM box
+  const box=document.getElementById('dmMsgs');
+  if(box&&document.getElementById('dmBox').classList.contains('open')){
+    const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';
+    el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;
+    box.appendChild(el);box.scrollTop=box.scrollHeight;
+  }
+
+  // on DM header (minimized or open)
+  const ti=document.getElementById('dmTypingInfo');
+  if(ti)ti.textContent=names+' წერს...';
+
+  // on nav ✉️ button — show who is typing even when DM is closed/minimized
+  const nb=document.getElementById('navDMTypingBadge');
+  if(nb&&(!document.getElementById('dmBox').classList.contains('open')||dmMinimized)){
+    nb.textContent=names+' ✍️';nb.classList.add('show');
+  }
+}
 
 /* ===================== REPLY ===================== */
 function setReply(msgId,nick,content){
@@ -970,13 +1103,17 @@ function setDMReply(nick,content){dmReplyTo={nick,content:content.substring(0,60
 function cancelDMReply(){dmReplyTo=null;document.getElementById('dmReplyBar').classList.remove('open');}
 
 /* ===================== QUICK REACT ===================== */
-// FIX: attach event listeners to quick react buttons (not inline)
 document.querySelectorAll('.qr-btn').forEach(btn=>{
-  btn.addEventListener('click',()=>quickReact(btn.textContent.trim()));
+  btn.addEventListener('click',()=>{
+    const emoji=btn.textContent.trim();
+    if(qrMode==='dm'){quickDMReact(emoji);}
+    else{quickReact(emoji);}
+    closeQRPanel();
+  });
 });
 
 function showQuickReact(msgId,btn){
-  reactTargetMsgId=msgId;
+  reactTargetMsgId=msgId;qrMode='chat';
   const panel=document.getElementById('quickReactPanel');
   const rect=btn.getBoundingClientRect();
   panel.style.top=Math.max(60,(rect.top-54))+'px';
@@ -984,11 +1121,19 @@ function showQuickReact(msgId,btn){
   panel.classList.add('open');
   setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);
 }
+function showDMQuickReact(msgId,el,isMe){
+  dmReactTargetId=msgId;qrMode='dm';
+  const panel=document.getElementById('quickReactPanel');
+  const rect=el.getBoundingClientRect();
+  panel.style.top=Math.max(60,rect.top-54)+'px';
+  panel.style.left=(isMe?Math.max(8,rect.right-280):rect.left)+'px';
+  panel.classList.add('open');
+  setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);
+}
 function closeQRPanel(){document.getElementById('quickReactPanel').classList.remove('open');}
 
 async function quickReact(emoji){
   if(!reactTargetMsgId||!ME)return;
-  closeQRPanel();
   const{data:ex}=await sb.from('message_reactions').select('id').eq('message_id',reactTargetMsgId).eq('user_id',ME.id).eq('emoji',emoji).maybeSingle();
   if(ex)await sb.from('message_reactions').delete().eq('id',ex.id);
   else await sb.from('message_reactions').upsert({message_id:reactTargetMsgId,user_id:ME.id,emoji});
@@ -1004,8 +1149,7 @@ async function refreshReactions(msgId){
   (data||[]).forEach(r=>{if(!grouped[r.emoji])grouped[r.emoji]=[];grouped[r.emoji].push(r.user_id);});
   reactEl.innerHTML='';
   Object.entries(grouped).forEach(([emoji,uids])=>{
-    const chip=document.createElement('div');
-    chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');
+    const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');
     chip.innerHTML=`${emoji}<span>${uids.length}</span>`;
     chip.title=uids.map(id=>allUsers.find(u=>u.id===id)?.username||'?').join(', ');
     chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});
@@ -1013,36 +1157,32 @@ async function refreshReactions(msgId){
   });
 }
 
-/* ===================== TYPING ===================== */
-function onTyping(){
-  if(!ME||!ROOM)return;
-  if(typingCh){
-    try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}
-  }
+/* ===================== DM REACTIONS ===================== */
+async function quickDMReact(emoji){
+  if(!dmReactTargetId||!ME)return;
+  const tag=`dmreact:${dmReactTargetId}:${emoji}`;
+  const{data:ex}=await sb.from('comments').select('id').eq('user_id',ME.id).eq('content',tag).maybeSingle();
+  if(ex)await sb.from('comments').delete().eq('id',ex.id);
+  else await sb.from('comments').insert({user_id:ME.id,content:tag});
+  await refreshDMReactions(dmReactTargetId);
 }
 
-function setupTypingChannel(roomId){
-  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
-  typingUsers={};removeTypingIndicator();
-  typingCh=sb.channel('typing_'+roomId,{config:{broadcast:{self:false}}})
-    .on('broadcast',{event:'typing'},({payload})=>{
-      if(!payload||payload.uid===ME?.id)return;
-      if(typingUsers[payload.uid]?._timer)clearTimeout(typingUsers[payload.uid]._timer);
-      typingUsers[payload.uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[payload.uid];renderTyping();},3000)};
-      renderTyping();
-    }).subscribe();
-}
-function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
-function renderTyping(){
-  const users=Object.values(typingUsers).filter(u=>u.nick);
-  removeTypingIndicator();
-  if(!users.length)return;
-  const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';
-  el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>u.nick).join(', ')} წერს...</span>`;
-  const msgs=document.getElementById('messages');msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
+async function refreshDMReactions(msgId){
+  const tag=`dmreact:${msgId}:`;
+  const{data}=await sb.from('comments').select('user_id,content').like('content',tag+'%');
+  const el=document.getElementById('dmreact_'+msgId);if(!el)return;
+  const grouped={};
+  (data||[]).forEach(r=>{const emoji=r.content.split(':')[2];if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});
+  el.innerHTML='';
+  Object.entries(grouped).forEach(([emoji,uids])=>{
+    const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');
+    chip.innerHTML=`${emoji}<span>${uids.length}</span>`;
+    chip.addEventListener('click',()=>{dmReactTargetId=msgId;quickDMReact(emoji);});
+    el.appendChild(chip);
+  });
 }
 
-/* ===================== ROOMS ===================== */
+/* ===================== ROOMS / GAME ===================== */
 const ROOMS=[
   {id:1,icon:'🏠',name:'მთავარი მოედანი'},
   {id:2,icon:'🔐',name:'შიფროგრამა',isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},
@@ -1081,8 +1221,7 @@ async function loadGameLeaderboard(){
   if(!activeGameRoom?.gameScoreField)return;
   const field=activeGameRoom.gameScoreField;
   const{data}=await sb.from('profiles').select(`id,username,${field}`).order(field,{ascending:false}).limit(5);
-  const lbEl=document.getElementById('lbRows');if(!lbEl)return;
-  lbEl.innerHTML='';
+  const lbEl=document.getElementById('lbRows');if(!lbEl)return;lbEl.innerHTML='';
   (data||[]).forEach((u,i)=>{
     const rankClass=['gold','silver','bronze'][i]||'';const medal=['🥇','🥈','🥉'][i]||i+1;
     const d=document.createElement('div');d.className='glb-row';
@@ -1093,46 +1232,32 @@ async function loadGameLeaderboard(){
 }
 
 function setRoomView(mode,roomObj){
-  const messagesEl=document.getElementById('messages');
-  const chatBar=document.getElementById('chatBar');
-  const gamePlaceholder=document.getElementById('gameRoomPlaceholder');
-  const playBtn=document.getElementById('playHeaderBtn');
-  const onlineCnt=document.getElementById('onlineCnt');
-  messagesEl.style.display='';chatBar.style.display='';cancelReply();
-  gamePlaceholder.style.display='none';playBtn.style.display='none';onlineCnt.style.display='';
+  const messagesEl=document.getElementById('messages'),chatBar=document.getElementById('chatBar'),gamePlaceholder=document.getElementById('gameRoomPlaceholder'),playBtn=document.getElementById('playHeaderBtn'),onlineCnt=document.getElementById('onlineCnt');
+  messagesEl.style.display='';chatBar.style.display='';cancelReply();gamePlaceholder.style.display='none';playBtn.style.display='none';onlineCnt.style.display='';
   if(mode==='game'&&roomObj){
-    activeGameRoom=roomObj;messagesEl.style.display='none';chatBar.style.display='none';
-    gamePlaceholder.style.display='flex';playBtn.style.display='flex';onlineCnt.style.display='none';
-    document.getElementById('grpIcon').textContent=roomObj.icon;
-    document.getElementById('grpTitle').textContent=roomObj.gameName;
-    document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';
+    activeGameRoom=roomObj;messagesEl.style.display='none';chatBar.style.display='none';gamePlaceholder.style.display='flex';playBtn.style.display='flex';onlineCnt.style.display='none';
+    document.getElementById('grpIcon').textContent=roomObj.icon;document.getElementById('grpTitle').textContent=roomObj.gameName;document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';
     document.getElementById('grpMyScore').textContent=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;
     loadGameLeaderboard();
-  } else {
-    activeGameRoom=null;
-  }
+  }else{activeGameRoom=null;}
 }
 
 /* ===================== MESSAGES ===================== */
 function animateSendPlane(btnId){const btn=document.getElementById(btnId);if(!btn)return;btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}
 
 async function loadMessages(roomId){
-  // სწორად დავხუროთ ძველი channels
   if(msgCh){try{await sb.removeChannel(msgCh);}catch(e){}msgCh=null;}
   if(typingCh){try{await sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
-  removeTypingIndicator();typingUsers={};sentMsgIds.clear();
+  removeTypingIndicator();typingChReady=false;typingUsers={};sentMsgIds.clear();
 
   const box=document.getElementById('messages');box.innerHTML='';
-
-  // FK სახელი არის fk_user — ამიტომ პირდაპირ JOIN ვიყენებთ
   const{data}=await sb.from('messages')
-    .select('id, room_id, user_id, content, created_at, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
+    .select('id,room_id,user_id,content,created_at,profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
     .eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
 
   roomMsgCache[roomId]=data||[];
   (data||[]).forEach(m=>{appendMsg(m,true);sentMsgIds.add(m.id);});
 
-  // reactions ჩატვირთვა
   if(data&&data.length){
     const{data:reactions}=await sb.from('message_reactions').select('*').in('message_id',data.map(m=>m.id));
     if(reactions&&reactions.length){
@@ -1155,49 +1280,41 @@ async function loadMessages(roomId){
   box.scrollTop=box.scrollHeight;
   setupTypingChannel(roomId);
 
-  // ᲛᲜᲘᲨᲕᲜᲔᲚᲝᲕᲐᲜᲘ: უნიკური channel სახელი room_id-ით
   const chName='msgs_room_'+roomId+'_'+Date.now();
   msgCh=sb.channel(chName)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async payload=>{
-      const newId=payload.new.id;
-      const newRoomId=payload.new.room_id;
-      // room_id შევამოწმოთ კოდშიც — ფილტრი საიმედოა მხოლოდ string ტიპზე
-      if(newRoomId!==roomId&&newRoomId!==String(roomId)&&Number(newRoomId)!==Number(roomId))return;
-      // skip თუ უკვე ჩვენ გავაგზავნეთ
+      const newId=payload.new.id,newRoomId=payload.new.room_id;
+      if(Number(newRoomId)!==Number(roomId))return;
       if(sentMsgIds.has(newId)||document.getElementById('msg'+newId))return;
       sentMsgIds.add(newId);
       const{data:msg}=await sb.from('messages')
-        .select('id, room_id, user_id, content, created_at, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
+        .select('id,room_id,user_id,content,created_at,profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
         .eq('id',newId).single();
       if(msg&&Number(msg.room_id)===Number(roomId)){appendMsg(msg);box.scrollTop=box.scrollHeight;}
     })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{
-      document.getElementById('msg'+payload.old.id)?.remove();
-    })
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reactions'},async payload=>{
-      await refreshReactions(payload.new.message_id);
-    })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},async payload=>{
-      await refreshReactions(payload.old.message_id);
-    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{document.getElementById('msg'+payload.old.id)?.remove();})
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reactions'},async payload=>{await refreshReactions(payload.new.message_id);})
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},async payload=>{await refreshReactions(payload.old.message_id);})
     .subscribe();
+}
+
+function renderVoiceContent(raw){
+  const m=raw.match(/\[voice:(\d+)\]([\s\S]+)\[\/voice\]/);
+  if(!m)return renderContent(raw);
+  const dur=parseInt(m[1])||0,base64=m[2];
+  const bars=Array.from({length:20},()=>{const h=4+Math.round(Math.random()*12);return`<div class="voice-bar" style="height:${h}px"></div>`;}).join('');
+  return`<div class="voice-msg"><button class="voice-play" data-src="${encodeURIComponent(base64)}">▶</button><div class="voice-wave">${bars}</div><span class="voice-dur">${dur}s</span></div>`;
 }
 
 function appendMsg(m,skipScroll){
   const isMe=(m.user_id===ME?.id);
-  const myRole=MYPROF?.role;const authorRole=m.profiles?.role;
+  const myRole=MYPROF?.role,authorRole=m.profiles?.role;
   const canDel=myRole==='founder'||(myRole==='admin'&&authorRole!=='founder')||isMe;
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const role=m.profiles?.role;
   const rbadge=role&&role!=='member'?`<span class="role-badge ${rbClass(role)}">${rLabel(role)}</span>`:'';
-
-  // FIX: use username from profiles, NOT email
-  const displayName = m.profiles?.username || '?';
-
-  const avHtml=m.profiles?.avatar_url
-    ?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`
-    :(m.profiles?.emotion||'😊');
-
+  const displayName=m.profiles?.username||'?';
+  const avHtml=m.profiles?.avatar_url?`<img src="${m.profiles.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(m.profiles?.emotion||'😊');
   const isVoice=m.content&&m.content.startsWith('[voice:');
   let replyHtml='',displayContent=m.content;
   if(m.content&&m.content.startsWith('[reply:')){
@@ -1227,53 +1344,36 @@ function appendMsg(m,skipScroll){
     </div>
     <div class="msg-reactions"></div>
   `;
-
-  row.querySelector('.reply-act-btn').addEventListener('click',()=>{
-    setReply(m.id,displayName,(m.content||'').substring(0,80));
-  });
-  row.querySelector('.react-act-btn').addEventListener('click',function(){
-    showQuickReact(m.id,this);
-  });
-
+  row.querySelector('.reply-act-btn').addEventListener('click',()=>setReply(m.id,displayName,(m.content||'').substring(0,80)));
+  row.querySelector('.react-act-btn').addEventListener('click',function(){showQuickReact(m.id,this);});
   document.getElementById('messages').appendChild(row);
 }
 
 async function sendMessage(){
-  const inp=document.getElementById('msgInput');
-  let txt=inp.value.trim();if(!txt)return;
-  inp.value='';
-  txt=wrapFormatting(txt);
+  const inp=document.getElementById('msgInput');let txt=inp.value.trim();if(!txt)return;
+  inp.value='';txt=wrapFormatting(txt);
   if(replyToMsg){txt=`[reply:${replyToMsg.nick}|${replyToMsg.content}]${txt}`;cancelReply();}
   animateSendPlane('mainSendBtn');
-
   const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();
   if(error){toast('❌ '+error.message);inp.value=txt;return;}
-
   if(data){
     sentMsgIds.add(data.id);
-    // render with real profile data
-    appendMsg({
-      id:data.id,user_id:ME.id,room_id:ROOM,content:txt,
-      created_at:new Date().toISOString(),
-      profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}
-    });
+    appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content:txt,created_at:new Date().toISOString(),profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}});
     document.getElementById('messages').scrollTop=99999;
   }
 }
-
 async function delMsg(id){if(!confirm('წავშალო?'))return;document.getElementById('msg'+id)?.remove();await sb.from('messages').delete().eq('id',id);}
 
 /* ===================== EMOJI ===================== */
 async function handleEmojiImages(e){
   const files=Array.from(e.target.files);if(!files.length)return;
-  if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს შეუძლია!');return;}
-  toast('⏳ იტვირთება...');let added=0;
+  if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}
+  toast('⏳...');let added=0;
   for(const file of files){
     try{
-      if(file.size>20*1024*1024){toast('❌ '+file.name+' ძალიან დიდია!');continue;}
+      if(file.size>20*1024*1024){toast('❌ '+file.name+' დიდია!');continue;}
       const isGif=file.type==='image/gif';
-      let fileToUpload;
-      try{fileToUpload=isGif?file:await compressImage(file,256,0.85);}catch(e){fileToUpload=file;}
+      let fileToUpload;try{fileToUpload=isGif?file:await compressImage(file,256,0.85);}catch(e){fileToUpload=file;}
       const ext=isGif?'gif':'webp';
       const fileName=`emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
       const{data:uploadData,error:uploadError}=await sb.storage.from('emojis').upload(fileName,fileToUpload,{contentType:isGif?'image/gif':'image/webp',upsert:false});
@@ -1288,18 +1388,15 @@ async function handleEmojiImages(e){
   if(added){toast('✅ '+added+' სმაილი!');buildEmojis();}
   e.target.value='';
 }
-
 async function addTextEmoji(){
   if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}
-  const v=document.getElementById('newEmojiInput').value.trim();
-  if(!v||v.length>6){toast('❌ მაქს 6 სიმბოლო');return;}
+  const v=document.getElementById('newEmojiInput').value.trim();if(!v||v.length>6){toast('❌ მაქს 6');return;}
   const{data,error}=await sb.from('global_emojis').insert({url:v}).select().single();
   if(error){toast('❌ '+error.message);return;}
   document.getElementById('newEmojiInput').value='';
   if(data){emojiCache[data.id]=v;customEmojis.push(data);}
-  toast('✅ სმაილი!');buildEmojis();
+  toast('✅');buildEmojis();
 }
-
 async function removeEmoji(id){
   if(!['admin','founder'].includes(MYPROF?.role)){toast('❌');return;}
   if(!confirm('წაიშალოს?'))return;
@@ -1308,57 +1405,35 @@ async function removeEmoji(id){
   if(emoji?.url&&emoji.url.includes('/storage/v1/object/public/emojis/')){
     try{const p=emoji.url.split('/emojis/');if(p.length>1)await sb.storage.from('emojis').remove([p[1].split('?')[0]]);}catch(e){}
   }
-  customEmojis=customEmojis.filter(e=>e.id!==id);delete emojiCache[id];
-  toast('🗑 სმაილი წაიშალა');buildEmojis();
+  customEmojis=customEmojis.filter(e=>e.id!==id);delete emojiCache[id];toast('🗑');buildEmojis();
 }
-
 function buildEmojis(){
   buildEmojiGrid('emojiGrid','msgInput',true);
   buildEmojiGrid('dmEmojiGrid','dmInput',false);
   buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
 }
-
 function togglePvEmoji(){
-  const p=document.getElementById('pvEmojiPanel');
-  if(!p)return;
-  const isOpen=p.style.display!=='none';
-  p.style.display=isOpen?'none':'block';
+  const p=document.getElementById('pvEmojiPanel');if(!p)return;
+  const isOpen=p.style.display!=='none';p.style.display=isOpen?'none':'block';
   if(!isOpen){
-    const grid=document.getElementById('pvEmojiGrid');
-    if(!grid)return;
-    grid.innerHTML='';
+    const grid=document.getElementById('pvEmojiGrid');if(!grid)return;grid.innerHTML='';
     customEmojis.forEach(em=>{
-      const btn=document.createElement('button');
-      btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0';
+      const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0';
       const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
       if(isImg){const img=document.createElement('img');img.src=em.url;img.style.cssText='width:34px;height:34px;border-radius:6px;object-fit:contain;pointer-events:none';btn.appendChild(img);}
       else{const span=document.createElement('span');span.textContent=em.url||'?';span.style.cssText='font-size:24px;pointer-events:none';btn.appendChild(span);}
-      btn.addEventListener('click',()=>{
-        const inp=document.getElementById('pvCommentInput');
-        if(!inp)return;
-        inp.value+=isImg?`[e:${em.id}]`:em.url;
-        inp.focus();
-      });
+      btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});
       grid.appendChild(btn);
     });
-    // ჩვეულებრივი emoji-ებიც დავამატოთ
     const basics=['😊','😍','😂','🔥','💜','❤️','👍','😮','🥺','✨','🎉','😴','🤩','💫','🌸'];
     basics.forEach(e=>{
-      const btn=document.createElement('button');
-      btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0';
-      btn.textContent=e;
-      btn.addEventListener('click',()=>{
-        const inp=document.getElementById('pvCommentInput');
-        if(!inp)return;
-        inp.value+=e;inp.focus();
-      });
-      grid.appendChild(btn);
+      const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0';
+      btn.textContent=e;btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=e;inp.focus();});grid.appendChild(btn);
     });
   }
 }
 function buildEmojiGrid(gridId,inputId,withManage){
-  const grid=document.getElementById(gridId);if(!grid)return;
-  grid.innerHTML='';
+  const grid=document.getElementById(gridId);if(!grid)return;grid.innerHTML='';
   const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);
   if(withManage){const s=document.getElementById('addEmojiSection');if(s)s.style.display=canManage?'block':'none';}
   customEmojis.forEach(em=>{
@@ -1366,27 +1441,18 @@ function buildEmojiGrid(gridId,inputId,withManage){
     const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
     if(isImg){const img=document.createElement('img');img.src=em.url;img.loading='lazy';btn.appendChild(img);}
     else{const span=document.createElement('span');span.className='em-emoji-text';span.textContent=em.url||'?';btn.appendChild(span);}
-    if(canManage){
-      const del=document.createElement('button');del.className='em-del vis';del.textContent='✕';
-      del.addEventListener('click',ev=>{ev.stopPropagation();removeEmoji(em.id);});btn.appendChild(del);
-    }
-    btn.addEventListener('click',ev=>{
-      if(ev.target.classList.contains('em-del'))return;
-      const inp=document.getElementById(inputId);if(!inp)return;
-      inp.value+=isImg?`[e:${em.id}]`:em.url;
-      inp.focus();
-    });
+    if(canManage){const del=document.createElement('button');del.className='em-del vis';del.textContent='✕';del.addEventListener('click',ev=>{ev.stopPropagation();removeEmoji(em.id);});btn.appendChild(del);}
+    btn.addEventListener('click',ev=>{if(ev.target.classList.contains('em-del'))return;const inp=document.getElementById(inputId);if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});
     grid.appendChild(btn);
   });
 }
-
 function toggleEmojiPanel(){document.getElementById('emojiPanel').classList.toggle('open');document.getElementById('dmEmojiPanel').classList.remove('open');}
 function toggleDMEmoji(){document.getElementById('dmEmojiPanel').classList.toggle('open');buildEmojiGrid('dmEmojiGrid','dmInput',false);}
 document.addEventListener('click',e=>{
   const p=document.getElementById('emojiPanel');
   if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.remove('open');
   const dp=document.getElementById('dmEmojiPanel');
-  if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-emoji-btn'))dp.classList.remove('open');
+  if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-icon-btn'))dp.classList.remove('open');
 });
 
 /* ===================== PROFILE ===================== */
@@ -1394,7 +1460,7 @@ function openMyProfile(){openProfile(ME.id);}
 async function openProfile(uid){
   VIEW_UID=uid;
   const p=await loadProf(uid);
-  const isSelf=(uid===ME.id);const myRole=MYPROF?.role;const viewRole=p?.role;
+  const isSelf=(uid===ME.id),myRole=MYPROF?.role,viewRole=p?.role;
   document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
   document.getElementById('profName').textContent=p?.username||'?';
   const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);
@@ -1410,31 +1476,28 @@ async function openProfile(uid){
   document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';
   selectedEmotion=p?.emotion||'😊';document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
   const showFounder=(myRole==='founder')&&!isSelf;document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
-  if(showFounder){document.getElementById('roleSelect').value=viewRole||'member';}
+  if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';
   const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
   document.getElementById('friendBtn').style.display=isSelf?'none':'';document.getElementById('dmBtn').style.display=isSelf?'none':'';
-  const isFr=myFriends.includes(uid);document.getElementById('friendBtn').textContent=isFr?'💔 მეგობრობის გაუქმება':'➕ მეგობრად დამატება';
+  const isFr=myFriends.includes(uid);document.getElementById('friendBtn').textContent=isFr?'💔 გაუქმება':'➕ მეგობრად';
   document.getElementById('galUploadZone').style.display=isSelf?'':'none';
   switchGalleryTab('info',document.getElementById('gtabInfo'));
   openModal('profileOverlay');
 }
-
 function compressImage(file,maxSizePx=256,quality=0.85){
   return new Promise((resolve,reject)=>{
     if(file.type==='image/gif'){resolve(file);return;}
     const img=new Image();const url=URL.createObjectURL(file);
     img.onload=()=>{URL.revokeObjectURL(url);let{width,height}=img;if(width>maxSizePx||height>maxSizePx){if(width>height){height=Math.round(height*maxSizePx/width);width=maxSizePx;}else{width=Math.round(width*maxSizePx/height);height=maxSizePx;}}const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.getContext('2d').drawImage(img,0,0,width,height);canvas.toBlob(blob=>{if(!blob){reject(new Error('კომპ.'));return;}resolve(new File([blob],file.name,{type:'image/webp',lastModified:Date.now()}));},'image/webp',quality);};
-    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('სურათი ვერ'));};img.src=url;
+    img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('ვერ'));};img.src=url;
   });
 }
-
 function switchGalleryTab(tab,btn){
   document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
   document.getElementById('tabInfo').classList.toggle('hidden',tab!=='info');
   document.getElementById('tabGallery').classList.toggle('hidden',tab!=='gallery');
   if(tab==='gallery'){activeAlbumFilter=null;loadAlbumsAndGallery(VIEW_UID);}
 }
-
 async function saveProfile(){
   const updates={status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value};
   const{error}=await sb.from('profiles').update(updates).eq('id',ME.id);
@@ -1444,24 +1507,15 @@ async function saveProfile(){
 function pickEmo(btn,em){selectedEmotion=em;document.querySelectorAll('.emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function clickAvatar(){if(VIEW_UID!==ME.id)return;document.getElementById('avatarInput').click();}
 async function uploadAvatar(e){
-  const file=e.target.files[0];if(!file)return;
-  if(file.size>3*1024*1024){toast('❌ მაქს 3MB');e.target.value='';return;}
-  toast('⏳ იტვირთება...');
-  const reader=new FileReader();
-  reader.onload=async ev=>{
-    const{error}=await sb.from('profiles').update({avatar_url:ev.target.result}).eq('id',ME.id);
-    if(error){toast('❌ '+error.message);return;}
-    MYPROF.avatar_url=ev.target.result;document.getElementById('avImg').src=ev.target.result;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';toast('✅ ფოტო!');
-  };reader.readAsDataURL(file);e.target.value='';
+  const file=e.target.files[0];if(!file)return;if(file.size>3*1024*1024){toast('❌ მაქს 3MB');e.target.value='';return;}toast('⏳...');
+  const reader=new FileReader();reader.onload=async ev=>{const{error}=await sb.from('profiles').update({avatar_url:ev.target.result}).eq('id',ME.id);if(error){toast('❌ '+error.message);return;}MYPROF.avatar_url=ev.target.result;document.getElementById('avImg').src=ev.target.result;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';toast('✅ ფოტო!');};reader.readAsDataURL(file);e.target.value='';
 }
-
 async function assignRole(){if(MYPROF?.role!=='founder')return;const newRole=document.getElementById('roleSelect').value;const{error}=await sb.from('profiles').update({role:newRole}).eq('id',VIEW_UID);if(error){toast('❌');return;}toast('✅ '+rLabel(newRole));renderUserLists();}
-async function removeRole(){if(MYPROF?.role!=='founder')return;await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID);toast('✅ წევრია ახლა');renderUserLists();}
+async function removeRole(){if(MYPROF?.role!=='founder')return;await sb.from('profiles').update({role:'member'}).eq('id',VIEW_UID);toast('✅');renderUserLists();}
 async function blockUser(){if(MYPROF?.role!=='founder')return;const r=document.getElementById('blockReason').value||'მიზეზი';const{error}=await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);if(error){toast('❌');return;}toast('🚫');closeModal('profileOverlay');}
 async function unblockUser(){if(MYPROF?.role!=='founder')return;await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);toast('✅');}
 async function blockUserAdmin(){if(MYPROF?.role!=='admin')return;const target=await loadProf(VIEW_UID);if(!target||target.role!=='member'){toast('❌');return;}const r=document.getElementById('blockReasonAdmin').value||'მიზეზი';await sb.from('profiles').update({is_blocked:true,block_reason:r}).eq('id',VIEW_UID);toast('🚫');closeModal('profileOverlay');}
 async function unblockUserAdmin(){if(MYPROF?.role!=='admin')return;const target=await loadProf(VIEW_UID);if(!target||target.role!=='member'){toast('❌');return;}await sb.from('profiles').update({is_blocked:false,block_reason:null}).eq('id',VIEW_UID);toast('✅');}
-
 function rLabel(r){return r==='founder'?'👑 დამფუძნებელი':r==='admin'?'🛡️ ადმინი':'👤 წევრი';}
 function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member';}
 function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
@@ -1471,7 +1525,7 @@ async function loadAlbumsAndGallery(uid){
   galleryViewUID=uid;const isSelf=uid===ME.id;
   const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});
   userAlbums=albs||[];
-  if(isSelf){const sel=document.getElementById('galAlbumSelect');sel.innerHTML='<option value="">📂  გარეშე</option>';userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt);});}
+  if(isSelf){const sel=document.getElementById('galAlbumSelect');sel.innerHTML='<option value="">📂 გარეშე</option>';userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt);});}
   renderAlbumBar(isSelf);await loadGallery(uid);
 }
 function renderAlbumBar(isSelf){
@@ -1480,12 +1534,12 @@ function renderAlbumBar(isSelf){
   userAlbums.forEach(a=>{const chip=document.createElement('div');chip.className='album-chip'+(activeAlbumFilter===a.id?' active':'');chip.innerHTML=`<span>${a.name}</span>`;if(isSelf){const del=document.createElement('span');del.className='chip-del';del.textContent='✕';del.onclick=ev=>{ev.stopPropagation();deleteAlbum(a.id);};chip.appendChild(del);}chip.onclick=ev=>{if(ev.target.classList.contains('chip-del'))return;activeAlbumFilter=a.id;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(chip);});
   if(isSelf){const nc=document.createElement('div');nc.className='album-chip new-album';nc.textContent='+ ახალი';nc.onclick=()=>{const f=document.getElementById('albumCreateForm');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('albumNameInp').focus();};bar.appendChild(nc);}
 }
-async function createAlbum(){const name=document.getElementById('albumNameInp').value.trim();if(!name){toast('❌');return;}const{error}=await sb.from('albums').insert({user_id:ME.id,name});if(error){toast('❌'+error.message);return;}document.getElementById('albumNameInp').value='';document.getElementById('albumCreateForm').classList.remove('open');toast('✅ '+name);await loadAlbumsAndGallery(ME.id);}
+async function createAlbum(){const name=document.getElementById('albumNameInp').value.trim();if(!name){toast('❌');return;}const{error}=await sb.from('albums').insert({user_id:ME.id,name});if(error){toast('❌ '+error.message);return;}document.getElementById('albumNameInp').value='';document.getElementById('albumCreateForm').classList.remove('open');toast('✅ '+name);await loadAlbumsAndGallery(ME.id);}
 async function deleteAlbum(albumId){if(!confirm('ალბომი წაიშალა?'))return;await sb.from('albums').update({album_id:null}).eq('album_id',albumId).eq('user_id',ME.id);await sb.from('albums').delete().eq('id',albumId).eq('user_id',ME.id);if(activeAlbumFilter===albumId)activeAlbumFilter=null;toast('🗑');await loadAlbumsAndGallery(ME.id);}
 function filterGalleryByAlbum(){renderGallery(galleryViewUID===ME.id);}
 async function loadGallery(uid){const{data,error}=await sb.from('gallery').select('*').eq('user_id',uid).order('created_at',{ascending:false});currentGallery=error?[]:(data||[]);renderGallery(uid===ME.id);}
 function renderGallery(isSelf){
-  const grid=document.getElementById('galGrid');const empty=document.getElementById('galEmpty');grid.innerHTML='';
+  const grid=document.getElementById('galGrid'),empty=document.getElementById('galEmpty');grid.innerHTML='';
   const filtered=activeAlbumFilter?currentGallery.filter(p=>p.album_id===activeAlbumFilter):currentGallery;
   if(!filtered.length){empty.classList.remove('hidden');return;}empty.classList.add('hidden');
   filtered.forEach((photo,idx)=>{
@@ -1501,142 +1555,81 @@ function pickGalEmo(btn,em){galSelectedEmo=em;document.querySelectorAll('.gal-em
 function cancelGalUpload(){galFileData=null;document.getElementById('galForm').classList.remove('open');const prev=document.getElementById('galPreviewImg');prev.src='';prev.classList.remove('show');}
 async function uploadGalleryPhoto(){
   if(!galFileData){toast('❌ ფოტო ამოარჩიე!');return;}toast('⏳...');
-  try{const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};const t=document.getElementById('galTitle').value.trim();const c=document.getElementById('galComment').value.trim();const albumId=document.getElementById('galAlbumSelect').value;if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;const{error}=await sb.from('gallery').insert(d);if(error){toast('❌ '+error.message);return;}cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);}catch(err){toast('❌ '+err.message);}
+  try{const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};const t=document.getElementById('galTitle').value.trim(),c=document.getElementById('galComment').value.trim(),albumId=document.getElementById('galAlbumSelect').value;if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;const{error}=await sb.from('gallery').insert(d);if(error){toast('❌ '+error.message);return;}cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);}catch(err){toast('❌ '+err.message);}
 }
 async function deleteGalPhoto(id){if(!confirm('წავშალო?'))return;await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);toast('🗑');loadAlbumsAndGallery(ME.id);}
 
-/* ===================== PHOTO VIEWER + COMMENTS + REACTIONS ===================== */
-let currentPhotoId = null;
-
+/* ===================== PHOTO VIEWER ===================== */
+let currentPhotoId=null;
 function openPhotoViewer(idx,filtered){_pvFiltered=filtered||currentGallery;pvIndex=idx;showPVPhoto();document.getElementById('photoViewer').classList.add('open');}
 async function showPVPhoto(){
-  const p=_pvFiltered[pvIndex];if(!p)return;
-  currentPhotoId=p.id;
-  document.getElementById('pvImg').src=p.url;
-  document.getElementById('pvTitle').textContent=p.title||'';
-  document.getElementById('pvEmo').textContent=p.emotion||'';
-  document.getElementById('pvComment').textContent=p.comment||'';
-  const owner=allUsers.find(u=>u.id===p.user_id);
-  document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';
-  document.getElementById('pvCounter').textContent=(pvIndex+1)+' / '+_pvFiltered.length;
-  await loadPhotoReactions(p.id);
-  await loadPhotoComments(p.id);
+  const p=_pvFiltered[pvIndex];if(!p)return;currentPhotoId=p.id;
+  document.getElementById('pvImg').src=p.url;document.getElementById('pvTitle').textContent=p.title||'';document.getElementById('pvEmo').textContent=p.emotion||'';document.getElementById('pvComment').textContent=p.comment||'';
+  const owner=allUsers.find(u=>u.id===p.user_id);document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';document.getElementById('pvCounter').textContent=(pvIndex+1)+' / '+_pvFiltered.length;
+  await loadPhotoReactions(p.id);await loadPhotoComments(p.id);
 }
 function pvNav(dir){pvIndex=(pvIndex+dir+_pvFiltered.length)%_pvFiltered.length;showPVPhoto();}
 function closePhotoViewer(){document.getElementById('photoViewer').classList.remove('open');currentPhotoId=null;}
 function pvBgClose(e){if(e.target.id==='photoViewer')closePhotoViewer();}
-
-// FIX: gallery photo reactions using message_reactions structure pattern with gallery_id
 async function reactToPhoto(emoji){
   if(!currentPhotoId||!ME)return;
-  // Use comments table repurposed or we check for a gallery_reactions approach
-  // Since no separate table, we use message_reactions with gallery_id stored as message_id prefixed
-  // Actually user has message_reactions table - we'll use it with a special convention:
-  // We store gallery reactions in message_reactions with message_id = 'g_'+gallery_id using a workaround
-  // Better: check if there's a reactions column in gallery table
-  // For now, store in message_reactions using a UUID-like key - not ideal
-  // REAL FIX: use comments table pattern but for reactions store in gallery table reactions JSONB column
-  // Since we only have what's there, let's store gallery reactions in the comments table with content='react:emoji'
   const{data:ex}=await sb.from('comments').select('id').eq('gallery_id',currentPhotoId).eq('user_id',ME.id).eq('content','react:'+emoji).maybeSingle();
-  if(ex){await sb.from('comments').delete().eq('id',ex.id);}
-  else{await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:'react:'+emoji});}
+  if(ex)await sb.from('comments').delete().eq('id',ex.id);
+  else await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:'react:'+emoji});
   await loadPhotoReactions(currentPhotoId);
 }
-
 async function loadPhotoReactions(photoId){
   const{data}=await sb.from('comments').select('user_id,content').eq('gallery_id',photoId).like('content','react:%');
   const reactEl=document.getElementById('pvReactions');if(!reactEl)return;
-  const grouped={};
-  (data||[]).forEach(r=>{const emoji=r.content.replace('react:','');if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});
+  const grouped={};(data||[]).forEach(r=>{const emoji=r.content.replace('react:','');if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});
   reactEl.innerHTML='';
   Object.entries(grouped).forEach(([emoji,uids])=>{
-    const chip=document.createElement('div');chip.className='gal-react-chip'+(uids.includes(ME.id)?' mine':'');
-    chip.innerHTML=`${emoji}<span>${uids.length}</span>`;
-    chip.addEventListener('click',()=>reactToPhoto(emoji));
-    reactEl.appendChild(chip);
+    const chip=document.createElement('div');chip.className='gal-react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>reactToPhoto(emoji));reactEl.appendChild(chip);
   });
 }
-
 async function loadPhotoComments(photoId){
   const{data}=await sb.from('comments').select('*').eq('gallery_id',photoId).not('content','like','react:%').order('created_at',{ascending:true});
-  const list=document.getElementById('pvCommentsList');if(!list)return;
-  list.innerHTML='';
-  (data||[]).forEach(c=>{
-    const owner=allUsers.find(u=>u.id===c.user_id);
-    const div=document.createElement('div');div.className='gal-comment-item';
-    const t=new Date(c.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
-    div.innerHTML=`<span class="gal-comment-nick">${esc(owner?.username||'?')}</span><span class="gal-comment-text">${esc(c.content)}</span><span class="gal-comment-time">${t}</span>`;
-    list.appendChild(div);
-  });
+  const list=document.getElementById('pvCommentsList');if(!list)return;list.innerHTML='';
+  (data||[]).forEach(c=>{const owner=allUsers.find(u=>u.id===c.user_id);const div=document.createElement('div');div.className='gal-comment-item';const t=new Date(c.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});div.innerHTML=`<span class="gal-comment-nick">${esc(owner?.username||'?')}</span><span class="gal-comment-text">${esc(c.content)}</span><span class="gal-comment-time">${t}</span>`;list.appendChild(div);});
   list.scrollTop=list.scrollHeight;
 }
-
 async function sendPhotoComment(){
-  const inp=document.getElementById('pvCommentInput');
-  const txt=inp.value.trim();if(!txt||!currentPhotoId)return;
-  inp.value='';
-  const{error}=await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:txt});
-  if(error){toast('❌ '+error.message);return;}
-  await loadPhotoComments(currentPhotoId);
+  const inp=document.getElementById('pvCommentInput');const txt=inp.value.trim();if(!txt||!currentPhotoId)return;inp.value='';
+  const{error}=await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:txt});if(error){toast('❌ '+error.message);return;}await loadPhotoComments(currentPhotoId);
 }
 
 /* ===================== USERS / FRIENDS ===================== */
 function buildRooms(){
   const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';
   ROOMS.forEach(r=>{
-    const d=document.createElement('div');
-    d.className='room-item'+(r.isGame?' game-room':'');
+    const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');
     d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;
     d.onclick=()=>switchRoom(r,d);el.appendChild(d);
   });
 }
-
 function switchRoom(r,clickedEl){
   if(!r||!r.id)return;ROOM=r.id;
-  document.getElementById('roomTitle').textContent=r.name;
-  document.getElementById('roomIcon').textContent=r.icon;
-  document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));
-  if(clickedEl)clickedEl.classList.add('active');
-  if(r.isGame){setRoomView('game',r);}
-  else{setRoomView('chat',null);loadMessages(r.id);}
+  document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;
+  document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');
+  if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}
   document.getElementById('sidebar')?.classList.remove('mob-open');
 }
-
-async function loadAllUsers(){
-  const{data}=await sb.from('profiles').select('*').order('username');
-  allUsers=data||[];renderUserLists();
-}
-function updateOnlineBadge(){
-  const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));
-  const cnt=document.getElementById('onlineCnt');if(cnt)cnt.textContent=`● ${onlineNow.length} ონლაინი`;
-}
+async function loadAllUsers(){const{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];renderUserLists();}
+function updateOnlineBadge(){const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));const cnt=document.getElementById('onlineCnt');if(cnt)cnt.textContent=`● ${onlineNow.length} ონლაინი`;}
 function renderUserLists(){
   const founders=[],admins=[],members=[];
   allUsers.forEach(u=>{if(u.role==='founder')founders.push(u);else if(u.role==='admin')admins.push(u);else members.push(u);});
   updateOnlineBadge();
   const usEl=document.getElementById('usersListEl');
-  if(usEl){
-    const frag=document.createDocumentFragment();
-    if(founders.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));founders.forEach(u=>frag.appendChild(makeUserItem(u)));}
-    if(admins.length){frag.appendChild(roleHeader('🛡️','ადმინები'));admins.forEach(u=>frag.appendChild(makeUserItem(u)));}
-    if(members.length){frag.appendChild(roleHeader('👤','წევრები'));members.forEach(u=>frag.appendChild(makeUserItem(u)));}
-    usEl.innerHTML='';usEl.appendChild(frag);
-  }
+  if(usEl){const frag=document.createDocumentFragment();if(founders.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));founders.forEach(u=>frag.appendChild(makeUserItem(u)));}if(admins.length){frag.appendChild(roleHeader('🛡️','ადმინები'));admins.forEach(u=>frag.appendChild(makeUserItem(u)));}if(members.length){frag.appendChild(roleHeader('👤','წევრები'));members.forEach(u=>frag.appendChild(makeUserItem(u)));}usEl.innerHTML='';usEl.appendChild(frag);}
   const onEl=document.getElementById('onlineListEl');
-  if(onEl){
-    const frag=document.createDocumentFragment();
-    const onF=founders.filter(u=>isOnline(u.last_seen));const onA=admins.filter(u=>isOnline(u.last_seen));const onM=members.filter(u=>isOnline(u.last_seen));
-    if(!onF.length&&!onA.length&&!onM.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='ახლა არავინ';frag.appendChild(e);}
-    else{if(onF.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));onF.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onA.length){frag.appendChild(roleHeader('🛡️','ადმინები'));onA.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onM.length){frag.appendChild(roleHeader('👤','წევრები'));onM.forEach(u=>frag.appendChild(makeUserItem(u)));}}
-    onEl.innerHTML='';onEl.appendChild(frag);
-  }
+  if(onEl){const frag=document.createDocumentFragment();const onF=founders.filter(u=>isOnline(u.last_seen)),onA=admins.filter(u=>isOnline(u.last_seen)),onM=members.filter(u=>isOnline(u.last_seen));if(!onF.length&&!onA.length&&!onM.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='ახლა არავინ';frag.appendChild(e);}else{if(onF.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));onF.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onA.length){frag.appendChild(roleHeader('🛡️','ადმინები'));onA.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onM.length){frag.appendChild(roleHeader('👤','წევრები'));onM.forEach(u=>frag.appendChild(makeUserItem(u)));}}onEl.innerHTML='';onEl.appendChild(frag);}
   renderFriends();
 }
 function roleHeader(icon,label){const d=document.createElement('div');d.className='role-header';d.innerHTML=`<span style="font-size:12px">${icon}</span><div class="role-header-line"></div><span class="role-header-text">${label}</span>`;return d;}
 function makeUserItem(u){
   const d=document.createElement('div');d.className='list-item';d.dataset.q=(u.username||'').toLowerCase();
-  const on=isOnline(u.last_seen);
-  const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(u.emotion||'😊');
+  const on=isOnline(u.last_seen);const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(u.emotion||'😊');
   d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
   d.onclick=()=>openProfile(u.id);return d;
 }
@@ -1645,10 +1638,7 @@ function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime
 async function pingOnline(){if(!ME)return;await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}
 
 /* ===================== FRIENDS ===================== */
-async function loadFriends(){
-  const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');
-  myFriends=(data||[]).map(f=>f.friend_id);renderFriends();
-}
+async function loadFriends(){const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');myFriends=(data||[]).map(f=>f.friend_id);renderFriends();}
 function renderFriends(){
   const el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';
   const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);
@@ -1661,50 +1651,25 @@ async function toggleFriend(){
   else{await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});toast('📨 გაიგზავნა!');}
   document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 გაუქმება':'➕ მეგობრად';
 }
-
-// FIX: friend requests - use realtime subscription instead of just polling
 async function checkFriendReqs(){
   const{data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');
   const badge=document.getElementById('friendBadge');
-  if(data&&data.length){
-    badge.textContent=data.length;badge.classList.add('show');
-    const req=data[0];
-    document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს მეგობრებში';
-    document.getElementById('friendReqOverlay').dataset.rid=req.id;
-    document.getElementById('friendReqOverlay').dataset.fid=req.user_id;
-    openModal('friendReqOverlay');
-  }else{badge.classList.remove('show');}
+  if(data&&data.length){badge.textContent=data.length;badge.classList.add('show');const req=data[0];document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს';document.getElementById('friendReqOverlay').dataset.rid=req.id;document.getElementById('friendReqOverlay').dataset.fid=req.user_id;openModal('friendReqOverlay');}
+  else{badge.classList.remove('show');}
 }
-
 function watchFriendRequests(){
-  // FIX: realtime watch for new friend requests
   if(friendCh){try{sb.removeChannel(friendCh);}catch(e){}friendCh=null;}
   friendCh=sb.channel('friend-reqs-'+ME.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},payload=>{
-      if(payload.new.status==='pending'){
-        checkFriendReqs();
-      }
-    })
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},payload=>{
-      if(payload.new.status==='accepted'){
-        loadFriends();
-        toast('✅ მეგობრობა დადასტურდა!');
-      }
-    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},()=>checkFriendReqs())
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},payload=>{if(payload.new.status==='accepted'){loadFriends();toast('✅ მეგობრობა!');} })
     .subscribe();
 }
-
 async function acceptFriend(){
-  const rid=document.getElementById('friendReqOverlay').dataset.rid;
-  const fid=document.getElementById('friendReqOverlay').dataset.fid;
-  await sb.from('friends').update({status:'accepted'}).eq('id',rid);
-  await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});
+  const rid=document.getElementById('friendReqOverlay').dataset.rid,fid=document.getElementById('friendReqOverlay').dataset.fid;
+  await sb.from('friends').update({status:'accepted'}).eq('id',rid);await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});
   myFriends.push(fid);closeModal('friendReqOverlay');toast('✅ მეგობარი!');renderFriends();
 }
-async function declineFriend(){
-  await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);
-  closeModal('friendReqOverlay');toast('❌ უარყოფა');
-}
+async function declineFriend(){await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);closeModal('friendReqOverlay');toast('❌');}
 
 /* ===================== DM ===================== */
 function openDMList(){document.getElementById('dmListOverlay').classList.add('open');buildDMUserList(allUsers);}
@@ -1716,7 +1681,8 @@ function buildDMUserList(users){
   filtered.forEach(u=>{
     const d=document.createElement('div');d.className='dm-list-item';
     const on=isOnline(u.last_seen);const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u.emotion||'😊');
-    d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div></div><span>✉️</span>`;
+    const unread=dmUnread[u.id]||0;
+    d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div></div>${unread?`<div class="dm-unread-dot"></div>`:''}✉️`;
     d.onclick=()=>{closeDMList();openDM(u.id);};frag.appendChild(d);
   });
   el.appendChild(frag);
@@ -1725,6 +1691,15 @@ function filterDMUsers(){const q=document.getElementById('dmUserSearch').value.t
 function closeDMList(){document.getElementById('dmListOverlay').classList.remove('open');}
 function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
 
+/* DM minimize/restore */
+function toggleDMMinimize(e){
+  if(e&&e.target.closest('.dm-head-btns'))return;
+  dmMinimized=!dmMinimized;
+  document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);
+  document.getElementById('dmMinBtn').textContent=dmMinimized?'▲':'—';
+  if(!dmMinimized){removeDMTyping();renderDMTyping();}
+}
+
 async function openDM(uid){
   if(uid)DM_UID=uid;if(!DM_UID)return;
   const u=allUsers.find(u=>u.id===DM_UID);
@@ -1732,35 +1707,97 @@ async function openDM(uid){
   const avHtml=u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u?.emotion||'👤');
   document.getElementById('dmAv').innerHTML=avHtml;
   document.getElementById('dmBox').classList.add('open');
+  document.getElementById('dmBox').classList.remove('minimized');dmMinimized=false;
+  document.getElementById('dmMinBtn').textContent='—';
+
+  // clear unread
+  delete dmUnread[DM_UID];
+  const b=document.getElementById('dmBadge');b.textContent='';b.classList.remove('show');
+
   buildEmojiGrid('dmEmojiGrid','dmInput',false);
   const rk=[ME.id,DM_UID].sort().join('_');
-  const{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(60);
+  const{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(80);
   const box=document.getElementById('dmMsgs');box.innerHTML='';
   (data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;
+
+  // load reactions for all visible DM messages
+  if(data&&data.length){
+    for(const m of data){await refreshDMReactions(m.id);}
+  }
+
   if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}
-  dmCh=sb.channel('dm'+rk)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
-      if(p.new.sender_id===ME.id)return; // we already appended our own
+  dmCh=sb.channel('dm_'+rk)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},async p=>{
+      if(p.new.sender_id===ME.id)return;
       appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;
-      const b=document.getElementById('dmBadge');b.textContent=parseInt(b.textContent||0)+1;b.classList.add('show');
+      // show unread badge if minimized
+      if(dmMinimized){
+        dmUnread[DM_UID]=(dmUnread[DM_UID]||0)+1;
+        const b=document.getElementById('dmBadge');b.textContent=dmUnread[DM_UID];b.classList.add('show');
+      }
+      // show who messaged on nav ✉️ button
+      const sender=allUsers.find(u=>u.id===p.new.sender_id);
+      if(sender&&(dmMinimized||!document.getElementById('dmBox').classList.contains('open'))){
+        const nb=document.getElementById('navDMTypingBadge');
+        if(nb){nb.textContent=sender.username+' ✉️';nb.classList.add('show');setTimeout(()=>{nb.textContent='';nb.classList.remove('show');},4000);}
+      }
     }).subscribe();
+
+  setupDMTypingChannel(rk);
+}
+
+function renderDMContent(content){
+  if(!content)return'';
+  // image in DM
+  if(content.startsWith('[dmimg]')){
+    const src=content.replace('[dmimg]','').replace('[/dmimg]','');
+    return`<img src="${src}" class="dm-img" onclick="window.open('${src}','_blank')" alt="ფოტო">`;
+  }
+  // file in DM
+  const fm=content.match(/^\[dmfile:([^\]]+)\]([\s\S]+)\[\/dmfile\]$/);
+  if(fm){
+    const fname=fm[1],fdata=fm[2];
+    return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;margin-top:4px;cursor:pointer" onclick="downloadDMFile('${encodeURIComponent(fdata)}','${fname}')">📎 <span style="font-size:12px;color:var(--text)">${esc(fname)}</span></div>`;
+  }
+  if(content.startsWith('[voice:'))return renderVoiceContent(content);
+  return renderContent(content);
+}
+function downloadDMFile(encodedData,fname){
+  const a=document.createElement('a');a.href=decodeURIComponent(encodedData);a.download=fname;a.click();
 }
 
 function appendDMMsg(m){
   const isMe=(m.sender_id===ME.id);
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const box=document.getElementById('dmMsgs');
-  const d=document.createElement('div');
-  const isVoice=m.content&&m.content.startsWith('[voice:');
   let replyHtml='',displayContent=m.content;
   if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}}
-  const bubbleContent=isVoice?renderVoiceContent(displayContent):renderContent(displayContent);
-  d.innerHTML=`<div style="display:flex;${isMe?'justify-content:flex-end;':''}margin-bottom:2px"><div style="max-width:80%;background:${isMe?'rgba(120,30,200,0.28)':'var(--bubble)'};border:1px solid var(--border);border-radius:${isMe?'16px 4px 16px 16px':'4px 16px 16px 16px'};padding:8px 12px;font-size:13px;color:var(--text);word-break:break-word">${replyHtml}${bubbleContent}<span style="font-size:10px;color:var(--text3);margin-left:8px">${t}</span></div></div>`;
-  let longPressTimer;
-  d.addEventListener('touchstart',()=>{longPressTimer=setTimeout(()=>{const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');setDMReply(nick,displayContent);},600);});
-  d.addEventListener('touchend',()=>clearTimeout(longPressTimer));
-  d.addEventListener('contextmenu',e=>{e.preventDefault();const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');setDMReply(nick,displayContent);});
-  box.appendChild(d);
+  const bubbleContent=renderDMContent(displayContent);
+
+  const wrapper=document.createElement('div');
+  wrapper.className='dm-msg-wrap';
+  if(m.id)wrapper.id='dmmsg_'+m.id;
+  wrapper.innerHTML=`
+    <div class="dm-bubble-row${isMe?' me':''}">
+      <div class="dm-bubble${isMe?' me':''}">
+        ${replyHtml}${bubbleContent}
+        <span class="dm-time">${t}</span>
+      </div>
+    </div>
+    <div class="dm-reactions-row${isMe?' me':''}" id="dmreact_${m.id||'tmp_'+Date.now()}"></div>
+  `;
+
+  // long press / right click → quick react
+  const bubble=wrapper.querySelector('.dm-bubble');
+  let lpt;
+  bubble.addEventListener('touchstart',()=>{lpt=setTimeout(()=>showDMQuickReact(m.id,bubble,isMe),600);},{passive:true});
+  bubble.addEventListener('touchend',()=>clearTimeout(lpt));
+  bubble.addEventListener('touchmove',()=>clearTimeout(lpt),{passive:true});
+  bubble.addEventListener('contextmenu',ev=>{ev.preventDefault();showDMQuickReact(m.id,bubble,isMe);});
+  // double click reply
+  bubble.addEventListener('dblclick',()=>{const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');setDMReply(nick,displayContent);});
+
+  box.appendChild(wrapper);
 }
 
 async function sendDM(){
@@ -1768,13 +1805,21 @@ async function sendDM(){
   inp.value='';animateSendPlane('dmSendBtn');
   if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}
   const rk=[ME.id,DM_UID].sort().join('_');
-  // FIX: insert to DB first, then append (so we have real data)
-  const{error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt});
+  const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt}).select('id').single();
   if(error){toast('❌ '+error.message);return;}
-  appendDMMsg({sender_id:ME.id,content:txt,created_at:new Date().toISOString()});
+  if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString()});
   document.getElementById('dmMsgs').scrollTop=9999;
 }
-function closeDM(){document.getElementById('dmBox').classList.remove('open');document.getElementById('dmEmojiPanel').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}cancelDMReply();}
+
+function closeDM(){
+  document.getElementById('dmBox').classList.remove('open','minimized');
+  document.getElementById('dmEmojiPanel').classList.remove('open');
+  document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');
+  DM_UID=null;dmMinimized=false;
+  if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}
+  if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}
+  removeDMTyping();cancelDMReply();
+}
 function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
 
 /* ===================== NAV/UI ===================== */
@@ -1794,32 +1839,23 @@ function spawnHearts(){
   function make(){if(active>=MAX)return;const h=document.createElement('div');h.className='heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];const leftPct=Math.random()*100,drift=(Math.random()-0.5)*80,dur=8+Math.random()*10,size=1.2+Math.random()*1.4;h.style.cssText=`left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;hc.appendChild(h);active++;setTimeout(()=>{h.remove();active--;},(dur+0.5)*1000);}
   for(let i=0;i<15;i++)setTimeout(make,i*250);setInterval(()=>{if(active<MAX)make();},1800);
 }
-
 function openModal(id){document.getElementById(id).classList.add('open');}
 function closeModal(id){document.getElementById(id).classList.remove('open');}
 function bgClose(e,id){if(e.target.id===id)closeModal(id);}
 function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
 async function loadProf(uid){const{data}=await sb.from('profiles').select('*').eq('id',uid).single();return data;}
-async function loadEmojis(){
-  const{data,error}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});
-  if(error){customEmojis=[];return;}
-  customEmojis=data||[];emojiCache={};customEmojis.forEach(e=>{emojiCache[e.id]=e.url;});
-}
+async function loadEmojis(){const{data,error}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});if(error){customEmojis=[];return;}customEmojis=data||[];emojiCache={};customEmojis.forEach(e=>{emojiCache[e.id]=e.url;});}
 async function logout(){await sb.auth.signOut();location.href='index.html';}
 
 /* ===================== INIT ===================== */
 async function init(){
-  // მაშინვე ვამატებთ night კლასს — თეთრი ფლეში არ იყოს
   document.body.classList.add('night');
-
-  // Load theme from localStorage first (fast)
   const savedThemeLocal=localStorage.getItem('kaif_theme')||'night';
   if(savedThemeLocal!=='custom')applyThemeById(savedThemeLocal);
 
   const{data:{user}}=await sb.auth.getUser();
   if(!user){location.href='index.html';return;}
-  ME=user;
-  MYPROF=await loadProf(ME.id);
+  ME=user;MYPROF=await loadProf(ME.id);
 
   if(!MYPROF){
     const meta=user.user_metadata||{};
@@ -1827,56 +1863,33 @@ async function init(){
     await sb.from('profiles').insert({id:ME.id,username,role:'member',emotion:'😊'});
     MYPROF=await loadProf(ME.id);
   }
+  if(MYPROF?.is_blocked){alert('დაბლოკილია: '+(MYPROF.block_reason||''));await sb.auth.signOut();location.href='index.html';return;}
+  if(MYPROF?.theme)loadSavedTheme(MYPROF.theme);else loadSavedTheme(null);
 
-  if(MYPROF?.is_blocked){alert('შენი ანგარიში დაბლოკილია: '+(MYPROF.block_reason||''));await sb.auth.signOut();location.href='index.html';return;}
-
-  // FIX: load theme from profile (Supabase) — persists across devices
-  if(MYPROF?.theme){loadSavedTheme(MYPROF.theme);}
-  else{loadSavedTheme(null);}
-
-  buildRooms();
-  await loadEmojis();
-  buildEmojis();
-  spawnHearts();
+  buildRooms();await loadEmojis();buildEmojis();spawnHearts();
   switchRoom(ROOMS[0],document.querySelector('.room-item'));
-  await loadAllUsers();
-  await pingOnline();
+  await loadAllUsers();await pingOnline();
 
-  setInterval(async()=>{
-    await pingOnline();
-    const idx=allUsers.findIndex(u=>u.id===ME.id);
-    if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();
-    updateOnlineBadge();renderUserLists();
-  },20000);
-
+  setInterval(async()=>{await pingOnline();const idx=allUsers.findIndex(u=>u.id===ME.id);if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();updateOnlineBadge();renderUserLists();},20000);
   setInterval(loadAllUsers,30000);
-  setInterval(checkFriendReqs,60000); // also poll every minute as backup
+  setInterval(checkFriendReqs,60000);
 
-  checkFriendReqs();
-  watchFriendRequests(); // FIX: realtime friend requests
-  watchGameScore();
+  checkFriendReqs();watchFriendRequests();watchGameScore();
 
   sb.channel('profiles-watch')
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{
       const idx=allUsers.findIndex(u=>u.id===payload.new.id);
       if(idx>=0)allUsers[idx]={...allUsers[idx],...payload.new};else allUsers.push(payload.new);
-      updateOnlineBadge();
-      if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateGameScoreUI();}
+      updateOnlineBadge();if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateGameScoreUI();}
     }).subscribe();
 
-  // FIX: emoji realtime - reload from DB to get proper data
   sb.channel('emoji-watch')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},async(payload)=>{
-      if(!emojiCache[payload.new.id]){emojiCache[payload.new.id]=payload.new.url;customEmojis.push(payload.new);}buildEmojis();
-    })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async(payload)=>{
-      customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);delete emojiCache[payload.old.id];buildEmojis();
-    })
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},async payload=>{if(!emojiCache[payload.new.id]){emojiCache[payload.new.id]=payload.new.url;customEmojis.push(payload.new);}buildEmojis();})
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async payload=>{customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);delete emojiCache[payload.old.id];buildEmojis();})
     .subscribe();
 
   setTimeout(()=>toast('👋 გამარჯობა, '+(MYPROF?.username||'')+'!'),800);
 }
-
 init();
 </script>
 </body>
