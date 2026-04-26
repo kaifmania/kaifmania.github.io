@@ -358,9 +358,10 @@ select.inp{cursor:pointer}
 .pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pv-nav-btn:hover{background:var(--border)}
 
-/* ====== DM BOX — FIXED ====== */
+/* ====== DM BOX ====== */
 #dmBox{
-  position:fixed;right:16px;bottom:16px;width:300px;height:460px;
+  position:fixed;right:16px;bottom:16px;
+  width:300px;height:460px;
   background:var(--panel);border:1px solid var(--border);border-radius:20px;
   display:none;flex-direction:column;z-index:5000;
   box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden
@@ -368,16 +369,20 @@ select.inp{cursor:pointer}
 #dmBox.open{display:flex;animation:dmSlideUp .35s cubic-bezier(0.2,0.9,0.4,1.1)}
 #dmBox.minimized{height:52px!important;max-height:52px!important}
 #dmBox.minimized #dmMsgs,#dmBox.minimized #dmReplyBar,#dmBox.minimized .dm-bar,#dmBox.minimized #dmEmojiPanel{display:none!important}
-/* მობილეზე — chat bar-ის ზემოთ (62px) */
+
+/* ===== FIX: მობილეზე სწორი სიგანე ===== */
 @media(max-width:640px){
   #dmBox{
-    right:0;left:0;bottom:62px;width:100%;border-radius:20px 20px 0 0;
-    max-height:55vh;z-index:5000;
+    right:0!important;left:0!important;
+    width:100%!important;
+    bottom:62px;
+    border-radius:20px 20px 0 0;
+    max-height:60vh;
   }
-  #dmBox.open:not(.minimized){height:55vh}
+  #dmBox.open:not(.minimized){height:60vh!important}
   #dmBox.minimized{
     height:52px!important;max-height:52px!important;
-    bottom:62px;
+    bottom:62px;right:0!important;left:0!important;width:100%!important;
   }
 }
 
@@ -400,7 +405,7 @@ select.inp{cursor:pointer}
 .dm-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:11px;color:#fff;font-size:16px;cursor:pointer;padding:0 13px;height:34px;overflow:hidden;position:relative;flex-shrink:0}
 .dm-plane{display:inline-block}
 .dm-send.fly .dm-plane{animation:planeShoot .45s ease forwards}
-#dmEmojiPanel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:300px;z-index:1000;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
+#dmEmojiPanel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:280px;z-index:1000;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none}
 #dmEmojiPanel.open{display:block}
 #dmEmojiPanel .emoji-grid{max-height:180px;margin-bottom:0}
 
@@ -427,7 +432,11 @@ select.inp{cursor:pointer}
 @media(hover:none){.dm-react-trigger{opacity:.7}}
 
 .dm-bubble img.dm-img{max-width:180px;max-height:140px;border-radius:8px;display:block;margin-top:4px;cursor:pointer;object-fit:cover;border:1px solid var(--border)}
-.dm-time{font-size:10px;color:var(--text3);margin-left:8px}
+.dm-time{font-size:10px;color:var(--text3);margin-left:6px}
+/* ===== FIX: წაკითხვის სტატუსი ===== */
+.dm-status{font-size:11px;margin-left:4px;flex-shrink:0}
+.dm-status.sent{color:var(--text3)}
+.dm-status.read{color:var(--accent)}
 .dm-reactions-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 4px;min-height:0}
 .dm-reactions-row.me{justify-content:flex-end}
 
@@ -894,24 +903,66 @@ async function startVoiceRecord(){try{const stream=await navigator.mediaDevices.
 function stopVoiceRecord(){if(mediaRecorder&&mediaRecorder.state!=='inactive')mediaRecorder.stop();isRecording=false;document.getElementById('voiceBtn').classList.remove('recording');document.getElementById('voiceBtn').textContent='🎙️';}
 async function sendVoiceMessage(base64,dur){if(!ROOM)return;const content=`[voice:${dur}]${base64}[/voice]`;const{data}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content}).select('id').single();if(data){sentMsgIds.add(data.id);const prof=MYPROF;appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content,created_at:new Date().toISOString(),profiles:{username:prof?.username,role:prof?.role,avatar_url:prof?.avatar_url,emotion:prof?.emotion}});document.getElementById('messages').scrollTop=99999;}toast('✅ ვოისი!');}
 async function toggleDMVoice(){if(!dmIsRecording)await startDMVoiceRecord();else stopDMVoiceRecord();}
-async function startDMVoiceRecord(){try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});dmAudioChunks=[];dmMediaRecorder=new MediaRecorder(stream);dmMediaRecorder.ondataavailable=e=>dmAudioChunks.push(e.data);dmMediaRecorder.onstop=async()=>{const blob=new Blob(dmAudioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const dur=Math.max(1,Math.round(dmAudioChunks.reduce((a,c)=>a+c.size,0)/5000));const content=`[voice:${dur}]${base64}[/voice]`;if(!DM_UID)return;const rk=[ME.id,DM_UID].sort().join('_');const{data}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ ვოისი!');};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());};dmMediaRecorder.start();dmIsRecording=true;document.getElementById('dmVoiceBtn').classList.add('recording');document.getElementById('dmVoiceBtn').textContent='⏹️';toast('🔴 ჩაწერა...');}catch(e){toast('❌ მიკროფონი ვერ');}}
+async function startDMVoiceRecord(){try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});dmAudioChunks=[];dmMediaRecorder=new MediaRecorder(stream);dmMediaRecorder.ondataavailable=e=>dmAudioChunks.push(e.data);dmMediaRecorder.onstop=async()=>{const blob=new Blob(dmAudioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const dur=Math.max(1,Math.round(dmAudioChunks.reduce((a,c)=>a+c.size,0)/5000));const content=`[voice:${dur}]${base64}[/voice]`;if(!DM_UID)return;const rk=[ME.id,DM_UID].sort().join('_');const{data}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ ვოისი!');};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());};dmMediaRecorder.start();dmIsRecording=true;document.getElementById('dmVoiceBtn').classList.add('recording');document.getElementById('dmVoiceBtn').textContent='⏹️';toast('🔴 ჩაწერა...');}catch(e){toast('❌ მიკროფონი ვერ');}}
 function stopDMVoiceRecord(){if(dmMediaRecorder&&dmMediaRecorder.state!=='inactive')dmMediaRecorder.stop();dmIsRecording=false;document.getElementById('dmVoiceBtn').classList.remove('recording');document.getElementById('dmVoiceBtn').textContent='🎙️';}
 
 let currentAudio=null;
 document.addEventListener('click',e=>{if(e.target.classList.contains('voice-play')){const src=decodeURIComponent(e.target.dataset.src||'');if(!src)return;if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;e.target.textContent='⏸';a.play();a.onended=()=>{e.target.textContent='▶';currentAudio=null;};a.onerror=()=>{e.target.textContent='▶';toast('❌ ვოისი ვერ');};}});
 
 /* ===================== DM FILE ===================== */
-async function sendDMFile(e){const file=e.target.files[0];if(!file||!DM_UID)return;if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}toast('⏳ იგზავნება...');const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const isImg=file.type.startsWith('image/');const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString()});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ გაიგზავნა!');};reader.readAsDataURL(file);e.target.value='';}
+async function sendDMFile(e){const file=e.target.files[0];if(!file||!DM_UID)return;if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}toast('⏳ იგზავნება...');const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const isImg=file.type.startsWith('image/');const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ გაიგზავნა!');};reader.readAsDataURL(file);e.target.value='';}
 
 /* ===================== TYPING — MAIN CHAT ===================== */
 function onTyping(){if(!ME||!ROOM)return;if(typingCh&&typingChReady){try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
-function setupTypingChannel(roomId){if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}typingChReady=false;typingUsers={};removeTypingIndicator();typingCh=sb.channel('typing_room_'+roomId,{config:{broadcast:{self:false},presence:{key:(ME?.id||'anon')}}}).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};renderTyping();}).subscribe(status=>{if(status==='SUBSCRIBED'){typingChReady=true;}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},2000);}});}
+
+/* FIX: presence ამოღებულია — მხოლოდ broadcast */
+function setupTypingChannel(roomId){
+  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
+  typingChReady=false;typingUsers={};removeTypingIndicator();
+  typingCh=sb.channel('typing_room_'+roomId)
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(!payload||!payload.uid||payload.uid===ME?.id)return;
+      const uid=payload.uid;
+      if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);
+      typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};
+      renderTyping();
+    })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED'){typingChReady=true;}
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
+        typingChReady=false;
+        setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},3000);
+      }
+    });
+}
+
 function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
 function renderTyping(){const users=Object.values(typingUsers).filter(u=>u.nick);removeTypingIndicator();if(!users.length)return;const msgs=document.getElementById('messages');if(!msgs)return;const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>esc(u.nick)).join(', ')} წერს...</span>`;msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;}
 
 /* ===================== TYPING — DM ===================== */
 function onDMTyping(){if(!ME||!DM_UID)return;if(dmTypingCh&&dmTypingChReady){try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
-function setupDMTypingChannel(rk){if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}dmTypingChReady=false;dmTypingUsers={};removeDMTyping();dmTypingCh=sb.channel('dmtyping_'+rk,{config:{broadcast:{self:false},presence:{key:(ME?.id||'anon')}}}).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};renderDMTyping();}).subscribe(status=>{if(status==='SUBSCRIBED'){dmTypingChReady=true;}else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},2000);}});}
+
+/* FIX: presence ამოღებულია */
+function setupDMTypingChannel(rk){
+  if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}
+  dmTypingChReady=false;dmTypingUsers={};removeDMTyping();
+  dmTypingCh=sb.channel('dmtyping_'+rk)
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(!payload||!payload.uid||payload.uid===ME?.id)return;
+      const uid=payload.uid;
+      if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);
+      dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};
+      renderDMTyping();
+    })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED'){dmTypingChReady=true;}
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
+        dmTypingChReady=false;
+        setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},3000);
+      }
+    });
+}
+
 function removeDMTyping(){document.getElementById('dmTypingRow')?.remove();const nb=document.getElementById('navDMTypingBadge');if(nb){nb.textContent='';nb.classList.remove('show');}const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent='';}
 function renderDMTyping(){const users=Object.values(dmTypingUsers).filter(u=>u.nick);removeDMTyping();if(!users.length)return;const names=users.map(u=>u.nick).join(', ');const box=document.getElementById('dmMsgs');if(box&&document.getElementById('dmBox').classList.contains('open')){const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;box.appendChild(el);box.scrollTop=box.scrollHeight;}const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent=names+' წერს...';const nb=document.getElementById('navDMTypingBadge');if(nb&&(!document.getElementById('dmBox').classList.contains('open')||dmMinimized)){nb.textContent=names+' ✍️';nb.classList.add('show');}}
 
@@ -1114,6 +1165,17 @@ function closeDMList(){document.getElementById('dmListOverlay').classList.remove
 function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
 function toggleDMMinimize(e){if(e&&e.target.closest('.dm-head-btns'))return;dmMinimized=!dmMinimized;document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);document.getElementById('dmMinBtn').textContent=dmMinimized?'▲':'—';if(!dmMinimized){removeDMTyping();renderDMTyping();}}
 
+/* ===== FIX: წაკითხვის მარკირება ===== */
+async function markDMRead(rk){
+  await sb.from('direct_messages')
+    .update({is_read:true})
+    .eq('room_key',rk)
+    .eq('receiver_id',ME.id)
+    .eq('is_read',false);
+  // განაახლე ✓✓ სტატუსი ეკრანზე
+  document.querySelectorAll('.dm-status.sent').forEach(el=>{el.textContent='✓✓';el.classList.remove('sent');el.classList.add('read');});
+}
+
 async function openDM(uid){
   if(uid)DM_UID=uid;if(!DM_UID)return;
   const u=allUsers.find(u=>u.id===DM_UID);
@@ -1123,7 +1185,6 @@ async function openDM(uid){
   document.getElementById('dmBox').classList.add('open');
   document.getElementById('dmBox').classList.remove('minimized');dmMinimized=false;
   document.getElementById('dmMinBtn').textContent='—';
-  // FIX: სწორი badge განახლება
   delete dmUnread[DM_UID];
   const _totalU=Object.values(dmUnread).reduce((a,v)=>a+v,0);
   const b=document.getElementById('dmBadge');
@@ -1135,23 +1196,35 @@ async function openDM(uid){
   const box=document.getElementById('dmMsgs');box.innerHTML='';
   (data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;
   if(data&&data.length){for(const m of data){if(m.id)await refreshDMReactions(m.id);}}
+  // წაკითხვის მარკირება
+  markDMRead(rk);
   if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}
   dmCh=sb.channel('dm_'+rk)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},async p=>{
       if(p.new.sender_id===ME.id)return;
       appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;
-      const sender=allUsers.find(u=>u.id===p.new.sender_id);
-      // FIX: badge ყოველთვის ინთება
-      if(!document.getElementById('dmBox').classList.contains('open')||dmMinimized){
+      // ახალი შეტყობინება — დაუყოვნებლივ წავკითხოთ თუ ღიაა
+      if(document.getElementById('dmBox').classList.contains('open')&&!dmMinimized){
+        markDMRead(rk);
+      } else {
         dmUnread[DM_UID]=(dmUnread[DM_UID]||0)+1;
         const totalUB=Object.values(dmUnread).reduce((a,v)=>a+v,0);
         const bEl=document.getElementById('dmBadge');bEl.textContent=totalUB;bEl.classList.add('show');
       }
+      const sender=allUsers.find(u=>u.id===p.new.sender_id);
       if(sender&&(dmMinimized||!document.getElementById('dmBox').classList.contains('open'))){
         const nb=document.getElementById('navDMTypingBadge');
         if(nb){nb.textContent=sender.username+' ✉️';nb.classList.add('show');setTimeout(()=>{nb.textContent='';nb.classList.remove('show');},4000);}
       }
-    }).subscribe();
+    })
+    // FIX: სხვის is_read განახლება — შენს გამოგზავნილ შეტყობინებებზე ✓✓ 
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
+      if(p.new.is_read&&p.new.sender_id===ME.id){
+        const statusEl=document.getElementById('dmstatus_'+p.new.id);
+        if(statusEl){statusEl.textContent='✓✓';statusEl.classList.remove('sent');statusEl.classList.add('read');}
+      }
+    })
+    .subscribe();
   setupDMTypingChannel(rk);
 }
 
@@ -1159,19 +1232,33 @@ async function openDM(uid){
 function renderDMContent(content){if(!content)return'';if(content.startsWith('[dmimg]')){const src=content.replace('[dmimg]','').replace('[/dmimg]','');return`<img src="${src}" class="dm-img" onclick="window.open('${src}','_blank')" alt="ფოტო">`;}const fm=content.match(/^\[dmfile:([^\]]+)\]([\s\S]+)\[\/dmfile\]$/);if(fm){const fname=fm[1],fdata=fm[2];return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;margin-top:4px;cursor:pointer" onclick="downloadDMFile('${encodeURIComponent(fdata)}','${fname}')">📎 <span style="font-size:12px;color:var(--text)">${esc(fname)}</span></div>`;}if(content.startsWith('[voice:'))return renderVoiceContent(content);return renderContent(content);}
 function downloadDMFile(encodedData,fname){const a=document.createElement('a');a.href=decodeURIComponent(encodedData);a.download=fname;a.click();}
 
-/* ====== appendDMMsg — FIX: sender name + reliable react ====== */
-function appendDMMsg(m){
+/* ====== appendDMMsg — read receipt + sender name ====== */
+async function appendDMMsg(m){
   const isMe=(m.sender_id===ME.id);
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const box=document.getElementById('dmMsgs');
+
+  // სახელი: allUsers-ში ვეძებთ, თუ ვერ ვპოულობთ — DB-დან
+  let senderUser=isMe?null:allUsers.find(u=>u.id===m.sender_id);
+  if(!isMe&&!senderUser){
+    const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',m.sender_id).single();
+    if(data){senderUser=data;allUsers.push(data);}
+  }
+  const senderNick=senderUser?.username||'';
+
   let replyHtml='',displayContent=m.content;
-  if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}}
+  if(m.content&&m.content.startsWith('[reply:')){
+    const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);
+    if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}
+  }
   const bubbleContent=renderDMContent(displayContent);
   const msgId=m.id;
   const reactId=msgId?('dmreact_'+msgId):('dmreact_tmp_'+Date.now());
-  // FIX: გამომჩენი სახელი
-  const senderUser=isMe?null:allUsers.find(u=>u.id===m.sender_id);
-  const senderNick=senderUser?.username||'';
+
+  // ✓ / ✓✓ სტატუსი — მხოლოდ ჩემს შეტყობინებებზე
+  const statusHtml=isMe&&msgId
+    ?`<span class="dm-status ${m.is_read?'read':'sent'}" id="dmstatus_${msgId}">${m.is_read?'✓✓':'✓'}</span>`
+    :'';
 
   const wrapper=document.createElement('div');
   wrapper.className='dm-msg-wrap';
@@ -1182,7 +1269,9 @@ function appendDMMsg(m){
       <div class="dm-bubble${isMe?' me':''}">
         ${!isMe&&senderNick?`<div style="font-size:10px;font-weight:600;color:var(--indigo2);margin-bottom:3px">${esc(senderNick)}</div>`:''}
         ${replyHtml}${bubbleContent}
-        <span class="dm-time">${t}</span>
+        <span style="display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:3px">
+          <span class="dm-time">${t}</span>${statusHtml}
+        </span>
         ${msgId?`<span class="dm-react-trigger${isMe?' me-side':''}" title="რეაქცია">😊</span>`:''}
       </div>
     </div>
@@ -1199,11 +1288,20 @@ function appendDMMsg(m){
     const reactTrig=wrapper.querySelector('.dm-react-trigger');
     if(reactTrig){reactTrig.addEventListener('click',ev=>{ev.stopPropagation();showDMQuickReact(msgId,reactTrig,isMe);});}
   }
-  bubble.addEventListener('dblclick',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');setDMReply(nick,displayContent);});
+  bubble.addEventListener('dblclick',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;const nick=isMe?(MYPROF?.username||'?'):(senderUser?.username||'?');setDMReply(nick,displayContent);});
   box.appendChild(wrapper);
 }
 
-async function sendDM(){const inp=document.getElementById('dmInput');let txt=inp.value.trim();if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString()});document.getElementById('dmMsgs').scrollTop=9999;}
+async function sendDM(){
+  const inp=document.getElementById('dmInput');let txt=inp.value.trim();
+  if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');
+  if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}
+  const rk=[ME.id,DM_UID].sort().join('_');
+  const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt,is_read:false}).select('id').single();
+  if(error){toast('❌ '+error.message);return;}
+  if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString(),is_read:false});
+  document.getElementById('dmMsgs').scrollTop=9999;
+}
 
 function closeDM(){document.getElementById('dmBox').classList.remove('open','minimized');document.getElementById('dmEmojiPanel').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;dmMinimized=false;if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}removeDMTyping();cancelDMReply();}
 function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
