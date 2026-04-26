@@ -722,15 +722,15 @@ select.inp{cursor:pointer}
       <button class="gal-react-btn" onclick="reactToPhoto('😮')">😮</button>
     </div>
     <!-- Comments on photo -->
-    <div class="gal-comments-section">
+    <div class="gal-comments-section" style="position:relative">
       <div style="font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);margin-bottom:8px">💬 კომენტარები</div>
       <div id="pvCommentsList" style="max-height:120px;overflow-y:auto;margin-bottom:8px"></div>
       <!-- Emoji panel for photo comments -->
-      <div id="pvEmojiPanel" style="display:none;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:8px;position:relative">
-        <div class="emoji-grid" id="pvEmojiGrid" style="max-height:140px"></div>
+      <div id="pvEmojiPanel" style="display:none;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:8px;max-height:160px;overflow-y:auto">
+        <div style="display:flex;flex-wrap:wrap;gap:6px" id="pvEmojiGrid"></div>
       </div>
       <div class="gal-comment-bar">
-        <button class="gal-comment-send" onclick="togglePvEmoji()" style="background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)">😊</button>
+        <button onclick="togglePvEmoji()" style="width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">😊</button>
         <input class="gal-comment-input" id="pvCommentInput" placeholder="კომენტარი..." onkeydown="if(event.key==='Enter')sendPhotoComment()">
         <button class="gal-comment-send" onclick="sendPhotoComment()">✈️</button>
       </div>
@@ -1323,7 +1323,38 @@ function togglePvEmoji(){
   if(!p)return;
   const isOpen=p.style.display!=='none';
   p.style.display=isOpen?'none':'block';
-  if(!isOpen)buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);
+  if(!isOpen){
+    const grid=document.getElementById('pvEmojiGrid');
+    if(!grid)return;
+    grid.innerHTML='';
+    customEmojis.forEach(em=>{
+      const btn=document.createElement('button');
+      btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0';
+      const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
+      if(isImg){const img=document.createElement('img');img.src=em.url;img.style.cssText='width:34px;height:34px;border-radius:6px;object-fit:contain;pointer-events:none';btn.appendChild(img);}
+      else{const span=document.createElement('span');span.textContent=em.url||'?';span.style.cssText='font-size:24px;pointer-events:none';btn.appendChild(span);}
+      btn.addEventListener('click',()=>{
+        const inp=document.getElementById('pvCommentInput');
+        if(!inp)return;
+        inp.value+=isImg?`[e:${em.id}]`:em.url;
+        inp.focus();
+      });
+      grid.appendChild(btn);
+    });
+    // ჩვეულებრივი emoji-ებიც დავამატოთ
+    const basics=['😊','😍','😂','🔥','💜','❤️','👍','😮','🥺','✨','🎉','😴','🤩','💫','🌸'];
+    basics.forEach(e=>{
+      const btn=document.createElement('button');
+      btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0';
+      btn.textContent=e;
+      btn.addEventListener('click',()=>{
+        const inp=document.getElementById('pvCommentInput');
+        if(!inp)return;
+        inp.value+=e;inp.focus();
+      });
+      grid.appendChild(btn);
+    });
+  }
 }
 function buildEmojiGrid(gridId,inputId,withManage){
   const grid=document.getElementById(gridId);if(!grid)return;
