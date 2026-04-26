@@ -990,7 +990,7 @@ async function quickReact(emoji){
 }
 
 async function refreshReactions(msgId){
-  const{data}=await sb.from('message_reactions').select('emoji,user_id').eq('message_id',msgId);
+  const{data}=await sb.from('message_reactions').select('emoji,user_id').eq('message_id',Number(msgId)||msgId);
   const row=document.getElementById('msg'+msgId);if(!row)return;
   let reactEl=row.querySelector(':scope>.msg-reactions');
   if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}
@@ -1111,20 +1111,22 @@ function setRoomView(mode,roomObj){
 function animateSendPlane(btnId){const btn=document.getElementById(btnId);if(!btn)return;btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}
 
 async function loadMessages(roomId){
-  if(msgCh){try{sb.removeChannel(msgCh);}catch(e){}msgCh=null;}
-  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
+  // სწორად დავხუროთ ძველი channels
+  if(msgCh){try{await sb.removeChannel(msgCh);}catch(e){}msgCh=null;}
+  if(typingCh){try{await sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
   removeTypingIndicator();typingUsers={};sentMsgIds.clear();
 
   const box=document.getElementById('messages');box.innerHTML='';
 
+  // FK სახელი არის fk_user — ამიტომ პირდაპირ JOIN ვიყენებთ
   const{data}=await sb.from('messages')
-    .select('*, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
+    .select('id, room_id, user_id, content, created_at, profiles!fk_user(id,username,role,avatar_url,emotion)')
     .eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
 
   roomMsgCache[roomId]=data||[];
   (data||[]).forEach(m=>{appendMsg(m,true);sentMsgIds.add(m.id);});
 
-  // load reactions
+  // reactions ჩატვირთვა
   if(data&&data.length){
     const{data:reactions}=await sb.from('message_reactions').select('*').in('message_id',data.map(m=>m.id));
     if(reactions&&reactions.length){
@@ -1147,16 +1149,21 @@ async function loadMessages(roomId){
   box.scrollTop=box.scrollHeight;
   setupTypingChannel(roomId);
 
-  msgCh=sb.channel('room'+roomId)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages',filter:`room_id=eq.${roomId}`},async payload=>{
+  // ᲛᲜᲘᲨᲕᲜᲔᲚᲝᲕᲐᲜᲘ: უნიკური channel სახელი room_id-ით
+  const chName='msgs_room_'+roomId+'_'+Date.now();
+  msgCh=sb.channel(chName)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async payload=>{
       const newId=payload.new.id;
-      // FIX: skip if already rendered (our own sent message)
+      const newRoomId=payload.new.room_id;
+      // room_id შევამოწმოთ კოდშიც — ფილტრი საიმედოა მხოლოდ string ტიპზე
+      if(newRoomId!==roomId&&newRoomId!==String(roomId)&&Number(newRoomId)!==Number(roomId))return;
+      // skip თუ უკვე ჩვენ გავაგზავნეთ
       if(sentMsgIds.has(newId)||document.getElementById('msg'+newId))return;
       sentMsgIds.add(newId);
       const{data:msg}=await sb.from('messages')
-        .select('*, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
+        .select('id, room_id, user_id, content, created_at, profiles!fk_user(id,username,role,avatar_url,emotion)')
         .eq('id',newId).single();
-      if(msg){appendMsg(msg);box.scrollTop=box.scrollHeight;}
+      if(msg&&Number(msg.room_id)===Number(roomId)){appendMsg(msg);box.scrollTop=box.scrollHeight;}
     })
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{
       document.getElementById('msg'+payload.old.id)?.remove();
@@ -1233,7 +1240,6 @@ async function sendMessage(){
   if(replyToMsg){txt=`[reply:${replyToMsg.nick}|${replyToMsg.content}]${txt}`;cancelReply();}
   animateSendPlane('mainSendBtn');
 
-  // FIX: insert to DB first, get real ID, then render — no fake IDs
   const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();
   if(error){toast('❌ '+error.message);inp.value=txt;return;}
 
