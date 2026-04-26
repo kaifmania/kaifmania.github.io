@@ -58,15 +58,17 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 @keyframes modalFloat{from{opacity:0;transform:translateY(30px) scale(0.9)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes dmSlideUp{from{opacity:0;transform:translateY(30px) scale(0.95)}to{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes typingBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
-
-/* DM badge pulse */
 @keyframes badgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 
 #hearts{position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden}
 .heart{position:absolute;bottom:-60px;will-change:transform,opacity;transform:translateZ(0);user-select:none;z-index:999999;animation:heartFloat linear;}
 
+/* ====== FIX 3: DM bubble emoji size ====== */
 .msg-bubble img.chat-emoji{width:52px!important;height:52px!important;object-fit:cover;vertical-align:middle;margin:0 3px;display:inline-block;border-radius:8px}
 .msg-bubble img.chat-emoji-gif{width:64px!important;height:64px!important;object-fit:contain;vertical-align:middle;margin:0 3px;display:inline-block;border-radius:10px}
+/* DM bubble emojis — much smaller */
+.dm-bubble img.chat-emoji{width:26px!important;height:26px!important;object-fit:cover;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:5px}
+.dm-bubble img.chat-emoji-gif{width:32px!important;height:32px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:6px}
 
 #topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto;scrollbar-width:none;box-shadow:0 2px 20px rgba(0,0,0,.25)}
 #topnav::-webkit-scrollbar{display:none}
@@ -77,6 +79,8 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .badge{position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;min-width:14px;height:14px;border-radius:7px;display:none;align-items:center;justify-content:center;padding:0 3px}
 .badge.show{display:flex;animation:badgePulse .6s ease}
 .nav-spacer{flex:1}
+.dm-typing-badge{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--accent);display:none;box-shadow:0 0 6px var(--accent)}
+.dm-typing-badge.show{display:block;animation:badgePulse .6s ease infinite}
 
 #app{display:flex;flex:1;min-height:0;position:relative;z-index:1}
 #sidebar{width:260px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:2;transition:all 0.3s ease}
@@ -107,8 +111,6 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .avatar{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;position:relative;overflow:hidden}
 .avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .online-dot{width:9px;height:9px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0;box-shadow:0 0 5px var(--online)}
-
-/* DM typing indicator badge on nav */
 .dm-typing-badge{position:absolute;top:2px;right:2px;width:8px;height:8px;border-radius:50%;background:var(--accent);display:none;box-shadow:0 0 6px var(--accent)}
 .dm-typing-badge.show{display:block;animation:badgePulse .6s ease infinite}
 
@@ -157,7 +159,6 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 .msg-bubble i,.msg-bubble em{font-style:italic}
 .msg-bubble u{text-decoration:underline}
 
-/* Image in chat bubble */
 .msg-bubble img.chat-img{max-width:220px;max-height:180px;border-radius:10px;display:block;margin-top:6px;cursor:pointer;object-fit:cover;border:1px solid var(--border)}
 
 .voice-msg{display:flex;align-items:center;gap:8px;padding:4px 0}
@@ -318,7 +319,6 @@ select.inp{cursor:pointer}
 .gal-inp{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px}
 .gal-inp:focus{border-color:var(--indigo2)}
 .gal-album-select{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;cursor:pointer}
-
 .gal-comments-section{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
 .gal-comment-item{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
 .gal-comment-nick{font-size:11px;font-weight:600;color:var(--indigo2);margin-right:4px}
@@ -328,7 +328,6 @@ select.inp{cursor:pointer}
 .gal-comment-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
 .gal-comment-input:focus{border-color:var(--indigo2)}
 .gal-comment-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:0 14px;cursor:pointer}
-
 .gal-react-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
 .gal-react-btn{font-size:18px;cursor:pointer;padding:3px 8px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);transition:all .15s}
 .gal-react-btn:hover{background:var(--indigo);transform:scale(1.15)}
@@ -366,7 +365,6 @@ select.inp{cursor:pointer}
 /* ====== DM BOX ====== */
 #dmBox{position:fixed;right:16px;bottom:16px;width:340px;height:480px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:15000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
 #dmBox.open{display:flex;animation:dmSlideUp .35s cubic-bezier(0.2,0.9,0.4,1.1)}
-/* minimized state */
 #dmBox.minimized{height:52px}
 #dmBox.minimized #dmMsgs,#dmBox.minimized #dmReplyBar,#dmBox.minimized .dm-bar,#dmBox.minimized #dmEmojiPanel{display:none!important}
 .dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer;user-select:none}
@@ -392,7 +390,6 @@ select.inp{cursor:pointer}
 #dmEmojiPanel.open{display:block}
 #dmEmojiPanel .emoji-grid{max-height:180px;margin-bottom:0}
 
-/* DM message bubble */
 .dm-msg-wrap{margin-bottom:4px}
 .dm-bubble-row{display:flex}
 .dm-bubble-row.me{justify-content:flex-end}
@@ -411,28 +408,21 @@ select.inp{cursor:pointer}
 .dm-list-body{overflow-y:auto;flex:1}
 .dm-list-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;transition:all .2s;margin-bottom:2px;border:1px solid transparent;position:relative}
 .dm-list-item:hover{background:var(--indigo-f);border-color:var(--border)}
-/* unread indicator on DM list */
 .dm-unread-dot{width:8px;height:8px;border-radius:50%;background:var(--accent);margin-left:auto;box-shadow:0 0 5px var(--accent);flex-shrink:0}
-/* who is typing — on DM list */
 .dm-list-typing{font-size:10px;color:var(--accent);font-style:italic;margin-top:1px}
 
-/* Typing indicator */
+/* ====== FIX 2: Typing indicator styles ====== */
 .typing-indicator{display:flex;align-items:center;gap:6px;padding:6px 14px 4px 56px;font-size:12px;color:var(--text3);font-style:italic}
 .typing-dots{display:flex;gap:3px;align-items:center}
 .typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:typingBounce .8s ease infinite}
 .typing-dot:nth-child(2){animation-delay:.15s}
 .typing-dot:nth-child(3){animation-delay:.3s}
-
-/* DM typing inline */
 .dm-typing-row{display:flex;align-items:center;gap:5px;padding:4px 6px;font-size:11px;color:var(--text3);font-style:italic}
 .dm-typing-row .typing-dot{background:var(--accent)}
 
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:messagePop .3s ease;white-space:nowrap}
-
-/* Nav DM indicator — who is typing in DM */
 #navDMTypingBadge{font-size:9px;color:var(--accent);font-style:italic;max-width:60px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:none}
 #navDMTypingBadge.show{display:block}
-
 .hidden{display:none!important}
 ::-webkit-scrollbar{width:5px;height:5px}
 ::-webkit-scrollbar-track{background:var(--panel2);border-radius:10px}
@@ -804,20 +794,16 @@ let replyToMsg=null,dmReplyTo=null,reactTargetMsgId=null;
 let mediaRecorder=null,audioChunks=[],isRecording=false;
 let dmMediaRecorder=null,dmAudioChunks=[],dmIsRecording=false;
 
-// typing — main chat
+// ====== FIX 2: Typing channels ======
 let typingCh=null,typingChReady=false,typingUsers={};
-// typing — DM
 let dmTypingCh=null,dmTypingChReady=false,dmTypingUsers={};
 
 const roomMsgCache={};
+// ====== FIX 1: sentMsgIds tracks our own sent messages to prevent duplicates ======
 const sentMsgIds=new Set();
 let dmMinimized=false;
-
-// unread DM tracking per user
-const dmUnread={}; // {uid: count}
-// dm reactions target
+const dmUnread={};
 let dmReactTargetId=null;
-// quick react mode: 'chat' | 'dm'
 let qrMode='chat';
 
 /* ===================== THEME ===================== */
@@ -1003,7 +989,7 @@ async function sendDMFile(e){
   reader.readAsDataURL(file);e.target.value='';
 }
 
-/* ===================== TYPING — MAIN CHAT ===================== */
+/* ===================== FIX 2: TYPING — MAIN CHAT ===================== */
 function onTyping(){
   if(!ME||!ROOM)return;
   if(typingCh&&typingChReady){
@@ -1012,16 +998,28 @@ function onTyping(){
 }
 
 function setupTypingChannel(roomId){
-  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
-  typingChReady=false;typingUsers={};removeTypingIndicator();
-  typingCh=sb.channel('typing_r'+roomId,{config:{broadcast:{self:false}}})
+  // Clean up old channel first
+  if(typingCh){
+    try{sb.removeChannel(typingCh);}catch(e){}
+    typingCh=null;
+  }
+  typingChReady=false;
+  typingUsers={};
+  removeTypingIndicator();
+
+  // Use stable channel name (no timestamp) so it doesn't conflict
+  typingCh=sb.channel('typing_room_'+roomId,{config:{broadcast:{self:false}}})
     .on('broadcast',{event:'typing'},({payload})=>{
       if(!payload||payload.uid===ME?.id)return;
-      if(typingUsers[payload.uid]?._timer)clearTimeout(typingUsers[payload.uid]._timer);
-      typingUsers[payload.uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[payload.uid];renderTyping();},3000)};
+      const uid=payload.uid;
+      if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);
+      typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3000)};
       renderTyping();
     })
-    .subscribe(status=>{if(status==='SUBSCRIBED')typingChReady=true;});
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED')typingChReady=true;
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;}
+    });
 }
 
 function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
@@ -1031,11 +1029,11 @@ function renderTyping(){
   if(!users.length)return;
   const msgs=document.getElementById('messages');if(!msgs)return;
   const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';
-  el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>u.nick).join(', ')} წერს...</span>`;
+  el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>esc(u.nick)).join(', ')} წერს...</span>`;
   msgs.appendChild(el);msgs.scrollTop=msgs.scrollHeight;
 }
 
-/* ===================== TYPING — DM ===================== */
+/* ===================== FIX 2: TYPING — DM ===================== */
 function onDMTyping(){
   if(!ME||!DM_UID)return;
   if(dmTypingCh&&dmTypingChReady){
@@ -1049,16 +1047,19 @@ function setupDMTypingChannel(rk){
   dmTypingCh=sb.channel('dmtyping_'+rk,{config:{broadcast:{self:false}}})
     .on('broadcast',{event:'typing'},({payload})=>{
       if(!payload||payload.uid===ME?.id)return;
-      if(dmTypingUsers[payload.uid]?._timer)clearTimeout(dmTypingUsers[payload.uid]._timer);
-      dmTypingUsers[payload.uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[payload.uid];renderDMTyping();},3000)};
+      const uid=payload.uid;
+      if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);
+      dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3000)};
       renderDMTyping();
     })
-    .subscribe(status=>{if(status==='SUBSCRIBED')dmTypingChReady=true;});
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED')dmTypingChReady=true;
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;}
+    });
 }
 
 function removeDMTyping(){
   document.getElementById('dmTypingRow')?.remove();
-  // also clear nav badge
   const nb=document.getElementById('navDMTypingBadge');
   if(nb){nb.textContent='';nb.classList.remove('show');}
   const ti=document.getElementById('dmTypingInfo');
@@ -1070,20 +1071,14 @@ function renderDMTyping(){
   removeDMTyping();
   if(!users.length)return;
   const names=users.map(u=>u.nick).join(', ');
-
-  // inside DM box
   const box=document.getElementById('dmMsgs');
   if(box&&document.getElementById('dmBox').classList.contains('open')){
     const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';
     el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;
     box.appendChild(el);box.scrollTop=box.scrollHeight;
   }
-
-  // on DM header (minimized or open)
   const ti=document.getElementById('dmTypingInfo');
   if(ti)ti.textContent=names+' წერს...';
-
-  // on nav ✉️ button — show who is typing even when DM is closed/minimized
   const nb=document.getElementById('navDMTypingBadge');
   if(nb&&(!document.getElementById('dmBox').classList.contains('open')||dmMinimized)){
     nb.textContent=names+' ✍️';nb.classList.add('show');
@@ -1121,7 +1116,10 @@ function showQuickReact(msgId,btn){
   panel.classList.add('open');
   setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);
 }
+
+// ====== FIX 4: DM Quick React — ensure ID is passed correctly ======
 function showDMQuickReact(msgId,el,isMe){
+  if(!msgId){toast('❌ ID ვერ');return;}
   dmReactTargetId=msgId;qrMode='dm';
   const panel=document.getElementById('quickReactPanel');
   const rect=el.getBoundingClientRect();
@@ -1157,9 +1155,9 @@ async function refreshReactions(msgId){
   });
 }
 
-/* ===================== DM REACTIONS ===================== */
+/* ===================== FIX 4: DM REACTIONS ===================== */
 async function quickDMReact(emoji){
-  if(!dmReactTargetId||!ME)return;
+  if(!dmReactTargetId||!ME){toast('❌ რეაქცია ვერ');return;}
   const tag=`dmreact:${dmReactTargetId}:${emoji}`;
   const{data:ex}=await sb.from('comments').select('id').eq('user_id',ME.id).eq('content',tag).maybeSingle();
   if(ex)await sb.from('comments').delete().eq('id',ex.id);
@@ -1168,11 +1166,12 @@ async function quickDMReact(emoji){
 }
 
 async function refreshDMReactions(msgId){
+  if(!msgId)return;
   const tag=`dmreact:${msgId}:`;
   const{data}=await sb.from('comments').select('user_id,content').like('content',tag+'%');
   const el=document.getElementById('dmreact_'+msgId);if(!el)return;
   const grouped={};
-  (data||[]).forEach(r=>{const emoji=r.content.split(':')[2];if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});
+  (data||[]).forEach(r=>{const parts=r.content.split(':');const emoji=parts[2];if(emoji&&!grouped[emoji])grouped[emoji]=[];if(emoji)grouped[emoji].push(r.user_id);});
   el.innerHTML='';
   Object.entries(grouped).forEach(([emoji,uids])=>{
     const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');
@@ -1242,13 +1241,15 @@ function setRoomView(mode,roomObj){
   }else{activeGameRoom=null;}
 }
 
-/* ===================== MESSAGES ===================== */
+/* ===================== FIX 1: MESSAGES — prevent duplicates ===================== */
 function animateSendPlane(btnId){const btn=document.getElementById(btnId);if(!btn)return;btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}
 
 async function loadMessages(roomId){
+  // Clean up channels
   if(msgCh){try{await sb.removeChannel(msgCh);}catch(e){}msgCh=null;}
   if(typingCh){try{await sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
-  removeTypingIndicator();typingChReady=false;typingUsers={};sentMsgIds.clear();
+  removeTypingIndicator();typingChReady=false;typingUsers={};
+  sentMsgIds.clear();
 
   const box=document.getElementById('messages');box.innerHTML='';
   const{data}=await sb.from('messages')
@@ -1256,7 +1257,11 @@ async function loadMessages(roomId){
     .eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
 
   roomMsgCache[roomId]=data||[];
-  (data||[]).forEach(m=>{appendMsg(m,true);sentMsgIds.add(m.id);});
+  // Mark all loaded messages as known so realtime doesn't re-add them
+  (data||[]).forEach(m=>{
+    sentMsgIds.add(m.id);
+    appendMsg(m,true);
+  });
 
   if(data&&data.length){
     const{data:reactions}=await sb.from('message_reactions').select('*').in('message_id',data.map(m=>m.id));
@@ -1280,19 +1285,25 @@ async function loadMessages(roomId){
   box.scrollTop=box.scrollHeight;
   setupTypingChannel(roomId);
 
-  const chName='msgs_room_'+roomId+'_'+Date.now();
-  msgCh=sb.channel(chName)
+  // Unique channel name without timestamp to avoid duplicates
+  msgCh=sb.channel('msgs_r'+roomId)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'messages'},async payload=>{
       const newId=payload.new.id,newRoomId=payload.new.room_id;
       if(Number(newRoomId)!==Number(roomId))return;
-      if(sentMsgIds.has(newId)||document.getElementById('msg'+newId))return;
+      // Skip if already shown (own message added manually)
+      if(sentMsgIds.has(newId))return;
+      // Skip if DOM element already exists
+      if(document.getElementById('msg'+newId))return;
       sentMsgIds.add(newId);
       const{data:msg}=await sb.from('messages')
         .select('id,room_id,user_id,content,created_at,profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
         .eq('id',newId).single();
       if(msg&&Number(msg.room_id)===Number(roomId)){appendMsg(msg);box.scrollTop=box.scrollHeight;}
     })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{document.getElementById('msg'+payload.old.id)?.remove();})
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'messages'},payload=>{
+      document.getElementById('msg'+payload.old.id)?.remove();
+      sentMsgIds.delete(payload.old.id);
+    })
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'message_reactions'},async payload=>{await refreshReactions(payload.new.message_id);})
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},async payload=>{await refreshReactions(payload.old.message_id);})
     .subscribe();
@@ -1349,6 +1360,7 @@ function appendMsg(m,skipScroll){
   document.getElementById('messages').appendChild(row);
 }
 
+/* ====== FIX 1: sendMessage — add to sentMsgIds BEFORE appendMsg ====== */
 async function sendMessage(){
   const inp=document.getElementById('msgInput');let txt=inp.value.trim();if(!txt)return;
   inp.value='';txt=wrapFormatting(txt);
@@ -1357,12 +1369,13 @@ async function sendMessage(){
   const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();
   if(error){toast('❌ '+error.message);inp.value=txt;return;}
   if(data){
+    // ====== KEY FIX: add to sentMsgIds BEFORE appendMsg so realtime won't duplicate ======
     sentMsgIds.add(data.id);
     appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content:txt,created_at:new Date().toISOString(),profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}});
     document.getElementById('messages').scrollTop=99999;
   }
 }
-async function delMsg(id){if(!confirm('წავშალო?'))return;document.getElementById('msg'+id)?.remove();await sb.from('messages').delete().eq('id',id);}
+async function delMsg(id){if(!confirm('წავშალო?'))return;document.getElementById('msg'+id)?.remove();sentMsgIds.delete(id);await sb.from('messages').delete().eq('id',id);}
 
 /* ===================== EMOJI ===================== */
 async function handleEmojiImages(e){
@@ -1691,7 +1704,6 @@ function filterDMUsers(){const q=document.getElementById('dmUserSearch').value.t
 function closeDMList(){document.getElementById('dmListOverlay').classList.remove('open');}
 function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
 
-/* DM minimize/restore */
 function toggleDMMinimize(e){
   if(e&&e.target.closest('.dm-head-btns'))return;
   dmMinimized=!dmMinimized;
@@ -1709,74 +1721,73 @@ async function openDM(uid){
   document.getElementById('dmBox').classList.add('open');
   document.getElementById('dmBox').classList.remove('minimized');dmMinimized=false;
   document.getElementById('dmMinBtn').textContent='—';
-
-  // clear unread
   delete dmUnread[DM_UID];
   const b=document.getElementById('dmBadge');b.textContent='';b.classList.remove('show');
-
   buildEmojiGrid('dmEmojiGrid','dmInput',false);
   const rk=[ME.id,DM_UID].sort().join('_');
   const{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(80);
   const box=document.getElementById('dmMsgs');box.innerHTML='';
   (data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;
-
-  // load reactions for all visible DM messages
+  // Load DM reactions for all messages
   if(data&&data.length){
-    for(const m of data){await refreshDMReactions(m.id);}
+    for(const m of data){if(m.id)await refreshDMReactions(m.id);}
   }
-
   if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}
   dmCh=sb.channel('dm_'+rk)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},async p=>{
       if(p.new.sender_id===ME.id)return;
       appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;
-      // show unread badge if minimized
       if(dmMinimized){
         dmUnread[DM_UID]=(dmUnread[DM_UID]||0)+1;
         const b=document.getElementById('dmBadge');b.textContent=dmUnread[DM_UID];b.classList.add('show');
       }
-      // show who messaged on nav ✉️ button
       const sender=allUsers.find(u=>u.id===p.new.sender_id);
       if(sender&&(dmMinimized||!document.getElementById('dmBox').classList.contains('open'))){
         const nb=document.getElementById('navDMTypingBadge');
         if(nb){nb.textContent=sender.username+' ✉️';nb.classList.add('show');setTimeout(()=>{nb.textContent='';nb.classList.remove('show');},4000);}
       }
     }).subscribe();
-
   setupDMTypingChannel(rk);
 }
 
+/* ====== FIX 3: DM content renderer — no large emojis ====== */
 function renderDMContent(content){
   if(!content)return'';
-  // image in DM
   if(content.startsWith('[dmimg]')){
     const src=content.replace('[dmimg]','').replace('[/dmimg]','');
     return`<img src="${src}" class="dm-img" onclick="window.open('${src}','_blank')" alt="ფოტო">`;
   }
-  // file in DM
   const fm=content.match(/^\[dmfile:([^\]]+)\]([\s\S]+)\[\/dmfile\]$/);
   if(fm){
     const fname=fm[1],fdata=fm[2];
     return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;margin-top:4px;cursor:pointer" onclick="downloadDMFile('${encodeURIComponent(fdata)}','${fname}')">📎 <span style="font-size:12px;color:var(--text)">${esc(fname)}</span></div>`;
   }
   if(content.startsWith('[voice:'))return renderVoiceContent(content);
+  // Use renderContent but emojis will be constrained by CSS .dm-bubble img.chat-emoji
   return renderContent(content);
 }
 function downloadDMFile(encodedData,fname){
   const a=document.createElement('a');a.href=decodeURIComponent(encodedData);a.download=fname;a.click();
 }
 
+/* ====== FIX 4: appendDMMsg — pass m.id correctly, setup long-press react ====== */
 function appendDMMsg(m){
   const isMe=(m.sender_id===ME.id);
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const box=document.getElementById('dmMsgs');
   let replyHtml='',displayContent=m.content;
-  if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}}
+  if(m.content&&m.content.startsWith('[reply:')){
+    const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);
+    if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}
+  }
   const bubbleContent=renderDMContent(displayContent);
+  // Generate a stable ID for the reactions container
+  const msgId=m.id;
+  const reactId=msgId?('dmreact_'+msgId):('dmreact_tmp_'+Date.now());
 
   const wrapper=document.createElement('div');
   wrapper.className='dm-msg-wrap';
-  if(m.id)wrapper.id='dmmsg_'+m.id;
+  if(msgId)wrapper.id='dmmsg_'+msgId;
   wrapper.innerHTML=`
     <div class="dm-bubble-row${isMe?' me':''}">
       <div class="dm-bubble${isMe?' me':''}">
@@ -1784,18 +1795,23 @@ function appendDMMsg(m){
         <span class="dm-time">${t}</span>
       </div>
     </div>
-    <div class="dm-reactions-row${isMe?' me':''}" id="dmreact_${m.id||'tmp_'+Date.now()}"></div>
+    <div class="dm-reactions-row${isMe?' me':''}" id="${reactId}"></div>
   `;
 
-  // long press / right click → quick react
   const bubble=wrapper.querySelector('.dm-bubble');
-  let lpt;
-  bubble.addEventListener('touchstart',()=>{lpt=setTimeout(()=>showDMQuickReact(m.id,bubble,isMe),600);},{passive:true});
-  bubble.addEventListener('touchend',()=>clearTimeout(lpt));
-  bubble.addEventListener('touchmove',()=>clearTimeout(lpt),{passive:true});
-  bubble.addEventListener('contextmenu',ev=>{ev.preventDefault();showDMQuickReact(m.id,bubble,isMe);});
+  // ====== FIX 4: only set up react if we have a real ID ======
+  if(msgId){
+    let lpt;
+    bubble.addEventListener('touchstart',()=>{lpt=setTimeout(()=>showDMQuickReact(msgId,bubble,isMe),600);},{passive:true});
+    bubble.addEventListener('touchend',()=>clearTimeout(lpt));
+    bubble.addEventListener('touchmove',()=>clearTimeout(lpt),{passive:true});
+    bubble.addEventListener('contextmenu',ev=>{ev.preventDefault();showDMQuickReact(msgId,bubble,isMe);});
+  }
   // double click reply
-  bubble.addEventListener('dblclick',()=>{const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');setDMReply(nick,displayContent);});
+  bubble.addEventListener('dblclick',()=>{
+    const nick=isMe?(MYPROF?.username||'?'):(allUsers.find(u=>u.id===DM_UID)?.username||'?');
+    setDMReply(nick,displayContent);
+  });
 
   box.appendChild(wrapper);
 }
