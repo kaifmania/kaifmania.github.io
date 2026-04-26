@@ -38,7 +38,8 @@ body.theme-arctic{--bg:#e8f4ff;--panel:#d8eeff;--panel2:#c8e4ff;--border:rgba(0,
 body.theme-neon{--bg:#000508;--panel:#001008;--panel2:#001810;--border:rgba(0,255,100,0.3);--text:#ccffe8;--text2:#00cc60;--text3:#008840;--bubble:#001008;--input-bg:#000508;--online:#00ff80;--indigo:#004820;--indigo2:#00aa50;--indigo-f:rgba(0,200,80,0.12);--glow:rgba(0,255,100,0.3);--accent:#00ff88;}
 body.theme-sand{--bg:#f5e8d0;--panel:#eedfc4;--panel2:#e8d4b8;--border:rgba(160,100,40,0.2);--text:#2a1500;--text2:#805020;--text3:#b09060;--bubble:#fff8ee;--input-bg:#fff;--online:#c06020;--indigo:#604010;--indigo2:#a06030;--indigo-f:rgba(140,80,20,0.1);--glow:rgba(160,100,40,0.2);--accent:#d08040;}
 
-body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden;transition:background .4s,color .4s}
+body{font-family:'Noto Sans Georgian',sans-serif;background:#1c1a30;color:#ede0ff;height:100dvh;display:flex;flex-direction:column;overflow:hidden;transition:background .4s,color .4s}
+body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)}
 
 @keyframes panelSlideIn{from{opacity:0;transform:translateX(-20px)}to{opacity:1;transform:translateX(0)}}
 @keyframes messagePop{from{opacity:0;transform:translateY(12px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
@@ -1120,7 +1121,7 @@ async function loadMessages(roomId){
 
   // FK სახელი არის fk_user — ამიტომ პირდაპირ JOIN ვიყენებთ
   const{data}=await sb.from('messages')
-    .select('id, room_id, user_id, content, created_at, profiles!fk_user(id,username,role,avatar_url,emotion)')
+    .select('id, room_id, user_id, content, created_at, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
     .eq('room_id',roomId).order('created_at',{ascending:true}).limit(100);
 
   roomMsgCache[roomId]=data||[];
@@ -1161,7 +1162,7 @@ async function loadMessages(roomId){
       if(sentMsgIds.has(newId)||document.getElementById('msg'+newId))return;
       sentMsgIds.add(newId);
       const{data:msg}=await sb.from('messages')
-        .select('id, room_id, user_id, content, created_at, profiles!fk_user(id,username,role,avatar_url,emotion)')
+        .select('id, room_id, user_id, content, created_at, profiles!messages_user_id_fkey(id,username,role,avatar_url,emotion)')
         .eq('id',newId).single();
       if(msg&&Number(msg.room_id)===Number(roomId)){appendMsg(msg);box.scrollTop=box.scrollHeight;}
     })
@@ -1760,6 +1761,9 @@ async function logout(){await sb.auth.signOut();location.href='index.html';}
 
 /* ===================== INIT ===================== */
 async function init(){
+  // მაშინვე ვამატებთ night კლასს — თეთრი ფლეში არ იყოს
+  document.body.classList.add('night');
+
   // Load theme from localStorage first (fast)
   const savedThemeLocal=localStorage.getItem('kaif_theme')||'night';
   if(savedThemeLocal!=='custom')applyThemeById(savedThemeLocal);
