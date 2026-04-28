@@ -7,7 +7,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-  /* ========== ALL YOUR EXISTING STYLES HERE (keep them as is) ========== */
+  /* ========== ALL EXISTING STYLES KEPT UNCHANGED ========== */
   *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
   body.night{--bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff}
   body.day{--bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);--text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;--online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);--glow:rgba(106,13,173,0.2);--accent:#c040ff}
@@ -445,7 +445,7 @@
   .dm-notif-text{font-size:11px;color:rgba(255,255,255,.8);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:messagePop .3s ease;white-space:nowrap}
   
-  /* ========== ვიდეო ზარის სტილები ========== */
+  /* ========== CALL STYLES ========== */
   .call-modal {
     position: fixed;
     top: 0;
@@ -570,10 +570,7 @@
 </div>
 
 <div id="notifPanel">
-  <div class="notif-head">
-    <span>🔔 შეტყობინებები</span>
-    <button class="notif-clear" onclick="clearAllNotifs()">ყველა წაშლა</button>
-  </div>
+  <div class="notif-head"><span>🔔 შეტყობინებები</span><button class="notif-clear" onclick="clearAllNotifs()">ყველა წაშლა</button></div>
   <div id="notifList"></div>
 </div>
 
@@ -583,14 +580,9 @@
   <button class="nav-btn" id="navFriends" onclick="showPanel('friends')">👥 <span class="label">მეგობრები</span><span class="badge" id="friendBadge"></span></button>
   <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
   <button class="nav-btn" id="navOnline" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
-  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span>
-    <span class="badge" id="dmBadge"></span>
-  </button>
+  <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span><span class="badge" id="dmBadge"></span></button>
   <div class="nav-spacer"></div>
-  <button class="nav-btn bell-btn" id="bellBtn" onclick="toggleNotifPanel()">
-    <span class="bell-icon">🔔</span>
-    <span class="badge" id="bellBadge"></span>
-  </button>
+  <button class="nav-btn bell-btn" id="bellBtn" onclick="toggleNotifPanel()"><span class="bell-icon">🔔</span><span class="badge" id="bellBadge"></span></button>
   <button class="nav-btn" onclick="openMyProfile()">👤</button>
   <button class="nav-btn" onclick="openThemeModal()" title="თემა">🎨</button>
   <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
@@ -598,352 +590,47 @@
 
 <div id="app">
   <div id="sidebar">
-    <div id="panelRooms">
-      <div class="sb-header"><div class="sb-dot"></div>ოთახები</div>
-      <div class="sb-body" id="roomList"></div>
-    </div>
-    <div id="panelFriends" class="hidden">
-      <div class="sb-header"><div class="sb-dot"></div>მეგობრები
-        <button id="friendReqBtn" style="margin-left:auto;background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;padding:3px 8px;cursor:pointer;display:none" onclick="openFriendReqs()">📬 <span id="friendReqCount">0</span></button>
-      </div>
-      <div id="friendRequestsList" style="padding:0 8px;margin-bottom:12px"></div>
-      <div class="sb-body" id="friendsList"></div>
-    </div>
-    <div id="panelUsers" class="hidden">
-      <div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div>
-      <div class="sb-body">
-        <input class="search-box" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()">
-        <div id="usersListEl"></div>
-      </div>
-    </div>
-    <div id="panelOnline" class="hidden">
-      <div class="sb-header"><div class="sb-dot"></div>ონლაინი</div>
-      <div class="sb-body" id="onlineListEl"></div>
-    </div>
+    <div id="panelRooms"><div class="sb-header"><div class="sb-dot"></div>ოთახები</div><div class="sb-body" id="roomList"></div></div>
+    <div id="panelFriends" class="hidden"><div class="sb-header"><div class="sb-dot"></div>მეგობრები<button id="friendReqBtn" style="margin-left:auto;background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;padding:3px 8px;cursor:pointer;display:none" onclick="openFriendReqs()">📬 <span id="friendReqCount">0</span></button></div><div id="friendRequestsList" style="padding:0 8px;margin-bottom:12px"></div><div class="sb-body" id="friendsList"></div></div>
+    <div id="panelUsers" class="hidden"><div class="sb-header"><div class="sb-dot"></div>მომხმარებლები</div><div class="sb-body"><input class="search-box" placeholder="🔍 ძებნა..." id="userSearch" oninput="filterUsers()"><div id="usersListEl"></div></div></div>
+    <div id="panelOnline" class="hidden"><div class="sb-header"><div class="sb-dot"></div>ონლაინი</div><div class="sb-body" id="onlineListEl"></div></div>
   </div>
 
   <div id="main">
-    <div class="chat-header">
-      <div style="font-size:22px" id="roomIcon">💬</div>
-      <div class="chat-title" id="roomTitle">მთავარი მოედანი</div>
-      <div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div>
-      <button class="play-btn" id="playHeaderBtn" onclick="openGame()">🎮 თამაში</button>
-    </div>
+    <div class="chat-header"><div style="font-size:22px" id="roomIcon">💬</div><div class="chat-title" id="roomTitle">მთავარი მოედანი</div><div class="chat-sub" id="onlineCnt">● 0 ონლაინი</div><button class="play-btn" id="playHeaderBtn" onclick="openGame()">🎮 თამაში</button></div>
     <div id="messages"></div>
-    <div id="gameRoomPlaceholder">
-      <div>
-        <span class="game-big-icon" id="grpIcon">🎮</span>
-        <div class="game-title-text" id="grpTitle">თამაში</div>
-        <div class="game-desc-text" id="grpDesc"></div>
-      </div>
-      <div class="game-stats-row">
-        <div class="game-stat-card"><div class="game-stat-label">შენი ქულა</div><div class="game-stat-val" id="grpMyScore">0</div></div>
-        <div class="game-stat-card hidden" id="grpRankCard"><div class="game-stat-label">რანგი</div><div class="game-stat-val" id="grpMyRank">—</div></div>
-      </div>
-      <div class="game-leaderboard">
-        <div class="glb-head">🏆 ტოპ 5</div>
-        <div id="lbRows"></div>
-      </div>
-      <button class="grp-play-btn" onclick="openGame()">▶ თამაშის დაწყება</button>
-    </div>
-    <div id="replyBar">
-      <span style="font-size:14px;color:var(--accent)">↩️</span>
-      <div class="reply-to-info" id="replyBarInfo">↩️ <strong id="replyBarNick">-</strong></div>
-      <button class="reply-cancel" onclick="cancelReply()">✕</button>
-    </div>
-    <div id="formatBar">
-      <button class="fmt-btn" id="fmtBold" onclick="applyFmt('bold')" title="გასქელება"><b>B</b></button>
-      <button class="fmt-btn" id="fmtItalic" onclick="applyFmt('italic')" title="დახრა"><i>I</i></button>
-      <button class="fmt-btn" id="fmtUnder" onclick="applyFmt('under')" title="ხაზი"><u>U</u></button>
-      <div class="fmt-sep"></div>
-      <select id="fontFamilySelect" onchange="applyFont(this.value)">
-        <option value="">შრიფტი</option>
-        <option value="'Noto Sans Georgian'">ნოტო</option>
-        <option value="'Unbounded'">Unbounded</option>
-        <option value="monospace">Mono</option>
-        <option value="serif">Serif</option>
-        <option value="cursive">Cursive</option>
-      </select>
-      <div class="fmt-sep"></div>
-      <div class="color-btn" style="background:#ff4466" onclick="applyColor('#ff4466',this)"></div>
-      <div class="color-btn" style="background:#ff9900" onclick="applyColor('#ff9900',this)"></div>
-      <div class="color-btn" style="background:#ffd700" onclick="applyColor('#ffd700',this)"></div>
-      <div class="color-btn" style="background:#00d96c" onclick="applyColor('#00d96c',this)"></div>
-      <div class="color-btn" style="background:#00aaff" onclick="applyColor('#00aaff',this)"></div>
-      <div class="color-btn" style="background:#c084fc" onclick="applyColor('#c084fc',this)"></div>
-      <div class="color-btn" style="background:#ff66bb" onclick="applyColor('#ff66bb',this)"></div>
-      <div class="color-btn" style="background:#fff;border:1px solid rgba(255,255,255,.3)" onclick="applyColor('#ffffff',this)"></div>
-      <button class="fmt-btn" onclick="clearFmt()" style="font-size:11px">✕</button>
-    </div>
-    <div id="emojiPanel">
-      <div class="ep-header"><span>სმაილები</span></div>
-      <div class="emoji-grid" id="emojiGrid"></div>
-      <div id="addEmojiSection" style="display:none">
-        <input type="file" id="emojiImgInput" accept="image/gif,image/png,image/jpeg,image/webp" multiple style="display:none" onchange="handleEmojiImages(event)">
-        <button class="ep-upload-btn" onclick="document.getElementById('emojiImgInput').click()">🖼️ სმაილის ატვირთვა</button>
-        <div class="ep-add">
-          <input class="inp" id="newEmojiInput" placeholder="😊" maxlength="6" style="margin:0;text-align:center;font-size:18px;width:55px;flex-shrink:0">
-          <button class="ep-add-btn" onclick="addTextEmoji()">+ დამატება</button>
-        </div>
-      </div>
-    </div>
-    <div class="chat-bar" id="chatBar">
-      <button class="icon-btn" onclick="toggleEmojiPanel()" title="სმაილები">😊</button>
-      <button class="icon-btn" id="fmtToggleBtn" onclick="toggleFormatBar()" title="ფორმატი">✏️</button>
-      <button class="icon-btn" id="voiceBtn" onclick="toggleVoiceRecord()" title="ვოისი">🎙️</button>
-      <input id="msgInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" oninput="onTyping()">
-      <button class="send-btn" id="mainSendBtn" onclick="sendMessage()"><span class="send-plane">✈️</span></button>
-    </div>
+    <div id="gameRoomPlaceholder"><div><span class="game-big-icon" id="grpIcon">🎮</span><div class="game-title-text" id="grpTitle">თამაში</div><div class="game-desc-text" id="grpDesc"></div></div><div class="game-stats-row"><div class="game-stat-card"><div class="game-stat-label">შენი ქულა</div><div class="game-stat-val" id="grpMyScore">0</div></div><div class="game-stat-card hidden" id="grpRankCard"><div class="game-stat-label">რანგი</div><div class="game-stat-val" id="grpMyRank">—</div></div></div><div class="game-leaderboard"><div class="glb-head">🏆 ტოპ 5</div><div id="lbRows"></div></div><button class="grp-play-btn" onclick="openGame()">▶ თამაშის დაწყება</button></div>
+    <div id="replyBar"><span style="font-size:14px;color:var(--accent)">↩️</span><div class="reply-to-info" id="replyBarInfo">↩️ <strong id="replyBarNick">-</strong></div><button class="reply-cancel" onclick="cancelReply()">✕</button></div>
+    <div id="formatBar"><button class="fmt-btn" id="fmtBold" onclick="applyFmt('bold')" title="გასქელება"><b>B</b></button><button class="fmt-btn" id="fmtItalic" onclick="applyFmt('italic')" title="დახრა"><i>I</i></button><button class="fmt-btn" id="fmtUnder" onclick="applyFmt('under')" title="ხაზი"><u>U</u></button><div class="fmt-sep"></div><select id="fontFamilySelect" onchange="applyFont(this.value)"><option value="">შრიფტი</option><option value="'Noto Sans Georgian'">ნოტო</option><option value="'Unbounded'">Unbounded</option><option value="monospace">Mono</option><option value="serif">Serif</option><option value="cursive">Cursive</option></select><div class="fmt-sep"></div><div class="color-btn" style="background:#ff4466" onclick="applyColor('#ff4466',this)"></div><div class="color-btn" style="background:#ff9900" onclick="applyColor('#ff9900',this)"></div><div class="color-btn" style="background:#ffd700" onclick="applyColor('#ffd700',this)"></div><div class="color-btn" style="background:#00d96c" onclick="applyColor('#00d96c',this)"></div><div class="color-btn" style="background:#00aaff" onclick="applyColor('#00aaff',this)"></div><div class="color-btn" style="background:#c084fc" onclick="applyColor('#c084fc',this)"></div><div class="color-btn" style="background:#ff66bb" onclick="applyColor('#ff66bb',this)"></div><div class="color-btn" style="background:#fff;border:1px solid rgba(255,255,255,.3)" onclick="applyColor('#ffffff',this)"></div><button class="fmt-btn" onclick="clearFmt()" style="font-size:11px">✕</button></div>
+    <div id="emojiPanel"><div class="ep-header"><span>სმაილები</span></div><div class="emoji-grid" id="emojiGrid"></div><div id="addEmojiSection" style="display:none"><input type="file" id="emojiImgInput" accept="image/gif,image/png,image/jpeg,image/webp" multiple style="display:none" onchange="handleEmojiImages(event)"><button class="ep-upload-btn" onclick="document.getElementById('emojiImgInput').click()">🖼️ სმაილის ატვირთვა</button><div class="ep-add"><input class="inp" id="newEmojiInput" placeholder="😊" maxlength="6" style="margin:0;text-align:center;font-size:18px;width:55px;flex-shrink:0"><button class="ep-add-btn" onclick="addTextEmoji()">+ დამატება</button></div></div></div>
+    <div class="chat-bar" id="chatBar"><button class="icon-btn" onclick="toggleEmojiPanel()" title="სმაილები">😊</button><button class="icon-btn" id="fmtToggleBtn" onclick="toggleFormatBar()" title="ფორმატი">✏️</button><button class="icon-btn" id="voiceBtn" onclick="toggleVoiceRecord()" title="ვოისი">🎙️</button><input id="msgInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMessage()}" oninput="onTyping()"><button class="send-btn" id="mainSendBtn" onclick="sendMessage()"><span class="send-plane">✈️</span></button></div>
   </div>
 </div>
 
 <!-- THEME MODAL -->
-<div class="overlay" id="themeOverlay" onclick="bgClose(event,'themeOverlay')">
-  <div class="modal" id="themeModal" style="max-width:520px">
-    <button class="modal-x" onclick="closeModal('themeOverlay')">✕</button>
-    <div class="modal-title">🎨 თემა და ფერები</div>
-    <div class="sec-lbl">მზა თემები</div>
-    <div class="theme-grid" id="themeGrid"></div>
-    <div class="divider"></div>
-    <div class="sec-lbl">საკუთარი ფერები</div>
-    <div class="custom-theme-row">
-      <div class="color-picker-group"><input type="color" id="cp_bg" value="#1c1a30" onchange="applyCustomTheme()"><label>ფონი</label></div>
-      <div class="color-picker-group"><input type="color" id="cp_panel" value="#252240" onchange="applyCustomTheme()"><label>პანელი</label></div>
-      <div class="color-picker-group"><input type="color" id="cp_text" value="#ede0ff" onchange="applyCustomTheme()"><label>ტექსტი</label></div>
-      <div class="color-picker-group"><input type="color" id="cp_accent" value="#f07aff" onchange="applyCustomTheme()"><label>აქცენტი</label></div>
-      <div class="color-picker-group"><input type="color" id="cp_indigo" value="#7a1fc8" onchange="applyCustomTheme()"><label>ბუშტი</label></div>
-    </div>
-    <button class="act-btn" onclick="saveCustomTheme()">✅ შენახვა</button>
-    <button class="act-btn" onclick="resetTheme()">🔄 გადატვირთვა</button>
-  </div>
-</div>
+<div class="overlay" id="themeOverlay" onclick="bgClose(event,'themeOverlay')"><div class="modal" id="themeModal" style="max-width:520px"><button class="modal-x" onclick="closeModal('themeOverlay')">✕</button><div class="modal-title">🎨 თემა და ფერები</div><div class="sec-lbl">მზა თემები</div><div class="theme-grid" id="themeGrid"></div><div class="divider"></div><div class="sec-lbl">საკუთარი ფერები</div><div class="custom-theme-row"><div class="color-picker-group"><input type="color" id="cp_bg" value="#1c1a30" onchange="applyCustomTheme()"><label>ფონი</label></div><div class="color-picker-group"><input type="color" id="cp_panel" value="#252240" onchange="applyCustomTheme()"><label>პანელი</label></div><div class="color-picker-group"><input type="color" id="cp_text" value="#ede0ff" onchange="applyCustomTheme()"><label>ტექსტი</label></div><div class="color-picker-group"><input type="color" id="cp_accent" value="#f07aff" onchange="applyCustomTheme()"><label>აქცენტი</label></div><div class="color-picker-group"><input type="color" id="cp_indigo" value="#7a1fc8" onchange="applyCustomTheme()"><label>ბუშტი</label></div></div><button class="act-btn" onclick="saveCustomTheme()">✅ შენახვა</button><button class="act-btn" onclick="resetTheme()">🔄 გადატვირთვა</button></div></div>
 
 <!-- Profile Modal -->
-<div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')">
-  <div class="modal">
-    <button class="modal-x" onclick="closeModal('profileOverlay')">✕</button>
-    <div class="modal-title" id="profTitle">პროფილი</div>
-    <div class="av-big-wrap">
-      <div class="av-big" id="avBig" onclick="clickAvatar()">
-        <span id="avEmoji">😊</span>
-        <img id="avImg" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%">
-        <div class="av-edit" id="avEdit">✏️</div>
-      </div>
-      <input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)">
-      <div class="prof-name" id="profName">-</div>
-      <span class="prof-role pr-member" id="profRole">წევრი</span>
-      <div class="prof-scores-row">
-        <div class="prof-game-score word" id="profWordScore">🔐 0</div>
-        <div class="prof-game-score quiz" id="profQuizScore">🏆 0</div>
-        <div class="prof-game-score hangman" id="profHangScore">🪢 0</div>
-      </div>
-    </div>
-    <div class="gallery-tabs">
-      <button class="gtab active" id="gtabInfo" onclick="switchGalleryTab('info',this)">👤 ინფო</button>
-      <button class="gtab" id="gtabGallery" onclick="switchGalleryTab('gallery',this)">📸 ალბომი</button>
-    </div>
-    <div id="tabInfo">
-      <div class="sec-lbl">სტატუსი</div>
-      <input class="inp" id="statusInp" placeholder="სტატუსი...">
-      <div class="sec-lbl">ემოცია</div>
-      <div class="emo-row" id="emoRowMain">
-        <button class="emo-btn" onclick="pickEmo(this,'😊')">😊</button>
-        <button class="emo-btn" onclick="pickEmo(this,'😍')">😍</button>
-        <button class="emo-btn" onclick="pickEmo(this,'😴')">😴</button>
-        <button class="emo-btn" onclick="pickEmo(this,'😤')">😤</button>
-        <button class="emo-btn" onclick="pickEmo(this,'🥺')">🥺</button>
-        <button class="emo-btn" onclick="pickEmo(this,'🎮')">🎮</button>
-        <button class="emo-btn" onclick="pickEmo(this,'🎵')">🎵</button>
-        <button class="emo-btn" onclick="pickEmo(this,'💜')">💜</button>
-      </div>
-      <input class="inp" id="emoComment" placeholder="კომენტარი ემოციაზე...">
-      <button class="act-btn success" id="saveProfileBtn" onclick="saveProfile()">✅ შენახვა</button>
-      <div id="founderSec" class="hidden">
-        <div class="divider"></div>
-        <div class="sec-lbl">👑 დამფუძნებლის პანელი</div>
-        <select class="inp" id="roleSelect">
-          <option value="member">👤 წევრი</option>
-          <option value="admin">🛡️ ადმინი</option>
-          <option value="founder">👑 დამფუძნებელი</option>
-        </select>
-        <button class="act-btn" onclick="assignRole()">🎖️ როლის მინიჭება</button>
-        <button class="act-btn warn" onclick="removeRole()">🔄 წევრად გადახსნა</button>
-        <div class="sec-lbl">დაბლოკვა</div>
-        <input class="inp" id="blockReason" placeholder="მიზეზი...">
-        <button class="act-btn danger" onclick="blockUser()">🚫 დაბლოკვა</button>
-        <button class="act-btn success" onclick="unblockUser()">✅ განბლოკვა</button>
-      </div>
-      <div id="adminSec" class="hidden">
-        <div class="divider"></div>
-        <div class="sec-lbl">🛡️ ადმინის პანელი</div>
-        <input class="inp" id="blockReasonAdmin" placeholder="მიზეზი...">
-        <button class="act-btn danger" onclick="blockUserAdmin()">🚫 დაბლოკვა</button>
-        <button class="act-btn success" onclick="unblockUserAdmin()">✅ განბლოკვა</button>
-      </div>
-      <div class="divider"></div>
-      <button class="act-btn" id="friendBtn" onclick="toggleFriend()" style="display:none">➕ მეგობრად დამატება</button>
-      <button class="act-btn" id="dmBtn" onclick="openDMfromProfile()" style="display:none">✉️ პირადი შეტყობინება</button>
-    </div>
-    <div id="tabGallery" class="hidden">
-      <div id="galUploadZone" style="display:none">
-        <input type="file" id="galFileInput" accept="image/*" style="display:none" onchange="galFileChosen(event)">
-        <div class="gal-upload-area" onclick="document.getElementById('galFileInput').click()">
-          <div style="font-size:30px;margin-bottom:6px">📸</div>
-          <div style="font-size:12px;color:var(--text3)">ფოტოს ასატვირთად</div>
-        </div>
-        <div class="gal-form" id="galForm">
-          <img id="galPreviewImg" class="gal-preview" src="" alt="">
-          <input class="gal-inp" id="galTitle" placeholder="სათაური...">
-          <select class="gal-album-select" id="galAlbumSelect"><option value="">📂 ალბომის გარეშე</option></select>
-          <div class="gal-emo-row">
-            <button class="gal-emo-btn active" onclick="pickGalEmo(this,'😊')">😊</button>
-            <button class="gal-emo-btn" onclick="pickGalEmo(this,'❤️')">❤️</button>
-            <button class="gal-emo-btn" onclick="pickGalEmo(this,'🔥')">🔥</button>
-            <button class="gal-emo-btn" onclick="pickGalEmo(this,'😂')">😂</button>
-            <button class="gal-emo-btn" onclick="pickGalEmo(this,'🥺')">🥺</button>
-            <button class="gal-emo-btn" onclick="pickGalEmo(this,'💜')">💜</button>
-            <button class="gal-emo-btn" onclick="pickGalEmo(this,'✨')">✨</button>
-            <button class="gal-emo-btn" onclick="pickGalEmo(this,'🎉')">🎉</button>
-          </div>
-          <input class="gal-inp" id="galComment" placeholder="კომენტარი...">
-          <div style="display:flex;gap:6px;margin-top:8px">
-            <button class="act-btn success" style="margin:0;flex:1" onclick="uploadGalleryPhoto()">✅ ატვირთვა</button>
-            <button class="act-btn" style="margin:0;width:auto;padding:0 14px" onclick="cancelGalUpload()">✕</button>
-          </div>
-        </div>
-      </div>
-      <div class="sec-lbl">ალბომები</div>
-      <div class="album-bar" id="albumBar"></div>
-      <div class="album-create-form" id="albumCreateForm">
-        <input id="albumNameInp" placeholder="ალბომის სახელი..." maxlength="30">
-        <button onclick="createAlbum()">✅</button>
-        <button style="background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:7px 10px;cursor:pointer" onclick="document.getElementById('albumCreateForm').classList.remove('open')">✕</button>
-      </div>
-      <div class="gallery-grid" id="galGrid"></div>
-      <div class="gal-empty hidden" id="galEmpty">📷 ფოტო ჯერ არ არის</div>
-    </div>
-  </div>
-</div>
+<div class="overlay" id="profileOverlay" onclick="bgClose(event,'profileOverlay')"><div class="modal"><button class="modal-x" onclick="closeModal('profileOverlay')">✕</button><div class="modal-title" id="profTitle">პროფილი</div><div class="av-big-wrap"><div class="av-big" id="avBig" onclick="clickAvatar()"><span id="avEmoji">😊</span><img id="avImg" style="display:none;position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%"><div class="av-edit" id="avEdit">✏️</div></div><input type="file" id="avatarInput" accept="image/*" style="display:none" onchange="uploadAvatar(event)"><div class="prof-name" id="profName">-</div><span class="prof-role pr-member" id="profRole">წევრი</span><div class="prof-scores-row"><div class="prof-game-score word" id="profWordScore">🔐 0</div><div class="prof-game-score quiz" id="profQuizScore">🏆 0</div><div class="prof-game-score hangman" id="profHangScore">🪢 0</div></div></div><div class="gallery-tabs"><button class="gtab active" id="gtabInfo" onclick="switchGalleryTab('info',this)">👤 ინფო</button><button class="gtab" id="gtabGallery" onclick="switchGalleryTab('gallery',this)">📸 ალბომი</button></div><div id="tabInfo"><div class="sec-lbl">სტატუსი</div><input class="inp" id="statusInp" placeholder="სტატუსი..."><div class="sec-lbl">ემოცია</div><div class="emo-row" id="emoRowMain"><button class="emo-btn" onclick="pickEmo(this,'😊')">😊</button><button class="emo-btn" onclick="pickEmo(this,'😍')">😍</button><button class="emo-btn" onclick="pickEmo(this,'😴')">😴</button><button class="emo-btn" onclick="pickEmo(this,'😤')">😤</button><button class="emo-btn" onclick="pickEmo(this,'🥺')">🥺</button><button class="emo-btn" onclick="pickEmo(this,'🎮')">🎮</button><button class="emo-btn" onclick="pickEmo(this,'🎵')">🎵</button><button class="emo-btn" onclick="pickEmo(this,'💜')">💜</button></div><input class="inp" id="emoComment" placeholder="კომენტარი ემოციაზე..."><button class="act-btn success" id="saveProfileBtn" onclick="saveProfile()">✅ შენახვა</button><div id="founderSec" class="hidden"><div class="divider"></div><div class="sec-lbl">👑 დამფუძნებლის პანელი</div><select class="inp" id="roleSelect"><option value="member">👤 წევრი</option><option value="admin">🛡️ ადმინი</option><option value="founder">👑 დამფუძნებელი</option></select><button class="act-btn" onclick="assignRole()">🎖️ როლის მინიჭება</button><button class="act-btn warn" onclick="removeRole()">🔄 წევრად გადახსნა</button><div class="sec-lbl">დაბლოკვა</div><input class="inp" id="blockReason" placeholder="მიზეზი..."><button class="act-btn danger" onclick="blockUser()">🚫 დაბლოკვა</button><button class="act-btn success" onclick="unblockUser()">✅ განბლოკვა</button></div><div id="adminSec" class="hidden"><div class="divider"></div><div class="sec-lbl">🛡️ ადმინის პანელი</div><input class="inp" id="blockReasonAdmin" placeholder="მიზეზი..."><button class="act-btn danger" onclick="blockUserAdmin()">🚫 დაბლოკვა</button><button class="act-btn success" onclick="unblockUserAdmin()">✅ განბლოკვა</button></div><div class="divider"></div><button class="act-btn" id="friendBtn" onclick="toggleFriend()" style="display:none">➕ მეგობრად დამატება</button><button class="act-btn" id="dmBtn" onclick="openDMfromProfile()" style="display:none">✉️ პირადი შეტყობინება</button></div><div id="tabGallery" class="hidden"><div id="galUploadZone" style="display:none"><input type="file" id="galFileInput" accept="image/*" style="display:none" onchange="galFileChosen(event)"><div class="gal-upload-area" onclick="document.getElementById('galFileInput').click()"><div style="font-size:30px;margin-bottom:6px">📸</div><div style="font-size:12px;color:var(--text3)">ფოტოს ასატვირთად</div></div><div class="gal-form" id="galForm"><img id="galPreviewImg" class="gal-preview" src="" alt=""><input class="gal-inp" id="galTitle" placeholder="სათაური..."><select class="gal-album-select" id="galAlbumSelect"><option value="">📂 ალბომის გარეშე</option></select><div class="gal-emo-row"><button class="gal-emo-btn active" onclick="pickGalEmo(this,'😊')">😊</button><button class="gal-emo-btn" onclick="pickGalEmo(this,'❤️')">❤️</button><button class="gal-emo-btn" onclick="pickGalEmo(this,'🔥')">🔥</button><button class="gal-emo-btn" onclick="pickGalEmo(this,'😂')">😂</button><button class="gal-emo-btn" onclick="pickGalEmo(this,'🥺')">🥺</button><button class="gal-emo-btn" onclick="pickGalEmo(this,'💜')">💜</button><button class="gal-emo-btn" onclick="pickGalEmo(this,'✨')">✨</button><button class="gal-emo-btn" onclick="pickGalEmo(this,'🎉')">🎉</button></div><input class="gal-inp" id="galComment" placeholder="კომენტარი..."><div style="display:flex;gap:6px;margin-top:8px"><button class="act-btn success" style="margin:0;flex:1" onclick="uploadGalleryPhoto()">✅ ატვირთვა</button><button class="act-btn" style="margin:0;width:auto;padding:0 14px" onclick="cancelGalUpload()">✕</button></div></div></div><div class="sec-lbl">ალბომები</div><div class="album-bar" id="albumBar"></div><div class="album-create-form" id="albumCreateForm"><input id="albumNameInp" placeholder="ალბომის სახელი..." maxlength="30"><button onclick="createAlbum()">✅</button><button style="background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:7px 10px;cursor:pointer" onclick="document.getElementById('albumCreateForm').classList.remove('open')">✕</button></div><div class="gallery-grid" id="galGrid"></div><div class="gal-empty hidden" id="galEmpty">📷 ფოტო ჯერ არ არის</div></div></div></div>
 
 <!-- Friend Request Modal -->
-<div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')">
-  <div class="modal" style="max-width:380px">
-    <button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button>
-    <div class="modal-title">📬 მეგობრის მოთხოვნები</div>
-    <div id="friendReqContainer"></div>
-  </div>
-</div>
+<div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')"><div class="modal" style="max-width:380px"><button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button><div class="modal-title">📬 მეგობრის მოთხოვნები</div><div id="friendReqContainer"></div></div></div>
 
 <!-- DM List -->
-<div id="dmListOverlay" onclick="bgCloseDMList(event)">
-  <div class="dm-list-modal">
-    <div class="dm-list-title">✉️ პირადი<button class="dm-list-close" onclick="closeDMList()">✕</button></div>
-    <div class="dm-list-body" id="dmUserList"></div>
-  </div>
-</div>
+<div id="dmListOverlay" onclick="bgCloseDMList(event)"><div class="dm-list-modal"><div class="dm-list-title">✉️ პირადი<button class="dm-list-close" onclick="closeDMList()">✕</button></div><div class="dm-list-body" id="dmUserList"></div></div></div>
 
 <!-- DM Box -->
-<div id="dmBox">
-  <div class="dm-head" onclick="toggleDMMinimize(event)">
-    <div class="avatar" style="width:28px;height:28px;font-size:14px;border:2px solid rgba(255,255,255,.3);flex-shrink:0;pointer-events:none" id="dmAv">👤</div>
-    <div style="flex:1;min-width:0;pointer-events:none">
-      <div class="dm-title" id="dmTitle">პირადი</div>
-      <div class="dm-typing-info" id="dmTypingInfo"></div>
-    </div>
-    <div class="dm-head-btns">
-      <button class="dm-min" id="dmMinBtn" onclick="event.stopPropagation();toggleDMMinimize()">—</button>
-      <button class="dm-x" onclick="event.stopPropagation();closeDM()">✕</button>
-    </div>
-  </div>
-  <div id="dmMsgs"></div>
-  <div id="dmReplyBar">
-    <span style="color:var(--accent)">↩️</span>
-    <span style="flex:1;font-size:11px">↩️ <strong id="dmReplyNick">-</strong></span>
-    <button style="background:none;border:none;color:var(--text3);cursor:pointer" onclick="cancelDMReply()">✕</button>
-  </div>
-  <div id="dmEmojiPanel">
-    <div class="ep-header"><span>სმაილები</span></div>
-    <div class="emoji-grid" id="dmEmojiGrid"></div>
-  </div>
-  <div class="dm-bar">
-    <button class="dm-icon-btn" onclick="toggleDMEmoji()" title="სმაილები">😊</button>
-    <button class="dm-icon-btn" id="dmImgBtn" onclick="document.getElementById('dmImgInput').click()" title="ფოტო/ფაილი">📎</button>
-    <input type="file" id="dmImgInput" accept="image/*,video/*,.pdf,.zip,.doc,.docx" style="display:none" onchange="sendDMFile(event)">
-    <button class="dm-icon-btn" id="dmVoiceBtn" onclick="toggleDMVoice()" title="ვოისი">🎙️</button>
-    <input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()" oninput="onDMTyping()">
-    <button class="dm-send" id="dmSendBtn" onclick="sendDM()"><span class="dm-plane">✈️</span></button>
-  </div>
-</div>
+<div id="dmBox"><div class="dm-head" onclick="toggleDMMinimize(event)"><div class="avatar" style="width:28px;height:28px;font-size:14px;border:2px solid rgba(255,255,255,.3);flex-shrink:0;pointer-events:none" id="dmAv">👤</div><div style="flex:1;min-width:0;pointer-events:none"><div class="dm-title" id="dmTitle">პირადი</div><div class="dm-typing-info" id="dmTypingInfo"></div></div><div class="dm-head-btns"><button class="dm-min" id="dmMinBtn" onclick="event.stopPropagation();toggleDMMinimize()">—</button><button class="dm-x" onclick="event.stopPropagation();closeDM()">✕</button></div></div><div id="dmMsgs"></div><div id="dmReplyBar"><span style="color:var(--accent)">↩️</span><span style="flex:1;font-size:11px">↩️ <strong id="dmReplyNick">-</strong></span><button style="background:none;border:none;color:var(--text3);cursor:pointer" onclick="cancelDMReply()">✕</button></div><div id="dmEmojiPanel"><div class="ep-header"><span>სმაილები</span></div><div class="emoji-grid" id="dmEmojiGrid"></div></div><div class="dm-bar"><button class="dm-icon-btn" onclick="toggleDMEmoji()" title="სმაილები">😊</button><button class="dm-icon-btn" id="dmImgBtn" onclick="document.getElementById('dmImgInput').click()" title="ფოტო/ფაილი">📎</button><input type="file" id="dmImgInput" accept="image/*,video/*,.pdf,.zip,.doc,.docx" style="display:none" onchange="sendDMFile(event)"><button class="dm-icon-btn" id="dmVoiceBtn" onclick="toggleDMVoice()" title="ვოისი">🎙️</button><input id="dmInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendDM()" oninput="onDMTyping()"><button class="dm-send" id="dmSendBtn" onclick="sendDM()"><span class="dm-plane">✈️</span></button></div></div>
 
 <!-- Photo Viewer -->
-<div class="photo-viewer" id="photoViewer" onclick="pvBgClose(event)">
-  <button class="pv-close" onclick="closePhotoViewer()">✕</button>
-  <img class="pv-img" id="pvImg" src="" alt="">
-  <div class="pv-info">
-    <div class="pv-title" id="pvTitle"></div>
-    <div class="pv-emo" id="pvEmo"></div>
-    <div class="pv-comment" id="pvComment"></div>
-    <div class="pv-author" id="pvAuthor"></div>
-    <div class="pv-counter" id="pvCounter"></div>
-    <div class="gal-react-row" id="pvReactions"></div>
-    <div style="display:flex;gap:6px;margin-top:8px;justify-content:center;flex-wrap:wrap">
-      <button class="gal-react-btn" onclick="reactToPhoto('❤️')">❤️</button>
-      <button class="gal-react-btn" onclick="reactToPhoto('😍')">😍</button>
-      <button class="gal-react-btn" onclick="reactToPhoto('🔥')">🔥</button>
-      <button class="gal-react-btn" onclick="reactToPhoto('😂')">😂</button>
-      <button class="gal-react-btn" onclick="reactToPhoto('💜')">💜</button>
-      <button class="gal-react-btn" onclick="reactToPhoto('😮')">😮</button>
-    </div>
-    <div class="gal-comments-section" style="position:relative">
-      <div style="font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);margin-bottom:8px">💬 კომენტარები</div>
-      <div id="pvCommentsList" style="max-height:160px;overflow-y:auto;margin-bottom:8px"></div>
-      <div id="pvCommentReplyBar">
-        <span style="color:var(--accent);font-size:12px">↩️</span>
-        <span style="flex:1;font-size:11px">პასუხი: <strong id="pvCommentReplyNick"></strong></span>
-        <button class="pv-reply-cancel" onclick="cancelPvCommentReply()">✕</button>
-      </div>
-      <div id="pvEmojiPanel" style="display:none;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:8px;max-height:160px;overflow-y:auto">
-        <div style="display:flex;flex-wrap:wrap;gap:6px" id="pvEmojiGrid"></div>
-      </div>
-      <div class="gal-comment-bar">
-        <button onclick="togglePvEmoji()" style="width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">😊</button>
-        <input class="gal-comment-input" id="pvCommentInput" placeholder="კომენტარი..." onkeydown="if(event.key==='Enter')sendPhotoComment()">
-        <button class="gal-comment-send" onclick="sendPhotoComment()">✈️</button>
-      </div>
-    </div>
-  </div>
-  <div class="pv-nav">
-    <button class="pv-nav-btn" onclick="pvNav(-1)">&#8249;</button>
-    <button class="pv-nav-btn" onclick="pvNav(1)">&#8250;</button>
-  </div>
-</div>
+<div class="photo-viewer" id="photoViewer" onclick="pvBgClose(event)"><button class="pv-close" onclick="closePhotoViewer()">✕</button><img class="pv-img" id="pvImg" src="" alt=""><div class="pv-info"><div class="pv-title" id="pvTitle"></div><div class="pv-emo" id="pvEmo"></div><div class="pv-comment" id="pvComment"></div><div class="pv-author" id="pvAuthor"></div><div class="pv-counter" id="pvCounter"></div><div class="gal-react-row" id="pvReactions"></div><div style="display:flex;gap:6px;margin-top:8px;justify-content:center;flex-wrap:wrap"><button class="gal-react-btn" onclick="reactToPhoto('❤️')">❤️</button><button class="gal-react-btn" onclick="reactToPhoto('😍')">😍</button><button class="gal-react-btn" onclick="reactToPhoto('🔥')">🔥</button><button class="gal-react-btn" onclick="reactToPhoto('😂')">😂</button><button class="gal-react-btn" onclick="reactToPhoto('💜')">💜</button><button class="gal-react-btn" onclick="reactToPhoto('😮')">😮</button></div><div class="gal-comments-section" style="position:relative"><div style="font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);margin-bottom:8px">💬 კომენტარები</div><div id="pvCommentsList" style="max-height:160px;overflow-y:auto;margin-bottom:8px"></div><div id="pvCommentReplyBar"><span style="color:var(--accent);font-size:12px">↩️</span><span style="flex:1;font-size:11px">პასუხი: <strong id="pvCommentReplyNick"></strong></span><button class="pv-reply-cancel" onclick="cancelPvCommentReply()">✕</button></div><div id="pvEmojiPanel" style="display:none;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:8px;max-height:160px;overflow-y:auto"><div style="display:flex;flex-wrap:wrap;gap:6px" id="pvEmojiGrid"></div></div><div class="gal-comment-bar"><button onclick="togglePvEmoji()" style="width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">😊</button><input class="gal-comment-input" id="pvCommentInput" placeholder="კომენტარი..." onkeydown="if(event.key==='Enter')sendPhotoComment()"><button class="gal-comment-send" onclick="sendPhotoComment()">✈️</button></div></div></div><div class="pv-nav"><button class="pv-nav-btn" onclick="pvNav(-1)">&#8249;</button><button class="pv-nav-btn" onclick="pvNav(1)">&#8250;</button></div></div>
 
-<!-- ========== ვიდეო ზარის მოდალი ========== -->
-<div id="callModal" class="call-modal">
-  <div class="call-container">
-    <div class="remote-video-container">
-      <video id="remoteVideo" autoplay playsinline></video>
-      <div class="local-video-container" id="localVideoContainer">
-        <video id="localVideo" autoplay playsinline muted></video>
-      </div>
-    </div>
-    <div class="call-controls">
-      <button onclick="toggleMic()" id="micBtn" title="მიკროფონი">🎤</button>
-      <button onclick="toggleCamera()" id="camBtn" title="კამერა">📷</button>
-      <button onclick="switchCamera()" id="switchCamBtn" title="კამერის შეცვლა">🔄</button>
-      <button onclick="endCall()" class="end-call" title="გათიშვა">📞</button>
-    </div>
-    <div class="call-status" id="callStatus">📞 იწყება...</div>
-  </div>
-</div>
+<!-- ========== VIDEO CALL MODAL ========== -->
+<div id="callModal" class="call-modal"><div class="call-container"><div class="remote-video-container"><video id="remoteVideo" autoplay playsinline></video><div class="local-video-container" id="localVideoContainer"><video id="localVideo" autoplay playsinline muted></video></div></div><div class="call-controls"><button onclick="toggleMic()" id="micBtn" title="მიკროფონი">🎤</button><button onclick="toggleCamera()" id="camBtn" title="კამერა">📷</button><button onclick="switchCamera()" id="switchCamBtn" title="კამერის შეცვლა">🔄</button><button onclick="endCall()" class="end-call" title="გათიშვა">📞</button></div><div class="call-status" id="callStatus">📞 იწყება...</div></div></div>
 
 <script>
 const {createClient}=supabase;
-const sb=createClient(
-  "https://brggiyhfzfbmlirqfgpo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
-);
-
+const sb=createClient("https://brggiyhfzfbmlirqfgpo.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU");
 let ME=null,MYPROF=null,ROOM=1,VIEW_UID=null,DM_UID=null;
 let allUsers=[],myFriends=[],customEmojis=[];
 let emojiCache={};
@@ -968,7 +655,7 @@ let qrMode='chat';
 let notifPanelOpen=false;
 let pvCommentReplyTo=null;
 
-/* ========== ვიდეო ზარის ცვლადები ========== */
+/* ========== VIDEO CALL VARIABLES ========== */
 let peerConnection = null;
 let localStream = null;
 let currentCallWith = null;
@@ -978,7 +665,7 @@ let isCamOff = false;
 let currentCamera = 'user';
 let incomingCallTimeout = null;
 
-// WebRTC კონფიგურაცია
+// WebRTC configuration
 const configuration = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
@@ -1047,8 +734,7 @@ async function addNotification(toUid,type,data={}){
   await sb.from('notifications').insert({user_id:toUid,from_uid:ME.id,type,data,is_read:false});
 }
 
-/* ===================== FRIENDS (გასწორებული) ===================== */
-
+/* ===================== FRIENDS ===================== */
 async function loadFriendReqsSidebar(){
   const{data}=await sb.from('friends')
     .select('id,user_id,status,profiles!friends_user_id_fkey(username,avatar_url,emotion)')
@@ -1057,21 +743,17 @@ async function loadFriendReqsSidebar(){
   if(!container)return;
   container.innerHTML='';
   if(!data||!data.length)return;
-
   const header=document.createElement('div');
   header.style.cssText="font-size:9px;letter-spacing:1.5px;color:var(--text2);font-family:'Unbounded',sans-serif;padding:10px 10px 6px;text-transform:uppercase";
   header.textContent=`📬 მოთხოვნები (${data.length})`;
   container.appendChild(header);
-
   for(const req of data){
     const nick=req.profiles?.username||'?';
     const avUrl=req.profiles?.avatar_url||'';
     const emoji=req.profiles?.emotion||'👤';
     const div=document.createElement('div');
     div.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);margin-bottom:6px';
-    const avHtml=avUrl
-      ?`<img src="${avUrl}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`
-      :`<div style="width:32px;height:32px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${emoji}</div>`;
+    const avHtml=avUrl?`<img src="${avUrl}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`:`<div style="width:32px;height:32px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${emoji}</div>`;
     div.innerHTML=`
       ${avHtml}
       <div style="flex:1;min-width:0">
@@ -1103,13 +785,11 @@ async function loadFriendReqsSidebar(){
     container.appendChild(div);
   }
 }
-
 async function loadFriends(){
   const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');
   myFriends=(data||[]).map(f=>f.friend_id);
   renderFriends();
 }
-
 function renderFriends(){
   const el=document.getElementById('friendsList');
   if(!el)return;
@@ -1125,10 +805,10 @@ function renderFriends(){
   const frag=document.createDocumentFragment();
   list.forEach(u=>{
     const item = makeUserItem(u);
-    // დაამატე ვიდეო ზარის ღილაკი makeUserItem-ის შემდეგ
+    // Add video call button for EVERY user (not just friends)
     const callBtn = document.createElement('button');
     callBtn.innerHTML = '🎥 ვიდეოზარი';
-    callBtn.style.cssText = 'background:#4a90e2;margin-left:8px;padding:4px 12px;border-radius:8px;border:none;color:white;cursor:pointer';
+    callBtn.style.cssText = 'background:#4a90e2;margin-left:8px;padding:4px 12px;border-radius:8px;border:none;color:white;cursor:pointer;font-size:11px';
     callBtn.onclick = (e) => {
       e.stopPropagation();
       callUser(u.id, u.username);
@@ -1137,7 +817,7 @@ function renderFriends(){
     if(existingDiv) {
       const btnContainer = document.createElement('div');
       btnContainer.style.display = 'flex';
-      btnContainer.style.gap = '8px';
+      btnContainer.style.gap = '6px';
       btnContainer.style.marginTop = '5px';
       btnContainer.appendChild(callBtn);
       existingDiv.appendChild(btnContainer);
@@ -1146,11 +826,9 @@ function renderFriends(){
   });
   el.appendChild(frag);
 }
-
 async function toggleFriend(){
   if(!VIEW_UID||!ME)return;
   const btn=document.getElementById('friendBtn');
-
   if(myFriends.includes(VIEW_UID)){
     if(btn){btn.disabled=true;btn.textContent='⏳...';}
     await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);
@@ -1161,13 +839,7 @@ async function toggleFriend(){
     renderFriends();
     return;
   }
-
-  const{data:existing}=await sb.from('friends')
-    .select('id,status')
-    .eq('user_id',ME.id)
-    .eq('friend_id',VIEW_UID)
-    .maybeSingle();
-
+  const{data:existing}=await sb.from('friends').select('id,status').eq('user_id',ME.id).eq('friend_id',VIEW_UID).maybeSingle();
   if(existing){
     if(existing.status==='pending'){
       if(btn){btn.textContent='⏳ გაგზავნილია...';btn.disabled=true;}
@@ -1185,16 +857,12 @@ async function toggleFriend(){
     const{error}=await sb.from('friends').insert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});
     if(error){toast('❌ '+error.message);return;}
   }
-
   if(btn){btn.textContent='⏳ გაგზავნილია...';btn.disabled=true;}
   await addNotification(VIEW_UID,'friend_request',{nick:MYPROF?.username});
   toast('📨 მოთხოვნა გაიგზავნა!');
 }
-
 async function checkFriendReqs(){
-  const{data}=await sb.from('friends')
-    .select('id')
-    .eq('friend_id',ME.id).eq('status','pending');
+  const{data}=await sb.from('friends').select('id').eq('friend_id',ME.id).eq('status','pending');
   const count=(data||[]).length;
   const badge=document.getElementById('friendBadge');
   if(count>0){badge.textContent=count;badge.classList.add('show');}
@@ -1203,14 +871,10 @@ async function checkFriendReqs(){
   const reqCount=document.getElementById('friendReqCount');
   if(reqBtn){reqBtn.style.display=count>0?'block':'none';if(reqCount)reqCount.textContent=count;}
 }
-
 async function openFriendReqs(){
-  const{data}=await sb.from('friends')
-    .select('id,user_id,status,profiles!friends_user_id_fkey(username,avatar_url,emotion)')
-    .eq('friend_id',ME.id).eq('status','pending');
+  const{data}=await sb.from('friends').select('id,user_id,status,profiles!friends_user_id_fkey(username,avatar_url,emotion)').eq('friend_id',ME.id).eq('status','pending');
   renderFriendReqsModal(data||[]);
 }
-
 function renderFriendReqsModal(reqs){
   const container=document.getElementById('friendReqContainer');
   if(!container)return;
@@ -1264,7 +928,6 @@ function renderFriendReqsModal(reqs){
   });
   openModal('friendReqOverlay');
 }
-
 async function acceptFriendById(rid,fromUid){
   try{
     const{error:e1}=await sb.from('friends').update({status:'accepted'}).eq('id',rid);
@@ -1278,22 +941,16 @@ async function acceptFriendById(rid,fromUid){
     await addNotification(fromUid,'friend_accept',{nick:MYPROF?.username});
     await checkFriendReqs();
     await loadFriendReqsSidebar();
-  }catch(err){
-    toast('❌ '+err.message);
-  }
+  }catch(err){toast('❌ '+err.message);}
 }
-
 async function declineFriendById(rid){
   try{
     await sb.from('friends').delete().eq('id',rid);
     toast('❌ უარყოფილია');
     await checkFriendReqs();
     await loadFriendReqsSidebar();
-  }catch(err){
-    toast('❌ '+err.message);
-  }
+  }catch(err){toast('❌ '+err.message);}
 }
-
 function watchFriendRequests(){
   if(friendCh){try{sb.removeChannel(friendCh);}catch(e){}friendCh=null;}
   friendCh=sb.channel('friend-reqs-'+ME.id)
@@ -1330,28 +987,8 @@ function watchFriendRequests(){
     })
     .subscribe();
 }
-
 /* ===================== THEME ===================== */
-const THEMES=[
-  {id:'night',label:'ღამე',bg:'#1c1a30',accent:'#f07aff'},
-  {id:'day',label:'დღე',bg:'#f5eeff',accent:'#c040ff'},
-  {id:'theme-ocean',label:'ოკეანე',bg:'#0a1628',accent:'#00e5ff'},
-  {id:'theme-forest',label:'ტყე',bg:'#0a1a0f',accent:'#00ff80'},
-  {id:'theme-sunset',label:'მზ.ჩ.',bg:'#1a0a1a',accent:'#ff8c50'},
-  {id:'theme-rose',label:'ვარდი',bg:'#1a0a12',accent:'#ff5090'},
-  {id:'theme-gold',label:'ოქრო',bg:'#160f00',accent:'#ffd040'},
-  {id:'theme-cyber',label:'კიბერ',bg:'#000a0a',accent:'#00ffe8'},
-  {id:'theme-lavender',label:'ლავანდა',bg:'#f0ecff',accent:'#9060e0'},
-  {id:'theme-midnight',label:'შუაღამე',bg:'#05050f',accent:'#8080ff'},
-  {id:'theme-cherry',label:'ალუბალი',bg:'#1a000a',accent:'#ff4080'},
-  {id:'theme-mint',label:'პიტნა',bg:'#001a12',accent:'#00ffbb'},
-  {id:'theme-ember',label:'ნაკვ.',bg:'#1a0800',accent:'#ffaa00'},
-  {id:'theme-storm',label:'ქარ.',bg:'#080d14',accent:'#80c8ff'},
-  {id:'theme-galaxy',label:'გალ.',bg:'#080010',accent:'#e060ff'},
-  {id:'theme-arctic',label:'არქ.',bg:'#e8f4ff',accent:'#0090e0'},
-  {id:'theme-neon',label:'ნეონი',bg:'#000508',accent:'#00ff88'},
-  {id:'theme-sand',label:'ქვიშა',bg:'#f5e8d0',accent:'#d08040'},
-];
+const THEMES=[{id:'night',label:'ღამე',bg:'#1c1a30',accent:'#f07aff'},{id:'day',label:'დღე',bg:'#f5eeff',accent:'#c040ff'},{id:'theme-ocean',label:'ოკეანე',bg:'#0a1628',accent:'#00e5ff'},{id:'theme-forest',label:'ტყე',bg:'#0a1a0f',accent:'#00ff80'},{id:'theme-sunset',label:'მზ.ჩ.',bg:'#1a0a1a',accent:'#ff8c50'},{id:'theme-rose',label:'ვარდი',bg:'#1a0a12',accent:'#ff5090'},{id:'theme-gold',label:'ოქრო',bg:'#160f00',accent:'#ffd040'},{id:'theme-cyber',label:'კიბერ',bg:'#000a0a',accent:'#00ffe8'},{id:'theme-lavender',label:'ლავანდა',bg:'#f0ecff',accent:'#9060e0'},{id:'theme-midnight',label:'შუაღამე',bg:'#05050f',accent:'#8080ff'},{id:'theme-cherry',label:'ალუბალი',bg:'#1a000a',accent:'#ff4080'},{id:'theme-mint',label:'პიტნა',bg:'#001a12',accent:'#00ffbb'},{id:'theme-ember',label:'ნაკვ.',bg:'#1a0800',accent:'#ffaa00'},{id:'theme-storm',label:'ქარ.',bg:'#080d14',accent:'#80c8ff'},{id:'theme-galaxy',label:'გალ.',bg:'#080010',accent:'#e060ff'},{id:'theme-arctic',label:'არქ.',bg:'#e8f4ff',accent:'#0090e0'},{id:'theme-neon',label:'ნეონი',bg:'#000508',accent:'#00ff88'},{id:'theme-sand',label:'ქვიშა',bg:'#f5e8d0',accent:'#d08040'}];
 let currentTheme='night';
 function applyThemeById(id){THEMES.forEach(t=>document.body.classList.remove(t.id));document.body.classList.remove('theme-custom');document.body.classList.add(id);currentTheme=id;localStorage.setItem('kaif_theme',id);if(ME&&MYPROF)sb.from('profiles').update({theme:id}).eq('id',ME.id).then(()=>{});const s=document.getElementById('customThemeStyle');if(s)s.remove();updateThemeGrid();}
 function openThemeModal(){buildThemeGrid();openModal('themeOverlay');}
@@ -1363,7 +1000,6 @@ function lightenHex(h,amt){let r=parseInt(h.slice(1,3),16)+amt,g=parseInt(h.slic
 function saveCustomTheme(){localStorage.setItem('kaif_custom_colors',JSON.stringify({bg:document.getElementById('cp_bg').value,panel:document.getElementById('cp_panel').value,text:document.getElementById('cp_text').value,accent:document.getElementById('cp_accent').value,indigo:document.getElementById('cp_indigo').value}));currentTheme='custom';localStorage.setItem('kaif_theme','custom');toast('✅ კასტომ თემა!');}
 function resetTheme(){applyThemeById('night');toast('🔄 ნაგულისხმევი');}
 function loadSavedTheme(profileTheme){const saved=profileTheme||localStorage.getItem('kaif_theme')||'night';if(saved==='custom'){const colors=JSON.parse(localStorage.getItem('kaif_custom_colors')||'{}');if(colors.bg){document.getElementById('cp_bg').value=colors.bg;document.getElementById('cp_panel').value=colors.panel;document.getElementById('cp_text').value=colors.text;document.getElementById('cp_accent').value=colors.accent;document.getElementById('cp_indigo').value=colors.indigo;applyCustomTheme();}}else{applyThemeById(saved);}}
-
 /* ===================== FORMAT ===================== */
 function toggleFormatBar(){formatBarOpen=!formatBarOpen;document.getElementById('formatBar').classList.toggle('open',formatBarOpen);document.getElementById('fmtToggleBtn').classList.toggle('active',formatBarOpen);}
 function applyFmt(type){if(type==='bold'){fmtBold=!fmtBold;document.getElementById('fmtBold').classList.toggle('active',fmtBold);}if(type==='italic'){fmtItalic=!fmtItalic;document.getElementById('fmtItalic').classList.toggle('active',fmtItalic);}if(type==='under'){fmtUnder=!fmtUnder;document.getElementById('fmtUnder').classList.toggle('active',fmtUnder);}}
@@ -1371,7 +1007,6 @@ function applyColor(color,el){fmtColor=(fmtColor===color)?null:color;document.qu
 function applyFont(val){fmtFont=val||null;}
 function clearFmt(){fmtBold=fmtItalic=fmtUnder=false;fmtColor=null;fmtFont=null;document.getElementById('fmtBold').classList.remove('active');document.getElementById('fmtItalic').classList.remove('active');document.getElementById('fmtUnder').classList.remove('active');document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('active'));document.getElementById('fontFamilySelect').value='';}
 function wrapFormatting(text){if(!fmtBold&&!fmtItalic&&!fmtUnder&&!fmtColor&&!fmtFont)return text;let open='',close='';if(fmtFont){open+=`[ff:${fmtFont}]`;close='[/ff]'+close;}if(fmtColor){open+=`[c:${fmtColor}]`;close='[/c]'+close;}if(fmtBold){open+='[b]';close='[/b]'+close;}if(fmtItalic){open+='[i]';close='[/i]'+close;}if(fmtUnder){open+='[u]';close='[/u]'+close;}return open+text+close;}
-
 /* ===================== RENDER ===================== */
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderContent(s){
@@ -1407,7 +1042,6 @@ function renderCommentContent(s){
   });
   return h;
 }
-
 /* ===================== VOICE ===================== */
 async function toggleVoiceRecord(){if(!isRecording)await startVoiceRecord();else stopVoiceRecord();}
 async function startVoiceRecord(){try{const stream=await navigator.mediaDevices.getUserMedia({audio:true});audioChunks=[];mediaRecorder=new MediaRecorder(stream);mediaRecorder.ondataavailable=e=>audioChunks.push(e.data);mediaRecorder.onstop=async()=>{const blob=new Blob(audioChunks,{type:'audio/webm'});const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const dur=Math.max(1,Math.round(audioChunks.reduce((a,c)=>a+c.size,0)/5000));await sendVoiceMessage(base64,dur);};reader.readAsDataURL(blob);stream.getTracks().forEach(t=>t.stop());};mediaRecorder.start();isRecording=true;document.getElementById('voiceBtn').classList.add('recording');document.getElementById('voiceBtn').textContent='⏹️';toast('🔴 ჩაწერა...');}catch(e){toast('❌ მიკროფონი ვერ');}}
@@ -1418,41 +1052,34 @@ async function startDMVoiceRecord(){try{const stream=await navigator.mediaDevice
 function stopDMVoiceRecord(){if(dmMediaRecorder&&dmMediaRecorder.state!=='inactive')dmMediaRecorder.stop();dmIsRecording=false;document.getElementById('dmVoiceBtn').classList.remove('recording');document.getElementById('dmVoiceBtn').textContent='🎙️';}
 let currentAudio=null;
 document.addEventListener('click',e=>{if(e.target.classList.contains('voice-play')){const src=decodeURIComponent(e.target.dataset.src||'');if(!src)return;if(currentAudio){currentAudio.pause();currentAudio=null;}const a=new Audio(src);currentAudio=a;e.target.textContent='⏸';a.play();a.onended=()=>{e.target.textContent='▶';currentAudio=null;};a.onerror=()=>{e.target.textContent='▶';toast('❌ ვოისი ვერ');}}});
-
 /* ===================== DM FILE ===================== */
 async function sendDMFile(e){const file=e.target.files[0];if(!file||!DM_UID)return;if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}toast('⏳ იგზავნება...');const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const isImg=file.type.startsWith('image/');const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ გაიგზავნა!');};reader.readAsDataURL(file);e.target.value='';}
-
 /* ===================== DM BADGE ===================== */
 function updateDMBadge(){const total=Object.values(dmUnread).reduce((s,v)=>s+(v.count||0),0);const badge=document.getElementById('dmBadge');if(total>0){badge.textContent=total;badge.classList.add('show');}else{badge.textContent='';badge.classList.remove('show');}}
 function addDMUnread(senderId,nick){if(!dmUnread[senderId])dmUnread[senderId]={count:0,nick};dmUnread[senderId].count++;dmUnread[senderId].nick=nick;updateDMBadge();}
 function clearDMUnread(uid){delete dmUnread[uid];updateDMBadge();}
 let _dmNotifTimer=null;
 function showDMNotif(sender,text){document.querySelectorAll('.dm-notif').forEach(n=>n.remove());const avHtml=sender.avatar_url?`<img src="${sender.avatar_url}">`:(sender.emotion||'👤');const el=document.createElement('div');el.className='dm-notif';el.innerHTML=`<div class="dm-notif-av">${avHtml}</div><div class="dm-notif-body"><div class="dm-notif-name">${esc(sender.username||'?')}</div><div class="dm-notif-text">${esc((text||'').substring(0,40))}</div></div>`;el.onclick=()=>{el.remove();openDM(sender.id);};document.body.appendChild(el);if(_dmNotifTimer)clearTimeout(_dmNotifTimer);_dmNotifTimer=setTimeout(()=>el.remove(),5000);}
-
 /* ===================== TYPING — MAIN ===================== */
 let _typingThrottle=null;
 function onTyping(){if(!ME||!ROOM)return;if(_typingThrottle)return;_typingThrottle=setTimeout(()=>_typingThrottle=null,1500);if(typingCh&&typingChReady){try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
 function setupTypingChannel(roomId){if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}typingChReady=false;typingUsers={};removeTypingIndicator();typingCh=sb.channel('typing_room_'+roomId).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};renderTyping();}).subscribe(status=>{if(status==='SUBSCRIBED')typingChReady=true;else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},3000);}});}
 function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
 function renderTyping(){const users=Object.values(typingUsers).filter(u=>u.nick);removeTypingIndicator();if(!users.length)return;const msgs=document.getElementById('messages');if(!msgs)return;const wasAtBottom=msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<80;const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>esc(u.nick)).join(', ')} წერს...</span>`;msgs.appendChild(el);if(wasAtBottom)msgs.scrollTop=msgs.scrollHeight;}
-
 /* ===================== TYPING — DM ===================== */
 let _dmTypingThrottle=null;
 function onDMTyping(){if(!ME||!DM_UID)return;if(_dmTypingThrottle)return;_dmTypingThrottle=setTimeout(()=>_dmTypingThrottle=null,1500);if(dmTypingCh&&dmTypingChReady){try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
 function setupDMTypingChannel(rk){if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}dmTypingChReady=false;dmTypingUsers={};removeDMTyping();dmTypingCh=sb.channel('dmtyping_'+rk).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};renderDMTyping();}).subscribe(status=>{if(status==='SUBSCRIBED')dmTypingChReady=true;else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},3000);}});}
 function removeDMTyping(){document.getElementById('dmTypingRow')?.remove();const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent='';}
 function renderDMTyping(){const users=Object.values(dmTypingUsers).filter(u=>u.nick);removeDMTyping();if(!users.length)return;const names=users.map(u=>u.nick).join(', ');const box=document.getElementById('dmMsgs');if(box&&document.getElementById('dmBox').classList.contains('open')){const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;box.appendChild(el);box.scrollTop=box.scrollHeight;}const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent=names+' წერს...';}
-
 /* ===================== REPLY ===================== */
 function setReply(msgId,nick,content){replyToMsg={id:msgId,nick,content:content.substring(0,80)};document.getElementById('replyBar').classList.add('open');document.getElementById('replyBarNick').textContent=nick;document.getElementById('replyBarInfo').innerHTML=`↩️ <strong>${esc(nick)}</strong>: ${esc(replyToMsg.content)}`;document.getElementById('msgInput').focus();}
 function cancelReply(){replyToMsg=null;document.getElementById('replyBar').classList.remove('open');}
 function setDMReply(nick,content){dmReplyTo={nick,content:content.substring(0,60)};document.getElementById('dmReplyBar').classList.add('open');document.getElementById('dmReplyNick').textContent=nick;document.getElementById('dmInput').focus();}
 function cancelDMReply(){dmReplyTo=null;document.getElementById('dmReplyBar').classList.remove('open');}
-
 /* ===================== PHOTO COMMENT REPLY ===================== */
-function setPvCommentReply(nick,commentId){pvCommentReplyTo={nick,commentId};document.getElementById('pvCommentReplyBar').classList.add('open');document.getElementById('pvCommentReplyNick').textContent=nick;document.getElementById('pvCommentInput').focus();document.getElementById('pvCommentInput').placeholder='↩️ '+nick+'-ს პასუხი...';}
+function setPvCommentReply(nick,commentId){pvCommentReplyTo={nick,commentId};document.getElementById('pvCommentReplyBar').classList.add('open');document.getElementById('pvCommentReplyNick').textContent=nick;document.getElementById('pvCommentInput').placeholder='↩️ '+nick+'-ს პასუხი...';}
 function cancelPvCommentReply(){pvCommentReplyTo=null;document.getElementById('pvCommentReplyBar').classList.remove('open');document.getElementById('pvCommentInput').placeholder='კომენტარი...';}
-
 /* ===================== QUICK REACT ===================== */
 document.querySelectorAll('.qr-btn').forEach(btn=>{btn.addEventListener('click',()=>{const emoji=btn.textContent.trim();if(qrMode==='dm')quickDMReact(emoji);else quickReact(emoji);closeQRPanel();});});
 function showQuickReact(msgId,btn){reactTargetMsgId=msgId;qrMode='chat';const panel=document.getElementById('quickReactPanel');const rect=btn.getBoundingClientRect();panel.style.top=Math.max(60,(rect.top-54))+'px';panel.style.left=Math.min(rect.left,window.innerWidth-300)+'px';panel.classList.add('open');setTimeout(()=>document.addEventListener('click',closeQRPanel,{once:true}),50);}
@@ -1460,31 +1087,17 @@ function showDMQuickReact(msgId,el,isMe){if(!msgId){toast('❌ ID ვერ');re
 function closeQRPanel(){document.getElementById('quickReactPanel').classList.remove('open');}
 async function quickReact(emoji){if(!reactTargetMsgId||!ME)return;const{data:ex}=await sb.from('message_reactions').select('id').eq('message_id',reactTargetMsgId).eq('user_id',ME.id).eq('emoji',emoji).maybeSingle();if(ex)await sb.from('message_reactions').delete().eq('id',ex.id);else await sb.from('message_reactions').upsert({message_id:reactTargetMsgId,user_id:ME.id,emoji});await refreshReactions(reactTargetMsgId);}
 async function refreshReactions(msgId){const{data}=await sb.from('message_reactions').select('emoji,user_id').eq('message_id',Number(msgId)||msgId);const row=document.getElementById('msg'+msgId);if(!row)return;let reactEl=row.querySelector(':scope>.msg-reactions');if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}const grouped={};(data||[]).forEach(r=>{if(!grouped[r.emoji])grouped[r.emoji]=[];grouped[r.emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.title=uids.map(id=>allUsers.find(u=>u.id===id)?.username||'?').join(', ');chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});reactEl.appendChild(chip);});}
-
 /* ===================== DM REACTIONS ===================== */
 async function quickDMReact(emoji){if(!dmReactTargetId||!ME){toast('❌ რეაქცია ვერ');return;}const tag=`dmreact:${dmReactTargetId}:${emoji}`;const{data:ex}=await sb.from('comments').select('id').eq('user_id',ME.id).eq('content',tag).maybeSingle();if(ex)await sb.from('comments').delete().eq('id',ex.id);else await sb.from('comments').insert({user_id:ME.id,content:tag});await refreshDMReactions(dmReactTargetId);}
 async function refreshDMReactions(msgId){if(!msgId)return;const tag=`dmreact:${msgId}:`;const{data}=await sb.from('comments').select('user_id,content').like('content',tag+'%');const el=document.getElementById('dmreact_'+msgId);if(!el)return;const grouped={};(data||[]).forEach(r=>{const parts=r.content.split(':');const emoji=parts[2];if(emoji&&!grouped[emoji])grouped[emoji]=[];if(emoji)grouped[emoji].push(r.user_id);});el.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>{dmReactTargetId=msgId;quickDMReact(emoji);});el.appendChild(chip);});}
-
 /* ===================== ROOMS / GAME ===================== */
-const ROOMS=[
-  {id:1,icon:'🏠',name:'მთავარი მოედანი'},
-  {id:2,icon:'🔐',name:'შიფროგრამა',isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},
-  {id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი = 5 ქულა',gameScoreField:'quiz_score'},
-  {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},
-  {id:5,icon:'🎵',name:'მუსიკ კლაბი'},
-  {id:6,icon:'💜',name:'სოული კორნერ'},
-  {id:7,icon:'🌊',name:'ოშენ ვაიბ'},
-  {id:8,icon:'🦋',name:'ფლაი ზონ'},
-  {id:9,icon:'🧠',name:'ბრეინ ზონ'},
-  {id:10,icon:'🌸',name:'სოფთ ჰარმონი'},
-];
+const ROOMS=[{id:1,icon:'🏠',name:'მთავარი მოედანī'},{id:2,icon:'🔐',name:'შიფროგრამა',isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},{id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი = 5 ქულა',gameScoreField:'quiz_score'},{id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},{id:5,icon:'🎵',name:'მუსიკ კლაბი'},{id:6,icon:'💜',name:'სოული კორნერ'},{id:7,icon:'🌊',name:'ოშენ ვაიბ'},{id:8,icon:'🦋',name:'ფლაი ზონ'},{id:9,icon:'🧠',name:'ბრეინ ზონ'},{id:10,icon:'🌸',name:'სოფთ ჰარმონი'}];
 function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank');}
 function watchGameScore(){if(!ME)return;sb.channel('game-score-'+ME.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${ME.id}`},payload=>{MYPROF={...MYPROF,...payload.new};updateGameScoreUI();if(document.getElementById('gameRoomPlaceholder').style.display!=='none')refreshGamePlaceholder();}).subscribe();}
 function updateGameScoreUI(){const w=document.getElementById('profWordScore'),q=document.getElementById('profQuizScore'),h=document.getElementById('profHangScore');if(w){w.textContent='🔐 '+(MYPROF?.game_score||0);w.classList.remove('animate');void w.offsetWidth;w.classList.add('animate');}if(q){q.textContent='🏆 '+(MYPROF?.quiz_score||0);q.classList.remove('animate');void q.offsetWidth;q.classList.add('animate');}if(h){h.textContent='🪢 '+(MYPROF?.hangman_score||0);h.classList.remove('animate');void h.offsetWidth;h.classList.add('animate');}}
 function refreshGamePlaceholder(){if(!activeGameRoom)return;const sc=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;const el=document.getElementById('grpMyScore');if(el)el.textContent=sc;}
 async function loadGameLeaderboard(){if(!activeGameRoom?.gameScoreField)return;const field=activeGameRoom.gameScoreField;const{data}=await sb.from('profiles').select(`id,username,${field}`).order(field,{ascending:false}).limit(5);const lbEl=document.getElementById('lbRows');if(!lbEl)return;lbEl.innerHTML='';(data||[]).forEach((u,i)=>{const rankClass=['gold','silver','bronze'][i]||'';const medal=['🥇','🥈','🥉'][i]||i+1;const d=document.createElement('div');d.className='glb-row';d.innerHTML=`<span class="glb-rank ${rankClass}">${medal}</span><span class="glb-name">${esc(u.username||'?')}</span><span class="glb-score">${u[field]||0}</span>`;lbEl.appendChild(d);});if(data){const myIdx=data.findIndex(u=>u.id===ME?.id);const rankEl=document.getElementById('grpMyRank'),rankCard=document.getElementById('grpRankCard');if(rankEl&&rankCard){rankCard.classList.remove('hidden');rankEl.textContent=myIdx>=0?'#'+(myIdx+1):'—';}}}
 function setRoomView(mode,roomObj){const messagesEl=document.getElementById('messages'),chatBar=document.getElementById('chatBar'),gamePlaceholder=document.getElementById('gameRoomPlaceholder'),playBtn=document.getElementById('playHeaderBtn'),onlineCnt=document.getElementById('onlineCnt');messagesEl.style.display='';chatBar.style.display='';cancelReply();gamePlaceholder.style.display='none';playBtn.style.display='none';onlineCnt.style.display='';if(mode==='game'&&roomObj){activeGameRoom=roomObj;messagesEl.style.display='none';chatBar.style.display='none';gamePlaceholder.style.display='flex';playBtn.style.display='flex';onlineCnt.style.display='none';document.getElementById('grpIcon').textContent=roomObj.icon;document.getElementById('grpTitle').textContent=roomObj.gameName;document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';document.getElementById('grpMyScore').textContent=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;loadGameLeaderboard();}else{activeGameRoom=null;}}
-
 /* ===================== MESSAGES ===================== */
 function animateSendPlane(btnId){const btn=document.getElementById(btnId);if(!btn)return;btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}
 async function loadMessages(roomId){
@@ -1558,7 +1171,6 @@ function appendMsg(m,skipScroll){
 }
 async function sendMessage(){const inp=document.getElementById('msgInput');let txt=inp.value.trim();if(!txt)return;inp.value='';txt=wrapFormatting(txt);if(replyToMsg){txt=`[reply:${replyToMsg.nick}|${replyToMsg.content}]${txt}`;cancelReply();}animateSendPlane('mainSendBtn');const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();if(error){toast('❌ '+error.message);inp.value=txt;return;}if(data){sentMsgIds.add(data.id);appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content:txt,created_at:new Date().toISOString(),profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}});document.getElementById('messages').scrollTop=99999;}}
 async function delMsg(id){if(!confirm('წავშალო?'))return;document.getElementById('msg'+id)?.remove();sentMsgIds.delete(id);await sb.from('messages').delete().eq('id',id);}
-
 /* ===================== EMOJI ===================== */
 async function handleEmojiImages(e){const files=Array.from(e.target.files);if(!files.length)return;if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}toast('⏳...');let added=0;for(const file of files){try{if(file.size>20*1024*1024){toast('❌ '+file.name+' დიდია!');continue;}const isGif=file.type==='image/gif';let fileToUpload;try{fileToUpload=isGif?file:await compressImage(file,256,0.85);}catch(e){fileToUpload=file;}const ext=isGif?'gif':'webp';const fileName=`emoji_${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;const{data:uploadData,error:uploadError}=await sb.storage.from('emojis').upload(fileName,fileToUpload,{contentType:isGif?'image/gif':'image/webp',upsert:false});if(uploadError){toast('❌ '+uploadError.message);continue;}const{data:urlData}=sb.storage.from('emojis').getPublicUrl(fileName);const{data:insertData,error:insertError}=await sb.from('global_emojis').insert({url:urlData.publicUrl}).select().single();if(insertError){toast('❌ '+insertError.message);await sb.storage.from('emojis').remove([fileName]);continue;}if(insertData){emojiCache[insertData.id]=urlData.publicUrl;customEmojis.push(insertData);}added++;}catch(err){toast('❌ '+err.message);}}if(added){toast('✅ '+added+' სმაილი!');buildEmojis();}e.target.value='';}
 async function addTextEmoji(){if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}const v=document.getElementById('newEmojiInput').value.trim();if(!v||v.length>6){toast('❌ მაქს 6');return;}const{data,error}=await sb.from('global_emojis').insert({url:v}).select().single();if(error){toast('❌ '+error.message);return;}document.getElementById('newEmojiInput').value='';if(data){emojiCache[data.id]=v;customEmojis.push(data);}toast('✅');buildEmojis();}
@@ -1585,7 +1197,6 @@ function buildEmojiGrid(gridId,inputId,withManage){
 function toggleEmojiPanel(){document.getElementById('emojiPanel').classList.toggle('open');document.getElementById('dmEmojiPanel').classList.remove('open');}
 function toggleDMEmoji(){document.getElementById('dmEmojiPanel').classList.toggle('open');buildEmojiGrid('dmEmojiGrid','dmInput',false);}
 document.addEventListener('click',e=>{const p=document.getElementById('emojiPanel');if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.remove('open');const dp=document.getElementById('dmEmojiPanel');if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-icon-btn'))dp.classList.remove('open');});
-
 /* ===================== PROFILE ===================== */
 function openMyProfile(){openProfile(ME.id);}
 async function openProfile(uid){
@@ -1652,7 +1263,6 @@ async function unblockUserAdmin(){if(MYPROF?.role!=='admin')return;const target=
 function rLabel(r){return r==='founder'?'👑 დამფუძნებელი':r==='admin'?'🛡️ ადმინი':'👤 წევრი';}
 function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-member';}
 function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
-
 /* ===================== GALLERY ===================== */
 async function loadAlbumsAndGallery(uid){galleryViewUID=uid;const isSelf=uid===ME.id;const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});userAlbums=albs||[];if(isSelf){const sel=document.getElementById('galAlbumSelect');sel.innerHTML='<option value="">📂 გარეშე</option>';userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt);});}renderAlbumBar(isSelf);await loadGallery(uid);}
 function renderAlbumBar(isSelf){const bar=document.getElementById('albumBar');bar.innerHTML='';const allChip=document.createElement('div');allChip.className='album-chip'+(activeAlbumFilter===null?' active':'');allChip.textContent='📷 ყველა';allChip.onclick=()=>{activeAlbumFilter=null;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(allChip);userAlbums.forEach(a=>{const chip=document.createElement('div');chip.className='album-chip'+(activeAlbumFilter===a.id?' active':'');chip.innerHTML=`<span>${a.name}</span>`;if(isSelf){const del=document.createElement('span');del.className='chip-del';del.textContent='✕';del.onclick=ev=>{ev.stopPropagation();deleteAlbum(a.id);};chip.appendChild(del);}chip.onclick=ev=>{if(ev.target.classList.contains('chip-del'))return;activeAlbumFilter=a.id;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(chip);});if(isSelf){const nc=document.createElement('div');nc.className='album-chip new-album';nc.textContent='+ ახალი';nc.onclick=()=>{const f=document.getElementById('albumCreateForm');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('albumNameInp').focus();};bar.appendChild(nc);}}
@@ -1666,7 +1276,6 @@ function pickGalEmo(btn,em){galSelectedEmo=em;document.querySelectorAll('.gal-em
 function cancelGalUpload(){galFileData=null;document.getElementById('galForm').classList.remove('open');const prev=document.getElementById('galPreviewImg');prev.src='';prev.classList.remove('show');}
 async function uploadGalleryPhoto(){if(!galFileData){toast('❌ ფოტო ამოარჩიე!');return;}toast('⏳...');try{const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};const t=document.getElementById('galTitle').value.trim(),c=document.getElementById('galComment').value.trim(),albumId=document.getElementById('galAlbumSelect').value;if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;const{error}=await sb.from('gallery').insert(d);if(error){toast('❌ '+error.message);return;}cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);}catch(err){toast('❌ '+err.message);}}
 async function deleteGalPhoto(id){if(!confirm('წავშალო?'))return;await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);toast('🗑');loadAlbumsAndGallery(ME.id);}
-
 /* ===================== PHOTO VIEWER ===================== */
 let currentPhotoId=null,currentPhotoOwnerId=null;
 function openPhotoViewer(idx,filtered){_pvFiltered=filtered||currentGallery;pvIndex=idx;showPVPhoto();document.getElementById('photoViewer').classList.add('open');}
@@ -1696,9 +1305,7 @@ async function reactToPhoto(emoji){
 }
 async function loadPhotoReactions(photoId){const{data}=await sb.from('comments').select('user_id,content').eq('gallery_id',photoId).like('content','react:%');const reactEl=document.getElementById('pvReactions');if(!reactEl)return;const grouped={};(data||[]).forEach(r=>{const emoji=r.content.replace('react:','');if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='gal-react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>reactToPhoto(emoji));reactEl.appendChild(chip);});}
 async function loadPhotoComments(photoId){
-  const{data}=await sb.from('comments').select('*').eq('gallery_id',photoId)
-    .not('content','like','react:%').not('content','like','dmreact:%')
-    .order('created_at',{ascending:true});
+  const{data}=await sb.from('comments').select('*').eq('gallery_id',photoId).not('content','like','react:%').not('content','like','dmreact:%').order('created_at',{ascending:true});
   const list=document.getElementById('pvCommentsList');
   if(!list)return;
   list.innerHTML='';
@@ -1745,7 +1352,6 @@ async function sendPhotoComment(){
   if(currentPhotoOwnerId&&currentPhotoOwnerId!==ME.id){await addNotification(currentPhotoOwnerId,'photo_comment',{comment:txt,nick:MYPROF?.username});}
   await loadPhotoComments(currentPhotoId);
 }
-
 /* ===================== USERS ===================== */
 function buildRooms(){const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';ROOMS.forEach(r=>{const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;d.onclick=()=>switchRoom(r,d);el.appendChild(d);});}
 function switchRoom(r,clickedEl){if(!r||!r.id)return;ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
@@ -1757,7 +1363,6 @@ function makeUserItem(u){const d=document.createElement('div');d.className='list
 function filterUsers(){const q=document.getElementById('userSearch').value.toLowerCase();document.querySelectorAll('#usersListEl .list-item').forEach(el=>{el.style.display=el.dataset.q.includes(q)?'':'none';});}
 function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<60000;}
 async function pingOnline(){if(!ME)return;await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}
-
 /* ===================== DM ===================== */
 async function loadDMConversations(){const{data}=await sb.from('direct_messages').select('sender_id,receiver_id,content,created_at,is_read').or(`sender_id.eq.${ME.id},receiver_id.eq.${ME.id}`).order('created_at',{ascending:false});if(!data)return;const seen=new Set();for(const m of data){const partnerId=m.sender_id===ME.id?m.receiver_id:m.sender_id;if(seen.has(partnerId))continue;seen.add(partnerId);let partner=allUsers.find(u=>u.id===partnerId);if(!partner){const{data:pd}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',partnerId).single();if(pd){partner=pd;allUsers.push(pd);}}if(!partner)continue;dmConversations[partnerId]={nick:partner.username||'?',avatar:partner.avatar_url||null,emotion:partner.emotion||'😊',lastMsg:m.content||'',lastTime:m.created_at};}}
 function openDMList(){document.getElementById('dmListOverlay').classList.add('open');renderDMList();}
@@ -1774,7 +1379,6 @@ async function appendDMMsg(m){const isMe=(m.sender_id===ME.id);const t=new Date(
 async function sendDM(){const inp=document.getElementById('dmInput');let txt=inp.value.trim();if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt,is_read:false}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;const partner=allUsers.find(u=>u.id===DM_UID);if(partner){dmConversations[DM_UID]={nick:partner.username||'?',avatar:partner.avatar_url||null,emotion:partner.emotion||'😊',lastMsg:txt,lastTime:new Date().toISOString()};}}
 function closeDM(){document.getElementById('dmBox').classList.remove('open','minimized');document.getElementById('dmEmojiPanel').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;dmMinimized=false;if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}removeDMTyping();cancelDMReply();}
 function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
-
 /* ===================== NAV/UI ===================== */
 function showPanel(name){
   ['rooms','friends','users','online'].forEach(p=>{
@@ -1796,7 +1400,6 @@ function toast(msg){const t=document.createElement('div');t.className='toast';t.
 async function loadProf(uid){const{data}=await sb.from('profiles').select('*').eq('id',uid).single();return data;}
 async function loadEmojis(){const{data,error}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});if(error){customEmojis=[];return;}customEmojis=data||[];emojiCache={};customEmojis.forEach(e=>{emojiCache[e.id]=e.url;});}
 async function logout(){await sb.auth.signOut();location.href='index.html';}
-
 /* ===================== NOTIFICATIONS WATCH ===================== */
 function watchNotifications(){
   if(notifCh){try{sb.removeChannel(notifCh);}catch(e){}notifCh=null;}
@@ -1820,29 +1423,23 @@ document.addEventListener('click',e=>{
   if(notifPanelOpen&&!document.getElementById('notifPanel').contains(e.target)&&!document.getElementById('bellBtn').contains(e.target)){closeNotifPanel();}
 });
 
-/* ========== ვიდეო ზარის ფუნქციები ========== */
+/* ========== VIDEO CALL FUNCTIONS (FIXED) ========== */
 
-// დარეკვის ფუნქცია
+// Global call function accessible from any user
 window.callUser = async (userId, username) => {
   if (currentCallWith) {
     toast('უკვე ზარზე ხარ!');
     return;
   }
-  
   if (userId === ME.id) {
     toast('საკუთარ თავს ვერ დაურეკავ');
     return;
   }
-  
   currentCallWith = userId;
   document.getElementById('callModal').classList.add('open');
   document.getElementById('callStatus').innerHTML = `📞 ${username}-თან დარეკვა...`;
-  
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: currentCamera }, 
-      audio: true 
-    });
+    localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
     document.getElementById('localVideo').srcObject = localStream;
     document.getElementById('localVideoContainer').style.display = 'block';
   } catch (err) {
@@ -1851,62 +1448,36 @@ window.callUser = async (userId, username) => {
     endCall();
     return;
   }
-  
   const roomName = `call_${[ME.id, userId].sort().join('_')}`;
-  
-  if (callChannel) {
-    try { await sb.removeChannel(callChannel); } catch(e) {}
-  }
-  
+  if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} }
   callChannel = sb.channel(roomName);
   await setupPeerConnection(true);
-  
   peerConnection.onicecandidate = (event) => {
     if (event.candidate && callChannel && callChannel.subscribed) {
-      callChannel.send({
-        type: 'broadcast',
-        event: 'ice-candidate',
-        payload: { candidate: event.candidate, to: userId }
-      });
+      callChannel.send({ type: 'broadcast', event: 'ice-candidate', payload: { candidate: event.candidate, to: userId } });
     }
   };
-  
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
-  
   callChannel.on('broadcast', { event: 'answer' }, async ({ payload }) => {
     if (payload.to === ME.id && payload.answer) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer));
     }
   });
-  
   callChannel.on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
     if (payload.to === ME.id && payload.candidate) {
-      try {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate));
-      } catch(e) { console.error('ICE error:', e); }
+      try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) { console.error('ICE error:', e); }
     }
   });
-  
   callChannel.on('broadcast', { event: 'end-call' }, ({ payload }) => {
-    if (payload.to === ME.id) {
-      toast('📞 მოპირდაპირემ გათიშა ზარი');
-      endCall();
-    }
+    if (payload.to === ME.id) { toast('📞 მოპირდაპირემ გათიშა ზარი'); endCall(); }
   });
-  
   await callChannel.subscribe();
-  
   setTimeout(async () => {
     if (callChannel && callChannel.subscribed) {
-      callChannel.send({
-        type: 'broadcast',
-        event: 'offer',
-        payload: { offer, from: ME.id, to: userId, callerName: MYPROF?.username }
-      });
+      callChannel.send({ type: 'broadcast', event: 'offer', payload: { offer, from: ME.id, to: userId, callerName: MYPROF?.username } });
     }
   }, 500);
-  
   setTimeout(() => {
     if (currentCallWith === userId && peerConnection?.connectionState !== 'connected') {
       document.getElementById('callStatus').innerHTML = '❓ მოპირდაპირე არ პასუხობს';
@@ -1914,214 +1485,123 @@ window.callUser = async (userId, username) => {
   }, 20000);
 };
 
-// Incoming call-ის მოსმენა
+// Listen for incoming calls globally
 function listenForIncomingCalls() {
   const incomingChannel = sb.channel(`incoming_calls_${ME.id}`);
-  
   incomingChannel.on('broadcast', { event: 'offer' }, async ({ payload }) => {
     if (payload.to === ME.id && !currentCallWith) {
       showIncomingCall(payload.from, payload.callerName || '?', payload.offer);
     }
   });
-  
   incomingChannel.subscribe();
 }
 
-// Incoming call notification
 let currentIncomingToast = null;
 function showIncomingCall(fromId, callerName, offer) {
-  if (currentIncomingToast) {
-    currentIncomingToast.remove();
-  }
-  
-  const toast = document.createElement('div');
-  toast.className = 'incoming-call-toast';
-  toast.innerHTML = `
-    <div style="display:flex;align-items:center;gap:12px">
-      <div style="font-size:32px">📞</div>
-      <div>
-        <div style="font-weight:bold">${esc(callerName)}</div>
-        <div style="font-size:12px;opacity:0.8">გირეკავთ...</div>
-      </div>
-    </div>
-    <div style="display:flex;gap:8px">
-      <button class="accept" onclick="acceptIncomingCall('${fromId}', '${callerName}')">✅</button>
-      <button class="reject" onclick="rejectIncomingCall('${fromId}')">❌</button>
-    </div>
-  `;
-  document.body.appendChild(toast);
-  currentIncomingToast = toast;
+  if (currentIncomingToast) { currentIncomingToast.remove(); }
+  const toastDiv = document.createElement('div');
+  toastDiv.className = 'incoming-call-toast';
+  toastDiv.innerHTML = `<div style="display:flex;align-items:center;gap:12px"><div style="font-size:32px">📞</div><div><div style="font-weight:bold">${esc(callerName)}</div><div style="font-size:12px;opacity:0.8">გირეკავთ...</div></div></div><div style="display:flex;gap:8px"><button class="accept" onclick="acceptIncomingCall('${fromId}', '${callerName}')">✅</button><button class="reject" onclick="rejectIncomingCall('${fromId}')">❌</button></div>`;
+  document.body.appendChild(toastDiv);
+  currentIncomingToast = toastDiv;
   window.pendingOffer = { fromId, callerName, offer };
-  
   setTimeout(() => {
-    if (currentIncomingToast === toast) {
-      toast.remove();
+    if (currentIncomingToast === toastDiv) {
+      toastDiv.remove();
       currentIncomingToast = null;
       window.pendingOffer = null;
     }
   }, 30000);
 }
 
-// Incoming call-ის მიღება
 window.acceptIncomingCall = async (fromId, callerName) => {
-  if (currentIncomingToast) {
-    currentIncomingToast.remove();
-    currentIncomingToast = null;
-  }
-  
+  if (currentIncomingToast) { currentIncomingToast.remove(); currentIncomingToast = null; }
   if (!window.pendingOffer) return;
-  
   currentCallWith = fromId;
   document.getElementById('callModal').classList.add('open');
   document.getElementById('callStatus').innerHTML = `📞 ${callerName}-თან კავშირი...`;
-  
   try {
-    localStream = await navigator.mediaDevices.getUserMedia({ 
-      video: { facingMode: currentCamera }, 
-      audio: true 
-    });
+    localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
     document.getElementById('localVideo').srcObject = localStream;
   } catch (err) {
     document.getElementById('callStatus').innerHTML = '❌ კამერა ვერ ჩაირთო';
-    endCall();
-    return;
+    endCall(); return;
   }
-  
   const roomName = `call_${[ME.id, fromId].sort().join('_')}`;
-  
-  if (callChannel) {
-    try { await sb.removeChannel(callChannel); } catch(e) {}
-  }
-  
+  if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} }
   callChannel = sb.channel(roomName);
   await setupPeerConnection(false);
-  
   peerConnection.onicecandidate = (event) => {
     if (event.candidate && callChannel && callChannel.subscribed) {
-      callChannel.send({
-        type: 'broadcast',
-        event: 'ice-candidate',
-        payload: { candidate: event.candidate, to: fromId }
-      });
+      callChannel.send({ type: 'broadcast', event: 'ice-candidate', payload: { candidate: event.candidate, to: fromId } });
     }
   };
-  
   callChannel.on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
     if (payload.to === ME.id && payload.candidate) {
-      try {
-        await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate));
-      } catch(e) {}
+      try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) {}
     }
   });
-  
   callChannel.on('broadcast', { event: 'end-call' }, ({ payload }) => {
-    if (payload.to === ME.id) {
-      toast('📞 ზარი გათიშეს');
-      endCall();
-    }
+    if (payload.to === ME.id) { toast('📞 ზარი გათიშეს'); endCall(); }
   });
-  
   await callChannel.subscribe();
   await peerConnection.setRemoteDescription(new RTCSessionDescription(window.pendingOffer.offer));
-  
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
-  
-  callChannel.send({
-    type: 'broadcast',
-    event: 'answer',
-    payload: { answer, to: fromId }
-  });
-  
+  callChannel.send({ type: 'broadcast', event: 'answer', payload: { answer, to: fromId } });
   window.pendingOffer = null;
 };
 
-// Incoming call-ის უარყოფა
 window.rejectIncomingCall = (fromId) => {
-  if (currentIncomingToast) {
-    currentIncomingToast.remove();
-    currentIncomingToast = null;
-  }
+  if (currentIncomingToast) { currentIncomingToast.remove(); currentIncomingToast = null; }
   window.pendingOffer = null;
   toast('❌ ზარი უარყოფილია');
 };
 
-// WebRTC კონექშენის მოწყობა
 async function setupPeerConnection(isCaller) {
-  if (peerConnection) {
-    peerConnection.close();
-  }
-  
+  if (peerConnection) { peerConnection.close(); }
   peerConnection = new RTCPeerConnection(configuration);
-  
   if (localStream) {
-    localStream.getTracks().forEach(track => {
-      peerConnection.addTrack(track, localStream);
-    });
+    localStream.getTracks().forEach(track => { peerConnection.addTrack(track, localStream); });
   }
-  
   peerConnection.ontrack = (event) => {
     document.getElementById('remoteVideo').srcObject = event.streams[0];
     document.getElementById('callStatus').innerHTML = '🎥 ზარი აქტიურია';
   };
-  
   peerConnection.onconnectionstatechange = () => {
-    if (peerConnection.connectionState === 'connected') {
-      document.getElementById('callStatus').innerHTML = '🎥 ზარი აქტიურია';
-    } else if (peerConnection.connectionState === 'disconnected') {
-      document.getElementById('callStatus').innerHTML = '⚠️ კავშირი შეწყდა';
-    } else if (peerConnection.connectionState === 'failed') {
-      document.getElementById('callStatus').innerHTML = '❌ კავშირი ვერ მოხერხდა';
-    }
+    if (peerConnection.connectionState === 'connected') document.getElementById('callStatus').innerHTML = '🎥 ზარი აქტიურია';
+    else if (peerConnection.connectionState === 'disconnected') document.getElementById('callStatus').innerHTML = '⚠️ კავშირი შეწყდა';
+    else if (peerConnection.connectionState === 'failed') document.getElementById('callStatus').innerHTML = '❌ კავშირი ვერ მოხერხდა';
   };
 }
 
-// მიკროფონის გამორთვა/ჩართვა
 window.toggleMic = () => {
   if (!localStream) return;
   isMicMuted = !isMicMuted;
   const audioTrack = localStream.getAudioTracks()[0];
   if (audioTrack) audioTrack.enabled = !isMicMuted;
   const btn = document.getElementById('micBtn');
-  if (isMicMuted) {
-    btn.classList.add('mic-off');
-    btn.innerHTML = '🎤❌';
-  } else {
-    btn.classList.remove('mic-off');
-    btn.innerHTML = '🎤';
-  }
+  if (isMicMuted) { btn.classList.add('mic-off'); btn.innerHTML = '🎤❌'; }
+  else { btn.classList.remove('mic-off'); btn.innerHTML = '🎤'; }
 };
 
-// კამერის გამორთვა/ჩართვა
 window.toggleCamera = () => {
   if (!localStream) return;
   isCamOff = !isCamOff;
   const videoTrack = localStream.getVideoTracks()[0];
   if (videoTrack) videoTrack.enabled = !isCamOff;
   const btn = document.getElementById('camBtn');
-  if (isCamOff) {
-    btn.classList.add('cam-off');
-    btn.innerHTML = '📷❌';
-  } else {
-    btn.classList.remove('cam-off');
-    btn.innerHTML = '📷';
-  }
+  if (isCamOff) { btn.classList.add('cam-off'); btn.innerHTML = '📷❌'; }
+  else { btn.classList.remove('cam-off'); btn.innerHTML = '📷'; }
 };
 
-// კამერის შეცვლა
 window.switchCamera = async () => {
   if (!localStream) return;
   currentCamera = currentCamera === 'user' ? 'environment' : 'user';
-  const newStream = await navigator.mediaDevices.getUserMedia({
-    video: { facingMode: currentCamera },
-    audio: true
-  });
+  const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
   const oldVideoTrack = localStream.getVideoTracks()[0];
   const newVideoTrack = newStream.getVideoTracks()[0];
-  if (oldVideoTrack) {
-    localStream.removeTrack(oldVideoTrack);
-    oldVideoTrack.stop();
-  }
+  if (oldVideoTrack) { localStream.removeTrack(oldVideoTrack); oldVideoTrack.stop(); }
   localStream.addTrack(newVideoTrack);
   document.getElementById('localVideo').srcObject = localStream;
   if (peerConnection && peerConnection.signalingState !== 'closed') {
@@ -2131,37 +1611,16 @@ window.switchCamera = async () => {
   }
 };
 
-// ზარის გათიშვა
 window.endCall = async () => {
   if (callChannel && callChannel.subscribed) {
-    try {
-      callChannel.send({
-        type: 'broadcast',
-        event: 'end-call',
-        payload: { to: currentCallWith }
-      });
-    } catch(e) {}
+    try { callChannel.send({ type: 'broadcast', event: 'end-call', payload: { to: currentCallWith } }); } catch(e) {}
   }
-  
-  if (peerConnection) {
-    peerConnection.close();
-    peerConnection = null;
-  }
-  
-  if (localStream) {
-    localStream.getTracks().forEach(track => track.stop());
-    localStream = null;
-  }
-  
-  if (callChannel) {
-    try { await sb.removeChannel(callChannel); } catch(e) {}
-    callChannel = null;
-  }
-  
+  if (peerConnection) { peerConnection.close(); peerConnection = null; }
+  if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
+  if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} callChannel = null; }
   currentCallWith = null;
   isMicMuted = false;
   isCamOff = false;
-  
   document.getElementById('callModal').classList.remove('open');
   document.getElementById('localVideo').srcObject = null;
   document.getElementById('remoteVideo').srcObject = null;
@@ -2169,7 +1628,6 @@ window.endCall = async () => {
   document.getElementById('micBtn').classList.remove('mic-off');
   document.getElementById('camBtn').innerHTML = '📷';
   document.getElementById('camBtn').classList.remove('cam-off');
-  
   toast('📞 ზარი დასრულდა');
 };
 
@@ -2199,15 +1657,9 @@ async function init(){
   await pingOnline();
   await loadNotifications();
   watchNotifications();
-  listenForIncomingCalls(); // ვიდეო ზარის მოსმენა
+  listenForIncomingCalls(); // Start listening for video calls
   
-  setInterval(async()=>{
-    await pingOnline();
-    const idx=allUsers.findIndex(u=>u.id===ME.id);
-    if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();
-    updateOnlineBadge();
-    renderUserLists();
-  },20000);
+  setInterval(async()=>{ await pingOnline(); const idx=allUsers.findIndex(u=>u.id===ME.id); if(idx>=0)allUsers[idx].last_seen=new Date().toISOString(); updateOnlineBadge(); renderUserLists(); },20000);
   setInterval(loadAllUsers,30000);
   setInterval(checkFriendReqs,60000);
   checkFriendReqs();
