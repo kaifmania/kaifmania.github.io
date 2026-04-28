@@ -1,0 +1,1212 @@
+<!DOCTYPE html>
+
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ვიდეო ზარი - კაიფმანია</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===================== CALL BUTTON IN DM BOX ===================== */
+.dm-call-btn {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(52,211,153,0.1));
+  border: 1px solid rgba(74,222,128,0.4);
+  font-size: 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+  position: relative;
+}
+.dm-call-btn:hover {
+  background: linear-gradient(135deg, rgba(74,222,128,0.3), rgba(52,211,153,0.2));
+  transform: scale(1.08);
+  box-shadow: 0 0 12px rgba(74,222,128,0.4);
+}
+.dm-call-btn.in-call {
+  background: rgba(220,0,60,0.2);
+  border-color: rgba(220,0,60,0.5);
+  animation: callPulse 1.2s ease-in-out infinite;
+}
+
+@keyframes callPulse {
+0%, 100% { box-shadow: 0 0 0 0 rgba(220,0,60,0.4); }
+50% { box-shadow: 0 0 0 6px rgba(220,0,60,0); }
+}
+
+/* ===================== FULL CALL MODAL ===================== */
+#vcCallModal {
+position: fixed;
+inset: 0;
+z-index: 99000;
+display: none;
+align-items: center;
+justify-content: center;
+background: rgba(0,0,0,0.96);
+backdrop-filter: blur(12px);
+-webkit-backdrop-filter: blur(12px);
+}
+#vcCallModal.open { display: flex; }
+
+.vc-wrapper {
+position: relative;
+width: 100%;
+height: 100%;
+display: flex;
+flex-direction: column;
+}
+
+/* Remote video — full screen */
+#vcRemoteVideo {
+position: absolute;
+inset: 0;
+width: 100%;
+height: 100%;
+object-fit: cover;
+background: #050510;
+z-index: 1;
+}
+
+/* Remote avatar placeholder when video off */
+.vc-remote-placeholder {
+position: absolute;
+inset: 0;
+z-index: 2;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+background: radial-gradient(ellipse at center, #1a0a30 0%, #050510 70%);
+pointer-events: none;
+}
+.vc-remote-placeholder.hidden { display: none; }
+.vc-remote-av {
+width: 110px;
+height: 110px;
+border-radius: 50%;
+border: 3px solid rgba(168,85,247,0.5);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 52px;
+background: rgba(120,30,200,0.2);
+box-shadow: 0 0 40px rgba(168,85,247,0.3);
+margin-bottom: 16px;
+overflow: hidden;
+}
+.vc-remote-av img {
+width: 100%;
+height: 100%;
+object-fit: cover;
+border-radius: 50%;
+}
+.vc-remote-name {
+font-family: ‘Unbounded’, sans-serif;
+font-size: 18px;
+color: #fff;
+letter-spacing: 1px;
+margin-bottom: 8px;
+}
+.vc-remote-status {
+font-size: 13px;
+color: rgba(255,255,255,0.5);
+font-style: italic;
+}
+
+/* Calling animation dots */
+.vc-calling-dots {
+display: flex;
+gap: 6px;
+margin-top: 6px;
+}
+.vc-dot {
+width: 7px;
+height: 7px;
+border-radius: 50%;
+background: rgba(168,85,247,0.7);
+animation: vcDotBounce 1.2s ease-in-out infinite;
+}
+.vc-dot:nth-child(2) { animation-delay: 0.2s; }
+.vc-dot:nth-child(3) { animation-delay: 0.4s; }
+@keyframes vcDotBounce {
+0%, 100% { transform: translateY(0); opacity: 0.4; }
+50% { transform: translateY(-6px); opacity: 1; }
+}
+
+/* Local video — PiP corner */
+.vc-local-pip {
+position: absolute;
+bottom: 100px;
+right: 18px;
+width: 120px;
+border-radius: 14px;
+overflow: hidden;
+border: 2px solid rgba(168,85,247,0.6);
+background: #000;
+z-index: 10;
+cursor: pointer;
+transition: all 0.3s;
+box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+}
+.vc-local-pip:hover { transform: scale(1.04); }
+.vc-local-pip video {
+width: 100%;
+height: auto;
+display: block;
+transform: scaleX(-1);
+background: #0d0d1a;
+}
+.vc-pip-label {
+position: absolute;
+bottom: 4px;
+left: 0;
+right: 0;
+text-align: center;
+font-size: 9px;
+color: rgba(255,255,255,0.7);
+font-family: ‘Unbounded’, sans-serif;
+letter-spacing: 0.5px;
+pointer-events: none;
+}
+
+/* Top info bar */
+.vc-top-bar {
+position: absolute;
+top: 0;
+left: 0;
+right: 0;
+z-index: 20;
+padding: 18px 20px;
+background: linear-gradient(to bottom, rgba(0,0,0,0.7), transparent);
+display: flex;
+align-items: center;
+gap: 10px;
+}
+.vc-top-avatar {
+width: 38px;
+height: 38px;
+border-radius: 50%;
+border: 2px solid rgba(168,85,247,0.5);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 18px;
+overflow: hidden;
+flex-shrink: 0;
+background: rgba(120,30,200,0.3);
+}
+.vc-top-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.vc-top-name {
+font-family: ‘Unbounded’, sans-serif;
+font-size: 13px;
+font-weight: 700;
+color: #fff;
+letter-spacing: 0.5px;
+}
+.vc-top-timer {
+font-size: 12px;
+color: rgba(255,255,255,0.6);
+margin-left: 2px;
+}
+.vc-quality-dot {
+width: 8px;
+height: 8px;
+border-radius: 50%;
+background: #4ade80;
+margin-left: auto;
+box-shadow: 0 0 6px rgba(74,222,128,0.8);
+flex-shrink: 0;
+}
+.vc-quality-dot.poor { background: #fbbf24; box-shadow: 0 0 6px rgba(251,191,36,0.8); }
+.vc-quality-dot.bad { background: #ef4444; box-shadow: 0 0 6px rgba(239,68,68,0.8); }
+
+/* Bottom controls */
+.vc-controls {
+position: absolute;
+bottom: 0;
+left: 0;
+right: 0;
+z-index: 20;
+padding: 20px 24px 28px;
+background: linear-gradient(to top, rgba(0,0,0,0.85) 0%, transparent 100%);
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 14px;
+}
+.vc-ctrl-btn {
+width: 54px;
+height: 54px;
+border-radius: 50%;
+border: none;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 20px;
+transition: all 0.2s;
+position: relative;
+flex-shrink: 0;
+}
+.vc-ctrl-btn:hover { transform: scale(1.1); }
+.vc-ctrl-btn .vc-btn-label {
+position: absolute;
+bottom: -18px;
+left: 50%;
+transform: translateX(-50%);
+font-size: 9px;
+white-space: nowrap;
+color: rgba(255,255,255,0.6);
+font-family: ‘Unbounded’, sans-serif;
+letter-spacing: 0.3px;
+pointer-events: none;
+}
+
+/* Individual button styles */
+.vc-btn-mic { background: rgba(255,255,255,0.15); color: #fff; }
+.vc-btn-mic:hover { background: rgba(255,255,255,0.25); }
+.vc-btn-mic.off { background: rgba(220,0,60,0.3); color: #ff4466; }
+
+.vc-btn-cam { background: rgba(255,255,255,0.15); color: #fff; }
+.vc-btn-cam:hover { background: rgba(255,255,255,0.25); }
+.vc-btn-cam.off { background: rgba(220,0,60,0.3); color: #ff4466; }
+
+.vc-btn-switch { background: rgba(255,255,255,0.12); color: #ccc; font-size: 18px; }
+.vc-btn-switch:hover { background: rgba(255,255,255,0.2); }
+
+.vc-btn-end {
+width: 64px;
+height: 64px;
+background: linear-gradient(135deg, #dc143c, #e94560);
+color: #fff;
+box-shadow: 0 6px 24px rgba(220,20,60,0.5);
+font-size: 24px;
+}
+.vc-btn-end:hover {
+transform: scale(1.08);
+box-shadow: 0 8px 32px rgba(220,20,60,0.7);
+}
+
+/* ===================== INCOMING CALL TOAST ===================== */
+#vcIncomingToast {
+position: fixed;
+bottom: 90px;
+right: 20px;
+z-index: 98000;
+display: none;
+width: 300px;
+background: linear-gradient(135deg, #1a0a30, #250d40);
+border: 1px solid rgba(168,85,247,0.5);
+border-radius: 22px;
+padding: 16px;
+box-shadow: 0 12px 40px rgba(0,0,0,0.6), 0 0 30px rgba(168,85,247,0.2);
+animation: vcToastSlide 0.35s cubic-bezier(0.22,1,0.36,1);
+}
+#vcIncomingToast.open { display: block; }
+
+@keyframes vcToastSlide {
+from { opacity: 0; transform: translateX(100%); }
+to { opacity: 1; transform: translateX(0); }
+}
+
+.vc-toast-ring {
+display: flex;
+align-items: center;
+gap: 12px;
+margin-bottom: 14px;
+}
+.vc-toast-av {
+width: 48px;
+height: 48px;
+border-radius: 50%;
+border: 2px solid rgba(168,85,247,0.6);
+display: flex;
+align-items: center;
+justify-content: center;
+font-size: 22px;
+background: rgba(120,30,200,0.2);
+flex-shrink: 0;
+position: relative;
+overflow: hidden;
+}
+.vc-toast-av img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.vc-toast-av::after {
+content: ‘’;
+position: absolute;
+inset: -3px;
+border-radius: 50%;
+border: 2px solid rgba(168,85,247,0.6);
+animation: vcRingPulse 1.2s ease-in-out infinite;
+}
+@keyframes vcRingPulse {
+0%, 100% { transform: scale(1); opacity: 0.7; }
+50% { transform: scale(1.18); opacity: 0; }
+}
+.vc-toast-info { flex: 1; min-width: 0; }
+.vc-toast-label {
+font-size: 10px;
+color: rgba(168,85,247,0.8);
+font-family: ‘Unbounded’, sans-serif;
+letter-spacing: 1px;
+text-transform: uppercase;
+margin-bottom: 3px;
+}
+.vc-toast-name {
+font-size: 15px;
+font-weight: 600;
+color: #fff;
+font-family: ‘Noto Sans Georgian’, sans-serif;
+overflow: hidden;
+text-overflow: ellipsis;
+white-space: nowrap;
+}
+.vc-toast-btns {
+display: flex;
+gap: 10px;
+}
+.vc-toast-accept, .vc-toast-reject {
+flex: 1;
+padding: 10px;
+border-radius: 14px;
+border: none;
+cursor: pointer;
+font-family: ‘Noto Sans Georgian’, sans-serif;
+font-size: 13px;
+font-weight: 600;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 6px;
+transition: all 0.2s;
+}
+.vc-toast-accept {
+background: linear-gradient(135deg, rgba(74,222,128,0.9), rgba(52,211,153,0.9));
+color: #052e16;
+box-shadow: 0 4px 14px rgba(74,222,128,0.35);
+}
+.vc-toast-accept:hover { transform: scale(1.03); box-shadow: 0 6px 20px rgba(74,222,128,0.5); }
+.vc-toast-reject {
+background: linear-gradient(135deg, rgba(220,20,60,0.85), rgba(233,69,96,0.85));
+color: #fff;
+box-shadow: 0 4px 14px rgba(220,20,60,0.3);
+}
+.vc-toast-reject:hover { transform: scale(1.03); }
+
+/* ===================== CALL NOTIFICATION IN FRIENDS LIST ===================== */
+.vc-friend-call-btn {
+display: inline-flex;
+align-items: center;
+gap: 5px;
+padding: 4px 10px;
+border-radius: 8px;
+background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(52,211,153,0.1));
+border: 1px solid rgba(74,222,128,0.4);
+color: #4ade80;
+font-size: 11px;
+font-family: ‘Noto Sans Georgian’, sans-serif;
+cursor: pointer;
+transition: all 0.2s;
+margin-top: 4px;
+white-space: nowrap;
+}
+.vc-friend-call-btn:hover {
+background: rgba(74,222,128,0.25);
+transform: scale(1.04);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+.vc-local-pip {
+width: 90px;
+bottom: 90px;
+right: 12px;
+}
+.vc-ctrl-btn { width: 46px; height: 46px; font-size: 18px; }
+.vc-btn-end { width: 56px; height: 56px; font-size: 22px; }
+.vc-controls { gap: 10px; padding: 16px 16px 24px; }
+#vcIncomingToast { right: 8px; left: 8px; width: auto; }
+}
+</style>
+
+</head>
+<body>
+
+<!--
+========================================================================
+  კაიფმანია — ვიდეო ზარის მოდული
+  
+  დამაკოპირე ეს ფაილი შენი პროექტის სახელით (video-call.html ან
+  ჩაურთე <link> და <script> ტეგებით მთავარ index.html-ში).
+  
+  ინტეგრაციის სახელმძღვანელო:
+  1. CSS — ჩაამატე <link rel="stylesheet" href="video-call.html">
+     ან დააკოპირე <style> ბლოკი მთავარ HTML-ში.
+  2. HTML — ჩაამატე ქვემოთ მოცემული #vcCallModal და
+     #vcIncomingToast ელემენტები <body>-ს ბოლოს.
+  3. JS — ჩაამატე <script src="video-call.js"> ან ჩააკოპირე
+     videoCallModule ობიექტი მთავარ script ბლოკში.
+  4. DM-ის ღილაკი — dm-head div-ში ჩაამატე:
+     <button class="dm-call-btn" id="dmCallBtn" onclick="videoCallModule.callDMPartner()">📹</button>
+     dm-min ღილაკის წინ.
+========================================================================
+-->
+
+<!-- =================== VIDEO CALL MODAL =================== -->
+
+<div id="vcCallModal">
+  <div class="vc-wrapper">
+
+```
+<!-- Remote video stream -->
+<video id="vcRemoteVideo" autoplay playsinline></video>
+
+<!-- Remote user placeholder (shown while connecting) -->
+<div class="vc-remote-placeholder" id="vcRemotePlaceholder">
+  <div class="vc-remote-av" id="vcRemoteAv">👤</div>
+  <div class="vc-remote-name" id="vcRemoteName">...</div>
+  <div class="vc-remote-status" id="vcRemoteStatus">მიერთება...</div>
+  <div class="vc-calling-dots" id="vcCallingDots">
+    <div class="vc-dot"></div>
+    <div class="vc-dot"></div>
+    <div class="vc-dot"></div>
+  </div>
+</div>
+
+<!-- Top info bar -->
+<div class="vc-top-bar">
+  <div class="vc-top-avatar" id="vcTopAvatar">👤</div>
+  <div>
+    <div class="vc-top-name" id="vcTopName">ზარი</div>
+    <div class="vc-top-timer" id="vcTimer">00:00</div>
+  </div>
+  <div class="vc-quality-dot" id="vcQualityDot" title="კავშირის ხარისხი"></div>
+</div>
+
+<!-- Local PiP -->
+<div class="vc-local-pip" id="vcLocalPip" onclick="videoCallModule.togglePip()">
+  <video id="vcLocalVideo" autoplay playsinline muted></video>
+  <div class="vc-pip-label">შენ</div>
+</div>
+
+<!-- Controls -->
+<div class="vc-controls">
+  <button class="vc-ctrl-btn vc-btn-mic" id="vcMicBtn" onclick="videoCallModule.toggleMic()" title="მიკროფონი">
+    🎤
+    <span class="vc-btn-label">მიკ.</span>
+  </button>
+  <button class="vc-ctrl-btn vc-btn-cam" id="vcCamBtn" onclick="videoCallModule.toggleCamera()" title="კამერა">
+    📷
+    <span class="vc-btn-label">კამ.</span>
+  </button>
+  <button class="vc-ctrl-btn vc-btn-switch" id="vcSwitchBtn" onclick="videoCallModule.switchCamera()" title="კამერის გადართვა">
+    🔄
+    <span class="vc-btn-label">გადართვა</span>
+  </button>
+  <button class="vc-ctrl-btn vc-btn-end" onclick="videoCallModule.endCall()" title="ზარის დასრულება">
+    📞
+    <span class="vc-btn-label">გათიშვა</span>
+  </button>
+</div>
+```
+
+  </div>
+</div>
+
+<!-- =================== INCOMING CALL TOAST =================== -->
+
+<div id="vcIncomingToast">
+  <div class="vc-toast-ring">
+    <div class="vc-toast-av" id="vcIncomingAv">👤</div>
+    <div class="vc-toast-info">
+      <div class="vc-toast-label">📹 შემომავალი ვიდეო ზარი</div>
+      <div class="vc-toast-name" id="vcIncomingName">?</div>
+    </div>
+  </div>
+  <div class="vc-toast-btns">
+    <button class="vc-toast-accept" onclick="videoCallModule.acceptCall()">
+      ✅ <span>პასუხი</span>
+    </button>
+    <button class="vc-toast-reject" onclick="videoCallModule.rejectCall()">
+      ❌ <span>უარი</span>
+    </button>
+  </div>
+</div>
+
+<script>
+/**
+ * ========================================================
+ *  videoCallModule — კაიფმანია ვიდეო ზარის სრული მოდული
+ *  
+ *  გამოყენება:
+ *  - videoCallModule.callUser(userId, username)  — ზარის დაწყება
+ *  - videoCallModule.callDMPartner()             — DM-ის პარტნიორის გამოძახება
+ *  - videoCallModule.endCall()                   — ზარის დასრულება
+ *  - videoCallModule.toggleMic()                 — მიკროფონი
+ *  - videoCallModule.toggleCamera()              — კამერა
+ *  - videoCallModule.switchCamera()              — კამ. გადართვა
+ *  - videoCallModule.init(sb, getME, getMYPROF)  — ინიციალიზაცია
+ * ========================================================
+ */
+const videoCallModule = (() => {
+
+  // ===== STATE =====
+  let _sb = null;        // Supabase client
+  let _getMe = null;     // () => ME
+  let _getProf = null;   // () => MYPROF
+  let _getAllUsers = null; // () => allUsers array
+
+  let peerConn = null;
+  let localStream = null;
+  let currentCallWithId = null;
+  let currentCallWithName = '';
+  let callCh = null;
+  let listenCh = null;
+  let isMicMuted = false;
+  let isCamOff = false;
+  let currentCamera = 'user';
+  let pendingOffer = null;
+  let incomingTimeout = null;
+  let timerInterval = null;
+  let timerSeconds = 0;
+  let callRingtone = null;
+  let incomingRingtone = null;
+
+  // ===== ICE CONFIG =====
+  const ICE_CONFIG = {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' },
+      { urls: 'stun:stun4.l.google.com:19302' },
+      {
+        urls: 'turn:openrelay.metered.ca:80',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      },
+      {
+        urls: 'turn:openrelay.metered.ca:443',
+        username: 'openrelayproject',
+        credential: 'openrelayproject'
+      }
+    ]
+  };
+
+  // ===== HELPERS =====
+  function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  
+  function toast(msg) {
+    const t = document.createElement('div');
+    t.className = 'toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo,#7a1fc8),var(--indigo2,#a855f7));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;white-space:nowrap;font-family:"Noto Sans Georgian",sans-serif';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 2800);
+  }
+
+  function getUser(uid) {
+    if (_getAllUsers) return _getAllUsers().find(u => u.id === uid);
+    return null;
+  }
+
+  function formatTimer(s) {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return String(m).padStart(2,'0') + ':' + String(sec).padStart(2,'0');
+  }
+
+  function startTimer() {
+    timerSeconds = 0;
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = setInterval(() => {
+      timerSeconds++;
+      const el = document.getElementById('vcTimer');
+      if (el) el.textContent = formatTimer(timerSeconds);
+    }, 1000);
+  }
+
+  function stopTimer() {
+    if (timerInterval) clearInterval(timerInterval);
+    timerInterval = null;
+    timerSeconds = 0;
+  }
+
+  // ===== RINGTONE =====
+  function playRingtone(type) {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      
+      if (type === 'call') {
+        // Outgoing dial tone — repeating beep
+        let t = 0;
+        const interval = setInterval(() => {
+          if (!callRingtone) { clearInterval(interval); return; }
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.frequency.setValueAtTime(440, ctx.currentTime + t);
+          gain.gain.setValueAtTime(0, ctx.currentTime + t);
+          gain.gain.linearRampToValueAtTime(0.15, ctx.currentTime + t + 0.02);
+          gain.gain.linearRampToValueAtTime(0, ctx.currentTime + t + 0.4);
+          osc.start(ctx.currentTime + t);
+          osc.stop(ctx.currentTime + t + 0.5);
+          t += 1.5;
+        }, 0);
+        callRingtone = { ctx, interval };
+
+      } else if (type === 'incoming') {
+        // Incoming — classic phone ring
+        let t = 0;
+        const playRing = () => {
+          if (!incomingRingtone) return;
+          const freqs = [880, 1100, 880, 1100];
+          freqs.forEach((freq, i) => {
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.frequency.setValueAtTime(freq, ctx.currentTime + t + i * 0.1);
+            gain.gain.setValueAtTime(0, ctx.currentTime + t + i * 0.1);
+            gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + t + i * 0.1 + 0.02);
+            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + t + i * 0.1 + 0.1);
+            osc.start(ctx.currentTime + t + i * 0.1);
+            osc.stop(ctx.currentTime + t + i * 0.1 + 0.12);
+          });
+          t += 2.2;
+        };
+        const interval = setInterval(playRing, 2200);
+        playRing();
+        incomingRingtone = { ctx, interval };
+      }
+    } catch (e) {
+      console.warn('Audio not available:', e);
+    }
+  }
+
+  function stopRingtone(type) {
+    if (type === 'call' && callRingtone) {
+      clearInterval(callRingtone.interval);
+      try { callRingtone.ctx.close(); } catch(e) {}
+      callRingtone = null;
+    }
+    if (type === 'incoming' && incomingRingtone) {
+      clearInterval(incomingRingtone.interval);
+      try { incomingRingtone.ctx.close(); } catch(e) {}
+      incomingRingtone = null;
+    }
+  }
+
+  // ===== UI HELPERS =====
+  function setRemotePlaceholder(show, name, status) {
+    const ph = document.getElementById('vcRemotePlaceholder');
+    const dots = document.getElementById('vcCallingDots');
+    if (!ph) return;
+    ph.classList.toggle('hidden', !show);
+    if (show) {
+      if (name) document.getElementById('vcRemoteName').textContent = name;
+      if (status) document.getElementById('vcRemoteStatus').textContent = status;
+      if (dots) dots.style.display = status === 'მიერთება...' || status === 'მოლოდინი...' ? 'flex' : 'none';
+    }
+  }
+
+  function updateRemoteAvatar(userId) {
+    const user = getUser(userId);
+    const avEl = document.getElementById('vcRemoteAv');
+    const topAv = document.getElementById('vcTopAvatar');
+    if (!avEl || !topAv) return;
+    if (user?.avatar_url) {
+      avEl.innerHTML = `<img src="${user.avatar_url}">`;
+      topAv.innerHTML = `<img src="${user.avatar_url}">`;
+    } else {
+      const em = user?.emotion || '👤';
+      avEl.innerHTML = em;
+      topAv.innerHTML = em;
+    }
+  }
+
+  function updateQuality(state) {
+    const dot = document.getElementById('vcQualityDot');
+    if (!dot) return;
+    dot.className = 'vc-quality-dot';
+    if (state === 'connected') {}
+    else if (state === 'disconnected') dot.classList.add('poor');
+    else if (state === 'failed') dot.classList.add('bad');
+  }
+
+  // ===== PEER CONNECTION =====
+  async function setupPeer() {
+    if (peerConn) { try { peerConn.close(); } catch(e) {} }
+    peerConn = new RTCPeerConnection(ICE_CONFIG);
+
+    if (localStream) {
+      localStream.getTracks().forEach(track => peerConn.addTrack(track, localStream));
+    }
+
+    peerConn.ontrack = (event) => {
+      const rv = document.getElementById('vcRemoteVideo');
+      if (rv) rv.srcObject = event.streams[0];
+      setRemotePlaceholder(false);
+      startTimer();
+      stopRingtone('call');
+      document.getElementById('vcTimer') && (document.getElementById('vcTimer').textContent = '00:00');
+      updateQuality('connected');
+    };
+
+    peerConn.onconnectionstatechange = () => {
+      const s = peerConn.connectionState;
+      updateQuality(s);
+      if (s === 'connected') {
+        setRemotePlaceholder(false);
+        document.getElementById('vcRemoteStatus') && (document.getElementById('vcRemoteStatus').textContent = 'ჩართულია');
+      } else if (s === 'disconnected') {
+        setRemotePlaceholder(true, currentCallWithName, 'კავშირი შეწყდა...');
+        updateQuality('disconnected');
+      } else if (s === 'failed') {
+        toast('❌ კავშირი ვერ მოხერხდა');
+        endCall();
+      }
+    };
+
+    peerConn.onicecandidate = (event) => {
+      if (event.candidate && callCh && callCh.state === 'joined') {
+        callCh.send({
+          type: 'broadcast',
+          event: 'vc-ice',
+          payload: { candidate: event.candidate, to: currentCallWithId }
+        });
+      }
+    };
+
+    return peerConn;
+  }
+
+  // ===== GET LOCAL MEDIA =====
+  async function getLocalMedia() {
+    try {
+      localStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: currentCamera, width: { ideal: 1280 }, height: { ideal: 720 } },
+        audio: { echoCancellation: true, noiseSuppression: true, autoGainControl: true }
+      });
+    } catch (err) {
+      // Try audio only
+      try {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+        toast('⚠️ კამერა ვერ — მხოლოდ ხმა');
+      } catch (e) {
+        toast('❌ კამერა/მიკ. ვერ ჩაირთო — შეამოწმე ნებართვები');
+        return false;
+      }
+    }
+    const lv = document.getElementById('vcLocalVideo');
+    if (lv) lv.srcObject = localStream;
+    return true;
+  }
+
+  // ===== CALL CHANNEL =====
+  function roomKey(uid1, uid2) {
+    return 'vccall_' + [uid1, uid2].sort().join('_');
+  }
+
+  async function openCallChannel(targetId) {
+    const rk = roomKey(_getMe().id, targetId);
+    if (callCh) { try { await _sb.removeChannel(callCh); } catch(e) {} }
+    callCh = _sb.channel(rk);
+
+    callCh.on('broadcast', { event: 'vc-answer' }, async ({ payload }) => {
+      if (payload.to !== _getMe().id) return;
+      try {
+        await peerConn.setRemoteDescription(new RTCSessionDescription(payload.answer));
+        setRemotePlaceholder(true, currentCallWithName, 'ჩართულია...');
+      } catch (e) { console.error(e); }
+    });
+
+    callCh.on('broadcast', { event: 'vc-ice' }, async ({ payload }) => {
+      if (payload.to !== _getMe().id || !payload.candidate) return;
+      try {
+        await peerConn.addIceCandidate(new RTCIceCandidate(payload.candidate));
+      } catch(e) {}
+    });
+
+    callCh.on('broadcast', { event: 'vc-end' }, ({ payload }) => {
+      if (payload.to !== _getMe().id) return;
+      toast('📞 ზარი დასრულდა');
+      endCall();
+    });
+
+    callCh.on('broadcast', { event: 'vc-reject' }, ({ payload }) => {
+      if (payload.to !== _getMe().id) return;
+      toast('📵 ' + (currentCallWithName || '?') + '-მ უარი თქვა');
+      endCall();
+    });
+
+    await callCh.subscribe();
+    return callCh;
+  }
+
+  // ===== PUBLIC: CALL USER =====
+  async function callUser(userId, username) {
+    const ME = _getMe();
+    if (!ME) { toast('❌ შესვლა საჭიროა'); return; }
+    if (currentCallWithId) { toast('⚠️ უკვე ზარზე ხარ!'); return; }
+    if (userId === ME.id) { toast('😅 საკუთარ თავს ვერ დაურეკავ'); return; }
+
+    currentCallWithId = userId;
+    currentCallWithName = username;
+
+    // Update UI
+    document.getElementById('vcCallModal').classList.add('open');
+    document.getElementById('vcTopName').textContent = username;
+    document.getElementById('vcTimer').textContent = '00:00';
+    setRemotePlaceholder(true, username, 'მოლოდინი...');
+    updateRemoteAvatar(userId);
+
+    // Get media
+    const ok = await getLocalMedia();
+    if (!ok) { endCall(); return; }
+
+    // Play ringtone
+    playRingtone('call');
+
+    // Setup peer
+    await setupPeer();
+
+    // Open channel
+    await openCallChannel(userId);
+
+    // Create offer
+    const offer = await peerConn.createOffer();
+    await peerConn.setLocalDescription(offer);
+
+    // Send offer via separate notification channel
+    const notifCh = _sb.channel('vc-notif-' + userId);
+    await notifCh.subscribe();
+    setTimeout(async () => {
+      notifCh.send({
+        type: 'broadcast',
+        event: 'vc-offer',
+        payload: {
+          offer,
+          from: ME.id,
+          to: userId,
+          callerName: _getProf()?.username || '?',
+          callerAvatar: _getProf()?.avatar_url || null,
+          callerEmotion: _getProf()?.emotion || '👤'
+        }
+      });
+      // Also send via main channel in case already subscribed
+      if (callCh && callCh.state === 'joined') {
+        callCh.send({
+          type: 'broadcast',
+          event: 'vc-offer-relay',
+          payload: {
+            offer,
+            from: ME.id,
+            to: userId,
+            callerName: _getProf()?.username || '?'
+          }
+        });
+      }
+      setTimeout(() => { try { _sb.removeChannel(notifCh); } catch(e) {} }, 5000);
+    }, 600);
+
+    // Timeout — no answer
+    setTimeout(() => {
+      if (currentCallWithId === userId && peerConn?.connectionState !== 'connected') {
+        setRemotePlaceholder(true, username, '⏱️ არ პასუხობს...');
+      }
+    }, 20000);
+  }
+
+  // ===== PUBLIC: CALL DM PARTNER =====
+  function callDMPartner() {
+    // This reads DM_UID from global scope (main app)
+    const uid = window.DM_UID;
+    if (!uid) { toast('❌ DM ჯერ გახსნი!'); return; }
+    const user = getUser(uid);
+    callUser(uid, user?.username || 'მეგობარი');
+  }
+
+  // ===== INCOMING CALL LISTENER =====
+  function listenIncoming() {
+    const ME = _getMe();
+    if (!ME) return;
+
+    if (listenCh) { try { _sb.removeChannel(listenCh); } catch(e) {} }
+    listenCh = _sb.channel('vc-notif-' + ME.id);
+
+    listenCh.on('broadcast', { event: 'vc-offer' }, ({ payload }) => {
+      if (payload.to !== ME.id) return;
+      if (currentCallWithId) {
+        // Busy — reject automatically
+        const busyCh = _sb.channel(roomKey(ME.id, payload.from));
+        busyCh.subscribe().then(() => {
+          busyCh.send({ type: 'broadcast', event: 'vc-reject', payload: { to: payload.from } });
+          setTimeout(() => _sb.removeChannel(busyCh), 2000);
+        });
+        return;
+      }
+      showIncomingCall(payload.from, payload.callerName, payload.callerAvatar, payload.callerEmotion, payload.offer);
+    });
+
+    listenCh.subscribe();
+  }
+
+  function showIncomingCall(fromId, callerName, callerAvatar, callerEmotion, offer) {
+    pendingOffer = { fromId, callerName, offer };
+
+    // Avatar
+    const avEl = document.getElementById('vcIncomingAv');
+    if (avEl) {
+      avEl.innerHTML = callerAvatar
+        ? `<img src="${callerAvatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+        : (callerEmotion || '👤');
+    }
+    document.getElementById('vcIncomingName').textContent = callerName || '?';
+    document.getElementById('vcIncomingToast').classList.add('open');
+
+    // Play incoming ringtone
+    playRingtone('incoming');
+
+    // Auto-reject timeout
+    if (incomingTimeout) clearTimeout(incomingTimeout);
+    incomingTimeout = setTimeout(() => {
+      if (pendingOffer) {
+        rejectCall();
+        toast('📵 ზარი გაუპასუხებელია');
+      }
+    }, 30000);
+  }
+
+  // ===== PUBLIC: ACCEPT CALL =====
+  async function acceptCall() {
+    if (!pendingOffer) return;
+    const { fromId, callerName, offer } = pendingOffer;
+    pendingOffer = null;
+    if (incomingTimeout) clearTimeout(incomingTimeout);
+    stopRingtone('incoming');
+    document.getElementById('vcIncomingToast').classList.remove('open');
+
+    currentCallWithId = fromId;
+    currentCallWithName = callerName;
+
+    document.getElementById('vcCallModal').classList.add('open');
+    document.getElementById('vcTopName').textContent = callerName;
+    document.getElementById('vcTimer').textContent = '00:00';
+    setRemotePlaceholder(true, callerName, 'ჩართულება...');
+    updateRemoteAvatar(fromId);
+
+    const ok = await getLocalMedia();
+    if (!ok) { endCall(); return; }
+
+    await setupPeer();
+    await openCallChannel(fromId);
+
+    await peerConn.setRemoteDescription(new RTCSessionDescription(offer));
+    const answer = await peerConn.createAnswer();
+    await peerConn.setLocalDescription(answer);
+
+    callCh.send({
+      type: 'broadcast',
+      event: 'vc-answer',
+      payload: { answer, to: fromId }
+    });
+  }
+
+  // ===== PUBLIC: REJECT CALL =====
+  async function rejectCall() {
+    if (incomingTimeout) clearTimeout(incomingTimeout);
+    stopRingtone('incoming');
+    document.getElementById('vcIncomingToast').classList.remove('open');
+
+    if (pendingOffer) {
+      const rk = roomKey(_getMe().id, pendingOffer.fromId);
+      const rejCh = _sb.channel(rk);
+      await rejCh.subscribe();
+      rejCh.send({ type: 'broadcast', event: 'vc-reject', payload: { to: pendingOffer.fromId } });
+      setTimeout(() => { try { _sb.removeChannel(rejCh); } catch(e) {} }, 2000);
+      pendingOffer = null;
+    }
+  }
+
+  // ===== PUBLIC: END CALL =====
+  async function endCall() {
+    stopRingtone('call');
+    stopRingtone('incoming');
+    stopTimer();
+
+    if (callCh && callCh.state === 'joined' && currentCallWithId) {
+      try {
+        callCh.send({ type: 'broadcast', event: 'vc-end', payload: { to: currentCallWithId } });
+      } catch(e) {}
+    }
+    if (peerConn) { try { peerConn.close(); } catch(e) {} peerConn = null; }
+    if (localStream) { localStream.getTracks().forEach(t => t.stop()); localStream = null; }
+    if (callCh) { try { await _sb.removeChannel(callCh); } catch(e) {} callCh = null; }
+
+    // Close incoming toast if open
+    document.getElementById('vcIncomingToast')?.classList.remove('open');
+    document.getElementById('vcCallModal')?.classList.remove('open');
+
+    // Reset videos
+    const lv = document.getElementById('vcLocalVideo');
+    const rv = document.getElementById('vcRemoteVideo');
+    if (lv) lv.srcObject = null;
+    if (rv) rv.srcObject = null;
+
+    // Reset buttons
+    const micBtn = document.getElementById('vcMicBtn');
+    const camBtn = document.getElementById('vcCamBtn');
+    if (micBtn) { micBtn.innerHTML = '🎤'; micBtn.className = 'vc-ctrl-btn vc-btn-mic'; }
+    if (camBtn) { camBtn.innerHTML = '📷'; camBtn.className = 'vc-ctrl-btn vc-btn-cam'; }
+
+    currentCallWithId = null;
+    currentCallWithName = '';
+    isMicMuted = false;
+    isCamOff = false;
+
+    toast('📞 ზარი დასრულდა');
+
+    // Update DM call button
+    const dmCallBtn = document.getElementById('dmCallBtn');
+    if (dmCallBtn) dmCallBtn.classList.remove('in-call');
+  }
+
+  // ===== PUBLIC: TOGGLE MIC =====
+  function toggleMic() {
+    if (!localStream) return;
+    isMicMuted = !isMicMuted;
+    localStream.getAudioTracks().forEach(t => t.enabled = !isMicMuted);
+    const btn = document.getElementById('vcMicBtn');
+    if (btn) {
+      btn.innerHTML = isMicMuted ? '🔇' : '🎤';
+      btn.classList.toggle('off', isMicMuted);
+    }
+    toast(isMicMuted ? '🔇 მიკ. გამოირთო' : '🎤 მიკ. ჩაირთო');
+  }
+
+  // ===== PUBLIC: TOGGLE CAMERA =====
+  function toggleCamera() {
+    if (!localStream) return;
+    isCamOff = !isCamOff;
+    localStream.getVideoTracks().forEach(t => t.enabled = !isCamOff);
+    const btn = document.getElementById('vcCamBtn');
+    if (btn) {
+      btn.innerHTML = isCamOff ? '🙈' : '📷';
+      btn.classList.toggle('off', isCamOff);
+    }
+    toast(isCamOff ? '📷❌ კამ. გამოირთო' : '📷 კამ. ჩაირთო');
+  }
+
+  // ===== PUBLIC: SWITCH CAMERA =====
+  async function switchCamera() {
+    if (!localStream) return;
+    currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+    try {
+      const newStream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: currentCamera },
+        audio: true
+      });
+      const oldVid = localStream.getVideoTracks()[0];
+      const newVid = newStream.getVideoTracks()[0];
+      if (oldVid) { localStream.removeTrack(oldVid); oldVid.stop(); }
+      localStream.addTrack(newVid);
+      const lv = document.getElementById('vcLocalVideo');
+      if (lv) lv.srcObject = localStream;
+      if (peerConn) {
+        const sender = peerConn.getSenders().find(s => s.track?.kind === 'video');
+        if (sender) await sender.replaceTrack(newVid);
+      }
+      toast('🔄 კამერა გადაიცვალა');
+    } catch (e) {
+      toast('❌ კამერა ვერ გადაიცვალა');
+      currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+    }
+  }
+
+  // ===== PUBLIC: TOGGLE PIP =====
+  function togglePip() {
+    const pip = document.getElementById('vcLocalPip');
+    if (!pip) return;
+    const isTopLeft = pip.style.left === '18px';
+    if (isTopLeft) {
+      pip.style.left = '';
+      pip.style.right = '18px';
+      pip.style.top = '';
+      pip.style.bottom = '100px';
+    } else {
+      pip.style.left = '18px';
+      pip.style.right = '';
+      pip.style.top = '70px';
+      pip.style.bottom = '';
+    }
+  }
+
+  // ===== PUBLIC: INIT =====
+  function init(sb, getME, getMYPROF, getAllUsers) {
+    _sb = sb;
+    _getMe = getME;
+    _getProf = getMYPROF;
+    _getAllUsers = getAllUsers || (() => []);
+    listenIncoming();
+    console.log('📹 videoCallModule ready');
+  }
+
+  // Expose
+  return {
+    init,
+    callUser,
+    callDMPartner,
+    acceptCall,
+    rejectCall,
+    endCall,
+    toggleMic,
+    toggleCamera,
+    switchCamera,
+    togglePip,
+  };
+
+})();
+
+/*
+==========================================================================
+  ინტეგრაციის ინსტრუქცია (copy-paste მთავარ HTML-ში)
+==========================================================================
+
+1) <head>-ში ჩაამატე:
+   <link rel="stylesheet" href="video-call.html">
+   (ან CSS ბლოკი პირდაპირ)
+
+2) <body>-ს ბოლოს (logout ღილაკის წინ) ჩაამატე:
+   <script src="video-call.html"></script>
+
+(ან JS ბლოკი პირდაპირ)
+
+1. DM box-ის dm-head div-ში ჩაამატე ეს ღილაკი dm-min ღილაკის წინ:
+   <button class="dm-call-btn" id="dmCallBtn" onclick="videoCallModule.callDMPartner()" title="ვიდეო ზარი">📹</button>
+1. init() ფუნქციის ბოლოს ჩაამატე:
+   videoCallModule.init(sb, () => ME, () => MYPROF, () => allUsers);
+1. მეგობრების სიაში callUser-ის ნაცვლად გამოიყენე:
+   videoCallModule.callUser(u.id, u.username);
+1. კოდიდან წაშალე ძველი:
+- window.callUser
+- window.acceptIncomingCall
+- window.rejectIncomingCall
+- window.endCall
+- window.toggleMic
+- window.toggleCamera
+- window.switchCamera
+- listenForIncomingCalls() ფუნქცია
+- <div id="callModal"> ბლოკი
+- .call-modal, .call-container და სხვა call-* CSS
+
+==========================================================================
+*/
+</script>
+
+</body>
+</html>
