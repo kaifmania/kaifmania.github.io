@@ -711,16 +711,344 @@ select.inp{cursor:pointer}
   </div>
 </div>
 
-<!-- Friend Request Modal -->
-<div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')">
-  <div class="modal" style="max-width:380px">
-    <button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button>
-    <div class="modal-title">📬 მეგობრის მოთხოვნები</div>
-    <div id="friendReqContainer"></div>
-  </div>
-</div>
+/* ===================== FRIENDS — სრულად გასწორებული ===================== */
 
-<!-- DM List -->
+// Helper: fetch profile by uid
+async function fetchProfileById(uid) {
+  const { data } = await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id', uid).single();
+  return data;
+}
+
+// Load friend requests in sidebar
+async function loadFriendReqsSidebar() {
+  const el = document.getElementById('friendRequestsList');
+  if (!el) return;
+  el.innerHTML = '';
+
+  // Step 1: get pending requests where ME is the receiver
+  const { data: reqs, error } = await sb.from('friends')
+    .select('id, user_id, status')
+    .eq('friend_id', ME.id)
+    .eq('status', 'pending');
+
+  if (error || !reqs || !reqs.length) return;
+
+  const header = document.createElement('div');
+  header.style.cssText = "font-size:9px;letter-spacing:1.5px;color:var(--text2);font-family:'Unbounded',sans-serif;padding:10px 10px 6px;text-transform:uppercase";
+  header.textContent = `📬 მოთხოვნები (${reqs.length})`;
+  el.appendChild(header);
+
+  for (const req of reqs) {
+    // Step 2: fetch sender profile separately
+    let sender = allUsers.find(u => u.id === req.user_id);
+    if (!sender) {
+      sender = await fetchProfileById(req.user_id);
+      if (sender) allUsers.push(sender);
+    }
+    const nick = sender?.username || '?';
+    const avUrl = sender?.avatar_url || '';
+
+    const div = document.createElement('div');
+    div.style.cssText = 'display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);margin-bottom:6px';
+    const avHtml = avUrl
+      ? `<img src="${avUrl}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+      : `<div style="width:32px;height:32px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">${sender?.emotion || '👤'}</div>`;
+
+    div.innerHTML = `
+      ${avHtml}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600;color:var(--indigo2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" class="sbReqNick">${esc(nick)}</div>
+        <div style="font-size:10px;color:var(--text3)">მეგობრობის მოთხოვნა</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0">
+        <button style="background:rgba(80,210,0,.12);border:1px solid rgba(80,210,0,.3);border-radius:8px;color:#88ee44;font-size:13px;padding:3px 8px;cursor:pointer" class="sbAcceptBtn">✅</button>
+        <button style="background:rgba(220,0,0,.1);border:1px solid rgba(220,0,0,.25);border-radius:8px;color:#ff7777;font-size:13px;padding:3px 8px;cursor:pointer" class="sbDeclineBtn">❌</button>
+      </div>
+    `;
+
+    div.querySelector('.sbReqNick').addEventListener('click', () => openProfile(req.user_id));
+    div.querySelector('.sbAcceptBtn').addEventListener('click', async function () {
+      this.disabled = true; this.textContent = '⏳';
+      await acceptFriendById(req.id, req.user_id);
+      div.remove();
+      // re-check remaining
+      const remaining = el.querySelectorAll('.sbAcceptBtn');
+      if (!remaining.length) el.innerHTML = '';
+    });
+    div.querySelector('.sbDeclineBtn').addEventListener('click', async function () {
+      this.disabled = true; this.textContent = '⏳';
+      await declineFriendById(req.id);
+      div.remove();
+      const remaining = el.querySelectorAll('.sbDeclineBtn');
+      if (!remaining.length) el.innerHTML = '';
+    });
+
+    el.appendChild(div);
+  }
+}
+
+// Load accepted friends list
+async function loadFriends() {
+  const { data } = await sb.from('friends').select('friend_id').eq('user_id', ME.id).eq('status', 'accepted');
+  myFriends = (data || []).map(f => f.friend_id);
+  renderFriends();
+}
+
+function renderFriends() {
+  const el = document.getElementById('friendsList');
+  if (!el) return;
+  el.innerHTML = '';
+  const list = myFriends.map(fid => allUsers.find(u => u.id === fid)).filter(Boolean);
+  if (!list.length) {
+    const e = document.createElement('div');
+    e.style.cssText = 'color:var(--text3);font-size:12px;text-align:center;padding:24px 0';
+    e.textContent = 'მეგობრები ჯერ არ გყავს 💜';
+    el.appendChild(e);
+    return;
+  }
+  const frag = document.createDocumentFragment();
+  list.forEach(u => frag.appendChild(makeUserItem(u)));
+  el.appendChild(frag);
+}
+
+// Toggle friend (add request or remove)
+async function toggleFriend() {
+  if (!VIEW_UID || !ME) return;
+  const btn = document.getElementById('friendBtn');
+
+  // Already friends → remove
+  if (myFriends.includes(VIEW_UID)) {
+    if (btn) { btn.disabled = true; btn.textContent = '⏳...'; }
+    await sb.from('friends').delete().eq('user_id', ME.id).eq('friend_id', VIEW_UID);
+    await sb.from('friends').delete().eq('user_id', VIEW_UID).eq('friend_id', ME.id);
+    myFriends = myFriends.filter(f => f !== VIEW_UID);
+    if (btn) { btn.textContent = '➕ მეგობრად დამატება'; btn.disabled = false; }
+    toast('💔 გაუქმდა');
+    renderFriends();
+    return;
+  }
+
+  // Check existing row
+  const { data: existing } = await sb.from('friends')
+    .select('id, status')
+    .eq('user_id', ME.id)
+    .eq('friend_id', VIEW_UID)
+    .maybeSingle();
+
+  if (existing) {
+    if (existing.status === 'pending') {
+      if (btn) { btn.textContent = '⏳ გაგზავნილია...'; btn.disabled = true; }
+      toast('⚠️ უკვე გაგზავნილია!');
+      return;
+    }
+    if (existing.status === 'accepted') {
+      myFriends.push(VIEW_UID);
+      if (btn) { btn.textContent = '💔 გაუქმება'; btn.disabled = false; }
+      return;
+    }
+    // declined → update to pending
+    await sb.from('friends').update({ status: 'pending' }).eq('id', existing.id);
+  } else {
+    const { error } = await sb.from('friends').insert({ user_id: ME.id, friend_id: VIEW_UID, status: 'pending' });
+    if (error) { toast('❌ ' + error.message); return; }
+  }
+
+  if (btn) { btn.textContent = '⏳ გაგზავნილია...'; btn.disabled = true; }
+  await addNotification(VIEW_UID, 'friend_request', { nick: MYPROF?.username });
+  toast('📨 მოთხოვნა გაიგზავნა!');
+}
+
+// Check and update friend request badge
+async function checkFriendReqs() {
+  const { data } = await sb.from('friends')
+    .select('id')
+    .eq('friend_id', ME.id)
+    .eq('status', 'pending');
+  const count = (data || []).length;
+
+  const badge = document.getElementById('friendBadge');
+  if (count > 0) { badge.textContent = count; badge.classList.add('show'); }
+  else { badge.textContent = ''; badge.classList.remove('show'); }
+
+  const reqBtn = document.getElementById('friendReqBtn');
+  const reqCount = document.getElementById('friendReqCount');
+  if (reqBtn) { reqBtn.style.display = count > 0 ? '' : 'none'; if (reqCount) reqCount.textContent = count; }
+}
+
+// Open friend requests modal
+async function openFriendReqs() {
+  // Step 1: get pending requests
+  const { data: reqs, error } = await sb.from('friends')
+    .select('id, user_id, status')
+    .eq('friend_id', ME.id)
+    .eq('status', 'pending');
+
+  if (error) { toast('❌ ' + error.message); return; }
+
+  // Step 2: fetch sender profiles separately
+  const enriched = [];
+  for (const req of (reqs || [])) {
+    let sender = allUsers.find(u => u.id === req.user_id);
+    if (!sender) {
+      sender = await fetchProfileById(req.user_id);
+      if (sender) allUsers.push(sender);
+    }
+    enriched.push({ ...req, senderProfile: sender });
+  }
+
+  renderFriendReqsModal(enriched);
+}
+
+function renderFriendReqsModal(reqs) {
+  const container = document.getElementById('friendReqContainer');
+  if (!container) return;
+  container.innerHTML = '';
+
+  if (!reqs.length) {
+    container.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:24px 0">📭 მოთხოვნა არ არის</div>';
+    openModal('friendReqOverlay');
+    return;
+  }
+
+  reqs.forEach(req => {
+    const nick = req.senderProfile?.username || '?';
+    const avUrl = req.senderProfile?.avatar_url || '';
+    const emotion = req.senderProfile?.emotion || '👤';
+
+    const div = document.createElement('div');
+    div.className = 'friend-req-item';
+    const avHtml = avUrl
+      ? `<img src="${avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+      : emotion;
+
+    div.innerHTML = `
+      <div class="avatar" style="width:40px;height:40px;font-size:18px;flex-shrink:0;overflow:hidden">${avHtml}</div>
+      <div style="flex:1;font-size:13px;color:var(--text)">
+        <strong style="color:var(--indigo2);cursor:pointer" class="frModalNick">${esc(nick)}</strong>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">გვინდა დაგამატოს მეგობრად</div>
+      </div>
+      <div class="friend-req-actions">
+        <button class="friend-req-accept frAccept">✅ დასტური</button>
+        <button class="friend-req-decline frDecline">❌ უარი</button>
+      </div>
+    `;
+
+    div.querySelector('.frModalNick').addEventListener('click', () => {
+      closeModal('friendReqOverlay');
+      openProfile(req.user_id);
+    });
+
+    div.querySelector('.frAccept').addEventListener('click', async function () {
+      this.disabled = true; this.textContent = '⏳';
+      await acceptFriendById(req.id, req.user_id);
+      div.remove();
+      if (!container.querySelector('.friend-req-item')) {
+        container.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">✅ მოთხოვნები დამუშავდა</div>';
+      }
+    });
+
+    div.querySelector('.frDecline').addEventListener('click', async function () {
+      this.disabled = true; this.textContent = '⏳';
+      await declineFriendById(req.id);
+      div.remove();
+      if (!container.querySelector('.friend-req-item')) {
+        container.innerHTML = '<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">✅ მოთხოვნები დამუშავდა</div>';
+      }
+    });
+
+    container.appendChild(div);
+  });
+
+  openModal('friendReqOverlay');
+}
+
+// Accept friend request by row ID
+async function acceptFriendById(rid, fromUid) {
+  try {
+    // 1. Update the incoming request row to accepted
+    const { error: e1 } = await sb.from('friends').update({ status: 'accepted' }).eq('id', rid);
+    if (e1) { toast('❌ ' + e1.message); return; }
+
+    // 2. Create reverse row (ME → fromUid), delete first to avoid duplicate
+    await sb.from('friends').delete().eq('user_id', ME.id).eq('friend_id', fromUid);
+    const { error: e2 } = await sb.from('friends').insert({ user_id: ME.id, friend_id: fromUid, status: 'accepted' });
+    if (e2) { toast('❌ ' + e2.message); return; }
+
+    // 3. Update local list
+    if (!myFriends.includes(fromUid)) myFriends.push(fromUid);
+    renderFriends();
+    toast('✅ მეგობარი დაემატა!');
+
+    // 4. Notify sender
+    await addNotification(fromUid, 'friend_accept', { nick: MYPROF?.username });
+
+    // 5. Refresh badge and sidebar
+    await checkFriendReqs();
+    await loadFriendReqsSidebar();
+
+  } catch (err) {
+    toast('❌ ' + err.message);
+  }
+}
+
+// Decline friend request
+async function declineFriendById(rid) {
+  try {
+    const { error } = await sb.from('friends').delete().eq('id', rid);
+    if (error) { toast('❌ ' + error.message); return; }
+    toast('❌ უარყოფილია');
+    await checkFriendReqs();
+    await loadFriendReqsSidebar();
+  } catch (err) {
+    toast('❌ ' + err.message);
+  }
+}
+
+// Real-time friend request watcher
+function watchFriendRequests() {
+  if (friendCh) { try { sb.removeChannel(friendCh); } catch (e) { } friendCh = null; }
+
+  friendCh = sb.channel('friend-reqs-' + ME.id)
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'friends', filter: `friend_id=eq.${ME.id}` }, async payload => {
+      if (payload.new.status === 'pending') {
+        await checkFriendReqs();
+        await loadFriendReqsSidebar();
+        // fetch sender name
+        let sender = allUsers.find(u => u.id === payload.new.user_id);
+        if (!sender) sender = await fetchProfileById(payload.new.user_id);
+        const nick = sender?.username || '?';
+        toast(`👥 ${nick} გვინდა მეგობრად!`);
+      }
+    })
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'friends' }, async payload => {
+      const n = payload.new;
+      if (n.status === 'accepted') {
+        if (n.user_id === ME.id && !myFriends.includes(n.friend_id)) myFriends.push(n.friend_id);
+        if (n.friend_id === ME.id && !myFriends.includes(n.user_id)) myFriends.push(n.user_id);
+        renderFriends();
+        // Update open profile button
+        const btn = document.getElementById('friendBtn');
+        if (btn && (VIEW_UID === n.user_id || VIEW_UID === n.friend_id)) {
+          btn.textContent = '💔 გაუქმება';
+          btn.disabled = false;
+        }
+      }
+      if (n.friend_id === ME.id) {
+        await checkFriendReqs();
+        await loadFriendReqsSidebar();
+      }
+    })
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'friends' }, async payload => {
+      const o = payload.old;
+      myFriends = myFriends.filter(f => f !== o.user_id && f !== o.friend_id);
+      renderFriends();
+      if (o.friend_id === ME.id || o.user_id === ME.id) {
+        await checkFriendReqs();
+        await loadFriendReqsSidebar();
+      }
+    })
+    .subscribe();
+}
 <div id="dmListOverlay" onclick="bgCloseDMList(event)">
   <div class="dm-list-modal">
     <div class="dm-list-title">✉️ პირადი<button class="dm-list-close" onclick="closeDMList()">✕</button></div>
