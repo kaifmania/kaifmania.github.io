@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>PM ვიდეოზარი - რეალური ხმა</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; background: #0a0a1a; color: white; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; }
+        .call-container { max-width: 1000px; width: 100%; background: #1a1a2e; border-radius: 24px; overflow: hidden; box-shadow: 0 0 40px rgba(0,0,0,0.5); }
+        .videos { display: flex; flex-wrap: wrap; gap: 16px; padding: 20px; background: #0a0a15; }
+        .remote-video { flex: 2; min-width: 300px; background: #000; border-radius: 16px; overflow: hidden; position: relative; }
+        .local-video { flex: 1; min-width: 200px; background: #000; border-radius: 16px; overflow: hidden; position: relative; }
+        video { width: 100%; height: auto; background: #000; display: block; transform: scaleX(-1); }
+        .remote-video video { transform: none; }
+        .controls { display: flex; justify-content: center; gap: 20px; padding: 20px; background: #1a1a2e; }
+        button { width: 60px; height: 60px; border-radius: 50%; border: none; font-size: 24px; cursor: pointer; transition: all 0.2s; background: #2a2a3e; color: white; }
+        button:hover { transform: scale(1.1); }
+        .end-call { background: #e94560; }
+        .end-call:hover { background: #c42a48; }
+        .mic-off, .cam-off { background: #555; color: #e94560; }
+        .status { text-align: center; padding: 12px; background: #0a0a15; color: #aaa; font-size: 14px; }
+        .caller-info { text-align: center; padding: 12px; font-size: 18px; font-weight: bold; background: #0a0a15; }
+        input, select { padding: 10px; margin: 10px; border-radius: 8px; border: none; background: #2a2a3e; color: white; }
+        .join-area { text-align: center; padding: 40px; }
+        .incoming-toast { position: fixed; bottom: 30px; right: 30px; background: linear-gradient(135deg, #7a1fc8, #a855f7); border-radius: 20px; padding: 16px 24px; z-index: 1000; animation: slideIn 0.3s ease; cursor: pointer; box-shadow: 0 8px 32px rgba(0,0,0,0.4); }
+        .incoming-toast button { width: auto; height: auto; padding: 8px 20px; border-radius: 40px; font-size: 14px; margin: 0 5px; }
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .hidden { display: none; }
+        .volume-slider { width: 100px; height: 40px; background: #2a2a3e; border-radius: 20px; display: flex; align-items: center; justify-content: center; gap: 5px; padding: 0 10px; }
+        .volume-slider input { width: 60px; margin: 0; }
+    </style>
+</head>
+<body>
+<div id="callUI" class="call-container">
+    <div class="caller-info" id="callerInfo">📞 შენი ID: <span id="myId">-</span></div>
+    <div class="videos">
+        <div class="remote-video"><video id="remoteVideo" autoplay playsinline></video></div>
+        <div class="local-video"><video id="localVideo" autoplay playsinline muted></video></div>
+    </div>
+    <div class="controls">
+        <button id="micBtn" onclick="toggleMic()" title="მიკროფონი">🎤</button>
+        <button id="camBtn" onclick="toggleCamera()" title="კამერა">📷</button>
+        <button id="switchCamBtn" onclick="switchCamera()" title="კამერის შეცვლა">🔄</button>
+        <div class="volume-slider"><span>🔊</span><input type="range" id="volumeSlider" min="0" max="100" value="100" oninput="setVolume(this.value)"></div>
+        <button class="end-call" onclick="endCall()">📞</button>
+    </div>
+    <div class="status" id="callStatus">⚡ მზად არის</div>
+    <div class="join-area" id="joinArea">
+        <input type="text" id="targetUserId" placeholder="მომხმარებლის ID (რომ დაურეკო)" style="width: 300px;">
+        <button onclick="startCall()" style="width: auto; border-radius: 40px; padding: 0 30px;">📞 დარეკვა</button>
+        <p style="font-size: 12px; margin-top: 20px;">💡 შენი ID: <span id="myIdDisplay"></span> — ეს გაუგზავნე მეგობარს</p>
+    </div>
+</div>
+
+<script>
+    const supabaseUrl = "https://brggiyhfzfbmlirqfgpo.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
+    const sb = createClient(supabaseUrl, supabaseKey);
+
+    let ME = null;
+    let peerConnection = null;
+    let localStream = null;
+    let currentCallWith = null;
+    let callChannel = null;
+    let isMicMuted = false;
+    let isCamOff = false;
+    let currentCamera = 'user';
+
+    const configuration = {
+        iceServers: [
+            { urls: 'stun:stun.l.google.com:19302' },
+            { urls: 'stun:stun1.l.google.com:19302' },
+            { urls: 'stun:stun2.l.google.com:19302' },
+            { urls: 'stun:stun3.l.google.com:19302' },
+            { urls: 'stun:stun4.l.google.com:19302' }
+        ]
+    };
+
+    async function init() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) {
+            alert('ჯერ უნდა გაიარო ავტორიზაცია მთავარ საიტზე');
+            return;
+        }
+        ME = user;
+        document.getElementById('myId').innerText = ME.id;
+        document.getElementById('myIdDisplay').innerText = ME.id;
+        listenForIncomingCalls();
+    }
+
+    async function getProfileName(uid) {
+        const { data } = await sb.from('profiles').select('username').eq('id', uid).single();
+        return data?.username || '?';
+    }
+
+    async function startCall() {
+        const targetId = document.getElementById('targetUserId').value.trim();
+        if (!targetId) { alert('ჩაწერე მომხმარებლის ID'); return; }
+        if (targetId === ME.id) { alert('საკუთარ თავს ვერ დაურეკავ'); return; }
+        if (currentCallWith) { alert('უკვე ზარზე ხარ'); return; }
+        currentCallWith = targetId;
+        document.getElementById('callStatus').innerHTML = `📞 ${await getProfileName(targetId)}-თან დარეკვა...`;
+        document.getElementById('joinArea').classList.add('hidden');
+        
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+            document.getElementById('localVideoContainer')?.classList.remove('hidden');
+        } catch (err) {
+            document.getElementById('callStatus').innerHTML = '❌ კამერა/მიკროფონი ვერ ჩაირთო';
+            endCall(); return;
+        }
+
+        const roomName = `call_${[ME.id, targetId].sort().join('_')}`;
+        if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} }
+        callChannel = sb.channel(roomName);
+        await setupPeerConnection(true);
+        
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate && callChannel?.subscribed) {
+                callChannel.send({ type: 'broadcast', event: 'ice-candidate', payload: { candidate: event.candidate, to: targetId } });
+            }
+        };
+        
+        const offer = await peerConnection.createOffer();
+        await peerConnection.setLocalDescription(offer);
+        
+        callChannel.on('broadcast', { event: 'answer' }, async ({ payload }) => {
+            if (payload.to === ME.id && payload.answer) {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer));
+            }
+        });
+        callChannel.on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
+            if (payload.to === ME.id && payload.candidate) {
+                try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) {}
+            }
+        });
+        callChannel.on('broadcast', { event: 'end-call' }, ({ payload }) => {
+            if (payload.to === ME.id) { alert('📞 მოპირდაპირემ გათიშა ზარი'); endCall(); }
+        });
+        
+        await callChannel.subscribe();
+        setTimeout(async () => {
+            if (callChannel?.subscribed) {
+                callChannel.send({ type: 'broadcast', event: 'offer', payload: { offer, from: ME.id, to: targetId, callerName: await getProfileName(ME.id) } });
+            }
+        }, 500);
+        
+        setTimeout(() => {
+            if (currentCallWith === targetId && peerConnection?.connectionState !== 'connected') {
+                document.getElementById('callStatus').innerHTML = '❓ მოპირდაპირე არ პასუხობს';
+            }
+        }, 20000);
+    }
+
+    function listenForIncomingCalls() {
+        const incomingChannel = sb.channel(`incoming_calls_${ME.id}`);
+        incomingChannel.on('broadcast', { event: 'offer' }, async ({ payload }) => {
+            if (payload.to === ME.id && !currentCallWith) {
+                showIncomingCall(payload.from, payload.callerName || '?', payload.offer);
+            }
+        });
+        incomingChannel.subscribe();
+    }
+
+    let currentIncomingToast = null;
+    let pendingOffer = null;
+
+    function showIncomingCall(fromId, callerName, offer) {
+        if (currentIncomingToast) currentIncomingToast.remove();
+        const toast = document.createElement('div');
+        toast.className = 'incoming-toast';
+        toast.innerHTML = `<div><strong>${callerName}</strong> გირეკავთ... 🎥</div>
+                           <div style="margin-top: 10px;">
+                               <button onclick="window.acceptCall('${fromId}')">✅ მიღება</button>
+                               <button onclick="window.rejectCall('${fromId}')">❌ უარი</button>
+                           </div>`;
+        document.body.appendChild(toast);
+        currentIncomingToast = toast;
+        pendingOffer = { fromId, callerName, offer };
+        setTimeout(() => { if (currentIncomingToast === toast) { toast.remove(); currentIncomingToast = null; pendingOffer = null; } }, 30000);
+    }
+
+    window.acceptCall = async (fromId) => {
+        if (currentIncomingToast) currentIncomingToast.remove();
+        if (!pendingOffer) return;
+        currentCallWith = fromId;
+        document.getElementById('callStatus').innerHTML = `📞 ${pendingOffer.callerName}-თან კავშირი...`;
+        document.getElementById('joinArea').classList.add('hidden');
+        
+        try {
+            localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+        } catch (err) {
+            document.getElementById('callStatus').innerHTML = '❌ კამერა/მიკროფონი ვერ ჩაირთო';
+            endCall(); return;
+        }
+        
+        const roomName = `call_${[ME.id, fromId].sort().join('_')}`;
+        if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} }
+        callChannel = sb.channel(roomName);
+        await setupPeerConnection(false);
+        
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate && callChannel?.subscribed) {
+                callChannel.send({ type: 'broadcast', event: 'ice-candidate', payload: { candidate: event.candidate, to: fromId } });
+            }
+        };
+        callChannel.on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
+            if (payload.to === ME.id && payload.candidate) {
+                try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) {}
+            }
+        });
+        callChannel.on('broadcast', { event: 'end-call' }, ({ payload }) => {
+            if (payload.to === ME.id) { alert('📞 ზარი გათიშეს'); endCall(); }
+        });
+        
+        await callChannel.subscribe();
+        await peerConnection.setRemoteDescription(new RTCSessionDescription(pendingOffer.offer));
+        const answer = await peerConnection.createAnswer();
+        await peerConnection.setLocalDescription(answer);
+        callChannel.send({ type: 'broadcast', event: 'answer', payload: { answer, to: fromId } });
+        pendingOffer = null;
+    };
+
+    window.rejectCall = (fromId) => {
+        if (currentIncomingToast) currentIncomingToast.remove();
+        pendingOffer = null;
+        alert('❌ ზარი უარყოფილია');
+    };
+
+    async function setupPeerConnection(isCaller) {
+        if (peerConnection) peerConnection.close();
+        peerConnection = new RTCPeerConnection(configuration);
+        if (localStream) {
+            localStream.getTracks().forEach(track => { peerConnection.addTrack(track, localStream); });
+        }
+        peerConnection.ontrack = (event) => {
+            document.getElementById('remoteVideo').srcObject = event.streams[0];
+            document.getElementById('callStatus').innerHTML = '🎥🎤 ზარი აქტიურია (ხმა + ვიდეო)';
+        };
+        peerConnection.onconnectionstatechange = () => {
+            if (peerConnection.connectionState === 'connected') document.getElementById('callStatus').innerHTML = '🎥🎤 ზარი აქტიურია';
+            else if (peerConnection.connectionState === 'disconnected') document.getElementById('callStatus').innerHTML = '⚠️ კავშირი შეწყდა';
+            else if (peerConnection.connectionState === 'failed') document.getElementById('callStatus').innerHTML = '❌ კავშირი ვერ მოხერხდა';
+        };
+    }
+
+    window.toggleMic = () => {
+        if (!localStream) return;
+        isMicMuted = !isMicMuted;
+        const audioTrack = localStream.getAudioTracks()[0];
+        if (audioTrack) audioTrack.enabled = !isMicMuted;
+        const btn = document.getElementById('micBtn');
+        if (isMicMuted) { btn.classList.add('mic-off'); btn.innerHTML = '🎤❌'; }
+        else { btn.classList.remove('mic-off'); btn.innerHTML = '🎤'; }
+    };
+
+    window.toggleCamera = () => {
+        if (!localStream) return;
+        isCamOff = !isCamOff;
+        const videoTrack = localStream.getVideoTracks()[0];
+        if (videoTrack) videoTrack.enabled = !isCamOff;
+        const btn = document.getElementById('camBtn');
+        if (isCamOff) { btn.classList.add('cam-off'); btn.innerHTML = '📷❌'; }
+        else { btn.classList.remove('cam-off'); btn.innerHTML = '📷'; }
+    };
+
+    window.switchCamera = async () => {
+        if (!localStream) return;
+        currentCamera = currentCamera === 'user' ? 'environment' : 'user';
+        const newStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
+        const oldVideoTrack = localStream.getVideoTracks()[0];
+        const newVideoTrack = newStream.getVideoTracks()[0];
+        if (oldVideoTrack) { localStream.removeTrack(oldVideoTrack); oldVideoTrack.stop(); }
+        localStream.addTrack(newVideoTrack);
+        document.getElementById('localVideo').srcObject = localStream;
+        if (peerConnection && peerConnection.signalingState !== 'closed') {
+            const videoSender = peerConnection.getSenders().find(s => s.track?.kind === 'video');
+            if (videoSender) videoSender.replaceTrack(newVideoTrack);
+        }
+    };
+
+    window.setVolume = (val) => {
+        const remoteVideo = document.getElementById('remoteVideo');
+        if (remoteVideo) remoteVideo.volume = val / 100;
+    };
+
+    window.endCall = async () => {
+        if (callChannel?.subscribed) {
+            try { callChannel.send({ type: 'broadcast', event: 'end-call', payload: { to: currentCallWith } }); } catch(e) {}
+        }
+        if (peerConnection) { peerConnection.close(); peerConnection = null; }
+        if (localStream) { localStream.getTracks().forEach(track => track.stop()); localStream = null; }
+        if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} callChannel = null; }
+        currentCallWith = null;
+        document.getElementById('remoteVideo').srcObject = null;
+        document.getElementById('localVideo').srcObject = null;
+        document.getElementById('callStatus').innerHTML = '⚡ ზარი დასრულდა';
+        document.getElementById('joinArea').classList.remove('hidden');
+        document.getElementById('micBtn').innerHTML = '🎤';
+        document.getElementById('micBtn').classList.remove('mic-off');
+        document.getElementById('camBtn').innerHTML = '📷';
+        document.getElementById('camBtn').classList.remove('cam-off');
+    };
+
+    init();
+</script>
+</body>
+</html>
