@@ -702,7 +702,7 @@ let qrMode='chat';
 let notifPanelOpen=false;
 let pvCommentReplyTo=null;
 
-/* ========== VIDEO CALL VARIABLES ========== */
+/* ========== VIDEO CALL VARIABLES (FIXED) ========== */
 let peerConnection = null;
 let localStream = null;
 let currentCallWith = null;
@@ -710,9 +710,19 @@ let callChannel = null;
 let isMicMuted = false;
 let isCamOff = false;
 let currentCamera = 'user';
-let incomingCallTimeout = null;
+let ringtoneAudio = null;
 
-// WebRTC configuration
+function playRingtone() {
+  if (ringtoneAudio) { ringtoneAudio.pause(); ringtoneAudio = null; }
+  ringtoneAudio = new Audio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3');
+  ringtoneAudio.loop = true;
+  ringtoneAudio.play().catch(e => console.log("ringtone blocked", e));
+}
+
+function stopRingtone() {
+  if (ringtoneAudio) { ringtoneAudio.pause(); ringtoneAudio = null; }
+}
+
 const configuration = {
   iceServers: [
     { urls: 'stun:stun.l.google.com:19302' },
@@ -723,78 +733,54 @@ const configuration = {
   ]
 };
 
-// Global call function accessible from any user
 window.callUser = async (userId, username) => {
-  if (currentCallWith) {
-    toast('უკვე ზარზე ხარ!');
-    return;
-  }
-  if (userId === ME.id) {
-    toast('საკუთარ თავს ვერ დაურეკავ');
-    return;
-  }
+  if (currentCallWith) { toast('უკვე ზარზე ხარ!'); return; }
+  if (userId === ME.id) { toast('საკუთარ თავს ვერ დაურეკავ'); return; }
+  if (!userId) return;
   currentCallWith = userId;
   document.getElementById('callModal').classList.add('open');
   document.getElementById('callStatus').innerHTML = `📞 ${username}-თან დარეკვა...`;
-  
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
     document.getElementById('localVideo').srcObject = localStream;
     document.getElementById('localVideoContainer').style.display = 'block';
   } catch (err) {
-    console.error('Camera error:', err);
     document.getElementById('callStatus').innerHTML = '❌ კამერა/მიკროფონი ვერ ჩაირთო';
     endCall();
     return;
   }
-  
   const roomName = `call_${[ME.id, userId].sort().join('_')}`;
   if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} }
   callChannel = sb.channel(roomName);
-  
   await setupPeerConnection(true);
-  
   peerConnection.onicecandidate = (event) => {
     if (event.candidate && callChannel && callChannel.subscribed) {
       callChannel.send({ type: 'broadcast', event: 'ice-candidate', payload: { candidate: event.candidate, to: userId } });
     }
   };
-  
   const offer = await peerConnection.createOffer();
   await peerConnection.setLocalDescription(offer);
-  
   callChannel.on('broadcast', { event: 'answer' }, async ({ payload }) => {
     if (payload.to === ME.id && payload.answer) {
       await peerConnection.setRemoteDescription(new RTCSessionDescription(payload.answer));
     }
   });
-  
   callChannel.on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
     if (payload.to === ME.id && payload.candidate) {
-      try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) { console.error('ICE error:', e); }
+      try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) {}
     }
   });
-  
   callChannel.on('broadcast', { event: 'end-call' }, ({ payload }) => {
     if (payload.to === ME.id) { toast('📞 მოპირდაპირემ გათიშა ზარი'); endCall(); }
   });
-  
   await callChannel.subscribe();
-  
-  setTimeout(async () => {
+  setTimeout(() => {
     if (callChannel && callChannel.subscribed) {
       callChannel.send({ type: 'broadcast', event: 'offer', payload: { offer, from: ME.id, to: userId, callerName: MYPROF?.username } });
     }
   }, 500);
-  
-  setTimeout(() => {
-    if (currentCallWith === userId && peerConnection?.connectionState !== 'connected') {
-      document.getElementById('callStatus').innerHTML = '❓ მოპირდაპირე არ პასუხობს';
-    }
-  }, 20000);
 };
 
-// Listen for incoming calls globally
 function listenForIncomingCalls() {
   const incomingChannel = sb.channel(`incoming_calls_${ME.id}`);
   incomingChannel.on('broadcast', { event: 'offer' }, async ({ payload }) => {
@@ -808,9 +794,10 @@ function listenForIncomingCalls() {
 let currentIncomingToast = null;
 function showIncomingCall(fromId, callerName, offer) {
   if (currentIncomingToast) { currentIncomingToast.remove(); }
+  playRingtone();
   const toastDiv = document.createElement('div');
   toastDiv.className = 'incoming-call-toast';
-  toastDiv.innerHTML = `<div style="display:flex;align-items:center;gap:12px"><div style="font-size:32px">📞</div><div><div style="font-weight:bold">${esc(callerName)}</div><div style="font-size:12px;opacity:0.8">გირეკავთ...</div></div></div><div style="display:flex;gap:8px"><button class="accept" onclick="acceptIncomingCall('${fromId}', '${callerName}')">✅</button><button class="reject" onclick="rejectIncomingCall('${fromId}')">❌</button></div>`;
+  toastDiv.innerHTML = `<div><div style="font-weight:bold">${esc(callerName)}</div><div style="font-size:12px">გირეკავთ...</div></div><div><button class="accept" onclick="acceptIncomingCall('${fromId}', '${callerName}')">✅</button><button class="reject" onclick="rejectIncomingCall('${fromId}')">❌</button></div>`;
   document.body.appendChild(toastDiv);
   currentIncomingToast = toastDiv;
   window.pendingOffer = { fromId, callerName, offer };
@@ -819,52 +806,45 @@ function showIncomingCall(fromId, callerName, offer) {
       toastDiv.remove();
       currentIncomingToast = null;
       window.pendingOffer = null;
+      stopRingtone();
     }
   }, 30000);
 }
 
 window.acceptIncomingCall = async (fromId, callerName) => {
+  stopRingtone();
   if (currentIncomingToast) { currentIncomingToast.remove(); currentIncomingToast = null; }
   if (!window.pendingOffer) return;
   currentCallWith = fromId;
   document.getElementById('callModal').classList.add('open');
   document.getElementById('callStatus').innerHTML = `📞 ${callerName}-თან კავშირი...`;
-  
   try {
     localStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: currentCamera }, audio: true });
     document.getElementById('localVideo').srcObject = localStream;
     document.getElementById('localVideoContainer').style.display = 'block';
   } catch (err) {
-    console.error('Camera error:', err);
     document.getElementById('callStatus').innerHTML = '❌ კამერა/მიკროფონი ვერ ჩაირთო';
     endCall();
     return;
   }
-  
   const roomName = `call_${[ME.id, fromId].sort().join('_')}`;
   if (callChannel) { try { await sb.removeChannel(callChannel); } catch(e) {} }
   callChannel = sb.channel(roomName);
-  
   await setupPeerConnection(false);
-  
   peerConnection.onicecandidate = (event) => {
     if (event.candidate && callChannel && callChannel.subscribed) {
       callChannel.send({ type: 'broadcast', event: 'ice-candidate', payload: { candidate: event.candidate, to: fromId } });
     }
   };
-  
   callChannel.on('broadcast', { event: 'ice-candidate' }, async ({ payload }) => {
     if (payload.to === ME.id && payload.candidate) {
-      try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) { console.error('ICE error:', e); }
+      try { await peerConnection.addIceCandidate(new RTCIceCandidate(payload.candidate)); } catch(e) {}
     }
   });
-  
   callChannel.on('broadcast', { event: 'end-call' }, ({ payload }) => {
     if (payload.to === ME.id) { toast('📞 მოპირდაპირემ გათიშა ზარი'); endCall(); }
   });
-  
   await callChannel.subscribe();
-  
   await peerConnection.setRemoteDescription(new RTCSessionDescription(window.pendingOffer.offer));
   const answer = await peerConnection.createAnswer();
   await peerConnection.setLocalDescription(answer);
@@ -873,6 +853,7 @@ window.acceptIncomingCall = async (fromId, callerName) => {
 };
 
 window.rejectIncomingCall = (fromId) => {
+  stopRingtone();
   if (currentIncomingToast) { currentIncomingToast.remove(); currentIncomingToast = null; }
   window.pendingOffer = null;
   toast('❌ ზარი უარყოფილია');
@@ -881,16 +862,13 @@ window.rejectIncomingCall = (fromId) => {
 async function setupPeerConnection(isCaller) {
   if (peerConnection) { peerConnection.close(); }
   peerConnection = new RTCPeerConnection(configuration);
-  
   if (localStream) {
     localStream.getTracks().forEach(track => { peerConnection.addTrack(track, localStream); });
   }
-  
   peerConnection.ontrack = (event) => {
     document.getElementById('remoteVideo').srcObject = event.streams[0];
     document.getElementById('callStatus').innerHTML = '🎥 ზარი აქტიურია';
   };
-  
   peerConnection.onconnectionstatechange = () => {
     if (peerConnection.connectionState === 'connected') document.getElementById('callStatus').innerHTML = '🎥 ზარი აქტიურია';
     else if (peerConnection.connectionState === 'disconnected') document.getElementById('callStatus').innerHTML = '⚠️ კავშირი შეწყდა';
@@ -904,8 +882,9 @@ window.toggleCallMic = () => {
   const audioTrack = localStream.getAudioTracks()[0];
   if (audioTrack) audioTrack.enabled = !isMicMuted;
   const btn = document.getElementById('callMicBtn');
-  if (isMicMuted) { btn.classList.add('mic-off'); btn.innerHTML = '🎤❌'; }
-  else { btn.classList.remove('mic-off'); btn.innerHTML = '🎤'; }
+  btn.innerHTML = isMicMuted ? '🎤❌' : '🎤';
+  if (isMicMuted) btn.classList.add('mic-off');
+  else btn.classList.remove('mic-off');
 };
 
 window.toggleCallCamera = () => {
@@ -914,8 +893,9 @@ window.toggleCallCamera = () => {
   const videoTrack = localStream.getVideoTracks()[0];
   if (videoTrack) videoTrack.enabled = !isCamOff;
   const btn = document.getElementById('callCamBtn');
-  if (isCamOff) { btn.classList.add('cam-off'); btn.innerHTML = '📷❌'; }
-  else { btn.classList.remove('cam-off'); btn.innerHTML = '📷'; }
+  btn.innerHTML = isCamOff ? '📷❌' : '📷';
+  if (isCamOff) btn.classList.add('cam-off');
+  else btn.classList.remove('cam-off');
 };
 
 window.switchCallCamera = async () => {
@@ -933,12 +913,11 @@ window.switchCallCamera = async () => {
       const videoSender = senders.find(s => s.track?.kind === 'video');
       if (videoSender) videoSender.replaceTrack(newVideoTrack);
     }
-  } catch (err) {
-    console.error('Camera switch error:', err);
-  }
+  } catch (err) { console.error(err); }
 };
 
 window.endCall = async () => {
+  stopRingtone();
   if (callChannel && callChannel.subscribed) {
     try { callChannel.send({ type: 'broadcast', event: 'end-call', payload: { to: currentCallWith } }); } catch(e) {}
   }
@@ -958,61 +937,64 @@ window.endCall = async () => {
   toast('📞 ზარი დასრულდა');
 };
 
-// Add video call button to friends list items
-function addVideoCallButtonToUserItem(item, userId, username) {
-  const existingBtn = item.querySelector('.video-call-btn');
-  if (existingBtn) existingBtn.remove();
-  const callBtn = document.createElement('button');
-  callBtn.innerHTML = '🎥';
-  callBtn.className = 'video-call-btn';
-  callBtn.title = 'ვიდეოზარი';
-  callBtn.style.cssText = 'background:#4a90e2;margin-left:8px;padding:4px 10px;border-radius:8px;border:none;color:white;cursor:pointer;font-size:12px';
-  callBtn.onclick = (e) => {
-    e.stopPropagation();
-    callUser(userId, username);
+/* ========== ADD CALL BUTTONS TO DM HEADER (ONLY DM, BEFORE MINIMIZE) ========== */
+function addCallButtonsToDMHeader() {
+  const dmHead = document.querySelector('#dmBox .dm-head');
+  if (!dmHead || dmHead.querySelector('.dm-call-btn-group')) return;
+  const btnGroup = document.createElement('div');
+  btnGroup.className = 'dm-call-btn-group';
+  btnGroup.style.cssText = 'display:flex;gap:6px;margin-right:6px';
+  
+  const audioCallBtn = document.createElement('button');
+  audioCallBtn.innerHTML = '🎧';
+  audioCallBtn.className = 'dm-call-btn';
+  audioCallBtn.title = 'აუდიო ზარი';
+  audioCallBtn.style.cssText = 'background:#2ecc71;border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:14px;color:#fff';
+  audioCallBtn.onclick = (e) => { 
+    e.stopPropagation(); 
+    if (DM_UID) callUser(DM_UID, document.getElementById('dmTitle')?.innerText || '?'); 
   };
-  const info = item.querySelector('.list-info');
-  if (info) {
-    const btnContainer = info.querySelector('.video-btn-container');
-    if (btnContainer) btnContainer.remove();
-    const container = document.createElement('div');
-    container.className = 'video-btn-container';
-    container.style.cssText = 'margin-top:5px;display:flex;gap:6px';
-    container.appendChild(callBtn);
-    info.appendChild(container);
+  
+  const videoCallBtn = document.createElement('button');
+  videoCallBtn.innerHTML = '📷';
+  videoCallBtn.className = 'dm-call-btn';
+  videoCallBtn.title = 'ვიდეოზარი';
+  videoCallBtn.style.cssText = 'background:#3498db;border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:14px;color:#fff';
+  videoCallBtn.onclick = (e) => { 
+    e.stopPropagation(); 
+    if (DM_UID) callUser(DM_UID, document.getElementById('dmTitle')?.innerText || '?'); 
+  };
+  
+  btnGroup.appendChild(audioCallBtn);
+  btnGroup.appendChild(videoCallBtn);
+  
+  const minBtn = dmHead.querySelector('.dm-min');
+  if (minBtn) {
+    dmHead.insertBefore(btnGroup, minBtn);
+  } else {
+    const headBtns = dmHead.querySelector('.dm-head-btns');
+    if (headBtns) dmHead.insertBefore(btnGroup, headBtns);
+    else dmHead.appendChild(btnGroup);
   }
 }
 
-// Override makeUserItem to include video call button
-const originalMakeUserItem = makeUserItem;
-window.makeUserItem = function(u) {
-  const item = originalMakeUserItem(u);
-  addVideoCallButtonToUserItem(item, u.id, u.username);
-  return item;
+// Override openDM to add buttons after DM opens
+const originalOpenDM = openDM;
+openDM = async function(uid) {
+  await originalOpenDM(uid);
+  setTimeout(addCallButtonsToDMHeader, 100);
 };
 
-// Add video call button to DM list items
-const originalRenderDMList = renderDMList;
-window.renderDMList = function() {
-  originalRenderDMList();
-  setTimeout(() => {
-    document.querySelectorAll('.dm-list-item').forEach(item => {
-      const userId = item._userId;
-      const username = item._username;
-      if (userId && username && !item.querySelector('.dm-call-btn')) {
-        const callBtn = document.createElement('button');
-        callBtn.innerHTML = '🎥';
-        callBtn.className = 'dm-call-btn';
-        callBtn.style.cssText = 'background:#4a90e2;margin-left:auto;padding:4px 10px;border-radius:8px;border:none;color:white;cursor:pointer;font-size:12px;flex-shrink:0';
-        callBtn.onclick = (e) => {
-          e.stopPropagation();
-          callUser(userId, username);
-        };
-        item.appendChild(callBtn);
-      }
-    });
-  }, 100);
-};
+// Also watch for DM box opening
+setInterval(() => {
+  if (document.getElementById('dmBox')?.classList.contains('open')) {
+    addCallButtonsToDMHeader();
+  }
+}, 500);
+
+// ==================================================================
+// ALL YOUR EXISTING FUNCTIONS GO HERE (keep everything as is)
+// ==================================================================
 
 /* ===================== NOTIFICATIONS ===================== */
 async function loadNotifications(){
@@ -1688,7 +1670,6 @@ function makeUserItem(u){
   const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover">`:(u.emotion||'😊');
   d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(u.username||'?')}</div>${u.status?`<div class="list-sub">${esc(u.status)}</div>`:''}</div>`;
   d.onclick=()=>openProfile(u.id);
-  addVideoCallButtonToUserItem(d, u.id, u.username);
   d._userId = u.id;
   d._username = u.username;
   return d;
@@ -1699,7 +1680,7 @@ async function pingOnline(){if(!ME)return;await sb.from('profiles').update({last
 /* ===================== DM ===================== */
 async function loadDMConversations(){const{data}=await sb.from('direct_messages').select('sender_id,receiver_id,content,created_at,is_read').or(`sender_id.eq.${ME.id},receiver_id.eq.${ME.id}`).order('created_at',{ascending:false});if(!data)return;const seen=new Set();for(const m of data){const partnerId=m.sender_id===ME.id?m.receiver_id:m.sender_id;if(seen.has(partnerId))continue;seen.add(partnerId);let partner=allUsers.find(u=>u.id===partnerId);if(!partner){const{data:pd}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',partnerId).single();if(pd){partner=pd;allUsers.push(pd);}}if(!partner)continue;dmConversations[partnerId]={nick:partner.username||'?',avatar:partner.avatar_url||null,emotion:partner.emotion||'😊',lastMsg:m.content||'',lastTime:m.created_at};}}
 function openDMList(){document.getElementById('dmListOverlay').classList.add('open');renderDMList();}
-function renderDMList(){const el=document.getElementById('dmUserList');el.innerHTML='';const entries=Object.entries(dmConversations);if(!entries.length){el.innerHTML='<div class="dm-list-empty">✉️ ჯერ პირადი შეტყობინება არ გაქვს</div>';return;}entries.sort((a,b)=>new Date(b[1].lastTime)-new Date(a[1].lastTime));const frag=document.createDocumentFragment();for(const [uid,conv] of entries){const d=document.createElement('div');d.className='dm-list-item';const on=isOnline(allUsers.find(u=>u.id===uid)?.last_seen);const avHtml=conv.avatar?`<img src="${conv.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(conv.emotion||'😊');const unreadInfo=dmUnread[uid];const unreadHtml=unreadInfo&&unreadInfo.count>0?`<div class="dm-unread-badge">${unreadInfo.count}</div>`:'';let preview=conv.lastMsg||'';if(preview.startsWith('[voice:'))preview='🎙️ ვოისი';else if(preview.startsWith('[dmimg]'))preview='📷 ფოტო';else if(preview.startsWith('[dmfile:'))preview='📎 ფაილი';else if(preview.startsWith('[reply:'))preview=preview.replace(/^\[reply:[^\]]+\][^\]]*\]/,'').substring(0,30);else preview=preview.substring(0,30);d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(conv.nick)}</div><div class="dm-list-last">${esc(preview)}</div></div>${unreadHtml}`;const callBtn=document.createElement('button');callBtn.innerHTML='🎥';callBtn.className='dm-call-btn';callBtn.style.cssText='background:#4a90e2;margin-left:auto;padding:4px 10px;border-radius:8px;border:none;color:white;cursor:pointer;font-size:12px;flex-shrink:0';callBtn.onclick=(e)=>{e.stopPropagation();callUser(uid,conv.nick);};d.appendChild(callBtn);d.onclick=()=>{closeDMList();openDM(uid);};frag.appendChild(d);}el.appendChild(frag);}
+function renderDMList(){const el=document.getElementById('dmUserList');el.innerHTML='';const entries=Object.entries(dmConversations);if(!entries.length){el.innerHTML='<div class="dm-list-empty">✉️ ჯერ პირადი შეტყობინება არ გაქვს</div>';return;}entries.sort((a,b)=>new Date(b[1].lastTime)-new Date(a[1].lastTime));const frag=document.createDocumentFragment();for(const [uid,conv] of entries){const d=document.createElement('div');d.className='dm-list-item';const on=isOnline(allUsers.find(u=>u.id===uid)?.last_seen);const avHtml=conv.avatar?`<img src="${conv.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(conv.emotion||'😊');const unreadInfo=dmUnread[uid];const unreadHtml=unreadInfo&&unreadInfo.count>0?`<div class="dm-unread-badge">${unreadInfo.count}</div>`:'';let preview=conv.lastMsg||'';if(preview.startsWith('[voice:'))preview='🎙️ ვოისი';else if(preview.startsWith('[dmimg]'))preview='📷 ფოტო';else if(preview.startsWith('[dmfile:'))preview='📎 ფაილი';else if(preview.startsWith('[reply:'))preview=preview.replace(/^\[reply:[^\]]+\][^\]]*\]/,'').substring(0,30);else preview=preview.substring(0,30);d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(conv.nick)}</div><div class="dm-list-last">${esc(preview)}</div></div>${unreadHtml}`;d.onclick=()=>{closeDMList();openDM(uid);};frag.appendChild(d);}el.appendChild(frag);}
 function closeDMList(){document.getElementById('dmListOverlay').classList.remove('open');}
 function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
 function toggleDMMinimize(e){if(e&&e.target.closest('.dm-head-btns'))return;dmMinimized=!dmMinimized;document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);document.getElementById('dmMinBtn').textContent=dmMinimized?'▲':'—';if(!dmMinimized){removeDMTyping();renderDMTyping();}}
@@ -1810,6 +1791,8 @@ async function init(){
     .subscribe();
   setTimeout(()=>toast('👋 გამარჯობა, '+(MYPROF?.username||'')+'!'),800);
 }
+
+window.addEventListener('beforeunload', () => stopRingtone());
 init();
 </script>
 </body>
