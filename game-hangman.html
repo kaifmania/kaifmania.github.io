@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>ჩამოხრჩობა 🪢</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0f1e;--panel:#111827;--panel2:#1a2234;
+  --border:rgba(251,191,36,0.25);--text:#fff8e7;--text2:#d4a030;--text3:#7a6030;
+  --accent:#fbbf24;--indigo:#92400e;--indigo2:#d97706;
+  --indigo-f:rgba(251,191,36,0.12);--glow:rgba(251,191,36,0.3);
+  --green:#4ade80;--red:#f87171;--rope:#a0522d;
+}
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;
+  display:flex;flex-direction:column;align-items:center;
+  padding:8px 12px 40px;
+  overflow-x:hidden;
+}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 0%,rgba(251,191,36,0.08),transparent),radial-gradient(ellipse 50% 40% at 80% 80%,rgba(146,64,14,0.1),transparent);pointer-events:none;z-index:0}
+
+.back-btn{position:fixed;top:10px;left:10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:11px;padding:6px 12px;cursor:pointer;z-index:100;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif;text-decoration:none;display:flex;align-items:center;gap:5px}
+.back-btn:hover{background:var(--indigo2);color:#fff}
+
+.game-header{text-align:center;margin:6px 0 10px;position:relative;z-index:1}
+.game-logo{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--accent);text-shadow:0 0 30px rgba(251,191,36,.4);letter-spacing:1px;margin-bottom:2px}
+.game-sub{font-size:9px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-family:'Unbounded',sans-serif}
+
+.score-strip{display:flex;gap:6px;margin-bottom:10px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
+.sc-card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:6px 12px;text-align:center;min-width:68px}
+.sc-label{font-size:8px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px}
+.sc-val{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;color:var(--accent)}
+
+/* მთავარი layout — ვერტიკალური */
+.main-grid{display:flex;flex-direction:column;gap:10px;width:100%;max-width:480px;position:relative;z-index:1}
+
+/* SVG + ინფო გვერდიგვერდ */
+.gallows-row{display:flex;gap:10px;align-items:flex-start;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;box-shadow:0 4px 20px rgba(0,0,0,.4)}
+#gallowsSvg{width:120px;height:130px;flex-shrink:0}
+.gallows-wood{stroke:#8B6914;stroke-width:4;stroke-linecap:round;fill:none}
+.rope-line{stroke:var(--rope);stroke-width:2.5;stroke-linecap:round}
+.body-part{stroke:#fbbf24;stroke-width:3.5;stroke-linecap:round;fill:none;opacity:0;transition:opacity .2s}
+.body-part.visible{opacity:1;animation:partAppear .3s cubic-bezier(.2,1.5,.4,1)}
+.head-circle{fill:none;stroke:#fbbf24;stroke-width:3.5;opacity:0;transition:opacity .2s}
+.head-circle.visible{opacity:1;animation:partAppear .3s cubic-bezier(.2,1.5,.4,1)}
+.dead-eye{opacity:0;transition:opacity .3s}
+.dead-eye.visible{opacity:1}
+
+@keyframes swing{0%,100%{transform-origin:84px 28px;transform:rotate(-3deg)}50%{transform-origin:84px 28px;transform:rotate(3deg)}}
+@keyframes partAppear{from{transform:scale(0.5);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes deathShake{0%,100%{transform:translateX(0)}20%{transform:translateX(-6px)}40%{transform:translateX(6px)}60%{transform:translateX(-4px)}80%{transform:translateX(4px)}}
+@keyframes winPulse{0%,100%{filter:drop-shadow(0 0 6px rgba(74,222,128,.3))}50%{filter:drop-shadow(0 0 16px rgba(74,222,128,.7))}}
+.figure-group.swinging{animation:swing 2s ease-in-out infinite}
+.figure-group.dead{animation:deathShake .6s ease}
+.figure-group.won{animation:winPulse 1.5s ease infinite}
+
+.gallows-info{flex:1;display:flex;flex-direction:column;gap:8px;padding-top:4px}
+.lives-row{display:flex;gap:5px;flex-wrap:wrap}
+.life-dot{width:13px;height:13px;border-radius:50%;background:var(--accent);transition:all .3s;box-shadow:0 0 6px var(--glow)}
+.life-dot.lost{background:#374151;box-shadow:none}
+.wrong-label{font-size:9px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px;text-transform:uppercase}
+.wrong-letters{display:flex;flex-wrap:wrap;gap:4px}
+.wrong-chip{background:rgba(248,113,113,.15);border:1px solid rgba(248,113,113,.4);border-radius:6px;padding:3px 8px;font-size:13px;font-weight:700;color:var(--red);font-family:'Noto Sans Georgian',sans-serif}
+
+/* სიტყვა + კლავიატურა */
+.word-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:14px;box-shadow:0 4px 20px rgba(0,0,0,.4);display:flex;flex-direction:column;gap:10px}
+.top-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px}
+.category-badge{font-size:9px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);background:var(--indigo-f);border:1px solid var(--border);padding:3px 10px;border-radius:20px;text-transform:uppercase}
+.streak-badge{display:inline-flex;align-items:center;gap:3px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:20px;padding:3px 10px;font-size:10px;color:var(--accent);font-family:'Unbounded',sans-serif;font-weight:700}
+.streak-badge.hidden{opacity:0;pointer-events:none}
+
+.hint-row{display:flex;align-items:center;gap:8px}
+.hint-text{background:rgba(251,191,36,.08);border:1px solid var(--border);border-radius:10px;padding:7px 10px;font-size:12px;color:var(--text2);display:none;line-height:1.5;flex:1}
+.hint-text.show{display:block}
+.hint-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:11px;padding:6px 10px;cursor:pointer;white-space:nowrap;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif;flex-shrink:0}
+.hint-btn:hover{background:var(--indigo2);color:#fff}
+.hint-btn:disabled{opacity:.4;cursor:not-allowed}
+
+.word-slots{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;padding:4px 0}
+.letter-slot{width:36px;height:44px;border-bottom:3px solid var(--accent);display:flex;align-items:flex-end;justify-content:center;padding-bottom:3px;font-family:'Noto Sans Georgian',sans-serif;font-size:20px;font-weight:700;color:var(--text);transition:all .3s}
+.letter-slot.revealed{border-bottom-color:var(--green);animation:revealPop .35s cubic-bezier(.2,1.5,.4,1)}
+.letter-slot.wrong-reveal{border-bottom-color:var(--red)}
+@keyframes revealPop{0%{transform:translateY(-8px) scale(1.3);opacity:0}60%{transform:translateY(2px)}100%{transform:translateY(0) scale(1);opacity:1}}
+
+/* კლავიატურა — 6 სვეტი */
+.keyboard{display:grid;grid-template-columns:repeat(6,1fr);gap:5px}
+.key-btn{
+  height:44px;border-radius:10px;
+  background:var(--panel2);border:1px solid var(--border);
+  color:var(--text);font-family:'Noto Sans Georgian',sans-serif;
+  font-size:17px;font-weight:700;cursor:pointer;
+  transition:all .15s;display:flex;align-items:center;justify-content:center;
+  -webkit-tap-highlight-color:transparent;touch-action:manipulation;
+}
+.key-btn:active:not(:disabled){transform:scale(.88);background:var(--indigo-f)}
+.key-btn.correct{background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.5);color:var(--green);cursor:not-allowed}
+.key-btn.wrong{background:rgba(248,113,113,.08);border-color:rgba(248,113,113,.2);color:#4b5563;cursor:not-allowed}
+.key-btn:disabled{cursor:not-allowed}
+
+.progress-bar{width:100%;height:3px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--indigo2),var(--accent));border-radius:4px;transition:width .5s ease}
+
+/* შედეგი */
+.result-overlay{position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(12px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;padding:16px}
+.result-overlay.show{opacity:1;pointer-events:all}
+.result-card{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:24px 20px;text-align:center;max-width:340px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.7);animation:popIn .4s cubic-bezier(.22,1.5,.4,1)}
+.result-emoji{font-size:54px;display:block;margin-bottom:8px;line-height:1}
+.result-title{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;margin-bottom:6px}
+.result-title.win{color:var(--green)}
+.result-title.lose{color:var(--red)}
+.result-word{font-size:24px;font-weight:700;color:var(--accent);margin:8px 0;letter-spacing:3px;font-family:'Noto Sans Georgian',sans-serif}
+.result-info{font-size:13px;color:var(--text2);margin-bottom:18px;line-height:1.6}
+.btn-row{display:flex;gap:10px}
+.btn{flex:1;padding:12px;border-radius:12px;border:1px solid var(--border);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;font-weight:600}
+.btn-primary{background:linear-gradient(135deg,#92400e,#d97706);border:none;color:#fff;box-shadow:0 4px 18px rgba(217,119,6,.4)}
+.btn-primary:active{transform:scale(.97)}
+
+/* ლიდერბორდი */
+.lb-section{width:100%;max-width:480px;margin-top:12px;position:relative;z-index:1}
+.lb-wrap{background:var(--panel);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.lb-head{background:var(--indigo-f);padding:10px 14px;font-family:'Unbounded',sans-serif;font-size:8px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;display:flex;align-items:center;gap:6px;border-bottom:1px solid var(--border)}
+.lb-row{display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid var(--border);transition:background .15s}
+.lb-row:last-child{border-bottom:none}
+.lb-rank{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;width:26px;text-align:center}
+.rank-1{color:#ffd040}.rank-2{color:#c8c8c8}.rank-3{color:#c88040}
+.lb-name{flex:1;font-size:13px;color:var(--text)}
+.lb-score{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--accent)}
+
+@keyframes popIn{from{opacity:0;transform:scale(.7) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes scoreFloat{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-60px) scale(1.4)}}
+.floating-score{position:fixed;font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--green);text-shadow:0 0 20px rgba(74,222,128,.5);pointer-events:none;z-index:9999;animation:scoreFloat 1s ease forwards}
+</style>
+</head>
+<body>
+
+<a class="back-btn" href="javascript:window.close()">← უკან</a>
+
+<div class="game-header">
+  <div class="game-logo">🪢 ჩამოხრჩობა</div>
+  <div class="game-sub">გამოიცანი სიტყვა · 6 შანსი</div>
+</div>
+
+<div class="score-strip">
+  <div class="sc-card"><div class="sc-label">ქულა</div><div class="sc-val" id="scoreVal">0</div></div>
+  <div class="sc-card"><div class="sc-label">სწორი</div><div class="sc-val" style="color:var(--green)" id="correctVal">0</div></div>
+  <div class="sc-card"><div class="sc-label">N</div><div class="sc-val" style="color:var(--text2)" id="wordNum">1</div></div>
+  <div class="sc-card"><div class="sc-label">სტრიქი</div><div class="sc-val" style="color:var(--accent)" id="streakVal">0🔥</div></div>
+</div>
+
+<div class="main-grid">
+
+  <div class="gallows-row">
+    <svg id="gallowsSvg" viewBox="0 0 120 130">
+      <line x1="10" y1="125" x2="110" y2="125" class="gallows-wood"/>
+      <line x1="35" y1="125" x2="35" y2="10" class="gallows-wood"/>
+      <line x1="35" y1="10" x2="84" y2="10" class="gallows-wood"/>
+      <line x1="35" y1="25" x2="52" y2="10" class="gallows-wood" style="stroke-width:2.5"/>
+      <line x1="84" y1="10" x2="84" y2="27" class="rope-line"/>
+      <g class="figure-group" id="figureGroup">
+        <circle cx="84" cy="36" r="9" class="head-circle" id="headEl"/>
+        <g id="deadEyes">
+          <line x1="79" y1="32" x2="83" y2="36" class="dead-eye" id="de1" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+          <line x1="83" y1="32" x2="79" y2="36" class="dead-eye" id="de2" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+          <line x1="85" y1="32" x2="89" y2="36" class="dead-eye" id="de3" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+          <line x1="89" y1="32" x2="85" y2="36" class="dead-eye" id="de4" stroke="#f87171" stroke-width="2" stroke-linecap="round"/>
+        </g>
+        <g id="happyEyes">
+          <circle cx="80" cy="33" r="1.5" fill="#fbbf24" opacity="0" id="he1"/>
+          <circle cx="88" cy="33" r="1.5" fill="#fbbf24" opacity="0" id="he2"/>
+          <path d="M80 38 Q84 41 88 38" stroke="#fbbf24" stroke-width="1.5" fill="none" stroke-linecap="round" opacity="0" id="smile"/>
+        </g>
+        <line x1="84" y1="45" x2="84" y2="76" class="body-part" id="bodyEl"/>
+        <line x1="84" y1="52" x2="68" y2="66" class="body-part" id="armLEl"/>
+        <line x1="84" y1="52" x2="100" y2="66" class="body-part" id="armREl"/>
+        <line x1="84" y1="76" x2="68" y2="98" class="body-part" id="legLEl"/>
+        <line x1="84" y1="76" x2="100" y2="98" class="body-part" id="legREl"/>
+      </g>
+    </svg>
+
+    <div class="gallows-info">
+      <div class="lives-row" id="livesRow"></div>
+      <div class="wrong-label">შეცდომები</div>
+      <div class="wrong-letters" id="wrongLetters"></div>
+    </div>
+  </div>
+
+  <div class="word-card">
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="top-row">
+      <span class="category-badge" id="catBadge">კატეგორია</span>
+      <div class="streak-badge hidden" id="streakBadge">🔥 <span id="streakText">0</span></div>
+    </div>
+    <div class="hint-row">
+      <div class="hint-text" id="hintText"></div>
+      <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 (<span id="hintCount">3</span>)</button>
+    </div>
+    <div class="word-slots" id="wordSlots"></div>
+    <div class="keyboard" id="keyboard"></div>
+  </div>
+
+</div>
+
+<div class="lb-section">
+  <div class="lb-wrap">
+    <div class="lb-head">🏆 ტოპ 10 · ჩამოხრჩობა</div>
+    <div id="lbContainer"></div>
+  </div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">გამარჯვება!</div>
+    <div class="result-word" id="resultWord"></div>
+    <div class="result-info" id="resultInfo"></div>
+    <div class="btn-row">
+      <button class="btn btn-primary" onclick="nextWord()">➡ შემდეგი</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+const WORDS = [
+  {w:"თამარი",cat:"ისტორია",hint:"საქართველოს ოქრის ხანის დედოფალი"},
+  {w:"რუსთაველი",cat:"ისტორია",hint:"ვეფხისტყაოსნის ავტორი"},
+  {w:"მცხეთა",cat:"ისტორია",hint:"ქართლის სამეფოს ძველი დედაქალაქი"},
+  {w:"ნინო",cat:"ისტორია",hint:"საქართველოს განმანათლებელი"},
+  {w:"სვეტიცხოვლი",cat:"ისტორია",hint:"მცხეთის მთავარი ტაძარი"},
+  {w:"ვარძია",cat:"ისტორია",hint:"კლდეში ნაკვეთი ქალაქი-მონასტერი"},
+  {w:"გელათი",cat:"ისტორია",hint:"დავით აღმაშენებლის მონასტერი"},
+  {w:"ნარიყალა",cat:"ისტორია",hint:"თბილისის ციხე"},
+  {w:"ბიჭვინთა",cat:"ისტორია",hint:"აფხაზეთის ძველი ქალაქი"},
+  {w:"მტკვარი",cat:"გეოგრაფია",hint:"თბილისის მდინარე"},
+  {w:"ალაზანი",cat:"გეოგრაფია",hint:"კახეთის მდინარე"},
+  {w:"ყაზბეგი",cat:"გეოგრაფია",hint:"5047 მ. ქართული მთა"},
+  {w:"სვანეთი",cat:"გეოგრაფია",hint:"მესტია, ლენტეხი — მხარე"},
+  {w:"კახეთი",cat:"გეოგრაფია",hint:"ყურძნის მხარე"},
+  {w:"სამეგრელო",cat:"გეოგრაფია",hint:"ზუგდიდი — ცენტრი"},
+  {w:"გურია",cat:"გეოგრაფია",hint:"ოზურგეთი — ცენტრი"},
+  {w:"იმერეთი",cat:"გეოგრაფია",hint:"ქუთაისი — ცენტრი"},
+  {w:"ბათუმი",cat:"გეოგრაფია",hint:"შავი ზღვის პორტი"},
+  {w:"სიღნაღი",cat:"გეოგრაფია",hint:"სიყვარულის ქალაქი"},
+  {w:"ტელავი",cat:"გეოგრაფია",hint:"კახეთის ცენტრი"},
+  {w:"ამბროლაური",cat:"გეოგრაფია",hint:"რაჭის ცენტრი"},
+  {w:"ევოლუცია",cat:"ბიოლოგია",hint:"სახეობების განვითარება"},
+  {w:"ფოტოსინთეზი",cat:"ბიოლოგია",hint:"მცენარეები მზიდან ენერგიას"},
+  {w:"ვირუსი",cat:"ბიოლოგია",hint:"პატარა პარაზიტი"},
+  {w:"ბაქტერია",cat:"ბიოლოგია",hint:"ერთუჯრედიანი ორგანიზმი"},
+  {w:"ნეირონი",cat:"ბიოლოგია",hint:"ნერვული უჯრედი"},
+  {w:"ქლოროფილი",cat:"ბიოლოგია",hint:"მცენარის მწვანე პიგმენტი"},
+  {w:"გრავიტაცია",cat:"ფიზიკა",hint:"ნიუტონმა აღმოაჩინა"},
+  {w:"ინერცია",cat:"ფიზიკა",hint:"სხეული მოძრაობას ინარჩუნებს"},
+  {w:"კვანტი",cat:"ფიზიკა",hint:"ენერგიის მინიმალური ნაწილი"},
+  {w:"ფოტონი",cat:"ფიზიკა",hint:"სინათლის ნაწილაკი"},
+  {w:"ელექტრონი",cat:"ფიზიკა",hint:"ბირთვის გარშემო"},
+  {w:"ხინკალი",cat:"სამზარეულო",hint:"ხორცით სავსე ცომი"},
+  {w:"ხაჭაპური",cat:"სამზარეულო",hint:"ყველიანი პური"},
+  {w:"ჩახოხბილი",cat:"სამზარეულო",hint:"ქათმის კერძი"},
+  {w:"საცივი",cat:"სამზარეულო",hint:"ნიგვზიანი სოუსი"},
+  {w:"ლობიანი",cat:"სამზარეულო",hint:"ლობიოს პური"},
+  {w:"ჩვიშტარი",cat:"სამზარეულო",hint:"სიმინდის პური ყველით"},
+  {w:"სულგუნი",cat:"სამზარეულო",hint:"სამეგრელოს ყველი"},
+  {w:"ტყემალი",cat:"სამზარეულო",hint:"მჟავე სოუსი"},
+  {w:"ფხალი",cat:"სამზარეულო",hint:"ნიგვზიანი ბოსტნეული"},
+  {w:"ვეფხისტყაოსანი",cat:"ლიტერატურა",hint:"ქართული ეპოსი"},
+  {w:"ტარიელი",cat:"ლიტერატურა",hint:"ვეფხისტყაოსნის გმირი"},
+  {w:"ავთანდილი",cat:"ლიტერატურა",hint:"ვეფხისტყაოსნის მეომარი"},
+  {w:"ნესტანი",cat:"ლიტერატურა",hint:"ვეფხისტყაოსნის გოგო"},
+  {w:"ილია",cat:"ლიტერატურა",hint:"ჭავჭავაძე — ეროვნული გმირი"},
+  {w:"აკაკი",cat:"ლიტერატურა",hint:"წერეთელი — პოეტი"},
+  {w:"ვაჟა",cat:"ლიტერატურა",hint:"ფშაველა — მთის პოეტი"},
+  {w:"გალაკტიონი",cat:"ლიტერატურა",hint:"ტაბიძე — პოეტი"},
+  {w:"ნოდარი",cat:"ლიტერატურა",hint:"დუმბაძე — მწერალი"},
+  {w:"ნებულა",cat:"კოსმოსი",hint:"ვარსკვლავთა ღრუბელი"},
+  {w:"სუპერნოვა",cat:"კოსმოსი",hint:"ვარსკვლავის აფეთქება"},
+  {w:"ავრორა",cat:"კოსმოსი",hint:"ჩრდილოეთის შუქი"},
+  {w:"ეკლიპსი",cat:"კოსმოსი",hint:"მზის ან მთვარის დაბნელება"},
+  {w:"ორიონი",cat:"კოსმოსი",hint:"ნადირის თანავარსკვლავედი"},
+  {w:"პლუტონი",cat:"კოსმოსი",hint:"ყოფილი 9 პლანეტა"},
+  {w:"მარსი",cat:"კოსმოსი",hint:"წითელი პლანეტა"},
+  {w:"სატურნი",cat:"კოსმოსი",hint:"რგოლებიანი პლანეტა"},
+  {w:"იუპიტერი",cat:"კოსმოსი",hint:"უდიდესი პლანეტა"},
+  {w:"ვენერა",cat:"კოსმოსი",hint:"ყველაზე ცხელი პლანეტა"},
+  {w:"ნეპტუნი",cat:"კოსმოსი",hint:"ყველაზე შორი პლანეტა"},
+  {w:"ალგორითმი",cat:"ტექნო",hint:"ნაბიჯ-ნაბიჯ გამოთვლა"},
+  {w:"ბრაუზერი",cat:"ტექნო",hint:"ინტერნეტის სანახი"},
+  {w:"სერვერი",cat:"ტექნო",hint:"ინფორმაციის შემნახველი"},
+  {w:"ჰაკერი",cat:"ტექნო",hint:"სისტემაში შეიჭრება"},
+  {w:"კრიპტო",cat:"ტექნო",hint:"ციფრული ვალუტა"},
+  {w:"ბლოკჩეინი",cat:"ტექნო",hint:"ბიტქოინის ტექნოლოგია"},
+  {w:"ინტუიცია",cat:"ფსიქოლოგია",hint:"ბუნებრივი შეგრძნება"},
+  {w:"ფობია",cat:"ფსიქოლოგია",hint:"არარაციონალური შიში"},
+  {w:"ტრავმა",cat:"ფსიქოლოგია",hint:"ფსიქიკური ჭრილობა"},
+  {w:"ემპათია",cat:"ფსიქოლოგია",hint:"სხვის გრძნობების გაგება"},
+  {w:"მოტივაცია",cat:"ფსიქოლოგია",hint:"მოქმედების ძალა"},
+  {w:"სტრესი",cat:"ფსიქოლოგია",hint:"ნერვიულობა"},
+  {w:"დეპრესია",cat:"ფსიქოლოგია",hint:"განწყობის დაქვეითება"},
+  {w:"მედიტაცია",cat:"ფსიქოლოგია",hint:"გონების დამშვიდება"},
+  {w:"ჩემპიონი",cat:"სპორტი",hint:"პირველი"},
+  {w:"ოლიმპიადა",cat:"სპორტი",hint:"4 წელიწადში ერთხელ"},
+  {w:"ფეხბურთი",cat:"სპორტი",hint:"11 კაცი, ერთი ბურთი"},
+  {w:"რაგბი",cat:"სპორტი",hint:"ქართული გამარჯვება"},
+  {w:"ჭადრაკი",cat:"სპორტი",hint:"64 ბუდე"},
+  {w:"ჭიდაობა",cat:"სპორტი",hint:"ქართული ეროვნული"},
+  {w:"ბოქსი",cat:"სპორტი",hint:"ხელკრივი"},
+  {w:"კალათბურთი",cat:"სპორტი",hint:"კალათაში ჩაგდება"},
+  {w:"თხილამური",cat:"სპორტი",hint:"მთის სრიალი"},
+  {w:"კარატე",cat:"სპორტი",hint:"იაპონური საბრძოლო"},
+  {w:"ჯუდო",cat:"სპორტი",hint:"იაპონური ბრძოლა"},
+  {w:"პოლიფონია",cat:"მუსიკა",hint:"ქართული მრავალხმიანობა"},
+  {w:"მხატვრობა",cat:"ხელოვნება",hint:"სურათების ხელოვნება"},
+  {w:"ფრესკა",cat:"ხელოვნება",hint:"კედლის მხატვრობა"},
+  {w:"კალიგრაფია",cat:"ხელოვნება",hint:"ლამაზი წერა"},
+  {w:"არქიტექტურა",cat:"ხელოვნება",hint:"შენობების ხელოვნება"},
+  {w:"ანიმაცია",cat:"ხელოვნება",hint:"მოძრავი სურათი"},
+  {w:"სოკრატე",cat:"ფილოსოფია",hint:"შხამი დალია, ბერძენი"},
+  {w:"არისტოტელი",cat:"ფილოსოფია",hint:"ალექსანდრეს მასწავლებელი"},
+  {w:"პლატონი",cat:"ფილოსოფია",hint:"იდეათა სამყარო"},
+  {w:"ნიცშე",cat:"ფილოსოფია",hint:"ღმერთი მოკვდა — ვინ თქვა?"},
+  {w:"დეკარტი",cat:"ფილოსოფია",hint:"ვფიქრობ — ვარსებობ"},
+  {w:"ეგზისტენცია",cat:"ფილოსოფია",hint:"არსებობა"},
+  {w:"სტოიციზმი",cat:"ფილოსოფია",hint:"ემოციების კონტროლი"},
+  {w:"ინფლაცია",cat:"ეკონომიკა",hint:"ფასების ზრდა"},
+  {w:"რეცესია",cat:"ეკონომიკა",hint:"ეკონომიკის შეკუმშვა"},
+  {w:"ბიუჯეტი",cat:"ეკონომიკა",hint:"შემოსავალი vs გასავალი"},
+  {w:"ექსპორტი",cat:"ეკონომიკა",hint:"გაყიდვა საზღვარგარეთ"},
+  {w:"მონოპოლია",cat:"ეკონომიკა",hint:"ერთი მმართველი ბაზარი"},
+  {w:"ინვესტიცია",cat:"ეკონომიკა",hint:"ფულის ჩადება მოგებისთვის"},
+  {w:"ვალუტა",cat:"ეკონომიკა",hint:"ქვეყნის ფული"},
+  {w:"მიგრაცია",cat:"ბუნება",hint:"ფრინველების გადასახლება"},
+  {w:"ლავინი",cat:"ბუნება",hint:"თოვლის ჩამოქცევა"},
+  {w:"ციკლონი",cat:"ბუნება",hint:"ძლიერი ქარი"},
+  {w:"ტორნადო",cat:"ბუნება",hint:"ამერიკული ქარი"},
+  {w:"სეტყვა",cat:"ბუნება",hint:"ყინულის წვიმა"},
+  {w:"ელვა",cat:"ბუნება",hint:"ჭექა-ქუხილი"},
+  {w:"გვალვა",cat:"ბუნება",hint:"სიმშრალე"},
+  {w:"წყალდიდობა",cat:"ბუნება",hint:"წყალი ყველგან"},
+  {w:"მიწისძვრა",cat:"ბუნება",hint:"მიწა ძრწის"},
+  {w:"ვულკანი",cat:"ბუნება",hint:"ლავა ამოდის"},
+  {w:"კარდიოლოგი",cat:"მედიცინა",hint:"გულის ექიმი"},
+  {w:"ნევროლოგი",cat:"მედიცინა",hint:"ნერვების ექიმი"},
+  {w:"ჰემოგლობინი",cat:"მედიცინა",hint:"სისხლის ცილა"},
+  {w:"ანტიბიოტიკი",cat:"მედიცინა",hint:"ბაქტერიების წამალი"},
+  {w:"ვაქცინა",cat:"მედიცინა",hint:"დაავადების პრევენცია"},
+  {w:"ეპიდემია",cat:"მედიცინა",hint:"მასობრივი დაავადება"},
+  {w:"კარანტინი",cat:"მედიცინა",hint:"იზოლაცია"},
+  {w:"დიაგნოზი",cat:"მედიცინა",hint:"დაავადების განსაზღვრა"},
+  {w:"სიმპტომი",cat:"მედიცინა",hint:"ავადმყოფობის ნიშანი"},
+  {w:"ბედნიერება",cat:"ცხოვრება",hint:"ცხოვრების მიზანი"},
+  {w:"სიყვარული",cat:"ცხოვრება",hint:"გულის გრძნობა"},
+  {w:"მეგობრობა",cat:"ცხოვრება",hint:"ადამიანებს შუა"},
+  {w:"მადლიერება",cat:"ცხოვრება",hint:"მადლობა"},
+  {w:"გამბედაობა",cat:"ცხოვრება",hint:"შიშის დაძლევა"},
+  {w:"სამართლიანობა",cat:"ცხოვრება",hint:"სიმართლე"},
+  {w:"ოცნება",cat:"ცხოვრება",hint:"მიზანი"},
+  {w:"სიმართლე",cat:"ცხოვრება",hint:"სიცრუის საწინა"},
+  {w:"მშვიდობა",cat:"ცხოვრება",hint:"ომის საწინა"},
+  {w:"სიბრძნე",cat:"ცხოვრება",hint:"გამოცდილება+გონება"},
+  {w:"ნებისყოფა",cat:"ცხოვრება",hint:"სიძლიერე"},
+  {w:"მოთმინება",cat:"ცხოვრება",hint:"ლოდინი"},
+  {w:"გულუხვობა",cat:"ცხოვრება",hint:"გაღება"},
+  {w:"სიხარული",cat:"ცხოვრება",hint:"ბედნიერება"},
+  {w:"სევდა",cat:"ცხოვრება",hint:"ნაღველი"},
+];
+
+const KEYBOARD_LETTERS = [
+  'ა','ბ','გ','დ','ე','ვ','ზ','თ','ი','კ','ლ','მ',
+  'ნ','ო','პ','ჟ','რ','ს','ტ','უ','ფ','ქ','ღ','ყ',
+  'შ','ჩ','ც','ძ','წ','ჭ','ხ','ჯ','ჰ'
+];
+
+const BODY_PARTS = ['headEl','bodyEl','armLEl','armREl','legLEl','legREl'];
+const MAX_WRONG = 6;
+
+let ME = null, MYPROF = null;
+let currentWord = null;
+let score = 0, correctCount = 0, wordNum = 0, streak = 0;
+let wrongLetters = [], guessedLetters = new Set();
+let hintCount = 3;
+let gameActive = false;
+
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { window.close(); return; }
+  ME = user;
+  const { data } = await sb.from('profiles').select('*').eq('id', ME.id).single();
+  MYPROF = data;
+  score = MYPROF?.hangman_score || 0;
+  document.getElementById('scoreVal').textContent = score;
+  buildKeyboard();
+  buildLivesRow();
+  loadLeaderboard();
+  loadNewWord();
+}
+
+function loadNewWord() {
+  const idx = Math.floor(Math.random() * WORDS.length);
+  currentWord = WORDS[idx];
+  wrongLetters = [];
+  guessedLetters = new Set();
+  gameActive = true;
+  wordNum++;
+
+  hintCount = 3;
+  document.getElementById('hintCount').textContent = 3;
+  document.getElementById('hintBtn').disabled = false;
+  document.getElementById('hintText').classList.remove('show');
+  document.getElementById('hintText').textContent = '💡 ' + currentWord.hint;
+  document.getElementById('wordNum').textContent = wordNum;
+  document.getElementById('catBadge').textContent = currentWord.cat;
+  document.getElementById('progressFill').style.width = Math.min(wordNum * 0.33, 100) + '%';
+
+  resetGallows();
+  renderWordSlots();
+  renderKeyboard();
+  renderWrongLetters();
+  updateLives();
+}
+
+function resetGallows() {
+  BODY_PARTS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) { el.classList.remove('visible'); el.style.stroke = ''; }
+  });
+  const head = document.getElementById('headEl');
+  if (head) { head.classList.remove('visible'); head.style.stroke = ''; }
+  ['de1','de2','de3','de4'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.classList.remove('visible');
+  });
+  ['he1','he2','smile'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.opacity = '0';
+  });
+  document.getElementById('figureGroup').classList.remove('swinging','dead','won');
+}
+
+function showBodyPart(wrongCount) {
+  if (wrongCount === 1) {
+    document.getElementById('headEl').classList.add('visible');
+    ['he1','he2','smile'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.opacity = '1';
+    });
+    document.getElementById('figureGroup').classList.add('swinging');
+  } else if (wrongCount > 1) {
+    const el = document.getElementById(BODY_PARTS[wrongCount - 1]);
+    if (el) el.classList.add('visible');
+    if (wrongCount >= 4) {
+      ['he1','he2','smile'].forEach(id => {
+        const el2 = document.getElementById(id);
+        if (el2) el2.style.opacity = '0';
+      });
+    }
+  }
+  if (wrongCount >= MAX_WRONG) {
+    const fig = document.getElementById('figureGroup');
+    fig.classList.remove('swinging');
+    ['de1','de2','de3','de4'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.classList.add('visible');
+    });
+    ['he1','he2','smile'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.style.opacity = '0';
+    });
+    setTimeout(() => fig.classList.add('dead'), 50);
+  }
+}
+
+function showWinFigure() {
+  const fig = document.getElementById('figureGroup');
+  fig.classList.remove('swinging','dead');
+  fig.classList.add('won');
+  BODY_PARTS.forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.style.stroke = '#4ade80';
+  });
+  const head = document.getElementById('headEl');
+  if (head) head.style.stroke = '#4ade80';
+}
+
+function renderWordSlots() {
+  const el = document.getElementById('wordSlots');
+  el.innerHTML = '';
+  [...currentWord.w].forEach(letter => {
+    const slot = document.createElement('div');
+    slot.className = 'letter-slot';
+    const span = document.createElement('span');
+    span.textContent = guessedLetters.has(letter) ? letter : '';
+    if (guessedLetters.has(letter)) slot.classList.add('revealed');
+    slot.appendChild(span);
+    el.appendChild(slot);
+  });
+}
+
+function buildKeyboard() {
+  const kb = document.getElementById('keyboard');
+  KEYBOARD_LETTERS.forEach(letter => {
+    const btn = document.createElement('button');
+    btn.className = 'key-btn';
+    btn.textContent = letter;
+    btn.dataset.letter = letter;
+    btn.addEventListener('click', () => guessLetter(letter));
+    kb.appendChild(btn);
+  });
+}
+
+function renderKeyboard() {
+  document.querySelectorAll('.key-btn').forEach(btn => {
+    const letter = btn.dataset.letter;
+    btn.classList.remove('correct','wrong');
+    btn.disabled = false;
+    if (guessedLetters.has(letter)) {
+      btn.classList.add(currentWord.w.includes(letter) ? 'correct' : 'wrong');
+      btn.disabled = true;
+    }
+  });
+}
+
+function renderWrongLetters() {
+  const el = document.getElementById('wrongLetters');
+  el.innerHTML = '';
+  wrongLetters.forEach(l => {
+    const chip = document.createElement('div');
+    chip.className = 'wrong-chip';
+    chip.textContent = l;
+    el.appendChild(chip);
+  });
+}
+
+function buildLivesRow() {
+  const el = document.getElementById('livesRow');
+  el.innerHTML = '';
+  for (let i = 0; i < MAX_WRONG; i++) {
+    const dot = document.createElement('div');
+    dot.className = 'life-dot';
+    dot.id = 'life_' + i;
+    el.appendChild(dot);
+  }
+}
+
+function updateLives() {
+  for (let i = 0; i < MAX_WRONG; i++) {
+    const dot = document.getElementById('life_' + i);
+    if (dot) dot.classList.toggle('lost', i >= MAX_WRONG - wrongLetters.length);
+  }
+}
+
+function guessLetter(letter) {
+  if (!gameActive || guessedLetters.has(letter)) return;
+  guessedLetters.add(letter);
+  const btn = document.querySelector(`.key-btn[data-letter="${letter}"]`);
+  if (btn) btn.disabled = true;
+
+  if (currentWord.w.includes(letter)) {
+    if (btn) btn.classList.add('correct');
+    renderWordSlots();
+    const allRevealed = [...currentWord.w].every(l => guessedLetters.has(l));
+    if (allRevealed) {
+      gameActive = false;
+      streak++; score += 5; correctCount++;
+      updateScoreDisplay(); updateStreak(); saveScore(); showWinFigure();
+      spawnScoreFloat('+5');
+      setTimeout(() => showResult(true), 600);
+    }
+  } else {
+    if (btn) btn.classList.add('wrong');
+    wrongLetters.push(letter);
+    showBodyPart(wrongLetters.length);
+    renderWrongLetters();
+    updateLives();
+    if (wrongLetters.length >= MAX_WRONG) {
+      gameActive = false;
+      streak = 0; updateStreak();
+      [...currentWord.w].forEach(l => guessedLetters.add(l));
+      renderWordSlots();
+      document.querySelectorAll('.letter-slot').forEach(s => s.classList.add('wrong-reveal'));
+      setTimeout(() => showResult(false), 800);
+    }
+  }
+}
+
+document.addEventListener('keydown', (e) => {
+  if (!gameActive) return;
+  if (/^[ა-ჰ]$/.test(e.key) && !guessedLetters.has(e.key)) guessLetter(e.key);
+});
+
+function useHint() {
+  if (hintCount <= 0) return;
+  hintCount--;
+  document.getElementById('hintCount').textContent = hintCount;
+  document.getElementById('hintText').classList.add('show');
+  if (hintCount === 0) document.getElementById('hintBtn').disabled = true;
+}
+
+function updateScoreDisplay() {
+  document.getElementById('scoreVal').textContent = score;
+  document.getElementById('correctVal').textContent = correctCount;
+}
+
+function updateStreak() {
+  document.getElementById('streakVal').textContent = streak + '🔥';
+  const badge = document.getElementById('streakBadge');
+  if (streak >= 2) {
+    document.getElementById('streakText').textContent = streak;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+async function saveScore() {
+  if (!ME) return;
+  await sb.from('profiles').update({ hangman_score: score }).eq('id', ME.id);
+  loadLeaderboard();
+}
+
+function showResult(win) {
+  const streakMsgs = ['','','🔥 2x სტრიქი!','🔥🔥 3x!','⚡ 4x ლეგენდა!','👑 5x ღმერთია!'];
+  if (win) {
+    document.getElementById('resultEmoji').textContent = streak >= 3 ? '🏆' : '🎉';
+    document.getElementById('resultTitle').textContent = 'გამარჯვება!';
+    document.getElementById('resultTitle').className = 'result-title win';
+    document.getElementById('resultWord').textContent = currentWord.w;
+    document.getElementById('resultInfo').innerHTML =
+      `+<strong style="color:var(--accent);font-size:18px">5</strong> ქულა · სულ: <strong>${score}</strong><br>${streak >= 2 ? streakMsgs[Math.min(streak,5)] : ''}`;
+  } else {
+    document.getElementById('resultEmoji').textContent = '💀';
+    document.getElementById('resultTitle').textContent = 'ჩამოხრჩეს!';
+    document.getElementById('resultTitle').className = 'result-title lose';
+    document.getElementById('resultWord').textContent = currentWord.w;
+    document.getElementById('resultInfo').innerHTML =
+      `სიტყვა იყო: <strong style="color:var(--green)">${currentWord.w}</strong><br>კატეგორია: ${currentWord.cat}`;
+  }
+  document.getElementById('resultOverlay').classList.add('show');
+}
+
+function nextWord() {
+  document.getElementById('resultOverlay').classList.remove('show');
+  loadNewWord();
+}
+
+function spawnScoreFloat(txt) {
+  const el = document.createElement('div');
+  el.className = 'floating-score';
+  el.textContent = txt;
+  el.style.left = (30 + Math.random() * 40) + '%';
+  el.style.top = '30%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1100);
+}
+
+async function loadLeaderboard() {
+  const { data } = await sb.from('profiles')
+    .select('id,username,hangman_score')
+    .order('hangman_score', { ascending: false })
+    .limit(10);
+  const cont = document.getElementById('lbContainer');
+  cont.innerHTML = '';
+  (data || []).forEach((u, i) => {
+    if (!u.hangman_score) return;
+    const medals = ['🥇','🥈','🥉'];
+    const isMe = u.id === ME?.id;
+    const d = document.createElement('div');
+    d.className = 'lb-row';
+    if (isMe) d.style.background = 'var(--indigo-f)';
+    d.innerHTML = `
+      <span class="lb-rank ${i < 3 ? 'rank-'+(i+1) : ''}">${medals[i] || (i+1)}</span>
+      <span class="lb-name" style="${isMe?'color:var(--accent);font-weight:700':''}">${esc(u.username||'?')}${isMe?' 👈':''}</span>
+      <span class="lb-score">${u.hangman_score||0}</span>
+    `;
+    cont.appendChild(d);
+  });
+  if (!cont.children.length) cont.innerHTML = '<div style="padding:16px;color:var(--text3);font-size:12px;text-align:center">ჯერ ქულა არ არის</div>';
+}
+
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+init();
+</script>
+</body>
+</html>
