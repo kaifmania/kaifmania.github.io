@@ -1,0 +1,788 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<title>შიფროგრამა 🔐</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0b1e;--panel:#16142e;--panel2:#1e1b38;
+  --border:rgba(160,80,255,0.3);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;
+  --accent:#f07aff;--indigo:#7a1fc8;--indigo2:#a855f7;
+  --indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.35);
+  --green:#4ade80;--yellow:#fbbf24;--red:#f87171;
+}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;overflow-x:hidden;padding:16px}
+
+/* ====== ANIMATED BG ====== */
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 50% -20%,rgba(120,30,200,0.2),transparent),radial-gradient(ellipse 60% 40% at 80% 80%,rgba(240,122,255,0.1),transparent);pointer-events:none;z-index:0}
+
+/* ====== BACK BUTTON ====== */
+.back-btn{position:fixed;top:14px;left:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:12px;color:var(--text2);font-size:12px;padding:8px 14px;cursor:pointer;z-index:100;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif;text-decoration:none;display:flex;align-items:center;gap:5px}
+.back-btn:hover{background:var(--indigo);color:#fff}
+
+/* ====== HEADER ====== */
+.game-header{text-align:center;margin-bottom:24px;position:relative;z-index:1;margin-top:8px}
+.game-logo{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;background:linear-gradient(135deg,var(--accent),var(--indigo2));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:1px;margin-bottom:4px}
+.game-sub{font-size:11px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;font-family:'Unbounded',sans-serif}
+
+/* ====== SCORE STRIP ====== */
+.score-strip{display:flex;gap:10px;margin-bottom:20px;position:relative;z-index:1;flex-wrap:wrap;justify-content:center}
+.sc-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:10px 18px;text-align:center;min-width:90px;position:relative;overflow:hidden}
+.sc-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--indigo-f),transparent);pointer-events:none}
+.sc-label{font-size:9px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.sc-val{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--glow)}
+.sc-val.green{color:var(--green);text-shadow:0 0 16px rgba(74,222,128,.4)}
+.sc-val.yellow{color:var(--yellow);text-shadow:0 0 16px rgba(251,191,36,.4)}
+
+/* ====== GAME CARD ====== */
+.game-card{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:24px;width:100%;max-width:500px;position:relative;z-index:1;box-shadow:0 8px 32px rgba(0,0,0,.4),0 0 30px var(--indigo-f)}
+.hint-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+.category-badge{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);background:var(--indigo-f);border:1px solid var(--border);padding:4px 12px;border-radius:20px;text-transform:uppercase}
+.hint-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:11px;padding:5px 12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;transition:all .2s;display:flex;align-items:center;gap:4px}
+.hint-btn:hover{background:var(--indigo);color:#fff}
+.hint-btn:disabled{opacity:.4;cursor:not-allowed}
+.hint-text{background:rgba(168,85,247,0.1);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:12px;color:var(--text2);margin-bottom:12px;display:none;line-height:1.5}
+.hint-text.show{display:block}
+
+/* ====== SCRAMBLED LETTERS ====== */
+.scrambled-label{font-size:9px;color:var(--text3);letter-spacing:2px;font-family:'Unbounded',sans-serif;text-transform:uppercase;margin-bottom:10px}
+.scrambled-letters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px;min-height:52px;padding:4px;justify-content:center}
+.letter-tile{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:1px solid var(--accent);color:#fff;font-family:'Noto Sans Georgian',sans-serif;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;box-shadow:0 4px 12px rgba(120,30,200,.3);user-select:none;position:relative}
+.letter-tile:hover:not(.used){transform:translateY(-4px) scale(1.08);box-shadow:0 8px 20px rgba(168,85,247,.5)}
+.letter-tile.used{opacity:.25;cursor:not-allowed;transform:none}
+.letter-tile:active:not(.used){transform:scale(.95)}
+
+/* ====== ANSWER SLOTS ====== */
+.answer-label{font-size:9px;color:var(--text3);letter-spacing:2px;font-family:'Unbounded',sans-serif;text-transform:uppercase;margin-bottom:10px}
+.answer-slots{display:flex;flex-wrap:wrap;gap:8px;min-height:52px;margin-bottom:20px;padding:4px;justify-content:center}
+.answer-slot{width:44px;height:44px;border-radius:12px;border:2px dashed var(--border);background:rgba(255,255,255,.02);color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .15s;user-select:none}
+.answer-slot.filled{border-style:solid;border-color:var(--indigo2);background:var(--indigo-f);color:var(--text)}
+.answer-slot.filled:hover{border-color:var(--accent);background:rgba(240,122,255,.12)}
+.answer-slot.correct{border-color:var(--green);background:rgba(74,222,128,.12);animation:correctPop .4s ease}
+.answer-slot.wrong{border-color:var(--red);background:rgba(248,113,113,.12);animation:wrongShake .4s ease}
+
+/* ====== PROGRESS BAR ====== */
+.progress-bar{width:100%;height:4px;background:var(--panel2);border-radius:4px;margin-bottom:20px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--accent));border-radius:4px;transition:width .5s ease}
+
+/* ====== BUTTONS ====== */
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn{flex:1;min-width:120px;padding:12px;border-radius:14px;border:1px solid var(--border);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;font-weight:600}
+.btn-primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;box-shadow:0 4px 18px rgba(120,30,200,.4)}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,30,200,.55)}
+.btn-secondary{background:var(--indigo-f);color:var(--text2)}
+.btn-secondary:hover{background:var(--panel2);color:var(--text)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* ====== RESULT OVERLAY ====== */
+.result-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.result-overlay.show{opacity:1;pointer-events:all}
+.result-card{background:var(--panel);border:1px solid var(--border);border-radius:28px;padding:32px;text-align:center;max-width:360px;width:90%;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 60px var(--glow);animation:popIn .4s cubic-bezier(.22,1.5,.4,1)}
+.result-emoji{font-size:60px;display:block;margin-bottom:12px;line-height:1}
+.result-title{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;margin-bottom:6px}
+.result-title.win{color:var(--green)}
+.result-title.lose{color:var(--red)}
+.result-word{font-size:24px;font-weight:700;color:var(--accent);margin-bottom:8px;letter-spacing:2px}
+.result-score{font-size:13px;color:var(--text2);margin-bottom:20px}
+.result-score strong{color:var(--yellow);font-size:16px;font-family:'Unbounded',sans-serif}
+
+/* ====== LEADERBOARD ====== */
+.lb-section{width:100%;max-width:500px;margin-top:16px;position:relative;z-index:1}
+.lb-header{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;padding:12px 16px;background:var(--panel);border:1px solid var(--border);border-radius:16px 16px 0 0;display:flex;align-items:center;gap:6px;border-bottom:0}
+.lb-row{display:flex;align-items:center;gap:12px;padding:11px 16px;background:var(--panel);border:1px solid var(--border);border-top:0;transition:background .15s}
+.lb-row:last-child{border-radius:0 0 16px 16px}
+.lb-row:hover{background:var(--panel2)}
+.lb-rank{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;width:28px;text-align:center;flex-shrink:0}
+.rank-1{color:#ffd040;text-shadow:0 0 10px rgba(255,208,64,.5)}
+.rank-2{color:#c8c8c8}
+.rank-3{color:#c88040}
+.lb-name{flex:1;font-size:13px;color:var(--text);font-weight:500}
+.lb-score{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--accent)}
+
+/* ====== ANIMATIONS ====== */
+@keyframes correctPop{0%{transform:scale(1)}30%{transform:scale(1.2)}60%{transform:scale(.95)}100%{transform:scale(1)}}
+@keyframes wrongShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes popIn{from{opacity:0;transform:scale(.7) translateY(40px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes scoreFloat{0%{opacity:1;transform:translateY(0) scale(1)}100%{opacity:0;transform:translateY(-60px) scale(1.4)}}
+@keyframes tileIn{from{opacity:0;transform:translateY(20px) scale(.8)}to{opacity:1;transform:translateY(0) scale(1)}}
+
+.floating-score{position:fixed;font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--green);text-shadow:0 0 20px rgba(74,222,128,.5);pointer-events:none;z-index:9999;animation:scoreFloat .9s ease forwards}
+.letter-tile{animation:tileIn .25s ease both}
+.timer-bar{width:100%;height:6px;background:var(--panel2);border-radius:6px;margin-bottom:16px;overflow:hidden}
+.timer-fill{height:100%;border-radius:6px;transition:width .1s linear}
+.skip-count{font-size:10px;color:var(--text3);text-align:right;margin-bottom:8px;font-family:'Unbounded',sans-serif}
+.streak-badge{display:inline-flex;align-items:center;gap:4px;background:rgba(251,191,36,.15);border:1px solid rgba(251,191,36,.3);border-radius:20px;padding:4px 12px;font-size:11px;color:var(--yellow);font-family:'Unbounded',sans-serif;font-weight:700;margin-bottom:10px;transition:all .3s}
+.streak-badge.hidden{opacity:0;pointer-events:none}
+</style>
+</head>
+<body>
+
+<a class="back-btn" href="javascript:window.close()">← უკან</a>
+
+<div class="game-header">
+  <div class="game-logo">🔐 შიფროგრამა</div>
+  <div class="game-sub">სიტყვების დამალეგება</div>
+</div>
+
+<div class="score-strip">
+  <div class="sc-card"><div class="sc-label">ქულა</div><div class="sc-val" id="scoreVal">0</div></div>
+  <div class="sc-card"><div class="sc-label">სწორი</div><div class="sc-val green" id="correctVal">0</div></div>
+  <div class="sc-card"><div class="sc-label">სიტყვა</div><div class="sc-val yellow" id="wordNum">1</div></div>
+  <div class="sc-card"><div class="sc-label">სტრიქი</div><div class="sc-val" id="streakVal" style="color:var(--yellow)">0🔥</div></div>
+</div>
+
+<div class="game-card">
+  <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+  <div id="streakBadge" class="streak-badge hidden">🔥 <span id="streakText">0</span> სტრიქი!</div>
+  <div class="hint-row">
+    <span class="category-badge" id="catBadge">კატეგორია</span>
+    <button class="hint-btn" id="hintBtn" onclick="useHint()">💡 მინიშნება (<span id="hintCount">3</span>)</button>
+  </div>
+  <div class="hint-text" id="hintText"></div>
+  <div class="timer-bar"><div class="timer-fill" id="timerFill" style="width:100%;background:linear-gradient(90deg,#4ade80,#a855f7)"></div></div>
+  <div class="scrambled-label">🔀 არეული სიტყვა</div>
+  <div class="scrambled-letters" id="scrambledLetters"></div>
+  <div class="answer-label">✍️ სწორი პასუხი</div>
+  <div class="answer-slots" id="answerSlots"></div>
+  <div class="skip-count">გამოტოვება: <span id="skipCount">3</span></div>
+  <div class="btn-row">
+    <button class="btn btn-secondary" onclick="clearAnswer()">🔄 გასუფთავება</button>
+    <button class="btn btn-secondary" id="skipBtn" onclick="skipWord()">⏭ გამოტოვება</button>
+    <button class="btn btn-primary" id="checkBtn" onclick="checkAnswer()">✅ შემოწმება</button>
+  </div>
+</div>
+
+<div class="lb-section">
+  <div class="lb-header">🏆 ტოპ 10 · შიფროგრამა</div>
+  <div id="lbContainer"></div>
+</div>
+
+<div class="result-overlay" id="resultOverlay">
+  <div class="result-card">
+    <span class="result-emoji" id="resultEmoji">🎉</span>
+    <div class="result-title" id="resultTitle">სწორია!</div>
+    <div class="result-word" id="resultWord"></div>
+    <div class="result-score" id="resultScore"></div>
+    <button class="btn btn-primary" style="width:100%" onclick="nextWord()">➡ შემდეგი სიტყვა</button>
+  </div>
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+// ======================== 300 GEORGIAN WORDS ========================
+const WORDS = [
+  // ბუნება / Nature
+  {w:"მზე",cat:"ბუნება",hint:"ცაში ანათებს"},
+  {w:"მთა",cat:"ბუნება",hint:"მაღალი ადგილი"},
+  {w:"ზღვა",cat:"ბუნება",hint:"დიდი წყალი"},
+  {w:"ტყე",cat:"ბუნება",hint:"ხეები ბევრია"},
+  {w:"მდინარე",cat:"ბუნება",hint:"წყალი მიედინება"},
+  {w:"ღრუბელი",cat:"ბუნება",hint:"ცაში ცივი"},
+  {w:"წვიმა",cat:"ბუნება",hint:"ციდან მოდის"},
+  {w:"ქარი",cat:"ბუნება",hint:"ქრის ჰაერი"},
+  {w:"თოვლი",cat:"ბუნება",hint:"თეთრი ზამთარში"},
+  {w:"ყინული",cat:"ბუნება",hint:"გაყინული წყალი"},
+  {w:"ვარდი",cat:"ბუნება",hint:"ლამაზი ყვავილი"},
+  {w:"ხე",cat:"ბუნება",hint:"ჩიტი ზის"},
+  {w:"ბალახი",cat:"ბუნება",hint:"მწვანე ქვემოთ"},
+  {w:"კლდე",cat:"ბუნება",hint:"მყარი ქვა"},
+  {w:"ქვა",cat:"ბუნება",hint:"სქელი და მაგარი"},
+  {w:"ვულკანი",cat:"ბუნება",hint:"ლავა გამოდის"},
+  {w:"ნიაღვარი",cat:"ბუნება",hint:"ძლიერი წვიმა"},
+  {w:"ჩანჩქერი",cat:"ბუნება",hint:"წყალი ვარდება"},
+  {w:"ტბა",cat:"ბუნება",hint:"ხმელეთში წყალი"},
+  {w:"კუნძული",cat:"ბუნება",hint:"ყველგან წყალი"},
+  {w:"ოდინარი",cat:"ბუნება",hint:"ბინდი დილის"},
+  {w:"ბუჩქი",cat:"ბუნება",hint:"პატარა ხე"},
+  {w:"ტოტი",cat:"ბუნება",hint:"ხის ნაწილი"},
+  {w:"ფესვი",cat:"ბუნება",hint:"მიწაში მყოფი"},
+  // ცხოველები / Animals
+  {w:"ლომი",cat:"ცხოველები",hint:"ჯუნგლების მეფე"},
+  {w:"ვეფხვი",cat:"ცხოველები",hint:"ჭრელი დიდი კატა"},
+  {w:"დათვი",cat:"ცხოველები",hint:"ტყის სიდიადე"},
+  {w:"მგელი",cat:"ცხოველები",hint:"ყოყოჩი ბოლოვებს"},
+  {w:"მელა",cat:"ცხოველები",hint:"წითელი ცბიერი"},
+  {w:"კურდღელი",cat:"ცხოველები",hint:"გრძელყური სრბოლი"},
+  {w:"სპილო",cat:"ცხოველები",hint:"გრძელი ცხვირი"},
+  {w:"ჟირაფი",cat:"ცხოველები",hint:"გრძელი კისერი"},
+  {w:"ზებრა",cat:"ცხოველები",hint:"ხოლო-მელო"},
+  {w:"მაიმუნი",cat:"ცხოველები",hint:"ხეებზე ატოვებს"},
+  {w:"გველი",cat:"ცხოველები",hint:"ენა ორად"},
+  {w:"კუ",cat:"ცხოველები",hint:"ნელა დადის"},
+  {w:"მელია",cat:"ცხოველები",hint:"ხოხობი ან..."},
+  {w:"ბუ",cat:"ცხოველები",hint:"ღამე ხედავს"},
+  {w:"არწივი",cat:"ცხოველები",hint:"ცის მეფე ფრინველი"},
+  {w:"დელფინი",cat:"ცხოველები",hint:"ზღვის ჭკვიანი"},
+  {w:"სუბუ",cat:"ცხოველები",hint:"ზღვის ვარვარი"},
+  {w:"ბინდელი",cat:"ცხოველები",hint:"ღამის ფრინველი"},
+  {w:"ჩიტი",cat:"ცხოველები",hint:"ფრენს"},
+  {w:"თევზი",cat:"ცხოველები",hint:"წყალში ცხოვრობს"},
+  {w:"ჯამბაზი",cat:"ცხოველები",hint:"ბაზარში ნახავ"},
+  {w:"კამეჩი",cat:"ცხოველები",hint:"ყანაში მუშაობს"},
+  {w:"ცხვარი",cat:"ცხოველები",hint:"ბატკანი ჰყავს"},
+  {w:"ძაღლი",cat:"ცხოველები",hint:"ადამიანის მეგობარი"},
+  {w:"კატა",cat:"ცხოველები",hint:"კნავის"},
+  // საკვები / Food
+  {w:"პური",cat:"საკვები",hint:"ყოველდღე ჭამენ"},
+  {w:"ყველი",cat:"საკვები",hint:"რძიდან"},
+  {w:"ხინკალი",cat:"საკვები",hint:"ქართული ტრადიცია"},
+  {w:"ქართული",cat:"ენა",hint:"ჩვენი მშობლიური"},
+  {w:"ხაჭაპური",cat:"საკვები",hint:"ყველით პური"},
+  {w:"ბადრიჯანი",cat:"საკვები",hint:"იასამნისფერი ბოსტნეული"},
+  {w:"კიტრი",cat:"საკვები",hint:"მწვანე ბოსტნეული"},
+  {w:"პომიდორი",cat:"საკვები",hint:"წითელი ბოსტნეული"},
+  {w:"ვაშლი",cat:"საკვები",hint:"წითელი ხილი"},
+  {w:"მსხალი",cat:"საკვები",hint:"ტკბილი ხილი"},
+  {w:"ყურძენი",cat:"საკვები",hint:"ღვინო ამისგან"},
+  {w:"ნიგოზი",cat:"საკვები",hint:"ქართული სამზარეულო"},
+  {w:"ნარინჯი",cat:"საკვები",hint:"ვიტამინი C"},
+  {w:"ბანანი",cat:"საკვები",hint:"ყვითელი ხილი"},
+  {w:"ლიმონი",cat:"საკვები",hint:"მჟავე ხილი"},
+  {w:"სიმინდი",cat:"საკვები",hint:"ყვითელი ბოსტნეული"},
+  {w:"ლობიო",cat:"საკვები",hint:"ქართული კერძი"},
+  {w:"ჭარხალი",cat:"საკვები",hint:"წითელი ბოსტნეული"},
+  {w:"ისპანახი",cat:"საკვები",hint:"პოპაის საყვარელი"},
+  {w:"კომბოსტო",cat:"საკვები",hint:"თეთრი ბოსტნეული"},
+  {w:"ნიორი",cat:"საკვები",hint:"სუნამო სამზარეულოში"},
+  {w:"მარწყვი",cat:"საკვები",hint:"წითელი პატარა ხილი"},
+  {w:"ჟოლო",cat:"საკვები",hint:"მეწამული კენკრა"},
+  {w:"მოცვი",cat:"საკვები",hint:"ლურჯი კენკრა"},
+  {w:"ატამი",cat:"საკვები",hint:"რბილი ტკბილი ხილი"},
+  {w:"ქლიავი",cat:"საკვები",hint:"იასამნა ხილი"},
+  {w:"ალუბალი",cat:"საკვები",hint:"პატარა წითელი"},
+  {w:"ფარფლი",cat:"საკვები",hint:"ამ სახელით ეძახიან"},
+  // ადამიანი / Human
+  {w:"სახე",cat:"ადამიანი",hint:"წინ ნახვა"},
+  {w:"ხელი",cat:"ადამიანი",hint:"5 თითი"},
+  {w:"თვალი",cat:"ადამიანი",hint:"ხედვა"},
+  {w:"ყური",cat:"ადამიანი",hint:"სმენა"},
+  {w:"ცხვირი",cat:"ადამიანი",hint:"სუნი"},
+  {w:"პირი",cat:"ადამიანი",hint:"ლაპარაკი"},
+  {w:"კბილი",cat:"ადამიანი",hint:"ღეჭვა"},
+  {w:"ენა",cat:"ადამიანი",hint:"გემო"},
+  {w:"თმა",cat:"ადამიანი",hint:"თავზე"},
+  {w:"ფეხი",cat:"ადამიანი",hint:"სიარული"},
+  {w:"გული",cat:"ადამიანი",hint:"გრძნობები"},
+  {w:"ტვინი",cat:"ადამიანი",hint:"აზრები"},
+  {w:"ძვალი",cat:"ადამიანი",hint:"ჩონჩხი"},
+  {w:"სისხლი",cat:"ადამიანი",hint:"წითელი სითხე"},
+  {w:"კანი",cat:"ადამიანი",hint:"გარე ფენა"},
+  // ქალაქი / City
+  {w:"სახლი",cat:"ქალაქი",hint:"ბინა"},
+  {w:"ქუჩა",cat:"ქალაქი",hint:"მიდი-მოდი"},
+  {w:"სკოლა",cat:"ქალაქი",hint:"სწავლა"},
+  {w:"ბანკი",cat:"ქალაქი",hint:"ფული"},
+  {w:"ბაზარი",cat:"ქალაქი",hint:"ყიდვა-გაყიდვა"},
+  {w:"სტადიონი",cat:"ქალაქი",hint:"სპორტი"},
+  {w:"მუზეუმი",cat:"ქალაქი",hint:"ისტორია"},
+  {w:"ეკლესია",cat:"ქალაქი",hint:"ლოცვა"},
+  {w:"ხიდი",cat:"ქალაქი",hint:"გადასასვლელი"},
+  {w:"სასტუმრო",cat:"ქალაქი",hint:"ღამის დასაძინებელი"},
+  {w:"ჰოსპიტალი",cat:"ქალაქი",hint:"ავადმყოფი მიდის"},
+  {w:"ბიბლიოთეკა",cat:"ქალაქი",hint:"წიგნები ბევრია"},
+  {w:"რკინიგზა",cat:"ქალაქი",hint:"მატარებელი"},
+  {w:"აეროპორტი",cat:"ქალაქი",hint:"თვითმფრინავი"},
+  {w:"მეტრო",cat:"ქალაქი",hint:"მიწის ქვეშ"},
+  // ფერები / Colors
+  {w:"წითელი",cat:"ფერები",hint:"ვარდი"},
+  {w:"ლურჯი",cat:"ფერები",hint:"ცა"},
+  {w:"მწვანე",cat:"ფერები",hint:"ბალახი"},
+  {w:"ყვითელი",cat:"ფერები",hint:"მზე"},
+  {w:"შავი",cat:"ფერები",hint:"ღამე"},
+  {w:"თეთრი",cat:"ფერები",hint:"თოვლი"},
+  {w:"ვარდისფერი",cat:"ფერები",hint:"ვარდი სხვ."},
+  {w:"მეწამული",cat:"ფერები",hint:"ყურძენი"},
+  {w:"ნარინჯისფერი",cat:"ფერები",hint:"ნარინჯი"},
+  {w:"ყავისფერი",cat:"ფერები",hint:"ყავა"},
+  {w:"ნაცრისფერი",cat:"ფერები",hint:"ღრუბელი"},
+  {w:"ოქროსფერი",cat:"ფერები",hint:"ოქრო"},
+  // ემოციები / Emotions
+  {w:"სიხარული",cat:"ემოციები",hint:"ბედნიერება"},
+  {w:"სიყვარული",cat:"ემოციები",hint:"❤️"},
+  {w:"მწუხარება",cat:"ემოციები",hint:"ტირილი"},
+  {w:"შიში",cat:"ემოციები",hint:"საშინელება"},
+  {w:"სიბრაზე",cat:"ემოციები",hint:"წყრომა"},
+  {w:"სიამაყე",cat:"ემოციები",hint:"გამარჯვება"},
+  {w:"ნაღველი",cat:"ემოციები",hint:"სევდა"},
+  {w:"მოწყენილობა",cat:"ემოციები",hint:"ხალისი არ არის"},
+  {w:"სიმამაცე",cat:"ემოციები",hint:"გმირი"},
+  {w:"სიბრძნე",cat:"ემოციები",hint:"ჭკვიანი"},
+  // ოჯახი / Family
+  {w:"დედა",cat:"ოჯახი",hint:"ყველაზე ძვირფასი"},
+  {w:"მამა",cat:"ოჯახი",hint:"ოჯახის მეთაური"},
+  {w:"ბებია",cat:"ოჯახი",hint:"დედის დედა"},
+  {w:"პაპა",cat:"ოჯახი",hint:"მამის მამა"},
+  {w:"და",cat:"ოჯახი",hint:"გოგო და-ძმა"},
+  {w:"ძმა",cat:"ოჯახი",hint:"ბიჭი და-ძმა"},
+  {w:"შვილი",cat:"ოჯახი",hint:"ბავშვი"},
+  {w:"მეუღლე",cat:"ოჯახი",hint:"ქმარი/ცოლი"},
+  {w:"ბიძა",cat:"ოჯახი",hint:"მამის ძმა"},
+  {w:"მამიდა",cat:"ოჯახი",hint:"მამის და"},
+  // სპორტი / Sports
+  {w:"ფეხბურთი",cat:"სპორტი",hint:"11 კაცი"},
+  {w:"კალათბურთი",cat:"სპორტი",hint:"კალათაში"},
+  {w:"ჭიდაობა",cat:"სპორტი",hint:"ქართული"},
+  {w:"ცურვა",cat:"სპორტი",hint:"წყალში"},
+  {w:"სირბილი",cat:"სპორტი",hint:"სწრაფი"},
+  {w:"ტენისი",cat:"სპორტი",hint:"რაკეტი"},
+  {w:"ბოქსი",cat:"სპორტი",hint:"ხელკრივი"},
+  {w:"ჭადრაკი",cat:"სპორტი",hint:"ჭკვიანი თამაში"},
+  {w:"ვოლეიბოლი",cat:"სპორტი",hint:"ბადე"},
+  {w:"სროლა",cat:"სპორტი",hint:"სამიზნე"},
+  // მუსიკა / Music
+  {w:"ბანდა",cat:"მუსიკა",hint:"ჯგუფი"},
+  {w:"სიმღერა",cat:"მუსიკა",hint:"ხმა + სიტყვა"},
+  {w:"ბასი",cat:"მუსიკა",hint:"დაბალი ხმა"},
+  {w:"გიტარა",cat:"მუსიკა",hint:"6 სიმი"},
+  {w:"პიანინო",cat:"მუსიკა",hint:"კლავიშები"},
+  {w:"ბარაბანი",cat:"მუსიკა",hint:"დარტყმა"},
+  {w:"სქსოფონი",cat:"მუსიკა",hint:"ჯაზი"},
+  {w:"ვიოლინო",cat:"მუსიკა",hint:"გამუდმებით"},
+  {w:"ფლეიტა",cat:"მუსიკა",hint:"ჩასაბერი"},
+  {w:"ჩანგი",cat:"მუსიკა",hint:"ქართული"},
+  // ტექნოლოგია / Technology
+  {w:"ტელეფონი",cat:"ტექნო",hint:"დარეკვა"},
+  {w:"კომპიუტერი",cat:"ტექნო",hint:"ეკრანი"},
+  {w:"ინტერნეტი",cat:"ტექნო",hint:"ქსელი"},
+  {w:"კამერა",cat:"ტექნო",hint:"ფოტო"},
+  {w:"ბატარეა",cat:"ტექნო",hint:"ენერგია"},
+  {w:"ეკრანი",cat:"ტექნო",hint:"ხედავ"},
+  {w:"კლავიატურა",cat:"ტექნო",hint:"წერა"},
+  {w:"ვიდეო",cat:"ტექნო",hint:"კინო"},
+  {w:"პრინტერი",cat:"ტექნო",hint:"ბეჭდვა"},
+  {w:"სატელიტი",cat:"ტექნო",hint:"კოსმოსი"},
+  // ქვეყნები / Countries
+  {w:"საქართველო",cat:"ქვეყნები",hint:"ჩვენი სამშობლო"},
+  {w:"სომხეთი",cat:"ქვეყნები",hint:"სამხრეთი მეზობელი"},
+  {w:"აზერბაიჯანი",cat:"ქვეყნები",hint:"აღმოსავლეთი"},
+  {w:"თურქეთი",cat:"ქვეყნები",hint:"სამხრეთ-დასავლეთი"},
+  {w:"რუსეთი",cat:"ქვეყნები",hint:"ჩრდილოეთი"},
+  {w:"საფრანგეთი",cat:"ქვეყნები",hint:"ეიფელი"},
+  {w:"გერმანია",cat:"ქვეყნები",hint:"ბერლინი"},
+  {w:"იტალია",cat:"ქვეყნები",hint:"რომი"},
+  {w:"ესპანეთი",cat:"ქვეყნები",hint:"მადრიდი"},
+  {w:"ჩინეთი",cat:"ქვეყნები",hint:"პეკინი"},
+  {w:"იაპონია",cat:"ქვეყნები",hint:"ტოკიო"},
+  {w:"ამერიკა",cat:"ქვეყნები",hint:"ვაშინგტონი"},
+  {w:"ბრაზილია",cat:"ქვეყნები",hint:"სამბა"},
+  {w:"კანადა",cat:"ქვეყნები",hint:"ოტავა"},
+  {w:"ავსტრალია",cat:"ქვეყნები",hint:"კანგურუ"},
+  // ფიზიკა / Science
+  {w:"სიჩქარე",cat:"მეცნიერება",hint:"სწრაფი"},
+  {w:"ენერგია",cat:"მეცნიერება",hint:"ძალა"},
+  {w:"ატომი",cat:"მეცნიერება",hint:"პატარა"},
+  {w:"გრავიტაცია",cat:"მეცნიერება",hint:"დაეცემა"},
+  {w:"ელექტრობა",cat:"მეცნიერება",hint:"ნათება"},
+  {w:"მაგნიტი",cat:"მეცნიერება",hint:"იზიდავს"},
+  {w:"ჟანგბადი",cat:"მეცნიერება",hint:"სუნთქვა"},
+  {w:"ნახშირბადი",cat:"მეცნიერება",hint:"CO2"},
+  {w:"ალქიმია",cat:"მეცნიერება",hint:"ძველი ქიმია"},
+  {w:"ბიოლოგია",cat:"მეცნიერება",hint:"სიცოცხლე"},
+  // ქართული ისტორია
+  {w:"თამარი",cat:"ისტორია",hint:"დედოფალი"},
+  {w:"გიორგი",cat:"ისტორია",hint:"ბრწყინვალე"},
+  {w:"ნინო",cat:"ისტორია",hint:"განმანათლებელი"},
+  {w:"ბაგრატი",cat:"ისტორია",hint:"მეფე"},
+  {w:"რუსთაველი",cat:"ისტორია",hint:"ვეფხისტყაოსანი"},
+  {w:"მცხეთა",cat:"ისტორია",hint:"ძველი დედაქალაქი"},
+  {w:"ნაბადი",cat:"ისტორია",hint:"ქართული"},
+  {w:"ქვევრი",cat:"ისტორია",hint:"ღვინო"},
+  {w:"ანბანი",cat:"ისტორია",hint:"ასოები"},
+  {w:"ჯვარი",cat:"ისტორია",hint:"სამონასტრო"},
+  // ყოველდღიური
+  {w:"დილა",cat:"დღე",hint:"მზე ამოდის"},
+  {w:"საღამო",cat:"დღე",hint:"მზე ჩადის"},
+  {w:"ბედნიერება",cat:"ცხოვრება",hint:"სიხარული"},
+  {w:"სიკვდილი",cat:"ცხოვრება",hint:"ბოლო"},
+  {w:"სიცოცხლე",cat:"ცხოვრება",hint:"არსებობა"},
+  {w:"ოცნება",cat:"ცხოვრება",hint:"მიზანი"},
+  {w:"მეგობრობა",cat:"ცხოვრება",hint:"კეთილობა"},
+  {w:"სიმართლე",cat:"ცხოვრება",hint:"სიცრუის საწინა"},
+  {w:"სამართლი",cat:"ცხოვრება",hint:"კანონი"},
+  {w:"მშვიდობა",cat:"ცხოვრება",hint:"ომის საპირისპირო"},
+  {w:"ომი",cat:"ისტორია",hint:"კონფლიქტი"},
+  {w:"სიმდიდრე",cat:"ცხოვრება",hint:"ფული ბევრია"},
+  {w:"სიღარიბე",cat:"ცხოვრება",hint:"ფული არ არის"},
+  {w:"განათლება",cat:"ცხოვრება",hint:"სწავლა"},
+  {w:"კულტურა",cat:"ცხოვრება",hint:"ტრადიციები"},
+  // ტანსაცმელი / Clothes
+  {w:"პერანგი",cat:"ტანსაცმელი",hint:"ზემოდ ატარებ"},
+  {w:"შარვალი",cat:"ტანსაცმელი",hint:"ქვემოდ"},
+  {w:"კაბა",cat:"ტანსაცმელი",hint:"გოგოების"},
+  {w:"ბეწვი",cat:"ტანსაცმელი",hint:"ცხოველის"},
+  {w:"ჩექმა",cat:"ტანსაცმელი",hint:"ფეხზე"},
+  {w:"ქუდი",cat:"ტანსაცმელი",hint:"თავზე"},
+  {w:"წინდა",cat:"ტანსაცმელი",hint:"ფეხზე ქვეშ"},
+  {w:"ხელთათმანი",cat:"ტანსაცმელი",hint:"ხელზე"},
+  {w:"ქამარი",cat:"ტანსაცმელი",hint:"შუამდე"},
+  {w:"ყელსახვევი",cat:"ტანსაცმელი",hint:"ყელზე"},
+  // მოსავლეთი
+  {w:"ბრინჯი",cat:"საკვები",hint:"აზიური მარცვალი"},
+  {w:"ბოლოკი",cat:"საკვები",hint:"წითელი პატარა"},
+  {w:"ნიახური",cat:"საკვები",hint:"სტაფილო"},
+  {w:"სტაფილო",cat:"საკვები",hint:"კიანჭი"},
+  {w:"ველი",cat:"ბუნება",hint:"ბრტყელი ადგილი"},
+  {w:"ვენახი",cat:"ბუნება",hint:"ყურძენი"},
+  {w:"ბაღი",cat:"ბუნება",hint:"ხილი"},
+  {w:"სოფელი",cat:"ქალაქი",hint:"პატარა დასახლება"},
+  {w:"ქვეყანა",cat:"ქვეყნები",hint:"სახელმწიფო"},
+  {w:"მთავრობა",cat:"ცხოვრება",hint:"მმართველობა"},
+  {w:"საბჭო",cat:"ცხოვრება",hint:"კომიტეტი"},
+  {w:"ბრძოლა",cat:"ისტორია",hint:"კონფლიქტი"},
+  {w:"გამარჯვება",cat:"ისტორია",hint:"მოგება"},
+  {w:"დამარცხება",cat:"ისტორია",hint:"წაგება"},
+  {w:"სამხედრო",cat:"ისტორია",hint:"ჯარი"},
+  {w:"ქვეყნიერება",cat:"ბუნება",hint:"სამყარო"},
+  {w:"სამყარო",cat:"ბუნება",hint:"კოსმოსი"},
+  {w:"ვარსკვლავი",cat:"ბუნება",hint:"ღამის ციაო"},
+  {w:"მთვარე",cat:"ბუნება",hint:"ღამის ნათება"},
+  {w:"ცა",cat:"ბუნება",hint:"ზემოთ"},
+  {w:"დედამიწა",cat:"ბუნება",hint:"ჩვენი პლანეტა"},
+  {w:"კოსმოსი",cat:"მეცნიერება",hint:"სივრცე"},
+  {w:"პლანეტა",cat:"მეცნიერება",hint:"მზის გარშემო"},
+  {w:"კომეტა",cat:"მეცნიერება",hint:"კუდი"},
+  {w:"ასტეროიდი",cat:"მეცნიერება",hint:"ქვა კოსმოსში"},
+  {w:"გალაქტიკა",cat:"მეცნიერება",hint:"ვარსკვლავთა ჯგუფი"},
+  {w:"ასტრონავტი",cat:"მეცნიერება",hint:"კოსმოსში ფრენა"},
+  {w:"ტელესკოპი",cat:"მეცნიერება",hint:"ვარსკვლავების"},
+  {w:"მიკროსკოპი",cat:"მეცნიერება",hint:"პატარა ნახვა"},
+  {w:"ლაბორატორია",cat:"მეცნიერება",hint:"ექსპერიმენტი"},
+  {w:"ფიზიკა",cat:"მეცნიერება",hint:"მეცნიერება"},
+  {w:"ქიმია",cat:"მეცნიერება",hint:"ნივთიერება"},
+  {w:"მათემატიკა",cat:"მეცნიერება",hint:"რიცხვები"},
+  {w:"ისტორია",cat:"მეცნიერება",hint:"წარსული"},
+  {w:"გეოგრაფია",cat:"მეცნიერება",hint:"რუქა"},
+  {w:"ფილოსოფია",cat:"მეცნიერება",hint:"ფიქრი"},
+  {w:"ფსიქოლოგია",cat:"მეცნიერება",hint:"გონება"},
+  {w:"ეკონომიკა",cat:"მეცნიერება",hint:"ფული"},
+  {w:"სოციოლოგია",cat:"მეცნიერება",hint:"საზოგადოება"},
+  {w:"ლიტერატურა",cat:"ხელოვნება",hint:"წიგნი"},
+  {w:"ხელოვნება",cat:"ხელოვნება",hint:"სურათი"},
+  {w:"მხატვრობა",cat:"ხელოვნება",hint:"ფუნჯი"},
+  {w:"სკულპტურა",cat:"ხელოვნება",hint:"მოქანდაკეობა"},
+  {w:"კინო",cat:"ხელოვნება",hint:"ფილმი"},
+  {w:"თეატრი",cat:"ხელოვნება",hint:"სცენა"},
+  {w:"ბალეტი",cat:"ხელოვნება",hint:"ცეკვა"},
+  {w:"ოპერა",cat:"ხელოვნება",hint:"სიმღერა+თეატრი"},
+  {w:"ფოტოგრაფია",cat:"ხელოვნება",hint:"ფოტო"},
+  {w:"ქანდაკება",cat:"ხელოვნება",hint:"ქვა ან ბრინჯაო"},
+  {w:"სიმფონია",cat:"მუსიკა",hint:"ორკესტრი"},
+  {w:"ოქტავა",cat:"მუსიკა",hint:"7 ნოტა"},
+  {w:"ნოტი",cat:"მუსიკა",hint:"მუსიკის ნიში"},
+  {w:"ჰარმონია",cat:"მუსიკა",hint:"ერთობლივი"},
+  {w:"მელოდია",cat:"მუსიკა",hint:"ლამაზი ხმა"},
+  {w:"რიტმი",cat:"მუსიკა",hint:"ტაქტი"},
+  {w:"ტემპო",cat:"მუსიკა",hint:"სიჩქარე"},
+  {w:"სონეტი",cat:"ხელოვნება",hint:"პოეზია"},
+  {w:"პოეზია",cat:"ხელოვნება",hint:"ლექსი"},
+  {w:"რომანი",cat:"ხელოვნება",hint:"გრძელი წიგნი"},
+  {w:"ნოველა",cat:"ხელოვნება",hint:"მოკლე ამბავი"},
+  {w:"დრამა",cat:"ხელოვნება",hint:"ტრაგიკული"},
+  {w:"კომედია",cat:"ხელოვნება",hint:"სახალისო"},
+  {w:"ტრაგედია",cat:"ხელოვნება",hint:"სევდიანი"},
+];
+
+// ====== STATE ======
+let ME = null, MYPROF = null;
+let currentWord = null;
+let score = 0, correctCount = 0, wordIndex = 0, streak = 0;
+let hintCount = 3, skipCount = 3;
+let shuffledLetters = [], selectedLetters = [];
+let usedIndices = new Set();
+let timerInterval = null, timerLeft = 30;
+const TIMER_MAX = 30;
+const POINTS_PER_WORD = 5;
+
+// ====== INIT ======
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { window.close(); return; }
+  ME = user;
+  const { data } = await sb.from('profiles').select('*').eq('id', ME.id).single();
+  MYPROF = data;
+  score = MYPROF?.game_score || 0;
+  document.getElementById('scoreVal').textContent = score;
+  loadLeaderboard();
+  loadNewWord();
+}
+
+// ====== WORD LOGIC ======
+function scramble(word) {
+  const arr = [...word];
+  // Ensure it's actually scrambled (not same as original)
+  let attempts = 0;
+  do {
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
+    }
+    attempts++;
+  } while (arr.join('') === word && attempts < 20 && word.length > 1);
+  return arr;
+}
+
+function loadNewWord() {
+  clearInterval(timerInterval);
+  const idx = Math.floor(Math.random() * WORDS.length);
+  currentWord = WORDS[idx];
+  wordIndex++;
+  usedIndices = new Set();
+  selectedLetters = [];
+  shuffledLetters = scramble(currentWord.w);
+
+  document.getElementById('wordNum').textContent = wordIndex;
+  document.getElementById('catBadge').textContent = currentWord.cat;
+  document.getElementById('hintText').textContent = '💡 ' + currentWord.hint;
+  document.getElementById('hintText').classList.remove('show');
+  document.getElementById('progressFill').style.width = Math.min(wordIndex * 0.33, 100) + '%';
+
+  renderScrambled();
+  renderAnswerSlots();
+  startTimer();
+}
+
+function renderScrambled() {
+  const el = document.getElementById('scrambledLetters');
+  el.innerHTML = '';
+  shuffledLetters.forEach((letter, i) => {
+    const tile = document.createElement('div');
+    tile.className = 'letter-tile';
+    tile.textContent = letter;
+    tile.style.animationDelay = (i * 0.06) + 's';
+    if (usedIndices.has(i)) tile.classList.add('used');
+    tile.addEventListener('click', () => pickLetter(i));
+    el.appendChild(tile);
+  });
+}
+
+function renderAnswerSlots() {
+  const el = document.getElementById('answerSlots');
+  el.innerHTML = '';
+  const len = currentWord.w.length;
+  for (let i = 0; i < len; i++) {
+    const slot = document.createElement('div');
+    slot.className = 'answer-slot' + (selectedLetters[i] !== undefined ? ' filled' : '');
+    slot.textContent = selectedLetters[i]?.letter || '';
+    slot.dataset.idx = i;
+    slot.addEventListener('click', () => {
+      if (selectedLetters[i] !== undefined) removeLetter(i);
+    });
+    el.appendChild(slot);
+  }
+}
+
+function pickLetter(tileIdx) {
+  if (usedIndices.has(tileIdx)) return;
+  const nextEmpty = selectedLetters.length;
+  if (nextEmpty >= currentWord.w.length) return;
+  usedIndices.add(tileIdx);
+  selectedLetters.push({ letter: shuffledLetters[tileIdx], tileIdx });
+  renderScrambled();
+  renderAnswerSlots();
+  // Auto-check when all filled
+  if (selectedLetters.length === currentWord.w.length) {
+    setTimeout(checkAnswer, 200);
+  }
+}
+
+function removeLetter(slotIdx) {
+  if (slotIdx >= selectedLetters.length) return;
+  const removed = selectedLetters.splice(slotIdx, 1)[0];
+  usedIndices.delete(removed.tileIdx);
+  renderScrambled();
+  renderAnswerSlots();
+}
+
+function clearAnswer() {
+  selectedLetters = [];
+  usedIndices = new Set();
+  renderScrambled();
+  renderAnswerSlots();
+}
+
+// ====== CHECK ======
+function checkAnswer() {
+  if (selectedLetters.length < currentWord.w.length) { toast('⚠️ ყველა ასო ამოარჩიე!'); return; }
+  const answer = selectedLetters.map(s => s.letter).join('');
+  const slots = document.querySelectorAll('.answer-slot');
+  clearInterval(timerInterval);
+
+  if (answer === currentWord.w) {
+    streak++;
+    score += POINTS_PER_WORD;
+    correctCount++;
+    slots.forEach(s => { s.classList.add('correct'); s.classList.remove('filled'); });
+    updateScoreDisplay();
+    updateStreak();
+    saveScore();
+    showResult(true);
+    spawnScoreFloat('+5');
+  } else {
+    streak = 0;
+    updateStreak();
+    slots.forEach(s => { s.classList.add('wrong'); s.classList.remove('filled'); });
+    setTimeout(() => {
+      slots.forEach(s => s.classList.remove('wrong'));
+    }, 600);
+    showResult(false);
+  }
+}
+
+function updateScoreDisplay() {
+  const el = document.getElementById('scoreVal');
+  el.textContent = score;
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = 'correctPop .4s ease';
+  document.getElementById('correctVal').textContent = correctCount;
+}
+
+function updateStreak() {
+  document.getElementById('streakVal').textContent = streak + '🔥';
+  const badge = document.getElementById('streakBadge');
+  if (streak >= 2) {
+    document.getElementById('streakText').textContent = streak;
+    badge.classList.remove('hidden');
+  } else {
+    badge.classList.add('hidden');
+  }
+}
+
+async function saveScore() {
+  if (!ME) return;
+  await sb.from('profiles').update({ game_score: score }).eq('id', ME.id);
+  loadLeaderboard();
+}
+
+// ====== TIMER ======
+function startTimer() {
+  timerLeft = TIMER_MAX;
+  const fill = document.getElementById('timerFill');
+  fill.style.width = '100%';
+  fill.style.background = 'linear-gradient(90deg,#4ade80,#a855f7)';
+  clearInterval(timerInterval);
+  timerInterval = setInterval(() => {
+    timerLeft -= 0.1;
+    const pct = (timerLeft / TIMER_MAX) * 100;
+    fill.style.width = pct + '%';
+    if (pct < 40) fill.style.background = 'linear-gradient(90deg,#fbbf24,#f87171)';
+    if (pct < 20) fill.style.background = '#f87171';
+    if (timerLeft <= 0) {
+      clearInterval(timerInterval);
+      streak = 0;
+      updateStreak();
+      showResult(false, true);
+    }
+  }, 100);
+}
+
+// ====== HINT ======
+function useHint() {
+  if (hintCount <= 0) return;
+  hintCount--;
+  document.getElementById('hintCount').textContent = hintCount;
+  document.getElementById('hintText').classList.add('show');
+  if (hintCount === 0) document.getElementById('hintBtn').disabled = true;
+}
+
+// ====== SKIP ======
+function skipWord() {
+  if (skipCount <= 0) { toast('❌ გამოტოვება ამოიწურა!'); return; }
+  skipCount--;
+  streak = 0;
+  updateStreak();
+  document.getElementById('skipCount').textContent = skipCount;
+  if (skipCount === 0) document.getElementById('skipBtn').disabled = true;
+  clearInterval(timerInterval);
+  toast('⏭ გამოტოვებულია');
+  setTimeout(loadNewWord, 300);
+}
+
+// ====== RESULT ======
+function showResult(win, timeout = false) {
+  const overlay = document.getElementById('resultOverlay');
+  const emoji = document.getElementById('resultEmoji');
+  const title = document.getElementById('resultTitle');
+  const word = document.getElementById('resultWord');
+  const sc = document.getElementById('resultScore');
+
+  if (win) {
+    emoji.textContent = streak >= 3 ? '🔥🎉🔥' : '🎉';
+    title.textContent = streak >= 3 ? 'სუპერ სტრიქი!' : 'სწორია!';
+    title.className = 'result-title win';
+    word.textContent = currentWord.w;
+    sc.innerHTML = `+<strong>5</strong> ქულა · სულ: <strong>${score}</strong> · სტრიქი: ${streak}🔥`;
+  } else {
+    emoji.textContent = timeout ? '⏰' : '❌';
+    title.textContent = timeout ? 'დრო ამოიწურა!' : 'არასწორია';
+    title.className = 'result-title lose';
+    word.textContent = currentWord.w;
+    sc.innerHTML = `სწორი იყო: <strong style="color:var(--green)">${currentWord.w}</strong>`;
+  }
+
+  overlay.classList.add('show');
+}
+
+function nextWord() {
+  document.getElementById('resultOverlay').classList.remove('show');
+  loadNewWord();
+}
+
+// ====== FLOATING SCORE ======
+function spawnScoreFloat(txt) {
+  const el = document.createElement('div');
+  el.className = 'floating-score';
+  el.textContent = txt;
+  el.style.left = (30 + Math.random() * 40) + '%';
+  el.style.top = '40%';
+  document.body.appendChild(el);
+  setTimeout(() => el.remove(), 1000);
+}
+
+// ====== LEADERBOARD ======
+async function loadLeaderboard() {
+  const { data } = await sb.from('profiles')
+    .select('id,username,game_score,avatar_url,emotion')
+    .order('game_score', { ascending: false })
+    .limit(10);
+  const cont = document.getElementById('lbContainer');
+  cont.innerHTML = '';
+  (data || []).forEach((u, i) => {
+    const medals = ['🥇', '🥈', '🥉'];
+    const rankClass = i < 3 ? `rank-${i + 1}` : '';
+    const isMe = u.id === ME?.id;
+    const d = document.createElement('div');
+    d.className = 'lb-row';
+    if (isMe) d.style.background = 'var(--indigo-f)';
+    d.innerHTML = `
+      <span class="lb-rank ${rankClass}">${medals[i] || (i + 1)}</span>
+      <span class="lb-name" style="${isMe ? 'color:var(--accent);font-weight:700' : ''}">${esc(u.username || '?')}${isMe ? ' 👈' : ''}</span>
+      <span class="lb-score">${u.game_score || 0}</span>
+    `;
+    cont.appendChild(d);
+  });
+}
+
+function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:10px 20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);color:var(--text);white-space:nowrap';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
