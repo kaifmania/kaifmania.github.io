@@ -2,422 +2,162 @@
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>🎱 ბილიარდი - 8-ბოლი</title>
+<title>🎱 ბილიარდი</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans Georgian',sans-serif;background:#0f0e1a;color:#ede0ff;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
-@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
-@keyframes invitePop{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
-
-.loader{position:fixed;inset:0;background:rgba(0,0,0,.8);display:flex;align-items:center;justify-content:center;z-index:10000;flex-direction:column;gap:16px}
-.loader-spinner{width:48px;height:48px;border:4px solid rgba(168,85,247,.2);border-top-color:#a855f7;border-radius:50%;animation:spin .8s linear infinite}
-@keyframes spin{to{transform:rotate(360deg)}}
-
-#lobby{background:rgba(37,34,64,.97);border:1px solid rgba(160,80,255,.35);border-radius:24px;padding:28px 24px;max-width:440px;width:92%;animation:fadeIn .4s ease;text-align:center}
-.logo{font-size:54px;margin-bottom:4px}
-.ltitle{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:900;margin-bottom:3px}
-.lsub{font-size:11px;color:#b580e0;margin-bottom:20px}
-.my-nick-row{display:flex;align-items:center;gap:8px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:12px;padding:10px 14px;margin-bottom:16px}
-.my-av{width:34px;height:34px;border-radius:50%;background:rgba(120,30,200,.3);border:2px solid rgba(168,85,247,.4);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0}
-.my-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.my-nick-text{font-size:14px;font-weight:600;color:#ede0ff;flex:1;text-align:left}
-.my-wins{font-family:'Unbounded',sans-serif;font-size:10px;color:#f5c518;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);border-radius:8px;padding:2px 8px}
-
-.sec-lbl{font-size:9px;font-family:'Unbounded',sans-serif;letter-spacing:1.5px;color:#7a5a9a;text-transform:uppercase;margin-bottom:10px;text-align:left}
-
-#onlineList{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;margin-bottom:16px}
-#onlineList::-webkit-scrollbar{width:3px}
-#onlineList::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3);border-radius:2px}
-.online-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:13px;background:rgba(37,34,64,.6);border:1px solid rgba(160,80,255,.2);transition:all .2s}
-.online-item:hover{background:rgba(120,30,200,.2);border-color:rgba(168,85,247,.5)}
-.online-item.busy{opacity:.5;cursor:not-allowed}
-.oi-av{width:32px;height:32px;border-radius:50%;background:rgba(120,30,200,.3);border:2px solid rgba(168,85,247,.3);display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;flex-shrink:0;position:relative}
-.oi-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.oi-dot{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;background:#4ade80;border-radius:50%;border:2px solid #1c1a30}
-.oi-info{flex:1;text-align:left}
-.oi-name{font-size:13px;font-weight:600;color:#ede0ff}
-.oi-status{font-size:10px;color:#7a5a9a}
-.oi-invite-btn{background:linear-gradient(135deg,#7a1fc8,#a855f7);border:none;border-radius:10px;color:#fff;font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;transition:all .2s}
-.oi-invite-btn:hover{transform:scale(1.02)}
-.oi-invite-btn:disabled{opacity:.5;cursor:not-allowed}
-.empty-online{font-size:12px;color:#7a5a9a;text-align:center;padding:20px 0}
-
-.or-div{display:flex;align-items:center;gap:10px;margin:0 0 12px;color:#7a5a9a;font-size:11px}
-.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:rgba(160,80,255,.2)}
-.field{width:100%;padding:10px 14px;background:#221f3a;border:1.5px solid rgba(160,80,255,.3);border-radius:12px;color:#ede0ff;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;outline:none;margin-bottom:10px;text-align:center;text-transform:uppercase}
-.field:focus{border-color:#a855f7}
-.btn{width:100%;padding:12px;border-radius:13px;border:none;font-family:'Noto Sans Georgian',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
-.btn-s{background:rgba(120,30,200,.15);border:1px solid rgba(160,80,255,.3);color:#c084fc}
-.btn-s:hover{background:rgba(120,30,200,.28)}
-.wait-info{font-size:11px;color:#b580e0;animation:pulse 2s infinite;margin-top:10px;display:none}
-
-/* INVITE OVERLAY */
-#inviteOverlay{position:fixed;inset:0;background:rgba(10,8,24,.9);display:none;align-items:center;justify-content:center;z-index:5000;backdrop-filter:blur(8px)}
-#inviteOverlay.open{display:flex}
-#inviteBox{background:rgba(37,34,64,.98);border:1px solid rgba(168,85,247,.5);border-radius:22px;padding:28px 24px;max-width:340px;width:90%;text-align:center;animation:invitePop .35s}
-.inv-icon{font-size:48px;margin-bottom:8px}
-.inv-title{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;margin-bottom:4px}
-.inv-sub{font-size:12px;color:#b580e0;margin-bottom:20px}
-.inv-btns{display:flex;gap:8px}
-.inv-yes{flex:1;padding:11px;border-radius:12px;background:linear-gradient(135deg,#2e7d32,#4ade80);border:none;color:#052e16;font-weight:700;font-size:13px;cursor:pointer}
-.inv-no{flex:1;padding:11px;border-radius:12px;background:rgba(200,0,0,.15);border:1px solid rgba(200,0,0,.3);color:#ff7777;font-weight:600;font-size:13px;cursor:pointer}
-
-/* GAME */
-#gameWrap{display:none;flex-direction:column;align-items:center;width:100vw;height:100dvh;background:#0f0e1a}
-#topBar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:820px;padding:8px 12px;flex-shrink:0;gap:8px}
-.player-card{display:flex;align-items:center;gap:7px;background:rgba(37,34,64,.9);border:1px solid rgba(160,80,255,.25);border-radius:13px;padding:7px 12px;font-size:12px;min-width:0;transition:all .2s}
-.player-card.active{border-color:#a855f7;box-shadow:0 0 12px rgba(168,85,247,.3)}
-.player-card.active::before{content:'▶ ';color:#f07aff}
-.pc-av{width:28px;height:28px;border-radius:50%;background:rgba(120,30,200,.3);border:1px solid rgba(168,85,247,.3);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;flex-shrink:0}
-.pc-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.ball-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
-.pc-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:90px}
-.score-badge{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.3);border-radius:7px;padding:2px 7px;color:#c084fc}
-.wins-badge{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:7px;padding:2px 7px;color:#f5c518}
-#turnInfo{font-family:'Unbounded',sans-serif;font-size:9px;font-weight:700;letter-spacing:.5px;color:#b580e0;text-align:center}
-#canvasWrap{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:6px}
-#table{border-radius:10px;cursor:crosshair;touch-action:none;box-shadow:0 0 30px rgba(0,0,0,.5)}
-#power-bar-wrap{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:5px}
-#power-bar-bg{width:16px;height:140px;background:rgba(37,34,64,.8);border:1px solid rgba(160,80,255,.3);border-radius:8px;position:relative;overflow:hidden}
-#power-bar-fill{position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,#4ade80,#fbbf24,#f07aff);border-radius:8px;transition:height .04s;height:0}
-.pb-lbl{font-size:8px;color:#b580e0;font-family:'Unbounded',sans-serif}
-#bottomBar{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px;flex-shrink:0}
-.action-btn{padding:7px 16px;border-radius:11px;border:1px solid rgba(160,80,255,.3);background:rgba(37,34,64,.8);color:#c084fc;font-family:'Noto Sans Georgian',sans-serif;font-size:11px;cursor:pointer}
-.action-btn:hover{background:rgba(120,30,200,.25);border-color:#a855f7}
-
-#msgOverlay{position:fixed;inset:0;background:rgba(10,8,24,.85);display:none;align-items:center;justify-content:center;z-index:1000}
-#msgOverlay.open{display:flex}
-#msgBox{background:rgba(37,34,64,.98);border:1px solid rgba(160,80,255,.4);border-radius:22px;padding:28px;max-width:340px;width:88%;text-align:center}
-.m-icon{font-size:48px;margin-bottom:8px}
-.m-title{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900}
-.m-sub{font-size:12px;color:#b580e0;margin:6px 0}
-.m-wins{font-size:11px;color:#f5c518;margin-bottom:18px}
-.m-btn{width:100%;padding:12px;border-radius:12px;background:linear-gradient(135deg,#7a1fc8,#a855f7);border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer}
-
-.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:9px 20px;border-radius:18px;font-size:12px;z-index:9999;animation:fadeIn .3s ease;white-space:nowrap}
+*{margin:0;padding:0;box-sizing:border-box}
+body{background:#0a0a1a;color:#fff;font-family:sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh}
+#app{text-align:center}
+.online-list{display:flex;flex-direction:column;gap:8px;margin:20px 0}
+.user-item{background:#1a1a3a;padding:10px;border-radius:12px;display:flex;justify-content:space-between;align-items:center;width:300px}
+button{background:#7c3aed;border:none;padding:8px 16px;border-radius:8px;color:#fff;cursor:pointer}
+button:disabled{opacity:0.5}
+.game-area{position:fixed;top:0;left:0;right:0;bottom:0;background:#0a0a1a;display:none;flex-direction:column}
+.game-header{display:flex;justify-content:space-between;padding:10px}
+canvas{flex:1;background:#1a5c2a;margin:10px;border-radius:10px}
+.invite-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.8);display:none;justify-content:center;align-items:center}
+.invite-box{background:#1a1a3a;padding:30px;border-radius:20px;text-align:center}
+.invite-box button{margin:10px}
+.hidden{display:none}
 </style>
 </head>
 <body>
-
-<div id="loader" class="loader">
-  <div class="loader-spinner"></div>
-  <div>იტვირთება...</div>
-</div>
-
-<div id="lobby" style="display:none">
-  <div class="logo">🎱</div>
-  <div class="ltitle">ბილიარდი</div>
-  <div class="lsub">ორმხრივი ონლაინ · 8-ბოლი</div>
-
-  <div class="my-nick-row">
-    <div class="my-av" id="myAvEl">😊</div>
-    <div class="my-nick-text" id="myNickEl">...</div>
-    <div class="my-wins" id="myWinsEl">🏆 0</div>
+<div id="app">
+  <div id="lobby">
+    <h2>🎱 ბილიარდი</h2>
+    <div id="myInfo"></div>
+    <div class="sec-lbl">🟣 ონლაინ მოთამაშეები</div>
+    <div id="onlineList" class="online-list"></div>
+    <div id="waitMsg" class="hidden">⏳ ელოდება მოწვევის დადასტურებას...</div>
   </div>
-
-  <div class="sec-lbl">🟣 ონლაინ მოთამაშეები</div>
-  <div id="onlineList"><div class="empty-online">⏳ იტვირთება...</div></div>
-
-  <div class="or-div">ან შეერთება კოდით</div>
-  <input class="field" id="codeInp" placeholder="შეიყვანე კოდი..." maxlength="6" autocomplete="off">
-  <button class="btn btn-s" id="joinBtn">🚪 შეერთება კოდით</button>
-  <div class="wait-info" id="waitInfo">⏳ ელოდება მოწვევის დადასტურებას...</div>
-</div>
-
-<div id="inviteOverlay">
-  <div id="inviteBox">
-    <div class="inv-icon">🎱</div>
-    <div class="inv-title" id="invTitle">მოწვევა</div>
-    <div class="inv-sub" id="invSub">გინდა ითამაშო?</div>
-    <div class="inv-btns">
-      <button class="inv-yes" id="inviteAcceptBtn">✅ კი, ვთამაშობ!</button>
-      <button class="inv-no" id="inviteDeclineBtn">❌ არა</button>
+  
+  <div id="gameArea" class="game-area">
+    <div class="game-header">
+      <div id="p1Card">👤 მოთამაშე 1: <span id="p1Name">-</span> (<span id="p1Score">0</span>)</div>
+      <div id="turnInd">🎯 ჯერი: <span id="turnName">-</span></div>
+      <div id="p2Card">👤 მოთამაშე 2: <span id="p2Name">-</span> (<span id="p2Score">0</span>)</div>
+    </div>
+    <canvas id="canvas"></canvas>
+    <div style="padding:10px;display:flex;gap:10px;justify-content:center">
+      <button id="resetBtn">🔄 თავიდან</button>
+      <button id="leaveBtn">🚪 გასვლა</button>
     </div>
   </div>
-</div>
-
-<div id="gameWrap">
-  <div id="topBar">
-    <div class="player-card" id="p1Card">
-      <div class="pc-av" id="p1Av">😊</div>
-      <div class="ball-dot" id="p1Dot" style="background:#555"></div>
-      <span class="pc-name" id="p1Name">-</span>
-      <span class="score-badge" id="p1Score">0</span>
-      <span class="wins-badge" id="p1Wins">🏆0</span>
+  
+  <div id="inviteOverlay" class="invite-overlay">
+    <div class="invite-box">
+      <div id="inviteText">🎱 მოწვევა</div>
+      <button id="acceptInviteBtn">✅ დასტური</button>
+      <button id="declineInviteBtn">❌ უარი</button>
     </div>
-    <div id="turnInfo">-</div>
-    <div class="player-card" id="p2Card">
-      <div class="pc-av" id="p2Av">😊</div>
-      <div class="ball-dot" id="p2Dot" style="background:#555"></div>
-      <span class="pc-name" id="p2Name">-</span>
-      <span class="score-badge" id="p2Score">0</span>
-      <span class="wins-badge" id="p2Wins">🏆0</span>
-    </div>
-  </div>
-  <div id="canvasWrap">
-    <canvas id="table"></canvas>
-    <div id="power-bar-wrap">
-      <div class="pb-lbl">PWR</div>
-      <div id="power-bar-bg"><div id="power-bar-fill"></div></div>
-    </div>
-  </div>
-  <div id="bottomBar">
-    <button class="action-btn" id="resetGameBtn">🔄 თავიდან</button>
-    <button class="action-btn" id="leaveGameBtn">🚪 გასვლა</button>
-  </div>
-</div>
-
-<div id="msgOverlay">
-  <div id="msgBox">
-    <div class="m-icon" id="mIcon">🎱</div>
-    <div class="m-title" id="mTitle">-</div>
-    <div class="m-sub" id="mSub">-</div>
-    <div class="m-wins" id="mWins"></div>
-    <button class="m-btn" id="closeMsgBtn">კარგი</button>
   </div>
 </div>
 
 <script>
-// Supabase კონფიგი (იგივე რაც მთავარ ჩატში)
-const supabaseUrl = "https://brggiyhfzfbmlirqfgpo.supabase.co";
-const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
-const sb = supabase.createClient(supabaseUrl, supabaseKey);
+const sb = supabase.createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
 
-// ──── თამაშის კონსტანტები ────
-const TW = 760, TH = 400, BR = 11, FR = 0.985, MV = 0.15, PR = 18;
-const POCKETS = [
-  {x: PR, y: PR}, {x: TW/2, y: 8}, {x: TW-PR, y: PR},
-  {x: PR, y: TH-PR}, {x: TW/2, y: TH-8}, {x: TW-PR, y: TH-PR}
-];
-const BALL_COLORS = {
-  0: '#ffffff', 1: '#f5c518', 2: '#1565c0', 3: '#c62828', 4: '#6a1b9a',
-  5: '#e65100', 6: '#2e7d32', 7: '#b71c1c', 8: '#212121', 9: '#f5c518',
-  10: '#1565c0', 11: '#c62828', 12: '#6a1b9a', 13: '#e65100', 14: '#2e7d32', 15: '#b71c1c'
-};
-
-let ME = null, MY_PROFILE = null;
-let myNick = '', myAvatarUrl = '', myEmotion = '😊', myWins = 0;
-let opponentNick = '', opponentAvatarUrl = '', opponentEmotion = '😊', opponentWins = 0;
-
-let roomCode = null, myRole = null;  // 'p1' ან 'p2'
+let ME = null;
+let myNick = '', myWins = 0;
+let roomCode = null, myRole = null;
 let gameChannel = null;
-let gameActive = false;
-let pendingInvite = { code: null, inviterId: null, inviterNick: null, inviterAvatar: null };
-
-// თამაშის მდგომარეობა
-let canvas, ctx, scale = 1;
-let balls = [];
-let currentTurn = 'p1';
-let scores = { p1: 0, p2: 0 };
-let ballAssignments = { p1: null, p2: null };
-let gameOver = false;
-let myTurn = false;
-let canShoot = false;
-let aiming = false, aimX = 0, aimY = 0, power = 0;
-let chargeInterval = null;
-let animFrame = null;
 let inGame = false;
+let currentOpponent = null;
+let pendingInvite = null;
 
-// ──── ავტორიზაცია და პროფილის ჩატვირთვა ────
+// თამაშის ცვლადები
+let canvas, ctx, scale;
+let balls = [], currentTurn = 'p1', scores = {p1:0, p2:0}, gameOver = false, myTurn = false, canShoot = false;
+let aiming = false, aimX, aimY, power = 0, chargeInt;
+const TW=800, TH=450, BR=10;
+
+// 1. ავტორიზაცია - ავტომატურად ამოიღებს ნიკს
 async function init() {
-  try {
-    const { data: { user }, error: userError } = await sb.auth.getUser();
-    if (userError || !user) {
-      toast('❓ გთხოვთ გაიარეთ ავტორიზაცია ჩატში');
-      setTimeout(() => window.close(), 2000);
-      return;
-    }
-    ME = user;
-    
-    // პროფილის ჩატვირთვა profiles ცხრილიდან
-    const { data: profile, error: profError } = await sb
-      .from('profiles')
-      .select('*')
-      .eq('id', ME.id)
-      .single();
-    
-    if (profError) {
-      console.error('პროფილის შეცდომა:', profError);
-      toast('❌ პროფილის ჩატვირთვა ვერ მოხერხდა');
-      return;
-    }
-    
-    MY_PROFILE = profile;
-    myNick = profile.username || ME.email?.split('@')[0] || 'მოთამაშე';
-    myAvatarUrl = profile.avatar_url || '';
-    myEmotion = profile.emotion || '😊';
-    myWins = profile.billiards_wins || 0;
-    
-    // UI განახლება
-    document.getElementById('myNickEl').textContent = myNick;
-    document.getElementById('myWinsEl').textContent = `🏆 ${myWins}`;
-    const myAv = document.getElementById('myAvEl');
-    if (myAvatarUrl) {
-      myAv.innerHTML = `<img src="${myAvatarUrl}">`;
-    } else {
-      myAv.textContent = myEmotion;
-    }
-    
-    // ონლაინ მომხმარებლების ჩატვირთვა
-    await loadOnlineUsers();
-    
-    // მოწვევების მოსმენა
-    listenForInvites();
-    
-    // პერიოდული განახლება
-    setInterval(() => {
-      if (!inGame) loadOnlineUsers();
-    }, 15000);
-    
-    // ლოდერის დამალვა
-    document.getElementById('loader').style.display = 'none';
-    document.getElementById('lobby').style.display = 'block';
-    
-    // ღილაკების მოვლენები
-    document.getElementById('joinBtn').onclick = joinByCode;
-    document.getElementById('inviteAcceptBtn').onclick = acceptInvite;
-    document.getElementById('inviteDeclineBtn').onclick = declineInvite;
-    document.getElementById('resetGameBtn').onclick = resetGame;
-    document.getElementById('leaveGameBtn').onclick = leaveGame;
-    document.getElementById('closeMsgBtn').onclick = () => closeMsgOverlay();
-    
-  } catch (err) {
-    console.error('Init error:', err);
-    toast('❌ სისტემის შეცდომა');
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) {
+    alert('გთხოვთ გაიარეთ ავტორიზაცია ჩატში');
+    return;
   }
+  ME = user;
+  
+  const { data: profile } = await sb.from('profiles').select('*').eq('id', ME.id).single();
+  myNick = profile?.username || 'მოთამაშე';
+  myWins = profile?.billiards_wins || 0;
+  
+  document.getElementById('myInfo').innerHTML = `👤 ${myNick} | 🏆 ${myWins}`;
+  
+  loadOnlineUsers();
+  listenForInvites();
+  
+  setInterval(loadOnlineUsers, 15000);
+  
+  document.getElementById('acceptInviteBtn').onclick = acceptInvite;
+  document.getElementById('declineInviteBtn').onclick = declineInvite;
+  document.getElementById('resetBtn').onclick = resetGame;
+  document.getElementById('leaveBtn').onclick = leaveGame;
 }
 
-// ──── ონლაინ მომხმარებლების ჩატვირთვა (ვინც არის საიტზე) ────
+// 2. ონლაინ მომხმარებლების ჩატვირთვა
 async function loadOnlineUsers() {
   const cutoff = new Date(Date.now() - 60000).toISOString();
-  const { data, error } = await sb
-    .from('profiles')
-    .select('id, username, avatar_url, emotion, billiards_wins, last_seen')
-    .gte('last_seen', cutoff)
-    .order('username');
+  const { data } = await sb.from('profiles')
+    .select('id, username, avatar_url, billiards_wins, last_seen')
+    .gte('last_seen', cutoff);
   
-  if (error) {
-    console.error('ონლაინის შეცდომა:', error);
-    return;
-  }
-  
-  const onlineUsers = (data || []).filter(u => u.id !== ME?.id);
-  renderOnlineList(onlineUsers);
-}
-
-function renderOnlineList(users) {
+  const online = (data || []).filter(u => u.id !== ME.id);
   const container = document.getElementById('onlineList');
-  if (!users.length) {
-    container.innerHTML = '<div class="empty-online">😴 სხვა ონლაინ მოთამაშე არ არის</div>';
+  
+  if (online.length === 0) {
+    container.innerHTML = '<div>😴 სხვა ონლაინ მოთამაშე არ არის</div>';
     return;
   }
   
-  container.innerHTML = '';
-  users.forEach(user => {
-    const div = document.createElement('div');
-    div.className = 'online-item';
-    const avHtml = user.avatar_url 
-      ? `<img src="${user.avatar_url}">` 
-      : (user.emotion || '😊');
-    div.innerHTML = `
-      <div class="oi-av">${avHtml}<div class="oi-dot"></div></div>
-      <div class="oi-info">
-        <div class="oi-name">${escapeHtml(user.username || '?')}</div>
-        <div class="oi-status">🏆 ${user.billiards_wins || 0} გამარჯვება</div>
-      </div>
-      <button class="oi-invite-btn" data-uid="${user.id}" data-nick="${escapeHtml(user.username || '?')}" data-avatar="${user.avatar_url || ''}">
-        📨 მოწვევა
-      </button>
-    `;
-    const btn = div.querySelector('.oi-invite-btn');
-    btn.onclick = (e) => {
-      e.stopPropagation();
-      sendInvite(user.id, user.username || '?', user.avatar_url || '');
-    };
-    container.appendChild(div);
+  container.innerHTML = online.map(u => `
+    <div class="user-item">
+      <span>👤 ${u.username} (🏆 ${u.billiards_wins || 0})</span>
+      <button class="invite-btn" data-id="${u.id}" data-nick="${u.username}">📨 მოწვევა</button>
+    </div>
+  `).join('');
+  
+  document.querySelectorAll('.invite-btn').forEach(btn => {
+    btn.onclick = () => sendInvite(btn.dataset.id, btn.dataset.nick);
   });
 }
 
-// ──── მოწვევის გაგზავნა (ნოთიფიქეიშენში) ────
-async function sendInvite(targetUid, targetNick, targetAvatar) {
-  if (inGame) {
-    toast('⚠️ ახლა თამაშში ხარ!');
-    return;
-  }
+// 3. მოწვევის გაგზავნა
+async function sendInvite(targetId, targetNick) {
+  if (inGame) { alert('თამაშში ხარ!'); return; }
   
-  // ღილაკის დაბლოკვა
-  const btns = document.querySelectorAll('.oi-invite-btn');
-  btns.forEach(btn => {
-    if (btn.getAttribute('data-uid') === targetUid) {
-      btn.disabled = true;
-      btn.textContent = '⏳...';
-    }
-  });
-  
-  roomCode = generateCode();
+  roomCode = Math.random().toString(36).slice(2, 8).toUpperCase();
   myRole = 'p1';
-  document.getElementById('waitInfo').style.display = 'block';
   
-  // ოთახის შექმნა
   await sb.from('billiards_rooms').upsert({
     code: roomCode,
     p1_nick: myNick,
     p1_uid: ME.id,
-    p1_avatar: myAvatarUrl,
-    status: 'waiting',
-    created_at: new Date().toISOString()
+    status: 'waiting'
   });
   
-  // მოწვევის გაგზავნა Supabase-ის notifications ცხრილში (რომ გამოჩნდეს ნოთიფიქეიშენში)
+  // მოწვევა notifications ცხრილში
   await sb.from('notifications').insert({
-    user_id: targetUid,
+    user_id: targetId,
     from_uid: ME.id,
     type: 'game_invite',
-    data: {
-      code: roomCode,
-      nick: myNick,
-      avatar: myAvatarUrl,
-      game: 'billiards'
-    },
+    data: { code: roomCode, nick: myNick, game: 'billiards' },
     is_read: false
   });
   
-  toast(`📨 მოწვევა გაიგზავნა → ${targetNick}`);
+  document.getElementById('waitMsg').classList.remove('hidden');
+  toast(`📨 მოწვევა გაეგზავნა ${targetNick}`);
   
-  // ველოდებით მეორე მოთამაშის შემოსვლას
   subscribeToRoom();
 }
 
-// მოწვევების მოსმენა
+// 4. მოწვევების მოსმენა
 function listenForInvites() {
-  if (!ME) return;
-  
-  const channel = sb.channel(`game-invites-${ME.id}`);
-  channel
-    .on('broadcast', { event: 'invite-accepted' }, async ({ payload }) => {
-      if (payload.code === roomCode && myRole === 'p1') {
-        opponentNick = payload.nick;
-        opponentAvatarUrl = payload.avatar || '';
-        opponentWins = payload.wins || 0;
-        startGame();
-      }
-    })
-    .on('broadcast', { event: 'invite-declined' }, ({ payload }) => {
-      if (payload.code === roomCode) {
-        toast(`❌ ${payload.nick} უარყო მოწვევა`);
-        roomCode = null;
-        document.getElementById('waitInfo').style.display = 'none';
-        resetInviteButtons();
-      }
-    })
-    .subscribe();
-  
-  // ასევე ვუსმენთ notifications-ს (რეალურ დროში)
-  sb.channel(`notif-watch-${ME.id}`)
+  sb.channel(`invites-${ME.id}`)
     .on('postgres_changes', { 
       event: 'INSERT', 
       schema: 'public', 
@@ -425,466 +165,231 @@ function listenForInvites() {
       filter: `user_id=eq.${ME.id} AND type=eq.game_invite`
     }, async (payload) => {
       if (inGame) return;
-      const notif = payload.new;
-      const fromUser = await getUserById(notif.from_uid);
-      if (fromUser && notif.data?.code) {
-        showInvitePopup(
-          notif.data.code,
-          fromUser.username || '?',
-          fromUser.avatar_url || '',
-          notif.from_uid
-        );
-      }
+      const inv = payload.new.data;
+      pendingInvite = { code: inv.code, fromId: payload.new.from_uid, fromNick: inv.nick };
+      document.getElementById('inviteText').innerHTML = `🎱 ${inv.nick} გიწვევს თამაშში!`;
+      document.getElementById('inviteOverlay').style.display = 'flex';
     })
     .subscribe();
 }
 
-async function getUserById(uid) {
-  const { data } = await sb.from('profiles').select('username, avatar_url, emotion').eq('id', uid).single();
-  return data;
-}
-
-function showInvitePopup(code, nick, avatar, inviterId) {
-  pendingInvite = { code, inviterId, inviterNick: nick, inviterAvatar: avatar };
-  document.getElementById('invTitle').textContent = `${nick} გიწვევს!`;
-  document.getElementById('invSub').textContent = '🎱 ბილიარდის თამაშზე';
-  document.getElementById('inviteOverlay').classList.add('open');
-}
-
 async function acceptInvite() {
-  document.getElementById('inviteOverlay').classList.remove('open');
-  if (!pendingInvite.code) return;
+  document.getElementById('inviteOverlay').style.display = 'none';
+  if (!pendingInvite) return;
   
   myRole = 'p2';
   roomCode = pendingInvite.code;
   
-  // ოთახის განახლება
   await sb.from('billiards_rooms').update({
     p2_nick: myNick,
     p2_uid: ME.id,
-    p2_avatar: myAvatarUrl,
     status: 'playing'
   }).eq('code', roomCode);
   
-  // მეტოქის ინფოს ჩატვირთვა
   const { data: room } = await sb.from('billiards_rooms').select('*').eq('code', roomCode).single();
-  if (room) {
-    opponentNick = room.p1_nick || 'მოთამაშე';
-    opponentAvatarUrl = room.p1_avatar || '';
-    const { data: oppProf } = await sb.from('profiles').select('billiards_wins').eq('id', room.p1_uid).single();
-    opponentWins = oppProf?.billiards_wins || 0;
-  }
-  
-  // გავაგზავნოთ broadcast რომ მივიღე
-  const inviterChannel = sb.channel(`game-invites-${pendingInvite.inviterId}`);
-  await inviterChannel.subscribe();
-  await inviterChannel.send({
-    type: 'broadcast',
-    event: 'invite-accepted',
-    payload: {
-      code: roomCode,
-      nick: myNick,
-      avatar: myAvatarUrl,
-      wins: myWins
-    }
-  });
+  currentOpponent = { nick: room.p1_nick, uid: room.p1_uid, wins: 0 };
   
   subscribeToRoom();
   startGame();
 }
 
-async function declineInvite() {
-  document.getElementById('inviteOverlay').classList.remove('open');
-  if (!pendingInvite.code || !pendingInvite.inviterId) return;
-  
-  const inviterChannel = sb.channel(`game-invites-${pendingInvite.inviterId}`);
-  await inviterChannel.subscribe();
-  await inviterChannel.send({
-    type: 'broadcast',
-    event: 'invite-declined',
-    payload: {
-      code: pendingInvite.code,
-      nick: myNick
-    }
-  });
-  
-  pendingInvite = { code: null, inviterId: null, inviterNick: null, inviterAvatar: null };
+function declineInvite() {
+  document.getElementById('inviteOverlay').style.display = 'none';
+  pendingInvite = null;
+  toast('❌ მოწვევა უარყოფილია');
 }
 
-// კოდით შეერთება
-async function joinByCode() {
-  const code = document.getElementById('codeInp').value.trim().toUpperCase();
-  if (code.length < 4) {
-    toast('⚠️ შეიყვანე კოდი (4-6 სიმბოლო)');
-    return;
-  }
-  
-  const { data: room } = await sb
-    .from('billiards_rooms')
-    .select('*')
-    .eq('code', code)
-    .eq('status', 'waiting')
-    .maybeSingle();
-  
-  if (!room) {
-    toast('❌ ოთახი ვერ მოიძებნა ან უკვე დაკავებულია');
-    return;
-  }
-  
-  roomCode = code;
-  myRole = 'p2';
-  opponentNick = room.p1_nick || 'მოთამაშე';
-  opponentAvatarUrl = room.p1_avatar || '';
-  
-  const { data: oppProf } = await sb.from('profiles').select('billiards_wins').eq('id', room.p1_uid).single();
-  opponentWins = oppProf?.billiards_wins || 0;
-  
-  await sb.from('billiards_rooms').update({
-    p2_nick: myNick,
-    p2_uid: ME.id,
-    p2_avatar: myAvatarUrl,
-    status: 'playing'
-  }).eq('code', code);
-  
-  subscribeToRoom();
-  startGame();
-}
-
-// ოთახის არხი
+// 5. ოთახის არხი
 function subscribeToRoom() {
-  if (gameChannel) {
-    sb.removeChannel(gameChannel);
-  }
-  
+  if (gameChannel) sb.removeChannel(gameChannel);
   gameChannel = sb.channel(`billiards_${roomCode}`);
   gameChannel
     .on('broadcast', { event: 'shoot' }, ({ payload }) => {
-      if (payload.turn !== myRole) {
-        applyShot(payload);
-      }
+      if (payload.turn !== myRole) applyRemoteShoot(payload);
     })
     .on('broadcast', { event: 'state' }, ({ payload }) => {
       applyRemoteState(payload);
     })
-    .on('broadcast', { event: 'reset' }, () => {
-      doReset();
-    })
     .subscribe();
 }
 
-// ──── თამაშის ლოგიკა ────
+// 6. თამაშის დაწყება
 function startGame() {
   inGame = true;
   document.getElementById('lobby').style.display = 'none';
-  document.getElementById('gameWrap').style.display = 'flex';
-  document.getElementById('waitInfo').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'flex';
+  document.getElementById('waitMsg').classList.add('hidden');
   
   initCanvas();
-  doReset();
+  initBalls();
+  startAnimation();
+  
+  myTurn = (myRole === 'p1');
+  canShoot = myTurn;
+  updateGameUI();
 }
 
 function initCanvas() {
-  canvas = document.getElementById('table');
-  const wrap = document.getElementById('canvasWrap');
-  const maxW = Math.min(wrap.clientWidth - 50, TW);
-  const maxH = Math.min(wrap.clientHeight - 16, TH);
-  scale = Math.min(maxW / TW, maxH / TH);
-  canvas.width = TW * scale;
-  canvas.height = TH * scale;
+  canvas = document.getElementById('canvas');
+  canvas.width = TW;
+  canvas.height = TH;
   ctx = canvas.getContext('2d');
   
-  // მაუსის/თაჩის მოვლენები
   canvas.addEventListener('mousedown', onPointerDown);
   canvas.addEventListener('mousemove', onPointerMove);
   canvas.addEventListener('mouseup', onPointerUp);
-  canvas.addEventListener('touchstart', (e) => { e.preventDefault(); onPointerDown(e.touches[0]); });
-  canvas.addEventListener('touchmove', (e) => { e.preventDefault(); onPointerMove(e.touches[0]); });
-  canvas.addEventListener('touchend', (e) => { e.preventDefault(); onPointerUp(); });
 }
 
 function initBalls() {
   balls = [];
-  // კიუ-ბოლი
-  balls.push({ id: 0, x: TW * 0.25, y: TH / 2, vx: 0, vy: 0, active: true });
-  
-  // რაკი
-  const rx = TW * 0.72, ry = TH / 2, sp = BR * 2.12;
-  const rack = [
-    [0,0], [-1,-1], [1,-1], [-2,-2], [0,-2], [2,-2],
-    [-3,-3], [-1,-3], [1,-3], [3,-3], [-4,-4], [-2,-4], [0,-4], [2,-4], [4,-4]
-  ];
-  const order = [1,9,2,10,8,3,11,4,12,5,13,6,14,7,15];
-  rack.forEach(([col, row], i) => {
-    balls.push({
-      id: order[i],
-      x: rx + col * sp * 0.5,
-      y: ry + row * sp * Math.sin(Math.PI / 3),
-      vx: 0, vy: 0, active: true
-    });
-  });
-}
-
-function doReset() {
-  initBalls();
-  currentTurn = 'p1';
-  scores = { p1: 0, p2: 0 };
-  ballAssignments = { p1: null, p2: null };
-  gameOver = false;
-  canShoot = false;
-  myTurn = (myRole === 'p1');
-  updateUI();
-  startAnimation();
-  broadcastState();
+  balls.push({ id: 0, x: TW*0.25, y: TH/2, vx: 0, vy: 0, active: true });
+  for(let i=1; i<=15; i++) {
+    balls.push({ id: i, x: TW*0.7 + (i%5)*15, y: TH/2 + (Math.floor(i/5)-1)*20, vx: 0, vy: 0, active: true });
+  }
 }
 
 function startAnimation() {
-  if (animFrame) cancelAnimationFrame(animFrame);
-  (function loop() {
-    animFrame = requestAnimationFrame(loop);
+  function loop() {
     stepPhysics();
     draw();
-  })();
+    requestAnimationFrame(loop);
+  }
+  loop();
 }
 
 function stepPhysics() {
-  let moving = false;
+  // მარტივი ფიზიკა
   balls.forEach(b => {
     if (!b.active) return;
-    if (Math.abs(b.vx) > MV || Math.abs(b.vy) > MV) moving = true;
     b.x += b.vx;
     b.y += b.vy;
-    b.vx *= FR;
-    b.vy *= FR;
-    if (Math.abs(b.vx) < MV) b.vx = 0;
-    if (Math.abs(b.vy) < MV) b.vy = 0;
-    wallCollision(b);
+    b.vx *= 0.985;
+    b.vy *= 0.985;
+    if (Math.abs(b.vx) < 0.05) b.vx = 0;
+    if (Math.abs(b.vy) < 0.05) b.vy = 0;
+    
+    // კედლები
+    if (b.x - BR < 0) { b.x = BR; b.vx = Math.abs(b.vx); }
+    if (b.x + BR > TW) { b.x = TW-BR; b.vx = -Math.abs(b.vx); }
+    if (b.y - BR < 0) { b.y = BR; b.vy = Math.abs(b.vy); }
+    if (b.y + BR > TH) { b.y = TH-BR; b.vy = -Math.abs(b.vy); }
   });
-  ballCollisions();
-  checkPockets();
   
-  if (!moving && !canShoot && !gameOver && myTurn) {
+  // შეჯახებები
+  for(let i=0; i<balls.length; i++) {
+    for(let j=i+1; j<balls.length; j++) {
+      const b1=balls[i], b2=balls[j];
+      if(!b1.active || !b2.active) continue;
+      const dx = b2.x-b1.x, dy = b2.y-b1.y;
+      const dist = Math.sqrt(dx*dx+dy*dy);
+      if(dist < BR*2) {
+        const nx = dx/dist, ny = dy/dist;
+        const overlap = BR*2 - dist;
+        b1.x -= nx*overlap/2;
+        b1.y -= ny*overlap/2;
+        b2.x += nx*overlap/2;
+        b2.y += ny*overlap/2;
+      }
+    }
+  }
+  
+  // მოძრაობა?
+  let moving = balls.some(b => Math.abs(b.vx) > 0.1 || Math.abs(b.vy) > 0.1);
+  if (!moving && !canShoot && myTurn && !gameOver) {
     canShoot = true;
-    updateUI();
+    updateGameUI();
   }
 }
 
-function wallCollision(b) {
-  if (b.x - BR < 0) { b.x = BR; b.vx = Math.abs(b.vx); }
-  if (b.x + BR > TW) { b.x = TW - BR; b.vx = -Math.abs(b.vx); }
-  if (b.y - BR < 0) { b.y = BR; b.vy = Math.abs(b.vy); }
-  if (b.y + BR > TH) { b.y = TH - BR; b.vy = -Math.abs(b.vy); }
-}
-
-function ballCollisions() {
-  for (let i = 0; i < balls.length; i++) {
-    if (!balls[i].active) continue;
-    for (let j = i + 1; j < balls.length; j++) {
-      if (!balls[j].active) continue;
-      const dx = balls[j].x - balls[i].x;
-      const dy = balls[j].y - balls[i].y;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < BR * 2 && dist > 0) {
-        const nx = dx / dist, ny = dy / dist;
-        const overlap = BR * 2 - dist;
-        balls[i].x -= nx * overlap / 2;
-        balls[i].y -= ny * overlap / 2;
-        balls[j].x += nx * overlap / 2;
-        balls[j].y += ny * overlap / 2;
-        const dv = (balls[i].vx - balls[j].vx) * nx + (balls[i].vy - balls[j].vy) * ny;
-        balls[i].vx -= dv * nx;
-        balls[i].vy -= dv * ny;
-        balls[j].vx += dv * nx;
-        balls[j].vy += dv * ny;
+function draw() {
+  ctx.clearRect(0, 0, TW, TH);
+  ctx.fillStyle = '#1a6b3c';
+  ctx.fillRect(0, 0, TW, TH);
+  
+  // ბურთები
+  balls.forEach(b => {
+    if (!b.active) return;
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, BR, 0, Math.PI*2);
+    ctx.fillStyle = b.id===0 ? '#fff' : (b.id===8 ? '#333' : `hsl(${b.id*24}, 70%, 50%)`);
+    ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.font = '12px sans-serif';
+    ctx.fillText(b.id, b.x-4, b.y+4);
+  });
+  
+  // მიზნის ხაზი
+  if (aiming && canShoot) {
+    const cue = balls.find(b=>b.id===0);
+    if(cue) {
+      ctx.beginPath();
+      ctx.moveTo(cue.x, cue.y);
+      ctx.lineTo(aimX, aimY);
+      ctx.strokeStyle = 'white';
+      ctx.setLineDash([5,5]);
+      ctx.stroke();
+      
+      const len = Math.min(150, power*1.5);
+      const dx = cue.x - aimX, dy = cue.y - aimY;
+      const d = Math.sqrt(dx*dx+dy*dy);
+      if(d>0.01) {
+        ctx.beginPath();
+        ctx.moveTo(cue.x, cue.y);
+        ctx.lineTo(cue.x + (dx/d)*len, cue.y + (dy/d)*len);
+        ctx.strokeStyle = '#ffaa00';
+        ctx.setLineDash([]);
+        ctx.stroke();
       }
     }
   }
 }
 
-function checkPockets() {
-  for (const b of balls) {
-    if (!b.active) continue;
-    for (const p of POCKETS) {
-      const dx = b.x - p.x, dy = b.y - p.y;
-      if (Math.sqrt(dx * dx + dy * dy) < PR) {
-        b.active = false;
-        b.vx = 0;
-        b.vy = 0;
-        ballPocketed(b);
-        break;
-      }
-    }
-  }
-}
-
-function ballPocketed(b) {
-  const isSolid = b.id >= 1 && b.id <= 7;
-  const isStripe = b.id >= 9 && b.id <= 15;
-  const is8 = b.id === 8;
-  
-  // კიუ-ბოლი
-  if (b.id === 0) {
-    toast('⚪ კიუ-ბოლი ჩავარდა!');
-    setTimeout(() => {
-      const cue = balls.find(ball => ball.id === 0);
-      if (cue) {
-        cue.x = TW * 0.25;
-        cue.y = TH / 2;
-        cue.vx = 0;
-        cue.vy = 0;
-        cue.active = true;
-      }
-      switchTurn();
-    }, 800);
-    return;
-  }
-  
-  // ჯერ არ აქვს განსაზღვრული ტიპი?
-  if (!ballAssignments[currentTurn] && !is8) {
-    ballAssignments[currentTurn] = isSolid ? 'solid' : 'stripe';
-    ballAssignments[currentTurn === 'p1' ? 'p2' : 'p1'] = isSolid ? 'stripe' : 'solid';
-    updateUI();
-    const myTypeMsg = (ballAssignments[myRole] === 'solid') ? '🟡 სოლიდები' : '🔵 სტრაიფები';
-    toast(`${myTypeMsg} — შენი ბურთები`);
-  }
-  
-  const myBallType = ballAssignments[currentTurn];
-  
-  if (is8) {
-    const remaining = balls.filter(bl => {
-      if (!bl.active || bl.id === 0 || bl.id === 8) return false;
-      return myBallType === 'solid' ? (bl.id >= 1 && bl.id <= 7) : (bl.id >= 9 && bl.id <= 15);
-    });
-    const winner = remaining.length === 0 ? currentTurn : (currentTurn === 'p1' ? 'p2' : 'p1');
-    endGame(winner);
-    return;
-  }
-  
-  const correct = (myBallType === 'solid' && isSolid) || (myBallType === 'stripe' && isStripe);
-  if (correct) {
-    scores[currentTurn]++;
-    document.getElementById(`${currentTurn}Score`).textContent = scores[currentTurn];
-  } else {
-    switchTurn();
-  }
-  broadcastState();
-}
-
-function switchTurn() {
-  currentTurn = currentTurn === 'p1' ? 'p2' : 'p1';
-  myTurn = (currentTurn === myRole);
-  canShoot = myTurn;
-  updateUI();
-}
-
-async function endGame(winner) {
-  gameOver = true;
-  canShoot = false;
-  
-  const isMeWinner = (winner === myRole);
-  if (isMeWinner) {
-    myWins++;
-    await sb.from('profiles').update({ billiards_wins: myWins }).eq('id', ME.id);
-    document.getElementById('myWinsEl').textContent = `🏆 ${myWins}`;
-    document.getElementById('p1Wins').textContent = `🏆${myRole === 'p1' ? myWins : opponentWins}`;
-    document.getElementById('p2Wins').textContent = `🏆${myRole === 'p2' ? myWins : opponentWins}`;
-  } else {
-    opponentWins++;
-  }
-  
-  updateUI();
-  showMsg(
-    isMeWinner ? '🏆' : '😢',
-    isMeWinner ? 'გაიმარჯვე!' : 'წააგე!',
-    isMeWinner ? '8-ბოლი ჩააგდე!' : 'მეტოქემ მოიგო...',
-    isMeWinner ? `სულ გამარჯვება: ${myWins} 🏆` : ''
-  );
-  broadcastState();
-}
-
-function updateUI() {
-  // აქტიური მოთამაშის მონიშვნა
-  document.getElementById('p1Card').classList.toggle('active', currentTurn === 'p1');
-  document.getElementById('p2Card').classList.toggle('active', currentTurn === 'p2');
-  
-  // სახელები
-  document.getElementById('p1Name').textContent = myRole === 'p1' ? myNick : opponentNick;
-  document.getElementById('p2Name').textContent = myRole === 'p2' ? myNick : opponentNick;
-  
-  // ავატარები
-  const p1Av = document.getElementById('p1Av');
-  const p1Avatar = myRole === 'p1' ? myAvatarUrl : opponentAvatarUrl;
-  const p1Emo = myRole === 'p1' ? myEmotion : opponentEmotion;
-  p1Av.innerHTML = p1Avatar ? `<img src="${p1Avatar}">` : p1Emo;
-  
-  const p2Av = document.getElementById('p2Av');
-  const p2Avatar = myRole === 'p2' ? myAvatarUrl : opponentAvatarUrl;
-  const p2Emo = myRole === 'p2' ? myEmotion : opponentEmotion;
-  p2Av.innerHTML = p2Avatar ? `<img src="${p2Avatar}">` : p2Emo;
-  
-  // ბურთების ფერები (ტიპი)
-  const p1Type = ballAssignments.p1;
-  const p2Type = ballAssignments.p2;
-  document.getElementById('p1Dot').style.background = p1Type === 'solid' ? '#f5c518' : p1Type === 'stripe' ? '#1565c0' : '#555';
-  document.getElementById('p2Dot').style.background = p2Type === 'solid' ? '#f5c518' : p2Type === 'stripe' ? '#1565c0' : '#555';
-  
-  // ქულები
-  document.getElementById('p1Score').textContent = scores.p1;
-  document.getElementById('p2Score').textContent = scores.p2;
-  document.getElementById('p1Wins').textContent = `🏆${myRole === 'p1' ? myWins : opponentWins}`;
-  document.getElementById('p2Wins').textContent = `🏆${myRole === 'p2' ? myWins : opponentWins}`;
-  
-  // ჯერის ინფო
-  document.getElementById('turnInfo').textContent = myTurn ? (canShoot ? '🎯 შენი ჯერი' : '⏳...') : '⏳ მეტოქე';
-}
-
-function getCueBall() {
-  return balls.find(b => b.id === 0);
+function getCoords(e) {
+  const rect = canvas.getBoundingClientRect();
+  return { x: (e.clientX - rect.left) * (TW/rect.width), y: (e.clientY - rect.top) * (TH/rect.height) };
 }
 
 function onPointerDown(e) {
   if (!canShoot || gameOver) return;
-  const pos = getCanvasCoords(e);
+  const pos = getCoords(e);
   aiming = true;
   aimX = pos.x;
   aimY = pos.y;
   power = 0;
-  const startTime = Date.now();
-  if (chargeInterval) clearInterval(chargeInterval);
-  chargeInterval = setInterval(() => {
-    power = Math.min(100, (Date.now() - startTime) / 18);
-    document.getElementById('power-bar-fill').style.height = power + '%';
+  const start = Date.now();
+  if(chargeInt) clearInterval(chargeInt);
+  chargeInt = setInterval(() => {
+    power = Math.min(100, (Date.now()-start)/15);
   }, 16);
 }
 
 function onPointerMove(e) {
-  if (!aiming || !canShoot) return;
-  const pos = getCanvasCoords(e);
+  if (!aiming) return;
+  const pos = getCoords(e);
   aimX = pos.x;
   aimY = pos.y;
 }
 
 function onPointerUp() {
-  if (!aiming || !canShoot || gameOver) return;
+  if (!aiming || !canShoot) return;
   aiming = false;
-  if (chargeInterval) clearInterval(chargeInterval);
-  document.getElementById('power-bar-fill').style.height = '0';
+  if(chargeInt) clearInterval(chargeInt);
   
-  const cue = getCueBall();
-  if (!cue) return;
+  const cue = balls.find(b=>b.id===0);
+  if(!cue) return;
   
-  const dx = cue.x - aimX;
-  const dy = cue.y - aimY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
-  if (dist < 5) return;
+  const dx = cue.x - aimX, dy = cue.y - aimY;
+  const dist = Math.sqrt(dx*dx+dy*dy);
+  if(dist < 5) return;
   
-  const speed = (power / 100) * 22;
-  cue.vx = (dx / dist) * speed;
-  cue.vy = (dy / dist) * speed;
+  const speed = (power/100) * 15;
+  cue.vx = (dx/dist) * speed;
+  cue.vy = (dy/dist) * speed;
   
   canShoot = false;
   myTurn = false;
   
-  // გავაგზავნოთ დარტყმა
+  // გაგზავნა მეტოქესთვის
   gameChannel.send({
     type: 'broadcast',
     event: 'shoot',
@@ -895,274 +400,73 @@ function onPointerUp() {
       balls: balls.map(b => ({ id: b.id, x: b.x, y: b.y, vx: b.vx, vy: b.vy, active: b.active }))
     }
   });
-  updateUI();
+  updateGameUI();
 }
 
-function getCanvasCoords(e) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: (e.clientX - rect.left) / scale,
-    y: (e.clientY - rect.top) / scale
-  };
-}
-
-function applyShot(payload) {
+function applyRemoteShoot(payload) {
   payload.balls.forEach(s => {
-    const b = balls.find(ball => ball.id === s.id);
-    if (b) {
-      b.x = s.x;
-      b.y = s.y;
-      b.vx = s.vx;
-      b.vy = s.vy;
-      b.active = s.active;
-    }
+    const b = balls.find(bb => bb.id === s.id);
+    if(b) { b.x = s.x; b.y = s.y; b.vx = s.vx; b.vy = s.vy; b.active = s.active; }
   });
-  const cue = getCueBall();
-  if (cue) {
-    cue.vx = payload.cueVx;
-    cue.vy = payload.cueVy;
-  }
-  updateUI();
-}
-
-function broadcastState() {
-  gameChannel.send({
-    type: 'broadcast',
-    event: 'state',
-    payload: {
-      balls: balls.map(b => ({ id: b.id, x: b.x, y: b.y, vx: b.vx, vy: b.vy, active: b.active })),
-      currentTurn,
-      scores,
-      ballAssignments,
-      gameOver
-    }
-  });
+  const cue = balls.find(b=>b.id===0);
+  if(cue) { cue.vx = payload.cueVx; cue.vy = payload.cueVy; }
+  myTurn = true;
+  canShoot = true;
+  updateGameUI();
 }
 
 function applyRemoteState(payload) {
-  if (payload.balls) {
+  if(payload.balls) {
     payload.balls.forEach(s => {
-      const b = balls.find(ball => ball.id === s.id);
-      if (b) {
-        b.x = s.x;
-        b.y = s.y;
-        b.vx = s.vx;
-        b.vy = s.vy;
-        b.active = s.active;
-      }
+      const b = balls.find(bb => bb.id === s.id);
+      if(b) { b.x = s.x; b.y = s.y; b.vx = s.vx; b.vy = s.vy; b.active = s.active; }
     });
   }
-  if (payload.currentTurn) currentTurn = payload.currentTurn;
-  if (payload.scores) scores = payload.scores;
-  if (payload.ballAssignments) ballAssignments = payload.ballAssignments;
-  if (payload.gameOver !== undefined) gameOver = payload.gameOver;
+  if(payload.currentTurn) currentTurn = payload.currentTurn;
+  if(payload.scores) scores = payload.scores;
+  if(payload.gameOver !== undefined) gameOver = payload.gameOver;
   myTurn = (currentTurn === myRole);
   canShoot = myTurn && !gameOver;
-  updateUI();
+  updateGameUI();
 }
 
-function draw() {
-  if (!ctx) return;
-  ctx.save();
-  ctx.scale(scale, scale);
-  
-  // მაგიდა
-  ctx.fillStyle = '#1a6b3c';
-  ctx.beginPath();
-  ctx.roundRect(0, 0, TW, TH, 10);
-  ctx.fill();
-  ctx.strokeStyle = '#8B4513';
-  ctx.lineWidth = 8;
-  ctx.stroke();
-  
-  // ხაზები
-  ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(TW/2, 0);
-  ctx.lineTo(TW/2, TH);
-  ctx.stroke();
-  
-  // ჯიბეები
-  POCKETS.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, PR, 0, Math.PI * 2);
-    ctx.fillStyle = '#080808';
-    ctx.fill();
-    ctx.strokeStyle = '#3d1f00';
-    ctx.lineWidth = 2;
-    ctx.stroke();
-  });
-  
-  // მიზნის ხაზი
-  if (aiming && canShoot) {
-    const cue = getCueBall();
-    if (cue) {
-      const dx = cue.x - aimX;
-      const dy = cue.y - aimY;
-      const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist > 1) {
-        const nx = dx / dist, ny = dy / dist;
-        ctx.save();
-        ctx.setLineDash([6, 6]);
-        ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(cue.x, cue.y);
-        ctx.lineTo(cue.x + nx * 200, cue.y + ny * 200);
-        ctx.stroke();
-        ctx.setLineDash([]);
-        ctx.strokeStyle = '#c8a96e';
-        ctx.lineWidth = 5;
-        ctx.beginPath();
-        ctx.moveTo(cue.x - nx * 22, cue.y - ny * 22);
-        ctx.lineTo(cue.x - nx * (85 + power * 1.2), cue.y - ny * (85 + power * 1.2));
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
-  }
-  
-  // ბურთები
-  balls.forEach(b => {
-    if (!b.active) return;
-    drawBall(b);
-  });
-  
-  ctx.restore();
-}
-
-function drawBall(b) {
-  const color = BALL_COLORS[b.id] || '#888';
-  const isStripe = b.id >= 9 && b.id <= 15;
-  ctx.save();
-  ctx.shadowColor = 'rgba(0,0,0,0.4)';
-  ctx.shadowBlur = 5;
-  ctx.shadowOffsetY = 2;
-  ctx.beginPath();
-  ctx.arc(b.x, b.y, BR, 0, Math.PI * 2);
-  
-  if (isStripe) {
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, BR, Math.PI * 0.15, Math.PI * 0.85);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, BR, Math.PI * 1.15, Math.PI * 1.85);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, BR * 0.42, 0, Math.PI * 2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-  } else {
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    if (b.id !== 0) {
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, BR * 0.42, 0, Math.PI * 2);
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-    }
-  }
-  
-  if (b.id !== 0) {
-    ctx.fillStyle = isStripe ? color : (b.id === 8 ? '#fff' : '#000');
-    ctx.font = `bold ${BR * 0.82}px sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(b.id, b.x, b.y + 0.5);
-  }
-  
-  ctx.beginPath();
-  ctx.arc(b.x - BR * 0.3, b.y - BR * 0.3, BR * 0.24, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(255,255,255,0.32)';
-  ctx.fill();
-  ctx.restore();
-}
-
-// roundRect helper
-if (!CanvasRenderingContext2D.prototype.roundRect) {
-  CanvasRenderingContext2D.prototype.roundRect = function(x, y, w, h, r) {
-    if (w < 2 * r) r = w / 2;
-    if (h < 2 * r) r = h / 2;
-    this.moveTo(x+r, y);
-    this.lineTo(x+w-r, y);
-    this.quadraticCurveTo(x+w, y, x+w, y+r);
-    this.lineTo(x+w, y+h-r);
-    this.quadraticCurveTo(x+w, y+h, x+w-r, y+h);
-    this.lineTo(x+r, y+h);
-    this.quadraticCurveTo(x, y+h, x, y+h-r);
-    this.lineTo(x, y+r);
-    this.quadraticCurveTo(x, y, x+r, y);
-    return this;
-  };
+function updateGameUI() {
+  document.getElementById('p1Name').textContent = myRole === 'p1' ? myNick : (currentOpponent?.nick || '?');
+  document.getElementById('p2Name').textContent = myRole === 'p2' ? myNick : (currentOpponent?.nick || '?');
+  document.getElementById('p1Score').textContent = scores.p1;
+  document.getElementById('p2Score').textContent = scores.p2;
+  document.getElementById('turnName').textContent = myTurn ? 'შენ' : 'მეტოქე';
 }
 
 function resetGame() {
-  if (!confirm('თამაში თავიდან?')) return;
-  doReset();
-  gameChannel.send({ type: 'broadcast', event: 'reset', payload: {} });
+  initBalls();
+  scores = {p1:0, p2:0};
+  gameOver = false;
+  currentTurn = 'p1';
+  myTurn = (myRole === 'p1');
+  canShoot = myTurn;
+  updateGameUI();
+  gameChannel?.send({ type: 'broadcast', event: 'state', payload: { balls: balls.map(b=>({...b})), currentTurn, scores, gameOver } });
 }
 
 function leaveGame() {
-  if (!confirm('გასვლა თამაშიდან?')) return;
   inGame = false;
-  if (gameChannel) {
-    sb.removeChannel(gameChannel);
-    gameChannel = null;
-  }
-  sb.from('billiards_rooms').update({ status: 'done' }).eq('code', roomCode).then(() => {});
+  if(gameChannel) sb.removeChannel(gameChannel);
+  sb.from('billiards_rooms').update({status:'done'}).eq('code', roomCode);
   roomCode = null;
-  myRole = null;
-  document.getElementById('gameWrap').style.display = 'none';
+  document.getElementById('gameArea').style.display = 'none';
   document.getElementById('lobby').style.display = 'block';
-  document.getElementById('waitInfo').style.display = 'none';
-  resetInviteButtons();
   loadOnlineUsers();
-}
-
-function resetInviteButtons() {
-  document.querySelectorAll('.oi-invite-btn').forEach(btn => {
-    btn.disabled = false;
-    btn.textContent = '📨 მოწვევა';
-  });
-}
-
-function showMsg(icon, title, sub, wins) {
-  document.getElementById('mIcon').textContent = icon;
-  document.getElementById('mTitle').textContent = title;
-  document.getElementById('mSub').textContent = sub;
-  document.getElementById('mWins').textContent = wins || '';
-  document.getElementById('msgOverlay').classList.add('open');
-}
-
-function closeMsgOverlay() {
-  document.getElementById('msgOverlay').classList.remove('open');
-}
-
-function generateCode() {
-  return Math.random().toString(36).slice(2, 8).toUpperCase();
-}
-
-function escapeHtml(str) {
-  if (!str) return '';
-  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 }
 
 function toast(msg) {
   const t = document.createElement('div');
-  t.className = 'toast';
   t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#7c3aed;padding:10px 20px;border-radius:20px;z-index:9999';
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2800);
+  setTimeout(()=>t.remove(), 2500);
 }
 
-// დაწყება
 init();
 </script>
 </body>
