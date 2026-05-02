@@ -9,55 +9,99 @@
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Noto Sans Georgian',sans-serif;background:#1c1a30;color:#ede0ff;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden}
-@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(168,85,247,.5)}50%{box-shadow:0 0 0 10px rgba(168,85,247,0)}}
-#lobby{background:rgba(37,34,64,.97);border:1px solid rgba(160,80,255,.35);border-radius:24px;padding:32px;max-width:400px;width:90%;animation:fadeIn .4s ease;text-align:center}
-.logo{font-size:60px;margin-bottom:6px}
-.title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;margin-bottom:4px}
-.sub{font-size:12px;color:#b580e0;margin-bottom:24px}
-.field{width:100%;padding:11px 14px;background:#221f3a;border:1.5px solid rgba(160,80,255,.35);border-radius:12px;color:#ede0ff;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;outline:none;margin-bottom:10px;transition:border-color .2s}
-.field:focus{border-color:#a855f7}
-.field::placeholder{color:#7a5a9a}
-.btn{width:100%;padding:13px;border-radius:14px;border:none;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;margin-bottom:8px}
-.btn-p{background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;box-shadow:0 6px 20px rgba(120,30,200,.4)}
-.btn-p:hover{transform:translateY(-2px)}
-.btn-s{background:rgba(120,30,200,.15);border:1px solid rgba(160,80,255,.35);color:#c084fc}
-.btn-s:hover{background:rgba(120,30,200,.28)}
-.btn:disabled{opacity:.5;cursor:not-allowed;transform:none!important}
-.or-div{display:flex;align-items:center;gap:10px;margin:2px 0 10px;color:#7a5a9a;font-size:12px}
-.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:rgba(160,80,255,.25)}
-.code-box{background:rgba(168,85,247,.12);border:2px dashed rgba(168,85,247,.4);border-radius:14px;padding:14px;margin-bottom:14px;cursor:pointer}
-.code-box:hover{background:rgba(168,85,247,.2)}
-.code-lbl{font-size:10px;color:#b580e0;font-family:'Unbounded',sans-serif;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:6px}
-.code-val{font-family:'Unbounded',sans-serif;font-size:30px;font-weight:900;color:#f07aff;letter-spacing:6px}
-.code-hint{font-size:11px;color:#7a5a9a;margin-top:4px}
-.wait-info{font-size:12px;color:#b580e0;animation:pulse 2s infinite;margin-top:8px}
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;z-index:9999;pointer-events:none;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes invitePop{from{opacity:0;transform:scale(.88) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
 
-/* GAME */
-#gameWrap{display:none;flex-direction:column;align-items:center;width:100vw;height:100dvh;position:relative}
-#topBar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:820px;padding:10px 14px;flex-shrink:0}
-.player-card{display:flex;align-items:center;gap:8px;background:rgba(37,34,64,.9);border:1px solid rgba(160,80,255,.3);border-radius:14px;padding:8px 14px;font-size:13px;font-weight:600;transition:all .3s}
-.player-card.active{border-color:#a855f7;box-shadow:0 0 14px rgba(168,85,247,.35)}
-.player-card.active::before{content:'▶ ';color:#f07aff}
-.ball-dot{width:14px;height:14px;border-radius:50%;flex-shrink:0}
-.score-badge{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.3);border-radius:8px;padding:2px 8px;color:#c084fc}
-#turnInfo{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;letter-spacing:.5px;color:#b580e0;text-align:center;padding:2px 0}
-#canvasWrap{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:8px}
-#table{border-radius:12px;cursor:crosshair;touch-action:none}
-#cueLine{position:absolute;pointer-events:none;top:0;left:0;width:100%;height:100%}
-#power-bar-wrap{position:absolute;right:10px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:6px}
-#power-bar-bg{width:18px;height:160px;background:rgba(37,34,64,.8);border:1px solid rgba(160,80,255,.3);border-radius:9px;position:relative;overflow:hidden}
-#power-bar-fill{position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,#4ade80,#fbbf24,#f07aff);border-radius:9px;transition:height .05s;height:0}
-.pb-lbl{font-size:9px;color:#b580e0;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
-#bottomBar{display:flex;align-items:center;justify-content:center;gap:12px;padding:10px;flex-shrink:0}
-.action-btn{padding:8px 18px;border-radius:12px;border:1px solid rgba(160,80,255,.35);background:rgba(37,34,64,.8);color:#c084fc;font-family:'Noto Sans Georgian',sans-serif;font-size:12px;cursor:pointer;transition:all .2s}
+/* ── LOBBY ── */
+#lobby{background:rgba(37,34,64,.97);border:1px solid rgba(160,80,255,.35);border-radius:24px;padding:28px 24px;max-width:420px;width:92%;animation:fadeIn .4s ease;text-align:center}
+.logo{font-size:54px;margin-bottom:4px}
+.ltitle{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:900;margin-bottom:3px}
+.lsub{font-size:11px;color:#b580e0;margin-bottom:20px}
+.my-nick-row{display:flex;align-items:center;gap:8px;background:rgba(168,85,247,.1);border:1px solid rgba(168,85,247,.3);border-radius:12px;padding:10px 14px;margin-bottom:16px}
+.my-av{width:34px;height:34px;border-radius:50%;background:rgba(120,30,200,.3);border:2px solid rgba(168,85,247,.4);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0}
+.my-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.my-nick-text{font-size:14px;font-weight:600;color:#ede0ff;flex:1;text-align:left}
+.my-wins{font-family:'Unbounded',sans-serif;font-size:10px;color:#f5c518;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.2);border-radius:8px;padding:2px 8px}
+
+.sec-lbl{font-size:9px;font-family:'Unbounded',sans-serif;letter-spacing:1.5px;color:#7a5a9a;text-transform:uppercase;margin-bottom:10px;text-align:left}
+
+/* Online list */
+#onlineList{display:flex;flex-direction:column;gap:6px;max-height:240px;overflow-y:auto;margin-bottom:16px}
+#onlineList::-webkit-scrollbar{width:3px}
+#onlineList::-webkit-scrollbar-thumb{background:rgba(168,85,247,.3);border-radius:2px}
+.online-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:13px;background:rgba(37,34,64,.6);border:1px solid rgba(160,80,255,.2);transition:all .2s;cursor:pointer}
+.online-item:hover{background:rgba(120,30,200,.2);border-color:rgba(168,85,247,.5);transform:translateX(2px)}
+.online-item.busy{opacity:.5;cursor:not-allowed}
+.online-item.busy:hover{transform:none;background:rgba(37,34,64,.6);border-color:rgba(160,80,255,.2)}
+.oi-av{width:32px;height:32px;border-radius:50%;background:rgba(120,30,200,.3);border:2px solid rgba(168,85,247,.3);display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;flex-shrink:0;position:relative}
+.oi-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.oi-dot{position:absolute;bottom:-1px;right:-1px;width:9px;height:9px;background:#4ade80;border-radius:50%;border:2px solid #1c1a30}
+.oi-info{flex:1;text-align:left}
+.oi-name{font-size:13px;font-weight:600;color:#ede0ff}
+.oi-status{font-size:10px;color:#7a5a9a}
+.oi-invite-btn{background:linear-gradient(135deg,#7a1fc8,#a855f7);border:none;border-radius:10px;color:#fff;font-size:11px;font-weight:600;padding:5px 12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;white-space:nowrap;transition:all .2s}
+.oi-invite-btn:hover{transform:scale(1.05)}
+.oi-invite-btn:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.oi-busy-badge{font-size:10px;color:#f07aff;background:rgba(240,122,255,.1);border:1px solid rgba(240,122,255,.25);border-radius:8px;padding:3px 8px;white-space:nowrap}
+.empty-online{font-size:12px;color:#7a5a9a;text-align:center;padding:20px 0}
+
+.or-div{display:flex;align-items:center;gap:10px;margin:0 0 12px;color:#7a5a9a;font-size:11px}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:rgba(160,80,255,.2)}
+.field{width:100%;padding:10px 14px;background:#221f3a;border:1.5px solid rgba(160,80,255,.3);border-radius:12px;color:#ede0ff;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;outline:none;margin-bottom:10px;transition:border-color .2s;letter-spacing:3px;text-align:center;text-transform:uppercase}
+.field:focus{border-color:#a855f7}
+.field::placeholder{color:#7a5a9a;letter-spacing:0;text-transform:none}
+.btn{width:100%;padding:12px;border-radius:13px;border:none;font-family:'Noto Sans Georgian',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s}
+.btn-s{background:rgba(120,30,200,.15);border:1px solid rgba(160,80,255,.3);color:#c084fc}
+.btn-s:hover{background:rgba(120,30,200,.28)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.wait-info{font-size:11px;color:#b580e0;animation:pulse 2s infinite;margin-top:10px;display:none}
+
+/* ── INVITE OVERLAY ── */
+#inviteOverlay{position:fixed;inset:0;background:rgba(10,8,24,.8);display:none;align-items:center;justify-content:center;z-index:5000;backdrop-filter:blur(8px)}
+#inviteOverlay.open{display:flex}
+#inviteBox{background:rgba(37,34,64,.98);border:1px solid rgba(168,85,247,.5);border-radius:22px;padding:28px 24px;max-width:340px;width:90%;text-align:center;animation:invitePop .35s cubic-bezier(.34,1.3,.64,1)}
+.inv-icon{font-size:48px;margin-bottom:8px}
+.inv-title{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;margin-bottom:4px}
+.inv-sub{font-size:12px;color:#b580e0;margin-bottom:20px}
+.inv-btns{display:flex;gap:8px}
+.inv-yes{flex:1;padding:11px;border-radius:12px;background:linear-gradient(135deg,#2e7d32,#4ade80);border:none;color:#052e16;font-weight:700;font-size:13px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif}
+.inv-no{flex:1;padding:11px;border-radius:12px;background:rgba(200,0,0,.15);border:1px solid rgba(200,0,0,.3);color:#ff7777;font-weight:600;font-size:13px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif}
+
+/* ── GAME ── */
+#gameWrap{display:none;flex-direction:column;align-items:center;width:100vw;height:100dvh}
+#topBar{display:flex;align-items:center;justify-content:space-between;width:100%;max-width:820px;padding:8px 12px;flex-shrink:0;gap:8px}
+.player-card{display:flex;align-items:center;gap:7px;background:rgba(37,34,64,.9);border:1px solid rgba(160,80,255,.25);border-radius:13px;padding:7px 12px;font-size:12px;font-weight:600;transition:all .3s;min-width:0}
+.player-card.active{border-color:#a855f7;box-shadow:0 0 12px rgba(168,85,247,.3)}
+.player-card.active::before{content:'▶ ';color:#f07aff;flex-shrink:0}
+.pc-av{width:28px;height:28px;border-radius:50%;background:rgba(120,30,200,.3);border:1px solid rgba(168,85,247,.3);display:flex;align-items:center;justify-content:center;font-size:13px;overflow:hidden;flex-shrink:0}
+.pc-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ball-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0}
+.pc-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:80px}
+.score-badge{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;background:rgba(168,85,247,.2);border:1px solid rgba(168,85,247,.3);border-radius:7px;padding:2px 7px;color:#c084fc;flex-shrink:0}
+.wins-badge{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.25);border-radius:7px;padding:2px 7px;color:#f5c518;flex-shrink:0}
+#turnInfo{font-family:'Unbounded',sans-serif;font-size:9px;font-weight:700;letter-spacing:.5px;color:#b580e0;text-align:center;flex-shrink:0;white-space:nowrap}
+#canvasWrap{position:relative;flex:1;display:flex;align-items:center;justify-content:center;padding:6px}
+#table{border-radius:10px;cursor:crosshair;touch-action:none}
+#power-bar-wrap{position:absolute;right:8px;top:50%;transform:translateY(-50%);display:flex;flex-direction:column;align-items:center;gap:5px}
+#power-bar-bg{width:16px;height:140px;background:rgba(37,34,64,.8);border:1px solid rgba(160,80,255,.3);border-radius:8px;position:relative;overflow:hidden}
+#power-bar-fill{position:absolute;bottom:0;left:0;width:100%;background:linear-gradient(to top,#4ade80,#fbbf24,#f07aff);border-radius:8px;transition:height .04s;height:0}
+.pb-lbl{font-size:8px;color:#b580e0;font-family:'Unbounded',sans-serif}
+#bottomBar{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px;flex-shrink:0}
+.action-btn{padding:7px 16px;border-radius:11px;border:1px solid rgba(160,80,255,.3);background:rgba(37,34,64,.8);color:#c084fc;font-family:'Noto Sans Georgian',sans-serif;font-size:11px;cursor:pointer;transition:all .2s}
 .action-btn:hover{background:rgba(120,30,200,.25);border-color:#a855f7}
+
+/* ── MSG OVERLAY ── */
 #msgOverlay{position:fixed;inset:0;background:rgba(10,8,24,.85);display:none;align-items:center;justify-content:center;z-index:1000;backdrop-filter:blur(6px)}
-#msgBox{background:rgba(37,34,64,.98);border:1px solid rgba(160,80,255,.4);border-radius:22px;padding:32px;max-width:360px;width:90%;text-align:center;animation:fadeIn .3s ease}
-#msgBox .m-icon{font-size:52px;margin-bottom:8px}
-#msgBox .m-title{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;margin-bottom:6px}
-#msgBox .m-sub{font-size:13px;color:#b580e0;margin-bottom:20px}
+#msgOverlay.open{display:flex}
+#msgBox{background:rgba(37,34,64,.98);border:1px solid rgba(160,80,255,.4);border-radius:22px;padding:28px;max-width:340px;width:88%;text-align:center;animation:fadeIn .3s ease}
+.m-icon{font-size:48px;margin-bottom:8px}
+.m-title{font-family:'Unbounded',sans-serif;font-size:17px;font-weight:900;margin-bottom:5px}
+.m-sub{font-size:12px;color:#b580e0;margin-bottom:4px}
+.m-wins{font-size:11px;color:#f5c518;margin-bottom:18px;font-family:'Unbounded',sans-serif}
+.m-btn{width:100%;padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;font-family:'Noto Sans Georgian',sans-serif;font-size:13px;font-weight:600;cursor:pointer}
+
+.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:9px 20px;border-radius:18px;font-size:12px;z-index:9999;pointer-events:none;animation:fadeIn .3s ease;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -65,20 +109,37 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:#1c1a30;color:#ede0f
 <!-- LOBBY -->
 <div id="lobby">
   <div class="logo">🎱</div>
-  <div class="title">ბილიარდი</div>
-  <div class="sub">ორმხრივი ონლაინ თამაში</div>
-  <input class="field" id="nickInp" placeholder="შენი სახელი..." maxlength="20">
-  <button class="btn btn-p" onclick="createRoom()">🎮 ოთახის შექმნა</button>
-  <div class="or-div">ან</div>
-  <input class="field" id="codeInp" placeholder="ოთახის კოდი (6 სიმბოლო)..." maxlength="6" style="text-transform:uppercase">
-  <button class="btn btn-s" onclick="joinRoom()">🚪 შეერთება</button>
-  <div id="waitSection" style="display:none">
-    <div class="code-box" onclick="copyCode()">
-      <div class="code-lbl">გაუგზავნე მეგობარს</div>
-      <div class="code-val" id="myCode">------</div>
-      <div class="code-hint">👆 კოდის კოპირება</div>
+  <div class="ltitle">ბილიარდი</div>
+  <div class="lsub">ორმხრივი ონლაინ · 8-ბოლი</div>
+
+  <!-- My profile row -->
+  <div class="my-nick-row">
+    <div class="my-av" id="myAvEl">😊</div>
+    <div class="my-nick-text" id="myNickEl">...</div>
+    <div class="my-wins" id="myWinsEl">🏆 0</div>
+  </div>
+
+  <!-- Online players -->
+  <div class="sec-lbl">ონლაინ მოთამაშეები</div>
+  <div id="onlineList"><div class="empty-online">⏳ იტვირთება...</div></div>
+
+  <!-- Join by code -->
+  <div class="or-div">კოდით შეერთება</div>
+  <input class="field" id="codeInp" placeholder="შეიყვანე კოდი..." maxlength="6">
+  <button class="btn btn-s" id="joinBtn" onclick="joinByCode()">🚪 შეერთება კოდით</button>
+  <div class="wait-info" id="waitInfo">⏳ ელოდება მეგობარს...</div>
+</div>
+
+<!-- INVITE OVERLAY -->
+<div id="inviteOverlay">
+  <div id="inviteBox">
+    <div class="inv-icon">🎱</div>
+    <div class="inv-title" id="invTitle">მოწვევა</div>
+    <div class="inv-sub" id="invSub">გინდა ითამაშო?</div>
+    <div class="inv-btns">
+      <button class="inv-yes" onclick="acceptInvite()">✅ კი, ვთამაშობ!</button>
+      <button class="inv-no" onclick="declineInvite()">❌ არა</button>
     </div>
-    <div class="wait-info">⏳ ელოდება მოთამაშეს...</div>
   </div>
 </div>
 
@@ -86,22 +147,25 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:#1c1a30;color:#ede0f
 <div id="gameWrap">
   <div id="topBar">
     <div class="player-card" id="p1Card">
-      <div class="ball-dot" id="p1Dot"></div>
-      <span id="p1Name">მოთამაშე 1</span>
+      <div class="pc-av" id="p1Av">😊</div>
+      <div class="ball-dot" id="p1Dot" style="background:#555"></div>
+      <span class="pc-name" id="p1Name">-</span>
       <span class="score-badge" id="p1Score">0</span>
+      <span class="wins-badge" id="p1Wins">🏆0</span>
     </div>
     <div id="turnInfo">-</div>
     <div class="player-card" id="p2Card">
-      <div class="ball-dot" id="p2Dot"></div>
-      <span id="p2Name">მოთამაშე 2</span>
+      <div class="pc-av" id="p2Av">😊</div>
+      <div class="ball-dot" id="p2Dot" style="background:#555"></div>
+      <span class="pc-name" id="p2Name">-</span>
       <span class="score-badge" id="p2Score">0</span>
+      <span class="wins-badge" id="p2Wins">🏆0</span>
     </div>
   </div>
   <div id="canvasWrap">
     <canvas id="table"></canvas>
-    <canvas id="cueLine"></canvas>
     <div id="power-bar-wrap">
-      <div class="pb-lbl">POWER</div>
+      <div class="pb-lbl">PWR</div>
       <div id="power-bar-bg"><div id="power-bar-fill"></div></div>
     </div>
   </div>
@@ -111,727 +175,608 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:#1c1a30;color:#ede0f
   </div>
 </div>
 
-<!-- Message overlay -->
+<!-- MSG OVERLAY -->
 <div id="msgOverlay">
   <div id="msgBox">
     <div class="m-icon" id="mIcon">🎱</div>
     <div class="m-title" id="mTitle">-</div>
     <div class="m-sub" id="mSub">-</div>
-    <button class="btn btn-p" id="mBtn" onclick="closeMsgOverlay()">კარგი</button>
+    <div class="m-wins" id="mWins"></div>
+    <button class="m-btn" onclick="closeMsgOverlay()">კარგი</button>
   </div>
 </div>
 
 <script>
-// =================== SUPABASE ===================
-const {createClient} = supabase;
-const sb = createClient(
+// ── SUPABASE ──
+const {createClient}=supabase;
+const sb=createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-// =================== CONSTANTS ===================
-const TABLE_W = 760, TABLE_H = 400;
-const POCKET_R = 18;
-const BALL_R = 11;
-const FRICTION = 0.985;
-const MIN_VEL = 0.15;
+// ── CONSTANTS ──
+const TW=760,TH=400,BR=11,FR=0.985,MV=0.15,PR=18;
+const POCKETS=[{x:PR,y:PR},{x:TW/2,y:8},{x:TW-PR,y:PR},{x:PR,y:TH-PR},{x:TW/2,y:TH-8},{x:TW-PR,y:TH-PR}];
+const BCOLS=['#ffffff','#f5c518','#1565c0','#c62828','#6a1b9a','#e65100','#2e7d32','#b71c1c','#212121','#f5c518','#1565c0','#c62828','#6a1b9a','#e65100','#2e7d32','#b71c1c'];
 
-// Pocket positions
-const POCKETS = [
-  {x:POCKET_R, y:POCKET_R},
-  {x:TABLE_W/2, y:8},
-  {x:TABLE_W-POCKET_R, y:POCKET_R},
-  {x:POCKET_R, y:TABLE_H-POCKET_R},
-  {x:TABLE_W/2, y:TABLE_H-8},
-  {x:TABLE_W-POCKET_R, y:TABLE_H-POCKET_R}
-];
+// ── MY PROFILE ──
+let ME=null,MYPROF=null,myNick='',myWins=0;
+let opNick='',opAvUrl='',opWins=0;
+let myAvUrl='',myEmotion='😊';
 
-// Ball colors
-const BALL_COLORS = [
-  '#ffffff', // 0 = white (cue)
-  '#f5c518', // 1 solid yellow
-  '#1565c0', // 2 solid blue
-  '#c62828', // 3 solid red
-  '#6a1b9a', // 4 solid purple
-  '#e65100', // 5 solid orange
-  '#2e7d32', // 6 solid green
-  '#b71c1c', // 7 solid maroon
-  '#212121', // 8 black
-  '#f5c518', // 9 stripe yellow
-  '#1565c0', // 10 stripe blue
-  '#c62828', // 11 stripe red
-  '#6a1b9a', // 12 stripe purple
-  '#e65100', // 13 stripe orange
-  '#2e7d32', // 14 stripe green
-  '#b71c1c', // 15 stripe maroon
-];
+// ── GAME STATE ──
+let roomCode=null,myRole=null;
+let gameChannel=null,inviteChannel=null,onlineChannel=null;
+let canvas,ctx,scale=1;
+let balls=[],currentTurn='p1',scores={p1:0,p2:0};
+let ballAssignments={p1:null,p2:null},gameOver=false;
+let myTurn=false,canShoot=false;
+let aiming=false,aimX=0,aimY=0,power=0;
+let chargeInterval=null,animFrame=null;
+let pendingInviteCode=null,pendingInviterNick='';
+let onlineUsers=[];
+let inGame=false;
 
-// =================== STATE ===================
-let roomCode = null;
-let myRole = null; // 'p1' or 'p2'
-let myNick = '';
-let opNick = '';
-let gameChannel = null;
-let gameState = null;
-let myTurn = false;
-let canShoot = false;
+// ── INIT ──
+async function init(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user){
+    // not logged in — redirect
+    toast('⚠️ ჯერ გაიარე ავტორიზაცია ჩატში!');
+    setTimeout(()=>window.close(),2000);
+    return;
+  }
+  ME=user;
+  const {data}=await sb.from('profiles').select('*').eq('id',ME.id).single();
+  MYPROF=data;
+  myNick=MYPROF?.username||ME.email?.split('@')[0]||'მოთამაშე';
+  myWins=MYPROF?.billiards_wins||0;
+  myAvUrl=MYPROF?.avatar_url||'';
+  myEmotion=MYPROF?.emotion||'😊';
+  renderMyProfile();
+  await pingOnline();
+  await loadOnlineUsers();
+  subscribeInvites();
+  subscribeOnline();
+  setInterval(()=>{pingOnline();loadOnlineUsers();},20000);
+}
 
-// Canvas
-let canvas, ctx, cueCanvas, cueCtx;
-let scale = 1;
+function renderMyProfile(){
+  const avEl=document.getElementById('myAvEl');
+  if(myAvUrl){avEl.innerHTML=`<img src="${myAvUrl}">`;}
+  else{avEl.textContent=myEmotion;}
+  document.getElementById('myNickEl').textContent=myNick;
+  document.getElementById('myWinsEl').textContent='🏆 '+myWins;
+}
 
-// Aiming
-let aiming = false;
-let aimX = 0, aimY = 0;
-let power = 0;
-let charging = false;
-let chargeStart = 0;
-let chargeInterval = null;
+// ── ONLINE ──
+async function pingOnline(){
+  if(!ME)return;
+  await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);
+}
 
-// Physics loop
-let animFrame = null;
-let balls = [];
-let currentTurn = 'p1';
-let scores = {p1: 0, p2: 0};
-let ballAssignments = {p1: null, p2: null}; // 'solid' or 'stripe'
-let gameOver = false;
+async function loadOnlineUsers(){
+  const cutoff=new Date(Date.now()-60000).toISOString();
+  const {data}=await sb.from('profiles').select('id,username,avatar_url,emotion,last_seen,billiards_wins').gte('last_seen',cutoff).order('username');
+  onlineUsers=(data||[]).filter(u=>u.id!==ME?.id);
+  renderOnlineList();
+}
 
-// =================== INITIAL BALL LAYOUT ===================
-function initBalls() {
-  balls = [];
-  // Cue ball
-  balls.push({id:0, x:TABLE_W*0.25, y:TABLE_H/2, vx:0, vy:0, r:BALL_R, active:true});
-  // Triangle rack at 3/4 right
-  const rx = TABLE_W * 0.72, ry = TABLE_H / 2;
-  const spacing = BALL_R * 2.1;
-  const rack = [
-    [0,0],
-    [-1,-1],[1,-1],
-    [-2,-2],[0,-2],[2,-2],
-    [-3,-3],[-1,-3],[1,-3],[3,-3],
-    [-4,-4],[-2,-4],[0,-4],[2,-4],[4,-4],
-  ];
-  const order = [1,9,2,10,8,3,11,4,12,5,13,6,14,7,15];
-  rack.forEach(([col,row], i) => {
-    const bx = rx + col * spacing * 0.5;
-    const by = ry + row * spacing * Math.sin(Math.PI/3);
-    balls.push({id:order[i], x:bx, y:by, vx:0, vy:0, r:BALL_R, active:true});
+function renderOnlineList(){
+  const el=document.getElementById('onlineList');
+  if(!onlineUsers.length){
+    el.innerHTML='<div class="empty-online">😴 სხვა ონლაინ მოთამაშე არ არის</div>';
+    return;
+  }
+  el.innerHTML='';
+  onlineUsers.forEach(u=>{
+    const div=document.createElement('div');
+    div.className='online-item';
+    div.id='oli_'+u.id;
+    const avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');
+    div.innerHTML=`
+      <div class="oi-av">${avHtml}<div class="oi-dot"></div></div>
+      <div class="oi-info">
+        <div class="oi-name">${esc(u.username||'?')}</div>
+        <div class="oi-status">🏆 ${u.billiards_wins||0} გამარჯვება</div>
+      </div>
+      <button class="oi-invite-btn" id="invbtn_${u.id}" onclick="sendInvite('${u.id}','${esc(u.username||'?')}')">📨 მოწვევა</button>
+    `;
+    el.appendChild(div);
   });
 }
 
-function getInitState() {
-  initBalls();
-  return {
-    balls: balls.map(b=>({...b})),
-    currentTurn: 'p1',
-    scores: {p1:0, p2:0},
-    assignments: {p1:null, p2:null},
-    gameOver: false,
-    p1Nick: myNick,
-    p2Nick: opNick || 'მოთამაშე 2',
-  };
+function subscribeOnline(){
+  onlineChannel=sb.channel('billiards-online')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{
+      const u=payload.new;
+      const cutoff=Date.now()-70000;
+      if(u.id===ME?.id)return;
+      const isOnline=new Date(u.last_seen).getTime()>cutoff;
+      const idx=onlineUsers.findIndex(x=>x.id===u.id);
+      if(isOnline&&idx<0){onlineUsers.push(u);renderOnlineList();}
+      else if(!isOnline&&idx>=0){onlineUsers.splice(idx,1);renderOnlineList();}
+      else if(isOnline&&idx>=0){onlineUsers[idx]={...onlineUsers[idx],...u};renderOnlineList();}
+    })
+    .subscribe();
 }
 
-// =================== LOBBY ===================
-function genCode() {
-  return Math.random().toString(36).slice(2,8).toUpperCase();
+// ── INVITE SYSTEM ──
+function subscribeInvites(){
+  if(!ME)return;
+  const ch=sb.channel('billiards-invites-'+ME.id)
+    .on('broadcast',{event:'invite'},({payload})=>{
+      if(inGame)return;
+      showInvitePopup(payload.code,payload.nick,payload.avUrl);
+    })
+    .on('broadcast',{event:'invite-accepted'},({payload})=>{
+      // other player accepted — start game as p1
+      if(payload.code===roomCode){
+        opNick=payload.nick;
+        opAvUrl=payload.avUrl||'';
+        opWins=payload.wins||0;
+        startGame();
+      }
+    })
+    .on('broadcast',{event:'invite-declined'},({payload})=>{
+      if(payload.code===roomCode){
+        toast('❌ '+payload.nick+' უარყო მოწვევა');
+        roomCode=null;
+        document.getElementById('waitInfo').style.display='none';
+        // re-enable invite buttons
+        document.querySelectorAll('.oi-invite-btn').forEach(b=>{b.disabled=false;b.textContent='📨 მოწვევა';});
+      }
+    })
+    .subscribe();
 }
 
-function getNick() {
-  const v = document.getElementById('nickInp').value.trim();
-  if (!v) { toast('სახელი შეიყვანე!'); return null; }
-  return v;
-}
-
-async function createRoom() {
-  const nick = getNick(); if (!nick) return;
-  myNick = nick; myRole = 'p1';
-  roomCode = genCode();
-  document.getElementById('myCode').textContent = roomCode;
-  document.getElementById('waitSection').style.display = 'block';
-  document.querySelector('.btn-p').disabled = true;
-  document.querySelector('.btn-s').disabled = true;
+async function sendInvite(targetUid,targetNick){
+  if(inGame){toast('⚠️ ახლა თამაშში ხარ!');return;}
+  const btn=document.getElementById('invbtn_'+targetUid);
+  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  roomCode=genCode();
+  myRole='p1';
+  document.getElementById('waitInfo').style.display='block';
 
   // Insert room
-  const { error } = await sb.from('billiards_rooms').upsert({
-    code: roomCode, p1_nick: nick, status: 'waiting',
-    state: null, created_at: new Date().toISOString()
+  await sb.from('billiards_rooms').upsert({
+    code:roomCode,p1_nick:myNick,p1_uid:ME.id,status:'waiting',
+    created_at:new Date().toISOString()
   });
-  if (error) { toast('❌ ' + error.message); return; }
 
-  subscribeRoom();
+  // Send invite broadcast to target
+  const targetCh=sb.channel('billiards-invites-'+targetUid);
+  await targetCh.subscribe();
+  await targetCh.send({type:'broadcast',event:'invite',payload:{
+    code:roomCode,nick:myNick,avUrl:myAvUrl,uid:ME.id
+  }});
+
+  toast('📨 მოწვევა გაიგზავნა → '+targetNick);
+
+  // Subscribe to room for response
+  subscribeRoomAsP1();
 }
 
-async function joinRoom() {
-  const nick = getNick(); if (!nick) return;
-  const code = document.getElementById('codeInp').value.trim().toUpperCase();
-  if (code.length < 4) { toast('კოდი შეიყვანე!'); return; }
-  myNick = nick; myRole = 'p2'; roomCode = code;
-
-  const { data, error } = await sb.from('billiards_rooms').select('*').eq('code', code).eq('status', 'waiting').maybeSingle();
-  if (error || !data) { toast('❌ ოთახი ვერ მოიძებნა'); return; }
-  opNick = data.p1_nick;
-
-  // Update room
-  await sb.from('billiards_rooms').update({ p2_nick: nick, status: 'playing' }).eq('code', code);
-  subscribeRoom();
+function showInvitePopup(code,nick,avUrl){
+  pendingInviteCode=code;
+  pendingInviterNick=nick;
+  document.getElementById('invTitle').textContent=nick+' გიწვევს!';
+  document.getElementById('invSub').textContent='🎱 ბილიარდის თამაშზე';
+  document.getElementById('inviteOverlay').classList.add('open');
 }
 
-function copyCode() {
-  navigator.clipboard.writeText(roomCode).then(() => toast('✅ კოდი კოპირდა!')).catch(() => toast(roomCode));
+async function acceptInvite(){
+  document.getElementById('inviteOverlay').classList.remove('open');
+  if(!pendingInviteCode)return;
+  myRole='p2';
+  roomCode=pendingInviteCode;
+
+  const {data}=await sb.from('billiards_rooms').select('*').eq('code',roomCode).maybeSingle();
+  if(!data){toast('❌ ოთახი ვერ მოიძებნა');return;}
+  opNick=data.p1_nick||'მოთამაშე';
+
+  await sb.from('billiards_rooms').update({p2_nick:myNick,p2_uid:ME.id,status:'playing'}).eq('code',roomCode);
+
+  // Notify inviter
+  const inviterCh=sb.channel('billiards-invites-'+data.p1_uid);
+  await inviterCh.subscribe();
+  await inviterCh.send({type:'broadcast',event:'invite-accepted',payload:{
+    code:roomCode,nick:myNick,avUrl:myAvUrl,wins:myWins
+  }});
+
+  subscribeRoomAsP2();
+  startGame();
 }
 
-// =================== CHANNEL ===================
-function subscribeRoom() {
-  gameChannel = sb.channel('billiards_' + roomCode);
-
-  gameChannel
-    .on('broadcast', {event: 'game_state'}, ({payload}) => {
-      applyRemoteState(payload);
-    })
-    .on('broadcast', {event: 'shoot'}, ({payload}) => {
-      if (myRole === 'p1' && payload.turn === 'p2') applyShot(payload);
-      if (myRole === 'p2' && payload.turn === 'p1') applyShot(payload);
-    })
-    .on('broadcast', {event: 'reset'}, () => {
-      startGame(true);
-    })
-    .on('postgres_changes', {event: 'UPDATE', schema: 'public', table: 'billiards_rooms', filter: `code=eq.${roomCode}`}, async payload => {
-      const row = payload.new;
-      if (row.status === 'playing' && myRole === 'p1') {
-        opNick = row.p2_nick || 'მოთამაშე 2';
-        startGame(false);
-      } else if (row.status === 'playing' && myRole === 'p2') {
-        opNick = row.p1_nick || 'მოთამაშე 1';
-        startGame(false);
-      }
-    })
-    .subscribe(status => {
-      if (status === 'SUBSCRIBED') {
-        if (myRole === 'p2') {
-          startGame(false);
-        }
-      }
-    });
+async function declineInvite(){
+  document.getElementById('inviteOverlay').classList.remove('open');
+  if(!pendingInviteCode)return;
+  const {data}=await sb.from('billiards_rooms').select('p1_uid,p1_nick').eq('code',pendingInviteCode).maybeSingle();
+  if(data?.p1_uid){
+    const inviterCh=sb.channel('billiards-invites-'+data.p1_uid);
+    await inviterCh.subscribe();
+    await inviterCh.send({type:'broadcast',event:'invite-declined',payload:{
+      code:pendingInviteCode,nick:myNick
+    }});
+  }
+  pendingInviteCode=null;
 }
 
-// =================== START GAME ===================
-function startGame(sendState) {
-  document.getElementById('lobby').style.display = 'none';
-  document.getElementById('gameWrap').style.display = 'flex';
+// ── JOIN BY CODE ──
+async function joinByCode(){
+  const code=document.getElementById('codeInp').value.trim().toUpperCase();
+  if(code.length<4){toast('კოდი შეიყვანე!');return;}
+  const {data}=await sb.from('billiards_rooms').select('*').eq('code',code).eq('status','waiting').maybeSingle();
+  if(!data){toast('❌ ოთახი ვერ მოიძებნა');return;}
+  roomCode=code;myRole='p2';
+  opNick=data.p1_nick||'მოთამაშე';
+  opWins=0;
+  await sb.from('billiards_rooms').update({p2_nick:myNick,p2_uid:ME?.id||null,status:'playing'}).eq('code',code);
+  subscribeRoomAsP2();
+  startGame();
+}
 
-  setupCanvas();
+// ── ROOM CHANNELS ──
+function subscribeRoomAsP1(){
+  gameChannel=sb.channel('billiards_'+roomCode)
+    .on('broadcast',{event:'shoot'},({payload})=>{
+      if(payload.turn==='p2')applyShot(payload);
+    })
+    .on('broadcast',{event:'state'},({payload})=>applyRemoteState(payload))
+    .on('broadcast',{event:'reset'},()=>doReset())
+    .subscribe();
+}
+
+function subscribeRoomAsP2(){
+  gameChannel=sb.channel('billiards_'+roomCode)
+    .on('broadcast',{event:'shoot'},({payload})=>{
+      if(payload.turn==='p1')applyShot(payload);
+    })
+    .on('broadcast',{event:'state'},({payload})=>applyRemoteState(payload))
+    .on('broadcast',{event:'reset'},()=>doReset())
+    .subscribe();
+}
+
+// ── GAME START ──
+function startGame(){
+  inGame=true;
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('gameWrap').style.display='flex';
+  if(!canvas)setupCanvas();
+  doReset();
+}
+
+function doReset(){
   initBalls();
-  currentTurn = 'p1';
-  scores = {p1:0, p2:0};
-  ballAssignments = {p1:null, p2:null};
-  gameOver = false;
-  updateUI();
+  currentTurn='p1';
+  scores={p1:0,p2:0};
+  ballAssignments={p1:null,p2:null};
+  gameOver=false;
+  canShoot=false;
   setTurn();
-
-  if (sendState && myRole === 'p1') {
-    broadcastState();
-  }
-
-  startPhysicsLoop();
+  updateUI();
+  startLoop();
 }
 
-function setupCanvas() {
-  canvas = document.getElementById('table');
-  cueCanvas = document.getElementById('cueLine');
-  const wrap = document.getElementById('canvasWrap');
-  const maxW = Math.min(wrap.clientWidth - 60, TABLE_W);
-  const maxH = Math.min(wrap.clientHeight - 20, TABLE_H);
-  scale = Math.min(maxW / TABLE_W, maxH / TABLE_H);
-  const W = TABLE_W * scale, H = TABLE_H * scale;
-  canvas.width = W; canvas.height = H;
-  cueCanvas.width = W; cueCanvas.height = H;
-  cueCanvas.style.position = 'absolute';
-  ctx = canvas.getContext('2d');
-  cueCtx = cueCanvas.getContext('2d');
-
-  // Events on cueCanvas
-  cueCanvas.addEventListener('mousedown', onDown);
-  cueCanvas.addEventListener('mousemove', onMove);
-  cueCanvas.addEventListener('mouseup', onUp);
-  cueCanvas.addEventListener('touchstart', onTouchDown, {passive: false});
-  cueCanvas.addEventListener('touchmove', onTouchMove, {passive: false});
-  cueCanvas.addEventListener('touchend', onTouchUp, {passive: false});
+function setupCanvas(){
+  canvas=document.getElementById('table');
+  const wrap=document.getElementById('canvasWrap');
+  const maxW=Math.min(wrap.clientWidth-50,TW);
+  const maxH=Math.min(wrap.clientHeight-16,TH);
+  scale=Math.min(maxW/TW,maxH/TH);
+  canvas.width=TW*scale;canvas.height=TH*scale;
+  ctx=canvas.getContext('2d');
+  canvas.addEventListener('mousedown',onDown);
+  canvas.addEventListener('mousemove',onMove);
+  canvas.addEventListener('mouseup',onUp);
+  canvas.addEventListener('touchstart',e=>{e.preventDefault();onDown(e.touches[0]);},{passive:false});
+  canvas.addEventListener('touchmove',e=>{e.preventDefault();onMove(e.touches[0]);},{passive:false});
+  canvas.addEventListener('touchend',e=>{e.preventDefault();onUp();},{passive:false});
 }
 
-// =================== PHYSICS LOOP ===================
-function startPhysicsLoop() {
-  if (animFrame) cancelAnimationFrame(animFrame);
-  function loop() {
-    stepPhysics();
-    drawTable();
-    animFrame = requestAnimationFrame(loop);
-  }
-  loop();
-}
-
-function stepPhysics() {
-  let anyMoving = false;
-  balls.forEach(b => {
-    if (!b.active) return;
-    if (Math.abs(b.vx) > MIN_VEL || Math.abs(b.vy) > MIN_VEL) anyMoving = true;
-    b.x += b.vx; b.y += b.vy;
-    b.vx *= FRICTION; b.vy *= FRICTION;
-    if (Math.abs(b.vx) < MIN_VEL) b.vx = 0;
-    if (Math.abs(b.vy) < MIN_VEL) b.vy = 0;
-    wallBounce(b);
+// ── BALLS ──
+function initBalls(){
+  balls=[];
+  balls.push({id:0,x:TW*0.25,y:TH/2,vx:0,vy:0,active:true});
+  const rx=TW*0.72,ry=TH/2,sp=BR*2.12;
+  const rack=[[0,0],[-1,-1],[1,-1],[-2,-2],[0,-2],[2,-2],[-3,-3],[-1,-3],[1,-3],[3,-3],[-4,-4],[-2,-4],[0,-4],[2,-4],[4,-4]];
+  const order=[1,9,2,10,8,3,11,4,12,5,13,6,14,7,15];
+  rack.forEach(([col,row],i)=>{
+    balls.push({id:order[i],x:rx+col*sp*0.5,y:ry+row*sp*Math.sin(Math.PI/3),vx:0,vy:0,active:true});
   });
-  ballCollisions();
-  checkPockets();
-  if (canShoot && !anyMoving) {
-    // balls stopped, turn is mine
-  }
-  if (!canShoot && !anyMoving && myTurn) {
-    // balls just stopped after opponent shot
-    canShoot = true;
-    updateUI();
-  }
 }
 
-function wallBounce(b) {
-  if (b.x - b.r < 0) { b.x = b.r; b.vx = Math.abs(b.vx); }
-  if (b.x + b.r > TABLE_W) { b.x = TABLE_W - b.r; b.vx = -Math.abs(b.vx); }
-  if (b.y - b.r < 0) { b.y = b.r; b.vy = Math.abs(b.vy); }
-  if (b.y + b.r > TABLE_H) { b.y = TABLE_H - b.r; b.vy = -Math.abs(b.vy); }
+// ── PHYSICS ──
+function startLoop(){
+  if(animFrame)cancelAnimationFrame(animFrame);
+  (function loop(){animFrame=requestAnimationFrame(loop);step();draw();}());
 }
 
-function ballCollisions() {
-  for (let i = 0; i < balls.length; i++) {
-    if (!balls[i].active) continue;
-    for (let j = i+1; j < balls.length; j++) {
-      if (!balls[j].active) continue;
-      const dx = balls[j].x - balls[i].x;
-      const dy = balls[j].y - balls[i].y;
-      const dist = Math.sqrt(dx*dx + dy*dy);
-      if (dist < BALL_R * 2 && dist > 0) {
-        const nx = dx/dist, ny = dy/dist;
-        const overlap = BALL_R*2 - dist;
-        balls[i].x -= nx*overlap/2; balls[i].y -= ny*overlap/2;
-        balls[j].x += nx*overlap/2; balls[j].y += ny*overlap/2;
-        const dvx = balls[i].vx - balls[j].vx;
-        const dvy = balls[i].vy - balls[j].vy;
-        const dot = dvx*nx + dvy*ny;
-        balls[i].vx -= dot*nx; balls[i].vy -= dot*ny;
-        balls[j].vx += dot*nx; balls[j].vy += dot*ny;
+function step(){
+  let moving=false;
+  balls.forEach(b=>{
+    if(!b.active)return;
+    if(Math.abs(b.vx)>MV||Math.abs(b.vy)>MV)moving=true;
+    b.x+=b.vx;b.y+=b.vy;b.vx*=FR;b.vy*=FR;
+    if(Math.abs(b.vx)<MV)b.vx=0;if(Math.abs(b.vy)<MV)b.vy=0;
+    wall(b);
+  });
+  collide();pockets();
+  if(!moving&&!canShoot&&!gameOver&&myTurn){canShoot=true;updateUI();}
+}
+
+function wall(b){
+  if(b.x-BR<0){b.x=BR;b.vx=Math.abs(b.vx);}
+  if(b.x+BR>TW){b.x=TW-BR;b.vx=-Math.abs(b.vx);}
+  if(b.y-BR<0){b.y=BR;b.vy=Math.abs(b.vy);}
+  if(b.y+BR>TH){b.y=TH-BR;b.vy=-Math.abs(b.vy);}
+}
+
+function collide(){
+  for(let i=0;i<balls.length;i++){
+    if(!balls[i].active)continue;
+    for(let j=i+1;j<balls.length;j++){
+      if(!balls[j].active)continue;
+      const dx=balls[j].x-balls[i].x,dy=balls[j].y-balls[i].y;
+      const d=Math.sqrt(dx*dx+dy*dy);
+      if(d<BR*2&&d>0){
+        const nx=dx/d,ny=dy/d,ov=BR*2-d;
+        balls[i].x-=nx*ov/2;balls[i].y-=ny*ov/2;
+        balls[j].x+=nx*ov/2;balls[j].y+=ny*ov/2;
+        const dv=(balls[i].vx-balls[j].vx)*nx+(balls[i].vy-balls[j].vy)*ny;
+        balls[i].vx-=dv*nx;balls[i].vy-=dv*ny;
+        balls[j].vx+=dv*nx;balls[j].vy+=dv*ny;
       }
     }
   }
 }
 
-function checkPockets() {
-  balls.forEach(b => {
-    if (!b.active) return;
-    for (const p of POCKETS) {
-      const dx = b.x - p.x, dy = b.y - p.y;
-      if (Math.sqrt(dx*dx+dy*dy) < POCKET_R) {
-        b.active = false;
-        b.vx = 0; b.vy = 0;
-        onBallPocketed(b);
-      }
+function pockets(){
+  balls.forEach(b=>{
+    if(!b.active)return;
+    for(const p of POCKETS){
+      const dx=b.x-p.x,dy=b.y-p.y;
+      if(Math.sqrt(dx*dx+dy*dy)<PR){b.active=false;b.vx=0;b.vy=0;pocketed(b);}
     }
   });
 }
 
-function onBallPocketed(b) {
-  if (b.id === 0) {
-    // Cue ball scratch
-    toast('⚪ კიუ-ბოლი ჩავარდა! ↩️');
-    setTimeout(() => {
-      b.x = TABLE_W * 0.25; b.y = TABLE_H / 2;
-      b.vx = 0; b.vy = 0; b.active = true;
-      switchTurn();
-    }, 800);
+function pocketed(b){
+  const solid=b.id>=1&&b.id<=7,stripe=b.id>=9&&b.id<=15,is8=b.id===8;
+  if(b.id===0){
+    toast('⚪ კიუ-ბოლი ჩავარდა!');
+    setTimeout(()=>{b.x=TW*0.25;b.y=TH/2;b.vx=0;b.vy=0;b.active=true;switchTurn();},800);
     return;
   }
-  const isSolid = b.id >= 1 && b.id <= 7;
-  const isStripe = b.id >= 9 && b.id <= 15;
-  const is8 = b.id === 8;
-
-  // Assign ball type to current player
-  if (!ballAssignments[currentTurn] && !is8) {
-    ballAssignments[currentTurn] = isSolid ? 'solid' : 'stripe';
-    const opp = currentTurn === 'p1' ? 'p2' : 'p1';
-    ballAssignments[opp] = isSolid ? 'stripe' : 'solid';
+  if(!ballAssignments[currentTurn]&&!is8){
+    ballAssignments[currentTurn]=solid?'solid':'stripe';
+    const op=currentTurn==='p1'?'p2':'p1';
+    ballAssignments[op]=solid?'stripe':'solid';
     updateUI();
-    toast(currentTurn === myRole ? (isSolid ? '🟡 შენ — სოლიდები' : '🔵 შენ — სტრაიფები') : (isSolid ? '🔵 მეტოქე — სოლიდები' : '🟡 მეტოქე — სოლიდები'));
+    toast(currentTurn===myRole?(solid?'🟡 შენ — სოლიდები':'🔵 შენ — სტრაიფები'):(solid?'🟡 მეტოქე — სოლიდები':'🔵 მეტოქე — სტრაიფები'));
   }
-
-  const myType = ballAssignments[currentTurn];
-  const potted = (myType === 'solid' && isSolid) || (myType === 'stripe' && isStripe);
-
-  if (is8) {
-    // Potting 8 ball
-    const myGroup = balls.filter(ball => {
-      if (!ball.active) return false;
-      if (myType === 'solid') return ball.id >= 1 && ball.id <= 7;
-      return ball.id >= 9 && ball.id <= 15;
+  const myType=ballAssignments[currentTurn];
+  if(is8){
+    const rem=balls.filter(bl=>{
+      if(!bl.active)return false;
+      return myType==='solid'?(bl.id>=1&&bl.id<=7):(bl.id>=9&&bl.id<=15);
     });
-    if (myGroup.length === 0) {
-      // Win!
-      endGame(currentTurn);
-    } else {
-      // Early 8 ball = lose
-      const opp = currentTurn === 'p1' ? 'p2' : 'p1';
-      endGame(opp);
-    }
+    endGame(rem.length===0?currentTurn:(currentTurn==='p1'?'p2':'p1'));
     return;
   }
-
-  if (potted) {
-    scores[currentTurn]++;
-    document.getElementById(currentTurn + 'Score').textContent = scores[currentTurn];
-    // same player continues
-  } else {
-    switchTurn();
-  }
+  const good=(myType==='solid'&&solid)||(myType==='stripe'&&stripe);
+  if(good){scores[currentTurn]++;document.getElementById(currentTurn+'Score').textContent=scores[currentTurn];}
+  else switchTurn();
   broadcastState();
 }
 
-function switchTurn() {
-  currentTurn = currentTurn === 'p1' ? 'p2' : 'p1';
-  setTurn();
-}
+function switchTurn(){currentTurn=currentTurn==='p1'?'p2':'p1';setTurn();}
+function setTurn(){myTurn=currentTurn===myRole;canShoot=myTurn;updateUI();}
 
-function setTurn() {
-  myTurn = (currentTurn === myRole);
-  canShoot = myTurn;
+// ── WIN ──
+async function endGame(winner){
+  gameOver=true;canShoot=false;
+  const isMe=winner===myRole;
+  if(isMe&&ME){
+    myWins++;
+    await sb.from('profiles').update({billiards_wins:myWins}).eq('id',ME.id);
+    document.getElementById('myWinsEl').textContent='🏆 '+myWins;
+  } else if(!isMe){opWins++;}
   updateUI();
-}
-
-function updateUI() {
-  const p1Active = currentTurn === 'p1';
-  document.getElementById('p1Card').classList.toggle('active', p1Active);
-  document.getElementById('p2Card').classList.toggle('active', !p1Active);
-  document.getElementById('p1Name').textContent = (myRole === 'p1' ? '👤 ' : '') + (myNick || 'მოთამაშე 1');
-  document.getElementById('p2Name').textContent = (myRole === 'p2' ? '👤 ' : '') + (opNick || 'მოთამაშე 2');
-  const a1 = ballAssignments.p1, a2 = ballAssignments.p2;
-  document.getElementById('p1Dot').style.background = a1 === 'solid' ? '#f5c518' : a1 === 'stripe' ? '#1565c0' : '#555';
-  document.getElementById('p2Dot').style.background = a2 === 'solid' ? '#f5c518' : a2 === 'stripe' ? '#1565c0' : '#555';
-  document.getElementById('p1Score').textContent = scores.p1;
-  document.getElementById('p2Score').textContent = scores.p2;
-  let info = myTurn ? (canShoot ? '🎯 შენი ჯერია — ისროლე!' : '⏳ ბურთები მოძრაობს...') : '⏳ მეტოქის ჯერია';
-  document.getElementById('turnInfo').textContent = info;
-}
-
-function endGame(winner) {
-  gameOver = true;
-  canShoot = false;
-  const isMe = winner === myRole;
-  showMsg(isMe ? '🏆' : '😢', isMe ? 'გაიმარჯვე!' : 'წააგე!', isMe ? 'ბრავო! 8 ბოლი ჩააგდე!' : 'მეტოქემ მოიგო...', 'თამაშის დასრულება');
+  showMsg(
+    isMe?'🏆':'😢',
+    isMe?'გაიმარჯვე!':'წააგე!',
+    isMe?'8-ბოლი ჩააგდე!':'მეტოქემ მოიგო...',
+    isMe?'სულ გამარჯვება: '+myWins+' 🏆':''
+  );
   broadcastState();
 }
 
-// =================== SHOOTING ===================
-function getCuePos() {
-  return balls.find(b => b.id === 0);
+// ── UI ──
+function updateUI(){
+  const p1a=currentTurn==='p1';
+  document.getElementById('p1Card').classList.toggle('active',p1a);
+  document.getElementById('p2Card').classList.toggle('active',!p1a);
+
+  const n1=myRole==='p1'?myNick:opNick;
+  const n2=myRole==='p2'?myNick:opNick;
+  const av1=myRole==='p1'?myAvUrl:opAvUrl;
+  const av2=myRole==='p2'?myAvUrl:opAvUrl;
+  const em1=myRole==='p1'?myEmotion:'😊';
+  const em2=myRole==='p2'?myEmotion:'😊';
+
+  document.getElementById('p1Name').textContent=n1;
+  document.getElementById('p2Name').textContent=n2;
+  const p1av=document.getElementById('p1Av'),p2av=document.getElementById('p2Av');
+  p1av.innerHTML=av1?`<img src="${av1}">`:(em1);
+  p2av.innerHTML=av2?`<img src="${av2}">`:(em2);
+
+  const a1=ballAssignments.p1,a2=ballAssignments.p2;
+  document.getElementById('p1Dot').style.background=a1==='solid'?'#f5c518':a1==='stripe'?'#1565c0':'#555';
+  document.getElementById('p2Dot').style.background=a2==='solid'?'#f5c518':a2==='stripe'?'#1565c0':'#555';
+  document.getElementById('p1Score').textContent=scores.p1;
+  document.getElementById('p2Score').textContent=scores.p2;
+
+  const w1=myRole==='p1'?myWins:opWins;
+  const w2=myRole==='p2'?myWins:opWins;
+  document.getElementById('p1Wins').textContent='🏆'+w1;
+  document.getElementById('p2Wins').textContent='🏆'+w2;
+
+  document.getElementById('turnInfo').textContent=myTurn?(canShoot?'🎯 შენი ჯერი':'⏳...'):'⏳ მეტოქე';
 }
 
-function getCanvasPos(e) {
-  const rect = canvas.getBoundingClientRect();
-  return {
-    x: (e.clientX - rect.left) / scale,
-    y: (e.clientY - rect.top) / scale
-  };
-}
+// ── SHOOT ──
+function getPos(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/scale,y:(e.clientY-r.top)/scale};}
+function getCue(){return balls.find(b=>b.id===0);}
 
-function onDown(e) {
-  if (!canShoot || gameOver) return;
-  const pos = getCanvasPos(e);
-  aiming = true;
-  aimX = pos.x; aimY = pos.y;
-  charging = true;
-  power = 0;
-  chargeStart = Date.now();
-  if (chargeInterval) clearInterval(chargeInterval);
-  chargeInterval = setInterval(() => {
-    power = Math.min(100, (Date.now() - chargeStart) / 20);
-    document.getElementById('power-bar-fill').style.height = power + '%';
-  }, 16);
+function onDown(e){
+  if(!canShoot||gameOver)return;
+  const p=getPos(e);aiming=true;aimX=p.x;aimY=p.y;power=0;
+  const t=Date.now();
+  if(chargeInterval)clearInterval(chargeInterval);
+  chargeInterval=setInterval(()=>{
+    power=Math.min(100,(Date.now()-t)/18);
+    document.getElementById('power-bar-fill').style.height=power+'%';
+  },16);
 }
-
-function onMove(e) {
-  if (!aiming || !canShoot) return;
-  const pos = getCanvasPos(e);
-  aimX = pos.x; aimY = pos.y;
-}
-
-function onUp(e) {
-  if (!aiming || !canShoot || gameOver) return;
-  aiming = false;
-  if (chargeInterval) clearInterval(chargeInterval);
-  chargeInterval = null;
-  document.getElementById('power-bar-fill').style.height = '0';
-  shoot();
-}
-
-function onTouchDown(e) {
-  e.preventDefault();
-  onDown(e.touches[0]);
-}
-function onTouchMove(e) {
-  e.preventDefault();
-  onMove(e.touches[0]);
-}
-function onTouchUp(e) {
-  e.preventDefault();
-  onUp({});
-}
-
-function shoot() {
-  const cue = getCuePos();
-  if (!cue) return;
-  const dx = cue.x - aimX;
-  const dy = cue.y - aimY;
-  const dist = Math.sqrt(dx*dx+dy*dy);
-  if (dist < 5) return;
-  const spd = (power / 100) * 22;
-  cue.vx = (dx/dist) * spd;
-  cue.vy = (dy/dist) * spd;
-  canShoot = false;
-  myTurn = false;
-
-  const shotData = {
-    turn: myRole,
-    cueVx: cue.vx,
-    cueVy: cue.vy,
-    ballStates: balls.map(b => ({id:b.id,x:b.x,y:b.y,vx:b.vx,vy:b.vy,active:b.active}))
-  };
-
-  gameChannel.send({type:'broadcast', event:'shoot', payload: shotData});
+function onMove(e){if(!aiming||!canShoot)return;const p=getPos(e);aimX=p.x;aimY=p.y;}
+function onUp(){
+  if(!aiming||!canShoot||gameOver)return;
+  aiming=false;
+  if(chargeInterval)clearInterval(chargeInterval);
+  document.getElementById('power-bar-fill').style.height='0';
+  const cue=getCue();if(!cue)return;
+  const dx=cue.x-aimX,dy=cue.y-aimY,d=Math.sqrt(dx*dx+dy*dy);
+  if(d<5)return;
+  const spd=(power/100)*22;
+  cue.vx=(dx/d)*spd;cue.vy=(dy/d)*spd;
+  canShoot=false;myTurn=false;
+  gameChannel&&gameChannel.send({type:'broadcast',event:'shoot',payload:{
+    turn:myRole,cueVx:cue.vx,cueVy:cue.vy,balls:balls.map(b=>({...b}))
+  }});
   updateUI();
 }
 
-function applyShot(payload) {
-  payload.ballStates.forEach(s => {
-    const b = balls.find(b => b.id === s.id);
-    if (b) { b.x = s.x; b.y = s.y; b.vx = s.vx; b.vy = s.vy; b.active = s.active; }
-  });
-  const cue = balls.find(b => b.id === 0);
-  if (cue) { cue.vx = payload.cueVx; cue.vy = payload.cueVy; }
+function applyShot(p){
+  p.balls.forEach(s=>{const b=balls.find(b=>b.id===s.id);if(b)Object.assign(b,s);});
+  const cue=getCue();if(cue){cue.vx=p.cueVx;cue.vy=p.cueVy;}
   updateUI();
 }
 
-// =================== DRAW ===================
-function drawTable() {
-  if (!ctx) return;
-  const W = TABLE_W * scale, H = TABLE_H * scale;
+function broadcastState(){
+  gameChannel&&gameChannel.send({type:'broadcast',event:'state',payload:{
+    balls:balls.map(b=>({...b})),currentTurn,scores,ballAssignments,gameOver
+  }});
+}
+function applyRemoteState(p){
+  if(p.balls)p.balls.forEach(s=>{const b=balls.find(b=>b.id===s.id);if(b)Object.assign(b,s);});
+  if(p.currentTurn)currentTurn=p.currentTurn;
+  if(p.scores)scores=p.scores;
+  if(p.ballAssignments)ballAssignments=p.ballAssignments;
+  if(p.gameOver!==undefined)gameOver=p.gameOver;
+  setTurn();updateUI();
+}
 
-  // Table felt
-  ctx.save();
-  ctx.scale(scale, scale);
-
-  // Background felt
-  ctx.fillStyle = '#1a6b3c';
-  ctx.beginPath();
-  ctx.roundRect(0, 0, TABLE_W, TABLE_H, 10);
-  ctx.fill();
-
-  // Border
-  ctx.strokeStyle = '#8B4513';
-  ctx.lineWidth = 8;
-  ctx.stroke();
-
-  // Inner cushion
-  ctx.strokeStyle = '#145a30';
-  ctx.lineWidth = 3;
-  ctx.strokeRect(POCKET_R, POCKET_R, TABLE_W - POCKET_R*2, TABLE_H - POCKET_R*2);
-
-  // Center line
-  ctx.strokeStyle = 'rgba(255,255,255,0.08)';
-  ctx.lineWidth = 1;
-  ctx.beginPath();
-  ctx.moveTo(TABLE_W/2, 0); ctx.lineTo(TABLE_W/2, TABLE_H);
-  ctx.stroke();
-
-  // Break line
-  ctx.beginPath();
-  ctx.moveTo(TABLE_W*0.25, POCKET_R); ctx.lineTo(TABLE_W*0.25, TABLE_H - POCKET_R);
-  ctx.stroke();
-
-  // Pockets
-  POCKETS.forEach(p => {
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2);
-    ctx.fillStyle = '#0a0a0a';
-    ctx.fill();
-    ctx.strokeStyle = '#3d1f00';
-    ctx.lineWidth = 2;
-    ctx.stroke();
+// ── DRAW ──
+function draw(){
+  if(!ctx)return;
+  ctx.save();ctx.scale(scale,scale);
+  ctx.fillStyle='#1a6b3c';
+  ctx.beginPath();ctx.roundRect(0,0,TW,TH,10);ctx.fill();
+  ctx.strokeStyle='#8B4513';ctx.lineWidth=8;ctx.stroke();
+  ctx.strokeStyle='rgba(255,255,255,0.05)';ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(TW/2,0);ctx.lineTo(TW/2,TH);ctx.stroke();
+  ctx.beginPath();ctx.moveTo(TW*0.25,PR);ctx.lineTo(TW*0.25,TH-PR);ctx.stroke();
+  POCKETS.forEach(p=>{
+    ctx.beginPath();ctx.arc(p.x,p.y,PR,0,Math.PI*2);
+    ctx.fillStyle='#080808';ctx.fill();
+    ctx.strokeStyle='#3d1f00';ctx.lineWidth=2;ctx.stroke();
   });
-
-  // Balls
-  balls.forEach(b => {
-    if (!b.active) return;
-    drawBall(b);
-  });
-
-  // Aiming guide
-  if (aiming && canShoot) {
-    const cue = getCuePos();
-    if (cue) {
-      const dx = cue.x - aimX, dy = cue.y - aimY;
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      if (dist > 1) {
-        const nx = dx/dist, ny = dy/dist;
+  if(aiming&&canShoot){
+    const cue=getCue();
+    if(cue){
+      const dx=cue.x-aimX,dy=cue.y-aimY,d=Math.sqrt(dx*dx+dy*dy);
+      if(d>1){
+        const nx=dx/d,ny=dy/d;
         ctx.save();
-        ctx.setLineDash([6,6]);
-        ctx.strokeStyle = 'rgba(255,255,255,0.4)';
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.moveTo(cue.x, cue.y);
-        ctx.lineTo(cue.x + nx*200, cue.y + ny*200);
-        ctx.stroke();
-        // Cue stick
-        ctx.setLineDash([]);
-        ctx.strokeStyle = '#c8a96e';
-        ctx.lineWidth = 4;
-        ctx.beginPath();
-        ctx.moveTo(cue.x - nx*20, cue.y - ny*20);
-        ctx.lineTo(cue.x - nx*(80 + power*1.5), cue.y - ny*(80 + power*1.5));
-        ctx.stroke();
+        ctx.setLineDash([6,6]);ctx.strokeStyle='rgba(255,255,255,0.3)';ctx.lineWidth=1.5;
+        ctx.beginPath();ctx.moveTo(cue.x,cue.y);ctx.lineTo(cue.x+nx*200,cue.y+ny*200);ctx.stroke();
+        ctx.setLineDash([]);ctx.strokeStyle='#c8a96e';ctx.lineWidth=5;
+        ctx.beginPath();ctx.moveTo(cue.x-nx*22,cue.y-ny*22);ctx.lineTo(cue.x-nx*(85+power*1.2),cue.y-ny*(85+power*1.2));ctx.stroke();
         ctx.restore();
       }
     }
   }
-
+  balls.forEach(b=>{if(b.active)drawBall(b);});
   ctx.restore();
 }
 
-function drawBall(b) {
-  const color = BALL_COLORS[b.id] || '#888';
-  const isStripe = b.id >= 9 && b.id <= 15;
-  const r = b.r;
-
+function drawBall(b){
+  const col=BCOLS[b.id]||'#888',stripe=b.id>=9&&b.id<=15;
   ctx.save();
-  ctx.beginPath();
-  ctx.arc(b.x, b.y, r, 0, Math.PI*2);
-
-  // Shadow
-  ctx.shadowColor = 'rgba(0,0,0,0.5)';
-  ctx.shadowBlur = 4;
-  ctx.shadowOffsetY = 2;
-
-  if (isStripe) {
-    ctx.fillStyle = '#fff';
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, r, Math.PI*0.15, Math.PI*0.85);
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, r, Math.PI*1.15, Math.PI*1.85);
-    ctx.fillStyle = color;
-    ctx.fill();
-    // White circle on stripe
-    ctx.beginPath();
-    ctx.arc(b.x, b.y, r*0.45, 0, Math.PI*2);
-    ctx.fillStyle = '#fff';
-    ctx.fill();
+  ctx.shadowColor='rgba(0,0,0,0.4)';ctx.shadowBlur=5;ctx.shadowOffsetY=2;
+  ctx.beginPath();ctx.arc(b.x,b.y,BR,0,Math.PI*2);
+  if(stripe){
+    ctx.fillStyle='#fff';ctx.fill();ctx.shadowBlur=0;
+    ctx.beginPath();ctx.arc(b.x,b.y,BR,Math.PI*.15,Math.PI*.85);ctx.fillStyle=col;ctx.fill();
+    ctx.beginPath();ctx.arc(b.x,b.y,BR,Math.PI*1.15,Math.PI*1.85);ctx.fillStyle=col;ctx.fill();
+    ctx.beginPath();ctx.arc(b.x,b.y,BR*.42,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();
   } else {
-    ctx.fillStyle = color;
-    ctx.fill();
-    ctx.shadowBlur = 0;
-    if (b.id !== 0) {
-      ctx.beginPath();
-      ctx.arc(b.x, b.y, r*0.42, 0, Math.PI*2);
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-    }
+    ctx.fillStyle=col;ctx.fill();ctx.shadowBlur=0;
+    if(b.id!==0){ctx.beginPath();ctx.arc(b.x,b.y,BR*.42,0,Math.PI*2);ctx.fillStyle='#fff';ctx.fill();}
   }
-
-  // Number
-  if (b.id !== 0) {
-    ctx.fillStyle = isStripe ? color : (b.id === 8 ? '#fff' : '#000');
-    ctx.font = `bold ${r*0.8}px sans-serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(b.id, b.x, b.y + 0.5);
+  if(b.id!==0){
+    ctx.fillStyle=stripe?col:(b.id===8?'#fff':'#000');
+    ctx.font=`bold ${BR*.82}px sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(b.id,b.x,b.y+.5);
   }
-
-  // Highlight
-  ctx.beginPath();
-  ctx.arc(b.x - r*0.3, b.y - r*0.3, r*0.25, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(255,255,255,0.35)';
-  ctx.fill();
-
+  ctx.beginPath();ctx.arc(b.x-BR*.3,b.y-BR*.3,BR*.24,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,255,255,0.32)';ctx.fill();
   ctx.restore();
 }
 
-// =================== BROADCAST ===================
-function broadcastState() {
-  if (!gameChannel) return;
-  gameChannel.send({
-    type: 'broadcast', event: 'game_state',
-    payload: {
-      balls: balls.map(b=>({...b})),
-      currentTurn, scores,
-      ballAssignments,
-      gameOver
-    }
-  });
+// ── ACTIONS ──
+function resetGame(){
+  if(!confirm('თამაში თავიდან?'))return;
+  doReset();
+  gameChannel&&gameChannel.send({type:'broadcast',event:'reset',payload:{}});
 }
 
-function applyRemoteState(payload) {
-  if (payload.balls) {
-    payload.balls.forEach(s => {
-      const b = balls.find(b => b.id === s.id);
-      if (b) Object.assign(b, s);
-    });
-  }
-  if (payload.currentTurn !== undefined) currentTurn = payload.currentTurn;
-  if (payload.scores) scores = payload.scores;
-  if (payload.ballAssignments) ballAssignments = payload.ballAssignments;
-  if (payload.gameOver !== undefined) gameOver = payload.gameOver;
-  setTurn();
-  updateUI();
+function leaveGame(){
+  if(!confirm('გასვლა?'))return;
+  inGame=false;
+  if(gameChannel){sb.removeChannel(gameChannel);gameChannel=null;}
+  sb.from('billiards_rooms').update({status:'done'}).eq('code',roomCode).then(()=>{});
+  roomCode=null;myRole=null;
+  document.getElementById('gameWrap').style.display='none';
+  document.getElementById('lobby').style.display='block';
+  document.getElementById('waitInfo').style.display='none';
+  document.querySelectorAll('.oi-invite-btn').forEach(b=>{b.disabled=false;b.textContent='📨 მოწვევა';});
+  loadOnlineUsers();
 }
 
-// =================== UI ACTIONS ===================
-function resetGame() {
-  if (!confirm('თამაში თავიდან?')) return;
-  initBalls();
-  currentTurn = 'p1';
-  scores = {p1:0, p2:0};
-  ballAssignments = {p1:null, p2:null};
-  gameOver = false;
-  canShoot = false;
-  setTurn();
-  updateUI();
-  gameChannel && gameChannel.send({type:'broadcast', event:'reset', payload:{}});
-  broadcastState();
+function showMsg(icon,title,sub,wins){
+  document.getElementById('mIcon').textContent=icon;
+  document.getElementById('mTitle').textContent=title;
+  document.getElementById('mSub').textContent=sub;
+  document.getElementById('mWins').textContent=wins||'';
+  document.getElementById('msgOverlay').classList.add('open');
+}
+function closeMsgOverlay(){document.getElementById('msgOverlay').classList.remove('open');}
+
+function genCode(){return Math.random().toString(36).slice(2,8).toUpperCase();}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2800);
 }
 
-function leaveGame() {
-  if (!confirm('გასვლა?')) return;
-  if (gameChannel) sb.removeChannel(gameChannel);
-  sb.from('billiards_rooms').update({status:'done'}).eq('code', roomCode).then(()=>{});
-  location.reload();
-}
-
-function showMsg(icon, title, sub, btnText) {
-  document.getElementById('mIcon').textContent = icon;
-  document.getElementById('mTitle').textContent = title;
-  document.getElementById('mSub').textContent = sub;
-  document.getElementById('mBtn').textContent = btnText || 'კარგი';
-  document.getElementById('msgOverlay').style.display = 'flex';
-}
-function closeMsgOverlay() {
-  document.getElementById('msgOverlay').style.display = 'none';
-}
-
-function toast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
-}
+init();
 </script>
 </body>
 </html>
+
+გამომავალი
+
+done: 35359 bytes
