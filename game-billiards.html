@@ -58,7 +58,6 @@ button{padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
   
   <div class="sec-title">🟣 ონლაინ მოთამაშეები</div>
   <div id="onlineList">⏳ იტვირთება...</div>
-  <div id="onlineCount" style="font-size:11px;color:#aaa;text-align:center;margin-top:10px"></div>
   
   <div id="waitMsg" class="wait-msg">
     ⏳ მოწვევა გაგზავნილია... ელოდება პასუხს
@@ -122,18 +121,17 @@ let inGame = false;
 let roomCode = null;
 let currentChannel = null;
 let waitingForResponse = false;
-let onlineChannel = null;
 
 // მომხმარებლის მონაცემები
 let ME = null, myProfile = null;
 let myNick = '', myAvatar = '😊', myWins = 0;
 let opponentNick = '', opponentAvatar = '😊', opponentWins = 0, opponentId = null;
 
-// ============ 1. ავტორიზაცია და ონლაინ სტატუსი ============
+// ============ 1. ავტორიზაცია ============
 async function init() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) {
-    alert('გთხოვთ გაიარეთ ავტორიზაცია');
+    alert('გთხოვთ გაიარეთ ავტორიზაცია ჩატში');
     return;
   }
   ME = user;
@@ -153,27 +151,27 @@ async function init() {
     document.getElementById('myAvatar').textContent = myAvatar;
   }
   
-  // 🔥 ჩავწერთ ონლაინ ცხრილში
-  await setOnlineStatus(true);
-  
-  // ვუსმენთ ონლაინ ცვლილებებს
-  listenToOnlineUsers();
+  // 🔥 მნიშვნელოვანი: ვაახლებთ last_seen-ს
+  await updateLastSeen();
   
   // ონლაინ სიის ჩატვირთვა
   await loadOnlineUsers();
   
-  // ყოველ 15 წამში ვაახლებთ ping-ს
+  // 🔥 ვუსმენთ profiles ცხრილის ცვლილებებს
+  listenToProfileChanges();
+  
+  // მოწვევების მოსმენა
+  listenForInvites();
+  
+  // ყოველ 10 წამში ვაახლებთ last_seen-ს
   setInterval(() => {
-    if (!inGame) setOnlineStatus(true);
-  }, 15000);
+    if (!inGame) updateLastSeen();
+  }, 10000);
   
   // ყოველ 5 წამში ონლაინ სიის განახლება
   setInterval(() => {
     if (!inGame) loadOnlineUsers();
   }, 5000);
-  
-  // მოწვევების მოსმენა
-  listenForInvites();
   
   // ღილაკები
   document.getElementById('cancelInviteBtn').onclick = cancelInvite;
@@ -181,75 +179,61 @@ async function init() {
   document.getElementById('declineInvite').onclick = declineInvite;
   document.getElementById('resetBtn').onclick = resetGame;
   document.getElementById('leaveBtn').onclick = leaveGame;
-  
-  // გვერდის დახურვისას ონლაინ სტატუსის წაშლა
-  window.addEventListener('beforeunload', () => {
-    setOnlineStatus(false);
-  });
 }
 
-// ონლაინ სტატუსის მართვა
-async function setOnlineStatus(isOnline) {
+// last_seen-ის განახლება
+async function updateLastSeen() {
   if (!ME) return;
-  if (isOnline) {
-    await sb.from('online_users').upsert({ 
-      user_id: ME.id, 
-      last_ping: new Date().toISOString(),
-      updated_at: new Date().toISOString()
-    });
-  } else {
-    await sb.from('online_users').delete().eq('user_id', ME.id);
-  }
+  await sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', ME.id);
+  console.log('🟢 last_seen განახლდა', new Date().toLocaleTimeString());
 }
 
-// ონლაინ მომხმარებლების მოსმენა (Realtime)
-function listenToOnlineUsers() {
-  if (onlineChannel) sb.removeChannel(onlineChannel);
-  
-  onlineChannel = sb.channel('online-users-channel')
+// პროფილების ცვლილებების მოსმენა
+function listenToProfileChanges() {
+  sb.channel('profile-changes-billiards')
     .on('postgres_changes', { 
-      event: '*', 
+      event: 'UPDATE', 
       schema: 'public', 
-      table: 'online_users' 
-    }, () => {
-      if (!inGame) loadOnlineUsers();
+      table: 'profiles' 
+    }, (payload) => {
+      // თუ ვინმეს last_seen შეიცვალა, განაახლე სია
+      if (payload.new.id !== ME.id) {
+        console.log('🔔 პროფილი განახლდა:', payload.new.username);
+        loadOnlineUsers();
+      }
     })
     .subscribe();
 }
 
 // ============ 2. ონლაინ მომხმარებლების ჩატვირთვა ============
 async function loadOnlineUsers() {
-  // ვიღებთ ყველა ონლაინ მომხმარებელს
-  const cutoff = new Date(Date.now() - 30000).toISOString();
-  const { data: onlineData } = await sb
-    .from('online_users')
-    .select('user_id, last_ping')
-    .gte('last_ping', cutoff);
-  
-  if (!onlineData || onlineData.length === 0) {
-    document.getElementById('onlineList').innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">😴 სხვა ონლაინ მოთამაშე არ არის</div>';
-    document.getElementById('onlineCount').textContent = '📊 სულ ონლაინი: 0';
-    return;
-  }
-  
-  const onlineIds = onlineData.map(o => o.user_id).filter(id => id !== ME.id);
-  
-  if (onlineIds.length === 0) {
-    document.getElementById('onlineList').innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">😴 სხვა ონლაინ მოთამაშე არ არის</div>';
-    document.getElementById('onlineCount').textContent = '📊 სულ ონლაინი: 0';
-    return;
-  }
-  
-  // ვიღებთ პროფილების ინფოს
-  const { data: profiles } = await sb
+  // ბოლო 60 წამში აქტიური მომხმარებლები
+  const cutoff = new Date(Date.now() - 60000).toISOString();
+  const { data } = await sb
     .from('profiles')
-    .select('id, username, avatar_url, emotion, billiards_wins')
-    .in('id', onlineIds);
+    .select('id, username, avatar_url, emotion, billiards_wins, last_seen')
+    .gte('last_seen', cutoff)
+    .order('username');
   
-  const online = profiles || [];
-  document.getElementById('onlineCount').textContent = `📊 სულ ონლაინი: ${online.length}`;
+  console.log('📊 ნაპოვნია მომხმარებლები:', data?.length || 0);
+  console.log('📊 ბოლო 60 წამის cutoff:', cutoff);
+  
+  if (data) {
+    data.forEach(u => {
+      console.log(`  - ${u.username}: last_seen=${u.last_seen}`);
+    });
+  }
+  
+  // საკუთარი თავის გამორიცხვა
+  const online = (data || []).filter(u => u.id !== ME.id);
   
   const container = document.getElementById('onlineList');
+  
+  if (online.length === 0) {
+    container.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">😴 სხვა ონლაინ მოთამაშე არ არის</div>';
+    return;
+  }
+  
   container.innerHTML = online.map(u => {
     const avatarHtml = u.avatar_url 
       ? `<img src="${u.avatar_url}">` 
@@ -270,6 +254,7 @@ async function loadOnlineUsers() {
     `;
   }).join('');
   
+  // ღილაკების მოვლენები
   document.querySelectorAll('.invite-btn').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
