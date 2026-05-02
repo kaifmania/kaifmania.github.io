@@ -54,11 +54,11 @@ button{padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
         <div class="user-wins" id="myWins">🏆 0</div>
       </div>
     </div>
-    <div id="myRoleBadge">🎮</div>
   </div>
   
   <div class="sec-title">🟣 ონლაინ მოთამაშეები</div>
   <div id="onlineList">⏳ იტვირთება...</div>
+  <div id="onlineCount" style="font-size:11px;color:#aaa;text-align:center;margin-top:10px"></div>
   
   <div id="waitMsg" class="wait-msg">
     ⏳ მოწვევა გაგზავნილია... ელოდება პასუხს
@@ -122,14 +122,13 @@ let inGame = false;
 let roomCode = null;
 let currentChannel = null;
 let waitingForResponse = false;
-let onlineUpdateInterval = null;
 
 // მომხმარებლის მონაცემები
 let ME = null, myProfile = null;
 let myNick = '', myAvatar = '😊', myWins = 0;
 let opponentNick = '', opponentAvatar = '😊', opponentWins = 0, opponentId = null;
 
-// ============ 1. ავტორიზაცია და ONLAIN განახლება ============
+// ============ 1. ავტორიზაცია ============
 async function init() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) {
@@ -153,27 +152,24 @@ async function init() {
     document.getElementById('myAvatar').textContent = myAvatar;
   }
   
-  // 🔥 მნიშვნელოვანი: ვაახლებთ last_seen-ს რომ ონლაინში ჩანდეს
+  // 🔥 მნიშვნელოვანი: ვაახლებთ last_seen-ს
   await updateLastSeen();
-  
-  // ვუსმენთ პროფილების ცვლილებებს (როცა სხვები შემოდიან/გადიან)
-  listenToProfileChanges();
-  
-  // მოწვევების მოსმენა
-  listenForInvites();
   
   // ონლაინ სიის ჩატვირთვა
   await loadOnlineUsers();
   
-  // ყოველ 15 წამში ვაახლებთ last_seen-ს (ისევე როგორც ჩატში)
+  // მოწვევების მოსმენა
+  listenForInvites();
+  
+  // ყოველ 10 წამში ვაახლებთ last_seen-ს
   setInterval(() => {
     if (!inGame) updateLastSeen();
-  }, 15000);
+  }, 10000);
   
-  // ყოველ 10 წამში ონლაინ სიის განახლება
+  // ყოველ 5 წამში ონლაინ სიის განახლება
   setInterval(() => {
     if (!inGame) loadOnlineUsers();
-  }, 10000);
+  }, 5000);
   
   // ღილაკები
   document.getElementById('cancelInviteBtn').onclick = cancelInvite;
@@ -189,18 +185,6 @@ async function updateLastSeen() {
   await sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', ME.id);
 }
 
-// პროფილების ცვლილებების მოსმენა (ონლაინ სტატუსისთვის)
-function listenToProfileChanges() {
-  sb.channel('profile-changes')
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
-      // თუ ვინმეს last_seen შეიცვალა, განაახლე სია
-      if (payload.new.id !== ME.id) {
-        loadOnlineUsers();
-      }
-    })
-    .subscribe();
-}
-
 // ============ 2. ონლაინ მომხმარებლების ჩატვირთვა ============
 async function loadOnlineUsers() {
   // ბოლო 60 წამში აქტიური მომხმარებლები
@@ -211,9 +195,14 @@ async function loadOnlineUsers() {
     .gte('last_seen', cutoff)
     .order('username');
   
+  console.log('ონლაინ მომხმარებლები:', data?.length || 0);
+  
   // საკუთარი თავის გამორიცხვა
   const online = (data || []).filter(u => u.id !== ME.id);
+  
   const container = document.getElementById('onlineList');
+  const countEl = document.getElementById('onlineCount');
+  countEl.textContent = `📊 სულ ონლაინი: ${online.length}`;
   
   if (online.length === 0) {
     container.innerHTML = '<div style="text-align:center;padding:20px;color:#aaa">😴 სხვა ონლაინ მოთამაშე არ არის</div>';
@@ -252,7 +241,7 @@ async function loadOnlineUsers() {
   });
 }
 
-// ============ 3. მოწვევის გაგზავნა (Realtime Broadcast) ============
+// ============ 3. მოწვევის გაგზავნა ============
 async function sendInvite(targetId, targetNick, targetAvatar) {
   if (inGame) {
     toast('⚠️ ახლა თამაშში ხარ!');
@@ -282,22 +271,21 @@ async function sendInvite(targetId, targetNick, targetAvatar) {
     created_at: new Date().toISOString()
   });
   
-  // Broadcast მოწვევა
-  const inviteChan = sb.channel(`game-invite-${targetId}`);
-  await inviteChan.subscribe();
-  inviteChan.send({
-    type: 'broadcast',
-    event: 'invite',
-    payload: {
-      code: roomCode,
-      fromId: ME.id,
-      fromNick: myNick,
-      fromAvatar: typeof myAvatar === 'string' && myAvatar.startsWith('http') ? myAvatar : myAvatar,
-      game: 'billiards'
-    }
-  });
-  
   toast(`📨 მოწვევა გაეგზავნა ${targetNick}`);
+  
+  // 🔥 მოწვევის შეტყობინება notifications ცხრილში (ისე როგორც ჩატი იყენებს)
+  await sb.from('notifications').insert({
+    user_id: targetId,
+    from_uid: ME.id,
+    type: 'game_invite',
+    data: {
+      code: roomCode,
+      nick: myNick,
+      avatar: myAvatar,
+      game: 'billiards'
+    },
+    is_read: false
+  });
   
   // პასუხის მოსმენა
   const responseChan = sb.channel(`game-response-${ME.id}`);
@@ -333,28 +321,26 @@ async function sendInvite(targetId, targetNick, targetAvatar) {
 
 // ============ 4. მოწვევების მოსმენა ============
 function listenForInvites() {
-  const inviteChannel = sb.channel(`game-invite-${ME.id}`);
-  inviteChannel
-    .on('broadcast', { event: 'invite' }, async ({ payload }) => {
-      if (inGame) {
-        const rejectChan = sb.channel(`game-response-${payload.fromId}`);
-        await rejectChan.subscribe();
-        rejectChan.send({
-          type: 'broadcast',
-          event: 'decline',
-          payload: { code: payload.code, nick: myNick }
-        });
-        return;
-      }
+  // ვუსმენთ notifications-ს (იგივე ცხრილი რასაც ჩატი იყენებს)
+  sb.channel(`game-invite-listener-${ME.id}`)
+    .on('postgres_changes', { 
+      event: 'INSERT', 
+      schema: 'public', 
+      table: 'notifications',
+      filter: `user_id=eq.${ME.id} AND type=eq.game_invite`
+    }, async (payload) => {
+      if (inGame) return;
+      const notif = payload.new;
+      const invData = notif.data;
       
       window.pendingInvite = {
-        code: payload.code,
-        fromId: payload.fromId,
-        fromNick: payload.fromNick,
-        fromAvatar: payload.fromAvatar
+        code: invData.code,
+        fromId: notif.from_uid,
+        fromNick: invData.nick,
+        fromAvatar: invData.avatar
       };
       
-      document.getElementById('inviteTitle').innerHTML = `🎱 ${payload.fromNick} გიწვევს!`;
+      document.getElementById('inviteTitle').innerHTML = `🎱 ${invData.nick} გიწვევს!`;
       document.getElementById('inviteText').innerHTML = 'ბილიარდის თამაშზე';
       document.getElementById('inviteModal').style.display = 'flex';
     })
@@ -382,6 +368,7 @@ async function acceptInvite() {
   const { data: oppProf } = await sb.from('profiles').select('billiards_wins').eq('id', opponentId).single();
   opponentWins = oppProf?.billiards_wins || 0;
   
+  // პასუხის გაგზავნა broadcast-ით
   const respChan = sb.channel(`game-response-${inv.fromId}`);
   await respChan.subscribe();
   respChan.send({
