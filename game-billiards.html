@@ -369,17 +369,18 @@ function listenToProfileChanges() {
 
 // ============ ONLINE USERS ============
 async function loadOnlineUsers() {
-  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // 24 საათი
-  const { data } = await sb.from('profiles')
+  const { data, error } = await sb.from('profiles')
     .select('id, username, avatar_url, emotion, billiards_wins, last_seen')
-    .gte('last_seen', cutoff)
-    .order('username');
+    .order('last_seen', { ascending: false })
+    .limit(50);
 
-  const online = (data || []).filter(u => u.id !== ME.id);
+  console.log('profiles:', data?.length, 'ME:', ME?.id, error);
+
+  const online = (data || []).filter(u => u.id !== ME?.id);
   const container = document.getElementById('onlineList');
 
   if (online.length === 0) {
-    container.innerHTML = '<div style="text-align:center;padding:30px;color:#4b5563;font-size:14px">😴 სხვა ონლაინ მოთამაშე არ არის</div>';
+    container.innerHTML = '<div style="text-align:center;padding:30px;color:#4b5563;font-size:14px">😴 სხვა მოთამაშე არ მოიძებნა</div>';
     return;
   }
 
