@@ -369,7 +369,7 @@ function listenToProfileChanges() {
 
 // ============ ONLINE USERS ============
 async function loadOnlineUsers() {
-  const cutoff = new Date(Date.now() - 90000).toISOString();
+  const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(); // 24 საათი
   const { data } = await sb.from('profiles')
     .select('id, username, avatar_url, emotion, billiards_wins, last_seen')
     .gte('last_seen', cutoff)
@@ -445,7 +445,13 @@ async function sendInvite(targetId, targetNick, targetAvatar) {
     data: { code: roomCode, nick: myNick, avatar: myAvatar, game: 'billiards' },
     is_read: false
   });
-  if (notifErr) console.error('notif err:', notifErr);
+  if (notifErr) {
+    console.error('❌ notification შეცდომა:', notifErr);
+    toast(`⚠️ მოწვევა ვერ გაიგზავნა: ${notifErr.message}`);
+    waitingForResponse = false;
+    document.getElementById('waitMsg').style.display = 'none';
+    return;
+  }
 
   toast(`📨 მოწვევა გაეგზავნა ${targetNick}-ს`);
 
