@@ -13,10 +13,11 @@ body{background:#0a0a1a;color:#fff;font-family:sans-serif;min-height:100vh}
 h2{text-align:center;margin-bottom:20px}
 .my-profile{background:#1a1a3a;border-radius:12px;padding:12px;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center}
 .sec-title{font-size:12px;color:#aaa;margin-bottom:10px}
-#onlineList{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;max-height:300px;overflow-y:auto}
+#onlineList{display:flex;flex-direction:column;gap:8px;margin-bottom:20px;max-height:350px;overflow-y:auto}
 .user-card{background:#1a1a3a;border-radius:12px;padding:12px;display:flex;justify-content:space-between;align-items:center}
 .user-info{display:flex;align-items:center;gap:10px}
-.user-avatar{width:40px;height:40px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:20px}
+.user-avatar{width:40px;height:40px;border-radius:50%;background:#7c3aed;display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.user-avatar img{width:100%;height:100%;object-fit:cover}
 .user-name{font-weight:600}
 .user-wins{font-size:11px;color:#aaa}
 .invite-btn{background:#7c3aed;border:none;padding:8px 16px;border-radius:8px;color:#fff;cursor:pointer}
@@ -24,8 +25,8 @@ h2{text-align:center;margin-bottom:20px}
 .wait-msg{text-align:center;padding:20px;background:#1a1a3a;border-radius:12px;margin-top:20px;display:none}
 .game-area{display:none;flex-direction:column;height:100vh}
 .game-header{display:flex;justify-content:space-between;padding:10px;background:#1a1a3a}
-.player-card{text-align:center}
-.player-card.active{color:#fbbf24}
+.player-card{text-align:center;padding:8px;border-radius:10px}
+.player-card.active{background:#7c3aed;color:#fff}
 canvas{flex:1;background:#1a5c2a;margin:10px;border-radius:10px;cursor:crosshair}
 .bottom-bar{display:flex;gap:10px;justify-content:center;padding:10px}
 button{padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
@@ -49,7 +50,7 @@ button{padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
     <div class="user-info">
       <div class="user-avatar" id="myAvatar">😊</div>
       <div>
-        <div id="myNick">...</div>
+        <div id="myNick">იტვირთება...</div>
         <div class="user-wins" id="myWins">🏆 0</div>
       </div>
     </div>
@@ -68,14 +69,14 @@ button{padding:8px 16px;border-radius:8px;border:none;cursor:pointer}
 <div id="gameArea" class="game-area">
   <div class="game-header">
     <div class="player-card" id="p1Card">
-      <div class="user-avatar" id="p1Av" style="margin:0 auto 5px">😊</div>
+      <div class="user-avatar" id="p1Av" style="margin:0 auto 5px;width:40px;height:40px">😊</div>
       <div id="p1Name">-</div>
       <div>🏆 <span id="p1Wins">0</span></div>
       <div>🎯 <span id="p1Score">0</span></div>
     </div>
     <div class="player-card" id="vs">VS</div>
     <div class="player-card" id="p2Card">
-      <div class="user-avatar" id="p2Av" style="margin:0 auto 5px">😊</div>
+      <div class="user-avatar" id="p2Av" style="margin:0 auto 5px;width:40px;height:40px">😊</div>
       <div id="p2Name">-</div>
       <div>🏆 <span id="p2Wins">0</span></div>
       <div>🎯 <span id="p2Score">0</span></div>
@@ -111,7 +112,7 @@ let balls = [];
 let currentTurn = 'p1';
 let scores = { p1: 0, p2: 0 };
 let gameOver = false;
-let myRole = null; // 'p1' ან 'p2'
+let myRole = null;
 let myTurn = false;
 let canShoot = false;
 let aiming = false, aimX = 0, aimY = 0, power = 0;
@@ -121,16 +122,14 @@ let inGame = false;
 let roomCode = null;
 let currentChannel = null;
 let waitingForResponse = false;
+let onlineUpdateInterval = null;
 
 // მომხმარებლის მონაცემები
 let ME = null, myProfile = null;
 let myNick = '', myAvatar = '😊', myWins = 0;
 let opponentNick = '', opponentAvatar = '😊', opponentWins = 0, opponentId = null;
 
-// მოსმენის არხი
-let inviteChannel = null;
-
-// ============ 1. ავტორიზაცია ============
+// ============ 1. ავტორიზაცია და ONLAIN განახლება ============
 async function init() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) {
@@ -139,26 +138,42 @@ async function init() {
   }
   ME = user;
   
+  // პროფილის ჩატვირთვა
   const { data: profile } = await sb.from('profiles').select('*').eq('id', ME.id).single();
   myProfile = profile;
   myNick = profile?.username || ME.email?.split('@')[0] || 'მოთამაშე';
-  myAvatar = profile?.avatar_url ? `<img src="${profile.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : (profile?.emotion || '😊');
+  myAvatar = profile?.avatar_url || profile?.emotion || '😊';
   myWins = profile?.billiards_wins || 0;
   
   document.getElementById('myNick').textContent = myNick;
   document.getElementById('myWins').textContent = `🏆 ${myWins}`;
-  document.getElementById('myAvatar').innerHTML = typeof myAvatar === 'string' && myAvatar.startsWith('<img') ? myAvatar : myAvatar;
+  if (myAvatar.startsWith('http')) {
+    document.getElementById('myAvatar').innerHTML = `<img src="${myAvatar}">`;
+  } else {
+    document.getElementById('myAvatar').textContent = myAvatar;
+  }
   
-  // პირდაპირი მოწვევების მოსმენა
-  listenForDirectInvites();
+  // 🔥 მნიშვნელოვანი: ვაახლებთ last_seen-ს რომ ონლაინში ჩანდეს
+  await updateLastSeen();
   
-  // ონლაინ მომხმარებლების ჩატვირთვა
+  // ვუსმენთ პროფილების ცვლილებებს (როცა სხვები შემოდიან/გადიან)
+  listenToProfileChanges();
+  
+  // მოწვევების მოსმენა
+  listenForInvites();
+  
+  // ონლაინ სიის ჩატვირთვა
   await loadOnlineUsers();
   
-  // პერიოდული განახლება
+  // ყოველ 15 წამში ვაახლებთ last_seen-ს (ისევე როგორც ჩატში)
+  setInterval(() => {
+    if (!inGame) updateLastSeen();
+  }, 15000);
+  
+  // ყოველ 10 წამში ონლაინ სიის განახლება
   setInterval(() => {
     if (!inGame) loadOnlineUsers();
-  }, 15000);
+  }, 10000);
   
   // ღილაკები
   document.getElementById('cancelInviteBtn').onclick = cancelInvite;
@@ -168,14 +183,35 @@ async function init() {
   document.getElementById('leaveBtn').onclick = leaveGame;
 }
 
-// ============ 2. ონლაინ მომხმარებლები ============
+// last_seen-ის განახლება
+async function updateLastSeen() {
+  if (!ME) return;
+  await sb.from('profiles').update({ last_seen: new Date().toISOString() }).eq('id', ME.id);
+}
+
+// პროფილების ცვლილებების მოსმენა (ონლაინ სტატუსისთვის)
+function listenToProfileChanges() {
+  sb.channel('profile-changes')
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'profiles' }, (payload) => {
+      // თუ ვინმეს last_seen შეიცვალა, განაახლე სია
+      if (payload.new.id !== ME.id) {
+        loadOnlineUsers();
+      }
+    })
+    .subscribe();
+}
+
+// ============ 2. ონლაინ მომხმარებლების ჩატვირთვა ============
 async function loadOnlineUsers() {
+  // ბოლო 60 წამში აქტიური მომხმარებლები
   const cutoff = new Date(Date.now() - 60000).toISOString();
   const { data } = await sb
     .from('profiles')
     .select('id, username, avatar_url, emotion, billiards_wins, last_seen')
-    .gte('last_seen', cutoff);
+    .gte('last_seen', cutoff)
+    .order('username');
   
+  // საკუთარი თავის გამორიცხვა
   const online = (data || []).filter(u => u.id !== ME.id);
   const container = document.getElementById('onlineList');
   
@@ -184,35 +220,40 @@ async function loadOnlineUsers() {
     return;
   }
   
-  container.innerHTML = online.map(u => `
-    <div class="user-card" data-uid="${u.id}">
-      <div class="user-info">
-        <div class="user-avatar">${u.avatar_url ? `<img src="${u.avatar_url}" style="width:100%;height:100%;border-radius:50%">` : (u.emotion || '😊')}</div>
-        <div>
-          <div class="user-name">${escapeHtml(u.username)}</div>
-          <div class="user-wins">🏆 ${u.billiards_wins || 0}</div>
+  container.innerHTML = online.map(u => {
+    const avatarHtml = u.avatar_url 
+      ? `<img src="${u.avatar_url}">` 
+      : (u.emotion || '😊');
+    return `
+      <div class="user-card" data-uid="${u.id}">
+        <div class="user-info">
+          <div class="user-avatar">${avatarHtml}</div>
+          <div>
+            <div class="user-name">${escapeHtml(u.username)}</div>
+            <div class="user-wins">🏆 ${u.billiards_wins || 0}</div>
+          </div>
         </div>
+        <button class="invite-btn" data-id="${u.id}" data-nick="${escapeHtml(u.username)}" data-avatar="${u.avatar_url || ''}" data-emoji="${u.emotion || '😊'}">
+          📨 მოწვევა
+        </button>
       </div>
-      <button class="invite-btn" data-id="${u.id}" data-nick="${escapeHtml(u.username)}" data-avatar="${u.avatar_url || ''}" data-emoji="${u.emotion || '😊'}">
-        📨 მოწვევა
-      </button>
-    </div>
-  `).join('');
+    `;
+  }).join('');
   
+  // ღილაკების მოვლენები
   document.querySelectorAll('.invite-btn').forEach(btn => {
     btn.onclick = (e) => {
       e.stopPropagation();
       const targetId = btn.dataset.id;
       const targetNick = btn.dataset.nick;
-      const targetAvatar = btn.dataset.avatar;
-      const targetEmoji = btn.dataset.emoji;
-      sendDirectInvite(targetId, targetNick, targetAvatar || targetEmoji);
+      const targetAvatar = btn.dataset.avatar || btn.dataset.emoji;
+      sendInvite(targetId, targetNick, targetAvatar);
     };
   });
 }
 
-// ============ 3. პირდაპირი მოწვევა (Realtime Broadcast) ============
-async function sendDirectInvite(targetId, targetNick, targetAvatar) {
+// ============ 3. მოწვევის გაგზავნა (Realtime Broadcast) ============
+async function sendInvite(targetId, targetNick, targetAvatar) {
   if (inGame) {
     toast('⚠️ ახლა თამაშში ხარ!');
     return;
@@ -231,39 +272,37 @@ async function sendDirectInvite(targetId, targetNick, targetAvatar) {
   opponentNick = targetNick;
   opponentAvatar = targetAvatar;
   
-  // შევქმნათ ოთახი
+  // ოთახის შექმნა
   await sb.from('billiards_rooms').upsert({
     code: roomCode,
     p1_nick: myNick,
     p1_uid: ME.id,
-    p1_avatar: myAvatar,
+    p1_avatar: typeof myAvatar === 'string' && myAvatar.startsWith('http') ? myAvatar : null,
     status: 'waiting',
     created_at: new Date().toISOString()
   });
   
-  // პირდაპირი broadcast მეორე მომხმარებელთან
-  const inviteChannel = sb.channel(`game-invite-${targetId}`);
-  await inviteChannel.subscribe();
-  
-  // ვაგზავნით მოწვევას
-  inviteChannel.send({
+  // Broadcast მოწვევა
+  const inviteChan = sb.channel(`game-invite-${targetId}`);
+  await inviteChan.subscribe();
+  inviteChan.send({
     type: 'broadcast',
     event: 'invite',
     payload: {
       code: roomCode,
       fromId: ME.id,
       fromNick: myNick,
-      fromAvatar: myAvatar,
+      fromAvatar: typeof myAvatar === 'string' && myAvatar.startsWith('http') ? myAvatar : myAvatar,
       game: 'billiards'
     }
   });
   
   toast(`📨 მოწვევა გაეგზავნა ${targetNick}`);
   
-  // ველოდებით პასუხს
-  const responseChannel = sb.channel(`game-invite-response-${ME.id}`);
-  responseChannel
-    .on('broadcast', { event: 'invite-accepted' }, ({ payload }) => {
+  // პასუხის მოსმენა
+  const responseChan = sb.channel(`game-response-${ME.id}`);
+  responseChan
+    .on('broadcast', { event: 'accept' }, ({ payload }) => {
       if (payload.code === roomCode) {
         waitingForResponse = false;
         document.getElementById('waitMsg').style.display = 'none';
@@ -271,18 +310,17 @@ async function sendDirectInvite(targetId, targetNick, targetAvatar) {
         startGame();
       }
     })
-    .on('broadcast', { event: 'invite-declined' }, ({ payload }) => {
+    .on('broadcast', { event: 'decline' }, ({ payload }) => {
       if (payload.code === roomCode) {
         waitingForResponse = false;
         document.getElementById('waitMsg').style.display = 'none';
         toast(`❌ ${payload.nick} უარყო მოწვევა`);
         roomCode = null;
-        opponentId = null;
       }
     })
     .subscribe();
   
-  // 30 წამის timeout
+  // Timeout 30 წამი
   setTimeout(() => {
     if (waitingForResponse) {
       waitingForResponse = false;
@@ -294,29 +332,21 @@ async function sendDirectInvite(targetId, targetNick, targetAvatar) {
 }
 
 // ============ 4. მოწვევების მოსმენა ============
-async function listenForDirectInvites() {
-  if (!ME) return;
-  
-  if (inviteChannel) {
-    await sb.removeChannel(inviteChannel);
-  }
-  
-  inviteChannel = sb.channel(`game-invite-${ME.id}`);
+function listenForInvites() {
+  const inviteChannel = sb.channel(`game-invite-${ME.id}`);
   inviteChannel
     .on('broadcast', { event: 'invite' }, async ({ payload }) => {
       if (inGame) {
-        // ვაგზავნით რომ დაკავებულია
-        const rejectChannel = sb.channel(`game-invite-response-${payload.fromId}`);
-        await rejectChannel.subscribe();
-        rejectChannel.send({
+        const rejectChan = sb.channel(`game-response-${payload.fromId}`);
+        await rejectChan.subscribe();
+        rejectChan.send({
           type: 'broadcast',
-          event: 'invite-declined',
+          event: 'decline',
           payload: { code: payload.code, nick: myNick }
         });
         return;
       }
       
-      // ვინახავთ მოწვევას
       window.pendingInvite = {
         code: payload.code,
         fromId: payload.fromId,
@@ -324,7 +354,6 @@ async function listenForDirectInvites() {
         fromAvatar: payload.fromAvatar
       };
       
-      // ვაჩვენებთ მოდალს
       document.getElementById('inviteTitle').innerHTML = `🎱 ${payload.fromNick} გიწვევს!`;
       document.getElementById('inviteText').innerHTML = 'ბილიარდის თამაშზე';
       document.getElementById('inviteModal').style.display = 'flex';
@@ -343,29 +372,22 @@ async function acceptInvite() {
   opponentNick = inv.fromNick;
   opponentAvatar = inv.fromAvatar;
   
-  // ოთახის განახლება
   await sb.from('billiards_rooms').update({
     p2_nick: myNick,
     p2_uid: ME.id,
-    p2_avatar: myAvatar,
+    p2_avatar: typeof myAvatar === 'string' && myAvatar.startsWith('http') ? myAvatar : null,
     status: 'playing'
   }).eq('code', roomCode);
   
-  // მეტოქის wins
   const { data: oppProf } = await sb.from('profiles').select('billiards_wins').eq('id', opponentId).single();
   opponentWins = oppProf?.billiards_wins || 0;
   
-  // პასუხის გაგზავნა
-  const responseChannel = sb.channel(`game-invite-response-${inv.fromId}`);
-  await responseChannel.subscribe();
-  responseChannel.send({
+  const respChan = sb.channel(`game-response-${inv.fromId}`);
+  await respChan.subscribe();
+  respChan.send({
     type: 'broadcast',
-    event: 'invite-accepted',
-    payload: {
-      code: roomCode,
-      nick: myNick,
-      wins: myWins
-    }
+    event: 'accept',
+    payload: { code: roomCode, nick: myNick, wins: myWins }
   });
   
   startGame();
@@ -375,11 +397,11 @@ function declineInvite() {
   document.getElementById('inviteModal').style.display = 'none';
   const inv = window.pendingInvite;
   if (inv) {
-    const rejectChannel = sb.channel(`game-invite-response-${inv.fromId}`);
-    rejectChannel.subscribe();
-    rejectChannel.send({
+    const rejectChan = sb.channel(`game-response-${inv.fromId}`);
+    rejectChan.subscribe();
+    rejectChan.send({
       type: 'broadcast',
-      event: 'invite-declined',
+      event: 'decline',
       payload: { code: inv.code, nick: myNick }
     });
   }
@@ -408,17 +430,19 @@ function startGame() {
   canShoot = myTurn;
   updateGameUI();
   
-  // ოთახის არხი სინქრონიზაციისთვის
   if (currentChannel) sb.removeChannel(currentChannel);
   currentChannel = sb.channel(`billiards_${roomCode}`);
   currentChannel
     .on('broadcast', { event: 'shoot' }, ({ payload }) => {
-      if (payload.turn !== myRole) {
-        applyRemoteShoot(payload);
-      }
+      if (payload.turn !== myRole) applyRemoteShoot(payload);
     })
     .on('broadcast', { event: 'state' }, ({ payload }) => {
-      applyRemoteState(payload);
+      if (payload.currentTurn) currentTurn = payload.currentTurn;
+      if (payload.scores) scores = payload.scores;
+      if (payload.gameOver !== undefined) gameOver = payload.gameOver;
+      myTurn = (currentTurn === myRole);
+      canShoot = myTurn && !gameOver;
+      updateGameUI();
     })
     .subscribe();
 }
@@ -439,15 +463,13 @@ function initCanvas() {
 
 function initBalls() {
   balls = [];
-  // კიუ ბოლი
   balls.push({ id: 0, x: TW*0.25, y: TH/2, vx: 0, vy: 0, active: true });
-  // სხვა ბურთები
   for (let i = 1; i <= 15; i++) {
-    const angle = (i - 1) * 0.4;
+    const angle = (i - 1) * 0.35;
     balls.push({
       id: i,
-      x: TW*0.7 + Math.cos(angle) * 30,
-      y: TH/2 + Math.sin(angle) * 30,
+      x: TW*0.7 + Math.cos(angle) * 28,
+      y: TH/2 + Math.sin(angle) * 28 * (i < 8 ? 1 : 0.7),
       vx: 0, vy: 0, active: true
     });
   }
@@ -476,21 +498,19 @@ function stepPhysics() {
     if (Math.abs(b.vx) < 0.05) b.vx = 0;
     if (Math.abs(b.vy) < 0.05) b.vy = 0;
     
-    // კედლები
     if (b.x - BR < 0) { b.x = BR; b.vx = Math.abs(b.vx); }
     if (b.x + BR > TW) { b.x = TW - BR; b.vx = -Math.abs(b.vx); }
     if (b.y - BR < 0) { b.y = BR; b.vy = Math.abs(b.vy); }
     if (b.y + BR > TH) { b.y = TH - BR; b.vy = -Math.abs(b.vy); }
   });
   
-  // შეჯახებები
   for (let i = 0; i < balls.length; i++) {
     for (let j = i + 1; j < balls.length; j++) {
       const b1 = balls[i], b2 = balls[j];
       if (!b1.active || !b2.active) continue;
       const dx = b2.x - b1.x, dy = b2.y - b1.y;
       const dist = Math.sqrt(dx * dx + dy * dy);
-      if (dist < BR * 2) {
+      if (dist < BR * 2 && dist > 0) {
         const nx = dx / dist, ny = dy / dist;
         const overlap = BR * 2 - dist;
         b1.x -= nx * overlap / 2;
@@ -501,7 +521,6 @@ function stepPhysics() {
     }
   }
   
-  // ჯერის შეცვლა
   if (!moving && !canShoot && myTurn && !gameOver) {
     canShoot = true;
     updateGameUI();
@@ -513,7 +532,6 @@ function draw() {
   ctx.fillStyle = '#1a5c2a';
   ctx.fillRect(0, 0, TW, TH);
   
-  // ჯიბეები
   ctx.fillStyle = '#000';
   [[10,10], [TW/2,5], [TW-10,10], [10,TH-10], [TW/2,TH-5], [TW-10,TH-10]].forEach(p => {
     ctx.beginPath();
@@ -521,7 +539,6 @@ function draw() {
     ctx.fill();
   });
   
-  // ბურთები
   balls.forEach(b => {
     if (!b.active) return;
     ctx.beginPath();
@@ -535,7 +552,6 @@ function draw() {
     ctx.fillText(b.id, b.x-4, b.y+4);
   });
   
-  // მიზნის ხაზი
   if (aiming && canShoot) {
     const cue = balls.find(b => b.id === 0);
     if (cue) {
@@ -576,10 +592,10 @@ function onPointerDown(e) {
   aimX = pos.x;
   aimY = pos.y;
   power = 0;
-  const startTime = Date.now();
+  const start = Date.now();
   if (chargeInterval) clearInterval(chargeInterval);
   chargeInterval = setInterval(() => {
-    power = Math.min(100, (Date.now() - startTime) / 12);
+    power = Math.min(100, (Date.now() - start) / 12);
   }, 16);
 }
 
@@ -599,7 +615,7 @@ function onPointerUp() {
   if (!cue) return;
   
   const dx = cue.x - aimX, dy = cue.y - aimY;
-  const dist = Math.sqrt(dx * dx + dy * dy);
+  const dist = Math.sqrt(dx*dx + dy*dy);
   if (dist < 5) return;
   
   const speed = (power / 100) * 12;
@@ -638,17 +654,7 @@ function applyRemoteShoot(payload) {
   updateGameUI();
 }
 
-function applyRemoteState(payload) {
-  if (payload.currentTurn) currentTurn = payload.currentTurn;
-  if (payload.scores) scores = payload.scores;
-  if (payload.gameOver !== undefined) gameOver = payload.gameOver;
-  myTurn = (currentTurn === myRole);
-  canShoot = myTurn && !gameOver;
-  updateGameUI();
-}
-
 function updateGameUI() {
-  // სახელები
   document.getElementById('p1Name').textContent = myRole === 'p1' ? myNick : opponentNick;
   document.getElementById('p2Name').textContent = myRole === 'p2' ? myNick : opponentNick;
   document.getElementById('p1Wins').textContent = myRole === 'p1' ? myWins : opponentWins;
@@ -657,7 +663,6 @@ function updateGameUI() {
   document.getElementById('p2Score').textContent = scores.p2;
   document.getElementById('turnName').textContent = myTurn ? 'შენ' : 'მეტოქე';
   
-  // აქტიური მოთამაშის მონიშვნა
   document.getElementById('p1Card').classList.toggle('active', currentTurn === 'p1');
   document.getElementById('p2Card').classList.toggle('active', currentTurn === 'p2');
 }
@@ -673,7 +678,7 @@ function resetGame() {
   currentChannel?.send({
     type: 'broadcast',
     event: 'state',
-    payload: { balls: balls.map(b => ({...b})), currentTurn, scores, gameOver }
+    payload: { currentTurn, scores, gameOver }
   });
 }
 
