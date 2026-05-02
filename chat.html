@@ -952,7 +952,8 @@ function addCallButtonsToDMHeader() {
   audioCallBtn.style.cssText = 'background:#2ecc71;border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:14px;color:#fff';
   audioCallBtn.onclick = (e) => { 
     e.stopPropagation(); 
-    if (DM_UID) callUser(DM_UID, document.getElementById('dmTitle')?.innerText || '?'); 
+    if (DM_UID) window.open(`video-call.html?to=${DM_UID}&mode=outgoing`, '_blank');
+
   };
   
   const videoCallBtn = document.createElement('button');
@@ -962,7 +963,8 @@ function addCallButtonsToDMHeader() {
   videoCallBtn.style.cssText = 'background:#3498db;border:none;border-radius:8px;padding:4px 8px;cursor:pointer;font-size:14px;color:#fff';
   videoCallBtn.onclick = (e) => { 
     e.stopPropagation(); 
-    if (DM_UID) callUser(DM_UID, document.getElementById('dmTitle')?.innerText || '?'); 
+    if (DM_UID) window.open(`video-call.html?to=${DM_UID}&mode=outgoing`, '_blank');
+
   };
   
   btnGroup.appendChild(audioCallBtn);
