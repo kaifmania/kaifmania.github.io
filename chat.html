@@ -1309,7 +1309,7 @@ const ROOMS=[
   {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},
   {id:5,icon:'🎵',name:'მუსიკ კლაბი'},
   {id:6,icon:'🎱',name:'ბილიარდი',isGame:true,gameFile:'game-billiards.html',gameName:'ბილიარდი',gameDesc:'8-ბოლი · ორმხრივი ონლაინ',gameScoreField:null},
-  {id:7,icon:'🌊',name:'ფორუმი'},
+  {id:7,icon:'🌊',name:'ფორუმი',link:'forum.html'},
   {id:8,icon:'🦋',name:'ადმინისტრაცია'},
   {id:9,icon:'🧠',name:'დახმარება'},
   {id:10,icon:'🌸',name:'სოფთ ჰარმონი'},
@@ -1585,7 +1585,10 @@ async function sendPhotoComment(){
 
 /* ===================== USERS ===================== */
 function buildRooms(){const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';ROOMS.forEach(r=>{const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;d.onclick=()=>switchRoom(r,d);el.appendChild(d);});}
-function switchRoom(r,clickedEl){if(!r||!r.id)return;ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
+function switchRoom(r,clickedEl){
+  if(!r||!r.id)return;
+  if(r.link){window.open(r.link,'_blank');return;}
+  ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
 async function loadAllUsers(){const{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];renderUserLists();}
 function updateOnlineBadge(){const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));const cnt=document.getElementById('onlineCnt');if(cnt)cnt.textContent=`● ${onlineNow.length} ონლაინი`;}
 function renderUserLists(){const founders=[],admins=[],members=[];allUsers.forEach(u=>{if(u.role==='founder')founders.push(u);else if(u.role==='admin')admins.push(u);else members.push(u);});updateOnlineBadge();const usEl=document.getElementById('usersListEl');if(usEl){const frag=document.createDocumentFragment();if(founders.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));founders.forEach(u=>frag.appendChild(makeUserItem(u)));}if(admins.length){frag.appendChild(roleHeader('🛡️','ადმინები'));admins.forEach(u=>frag.appendChild(makeUserItem(u)));}if(members.length){frag.appendChild(roleHeader('👤','წევრები'));members.forEach(u=>frag.appendChild(makeUserItem(u)));}usEl.innerHTML='';usEl.appendChild(frag);}const onEl=document.getElementById('onlineListEl');if(onEl){const frag=document.createDocumentFragment();const onF=founders.filter(u=>isOnline(u.last_seen)),onA=admins.filter(u=>isOnline(u.last_seen)),onM=members.filter(u=>isOnline(u.last_seen));if(!onF.length&&!onA.length&&!onM.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='ახლა არავინ';frag.appendChild(e);}else{if(onF.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));onF.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onA.length){frag.appendChild(roleHeader('🛡️','ადმინები'));onA.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onM.length){frag.appendChild(roleHeader('👤','წევრები'));onM.forEach(u=>frag.appendChild(makeUserItem(u)));}}onEl.innerHTML='';onEl.appendChild(frag);}renderFriends();}
