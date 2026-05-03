@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>კაიფფორუმი | კითხვები & კომენტარები</title>
+  <!-- Supabase JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <!-- Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-dark: #0f0c1f;
+      --panel: #19162c;
+      --panel2: #211e38;
+      --card-bg: #1e1b32;
+      --border: rgba(130, 70, 230, 0.45);
+      --text: #e8daff;
+      --text-muted: #a391c2;
+      --accent: #c084fc;
+      --accent-glow: #a855f7;
+      --danger: #ff7b89;
+      --success: #86efac;
+      --input-bg: #0e0b1d;
+      --smile-bg: #2d284a;
+    }
+
+    body {
+      font-family: 'Noto Sans Georgian', sans-serif;
+      background: var(--bg-dark);
+      color: var(--text);
+      padding: 24px 20px 40px;
+      min-height: 100vh;
+      position: relative;
+    }
+
+    /* ანიმაციური ფონი */
+    .bg-glow {
+      position: fixed;
+      inset: 0;
+      background: radial-gradient(circle at 20% 40%, rgba(120, 40, 200, 0.2), transparent 60%),
+                  radial-gradient(circle at 85% 70%, rgba(192, 132, 252, 0.15), transparent 70%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+    }
+
+    /* header */
+    .forum-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 32px;
+      background: var(--panel);
+      border-radius: 34px;
+      padding: 14px 26px;
+      border: 1px solid var(--border);
+      backdrop-filter: blur(6px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    .logo-area h1 {
+      font-family: 'Unbounded', sans-serif;
+      font-size: 1.8rem;
+      background: linear-gradient(135deg, #e9a5ff, #b77eff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      letter-spacing: -0.5px;
+    }
+    .logo-area p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .user-panel {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: var(--input-bg);
+      padding: 8px 20px;
+      border-radius: 60px;
+    }
+    .user-avatar {
+      font-size: 1.7rem;
+      filter: drop-shadow(0 0 4px var(--accent));
+    }
+    .user-info {
+      font-weight: 600;
+    }
+    .user-role {
+      font-size: 0.7rem;
+      background: var(--accent-glow);
+      padding: 2px 8px;
+      border-radius: 50px;
+      display: inline-block;
+      margin-left: 6px;
+    }
+    .logout-btn {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 6px 14px;
+      border-radius: 30px;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .logout-btn:hover {
+      background: rgba(255,80,120,0.2);
+      color: #ffacb9;
+      border-color: #ff7b89;
+    }
+
+    /* admin პანელი */
+    .admin-panel {
+      background: var(--panel2);
+      border-radius: 32px;
+      padding: 20px 26px;
+      margin-bottom: 30px;
+      border: 1px solid var(--border);
+    }
+    .admin-title {
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin-bottom: 18px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .question-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      align-items: flex-end;
+    }
+    .question-form .input-group {
+      flex: 2;
+      min-width: 200px;
+    }
+    .question-form input, .question-form textarea {
+      width: 100%;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 24px;
+      color: var(--text);
+      font-family: inherit;
+      resize: vertical;
+    }
+    .question-form textarea {
+      resize: vertical;
+    }
+    .question-form button {
+      background: linear-gradient(135deg, var(--accent-glow), #9333ea);
+      border: none;
+      padding: 12px 28px;
+      border-radius: 60px;
+      font-weight: bold;
+      color: white;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .question-form button:hover {
+      transform: scale(0.97);
+      box-shadow: 0 0 12px var(--accent);
+    }
+
+    /* კითხვების ბადე */
+    .questions-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 28px;
+      margin-top: 20px;
+    }
+    .question-card {
+      background: var(--card-bg);
+      border-radius: 32px;
+      border: 1px solid var(--border);
+      padding: 22px 26px;
+      transition: 0.2s;
+      box-shadow: 0 8px 18px rgba(0,0,0,0.3);
+    }
+    .question-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .question-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #f0d5ff, #d6b0ff);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+    .question-meta {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    .delete-q {
+      background: rgba(255,80,100,0.2);
+      border: none;
+      color: #ff99aa;
+      padding: 6px 14px;
+      border-radius: 40px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: 0.2s;
+    }
+    .delete-q:hover {
+      background: #ff6070;
+      color: white;
+    }
+    .question-body {
+      margin: 12px 0 18px;
+      padding: 8px 0;
+      font-size: 1rem;
+      border-left: 3px solid var(--accent);
+      padding-left: 16px;
+      color: #ddd0ff;
+    }
+
+    /* კომენტარების სექცია */
+    .comments-section {
+      margin-top: 22px;
+      background: rgba(0,0,0,0.25);
+      border-radius: 28px;
+      padding: 16px 20px;
+    }
+    .comment-list {
+      max-height: 300px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+    .comment-item {
+      background: #15112b;
+      padding: 10px 14px;
+      border-radius: 24px;
+      display: flex;
+      align-items: baseline;
+      flex-wrap: wrap;
+      gap: 8px;
+      border-left: 3px solid var(--accent);
+    }
+    .comment-author {
+      font-weight: bold;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: #2a2345;
+      padding: 3px 12px;
+      border-radius: 60px;
+      font-size: 0.8rem;
+    }
+    .comment-text {
+      word-break: break-word;
+      flex: 1;
+    }
+    .comment-time {
+      font-size: 0.65rem;
+      color: var(--text-muted);
+    }
+
+    /* კომენტარის ფორმა + smiley დაფა */
+    .comment-form-area {
+      margin-top: 10px;
+      background: #17132e;
+      border-radius: 28px;
+      padding: 10px 14px;
+    }
+    .comment-input-wrapper {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .comment-input {
+      flex: 1;
+      background: var(--input-bg);
+      border: 1px solid var(--border);
+      padding: 12px 16px;
+      border-radius: 48px;
+      color: white;
+      font-family: inherit;
+    }
+    .comment-submit {
+      background: var(--accent-glow);
+      border: none;
+      padding: 0 22px;
+      border-radius: 60px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    /* smiley panel - როგორც ჩატ ოთახში */
+    .smiley-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+      padding: 8px 10px;
+      background: var(--smile-bg);
+      border-radius: 50px;
+      align-items: center;
+      justify-content: flex-start;
+      border: 1px solid rgba(200,130,255,0.3);
+    }
+    .smiley-btn {
+      background: transparent;
+      border: none;
+      font-size: 1.6rem;
+      cursor: pointer;
+      transition: 0.1s;
+      padding: 4px 8px;
+      border-radius: 40px;
+    }
+    .smiley-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: scale(1.2);
+    }
+    .empty-msg {
+      text-align: center;
+      color: var(--text-muted);
+      padding: 20px;
+    }
+    button:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    @media (max-width: 700px) {
+      body { padding: 16px; }
+      .question-title { font-size: 1.2rem; }
+      .admin-panel { padding: 16px; }
+    }
+  </style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="container">
+  <div class="forum-header">
+    <div class="logo-area">
+      <h1>🗣️ კაიფფორუმი</h1>
+      <p>კითხვები · კომენტარები · სმაილები</p>
+    </div>
+    <div class="user-panel" id="userPanel">
+      <span class="user-avatar" id="userEmoji">😎</span>
+      <div class="user-info">
+        <span id="userName">მომხმარებელი</span>
+        <span id="userRoleBadge" class="user-role">—</span>
+      </div>
+      <button class="logout-btn" id="logoutBtn">🚪 გასვლა</button>
+    </div>
+  </div>
+
+  <!-- admin პანელი (მხოლოდ ადმინისთვის) -->
+  <div id="adminZone" style="display: none;">
+    <div class="admin-panel">
+      <div class="admin-title">👑 ადმინის პანელი — კითხვის მართვა</div>
+      <div class="question-form">
+        <div class="input-group">
+          <input type="text" id="qTitle" placeholder="კითხვის სათაური...">
+        </div>
+        <div class="input-group">
+          <textarea id="qDesc" rows="2" placeholder="კითხვის აღწერა / დეტალები..."></textarea>
+        </div>
+        <button id="addQuestionBtn">➕ დამატება</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- კითხვების სია -->
+  <div id="questionsContainer" class="questions-grid">
+    <div class="empty-msg">⏳ იტვირთება კითხვები...</div>
+  </div>
+</div>
+
+<script>
+  // ------ SUPABASE კონფიგი ------
+  const SUPABASE_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
+  const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
+  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let currentUser = null;
+  let currentUserRole = 'member'; // 'admin' ან 'member'
+  let currentUserEmoji = '😊';
+  let currentUserName = '';
+
+  // DOM ელემენტები
+  const adminZone = document.getElementById('adminZone');
+  const questionsContainer = document.getElementById('questionsContainer');
+  const addBtn = document.getElementById('addQuestionBtn');
+  const qTitleInp = document.getElementById('qTitle');
+  const qDescInp = document.getElementById('qDesc');
+  const userNameSpan = document.getElementById('userName');
+  const userRoleSpan = document.getElementById('userRoleBadge');
+  const userEmojiSpan = document.getElementById('userEmoji');
+  const logoutBtn = document.getElementById('logoutBtn');
+
+  // ---------- დამხმარე ფუნქციები ----------
+  function showMessage(text, isError = true) {
+    // მოკლე ტოასტის მსგავსი სტატუსი
+    const toast = document.createElement('div');
+    toast.innerText = text;
+    toast.style.position = 'fixed';
+    toast.style.bottom = '20px';
+    toast.style.left = '50%';
+    toast.style.transform = 'translateX(-50%)';
+    toast.style.backgroundColor = isError ? '#b91c3c' : '#2d6a4f';
+    toast.style.color = 'white';
+    toast.style.padding = '10px 24px';
+    toast.style.borderRadius = '60px';
+    toast.style.zIndex = '999';
+    toast.style.fontWeight = 'bold';
+    toast.style.backdropFilter = 'blur(8px)';
+    toast.style.boxShadow = '0 4px 12px black';
+    document.body.appendChild(toast);
+    setTimeout(() => toast.remove(), 2800);
+  }
+
+  // მონაცემთა ბაზის სქემა: 
+  // questions(id, title, description, created_by, created_at)
+  // comments(id, question_id, user_id, user_name, user_emoji, content, created_at)
+  // profiles იმისთვის, რომ role/username მივხვდეთ, მაგრამ ასევე users metadata
+  // ჩვენ ვიყენებთ auth users + profiles ცხრილს (role, username, emotion)
+
+  // 1) მიმდინარე სესიის შემოწმება
+  async function checkUser() {
+    const { data: { user }, error } = await supabase.auth.getUser();
+    if (error || !user) {
+      // გადამისამართება შესვლის გვერდზე
+      window.location.href = "index.html";
+      return null;
+    }
+    // წამოვიღოთ პროფილი
+    const { data: profile, error: profErr } = await supabase
+      .from('profiles')
+      .select('username, role, emotion')
+      .eq('id', user.id)
+      .single();
+    
+    if (profErr || !profile) {
+      // fallback
+      currentUserRole = 'member';
+      currentUserName = user.email?.split('@')[0] || 'მომხმარებელი';
+      currentUserEmoji = '😊';
+    } else {
+      currentUserName = profile.username || user.email?.split('@')[0];
+      currentUserRole = profile.role === 'admin' ? 'admin' : 'member';
+      currentUserEmoji = profile.emotion || '😊';
+    }
+    currentUser = user;
+    // UI განახლება
+    userNameSpan.innerText = currentUserName;
+    userRoleSpan.innerText = currentUserRole === 'admin' ? 'ადმინი' : 'წევრი';
+    userEmojiSpan.innerText = currentUserEmoji;
+    
+    if (currentUserRole === 'admin') {
+      adminZone.style.display = 'block';
+    } else {
+      adminZone.style.display = 'none';
+    }
+    return user;
+  }
+
+  // ყველა კითხვის ჩატვირთვა + კომენტარები
+  async function loadQuestions() {
+    questionsContainer.innerHTML = '<div class="empty-msg">📡 იტვირთება...</div>';
+    // წამოვიღოთ questions
+    const { data: questions, error } = await supabase
+      .from('questions')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (error) {
+      questionsContainer.innerHTML = '<div class="empty-msg">❌ შეცდომა კითხვების ჩატვირთვისას</div>';
+      return;
+    }
+    if (!questions || questions.length === 0) {
+      questionsContainer.innerHTML = '<div class="empty-msg">📭 ჯერ არ არის კითხვები. (ადმინს შეუძლია დამატება)</div>';
+      return;
+    }
+
+    // თითოეულ კითხვაზე მივამატოთ კომენტარები
+    for (let q of questions) {
+      const { data: comments, error: comErr } = await supabase
+        .from('comments')
+        .select('*')
+        .eq('question_id', q.id)
+        .order('created_at', { ascending: true });
+      
+      if (!comErr) {
+        q.commentsList = comments || [];
+      } else {
+        q.commentsList = [];
+      }
+    }
+
+    renderQuestions(questions);
+  }
+
+  // render questions + comment forms
+  function renderQuestions(questions) {
+    if (!questions.length) {
+      questionsContainer.innerHTML = '<div class="empty-msg">💬 ამჟამად კითხვები არ არის, ადმინს შეუძლია დამატება</div>';
+      return;
+    }
+
+    let html = '';
+    for (let q of questions) {
+      const isAdminView = (currentUserRole === 'admin');
+      // კომენტარების სია
+      let commentsHtml = '';
+      if (q.commentsList && q.commentsList.length) {
+        q.commentsList.forEach(comm => {
+          commentsHtml += `
+            <div class="comment-item">
+              <div class="comment-author">
+                <span>${comm.user_emoji || '💬'}</span> ${escapeHtml(comm.user_name)}
+              </div>
+              <div class="comment-text">${escapeHtml(comm.content)}</div>
+              <div class="comment-time">${new Date(comm.created_at).toLocaleString()}</div>
+            </div>
+          `;
+        });
+      } else {
+        commentsHtml = '<div class="empty-msg" style="padding:8px; font-size:0.8rem;">✨ ჯერ კომენტარები არ არის. იყავი პირველი!</div>';
+      }
+
+      // კომენტარის ფორმა smiley-ებით
+      const smileyList = ['😊','😍','😂','🔥','🥰','😎','💜','🎉','❤️','👍','🎮','✨','😢','😱','🤣','💀','🍕','⚡'];
+      let smileyPanelHtml = `<div class="smiley-panel" id="smiley-panel-${q.id}">`;
+      smileyList.forEach(emo => {
+        smileyPanelHtml += `<button type="button" class="smiley-btn" data-emo="${emo}" data-qid="${q.id}">${emo}</button>`;
+      });
+      smileyPanelHtml += `</div>`;
+
+      html += `
+        <div class="question-card" data-qid="${q.id}">
+          <div class="question-header">
+            <div class="question-title">📌 ${escapeHtml(q.title)}</div>
+            <div class="question-meta">
+              <span>📅 ${new Date(q.created_at).toLocaleDateString()}</span>
+              ${isAdminView ? `<button class="delete-q" data-id="${q.id}">🗑 წაშლა</button>` : ''}
+            </div>
+          </div>
+          <div class="question-body">${escapeHtml(q.description || '')}</div>
+          
+          <div class="comments-section">
+            <div class="comment-list" id="comments-list-${q.id}">
+              ${commentsHtml}
+            </div>
+            <div class="comment-form-area">
+              <div class="comment-input-wrapper">
+                <input type="text" class="comment-input" id="comment-input-${q.id}" placeholder="დაწერე კომენტარი... (აირჩიე სმაილი დაფიდან)" autocomplete="off">
+                <button class="comment-submit" data-qid="${q.id}">💬 გაგზავნა</button>
+              </div>
+              ${smileyPanelHtml}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+    questionsContainer.innerHTML = html;
+
+    // მოვუსმინოთ წაშლის ღილაკებს (ადმინისთვის)
+    if (currentUserRole === 'admin') {
+      document.querySelectorAll('.delete-q').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const qId = btn.getAttribute('data-id');
+          if (confirm('ნამდვილად გსურს კითხვის წაშლა? კომენტარებიც წაიშლება.')) {
+            // წაშლა: ჯერ კომენტარები, მერე კითხვა
+            await supabase.from('comments').delete().eq('question_id', qId);
+            const { error } = await supabase.from('questions').delete().eq('id', qId);
+            if (error) showMessage('წაშლა ვერ მოხერხდა', true);
+            else showMessage('კითხვა წაიშალა', false);
+            loadQuestions();
+          }
+        });
+      });
+    }
+
+    // კომენტარის გაგზავნის ღილაკები
+    document.querySelectorAll('.comment-submit').forEach(btn => {
+      btn.addEventListener('click', async (e) => {
+        const qid = btn.getAttribute('data-qid');
+        const inputField = document.getElementById(`comment-input-${qid}`);
+        const content = inputField.value.trim();
+        if (!content) {
+          showMessage('შეიყვანე კომენტარი ან აირჩიე სმაილი :)', true);
+          return;
+        }
+        if (!currentUser) {
+          showMessage('გთხოვთ შედით სისტემაში', true);
+          return;
+        }
+        // ჩავამატოთ კომენტარი
+        const { error } = await supabase.from('comments').insert({
+          question_id: qid,
+          user_id: currentUser.id,
+          user_name: currentUserName,
+          user_emoji: currentUserEmoji,
+          content: content
+        });
+        if (error) {
+          showMessage('კომენტარის დამატება ვერ მოხერხდა: ' + error.message, true);
+        } else {
+          inputField.value = '';
+          showMessage('✅ კომენტარი დაემატა!', false);
+          loadQuestions(); // refresh
+        }
+      });
+    });
+
+    // smiley დაფის ღილაკები: თითოეულ კითხვაზე ცალ-ცალკე
+    for (let q of questions) {
+      const panelDiv = document.getElementById(`smiley-panel-${q.id}`);
+      if (panelDiv) {
+        panelDiv.querySelectorAll('.smiley-btn').forEach(emoBtn => {
+          emoBtn.addEventListener('click', (e) => {
+            const emo = emoBtn.getAttribute('data-emo');
+            const inputField = document.getElementById(`comment-input-${q.id}`);
+            if (inputField) {
+              // იმუშავებს როგორც ჩატში: ვამატებთ emoji-ს ინპუტის ბოლოს
+              inputField.value = inputField.value + emo;
+              inputField.focus();
+            }
+          });
+        });
+      }
+    }
+  }
+
+  // admin-ის მიერ კითხვის დამატება
+  async function addNewQuestion() {
+    if (currentUserRole !== 'admin') {
+      showMessage('მხოლოდ ადმინისთვისაა შესაძლებელი', true);
+      return;
+    }
+    const title = qTitleInp.value.trim();
+    const desc = qDescInp.value.trim();
+    if (!title) {
+      showMessage('ჩაწერე კითხვის სათაური', true);
+      return;
+    }
+    const { error } = await supabase.from('questions').insert({
+      title: title,
+      description: desc || '',
+      created_by: currentUser.id
+    });
+    if (error) {
+      showMessage('დამატება ვერ მოხერხდა: ' + error.message, true);
+    } else {
+      showMessage('📢 კითხვა წარმატებით დაემატა!', false);
+      qTitleInp.value = '';
+      qDescInp.value = '';
+      loadQuestions();
+    }
+  }
+
+  function escapeHtml(str) {
+    if(!str) return '';
+    return str.replace(/[&<>]/g, function(m) {
+      if(m === '&') return '&amp;';
+      if(m === '<') return '&lt;';
+      if(m === '>') return '&gt;';
+      return m;
+    }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+      return c;
+    });
+  }
+
+  // გასვლა
+  async function logout() {
+    await supabase.auth.signOut();
+    window.location.href = 'index.html';
+  }
+
+  // ინიციალიზაცია
+  async function init() {
+    const userObj = await checkUser();
+    if (!userObj) return; // redirect
+    await loadQuestions();
+    if (addBtn) addBtn.addEventListener('click', addNewQuestion);
+    logoutBtn.addEventListener('click', logout);
+  }
+
+  // realtime subscription : განახლება კომენტარების ან კითხვების ცვლილებაზე
+  function subscribeToChanges() {
+    // ავტომატური refresh-ისთვის, უბრალოდ loadQuestions ვუშვებთ
+    const channel = supabase
+      .channel('forum_changes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'questions' }, () => loadQuestions())
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'comments' }, () => loadQuestions())
+      .subscribe();
+  }
+
+  init().then(() => subscribeToChanges());
+  
+  // ინლაინ სტილისთვის კომფორტული scroll
+</script>
+</body>
+</html>
