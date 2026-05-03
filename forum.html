@@ -1,0 +1,1018 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია · ფორუმი</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+/* ── THEMES (same as main app) ── */
+body.night{--bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff;}
+body.day{--bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);--text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);--glow:rgba(106,13,173,0.2);--accent:#c040ff;}
+body.theme-ocean{--bg:#0a1628;--panel:#0d1f3c;--panel2:#112447;--border:rgba(0,180,255,0.3);--text:#e0f4ff;--text2:#60b8e8;--text3:#3a7ca8;--bubble:#0e2040;--input-bg:#0a1a30;--indigo:#005fa3;--indigo2:#0097cc;--indigo-f:rgba(0,150,200,0.15);--glow:rgba(0,180,255,0.25);--accent:#00e5ff;}
+body.theme-forest{--bg:#0a1a0f;--panel:#0d2215;--panel2:#10291a;--border:rgba(0,200,80,0.3);--text:#d4f5dc;--text2:#50c870;--text3:#2a7840;--bubble:#0d2015;--input-bg:#091510;--indigo:#006830;--indigo2:#00a845;--indigo-f:rgba(0,160,60,0.15);--glow:rgba(0,200,80,0.25);--accent:#00ff80;}
+body.theme-sunset{--bg:#1a0a1a;--panel:#250d20;--panel2:#30102a;--border:rgba(255,100,50,0.3);--text:#ffe0d0;--text2:#e87050;--text3:#a84030;--bubble:#250d18;--input-bg:#1a0812;--indigo:#a03010;--indigo2:#e05530;--indigo-f:rgba(200,80,40,0.15);--glow:rgba(255,100,50,0.25);--accent:#ff8c50;}
+body.theme-rose{--bg:#1a0a12;--panel:#250d18;--panel2:#300f20;--border:rgba(255,80,120,0.3);--text:#ffe0ec;--text2:#e8608a;--text3:#a83055;--bubble:#250d18;--input-bg:#1a0810;--indigo:#a01040;--indigo2:#e03060;--indigo-f:rgba(200,40,80,0.15);--glow:rgba(255,80,120,0.25);--accent:#ff5090;}
+body.theme-gold{--bg:#160f00;--panel:#1e1500;--panel2:#251900;--border:rgba(220,160,0,0.3);--text:#fff5cc;--text2:#d4a030;--text3:#a07820;--bubble:#1e1500;--input-bg:#160f00;--indigo:#8c6000;--indigo2:#c89000;--indigo-f:rgba(200,140,0,0.15);--glow:rgba(220,160,0,0.25);--accent:#ffd040;}
+body.theme-cyber{--bg:#000a0a;--panel:#001515;--panel2:#001e1e;--border:rgba(0,255,200,0.3);--text:#ccffee;--text2:#00d8a0;--text3:#008860;--bubble:#001515;--input-bg:#000a0a;--indigo:#006650;--indigo2:#00aa80;--indigo-f:rgba(0,200,150,0.12);--glow:rgba(0,255,200,0.25);--accent:#00ffe8;}
+body.theme-lavender{--bg:#f0ecff;--panel:#e8e0ff;--panel2:#ddd5ff;--border:rgba(120,80,200,0.2);--text:#2a1060;--text2:#6040a8;--text3:#9080c0;--bubble:#fff;--input-bg:#fff;--indigo:#5030a0;--indigo2:#7050c0;--indigo-f:rgba(100,60,180,0.1);--glow:rgba(120,80,200,0.2);--accent:#9060e0;}
+body.theme-midnight{--bg:#05050f;--panel:#0a0a1e;--panel2:#0e0e28;--border:rgba(100,100,255,0.3);--text:#d0d0ff;--text2:#8080cc;--text3:#505090;--bubble:#0a0a1e;--input-bg:#05050f;--indigo:#2020a0;--indigo2:#4040cc;--indigo-f:rgba(50,50,200,0.15);--glow:rgba(100,100,255,0.25);--accent:#8080ff;}
+body.theme-galaxy{--bg:#080010;--panel:#100020;--panel2:#180030;--border:rgba(180,0,255,0.3);--text:#f0d0ff;--text2:#c060f0;--text3:#803090;--bubble:#100020;--input-bg:#080010;--indigo:#600090;--indigo2:#a000e0;--indigo-f:rgba(150,0,220,0.15);--glow:rgba(180,0,255,0.3);--accent:#e060ff;}
+body.theme-neon{--bg:#000508;--panel:#001008;--panel2:#001810;--border:rgba(0,255,100,0.3);--text:#ccffe8;--text2:#00cc60;--text3:#008840;--bubble:#001008;--input-bg:#000508;--indigo:#004820;--indigo2:#00aa50;--indigo-f:rgba(0,200,80,0.12);--glow:rgba(0,255,100,0.3);--accent:#00ff88;}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;display:flex;flex-direction:column;
+  transition:background .4s,color .4s;
+}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 22px var(--glow)) drop-shadow(0 0 44px var(--accent))}}
+@keyframes pop{0%{transform:scale(0.85);opacity:0}100%{transform:scale(1);opacity:1}}
+@keyframes reactionPop{from{opacity:0;transform:scale(0.5)}to{opacity:1;transform:scale(1)}}
+@keyframes badgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+img.chat-emoji{width:30px!important;height:30px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:5px}
+img.chat-emoji-gif{width:36px!important;height:36px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:6px;animation-play-state:running!important}
+.chat-emoji-text{font-size:22px;vertical-align:middle;line-height:1}
+.em-btn img{animation-play-state:running!important}
+
+/* ── TOPNAV ── */
+#topnav{
+  display:flex;align-items:center;gap:4px;
+  background:var(--panel);border-bottom:1px solid var(--border);
+  padding:6px 16px;z-index:100;flex-shrink:0;
+  box-shadow:0 2px 20px rgba(0,0,0,.25);
+}
+.nav-logo{font-size:24px;margin-right:6px;animation:flicker 2.5s ease-in-out infinite;cursor:pointer;flex-shrink:0}
+.nav-link{
+  height:36px;padding:0 14px;border-radius:10px;
+  background:transparent;border:1px solid transparent;
+  color:var(--text2);font-size:14px;cursor:pointer;
+  display:flex;align-items:center;gap:5px;
+  transition:all .2s;text-decoration:none;white-space:nowrap;
+}
+.nav-link:hover,.nav-link.active{background:var(--indigo-f);border-color:var(--border);color:var(--text)}
+.nav-link .label{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
+.nav-spacer{flex:1}
+.role-badge-nav{font-size:9px;padding:2px 8px;border-radius:6px;font-weight:700;font-family:'Unbounded',sans-serif}
+.rb-founder{background:rgba(255,180,0,.18);color:#f0a500;border:1px solid rgba(255,180,0,.3)}
+.rb-admin{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
+.rb-member{background:var(--indigo-f);color:var(--text2);border:1px solid var(--border)}
+
+/* ── LAYOUT ── */
+#wrap{flex:1;display:flex;flex-direction:column;max-width:860px;margin:0 auto;width:100%;padding:20px 16px 80px}
+
+/* ── PAGE HEADER ── */
+.page-head{display:flex;align-items:center;gap:12px;margin-bottom:24px}
+.page-head-icon{font-size:32px;animation:flicker 3s ease-in-out infinite;flex-shrink:0}
+.page-head-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--text)}
+.page-head-sub{font-size:11px;color:var(--text3);margin-top:3px}
+#createPostBtn{
+  margin-left:auto;
+  padding:9px 20px;border-radius:14px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;
+  font-weight:700;letter-spacing:.5px;cursor:pointer;
+  box-shadow:0 4px 18px rgba(120,30,200,.4);
+  transition:all .2s;white-space:nowrap;flex-shrink:0;display:none;
+}
+#createPostBtn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,30,200,.55)}
+
+/* ── CREATE POST FORM ── */
+#createForm{
+  background:var(--panel);border:1px solid var(--border);border-radius:20px;
+  padding:20px;margin-bottom:20px;display:none;
+  box-shadow:0 8px 30px rgba(0,0,0,.25);
+  animation:fadeUp .3s ease;
+}
+#createForm.open{display:block}
+.cf-title{font-family:'Unbounded',sans-serif;font-size:11px;color:var(--text2);letter-spacing:1.5px;margin-bottom:14px;text-transform:uppercase}
+.cf-inp{
+  width:100%;padding:12px 16px;
+  background:var(--input-bg);border:1.5px solid var(--border);border-radius:12px;
+  color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:14px;
+  outline:none;margin-bottom:10px;transition:border-color .2s;
+}
+.cf-inp:focus{border-color:var(--indigo2)}
+.cf-inp::placeholder{color:var(--text3)}
+textarea.cf-inp{resize:vertical;min-height:90px;line-height:1.55}
+.cf-tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.cf-tag{
+  padding:4px 12px;border-radius:20px;font-size:12px;cursor:pointer;
+  border:1px solid var(--border);background:var(--indigo-f);color:var(--text2);
+  transition:all .2s;font-family:'Noto Sans Georgian',sans-serif;
+}
+.cf-tag:hover,.cf-tag.active{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
+.cf-actions{display:flex;gap:8px;justify-content:flex-end;align-items:center;flex-wrap:wrap}
+.cf-emoji-toggle{
+  width:38px;height:38px;border-radius:11px;
+  background:var(--indigo-f);border:1px solid var(--border);
+  font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .2s;
+}
+.cf-emoji-toggle:hover{background:var(--border)}
+.cf-cancel{
+  padding:8px 18px;border-radius:12px;background:var(--indigo-f);
+  border:1px solid var(--border);color:var(--text2);font-size:13px;
+  cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif;
+}
+.cf-cancel:hover{background:var(--border);color:var(--text)}
+.cf-submit{
+  padding:9px 22px;border-radius:12px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;
+  font-weight:700;letter-spacing:.5px;cursor:pointer;
+  box-shadow:0 4px 14px rgba(120,30,200,.35);transition:all .2s;
+}
+.cf-submit:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(120,30,200,.5)}
+
+/* ── EMOJI PANEL (shared) ── */
+.emoji-panel{
+  background:var(--panel2);border:1px solid var(--border);
+  border-radius:16px;padding:12px;width:100%;
+  box-shadow:0 8px 30px rgba(0,0,0,.4);display:none;margin-top:8px;
+}
+.emoji-panel.open{display:block}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:5px;max-height:200px;overflow-y:auto}
+.emoji-grid::-webkit-scrollbar{width:3px}
+.emoji-grid::-webkit-scrollbar-thumb{background:var(--border)}
+.em-btn{
+  width:46px;height:46px;border-radius:10px;
+  background:var(--indigo-f);border:1px solid var(--border);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  transition:all .15s;overflow:hidden;flex-shrink:0;
+}
+.em-btn:hover{background:var(--border);transform:scale(1.1)}
+.em-btn img{width:32px!important;height:32px!important;border-radius:5px;object-fit:contain;display:block;pointer-events:none}
+.em-btn .em-emoji-text{font-size:22px;line-height:1;pointer-events:none}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:16px;align-items:center}
+.filter-chip{
+  padding:5px 14px;border-radius:20px;border:1px solid var(--border);
+  background:var(--indigo-f);color:var(--text2);font-size:12px;
+  cursor:pointer;transition:all .2s;white-space:nowrap;
+  font-family:'Noto Sans Georgian',sans-serif;
+}
+.filter-chip:hover,.filter-chip.active{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
+.filter-count{font-size:10px;opacity:.7;margin-left:3px}
+.filter-spacer{flex:1}
+#searchInp{
+  padding:7px 14px;background:var(--input-bg);
+  border:1px solid var(--border);border-radius:12px;
+  color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;
+  outline:none;width:180px;transition:border-color .2s;
+}
+#searchInp:focus{border-color:var(--indigo2)}
+#searchInp::placeholder{color:var(--text3)}
+
+/* ── POSTS ── */
+#postsList{display:flex;flex-direction:column;gap:14px}
+.post-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:20px;
+  overflow:hidden;transition:box-shadow .2s,transform .2s;
+  box-shadow:0 2px 12px rgba(0,0,0,.2);
+  animation:fadeUp .3s ease;
+}
+.post-card:hover{box-shadow:0 6px 28px rgba(0,0,0,.35);transform:translateY(-2px)}
+.post-header{padding:16px 18px 12px;display:flex;align-items:flex-start;gap:12px}
+.post-av{
+  width:40px;height:40px;border-radius:50%;
+  background:var(--indigo-f);border:2px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:18px;
+  flex-shrink:0;overflow:hidden;
+}
+.post-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.post-meta{flex:1;min-width:0}
+.post-author{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:3px}
+.post-nick{font-size:13px;font-weight:600;color:var(--indigo2)}
+.post-role{font-size:9px;padding:1px 6px;border-radius:4px;font-weight:700}
+.post-time{font-size:10px;color:var(--text3)}
+.post-tag{
+  font-size:9px;padding:2px 8px;border-radius:10px;
+  background:var(--indigo-f);color:var(--accent);border:1px solid var(--border);
+  font-family:'Unbounded',sans-serif;letter-spacing:.3px;font-weight:700;
+  margin-left:auto;flex-shrink:0;
+}
+.post-del-btn{
+  background:none;border:none;font-size:13px;color:var(--text3);
+  cursor:pointer;padding:4px 7px;border-radius:7px;flex-shrink:0;transition:all .15s;
+}
+.post-del-btn:hover{background:rgba(220,0,0,.12);color:#ff7777}
+.post-body{padding:0 18px 14px}
+.post-title{
+  font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;
+  color:var(--text);margin-bottom:8px;line-height:1.4;
+}
+.post-content{font-size:14px;color:var(--text2);line-height:1.65;word-break:break-word}
+.post-footer{
+  display:flex;align-items:center;gap:8px;
+  padding:10px 18px;border-top:1px solid var(--border);
+  background:linear-gradient(135deg,var(--indigo-f),transparent);
+  flex-wrap:wrap;
+}
+.post-reactions{display:flex;flex-wrap:wrap;gap:4px;flex:1}
+.react-chip{
+  display:flex;align-items:center;gap:3px;
+  padding:3px 9px;border-radius:12px;
+  background:var(--indigo-f);border:1px solid var(--border);
+  font-size:13px;cursor:pointer;transition:all .15s;
+  animation:reactionPop .2s ease;
+}
+.react-chip:hover,.react-chip.mine{background:var(--indigo);border-color:var(--indigo2)}
+.react-chip span{font-size:10px;color:var(--text2);font-weight:600}
+.react-btn-row{display:flex;gap:4px;flex-shrink:0}
+.react-qk{
+  font-size:18px;cursor:pointer;padding:3px 6px;border-radius:10px;
+  transition:all .15s;border:none;background:none;
+}
+.react-qk:hover{background:var(--indigo-f);transform:scale(1.25)}
+.comment-toggle{
+  display:flex;align-items:center;gap:5px;
+  padding:4px 12px;border-radius:10px;
+  background:var(--indigo-f);border:1px solid var(--border);
+  color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s;
+  font-family:'Noto Sans Georgian',sans-serif;flex-shrink:0;
+}
+.comment-toggle:hover{background:var(--border);color:var(--text)}
+.comment-toggle.open{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
+
+/* ── COMMENTS SECTION ── */
+.comments-section{
+  border-top:1px solid var(--border);
+  padding:14px 18px;display:none;
+}
+.comments-section.open{display:block}
+.comment-item{
+  display:flex;gap:10px;margin-bottom:12px;
+  animation:fadeUp .2s ease;
+}
+.comment-av{
+  width:30px;height:30px;border-radius:50%;
+  background:var(--indigo-f);border:1.5px solid var(--border);
+  display:flex;align-items:center;justify-content:center;font-size:14px;
+  flex-shrink:0;overflow:hidden;
+}
+.comment-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.comment-body{flex:1;min-width:0}
+.comment-meta{display:flex;align-items:center;gap:6px;margin-bottom:3px;flex-wrap:wrap}
+.comment-nick{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
+.comment-nick:hover{text-decoration:underline}
+.comment-time{font-size:10px;color:var(--text3)}
+.comment-del{
+  background:none;border:none;font-size:10px;color:var(--text3);
+  cursor:pointer;padding:1px 5px;border-radius:5px;transition:all .15s;
+}
+.comment-del:hover{background:rgba(220,0,0,.1);color:#ff7777}
+.comment-reply-btn{
+  background:none;border:none;color:var(--text3);font-size:10px;
+  cursor:pointer;padding:2px 6px;border-radius:5px;transition:all .15s;
+}
+.comment-reply-btn:hover{background:var(--indigo-f);color:var(--indigo2)}
+.comment-text{font-size:13px;color:var(--text);line-height:1.55;word-break:break-word}
+.comment-reply-preview{
+  border-left:2px solid var(--accent);padding:2px 8px;
+  margin-bottom:4px;font-size:10px;color:var(--text3);border-radius:0 6px 6px 0;
+  background:var(--indigo-f);
+}
+.comment-reply-preview strong{color:var(--indigo2);display:block;margin-bottom:1px}
+.comment-reactions{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.comment-react-chip{
+  display:flex;align-items:center;gap:2px;
+  padding:1px 7px;border-radius:10px;
+  background:var(--indigo-f);border:1px solid var(--border);
+  font-size:11px;cursor:pointer;transition:all .15s;
+}
+.comment-react-chip.mine{background:var(--indigo);border-color:var(--indigo2)}
+.comment-react-chip span{font-size:9px;color:var(--text2);font-weight:600}
+
+/* ── COMMENT INPUT ── */
+.comment-write-area{margin-top:10px;border-top:1px solid var(--border);padding-top:12px}
+.reply-bar-inline{
+  background:var(--indigo-f);border:1px solid var(--border);
+  border-radius:8px;padding:5px 10px;margin-bottom:6px;
+  font-size:11px;color:var(--text3);display:none;
+  align-items:center;gap:6px;
+}
+.reply-bar-inline.open{display:flex}
+.reply-bar-inline strong{color:var(--indigo2)}
+.reply-cancel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px}
+.comment-bar{display:flex;gap:6px;align-items:flex-start}
+#commentEmojiToggle{
+  width:36px;height:36px;border-radius:10px;flex-shrink:0;
+  background:var(--indigo-f);border:1px solid var(--border);
+  font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;
+}
+#commentEmojiToggle:hover{background:var(--border)}
+.comment-inp-wrap{flex:1;display:flex;flex-direction:column;gap:6px}
+.comment-inp{
+  width:100%;padding:9px 14px;
+  background:var(--input-bg);border:1.5px solid var(--border);border-radius:14px;
+  color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;
+  outline:none;transition:border-color .2s;
+}
+.comment-inp:focus{border-color:var(--indigo2)}
+.comment-inp::placeholder{color:var(--text3)}
+.comment-send{
+  width:36px;height:36px;border-radius:50%;flex-shrink:0;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;color:#fff;font-size:16px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 3px 12px rgba(120,30,200,.45);
+  transition:transform .2s,box-shadow .2s;
+}
+.comment-send:hover{transform:scale(1.1)}
+
+/* ── EMPTY STATE ── */
+.empty-state{text-align:center;padding:48px 20px;color:var(--text3)}
+.empty-icon{font-size:52px;margin-bottom:12px;display:block}
+.empty-text{font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:1px}
+
+/* ── TOAST ── */
+.toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;
+  z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.4);
+  pointer-events:none;animation:pop .25s ease;white-space:nowrap;
+}
+
+/* ── MISC ── */
+.hidden{display:none!important}
+::-webkit-scrollbar{width:5px}
+::-webkit-scrollbar-track{background:var(--panel2)}
+::-webkit-scrollbar-thumb{background:var(--indigo2);border-radius:10px}
+.loader{text-align:center;padding:40px;color:var(--text3);font-size:13px}
+
+/* ── MOBILE ── */
+@media(max-width:600px){
+  #wrap{padding:12px 10px 80px}
+  .page-head-title{font-size:15px}
+  .post-title{font-size:13px}
+  #searchInp{width:130px}
+}
+</style>
+</head>
+<body>
+
+<!-- TOPNAV -->
+<nav id="topnav">
+  <div class="nav-logo">🌊</div>
+  <a class="nav-link" href="chat.html">💬 <span class="label">ჩატი</span></a>
+  <a class="nav-link active" href="forum.html">🌊 <span class="label">ფორუმი</span></a>
+  <div class="nav-spacer"></div>
+  <span class="role-badge-nav rb-member" id="myRoleBadge">👤 წევრი</span>
+  <span style="font-size:12px;color:var(--text2);margin:0 8px" id="myNickNav">-</span>
+</nav>
+
+<div id="wrap">
+
+  <!-- PAGE HEADER -->
+  <div class="page-head">
+    <div class="page-head-icon">🌊</div>
+    <div>
+      <div class="page-head-title">ფორუმი</div>
+      <div class="page-head-sub">კითხვები · განხილვები · იდეები</div>
+    </div>
+    <button id="createPostBtn" onclick="toggleCreateForm()">+ კითხვის დამატება</button>
+  </div>
+
+  <!-- CREATE POST FORM -->
+  <div id="createForm">
+    <div class="cf-title">📝 ახალი პოსტი</div>
+    <input class="cf-inp" id="cf_title" placeholder="სათაური...">
+    <textarea class="cf-inp" id="cf_content" placeholder="შინაარსი..."></textarea>
+    <div class="cf-tag-row" id="cfTagRow">
+      <div class="cf-tag active" onclick="pickTag(this,'')">ყველა</div>
+      <div class="cf-tag" onclick="pickTag(this,'❓ კითხვა')">❓ კითხვა</div>
+      <div class="cf-tag" onclick="pickTag(this,'💡 იდეა')">💡 იდეა</div>
+      <div class="cf-tag" onclick="pickTag(this,'📢 განცხადება')">📢 განცხადება</div>
+      <div class="cf-tag" onclick="pickTag(this,'🎮 თამაში')">🎮 თამაში</div>
+      <div class="cf-tag" onclick="pickTag(this,'💬 განხილვა')">💬 განხილვა</div>
+    </div>
+    <div class="cf-actions">
+      <button class="cf-emoji-toggle" onclick="toggleCFEmoji()" title="სმაილი">😊</button>
+      <button class="cf-cancel" onclick="toggleCreateForm()">გაუქმება</button>
+      <button class="cf-submit" onclick="submitPost()">✅ გამოქვეყნება</button>
+    </div>
+    <div class="emoji-panel" id="cfEmojiPanel">
+      <div class="emoji-grid" id="cfEmojiGrid"></div>
+    </div>
+  </div>
+
+  <!-- FILTER BAR -->
+  <div class="filter-bar">
+    <div class="filter-chip active" onclick="setFilter('',this)">📋 ყველა</div>
+    <div class="filter-chip" onclick="setFilter('❓ კითხვა',this)">❓ კითხვა</div>
+    <div class="filter-chip" onclick="setFilter('💡 იდეა',this)">💡 იდეა</div>
+    <div class="filter-chip" onclick="setFilter('📢 განცხადება',this)">📢 განცხ.</div>
+    <div class="filter-chip" onclick="setFilter('🎮 თამაში',this)">🎮 თამაში</div>
+    <div class="filter-chip" onclick="setFilter('💬 განხილვა',this)">💬 განხ.</div>
+    <div class="filter-spacer"></div>
+    <input id="searchInp" placeholder="🔍 ძებნა..." oninput="renderPosts()">
+  </div>
+
+  <!-- POSTS LIST -->
+  <div id="postsList">
+    <div class="loader">⏳ იტვირთება...</div>
+  </div>
+
+</div>
+
+<script>
+const {createClient} = supabase;
+const sb = createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+let ME = null, MYPROF = null;
+let allUsers = [], customEmojis = [], emojiCache = {};
+let allPosts = [], activeFilter = '', postComments = {}, postReactions = {};
+let cfSelectedTag = '';
+let activeCommentPostId = null;
+let commentReplyTo = {}; // postId → {nick, commentId}
+let commentInputTarget = null; // which input is targeted for emoji
+
+/* ── THEME ── */
+function loadTheme() {
+  const saved = localStorage.getItem('kaif_theme') || 'night';
+  if (saved !== 'custom') {
+    document.body.className = saved;
+  }
+}
+loadTheme();
+
+/* ── ESCAPE ── */
+function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+/* ── RENDER CONTENT (emojis + formatting) ── */
+function renderContent(s) {
+  if (!s) return '';
+  let h = esc(s);
+  h = h.replace(/\[b\]([\s\S]*?)\[\/b\]/g,'<strong>$1</strong>');
+  h = h.replace(/\[i\]([\s\S]*?)\[\/i\]/g,'<em>$1</em>');
+  h = h.replace(/\[u\]([\s\S]*?)\[\/u\]/g,'<u>$1</u>');
+  h = h.replace(/\[c:#([0-9a-fA-F]{3,6})\]([\s\S]*?)\[\/c\]/g,'<span style="color:#$1">$2</span>');
+  h = h.replace(/\[e:(\d+)\]/g, (m, id) => {
+    const url = emojiCache[parseInt(id)];
+    if (!url) return m;
+    if (url.startsWith('http') || url.startsWith('data:')) {
+      const isGif = url.toLowerCase().includes('.gif') || url.startsWith('data:image/gif');
+      return `<img src="${url}" class="${isGif ? 'chat-emoji-gif' : 'chat-emoji'}" loading="eager">`;
+    }
+    return `<span class="chat-emoji-text">${url}</span>`;
+  });
+  return h;
+}
+
+/* ── EMOJIS ── */
+async function loadEmojis() {
+  const { data } = await sb.from('global_emojis').select('id,url').order('id', { ascending: true });
+  customEmojis = data || [];
+  emojiCache = {};
+  customEmojis.forEach(e => { emojiCache[e.id] = e.url; });
+}
+
+function buildEmojiGrid(gridId, inputId) {
+  const grid = document.getElementById(gridId);
+  if (!grid) return;
+  grid.innerHTML = '';
+  customEmojis.forEach(em => {
+    const btn = document.createElement('button');
+    btn.className = 'em-btn';
+    const isImg = em.url && (em.url.startsWith('http') || em.url.startsWith('data:'));
+    if (isImg) {
+      const img = document.createElement('img');
+      img.src = em.url;
+      img.loading = 'eager';
+      btn.appendChild(img);
+    } else {
+      const span = document.createElement('span');
+      span.className = 'em-emoji-text';
+      span.textContent = em.url || '?';
+      btn.appendChild(span);
+    }
+    btn.addEventListener('click', () => {
+      const inp = document.getElementById(inputId) || (commentInputTarget ? document.getElementById(commentInputTarget) : null);
+      if (!inp) return;
+      inp.value += isImg ? `[e:${em.id}]` : em.url;
+      inp.focus();
+    });
+    grid.appendChild(btn);
+  });
+}
+
+/* ── CREATE FORM ── */
+function toggleCreateForm() {
+  const form = document.getElementById('createForm');
+  const isOpen = form.classList.toggle('open');
+  if (isOpen) { buildEmojiGrid('cfEmojiGrid', 'cf_content'); }
+  else { document.getElementById('cfEmojiPanel').classList.remove('open'); }
+}
+function toggleCFEmoji() {
+  const p = document.getElementById('cfEmojiPanel');
+  p.classList.toggle('open');
+  if (p.classList.contains('open')) buildEmojiGrid('cfEmojiGrid', 'cf_content');
+}
+function pickTag(btn, tag) {
+  cfSelectedTag = tag;
+  document.querySelectorAll('.cf-tag').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+}
+async function submitPost() {
+  const title = document.getElementById('cf_title').value.trim();
+  const content = document.getElementById('cf_content').value.trim();
+  if (!title) { toast('❌ სათაური საჭიროა!'); return; }
+  const { error } = await sb.from('forum_posts').insert({
+    user_id: ME.id,
+    title,
+    content,
+    tag: cfSelectedTag || null
+  });
+  if (error) { toast('❌ ' + error.message); return; }
+  document.getElementById('cf_title').value = '';
+  document.getElementById('cf_content').value = '';
+  document.getElementById('createForm').classList.remove('open');
+  document.getElementById('cfEmojiPanel').classList.remove('open');
+  cfSelectedTag = '';
+  document.querySelectorAll('.cf-tag').forEach((b,i)=>b.classList.toggle('active',i===0));
+  toast('✅ გამოქვეყნდა!');
+  await loadPosts();
+}
+
+/* ── FILTER ── */
+function setFilter(tag, btn) {
+  activeFilter = tag;
+  document.querySelectorAll('.filter-chip').forEach(c => c.classList.remove('active'));
+  btn.classList.add('active');
+  renderPosts();
+}
+
+/* ── LOAD & RENDER POSTS ── */
+async function loadPosts() {
+  const { data, error } = await sb.from('forum_posts')
+    .select('*')
+    .order('created_at', { ascending: false });
+  allPosts = error ? [] : (data || []);
+  renderPosts();
+}
+
+function renderPosts() {
+  const el = document.getElementById('postsList');
+  const search = (document.getElementById('searchInp').value || '').toLowerCase();
+  let filtered = allPosts;
+  if (activeFilter) filtered = filtered.filter(p => p.tag === activeFilter);
+  if (search) filtered = filtered.filter(p =>
+    (p.title||'').toLowerCase().includes(search) ||
+    (p.content||'').toLowerCase().includes(search)
+  );
+  el.innerHTML = '';
+  if (!filtered.length) {
+    el.innerHTML = `<div class="empty-state"><span class="empty-icon">💭</span><div class="empty-text">პოსტი ვერ მოიძებნა</div></div>`;
+    return;
+  }
+  filtered.forEach(post => el.appendChild(makePostCard(post)));
+}
+
+function makePostCard(post) {
+  const author = allUsers.find(u => u.id === post.user_id);
+  const authorNick = author?.username || '?';
+  const authorRole = author?.role || 'member';
+  const t = new Date(post.created_at).toLocaleString('ka-GE', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+  const avHtml = author?.avatar_url
+    ? `<img src="${author.avatar_url}">`
+    : (author?.emotion || '😊');
+  const canDel = MYPROF?.role === 'founder' || MYPROF?.role === 'admin' || post.user_id === ME?.id;
+  const roleLabel = authorRole === 'founder' ? '👑' : authorRole === 'admin' ? '🛡️' : '';
+  const roleClass = authorRole === 'founder' ? 'rb-founder' : authorRole === 'admin' ? 'rb-admin' : '';
+  const reactions = postReactions[post.id] || {};
+
+  const card = document.createElement('div');
+  card.className = 'post-card';
+  card.id = 'post_' + post.id;
+
+  // Header
+  const header = document.createElement('div');
+  header.className = 'post-header';
+  header.innerHTML = `
+    <div class="post-av">${avHtml}</div>
+    <div class="post-meta">
+      <div class="post-author">
+        <span class="post-nick">${esc(authorNick)}</span>
+        ${roleLabel ? `<span class="post-role ${roleClass}">${roleLabel}</span>` : ''}
+        <span class="post-time">${t}</span>
+        ${post.tag ? `<span class="post-tag">${esc(post.tag)}</span>` : ''}
+        ${canDel ? `<button class="post-del-btn" data-pid="${post.id}">🗑</button>` : ''}
+      </div>
+    </div>
+  `;
+  if (canDel) {
+    header.querySelector('.post-del-btn').addEventListener('click', () => deletePost(post.id));
+  }
+
+  // Body
+  const body = document.createElement('div');
+  body.className = 'post-body';
+  body.innerHTML = `
+    <div class="post-title">${esc(post.title)}</div>
+    ${post.content ? `<div class="post-content">${renderContent(post.content)}</div>` : ''}
+  `;
+
+  // Footer
+  const footer = document.createElement('div');
+  footer.className = 'post-footer';
+
+  // Reactions chips
+  const reactChips = document.createElement('div');
+  reactChips.className = 'post-reactions';
+  reactChips.id = 'pr_' + post.id;
+  renderReactionChips(reactChips, reactions, post.id);
+
+  // Quick react buttons
+  const qkRow = document.createElement('div');
+  qkRow.className = 'react-btn-row';
+  ['❤️','😂','🔥','👍','💜','😮'].forEach(em => {
+    const btn = document.createElement('button');
+    btn.className = 'react-qk';
+    btn.textContent = em;
+    btn.addEventListener('click', () => reactToPost(post.id, em));
+    qkRow.appendChild(btn);
+  });
+
+  // Comment toggle
+  const commentCount = (postComments[post.id] || []).length;
+  const toggleBtn = document.createElement('button');
+  toggleBtn.className = 'comment-toggle';
+  toggleBtn.id = 'ct_' + post.id;
+  toggleBtn.innerHTML = `💬 <span id="ccount_${post.id}">${commentCount}</span>`;
+  toggleBtn.addEventListener('click', () => toggleComments(post.id, toggleBtn));
+
+  footer.appendChild(reactChips);
+  footer.appendChild(qkRow);
+  footer.appendChild(toggleBtn);
+
+  // Comments section
+  const commentsSection = document.createElement('div');
+  commentsSection.className = 'comments-section';
+  commentsSection.id = 'cs_' + post.id;
+  commentsSection.innerHTML = `
+    <div id="commentsList_${post.id}"></div>
+    <div class="comment-write-area">
+      <div class="reply-bar-inline" id="rbi_${post.id}">
+        <span style="color:var(--accent)">↩️</span>
+        <span style="flex:1">პასუხი: <strong id="rbi_nick_${post.id}"></strong></span>
+        <button class="reply-cancel" onclick="cancelCommentReply('${post.id}')">✕</button>
+      </div>
+      <div class="comment-bar">
+        <button id="emoToggle_${post.id}" class="cf-emoji-toggle" onclick="toggleCommentEmoji('${post.id}')" title="სმაილი">😊</button>
+        <div class="comment-inp-wrap">
+          <input class="comment-inp" id="cinp_${post.id}" placeholder="კომენტარი..." onkeydown="if(event.key==='Enter')sendComment('${post.id}')">
+          <div class="emoji-panel" id="cep_${post.id}">
+            <div class="emoji-grid" id="ceg_${post.id}"></div>
+          </div>
+        </div>
+        <button class="comment-send" onclick="sendComment('${post.id}')">✈️</button>
+      </div>
+    </div>
+  `;
+
+  card.appendChild(header);
+  card.appendChild(body);
+  card.appendChild(footer);
+  card.appendChild(commentsSection);
+
+  return card;
+}
+
+function renderReactionChips(container, reactions, postId) {
+  container.innerHTML = '';
+  Object.entries(reactions).forEach(([emoji, uids]) => {
+    const chip = document.createElement('div');
+    chip.className = 'react-chip' + (uids.includes(ME?.id) ? ' mine' : '');
+    chip.innerHTML = `${emoji}<span>${uids.length}</span>`;
+    chip.addEventListener('click', () => reactToPost(postId, emoji));
+    container.appendChild(chip);
+  });
+}
+
+/* ── REACTIONS ── */
+async function loadAllReactions() {
+  const { data } = await sb.from('forum_reactions').select('*');
+  postReactions = {};
+  (data || []).forEach(r => {
+    if (!postReactions[r.post_id]) postReactions[r.post_id] = {};
+    if (!postReactions[r.post_id][r.emoji]) postReactions[r.post_id][r.emoji] = [];
+    if (!postReactions[r.post_id][r.emoji].includes(r.user_id))
+      postReactions[r.post_id][r.emoji].push(r.user_id);
+  });
+}
+
+async function reactToPost(postId, emoji) {
+  if (!ME) return;
+  const { data: ex } = await sb.from('forum_reactions')
+    .select('id').eq('post_id', postId).eq('user_id', ME.id).eq('emoji', emoji).maybeSingle();
+  if (ex) {
+    await sb.from('forum_reactions').delete().eq('id', ex.id);
+    if (postReactions[postId]?.[emoji]) {
+      postReactions[postId][emoji] = postReactions[postId][emoji].filter(id => id !== ME.id);
+      if (!postReactions[postId][emoji].length) delete postReactions[postId][emoji];
+    }
+  } else {
+    await sb.from('forum_reactions').insert({ post_id: postId, user_id: ME.id, emoji });
+    if (!postReactions[postId]) postReactions[postId] = {};
+    if (!postReactions[postId][emoji]) postReactions[postId][emoji] = [];
+    postReactions[postId][emoji].push(ME.id);
+  }
+  const chips = document.getElementById('pr_' + postId);
+  if (chips) renderReactionChips(chips, postReactions[postId] || {}, postId);
+}
+
+/* ── COMMENTS ── */
+async function toggleComments(postId, btn) {
+  const section = document.getElementById('cs_' + postId);
+  const isOpen = section.classList.toggle('open');
+  btn.classList.toggle('open', isOpen);
+  if (isOpen) {
+    await loadComments(postId);
+    buildEmojiGrid('ceg_' + postId, 'cinp_' + postId);
+    commentInputTarget = 'cinp_' + postId;
+  }
+}
+
+async function loadComments(postId) {
+  const { data } = await sb.from('forum_comments').select('*').eq('post_id', postId).order('created_at', { ascending: true });
+  postComments[postId] = data || [];
+  renderComments(postId);
+  // update count
+  const cc = document.getElementById('ccount_' + postId);
+  if (cc) cc.textContent = (data || []).length;
+}
+
+function renderComments(postId) {
+  const list = document.getElementById('commentsList_' + postId);
+  if (!list) return;
+  list.innerHTML = '';
+  const comments = postComments[postId] || [];
+  if (!comments.length) {
+    list.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:12px 0">💬 კომენტარი ჯერ არ არის</div>';
+    return;
+  }
+  comments.forEach(c => list.appendChild(makeCommentEl(c, postId)));
+}
+
+function makeCommentEl(c, postId) {
+  const author = allUsers.find(u => u.id === c.user_id);
+  const nick = author?.username || '?';
+  const t = new Date(c.created_at).toLocaleTimeString('ka-GE', { hour: '2-digit', minute: '2-digit' });
+  const avHtml = author?.avatar_url ? `<img src="${author.avatar_url}">` : (author?.emotion || '😊');
+  const canDel = MYPROF?.role === 'founder' || MYPROF?.role === 'admin' || c.user_id === ME?.id;
+
+  let replyPreview = '', displayText = c.content;
+  if (c.reply_to_nick) {
+    replyPreview = `<div class="comment-reply-preview"><strong>${esc(c.reply_to_nick)}</strong>${c.reply_to_preview ? esc(c.reply_to_preview.substring(0, 50)) : ''}</div>`;
+  }
+
+  const div = document.createElement('div');
+  div.className = 'comment-item';
+  div.id = 'comment_' + c.id;
+  div.innerHTML = `
+    <div class="comment-av">${avHtml}</div>
+    <div class="comment-body">
+      <div class="comment-meta">
+        <span class="comment-nick">${esc(nick)}</span>
+        <span class="comment-time">${t}</span>
+        <button class="comment-reply-btn">↩️ პასუხი</button>
+        ${canDel ? `<button class="comment-del">🗑</button>` : ''}
+      </div>
+      ${replyPreview}
+      <div class="comment-text">${renderContent(displayText)}</div>
+      <div class="comment-reactions" id="cr_${c.id}"></div>
+    </div>
+  `;
+  div.querySelector('.comment-reply-btn').addEventListener('click', () => {
+    setCommentReply(postId, nick, c.id, displayText);
+  });
+  if (canDel) {
+    div.querySelector('.comment-del').addEventListener('click', async () => {
+      if (!confirm('კომენტარი წაიშალა?')) return;
+      await sb.from('forum_comments').delete().eq('id', c.id);
+      toast('🗑');
+      await loadComments(postId);
+    });
+  }
+  // load comment reactions
+  loadCommentReactions(c.id);
+  return div;
+}
+
+/* ── COMMENT REACTIONS ── */
+async function loadCommentReactions(commentId) {
+  const { data } = await sb.from('forum_comment_reactions').select('*').eq('comment_id', commentId);
+  const el = document.getElementById('cr_' + commentId);
+  if (!el) return;
+  const grouped = {};
+  (data||[]).forEach(r => {
+    if (!grouped[r.emoji]) grouped[r.emoji] = [];
+    grouped[r.emoji].push(r.user_id);
+  });
+  el.innerHTML = '';
+  ['❤️','😂','🔥','👍','💜'].forEach(em => {
+    const btn = document.createElement('button');
+    btn.style.cssText='background:none;border:none;font-size:16px;cursor:pointer;padding:2px 4px;border-radius:8px;transition:all .15s';
+    btn.textContent = em;
+    btn.addEventListener('click', () => reactToComment(commentId, em));
+    el.appendChild(btn);
+  });
+  Object.entries(grouped).forEach(([emoji, uids]) => {
+    const chip = document.createElement('div');
+    chip.className = 'comment-react-chip' + (uids.includes(ME?.id) ? ' mine' : '');
+    chip.innerHTML = `${emoji}<span>${uids.length}</span>`;
+    chip.addEventListener('click', () => reactToComment(commentId, emoji));
+    el.appendChild(chip);
+  });
+}
+
+async function reactToComment(commentId, emoji) {
+  if (!ME) return;
+  const { data: ex } = await sb.from('forum_comment_reactions')
+    .select('id').eq('comment_id', commentId).eq('user_id', ME.id).eq('emoji', emoji).maybeSingle();
+  if (ex) await sb.from('forum_comment_reactions').delete().eq('id', ex.id);
+  else await sb.from('forum_comment_reactions').insert({ comment_id: commentId, user_id: ME.id, emoji });
+  await loadCommentReactions(commentId);
+}
+
+/* ── COMMENT REPLY ── */
+function setCommentReply(postId, nick, commentId, preview) {
+  commentReplyTo[postId] = { nick, commentId, preview };
+  const bar = document.getElementById('rbi_' + postId);
+  const nickEl = document.getElementById('rbi_nick_' + postId);
+  if (bar) bar.classList.add('open');
+  if (nickEl) nickEl.textContent = nick;
+  const inp = document.getElementById('cinp_' + postId);
+  if (inp) inp.focus();
+}
+function cancelCommentReply(postId) {
+  delete commentReplyTo[postId];
+  const bar = document.getElementById('rbi_' + postId);
+  if (bar) bar.classList.remove('open');
+}
+
+/* ── SEND COMMENT ── */
+async function sendComment(postId) {
+  const inp = document.getElementById('cinp_' + postId);
+  const txt = (inp?.value || '').trim();
+  if (!txt) return;
+  inp.value = '';
+  const reply = commentReplyTo[postId];
+  const { error } = await sb.from('forum_comments').insert({
+    post_id: postId,
+    user_id: ME.id,
+    content: txt,
+    reply_to_nick: reply?.nick || null,
+    reply_to_preview: reply?.preview?.substring(0, 60) || null
+  });
+  if (error) { toast('❌ ' + error.message); return; }
+  cancelCommentReply(postId);
+  await loadComments(postId);
+  // scroll list to bottom
+  const list = document.getElementById('commentsList_' + postId);
+  if (list) list.scrollTop = list.scrollHeight;
+}
+
+/* ── EMOJI PANEL FOR COMMENTS ── */
+function toggleCommentEmoji(postId) {
+  const p = document.getElementById('cep_' + postId);
+  const wasOpen = p.classList.toggle('open');
+  if (wasOpen) {
+    commentInputTarget = 'cinp_' + postId;
+    buildEmojiGrid('ceg_' + postId, 'cinp_' + postId);
+  }
+}
+
+/* ── DELETE POST ── */
+async function deletePost(postId) {
+  if (!confirm('პოსტი წაიშალა?')) return;
+  await sb.from('forum_comments').delete().eq('post_id', postId);
+  await sb.from('forum_reactions').delete().eq('post_id', postId);
+  await sb.from('forum_posts').delete().eq('id', postId);
+  toast('🗑 წაიშალა!');
+  await loadPosts();
+}
+
+/* ── USERS ── */
+async function loadUsers() {
+  const { data } = await sb.from('profiles').select('id,username,avatar_url,emotion,role');
+  allUsers = data || [];
+}
+
+/* ── TOAST ── */
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2500);
+}
+
+/* ── REALTIME ── */
+function watchRealtime() {
+  sb.channel('forum-watch')
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_posts' }, async () => {
+      await loadPosts();
+    })
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'forum_posts' }, payload => {
+      document.getElementById('post_' + payload.old.id)?.remove();
+      allPosts = allPosts.filter(p => p.id !== payload.old.id);
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_comments' }, async payload => {
+      const postId = payload.new.post_id;
+      if (document.getElementById('cs_' + postId)?.classList.contains('open')) {
+        await loadComments(postId);
+      } else {
+        const cc = document.getElementById('ccount_' + postId);
+        if (cc) cc.textContent = parseInt(cc.textContent || '0') + 1;
+      }
+    })
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'forum_reactions' }, async payload => {
+      const postId = payload.new.post_id;
+      const chips = document.getElementById('pr_' + postId);
+      if (chips) {
+        // reload reactions for this post
+        const { data } = await sb.from('forum_reactions').select('*').eq('post_id', postId);
+        const grouped = {};
+        (data||[]).forEach(r => {
+          if (!grouped[r.emoji]) grouped[r.emoji] = [];
+          grouped[r.emoji].push(r.user_id);
+        });
+        postReactions[postId] = grouped;
+        renderReactionChips(chips, grouped, postId);
+      }
+    })
+    .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'forum_reactions' }, async payload => {
+      const postId = payload.old.post_id;
+      const chips = document.getElementById('pr_' + postId);
+      if (chips) {
+        const { data } = await sb.from('forum_reactions').select('*').eq('post_id', postId);
+        const grouped = {};
+        (data||[]).forEach(r => {
+          if (!grouped[r.emoji]) grouped[r.emoji] = [];
+          grouped[r.emoji].push(r.user_id);
+        });
+        postReactions[postId] = grouped;
+        renderReactionChips(chips, grouped, postId);
+      }
+    })
+    .subscribe();
+}
+
+/* ── INIT ── */
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { location.href = 'index.html'; return; }
+  ME = user;
+
+  // Load profile
+  const { data: prof } = await sb.from('profiles').select('*').eq('id', ME.id).single();
+  MYPROF = prof;
+
+  if (MYPROF?.is_blocked) {
+    alert('დაბლოკილია: ' + (MYPROF.block_reason || ''));
+    await sb.auth.signOut();
+    location.href = 'index.html';
+    return;
+  }
+
+  // Update nav
+  const roleMap = { founder: '👑 დამფუძნებელი', admin: '🛡️ ადმინი', member: '👤 წევრი' };
+  const roleClassMap = { founder: 'rb-founder', admin: 'rb-admin', member: 'rb-member' };
+  const roleBadge = document.getElementById('myRoleBadge');
+  if (roleBadge) {
+    roleBadge.textContent = roleMap[MYPROF?.role] || '👤 წევრი';
+    roleBadge.className = 'role-badge-nav ' + (roleClassMap[MYPROF?.role] || 'rb-member');
+  }
+  const nickNav = document.getElementById('myNickNav');
+  if (nickNav) nickNav.textContent = MYPROF?.username || '';
+
+  // Show create button for admins/founders
+  if (MYPROF?.role === 'founder' || MYPROF?.role === 'admin') {
+    document.getElementById('createPostBtn').style.display = '';
+  }
+
+  await loadEmojis();
+  await loadUsers();
+  await loadAllReactions();
+  await loadPosts();
+  watchRealtime();
+
+  setTimeout(() => toast('👋 ფორუმი გამარჯობა!'), 600);
+}
+
+init();
+</script>
+</body>
+</html>
