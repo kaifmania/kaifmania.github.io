@@ -1,739 +1,297 @@
 <!DOCTYPE html>
 <html lang="ka">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>KaiF Mania - Video Call</title>
-<style>
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-    user-select: none; /* better for call buttons */
-  }
-
-  body {
-    background: #0a0b10;
-    font-family: 'Segoe UI', 'Noto Sans Georgian', system-ui, -apple-system, 'Inter', sans-serif;
-    height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    overflow: hidden;
-    color: #fff;
-  }
-
-  /* main container */
-  .call-container {
-    width: 100%;
-    max-width: 1280px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background: #0f1117;
-    position: relative;
-  }
-
-  /* header style like messenger */
-  .call-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 12px 20px;
-    background: rgba(18, 20, 28, 0.85);
-    backdrop-filter: blur(20px);
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    z-index: 20;
-  }
-
-  .back-btn {
-    background: rgba(255,255,255,0.08);
-    border: none;
-    color: white;
-    font-size: 24px;
-    width: 40px;
-    height: 40px;
-    border-radius: 30px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: 0.2s;
-  }
-
-  .back-btn:hover { background: rgba(255,255,255,0.18); }
-  .call-title { font-weight: 600; font-size: 18px; letter-spacing: -0.3px; display: flex; align-items: center; gap: 8px; }
-  .call-status { font-size: 14px; color: #a0a3b0; }
-  .call-actions { display: flex; gap: 12px; }
-  .icon-btn {
-    background: rgba(255,255,255,0.08);
-    border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 44px;
-    font-size: 22px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: 0.2s;
-    color: white;
-  }
-  .icon-btn.end-call { background: #ff3b30; color: white; box-shadow: 0 0 12px rgba(255,59,48,0.5); }
-  .icon-btn.end-call:hover { background: #e22c22; transform: scale(1.05); }
-  .icon-btn.mic-off, .icon-btn.cam-off { background: #2c2e3a; color: #ff9f4a; }
-  .icon-btn:hover { background: rgba(255,255,255,0.18); transform: scale(1.02); }
-
-  /* video grid area */
-  .video-area {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-    background: #080a0f;
-    overflow: hidden;
-    padding: 16px;
-  }
-
-  .remote-video-wrapper {
-    flex: 1;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-    border-radius: 32px;
-    overflow: hidden;
-    background: #000;
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-  }
-
-  #remoteVideo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background: #1e1f2c;
-  }
-
-  .local-video-wrapper {
-    position: absolute;
-    bottom: 24px;
-    right: 24px;
-    width: 140px;
-    height: 180px;
-    background: #1c1e2a;
-    border-radius: 20px;
-    overflow: hidden;
-    border: 2px solid rgba(255,255,255,0.3);
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-    cursor: pointer;
-    transition: 0.2s;
-    z-index: 15;
-  }
-  .local-video-wrapper:hover { transform: scale(1.02); border-color: #5e5ce0; }
-  #localVideo {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    background: #111;
-  }
-
-  .avatar-placeholder {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background: linear-gradient(145deg, #2a2c3a, #181a24);
-    font-size: 56px;
-  }
-
-  /* incoming call overlay (beautiful popup) */
-  .incoming-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    backdrop-filter: blur(16px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    z-index: 1000;
-    animation: modalFloat 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-  }
-
-  .incoming-card {
-    background: rgba(22, 24, 35, 0.96);
-    border-radius: 48px;
-    width: 340px;
-    padding: 32px 24px;
-    text-align: center;
-    border: 1px solid rgba(255,255,255,0.15);
-    box-shadow: 0 30px 50px rgba(0,0,0,0.5), 0 0 0 1px rgba(156, 89, 255, 0.3);
-    backdrop-filter: blur(8px);
-  }
-
-  .caller-avatar {
-    width: 96px;
-    height: 96px;
-    background: linear-gradient(135deg, #8a5cf0, #c084fc);
-    border-radius: 96px;
-    margin: 0 auto 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 48px;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-  }
-
-  .caller-name { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
-  .call-type { color: #aaa; margin-bottom: 28px; letter-spacing: 0.5px; }
-
-  .incoming-buttons {
-    display: flex;
-    gap: 20px;
-    justify-content: center;
-  }
-
-  .accept-btn {
-    background: #34c759;
-    border: none;
-    width: 64px;
-    height: 64px;
-    border-radius: 64px;
-    font-size: 32px;
-    cursor: pointer;
-    transition: 0.2s;
-    box-shadow: 0 6px 14px rgba(52,199,89,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .accept-btn:hover { transform: scale(1.08); background: #2eab4e; }
-  .decline-btn {
-    background: #ff3b30;
-    border: none;
-    width: 64px;
-    height: 64px;
-    border-radius: 64px;
-    font-size: 32px;
-    cursor: pointer;
-    transition: 0.2s;
-    box-shadow: 0 6px 14px rgba(255,59,48,0.3);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .decline-btn:hover { transform: scale(1.08); background: #e22c22; }
-
-  @keyframes modalFloat {
-    from { opacity: 0; transform: translateY(40px) scale(0.96); }
-    to { opacity: 1; transform: translateY(0) scale(1); }
-  }
-
-  .ringtone-animation {
-    animation: ringPulse 1s infinite;
-  }
-  @keyframes ringPulse {
-    0% { box-shadow: 0 0 0 0 rgba(138, 92, 240, 0.5); }
-    70% { box-shadow: 0 0 0 20px rgba(138, 92, 240, 0); }
-    100% { box-shadow: 0 0 0 0 rgba(138, 92, 240, 0); }
-  }
-
-  /* minimize call pill */
-  .minimized-call {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 280px;
-    background: #1c1e2c;
-    border-radius: 60px;
-    padding: 10px 16px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    z-index: 2000;
-    backdrop-filter: blur(20px);
-    border: 1px solid rgba(255,255,255,0.2);
-    cursor: pointer;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
-    transition: 0.2s;
-  }
-  .minimized-call:hover { background: #2a2c3c; transform: scale(1.02); }
-  .minimized-avatar {
-    width: 44px;
-    height: 44px;
-    border-radius: 44px;
-    background: #2f3040;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-  }
-  .minimized-info { flex: 1; font-weight: 500; font-size: 14px; }
-  .minimized-time { font-size: 12px; color: #9b9cb0; }
-  .minimized-end {
-    background: #ff3b30;
-    border: none;
-    width: 32px;
-    height: 32px;
-    border-radius: 32px;
-    font-size: 16px;
-    cursor: pointer;
-    color: white;
-  }
-
-  /* toast */
-  .toast-msg {
-    position: fixed;
-    bottom: 100px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #2c2e3e;
-    padding: 10px 18px;
-    border-radius: 40px;
-    font-size: 14px;
-    z-index: 3000;
-    backdrop-filter: blur(12px);
-    color: white;
-    pointer-events: none;
-    animation: fadeUp 0.2s ease;
-  }
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateX(-50%) translateY(20px); }
-    to { opacity: 1; transform: translateX(-50%) translateY(0); }
-  }
-
-  /* responsive */
-  @media (max-width: 680px) {
-    .local-video-wrapper { width: 100px; height: 140px; bottom: 16px; right: 16px; }
-    .icon-btn { width: 48px; height: 48px; font-size: 20px; }
-  }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ვიდეო ზარი - კაიფმანია</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            background: #0a0b10;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+        .call-container {
+            width: 100%;
+            max-width: 1280px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: #0f1117;
+        }
+        .call-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 20px;
+            background: rgba(18, 20, 28, 0.95);
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+        .back-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            color: white;
+            font-size: 20px;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            cursor: pointer;
+        }
+        .call-title { font-weight: 600; font-size: 16px; }
+        .call-status { font-size: 12px; color: #a0a3b0; margin-left: 8px; }
+        .call-actions { display: flex; gap: 12px; }
+        .icon-btn {
+            background: rgba(255,255,255,0.1);
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 44px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        .end-call { background: #ff3b30; }
+        .video-area {
+            flex: 1;
+            display: flex;
+            position: relative;
+            background: #000;
+        }
+        #remoteVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .local-video {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            width: 140px;
+            height: 180px;
+            border-radius: 16px;
+            overflow: hidden;
+            border: 2px solid rgba(255,255,255,0.3);
+            background: #1a1c2a;
+        }
+        #localVideo {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .incoming-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.8);
+            backdrop-filter: blur(12px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .incoming-card {
+            background: #1c1e2c;
+            border-radius: 32px;
+            padding: 32px;
+            text-align: center;
+            width: 300px;
+        }
+        .incoming-card button {
+            font-size: 40px;
+            margin: 10px;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+        }
+        .accept { background: #34c759; }
+        .decline { background: #ff3b30; }
+        .hidden { display: none !important; }
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #2c2e3e;
+            padding: 10px 20px;
+            border-radius: 30px;
+            font-size: 14px;
+            z-index: 2000;
+        }
+    </style>
 </head>
 <body>
-
-<div class="call-container" id="callContainer">
-  <div class="call-header">
-    <button class="back-btn" id="backBtn">←</button>
-    <div class="call-title">
-      <span>📞 ვიდეო ზარი</span>
-      <span class="call-status" id="callStatusSpan">დაკავშირება...</span>
+<div class="call-container">
+    <div class="call-header">
+        <button class="back-btn" onclick="window.close()">←</button>
+        <div class="call-title">
+            📹 ვიდეო ზარი
+            <span class="call-status" id="callStatus">დაკავშირება...</span>
+        </div>
+        <div class="call-actions">
+            <button class="icon-btn" id="micBtn" onclick="toggleMic()">🎤</button>
+            <button class="icon-btn" id="camBtn" onclick="toggleCam()">📷</button>
+            <button class="icon-btn end-call" onclick="endCall()">📞</button>
+        </div>
     </div>
-    <div class="call-actions">
-      <button class="icon-btn" id="toggleMicBtn" title="მიკროფონი">🎤</button>
-      <button class="icon-btn" id="toggleCamBtn" title="კამერა">📷</button>
-      <button class="icon-btn end-call" id="endCallBtn">📞</button>
+    <div class="video-area">
+        <video id="remoteVideo" autoplay playsinline></video>
+        <div class="local-video">
+            <video id="localVideo" autoplay playsinline muted></video>
+        </div>
     </div>
-  </div>
-
-  <div class="video-area">
-    <div class="remote-video-wrapper">
-      <video id="remoteVideo" autoplay playsinline></video>
-    </div>
-    <div class="local-video-wrapper" id="localVideoWrapper">
-      <video id="localVideo" autoplay playsinline muted></video>
-      <div class="avatar-placeholder" id="localAvatarPlaceholder" style="display: none;">👤</div>
-    </div>
-  </div>
 </div>
 
-<!-- incoming call modal -->
-<div id="incomingModal" style="display: none;" class="incoming-overlay">
-  <div class="incoming-card">
-    <div class="caller-avatar" id="incAvatar">📞</div>
-    <div class="caller-name" id="incCallerName">მომხმარებელი</div>
-    <div class="call-type">📹 ვიდეო ზარი</div>
-    <div class="incoming-buttons">
-      <button class="accept-btn" id="acceptCallBtn">📞</button>
-      <button class="decline-btn" id="declineCallBtn">❌</button>
+<div id="incomingCall" class="incoming-overlay hidden">
+    <div class="incoming-card">
+        <div style="font-size: 64px; margin-bottom: 16px;">📞</div>
+        <div style="font-size: 20px; font-weight: bold;" id="callerName">მეგობარი</div>
+        <div style="margin: 16px 0;">ვიდეო ზარი</div>
+        <div>
+            <button class="accept" onclick="acceptCall()">✅</button>
+            <button class="decline" onclick="declineCall()">❌</button>
+        </div>
     </div>
-  </div>
-</div>
-
-<div id="minimizedCall" class="minimized-call" style="display: none;">
-  <div class="minimized-avatar" id="minAv">🎥</div>
-  <div class="minimized-info">
-    <div id="minName">ვიდეო ზარი</div>
-    <div id="minTimer" class="minimized-time">00:00</div>
-  </div>
-  <button class="minimized-end" id="minEndBtn">📞</button>
 </div>
 
 <script>
-  // ---------- WEBRTC + SIGNALING (mock using PeerJS-like but pure WebRTC + simple signaling via broadcast)
-  // For demo we use a mock signaling via window events/localStorage, but to work across tabs/real devices we need server.
-  // However, since this is a frontend prototype, we implement a complete WebRTC call simulation that actually uses getUserMedia,
-  // PeerConnection, and exchange offers via simple localStorage + storage event (simulated signaling for same-origin)
-  // This creates REAL WebRTC video call between 2 tabs/windows on same device for demonstration.
-  // But you can replace signaling with Supabase realtime easily.
-  
-  // Local media streams
-  let localStream = null;
-  let remoteStream = null;
-  let peerConnection = null;
-  let callActive = false;
-  let callStartTime = null;
-  let timerInterval = null;
-  let isMicMuted = false;
-  let isCamOff = false;
-  let currentCallPartner = "მეგობარი";
-  
-  // WebRTC configuration
-  const configuration = {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' }
-    ]
-  };
-  
-  // Signaling via custom event (localStorage + 'storage' event) TO SIMULATE signaling between two tabs.
-  // For real server, replace with Supabase realtime channel.
-  let signalingChannelId = "call_signal_" + Date.now();
-  let myCallId = Math.random().toString(36).substring(2, 8);
-  let remoteCallId = null;
-  
-  // Helper: send signaling message (offer/answer/ice)
-  function sendSignal(type, data) {
-    const signalEvent = {
-      to: remoteCallId,
-      from: myCallId,
-      type: type,
-      data: data,
-      time: Date.now()
+    // WebRTC ვიდეო ზარი - დემო ვერსია (localStorage სიგნალიზაციით)
+    let localStream = null;
+    let peerConnection = null;
+    let callActive = false;
+    let myId = Math.random().toString(36).substr(2, 8);
+    
+    const configuration = {
+        iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
     };
-    localStorage.setItem('webrtc_signal_' + (remoteCallId || 'broadcast'), JSON.stringify(signalEvent));
-    // trigger storage event manually
-    window.dispatchEvent(new StorageEvent('storage', { key: 'webrtc_signal_' + (remoteCallId || 'broadcast'), newValue: JSON.stringify(signalEvent) }));
-  }
-  
-  // listen for signals
-  function startSignalingListener() {
-    window.addEventListener('storage', (e) => {
-      if (e.key && e.key.startsWith('webrtc_signal_')) {
+    
+    async function startLocalStream() {
         try {
-          const signal = JSON.parse(e.newValue);
-          if (!signal || signal.from === myCallId) return;
-          if (signal.type === 'offer' && !callActive) {
-            // incoming call
-            console.log("📞 incoming offer", signal);
-            remoteCallId = signal.from;
-            currentCallPartner = signal.data?.callerName || "მეგობარი";
-            showIncomingCall(signal.data?.callerName || "მეგობარი");
-            window.pendingOffer = signal.data.offer;
-          } else if (signal.type === 'answer' && callActive && peerConnection) {
-            // set remote description
-            const answer = new RTCSessionDescription({ type: 'answer', sdp: signal.data.answer });
-            peerConnection.setRemoteDescription(answer).catch(e=>console.warn);
-          } else if (signal.type === 'ice-candidate' && peerConnection) {
-            if (signal.data.candidate) {
-              peerConnection.addIceCandidate(new RTCIceCandidate(signal.data.candidate)).catch(e=>console.warn);
+            localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            document.getElementById('localVideo').srcObject = localStream;
+            return true;
+        } catch(e) {
+            showToast('❌ კამერა/მიკროფონი არ არის');
+            return false;
+        }
+    }
+    
+    async function startCall(isCaller, targetId = null) {
+        if (!localStream && !await startLocalStream()) return;
+        
+        peerConnection = new RTCPeerConnection(configuration);
+        localStream.getTracks().forEach(track => {
+            peerConnection.addTrack(track, localStream);
+        });
+        
+        peerConnection.ontrack = (event) => {
+            document.getElementById('remoteVideo').srcObject = event.streams[0];
+            document.getElementById('callStatus').innerText = '🔴 ზარში';
+            callActive = true;
+        };
+        
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                sendSignal('ice', { candidate: event.candidate });
             }
-          } else if (signal.type === 'end-call') {
-            if (callActive) {
-              endCall(true, "მეორე მხარემ დაასრულა ზარი");
+        };
+        
+        if (isCaller) {
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+            sendSignal('offer', { offer: offer });
+            document.getElementById('callStatus').innerText = '📞 რეკავს...';
+        }
+    }
+    
+    function sendSignal(type, data) {
+        const signal = { from: myId, type, data, time: Date.now() };
+        localStorage.setItem('webrtc_signal', JSON.stringify(signal));
+        setTimeout(() => { if (localStorage.getItem('webrtc_signal') === JSON.stringify(signal)) localStorage.removeItem('webrtc_signal'); }, 1000);
+    }
+    
+    function listenForSignals() {
+        window.addEventListener('storage', async (e) => {
+            if (e.key === 'webrtc_signal' && e.newValue) {
+                const signal = JSON.parse(e.newValue);
+                if (signal.from === myId) return;
+                
+                if (signal.type === 'offer' && !callActive) {
+                    document.getElementById('callerName').innerText = 'მეგობარი';
+                    document.getElementById('incomingCall').classList.remove('hidden');
+                    window.pendingOffer = signal.data.offer;
+                } else if (signal.type === 'answer' && peerConnection) {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription({ type: 'answer', sdp: signal.data.answer }));
+                } else if (signal.type === 'ice' && peerConnection) {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(signal.data.candidate));
+                }
             }
-          }
-        } catch(er) {}
-      }
-    });
-  }
-  
-  // create peer connection
-  async function createPeerConnection(isCaller) {
-    if (peerConnection) {
-      peerConnection.close();
-    }
-    peerConnection = new RTCPeerConnection(configuration);
-    
-    // add local tracks
-    if (localStream) {
-      localStream.getTracks().forEach(track => {
-        peerConnection.addTrack(track, localStream);
-      });
+        });
     }
     
-    peerConnection.ontrack = (event) => {
-      const [remoteTrack] = event.streams;
-      if (remoteTrack) {
-        remoteStream = remoteTrack;
-        const remoteVideo = document.getElementById('remoteVideo');
-        remoteVideo.srcObject = remoteStream;
-        document.getElementById('callStatusSpan').innerText = "🔗 დაკავშირებულია";
-      }
-    };
+    async function acceptCall() {
+        document.getElementById('incomingCall').classList.add('hidden');
+        if (!localStream && !await startLocalStream()) return;
+        
+        await startCall(false);
+        if (window.pendingOffer) {
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(window.pendingOffer));
+            const answer = await peerConnection.createAnswer();
+            await peerConnection.setLocalDescription(answer);
+            sendSignal('answer', { answer: answer });
+            window.pendingOffer = null;
+        }
+    }
     
-    peerConnection.onicecandidate = (event) => {
-      if (event.candidate) {
-        sendSignal('ice-candidate', { candidate: event.candidate });
-      }
-    };
+    function declineCall() {
+        document.getElementById('incomingCall').classList.add('hidden');
+        showToast('📵 ზარი უარყოფილია');
+    }
     
-    peerConnection.onconnectionstatechange = () => {
-      if (peerConnection.connectionState === 'connected') {
-        if (!callActive) setCallActive(true);
-      } else if (peerConnection.connectionState === 'failed' || peerConnection.connectionState === 'disconnected') {
-        if (callActive) endCall(false, "კავშირი შეწყდა");
-      }
-    };
-    return peerConnection;
-  }
-  
-  // start local media
-  async function startLocalMedia() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-      localStream = stream;
-      const localVideo = document.getElementById('localVideo');
-      localVideo.srcObject = localStream;
-      document.getElementById('localAvatarPlaceholder').style.display = 'none';
-      localVideo.style.display = 'block';
-      isMicMuted = false;
-      isCamOff = false;
-      updateButtonsUI();
-      return true;
-    } catch (err) {
-      toast("❌ კამერა/მიკროფონი ვერ მოიძებნა");
-      return false;
+    function endCall() {
+        if (peerConnection) peerConnection.close();
+        if (localStream) localStream.getTracks().forEach(t => t.stop());
+        callActive = false;
+        showToast('📴 ზარი დასრულდა');
+        setTimeout(() => window.close(), 500);
     }
-  }
-  
-  // make outgoing call (to random partner in demo)
-  async function startOutgoingCall(targetUserId = "peer") {
-    if (!localStream) {
-      const ok = await startLocalMedia();
-      if (!ok) return;
+    
+    function toggleMic() {
+        if (localStream) {
+            const audio = localStream.getAudioTracks()[0];
+            if (audio) audio.enabled = !audio.enabled;
+        }
     }
-    // generate random remote ID (demo)
-    remoteCallId = "peer_" + Math.random().toString(36).substr(2,6);
-    currentCallPartner = "მეგობარი";
-    await createPeerConnection(true);
-    const offer = await peerConnection.createOffer();
-    await peerConnection.setLocalDescription(offer);
-    sendSignal('offer', { offer: offer, callerName: "შენი მეგობარი" });
-    document.getElementById('callStatusSpan').innerText = "📞 რეკავს...";
-    toast("📞 ზარი იგზავნება...");
-    setTimeout(() => {
-      if (!callActive) toast("⏳ მომხმარებელი არ პასუხობს");
-    }, 15000);
-  }
-  
-  function showIncomingCall(name) {
-    const modal = document.getElementById('incomingModal');
-    document.getElementById('incCallerName').innerText = name;
-    document.getElementById('incAvatar').innerHTML = "📹";
-    modal.style.display = 'flex';
-    playRingtone();
-  }
-  
-  function playRingtone() {
-    // simple audio beep using web audio (no file)
-    try {
-      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const oscillator = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      oscillator.connect(gain);
-      gain.connect(audioCtx.destination);
-      oscillator.frequency.value = 440;
-      gain.gain.value = 0.2;
-      oscillator.start();
-      gain.gain.exponentialRampToValueAtTime(0.00001, audioCtx.currentTime + 1.5);
-      oscillator.stop(audioCtx.currentTime + 1.5);
-    } catch(e) {}
-  }
-  
-  // accept incoming call
-  window.acceptCall = async function() {
-    const modal = document.getElementById('incomingModal');
-    modal.style.display = 'none';
-    if (!localStream) await startLocalMedia();
-    await createPeerConnection(false);
-    if (window.pendingOffer) {
-      await peerConnection.setRemoteDescription(new RTCSessionDescription(window.pendingOffer));
-      const answer = await peerConnection.createAnswer();
-      await peerConnection.setLocalDescription(answer);
-      sendSignal('answer', { answer: answer });
-      setCallActive(true);
-      window.pendingOffer = null;
-    } else {
-      endCall(false, "შეცდომა");
+    
+    function toggleCam() {
+        if (localStream) {
+            const video = localStream.getVideoTracks()[0];
+            if (video) video.enabled = !video.enabled;
+        }
     }
-  };
-  
-  window.declineCall = function() {
-    document.getElementById('incomingModal').style.display = 'none';
-    sendSignal('end-call', {});
-    toast("📵 ზარი უარყოფილია");
-    window.pendingOffer = null;
-  };
-  
-  function setCallActive(active) {
-    callActive = active;
-    if (active) {
-      callStartTime = Date.now();
-      startTimer();
-      document.getElementById('callStatusSpan').innerText = "🔴 ზარში";
-      document.getElementById('minimizedCall').style.display = 'flex';
-      document.getElementById('minName').innerText = currentCallPartner;
-      updateMinTimer();
-      timerInterval = setInterval(updateMinTimer, 1000);
-    } else {
-      if (timerInterval) clearInterval(timerInterval);
-      document.getElementById('minimizedCall').style.display = 'none';
+    
+    function showToast(msg) {
+        const t = document.createElement('div');
+        t.className = 'toast';
+        t.innerText = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
     }
-  }
-  
-  function updateMinTimer() {
-    if (!callStartTime) return;
-    const elapsed = Math.floor((Date.now() - callStartTime) / 1000);
-    const mins = Math.floor(elapsed / 60);
-    const secs = elapsed % 60;
-    document.getElementById('minTimer').innerText = `${mins.toString().padStart(2,'0')}:${secs.toString().padStart(2,'0')}`;
-  }
-  function startTimer() { updateMinTimer(); }
-  
-  function endCall(notifyPeer = true, reason = "") {
-    if (peerConnection) {
-      peerConnection.close();
-      peerConnection = null;
+    
+    // ავტომატურად დარეკვა (დემო)
+    async function autoStart() {
+        await startLocalStream();
+        listenForSignals();
+        setTimeout(() => {
+            if (!callActive) {
+                startCall(true);
+            }
+        }, 500);
     }
-    if (localStream) {
-      localStream.getTracks().forEach(track => track.stop());
-      localStream = null;
-      document.getElementById('localVideo').srcObject = null;
-      document.getElementById('localAvatarPlaceholder').style.display = 'flex';
-      document.getElementById('localVideo').style.display = 'none';
-    }
-    if (remoteStream) {
-      remoteStream.getTracks().forEach(t => t.stop());
-      document.getElementById('remoteVideo').srcObject = null;
-    }
-    if (notifyPeer && remoteCallId) {
-      sendSignal('end-call', {});
-    }
-    callActive = false;
-    if (timerInterval) clearInterval(timerInterval);
-    document.getElementById('callStatusSpan').innerText = "ზარი დასრულდა";
-    document.getElementById('minimizedCall').style.display = 'none';
-    toast(reason || "📴 ზარი დასრულდა");
-    remoteCallId = null;
-    window.pendingOffer = null;
-  }
-  
-  function toggleMic() {
-    if (!localStream) return;
-    const audioTrack = localStream.getAudioTracks()[0];
-    if (audioTrack) {
-      isMicMuted = !isMicMuted;
-      audioTrack.enabled = !isMicMuted;
-      updateButtonsUI();
-      toast(isMicMuted ? "🔇 მიკროფონი გამორთულია" : "🎤 მიკროფონი ჩართულია");
-    }
-  }
-  
-  function toggleCam() {
-    if (!localStream) return;
-    const videoTrack = localStream.getVideoTracks()[0];
-    if (videoTrack) {
-      isCamOff = !isCamOff;
-      videoTrack.enabled = !isCamOff;
-      updateButtonsUI();
-      toast(isCamOff ? "📷 კამერა გამორთულია" : "📷 კამერა ჩართულია");
-    }
-  }
-  
-  function updateButtonsUI() {
-    const micBtn = document.getElementById('toggleMicBtn');
-    const camBtn = document.getElementById('toggleCamBtn');
-    if (isMicMuted) micBtn.classList.add('mic-off'); else micBtn.classList.remove('mic-off');
-    if (isCamOff) camBtn.classList.add('cam-off'); else camBtn.classList.remove('cam-off');
-  }
-  
-  function toast(msg) {
-    let t = document.createElement('div');
-    t.className = 'toast-msg';
-    t.innerText = msg;
-    document.body.appendChild(t);
-    setTimeout(() => t.remove(), 2000);
-  }
-  
-  // minimize call feature (show pill)
-  let minimizedVisible = false;
-  document.getElementById('minimizedCall')?.addEventListener('click', (e) => {
-    if (e.target.id === 'minEndBtn') {
-      endCall(true, "ზარი დასრულებულია");
-    } else {
-      document.querySelector('.call-container').style.display = 'flex';
-      document.getElementById('minimizedCall').style.display = 'none';
-    }
-  });
-  
-  // UI elements
-  document.getElementById('endCallBtn').addEventListener('click', () => endCall(true, "ზარი დასრულდა"));
-  document.getElementById('toggleMicBtn').addEventListener('click', toggleMic);
-  document.getElementById('toggleCamBtn').addEventListener('click', toggleCam);
-  document.getElementById('backBtn').addEventListener('click', () => {
-    if (callActive) {
-      if(confirm("ზარის შენარჩუნება ფონზე?")) {
-        document.querySelector('.call-container').style.display = 'none';
-        document.getElementById('minimizedCall').style.display = 'flex';
-      }
-    } else {
-      window.location.href = 'index.html';
-    }
-  });
-  
-  // attach incoming handlers
-  document.getElementById('acceptCallBtn').addEventListener('click', () => acceptCall());
-  document.getElementById('declineCallBtn').addEventListener('click', () => declineCall());
-  
-  // initialize audio/video permissions on load, but not start call automatically.
-  // For demo: we add a floating button to start call? but we want from messenger style: simulate call start.
-  // Since it's a standalone call page, we can start a call to a random test user by clicking on header call button.
-  // Let's also add auto-start outgoing call for demonstration? We'll make a floating action on load? better add a call button on title.
-  // make call button in header for new call (optional)
-  const callBtn = document.createElement('button');
-  callBtn.innerText = '📞 ახალი ზარი';
-  callBtn.style.position = 'fixed';
-  callBtn.style.bottom = '30px';
-  callBtn.style.left = '30px';
-  callBtn.style.background = '#5e5ce0';
-  callBtn.style.border = 'none';
-  callBtn.style.padding = '10px 20px';
-  callBtn.style.borderRadius = '30px';
-  callBtn.style.color = 'white';
-  callBtn.style.fontWeight = 'bold';
-  callBtn.style.zIndex = '999';
-  callBtn.style.cursor = 'pointer';
-  callBtn.style.boxShadow = '0 5px 15px rgba(0,0,0,0.2)';
-  callBtn.onclick = async () => {
-    if (callActive) { toast("უკვე ზარში ხარ"); return; }
-    await startOutgoingCall();
-  };
-  document.body.appendChild(callBtn);
-  
-  // Start listening for signals
-  startSignalingListener();
-  
-  // If there's no local stream yet, preload but not yet (to request permissions later)
-  // to avoid permission popup on load, we call only when needed.
-  // but for better ux, we can pre-request empty?
-  window.addEventListener('load', () => {
-    // just ask for mic+cam when first interaction or call start .
-    toast("👋 დააჭირეთ 'ახალი ზარი' ან მიიღეთ ზარი");
-  });
-  
-  // Simulate that we can also get call from someone (by localStorage signal) so set remote partner.
-  setInterval(() => {
-    // cleanup old signals
-    for (let i=0; i<localStorage.length; i++) {
-      let key = localStorage.key(i);
-      if (key && key.startsWith('webrtc_signal_') && Date.now() - (JSON.parse(localStorage.getItem(key)||'{}')?.time || 0) > 30000) {
-        localStorage.removeItem(key);
-      }
-    }
-  }, 10000);
+    
+    autoStart();
 </script>
 </body>
 </html>
-```
