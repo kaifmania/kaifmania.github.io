@@ -1501,9 +1501,27 @@ function renderGallery(isSelf){const grid=document.getElementById('galGrid'),emp
 function galFileChosen(e){const file=e.target.files[0];if(!file)return;if(file.size>4*1024*1024){toast('❌ 4MB max');e.target.value='';return;}const reader=new FileReader();reader.onload=ev=>{galFileData=ev.target.result;const prev=document.getElementById('galPreviewImg');prev.src=galFileData;prev.classList.add('show');document.getElementById('galForm').classList.add('open');galSelectedEmo='😊';document.querySelectorAll('.gal-emo-btn').forEach((b,i)=>b.classList.toggle('active',i===0));document.getElementById('galTitle').value='';document.getElementById('galComment').value='';};reader.readAsDataURL(file);e.target.value='';}
 function pickGalEmo(btn,em){galSelectedEmo=em;document.querySelectorAll('.gal-emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function cancelGalUpload(){galFileData=null;document.getElementById('galForm').classList.remove('open');const prev=document.getElementById('galPreviewImg');prev.src='';prev.classList.remove('show');}
-async function uploadGalleryPhoto(){if(!galFileData){toast('❌ ფოტო ამოარჩიე!');return;}toast('⏳...');try{const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};const t=document.getElementById('galTitle').value.trim(),c=document.getElementById('galComment').value.trim(),albumId=document.getElementById('galAlbumSelect').value;if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;const{error}=await sb.from('gallery').insert(d);if(error){toast('❌ '+error.message);return;}cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);}catch(err){toast('❌ '+err.message);}}
-async function deleteGalPhoto(id){if(!confirm('წავშალო?'))return;await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);toast('🗑');loadAlbumsAndGallery(ME.id);}
-
+async function loadAlbumsAndGallery(uid){
+  galleryViewUID=uid;
+  const isSelf=uid===ME.id;
+  const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});
+  userAlbums=albs||[];
+  
+  if(isSelf){
+    const sel=document.getElementById('galAlbumSelect');
+    if(sel){
+      sel.innerHTML='<option value="">📂 ალბომის გარეშე</option>';
+      userAlbums.forEach(a=>{
+        const opt=document.createElement('option');
+        opt.value=a.id;          // ← UUID სტრინგი
+        opt.textContent=a.name;
+        sel.appendChild(opt);
+      });
+    }
+  }
+  renderAlbumBar(isSelf);
+  await loadGallery(uid);
+}
 /* ===================== PHOTO VIEWER ===================== */
 let currentPhotoId=null,currentPhotoOwnerId=null;
 function openPhotoViewer(idx,filtered){_pvFiltered=filtered||currentGallery;pvIndex=idx;showPVPhoto();document.getElementById('photoViewer').classList.add('open');}
