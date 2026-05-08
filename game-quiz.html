@@ -2,280 +2,238 @@
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>ვიქტორინა - კაიფმანია</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ვიქტორინა 🏆</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body{font-family:'Noto Sans Georgian',sans-serif;background:#1c1a30;color:#ede0ff;min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:0;overflow-x:hidden}
+:root{
+  --bg:#05050f;--panel:#0a0a1e;--panel2:#0e0e28;
+  --border:rgba(168,85,247,0.3);--text:#e0d0ff;--text2:#a070e0;--text3:#604090;
+  --accent:#c084fc;--gold:#ffd700;--green:#4ade80;--red:#f87171;
+  --glow:rgba(168,85,247,0.4);--indigo:#7c3aed;--indigo2:#a855f7;
+}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:20px 16px 40px;overflow-x:hidden;}
 
-/* ===== BACKGROUND ANIMATION ===== */
-.bg-layer{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.bg-particle{position:absolute;border-radius:50%;opacity:.08;animation:bgFloat linear infinite}
-@keyframes bgFloat{from{transform:translateY(100vh) scale(0)}to{transform:translateY(-10vh) scale(1)}}
+/* BG effect */
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 50%,rgba(120,40,200,0.15) 0%,transparent 60%),radial-gradient(ellipse at 80% 20%,rgba(80,20,160,0.12) 0%,transparent 55%);pointer-events:none;z-index:0;}
+
 @keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
-@keyframes popIn{from{opacity:0;transform:scale(0.8)}to{opacity:1;transform:scale(1)}}
-@keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
-@keyframes glow{0%,100%{box-shadow:0 0 20px rgba(168,85,247,.3)}50%{box-shadow:0 0 40px rgba(168,85,247,.6),0 0 60px rgba(168,85,247,.2)}}
-@keyframes correctFlash{0%{background:rgba(74,222,128,.15)}50%{background:rgba(74,222,128,.35)}100%{background:rgba(74,222,128,.15)}}
-@keyframes wrongFlash{0%{background:rgba(239,68,68,.15)}50%{background:rgba(239,68,68,.35)}100%{background:rgba(239,68,68,.15)}}
-@keyframes timerPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
-@keyframes scoreFloat{from{opacity:1;transform:translateY(0)}to{opacity:0;transform:translateY(-50px)}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-8px)}40%{transform:translateX(8px)}60%{transform:translateX(-6px)}80%{transform:translateX(6px)}}
+@keyframes glow{0%,100%{box-shadow:0 0 10px var(--glow)}50%{box-shadow:0 0 30px var(--glow),0 0 60px rgba(168,85,247,0.2)}}
+@keyframes scoreUp{0%{transform:translateY(0);opacity:1}100%{transform:translateY(-40px);opacity:0}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+@keyframes correctFlash{0%{background:rgba(74,222,128,0.15)}50%{background:rgba(74,222,128,0.3)}100%{background:rgba(74,222,128,0.15)}}
 
-/* ===== LAYOUT ===== */
-.container{width:100%;max-width:600px;padding:20px 16px 40px;position:relative;z-index:1}
+.container{width:100%;max-width:640px;position:relative;z-index:1;animation:fadeIn .5s ease;}
 
-/* ===== HEADER ===== */
-.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;padding:14px 18px;background:rgba(37,34,64,.8);border:1px solid rgba(160,80,255,.3);border-radius:20px;backdrop-filter:blur(10px)}
-.back-btn{background:rgba(120,30,200,.2);border:1px solid rgba(168,85,247,.4);border-radius:12px;color:#c084fc;font-size:14px;padding:7px 14px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;transition:all .2s}
-.back-btn:hover{background:rgba(120,30,200,.4);transform:scale(1.04)}
-.game-logo{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:#a855f7;letter-spacing:.5px;display:flex;align-items:center;gap:8px}
-.score-display{display:flex;align-items:center;gap:6px;background:rgba(168,85,247,.15);border:1px solid rgba(168,85,247,.35);border-radius:14px;padding:6px 14px;font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:#c084fc;position:relative}
-.score-num{transition:transform .2s;display:inline-block}
-.score-add{position:absolute;top:-20px;right:0;font-size:12px;font-weight:700;color:#4ade80;animation:scoreFloat .8s ease forwards;pointer-events:none;font-family:'Unbounded',sans-serif}
+/* HEADER */
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;flex-wrap:wrap;gap:10px;}
+.logo{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:var(--accent);text-shadow:0 0 20px var(--glow);}
+.score-display{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:8px 18px;position:relative;}
+.score-label{font-size:10px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px;}
+.score-val{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--gold);text-shadow:0 0 15px rgba(255,215,0,0.5);transition:all .3s;}
+.score-delta{position:absolute;top:-20px;right:10px;font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:var(--green);animation:scoreUp .8s ease forwards;pointer-events:none;}
 
-/* ===== SCREENS ===== */
-.screen{display:none;animation:fadeIn .35s ease}
-.screen.active{display:block}
+/* PROGRESS */
+.progress-wrap{margin-bottom:20px;}
+.progress-info{display:flex;justify-content:space-between;margin-bottom:8px;font-size:11px;color:var(--text3);font-family:'Unbounded',sans-serif;}
+.progress-bar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden;border:1px solid var(--border);}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--accent));border-radius:3px;transition:width .4s ease;box-shadow:0 0 10px var(--glow);}
 
-/* ===== HOME SCREEN ===== */
-.hero-icon{font-size:90px;text-align:center;margin:20px 0 10px;filter:drop-shadow(0 0 30px rgba(168,85,247,.6))}
-.hero-title{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;text-align:center;color:#ede0ff;margin-bottom:8px;letter-spacing:.5px}
-.hero-sub{text-align:center;color:#b580e0;font-size:14px;margin-bottom:32px;line-height:1.6}
-.stats-row{display:flex;gap:12px;margin-bottom:28px}
-.stat-card{flex:1;background:rgba(37,34,64,.8);border:1px solid rgba(160,80,255,.25);border-radius:18px;padding:18px 14px;text-align:center}
-.stat-label{font-size:9px;color:#7a5a9a;font-family:'Unbounded',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-.stat-val{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;color:#a855f7;text-shadow:0 0 20px rgba(168,85,247,.4)}
-.start-btn{width:100%;padding:16px;border-radius:50px;background:linear-gradient(135deg,#7a1fc8,#a855f7);border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 8px 28px rgba(120,30,200,.5);transition:all .2s;animation:glow 2.5s ease-in-out infinite}
-.start-btn:hover{transform:translateY(-3px) scale(1.02);box-shadow:0 14px 40px rgba(120,30,200,.65)}
-.difficulty-row{display:flex;gap:8px;margin-bottom:20px}
-.diff-btn{flex:1;padding:10px;border-radius:14px;border:1px solid rgba(160,80,255,.3);background:rgba(37,34,64,.6);color:#b580e0;font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;text-align:center}
-.diff-btn.active,.diff-btn:hover{background:rgba(120,30,200,.3);border-color:rgba(168,85,247,.6);color:#fff}
-.diff-btn.easy.active{background:rgba(74,222,128,.15);border-color:rgba(74,222,128,.5);color:#4ade80}
-.diff-btn.medium.active{background:rgba(251,191,36,.12);border-color:rgba(251,191,36,.4);color:#fbbf24}
-.diff-btn.hard.active{background:rgba(239,68,68,.12);border-color:rgba(239,68,68,.4);color:#f87171}
-.leaderboard{background:rgba(37,34,64,.8);border:1px solid rgba(160,80,255,.25);border-radius:20px;overflow:hidden;margin-top:24px}
-.lb-head{background:linear-gradient(135deg,rgba(120,30,200,.3),transparent);padding:12px 16px;font-family:'Unbounded',sans-serif;font-size:10px;color:#b580e0;letter-spacing:1.5px;border-bottom:1px solid rgba(160,80,255,.2);display:flex;align-items:center;gap:6px}
-.lb-row{display:flex;align-items:center;gap:12px;padding:10px 16px;border-bottom:1px solid rgba(160,80,255,.1);transition:background .15s}
-.lb-row:last-child{border-bottom:none}
-.lb-row:hover{background:rgba(120,30,200,.1)}
-.lb-rank{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;width:28px;text-align:center;flex-shrink:0}
-.lb-rank.gold{color:#ffd040}
-.lb-rank.silver{color:#c8c8c8}
-.lb-rank.bronze{color:#c88040}
-.lb-av{width:32px;height:32px;border-radius:50%;background:rgba(120,30,200,.2);border:1px solid rgba(168,85,247,.3);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
-.lb-av img{width:100%;height:100%;object-fit:cover}
-.lb-name{flex:1;font-size:13px;color:#ede0ff}
-.lb-score{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:#a855f7}
+/* TIMER */
+.timer-wrap{display:flex;align-items:center;justify-content:center;margin-bottom:20px;gap:12px;}
+.timer-ring{position:relative;width:60px;height:60px;flex-shrink:0;}
+.timer-ring svg{transform:rotate(-90deg);}
+.timer-ring circle{fill:none;stroke:var(--panel2);stroke-width:4;}
+.timer-ring .progress-circle{stroke:var(--accent);stroke-width:4;stroke-linecap:round;transition:stroke-dashoffset .9s linear,stroke .3s;stroke-dasharray:157;stroke-dashoffset:0;}
+.timer-ring .progress-circle.warn{stroke:var(--gold);}
+.timer-ring .progress-circle.danger{stroke:var(--red);animation:pulse .5s ease infinite;}
+.timer-num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:var(--text);}
+.streak-badge{background:linear-gradient(135deg,rgba(255,215,0,0.15),rgba(255,140,0,0.1));border:1px solid rgba(255,215,0,0.3);border-radius:12px;padding:6px 14px;font-family:'Unbounded',sans-serif;font-size:11px;color:var(--gold);display:flex;align-items:center;gap:5px;}
 
-/* ===== GAME SCREEN ===== */
-.game-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:10px}
-.q-counter{font-family:'Unbounded',sans-serif;font-size:11px;color:#7a5a9a;letter-spacing:1px}
-.q-counter span{color:#a855f7;font-weight:700}
-.streak-badge{display:flex;align-items:center;gap:5px;background:rgba(251,191,36,.12);border:1px solid rgba(251,191,36,.3);border-radius:14px;padding:5px 12px;font-family:'Unbounded',sans-serif;font-size:11px;color:#fbbf24;font-weight:700}
-.streak-badge.hidden{display:none}
+/* QUESTION CARD */
+.q-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:24px;margin-bottom:20px;position:relative;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,0.4);}
+.q-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--indigo),var(--accent),var(--indigo));border-radius:2px 2px 0 0;}
+.q-num{font-size:10px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1.5px;margin-bottom:10px;text-transform:uppercase;}
+.q-category{display:inline-block;font-size:9px;padding:3px 10px;border-radius:20px;background:var(--panel2);border:1px solid var(--border);color:var(--accent);font-family:'Unbounded',sans-serif;letter-spacing:.5px;margin-bottom:12px;}
+.q-text{font-size:17px;font-weight:500;line-height:1.6;color:var(--text);}
 
-/* Timer */
-.timer-wrap{position:relative;margin-bottom:18px}
-.timer-bar{height:6px;background:rgba(160,80,255,.15);border-radius:3px;overflow:hidden}
-.timer-fill{height:100%;background:linear-gradient(90deg,#a855f7,#c084fc);border-radius:3px;transition:width .1s linear;width:100%}
-.timer-fill.warning{background:linear-gradient(90deg,#f59e0b,#fbbf24);animation:timerPulse .5s ease infinite}
-.timer-fill.danger{background:linear-gradient(90deg,#ef4444,#f87171);animation:timerPulse .3s ease infinite}
-.timer-label{text-align:right;font-size:12px;color:#7a5a9a;margin-top:4px;font-family:'Unbounded',sans-serif}
-.timer-label span{color:#a855f7;font-weight:700}
+/* OPTIONS */
+.options{display:flex;flex-direction:column;gap:10px;margin-bottom:20px;}
+.opt-btn{width:100%;padding:14px 18px;border-radius:14px;background:var(--panel2);border:1.5px solid var(--border);color:var(--text);font-size:14px;font-family:'Noto Sans Georgian',sans-serif;cursor:pointer;transition:all .2s;text-align:left;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden;}
+.opt-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,transparent,rgba(168,85,247,0.05));pointer-events:none;}
+.opt-btn:hover:not(:disabled){background:rgba(124,58,237,0.15);border-color:var(--accent);transform:translateX(4px);box-shadow:0 4px 16px rgba(0,0,0,0.3);}
+.opt-btn:disabled{cursor:not-allowed;}
+.opt-btn.correct{background:rgba(74,222,128,0.12);border-color:var(--green);color:var(--green);animation:correctFlash .6s ease;}
+.opt-btn.wrong{background:rgba(248,113,113,0.12);border-color:var(--red);color:var(--red);animation:shake .4s ease;}
+.opt-letter{width:28px;height:28px;border-radius:8px;background:rgba(168,85,247,0.15);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0;transition:all .2s;}
+.opt-btn.correct .opt-letter{background:rgba(74,222,128,0.2);border-color:var(--green);color:var(--green);}
+.opt-btn.wrong .opt-letter{background:rgba(248,113,113,0.2);border-color:var(--red);color:var(--red);}
 
-/* Question */
-.question-card{background:rgba(37,34,64,.9);border:1px solid rgba(160,80,255,.3);border-radius:22px;padding:22px 20px 18px;margin-bottom:16px;animation:popIn .3s ease;backdrop-filter:blur(10px)}
-.question-category{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1.5px;color:#7a5a9a;text-transform:uppercase;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.q-emoji{font-size:20px}
-.question-text{font-size:17px;color:#ede0ff;line-height:1.6;font-weight:500}
-.question-card.correct-anim{animation:correctFlash .5s ease}
-.question-card.wrong-anim{animation:wrongFlash .5s ease,shake .4s ease}
+/* FEEDBACK */
+.feedback{padding:12px 16px;border-radius:12px;margin-bottom:16px;font-size:13px;line-height:1.5;display:none;animation:fadeIn .3s ease;}
+.feedback.show{display:block;}
+.feedback.correct{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--green);}
+.feedback.wrong{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:#fca5a5;}
 
-/* Options */
-.options-grid{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
-.option-btn{width:100%;padding:14px 18px;border-radius:16px;background:rgba(37,34,64,.8);border:1.5px solid rgba(160,80,255,.25);color:#ede0ff;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;cursor:pointer;text-align:left;transition:all .2s;display:flex;align-items:center;gap:12px;position:relative;overflow:hidden}
-.option-btn::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(168,85,247,.08),transparent);opacity:0;transition:opacity .2s}
-.option-btn:hover:not(:disabled){background:rgba(120,30,200,.2);border-color:rgba(168,85,247,.5);transform:translateX(4px)}
-.option-btn:hover:not(:disabled)::before{opacity:1}
-.option-letter{width:28px;height:28px;border-radius:50%;background:rgba(120,30,200,.25);border:1px solid rgba(168,85,247,.4);display:flex;align-items:center;justify-content:center;font-size:11px;font-family:'Unbounded',sans-serif;font-weight:700;flex-shrink:0;color:#c084fc}
-.option-btn.correct{background:rgba(74,222,128,.15)!important;border-color:rgba(74,222,128,.7)!important;color:#4ade80!important}
-.option-btn.correct .option-letter{background:rgba(74,222,128,.25);border-color:rgba(74,222,128,.6);color:#4ade80}
-.option-btn.wrong{background:rgba(239,68,68,.15)!important;border-color:rgba(239,68,68,.6)!important;color:#f87171!important}
-.option-btn.wrong .option-letter{background:rgba(239,68,68,.2);border-color:rgba(239,68,68,.5);color:#f87171}
-.option-btn:disabled{cursor:not-allowed;opacity:.7}
-.option-result{margin-left:auto;font-size:18px;flex-shrink:0}
+/* NEXT BTN */
+.next-btn{width:100%;padding:14px;border-radius:14px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px;box-shadow:0 4px 20px rgba(124,58,237,0.4);display:none;}
+.next-btn.show{display:block;}
+.next-btn:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(124,58,237,0.55);}
 
-/* Hint */
-.hint-row{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
-.hint-btn{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:12px;border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.08);color:#fbbf24;font-size:12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;transition:all .2s}
-.hint-btn:hover:not(:disabled){background:rgba(251,191,36,.18);transform:scale(1.04)}
-.hint-btn:disabled{opacity:.4;cursor:not-allowed}
-.hint-uses{font-size:9px;font-family:'Unbounded',sans-serif;margin-left:2px}
+/* START SCREEN */
+#startScreen{text-align:center;padding:40px 20px;animation:fadeIn .5s ease;}
+.start-icon{font-size:72px;margin-bottom:20px;filter:drop-shadow(0 0 30px var(--glow));display:block;}
+.start-title{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;color:var(--text);margin-bottom:8px;}
+.start-sub{font-size:14px;color:var(--text3);margin-bottom:32px;line-height:1.6;}
+.start-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:32px;}
+.stat-card{background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:16px 24px;text-align:center;min-width:120px;}
+.stat-val{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--accent);margin-bottom:4px;}
+.stat-lbl{font-size:10px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px;}
+.start-btn{padding:16px 48px;border-radius:50px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:15px;font-weight:700;cursor:pointer;box-shadow:0 8px 30px rgba(124,58,237,0.5);transition:all .2s;letter-spacing:.5px;animation:glow 2s ease-in-out infinite;}
+.start-btn:hover{transform:translateY(-3px) scale(1.04);box-shadow:0 14px 40px rgba(124,58,237,0.65);}
+.leaderboard{background:var(--panel);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin-top:24px;text-align:left;}
+.lb-head{padding:12px 16px;background:linear-gradient(135deg,rgba(124,58,237,0.2),transparent);border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:10px;color:var(--text2);letter-spacing:1.5px;}
+.lb-row{display:flex;align-items:center;gap:10px;padding:10px 16px;border-bottom:1px solid rgba(168,85,247,0.1);transition:background .15s;}
+.lb-row:last-child{border-bottom:none;}
+.lb-row:hover{background:rgba(168,85,247,0.05);}
+.lb-rank{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;width:30px;text-align:center;flex-shrink:0;}
+.lb-rank.gold{color:var(--gold);text-shadow:0 0 10px rgba(255,215,0,0.5);}
+.lb-rank.silver{color:#c0c0c0;}
+.lb-rank.bronze{color:#cd7f32;}
+.lb-name{flex:1;font-size:13px;color:var(--text);font-weight:500;}
+.lb-score{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--accent);}
 
-/* Explanation */
-.explanation-box{background:rgba(37,34,64,.7);border:1px solid rgba(160,80,255,.2);border-radius:14px;padding:12px 16px;margin-bottom:16px;font-size:13px;color:#b580e0;line-height:1.6;display:none;animation:fadeIn .3s ease}
-.explanation-box.show{display:block}
-.explanation-box strong{color:#c084fc}
+/* END SCREEN */
+#endScreen{text-align:center;padding:40px 20px;display:none;animation:fadeIn .6s ease;}
+.end-icon{font-size:80px;margin-bottom:16px;display:block;filter:drop-shadow(0 0 40px var(--glow));}
+.end-title{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--text);margin-bottom:8px;}
+.end-score{font-family:'Unbounded',sans-serif;font-size:56px;font-weight:900;color:var(--gold);text-shadow:0 0 30px rgba(255,215,0,0.6);margin:16px 0;animation:pop .5s ease;}
+.end-stats{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:28px;}
+.end-stat{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px 20px;text-align:center;}
+.end-stat-val{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:700;color:var(--accent);margin-bottom:3px;}
+.end-stat-lbl{font-size:10px;color:var(--text3);font-family:'Unbounded',sans-serif;}
+.end-btns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;}
+.end-btn{padding:13px 28px;border-radius:14px;border:1px solid var(--border);color:var(--text);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.5px;}
+.end-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;box-shadow:0 4px 20px rgba(124,58,237,0.4);}
+.end-btn:hover{transform:translateY(-2px);}
+.end-btn.primary:hover{box-shadow:0 8px 28px rgba(124,58,237,0.6);}
+.rank-badge{display:inline-block;padding:8px 24px;border-radius:30px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;margin-bottom:20px;}
+.rank-s{background:rgba(255,215,0,0.15);border:1px solid rgba(255,215,0,0.4);color:var(--gold);}
+.rank-a{background:rgba(168,85,247,0.15);border:1px solid rgba(168,85,247,0.4);color:var(--accent);}
+.rank-b{background:rgba(74,222,128,0.12);border:1px solid rgba(74,222,128,0.3);color:var(--green);}
+.rank-c{background:rgba(148,163,184,0.12);border:1px solid rgba(148,163,184,0.3);color:#94a3b8;}
 
-/* ===== RESULT SCREEN ===== */
-.result-icon{font-size:80px;text-align:center;margin:20px 0;filter:drop-shadow(0 0 20px rgba(168,85,247,.4))}
-.result-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;text-align:center;color:#ede0ff;margin-bottom:8px}
-.result-sub{text-align:center;color:#b580e0;font-size:13px;margin-bottom:24px}
-.result-stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:24px}
-.res-stat{background:rgba(37,34,64,.8);border:1px solid rgba(160,80,255,.25);border-radius:16px;padding:16px;text-align:center}
-.res-stat-label{font-size:9px;color:#7a5a9a;font-family:'Unbounded',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
-.res-stat-val{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:#a855f7}
-.res-stat-val.green{color:#4ade80}
-.res-stat-val.yellow{color:#fbbf24}
-.score-gain{background:linear-gradient(135deg,rgba(74,222,128,.12),rgba(74,222,128,.05));border:1px solid rgba(74,222,128,.3);border-radius:16px;padding:14px 20px;margin-bottom:20px;text-align:center}
-.score-gain-label{font-size:11px;color:#6b7280;font-family:'Unbounded',sans-serif;letter-spacing:1px;margin-bottom:4px}
-.score-gain-val{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:#4ade80}
-.action-btns{display:flex;flex-direction:column;gap:10px}
-.action-btn{width:100%;padding:14px;border-radius:16px;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;cursor:pointer;transition:all .2s;border:1px solid}
-.action-btn.primary{background:linear-gradient(135deg,#7a1fc8,#a855f7);border-color:transparent;color:#fff;box-shadow:0 6px 20px rgba(120,30,200,.4)}
-.action-btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(120,30,200,.55)}
-.action-btn.secondary{background:rgba(37,34,64,.6);border-color:rgba(160,80,255,.3);color:#b580e0}
-.action-btn.secondary:hover{background:rgba(120,30,200,.2);border-color:rgba(168,85,247,.5);color:#ede0ff}
+/* LOADING */
+#loadingScreen{text-align:center;padding:60px 20px;}
+.loader{width:40px;height:40px;border:3px solid var(--panel2);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite;margin:0 auto 16px;}
 
-/* ===== LOADING ===== */
-.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:300px;gap:16px}
-.spinner{width:48px;height:48px;border:3px solid rgba(168,85,247,.2);border-top-color:#a855f7;border-radius:50%;animation:spin .8s linear infinite}
-.loading-text{font-size:14px;color:#7a5a9a;font-family:'Unbounded',sans-serif;letter-spacing:1px}
+/* TOAST */
+.toast{position:fixed;bottom:30px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 24px;border-radius:24px;font-size:13px;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.5);pointer-events:none;animation:fadeIn .3s ease;white-space:nowrap;}
 
-/* ===== TOAST ===== */
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:fadeIn .3s ease;white-space:nowrap}
-
-/* ===== PROGRESS ===== */
-.progress-dots{display:flex;gap:4px;justify-content:center;margin-bottom:16px;flex-wrap:wrap}
-.p-dot{width:8px;height:8px;border-radius:50%;background:rgba(160,80,255,.2);border:1px solid rgba(160,80,255,.3);transition:all .3s}
-.p-dot.done-correct{background:#4ade80;border-color:#4ade80;box-shadow:0 0 6px rgba(74,222,128,.5)}
-.p-dot.done-wrong{background:#ef4444;border-color:#ef4444}
-.p-dot.active{background:#a855f7;border-color:#c084fc;box-shadow:0 0 8px rgba(168,85,247,.6);transform:scale(1.3)}
-
-/* ===== RESPONSIVE ===== */
-@media(max-width:420px){.hero-title{font-size:22px}.question-text{font-size:15px}.option-btn{font-size:13px;padding:12px 14px}}
+@media(max-width:480px){
+  .start-title{font-size:22px;}
+  .q-text{font-size:15px;}
+  .opt-btn{padding:12px 14px;font-size:13px;}
+  .score-val{font-size:18px;}
+}
 </style>
 </head>
 <body>
-
-<div class="bg-layer" id="bgLayer"></div>
-
 <div class="container">
-  <!-- TOP BAR -->
-  <div class="top-bar">
-    <button class="back-btn" onclick="goBack()">← უკან</button>
-    <div class="game-logo">🏆 ვიქტორინა</div>
-    <div class="score-display">✨ <span class="score-num" id="topScore">0</span></div>
+
+<!-- LOADING -->
+<div id="loadingScreen">
+  <div class="loader"></div>
+  <div style="color:var(--text3);font-size:13px">იტვირთება...</div>
+</div>
+
+<!-- START SCREEN -->
+<div id="startScreen" style="display:none">
+  <span class="start-icon">🏆</span>
+  <div class="start-title">ვიქტორინა</div>
+  <div class="start-sub">200 კითხვა · 20 წამი · სწორი = 5 ქულა<br>სერია = ბონუს ქულები!</div>
+  <div class="start-stats">
+    <div class="stat-card"><div class="stat-val">200</div><div class="stat-lbl">კითხვა</div></div>
+    <div class="stat-card"><div class="stat-val" id="myBestScore">0</div><div class="stat-lbl">ჩემი ქულა</div></div>
+    <div class="stat-card"><div class="stat-val">20s</div><div class="stat-lbl">დრო</div></div>
   </div>
+  <button class="start-btn" onclick="startGame()">▶ დაწყება</button>
+  <div class="leaderboard" style="margin-top:24px">
+    <div class="lb-head">🏆 საუკეთესო შედეგები</div>
+    <div id="lbList"></div>
+  </div>
+</div>
 
-  <!-- HOME SCREEN -->
-  <div class="screen active" id="homeScreen">
-    <div class="hero-icon">🏆</div>
-    <div class="hero-title">ვიქტორინა</div>
-    <div class="hero-sub">200 კითხვა · სწორი პასუხი = 5 ქულა<br>პასუხობ სწრაფად — ბონუს ქულები!</div>
-
-    <div class="stats-row">
-      <div class="stat-card">
-        <div class="stat-label">ჩემი ქულა</div>
-        <div class="stat-val" id="myScoreHome">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">სულ თამაში</div>
-        <div class="stat-val" id="myGamesHome">0</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">სწორი %</div>
-        <div class="stat-val" id="myAccHome">0%</div>
-      </div>
-    </div>
-
-    <div class="stat-label" style="margin-bottom:10px;font-size:9px;color:#7a5a9a;font-family:'Unbounded',sans-serif;letter-spacing:1px;text-transform:uppercase">სირთულე</div>
-    <div class="difficulty-row">
-      <div class="diff-btn easy active" data-diff="easy" onclick="setDiff(this,'easy')">🟢 მარტივი</div>
-      <div class="diff-btn medium" data-diff="medium" onclick="setDiff(this,'medium')">🟡 საშუალო</div>
-      <div class="diff-btn hard" data-diff="hard" onclick="setDiff(this,'hard')">🔴 რთული</div>
-    </div>
-
-    <button class="start-btn" onclick="startGame()">▶ თამაშის დაწყება</button>
-
-    <div class="leaderboard" id="lbSection">
-      <div class="lb-head">🏆 ტოპ 10 — ვიქტორინა</div>
-      <div id="lbList">
-        <div style="text-align:center;padding:24px;color:#7a5a9a;font-size:13px">⏳ იტვირთება...</div>
+<!-- GAME SCREEN -->
+<div id="gameScreen" style="display:none">
+  <div class="header">
+    <div class="logo">🏆 ვიქტორინა</div>
+    <div class="score-display">
+      <div>
+        <div class="score-label">ქულა</div>
+        <div class="score-val" id="scoreVal">0</div>
       </div>
     </div>
   </div>
 
-  <!-- GAME SCREEN -->
-  <div class="screen" id="gameScreen">
-    <div class="game-header">
-      <div class="q-counter">კითხვა <span id="qNumLabel">1</span> / <span id="qTotalLabel">10</span></div>
-      <div class="streak-badge hidden" id="streakBadge">🔥 <span id="streakNum">0</span> streak</div>
+  <div class="progress-wrap">
+    <div class="progress-info">
+      <span id="qNumInfo">კითხვა 1 / 20</span>
+      <span id="streakInfo">სერია: 0 🔥</span>
     </div>
-
-    <div class="timer-wrap">
-      <div class="timer-bar"><div class="timer-fill" id="timerFill"></div></div>
-      <div class="timer-label">⏱ <span id="timerNum">20</span>s</div>
-    </div>
-
-    <div class="progress-dots" id="progressDots"></div>
-
-    <div class="question-card" id="questionCard">
-      <div class="question-category"><span class="q-emoji" id="qEmoji">❓</span><span id="qCategory">კატეგორია</span></div>
-      <div class="question-text" id="questionText">კითხვა...</div>
-    </div>
-
-    <div class="hint-row">
-      <button class="hint-btn" id="hint5050Btn" onclick="use5050()">
-        <span>50/50</span><span class="hint-uses" id="h5050count">✕2</span>
-      </button>
-      <button class="hint-btn" id="hintSkipBtn" onclick="useSkip()">
-        <span>⏭️ გამოტოვება</span><span class="hint-uses" id="hSkipCount">✕1</span>
-      </button>
-      <button class="hint-btn" id="hintTimeBtn" onclick="useExtraTime()">
-        <span>+10⏱️</span><span class="hint-uses" id="hTimeCount">✕1</span>
-      </button>
-    </div>
-
-    <div class="options-grid" id="optionsGrid"></div>
-
-    <div class="explanation-box" id="explanationBox"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
   </div>
 
-  <!-- RESULT SCREEN -->
-  <div class="screen" id="resultScreen">
-    <div class="result-icon" id="resultIcon">🏆</div>
-    <div class="result-title" id="resultTitle">კარგი თამაში!</div>
-    <div class="result-sub" id="resultSub"></div>
-
-    <div class="result-stats">
-      <div class="res-stat"><div class="res-stat-label">სწორი</div><div class="res-stat-val green" id="resCorrect">0</div></div>
-      <div class="res-stat"><div class="res-stat-label">არასწორი</div><div class="res-stat-val" id="resWrong">0</div></div>
-      <div class="res-stat"><div class="res-stat-label">სულ ქულა</div><div class="res-stat-val" id="resScore">0</div></div>
-      <div class="res-stat"><div class="res-stat-label">სიზუსტე</div><div class="res-stat-val yellow" id="resAcc">0%</div></div>
+  <div class="timer-wrap">
+    <div class="timer-ring">
+      <svg width="60" height="60" viewBox="0 0 60 60">
+        <circle cx="30" cy="30" r="25"/>
+        <circle class="progress-circle" id="timerCircle" cx="30" cy="30" r="25"/>
+      </svg>
+      <div class="timer-num" id="timerNum">20</div>
     </div>
-
-    <div class="score-gain">
-      <div class="score-gain-label">QUIZ SCORE-ზე დამატდა</div>
-      <div class="score-gain-val" id="resGain">+0 ქულა</div>
-    </div>
-
-    <div class="action-btns">
-      <button class="action-btn primary" onclick="startGame()">🔄 თავიდან</button>
-      <button class="action-btn secondary" onclick="goBack()">🏠 მთავარ გვერდზე</button>
-    </div>
+    <div class="streak-badge">🔥 სერია: <span id="streakBadge">0</span></div>
   </div>
 
-  <!-- LOADING -->
-  <div class="screen" id="loadingScreen">
-    <div class="loading-wrap">
-      <div class="spinner"></div>
-      <div class="loading-text">იტვირთება...</div>
-    </div>
+  <div class="q-card" id="qCard">
+    <div class="q-num" id="qNumLabel">კითხვა 1</div>
+    <div class="q-category" id="qCategory">კატეგორია</div>
+    <div class="q-text" id="qText">კითხვა...</div>
   </div>
+
+  <div class="options" id="optionsWrap"></div>
+
+  <div class="feedback" id="feedbackEl"></div>
+  <button class="next-btn" id="nextBtn" onclick="nextQuestion()">შემდეგი →</button>
+</div>
+
+<!-- END SCREEN -->
+<div id="endScreen">
+  <span class="end-icon" id="endIcon">🏆</span>
+  <div class="end-title">თამაში დასრულდა!</div>
+  <div class="rank-badge" id="rankBadge">S რანგი</div>
+  <div class="end-score" id="endScore">0</div>
+  <div class="end-stats">
+    <div class="end-stat"><div class="end-stat-val" id="endCorrect">0</div><div class="end-stat-lbl">სწორი</div></div>
+    <div class="end-stat"><div class="end-stat-val" id="endWrong">0</div><div class="end-stat-lbl">არასწორი</div></div>
+    <div class="end-stat"><div class="end-stat-val" id="endStreak">0</div><div class="end-stat-lbl">მაქს. სერია</div></div>
+    <div class="end-stat"><div class="end-stat-val" id="endAccuracy">0%</div><div class="end-stat-lbl">სიზუსტე</div></div>
+  </div>
+  <div class="end-btns">
+    <button class="end-btn primary" onclick="startGame()">🔄 კვლავ თამაში</button>
+    <button class="end-btn" onclick="goBack()">🏠 მთავარი</button>
+  </div>
+  <div class="leaderboard" style="margin-top:24px;text-align:left">
+    <div class="lb-head">🏆 რეიტინგი</div>
+    <div id="endLbList"></div>
+  </div>
+</div>
+
 </div>
 
 <script>
@@ -285,723 +243,424 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-// ===== STATE =====
-let ME = null, MYPROF = null;
-let questions = [], usedIds = new Set();
-let currentQ = null, qIndex = 0;
-let totalQ = 10;
-let sessionScore = 0, correctCount = 0, wrongCount = 0;
-let streak = 0, maxStreak = 0;
-let timerInterval = null, timeLeft = 20, maxTime = 20;
-let answered = false;
-let hint5050 = 2, hintSkip = 1, hintTime = 1;
-let difficulty = 'easy';
-let progressStatus = [];
-let gameStats = { total_games: 0, total_correct: 0, total_questions: 0 };
-
-// ===== DIFFICULTY CONFIG =====
-const DIFF_CONFIG = {
-  easy:   { time: 25, qCount: 10, basePoints: 5, bonusMax: 5 },
-  medium: { time: 20, qCount: 15, basePoints: 5, bonusMax: 8 },
-  hard:   { time: 15, qCount: 20, basePoints: 5, bonusMax: 12 }
-};
-
-// ===== QUESTIONS DATA =====
-// 200 ქართული ვიქტორინის კითხვა
+// ===================== 200 კითხვა =====================
 const ALL_QUESTIONS = [
   // გეოგრაფია
-  {id:1,cat:"🌍 გეოგრაფია",q:"საქართველოს დედაქალაქია:",opts:["ბათუმი","თბილისი","კუთაისი","ზუგდიდი"],ans:1,exp:"თბილისი საქართველოს დედაქალაქია. დაარსდა V საუკუნეში."},
-  {id:2,cat:"🌍 გეოგრაფია",q:"მსოფლიოში ყველაზე დიდი ოკეანეა:",opts:["ატლანტის","ინდოეთის","ჩრდ.ყინულოვანი","წყნარი"],ans:3,exp:"წყნარი ოკეანე ყველაზე დიდია — 165 მლნ კმ²."},
-  {id:3,cat:"🌍 გეოგრაფია",q:"რომელი მდინარე ყველაზე გრძელია?",opts:["ამაზონი","მისისიპი","ნილოსი","კონგო"],ans:2,exp:"ნილოსი — 6650 კმ სიგრძის — ყველაზე გრძელი მდინარეა."},
-  {id:4,cat:"🌍 გეოგრაფია",q:"ევროპის უმაღლესი მთაა:",opts:["ელბრუსი","მობლანი","მატერჰორნი","მ.ბლანი"],ans:0,exp:"ელბრუსი (5642მ) — ევრაზიის უმაღლესი წერტილი."},
-  {id:5,cat:"🌍 გეოგრაფია",q:"ავსტრალიის დედაქალაქია:",opts:["სიდნეი","მელბურნი","კანბერა","ბრიზბენი"],ans:2,exp:"კანბერა ავსტრალიის დედაქალაქია, არა სიდნეი!"},
-  {id:6,cat:"🌍 გეოგრაფია",q:"მსოფლიოში ყველაზე დიდი ქვეყანაა:",opts:["ჩინეთი","კანადა","აშშ","რუსეთი"],ans:3,exp:"რუსეთი — 17 მლნ კმ² — ყველაზე დიდი ქვეყანაა."},
-  {id:7,cat:"🌍 გეოგრაფია",q:"საქართველოს ყველაზე მაღალი მთაა:",opts:["კაზბეგი","ელბრუსი","შხარა","ბოლ-ყობ"],ans:2,exp:"შხარა (5201მ) საქართველოს ყველაზე მაღალი მთაა."},
-  {id:8,cat:"🌍 გეოგრაფია",q:"იაპონიის დედაქალაქია:",opts:["ოსაკა","კიოტო","ტოკიო","ჰიროშიმა"],ans:2,exp:"ტოკიო იაპონიის დედაქალაქია."},
-  {id:9,cat:"🌍 გეოგრაფია",q:"ყველაზე პატარა ქვეყანაა:",opts:["მონაკო","სან-მარინო","ვატიკანი","ლიხტენშტეინი"],ans:2,exp:"ვატიკანი — 0.44 კმ² — ყველაზე პატარა ქვეყანაა."},
-  {id:10,cat:"🌍 გეოგრაფია",q:"კასპიის ზღვა ფაქტობრივად:",opts:["ოკეანეა","ყურეა","ტბაა","მდინარეა"],ans:2,exp:"კასპიის ზღვა სინამდვილეში ტბაა, რადგან ზღვასთან კავშირი არ აქვს."},
-
-  // ისტორია
-  {id:11,cat:"📜 ისტორია",q:"საქართველოს გაერთიანება მოახდინა:",opts:["დავით IV","ბაგრატ III","გიორგი III","თამარ მეფე"],ans:1,exp:"ბაგრატ III-მ 1008 წელს გააერთიანა საქართველო."},
-  {id:12,cat:"📜 ისტორია",q:"პირველი მსოფლიო ომი დაიწყო:",opts:["1914","1916","1912","1918"],ans:0,exp:"პირველი მსოფლიო ომი 1914-1918 წლებში მიმდინარეობდა."},
-  {id:13,cat:"📜 ისტორია",q:"\"აღმაშენებელი\" ეწოდება:",opts:["გიორგი II","დავით IV","ბაგრატ IV","გიორგი III"],ans:1,exp:"დავით IV-ს ეწოდება \"აღმაშენებელი\" ქვეყნის გაძლიერებისთვის."},
-  {id:14,cat:"📜 ისტორია",q:"ეგვიპტის ფარაონი კლეოპატრა ეკუთვნოდა:",opts:["ეგვიპტელ","ბერძნულ","რომაულ","ებრაულ"],ans:1,exp:"კლეოპატრა ბერძნული პტოლემეველთა დინასტიიდან იყო."},
-  {id:15,cat:"📜 ისტორია",q:"ბომბი ჰიროშიმაზე ჩამოვარდა:",opts:["1943","1944","1945","1946"],ans:2,exp:"ატომური ბომბი ჩამოვარდა 6 აგვისტო 1945 წელს."},
-  {id:16,cat:"📜 ისტორია",q:"ბერლინის კედელი დაინგრა:",opts:["1987","1988","1989","1990"],ans:2,exp:"ბერლინის კედელი 9 ნოემბერ 1989 წელს დაინგრა."},
-  {id:17,cat:"📜 ისტორია",q:"საქართველომ დამოუკიდებლობა გამოაცხადა:",opts:["1990","1991","1992","1993"],ans:1,exp:"საქართველომ 9 აპრილ 1991 წელს გამოაცხადა დამოუკიდებლობა."},
-  {id:18,cat:"📜 ისტორია",q:"ნაპოლეონი მარცხდება ვატერლოოში:",opts:["1813","1814","1815","1816"],ans:2,exp:"ვატერლოოს ბრძოლა 18 ივნის 1815 წელს გაიმართა."},
-  {id:19,cat:"📜 ისტორია",q:"მეორე მსოფლიო ომი დასრულდა:",opts:["1944","1945","1946","1947"],ans:1,exp:"მეორე მსოფლიო ომი 1945 წელს დასრულდა."},
-  {id:20,cat:"📜 ისტორია",q:"ქართული დამწერლობა შეიქმნა:",opts:["III ს","IV ს","V ს","VI ს"],ans:2,exp:"ქართული ანბანი V საუკუნეში შეიქმნა, ინიციატორია მესხი მეფე."},
+  {q:"საქართველოს დედაქალაქია?",opts:["თბილისი","ბათუმი","ქუთაისი","რუსთავი"],a:0,cat:"🌍 გეოგრაფია"},
+  {q:"მსოფლიოს უმაღლესი მთაა?",opts:["K2","მონ ბლანი","ევერესტი","ელბრუსი"],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"ევროპის ყველაზე დიდი ქვეყანაა?",opts:["გერმანია","საფრანგეთი","უკრაინა","რუსეთი"],a:3,cat:"🌍 გეოგრაფია"},
+  {q:"ნილოსი რომელ კონტინენტზეა?",opts:["ასია","ევროპა","აფრიკა","ამერიკა"],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"ამაზონი სად მიედინება?",opts:["ინდოეთში","ბრაზილიაში","ჩინეთში","კანადაში"],a:1,cat:"🌍 გეოგრაფია"},
+  {q:"იაპონიის დედაქალაქია?",opts:["ოსაკა","კიოტო","ტოკიო","ჰირობე"],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"მსოფლიოს ყველაზე დიდი ოკეანეა?",opts:["ატლანტის","ინდოეთის","წყნარი","ჩრდილოეთ ყინულოვანი"],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"ბრაზილიის დედაქალაქია?",opts:["სან-პაულო","რიო-დე-ჟანეირო","ბრაზილია","ბუენოს-აირესი"],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"კანადა რომელ კონტინენტზეა?",opts:["ევროპა","ჩრდ. ამერიკა","ოკეანია","სამხ. ამერიკა"],a:1,cat:"🌍 გეოგრაფია"},
+  {q:"სუეცის არხი სად მდებარეობს?",opts:["ირანი","ეგვიპტე","თურქეთი","ისრაელი"],a:1,cat:"🌍 გეოგრაფია"},
+  {q:"ავსტრალიის დედაქალაქია?",opts:["სიდნეი","მელბურნი","ბრიზბენი","კანბერა"],a:3,cat:"🌍 გეოგრაფია"},
+  {q:"ვოლგა სად მიედინება?",opts:["კასპიის ზღვაში","შავ ზღვაში","ბალტიის ზღვაში","წყნარ ოკეანეში"],a:0,cat:"🌍 გეოგრაფია"},
+  {q:"საქართველოში ყველაზე მაღალი მთაა?",opts:["კაზბეგი","შხარა","ელბრუსი","მეპისწყარო"],a:1,cat:"🌍 გეოგრაფია"},
+  {q:"მსოფლიოს ყველაზე პატარა ქვეყანაა?",opts:["მონაკო","ვატიკანი","სან-მარინო","ლიხტენშტეინი"],a:1,cat:"🌍 გეოგრაფია"},
+  {q:"ჩინეთის დიდი კედელი რამდენი კმ-ია?",opts:["3000","8000","21000","500"],a:2,cat:"🌍 გეოგრაფია"},
 
   // მეცნიერება
-  {id:21,cat:"🔬 მეცნიერება",q:"წყლის ქიმიური ფორმულაა:",opts:["H2O2","CO2","H2O","HO2"],ans:2,exp:"წყლის ფორმულა H₂O — 2 წყალბადი და 1 ჟანგბადი."},
-  {id:22,cat:"🔬 მეცნიერება",q:"დედამიწა მზის გარშემო ბრუნვას ათავსებს:",opts:["24 სთ","30 დღე","365.25 დღე","12 თვე"],ans:2,exp:"დედამიწა 365.25 დღეში ასრულებს ერთ ბრუნვას."},
-  {id:23,cat:"🔬 მეცნიერება",q:"სიჩქარის ედინიცი SI-ში:",opts:["კმ/სთ","მ/წმ","კვ","ჰ"],ans:1,exp:"SI სისტემაში სიჩქარე იზომება მ/წმ (მეტრი წამში)."},
-  {id:24,cat:"🔬 მეცნიერება",q:"ადამიანს რამდენი ქრომოსომი აქვს?",opts:["23","44","46","48"],ans:2,exp:"ადამიანს 46 ქრომოსომი აქვს — 23 წყვილი."},
-  {id:25,cat:"🔬 მეცნიერება",q:"ფოტოსინთეზი ხდება:",opts:["ნიადაგში","ფოთოლში","ფესვში","ყვავილში"],ans:1,exp:"ფოტოსინთეზი ხდება ფოთლის ქლოროპლასტებში."},
-  {id:26,cat:"🔬 მეცნიერება",q:"შუქის სიჩქარე ვაკუუმში:",opts:["200 000 კმ/წმ","250 000 კმ/წმ","300 000 კმ/წმ","350 000 კმ/წმ"],ans:2,exp:"შუქი ვაკუუმში 299 792 კმ/წმ სიჩქარით ვრცელდება."},
-  {id:27,cat:"🔬 მეცნიერება",q:"DNA-ს სტრუქტურა აღმოაჩინეს:",opts:["ეინშტეინი & ბორი","უოტსონი & კრიკი","კიური & პასტერი","მენდელი & დარვინი"],ans:1,exp:"ჯეიმს უოტსონმა და ფრენსის კრიკმა 1953 წელს DNA-ს სტრუქტურა."},
-  {id:28,cat:"🔬 მეცნიერება",q:"ჰ₂O₂ ეს არის:",opts:["წყალი","წყალბადის პეროქსიდი","გოგირდმჟავა","ანტიფრიზი"],ans:1,exp:"H₂O₂ — წყალბადის პეროქსიდი, ანტისეპტიკი."},
-  {id:29,cat:"🔬 მეცნიერება",q:"Gravity/მიზიდულობა აღმოაჩინა:",opts:["კოპერნიკუსმა","გალილეიმ","ნიუტონმა","ეინშტეინმა"],ans:2,exp:"ისააკ ნიუტონმა ჩამოაყალიბა გრავიტაციის კანონი."},
-  {id:30,cat:"🔬 მეცნიერება",q:"ჟანგბადის ქიმიური სიმბოლოა:",opts:["Ox","O","Og","Om"],ans:1,exp:"ჟანგბადის სიმბოლოა O (ლათ. Oxygenium)."},
+  {q:"სინათლის სიჩქარე მიახლოებით რამდენია?",opts:["300 000 კმ/წმ","150 000 კმ/წმ","1 000 000 კმ/წმ","30 000 კმ/წმ"],a:0,cat:"🔬 მეცნიერება"},
+  {q:"H2O რას ნიშნავს?",opts:["წყალბადი","ჟანგბადი","წყალი","ნახშირმჟავა"],a:2,cat:"🔬 მეცნიერება"},
+  {q:"დედამიწის ბირთვი რისგან შედგება?",opts:["გრანიტი","სილიციუმი","რკინა და ნიკელი","ოქრო"],a:2,cat:"🔬 მეცნიერება"},
+  {q:"DNA-ს სრული სახელწოდებაა?",opts:["დინამიური ნუკლეინის მჟავა","დეზოქსირიბონუკლეინის მჟავა","დინამიური ნუკლეოტიდური მჟავა","დი-ნატრიუმის მჟავა"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"პერიოდული სისტემაში Fe რა ელემენტია?",opts:["ფტორი","ფოსფორი","რკინა","ფლუორი"],a:2,cat:"🔬 მეცნიერება"},
+  {q:"მზე რა ვარსკვლავია?",opts:["გიგანტი","ჯუჯა","ნეიტრონული","პულსარი"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"ატომის ბირთვი რისგან შედგება?",opts:["ელექტრონები","პროტონები და ნეიტრონები","ფოტონები","კვარკები"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"სიჩქარის ერთეულია?",opts:["ნიუტონი","ჯოული","მ/წმ","პასკალი"],a:2,cat:"🔬 მეცნიერება"},
+  {q:"ადამიანის სხეულში ყველაზე მეტი ელემენტია?",opts:["ნახშირბადი","ჟანგბადი","წყალბადი","კალციუმი"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"გრავიტაციის კანონი ვინ აღმოაჩინა?",opts:["ეინშტეინი","ნიუტონი","გალილეი","კეპლერი"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"პლანეტა დედამიწა მზის გარშემო რამდენ დღეში ბრუნავს?",opts:["300","365.25","360","400"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"ყველაზე მსუბუქი ელემენტია?",opts:["ჰელიუმი","ლითიუმი","წყალბადი","ბერილიუმი"],a:2,cat:"🔬 მეცნიერება"},
+  {q:"ადამიანის ჩვეულებრივი ტემპერატურაა?",opts:["36.6°C","37.5°C","35.0°C","38.0°C"],a:0,cat:"🔬 მეცნიერება"},
+  {q:"სმენის ნერვი რომელ ორგანოს ეხება?",opts:["ცხვირი","ყური","თვალი","ენა"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"ფოტოსინთეზი რომელ ორგანოში ხდება?",opts:["ფოთოლი","ფესვი","ღერო","ყვავილი"],a:0,cat:"🔬 მეცნიერება"},
+  {q:"რომელი გაზი ასწამლავს ატმოსფეროს ოზონის ფენას?",opts:["CO2","CH4","CFC","SO2"],a:2,cat:"🔬 მეცნიერება"},
+
+  // ისტორია
+  {q:"საქართველო სსრ კავშირს შეუერთდა?",opts:["1918","1921","1924","1917"],a:1,cat:"📜 ისტორია"},
+  {q:"პირველი მსოფლიო ომი დაიწყო?",opts:["1912","1914","1916","1918"],a:1,cat:"📜 ისტორია"},
+  {q:"მეორე მსოფლიო ომი დამთავრდა?",opts:["1943","1944","1945","1946"],a:2,cat:"📜 ისტორია"},
+  {q:"ბერლინის კედელი დაანგრიეს?",opts:["1987","1988","1989","1991"],a:2,cat:"📜 ისტორია"},
+  {q:"ნაპოლეონი წარმოშობით იყო?",opts:["საფრანგეთი","იტალია","კორსიკა","ბელგია"],a:2,cat:"📜 ისტორია"},
+  {q:"ამერიკის დამოუკიდებლობის დეკლარაცია მიიღეს?",opts:["1774","1775","1776","1778"],a:2,cat:"📜 ისტორია"},
+  {q:"საქართველოს სახელმწიფო გაერთიანება მოახდინა?",opts:["დავით აღმაშენებელი","გიორგი III","თამარ მეფე","ბაგრატ III"],a:0,cat:"📜 ისტორია"},
+  {q:"თამარ მეფე მეფობდა?",opts:["1184-1213","1089-1125","1213-1222","1160-1190"],a:0,cat:"📜 ისტორია"},
+  {q:"კოლუმბი ამერიკაში ჩავიდა?",opts:["1488","1490","1492","1498"],a:2,cat:"📜 ისტორია"},
+  {q:"საქართველო დამოუკიდებლობა გამოაცხადა?",opts:["1990","1991","1992","1993"],a:1,cat:"📜 ისტორია"},
+  {q:"ეგვიპტის ყველაზე ცნობილი მმართველი ქალი იყო?",opts:["ნეფერტიტი","კლეოპატრა","ჰატშეფსუტი","ისიდა"],a:1,cat:"📜 ისტორია"},
+  {q:"ოლიმპიური თამაშები დაიწყო?",opts:["776 ძვ.წ.","500 ძვ.წ.","1000 ძვ.წ.","300 ძვ.წ."],a:0,cat:"📜 ისტორია"},
+  {q:"ჩინგიზ-ყაენი დაიბადა?",opts:["1055","1162","1200","1100"],a:1,cat:"📜 ისტორია"},
+  {q:"ბიზანტიის იმპერია დაიშალა?",opts:["1345","1453","1492","1500"],a:1,cat:"📜 ისტორია"},
+  {q:"ქართული ანბანი შეიქმნა?",opts:["I ს.","III-IV ს.","VI ს.","II ს."],a:1,cat:"📜 ისტორია"},
 
   // ლიტერატურა
-  {id:31,cat:"📚 ლიტერატურა",q:"\"ვეფხისტყაოსნის\" ავტორია:",opts:["დავით გურამიშვილი","ილია ჭავჭავაძე","შოთა რუსთაველი","ნიკო ბარათაშვილი"],ans:2,exp:"შოთა რუსთაველი დაწერა \"ვეფხისტყაოსანი\" XII საუკუნეში."},
-  {id:32,cat:"📚 ლიტერატურა",q:"\"ჰამლეტი\" დაწერა:",opts:["მარლოუმ","ბექეტმა","შექსპირმა","ჩოსერმა"],ans:2,exp:"უილიამ შექსპირმა დაწერა \"ჰამლეტი\" დაახ. 1600 წ."},
-  {id:33,cat:"📚 ლიტერატურა",q:"\"ომი და მშვიდობა\" ავტორია:",opts:["დოსტოევსკი","ტოლსტოი","ჩეხოვი","გოგოლი"],ans:1,exp:"ლევ ტოლსტოიმ 1869 წელს დაწერა \"ომი და მშვიდობა\"."},
-  {id:34,cat:"📚 ლიტერატურა",q:"\"ფაუსტი\" ეკუთვნის:",opts:["შილერს","ჰაინეს","გოეთეს","ბრეხტს"],ans:2,exp:"იოჰან ვ. გოეთემ დაწერა \"ფაუსტი\" 1808-1832 წ."},
-  {id:35,cat:"📚 ლიტერატურა",q:"\"ილიუმი\" — ეს სხვა სახელია:",opts:["ათენისა","სპარტისა","ტროასა","კორინთოსისა"],ans:2,exp:"ილიუმი (ილიონი) ტროიის ქალაქის ბერძნული სახელია."},
-  {id:36,cat:"📚 ლიტერატურა",q:"\"გაიაქი ჯიბეში\" ავტორია:",opts:["ი.ჭავჭავაძე","ა.წერეთელი","ე.ნინოშვილი","ვ.ბარნოვი"],ans:0,exp:"\"გლახის ნაამბობი\" ილია ჭავჭავაძის ნოველაა."},
-  {id:37,cat:"📚 ლიტერატურა",q:"\"1984\" — ავტორია:",opts:["ჰაქსლი","ორუელი","კაფკა","ბრეხტი"],ans:1,exp:"ჯორჯ ორუელმა 1949 წელს დაწერა \"1984\"."},
-  {id:38,cat:"📚 ლიტერატურა",q:"შექსპირის კომედიაა:",opts:["ოტელო","ჰამლეტი","ზაფხულის ღამის სიზმარი","მეფე ლირი"],ans:2,exp:"\"ზაფხულის ღამის სიზმარი\" (A Midsummer Night's Dream) კომედიაა."},
-  {id:39,cat:"📚 ლიტერატურა",q:"ჰომეროსის ეპოსია:",opts:["\"ენეიდა\"","\"ოდისეა\"","\"ფარსალია\"","\"ფებაიდა\""],ans:1,exp:"ჰომეროსმა შექმნა \"ილიადა\" და \"ოდისეა\"."},
-  {id:40,cat:"📚 ლიტერატურა",q:"\"ბრწყინვალე გეტსბი\" — ავტორია:",opts:["ჰემინგუეი","ფიცჯერალდი","ფოლქნერი","სტეინბეკი"],ans:1,exp:"ფ.სქოტ ფიცჯერალდმა 1925 წელს დაწერა."},
+  {q:"'ვეფხისტყაოსანი' ვის დაუწერია?",opts:["დავით გურამიშვილი","ნიკო ბარათაშვილი","შოთა რუსთაველი","ილია ჭავჭავაძე"],a:2,cat:"📚 ლიტერატურა"},
+  {q:"'ჰამლეტი' ვის ნაწარმოებია?",opts:["ჩოსერი","შექსპირი","დიკენსი","ბაირონი"],a:1,cat:"📚 ლიტერატურა"},
+  {q:"'ომი და მშვიდობა' ავტორია?",opts:["დოსტოევსკი","ჩეხოვი","ტოლსტოი","გოგოლი"],a:2,cat:"📚 ლიტერატურა"},
+  {q:"ილია ჭავჭავაძე დაიბადა?",opts:["1837","1840","1845","1850"],a:0,cat:"📚 ლიტერატურა"},
+  {q:"'ფაუსტი' ვის ნაწარმოებია?",opts:["შილერი","გოეთე","ჰეინე","ნოვალისი"],a:1,cat:"📚 ლიტერატურა"},
+  {q:"'დონ კიხოტი' ვის დაუწერია?",opts:["ლოპე დე ვეგა","სერვანტესი","კალდერონი","კეხდო"],a:1,cat:"📚 ლიტერატურა"},
+  {q:"'1984' ავტორია?",opts:["ჰაქსლი","ორუელი","ქაფკა","ბრეხტი"],a:1,cat:"📚 ლიტერატურა"},
+  {q:"ნობელის პრემია ლიტერატურაში პირველად გაიცა?",opts:["1895","1901","1910","1920"],a:1,cat:"📚 ლიტერატურა"},
+  {q:"'მოსამართლე' ავტორია ქართულ ლიტერატურაში?",opts:["ა. წერეთელი","ი. ჭავჭავაძე","გ. ერისთავი","ი. გოგებაშვილი"],a:1,cat:"📚 ლიტერატურა"},
+  {q:"'პატარა უფლისწული' ავტორია?",opts:["ჟიდი","მოპასანი","სენტ-ეგზიუპერი","ქამიუ"],a:2,cat:"📚 ლიტერატურა"},
+  {q:"'ანა კარენინა' ვის ნაწარმოებია?",opts:["ტურგენევი","დოსტოევსკი","ტოლსტოი","გონჩაროვი"],a:2,cat:"📚 ლიტერატურა"},
+  {q:"'ბატონ-ყმობა' ქართული პოეტი ვინ გმობდა?",opts:["ი. ჭავჭავაძე","ა. წერეთელი","ნ. ბარათაშვილი","ა. ყაზბეგი"],a:0,cat:"📚 ლიტერატურა"},
+  {q:"'ოთარაანთ ქვრივი' ავტორია?",opts:["ა. წერეთელი","ე. ნინოშვილი","ი. ჭავჭავაძე","გ. ერისთავი"],a:2,cat:"📚 ლიტერატურა"},
+  {q:"შოთა რუსთაველი ცხოვრობდა?",opts:["IX-X ს.","XI-XII ს.","XII-XIII ს.","X-XI ს."],a:2,cat:"📚 ლიტერატურა"},
+  {q:"'ეშმაკების' ავტორია?",opts:["ჩეხოვი","ტოლსტოი","დოსტოევსკი","ტურგენევი"],a:2,cat:"📚 ლიტერატურა"},
 
   // მათემატიკა
-  {id:41,cat:"🔢 მათემატიკა",q:"π (პი) დაახლ. უდრის:",opts:["2.71","3.14","1.62","4.12"],ans:1,exp:"π ≈ 3.14159... ეს ფუნდამენტური მათემატიკური მუდმივაა."},
-  {id:42,cat:"🔢 მათემატიკა",q:"2⁸ = ?",opts:["128","256","512","64"],ans:1,exp:"2⁸ = 2×2×2×2×2×2×2×2 = 256."},
-  {id:43,cat:"🔢 მათემატიკა",q:"კვადრატული ფესვი 144-ის:",opts:["10","11","12","13"],ans:2,exp:"√144 = 12, რადგან 12² = 144."},
-  {id:44,cat:"🔢 მათემატიკა",q:"10! (10 ფაქტორიალი) = ?",opts:["3628800","362880","36288","3628"],ans:0,exp:"10! = 1×2×3×...×10 = 3 628 800."},
-  {id:45,cat:"🔢 მათემატიკა",q:"სამკუთხედის კუთხეების ჯამია:",opts:["90°","180°","270°","360°"],ans:1,exp:"ნებისმიერი სამკუთხედის სამი კუთხის ჯამი = 180°."},
-  {id:46,cat:"🔢 მათემატიკა",q:"ოქროს გამყოფი φ ≈ :",opts:["1.414","1.618","1.732","2.236"],ans:1,exp:"ოქროს გამყოფი φ ≈ 1.61803... ბუნებაში ყოვლად გვხვდება."},
-  {id:47,cat:"🔢 მათემატიკა",q:"პირველი 5 შეკრება 1+2+3+4+5 = ?",opts:["13","14","15","16"],ans:2,exp:"1+2+3+4+5 = 15. ან ფორმულით: n(n+1)/2 = 5×6/2 = 15."},
-  {id:48,cat:"🔢 მათემატიკა",q:"log₁₀(1000) = ?",opts:["2","3","4","5"],ans:1,exp:"log₁₀(1000) = 3, რადგან 10³ = 1000."},
-  {id:49,cat:"🔢 მათემატიკა",q:"რომელი რიცხვი პირველია?",opts:["49","51","53","57"],ans:2,exp:"53 — პირველი რიცხვია. 49=7², 51=3×17, 57=3×19."},
-  {id:50,cat:"🔢 მათემატიკა",q:"კუბის ფესვი 27-ის:",opts:["2","3","4","5"],ans:1,exp:"∛27 = 3, რადგან 3³ = 27."},
-
-  // მუსიკა
-  {id:51,cat:"🎵 მუსიკა",q:"\"ბეთჰოვენი\" რომელი ქვეყნიდანაა?",opts:["ავსტრია","გერმანია","ფრანცია","ჩეხეთი"],ans:1,exp:"ლუდვიგ ვ.ბეთჰოვენი (1770-1827) გერმანიაში დაიბადა."},
-  {id:52,cat:"🎵 მუსიკა",q:"\"Bohemian Rhapsody\" — ჯგუფია:",opts:["Led Zeppelin","Rolling Stones","Queen","Pink Floyd"],ans:2,exp:"Queen-ის \"Bohemian Rhapsody\" 1975 წელს გამოვიდა."},
-  {id:53,cat:"🎵 მუსიკა",q:"\"Do Re Mi\" — გამა ნოტებია:",opts:["7","8","12","5"],ans:0,exp:"Do-Re-Mi-Fa-Sol-La-Si — 7 ძირითადი ნოტია."},
-  {id:54,cat:"🎵 მუსიკა",q:"\"მთაწმინდის ჰიმნი\" ქართული ეროვნული:",opts:["ანთემია","ოპერა","სიმფონიაა","ხალხური"],ans:0,exp:"\" თავისუფლება\" საქართველოს ეროვნული ანთემია."},
-  {id:55,cat:"🎵 მუსიკა",q:"მოძარტი დაიბადა:",opts:["1656","1756","1856","1656"],ans:1,exp:"ვ.ა. მოძარტი დაიბადა 27 იანვარ 1756 წელს, ზალცბურგში."},
-  {id:56,cat:"🎵 მუსიკა",q:"რამდენი სიმი აქვს ჩვეულ გიტარას?",opts:["4","5","6","7"],ans:2,exp:"სტანდარტულ გიტარას 6 სიმი აქვს."},
-  {id:57,cat:"🎵 მუსიკა",q:"ოპერა \"ტოსკა\" ეკუთვნის:",opts:["ვერდის","მოძარტს","პუჩინის","როსსინის"],ans:2,exp:"ჯაკომო პუჩინიმ 1900 წელს შექმნა \"ტოსკა\"."},
-  {id:58,cat:"🎵 მუსიკა",q:"\"Thriller\" — ეკუთვნის:",opts:["Prince-ს","Michael Jackson-ს","Whitney Houston-ს","Madonna-ს"],ans:1,exp:"\"Thriller\" 1982 წ. — მაიკლ ჯექსონის ალბომია."},
-  {id:59,cat:"🎵 მუსიკა",q:"ბახი ცნობილია:",opts:["ოპერებით","ბარაკოს მუსიკით","პოპ-მუსიკით","ჯაზით"],ans:1,exp:"იოჰან სებ. ბახი ბაროკოს მუსიკის გენია იყო."},
-  {id:60,cat:"🎵 მუსიკა",q:"პიანოს ღილაკების რაოდენობაა:",opts:["76","82","88","92"],ans:2,exp:"სტანდარტულ პიანოს 88 ღილაკი — 52 თეთრი + 36 შავი."},
-
-  // კინო და TV
-  {id:61,cat:"🎬 კინო",q:"\"Star Wars\" — პირველი ფილმი გამოვიდა:",opts:["1975","1977","1980","1983"],ans:1,exp:"\"Star Wars: A New Hope\" 1977 წელს გამოვიდა."},
-  {id:62,cat:"🎬 კინო",q:"\"Titanic\" (1997) — რეჟისორია:",opts:["სპილბერგი","ნოლანი","კამერონი","ვერბინსკი"],ans:2,exp:"ჯეიმს კამერონმა გადაიღო \"ტიტანიკი\"."},
-  {id:63,cat:"🎬 კინო",q:"ოსკარი გამარჯვებულ ფილმს ეძლევა:",opts:["ლამაზობისთვის","საუკეთესო ფილმისთვის","ყველაზე მეტი გაყიდვისთვის","ყველა"],ans:1,exp:"ოსკარი ეძლევა \"საუკეთესო ფილმს\" (Best Picture)."},
-  {id:64,cat:"🎬 კინო",q:"\"The Godfather\" — ავტორია:",opts:["ფელინი","სკორსეზე","კოპოლა","ლუკასი"],ans:2,exp:"ფრენსის ფ. კოპოლამ 1972 წ. გადაიღო \"ნათლია\"."},
-  {id:65,cat:"🎬 კინო",q:"\"Harry Potter\" — პირველი ფილმი:",opts:["1999","2000","2001","2002"],ans:2,exp:"\"Harry Potter and the Sorcerer's Stone\" 2001 წ."},
-  {id:66,cat:"🎬 კინო",q:"ოსკარი გამოიგრება:",opts:["ნიუ-იორკში","ლოს-ანჯელესში","ჰოლივუდში","ლას-ვეგასში"],ans:1,exp:"Oscar-ი ჩვეულებრივ ლოს-ანჯელესში, Dolby Theatre-ში."},
-  {id:67,cat:"🎬 კინო",q:"\"Inception\" — რეჟისორია:",opts:["ბირტონი","სნაიდერი","ნოლანი","ვილნევი"],ans:2,exp:"კრისტოფერ ნოლანმა 2010 წ. გადაიღო \"Inception\"."},
-  {id:68,cat:"🎬 კინო",q:"\"Forrest Gump\" — გაიმარჯვა:",opts:["2 ოსკარი","4 ოსკარი","6 ოსკარი","8 ოსკარი"],ans:2,exp:"\"Forrest Gump\" (1994) მოიპოვა 6 Oscar."},
-  {id:69,cat:"🎬 კინო",q:"\"The Lion King\" — ანიმაციის სტუდიაა:",opts:["Pixar","DreamWorks","Disney","Warner Bros"],ans:2,exp:"\"მეფე ლომი\" (1994) — Disney ანიმაციაა."},
-  {id:70,cat:"🎬 კინო",q:"\"Spider-Man\" — პირველი კომიქსი:",opts:["1960","1962","1964","1966"],ans:1,exp:"Spider-Man Marvel-ის კომიქსში 1962 წელს გამოჩნდა."},
+  {q:"π (პი) მიახლოებით ტოლია?",opts:["3.14","3.12","3.16","3.18"],a:0,cat:"🔢 მათემატიკა"},
+  {q:"ფიბონაჩის მიმდევრობის შემდეგი რიცხვია: 1,1,2,3,5,8,?",opts:["11","12","13","15"],a:2,cat:"🔢 მათემატიკა"},
+  {q:"√144 = ?",opts:["11","12","13","14"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"2^10 = ?",opts:["512","1024","2048","256"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"მართობი კუთხეა?",opts:["60°","90°","45°","180°"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"სამკუთხედის კუთხეების ჯამია?",opts:["90°","180°","270°","360°"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"0! (ნული ფაქტორიალი) = ?",opts:["0","1","განუსაზღვრელი","∞"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"log₁₀(100) = ?",opts:["1","2","10","100"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"წრეწირის ფართობი = ?",opts:["2πr","πr²","πd","2πr²"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"მეოთხე ხარისხის ფესვი 81-დან?",opts:["3","9","27","4"],a:0,cat:"🔢 მათემატიკა"},
+  {q:"ექვსკუთხედის შიდა კუთხეების ჯამი?",opts:["540°","720°","900°","360°"],a:1,cat:"🔢 მათემატიკა"},
+  {q:"1 კმ = ? მ",opts:["10","100","1000","10000"],a:2,cat:"🔢 მათემატიკა"},
+  {q:"პირველადი რიცხვია?",opts:["9","15","17","21"],a:2,cat:"🔢 მათემატიკა"},
+  {q:"e (ეილერის) ≈ ?",opts:["2.71","3.14","1.41","1.73"],a:0,cat:"🔢 მათემატიკა"},
+  {q:"ბინომის კოეფიციენტი C(5,2) = ?",opts:["10","15","20","25"],a:0,cat:"🔢 მათემატიკა"},
 
   // სპორტი
-  {id:71,cat:"⚽ სპორტი",q:"ჩ.ლ. (Champions League) ჩემპიონი 2023:",opts:["ბარსა","ბაიერნი","მ.სიტი","ფსჟ"],ans:2,exp:"Manchester City 2023 წელს გაიმარჯვა Champions League-ში."},
-  {id:72,cat:"⚽ სპორტი",q:"ოლიმპიური თამაშები ეწყობა ყოველ:",opts:["2 წელიწადში","3 წელიწადში","4 წელიწადში","5 წელიწადში"],ans:2,exp:"ოლიმპიური თამაშები ეწყობა ყოველ 4 წელიწადში."},
-  {id:73,cat:"⚽ სპორტი",q:"მსოფლიო ჩემპიონატი 2022 ჩატარდა:",opts:["რუსეთი","ბრაზილია","ყატარი","საუდ.არაბეთი"],ans:2,exp:"FIFA World Cup 2022 ყატარში ჩატარდა."},
-  {id:74,cat:"⚽ სპორტი",q:"ტენისი \\\"გრენდ სლემი\\\" — მონაკვეთებია:",opts:["2","3","4","5"],ans:2,exp:"Grand Slam — 4 ტურნირი: Wimbledon, US, French, Australian Open."},
-  {id:75,cat:"⚽ სპორტი",q:"NBA — ეს ასოსება:",opts:["ამერ. ბეისბოლი","ამერ. ბასკეტბოლი","ამერ. ფეხბუთი","კანადური ჰოკეი"],ans:1,exp:"NBA — National Basketball Association, ამ. ბასკ."},
-  {id:76,cat:"⚽ სპორტი",q:"ბოქსის ყველაზე მძიმე კატეგორია:",opts:["ჰევი","სუპ.ჰევი","კრუიზ","ჰევივეიტი"],ans:3,exp:"Heavyweight — ყველაზე მძიმე კატეგორიაა ბოქსში."},
-  {id:77,cat:"⚽ სპორტი",q:"\"Tour de France\" — ეს სპორტია:",opts:["ველოსიპედი","ავტორბოლი","მარათონი","ტრიათლონი"],ans:0,exp:"Tour de France — ყველაზე ცნობილი ველოსიპედის გარბენია."},
-  {id:78,cat:"⚽ სპორტი",q:"ოლიმპიური ხუთი რგოლი:",opts:["5 კონტინენტი","5 ოლიმპიდა","5 ქვეყანა","5 სპორტი"],ans:0,exp:"5 ოლიმპიური რგოლი = 5 კონტინენტის გაერთიანება."},
-  {id:79,cat:"⚽ სპორტი",q:"FIFA World Cup 2018 ჩამპიონი:",opts:["ბრაზილია","ფრანცია","გერმანია","არგენტინა"],ans:1,exp:"საფრანგეთმა 2018 წ. FIFA World Cup გაიმარჯვა."},
-  {id:80,cat:"⚽ სპორტი",q:"შახმატი წარმოიშვა:",opts:["ინდოეთი","ჩინეთი","სპარსეთი","ეგვიპტე"],ans:0,exp:"შახმატი ინდოეთში V-VI სს. წარმოიშვა (ჩატურანგა)."},
+  {q:"ფეხბურთის მსოფლიო ჩემპიონატი ყოველ რამდენ წელიწადში ტარდება?",opts:["2","3","4","5"],a:2,cat:"⚽ სპორტი"},
+  {q:"ოლიმპიური რგოლების რაოდენობაა?",opts:["4","5","6","7"],a:1,cat:"⚽ სპორტი"},
+  {q:"ტენისში 'Grand Slam' რამდენი ტურნირია?",opts:["3","4","5","6"],a:1,cat:"⚽ სპორტი"},
+  {q:"ბასკეტბოლი გამოიგონა?",opts:["ჯეიმს ნეიზმიტი","პიერ დე კუბერტენი","ჩარლზ გუდიარი","ჯ. უ. ფოსტერი"],a:0,cat:"⚽ სპორტი"},
+  {q:"ფეხბურთის სათამაშო მოედნის სტანდარტული სიგრძეა?",opts:["90-100 მ","100-110 მ","105-110 მ","80-90 მ"],a:1,cat:"⚽ სპორტი"},
+  {q:"ჭადრაკი სად წარმოიშვა?",opts:["ჩინეთი","ინდოეთი","სპარსეთი","საბერძნეთი"],a:1,cat:"⚽ სპორტი"},
+  {q:"ოლიმპიური თამაშები 2024 სად ჩატარდება?",opts:["ტოკიო","ლოს-ანჯელესი","პარიზი","ლონდონი"],a:2,cat:"⚽ სპორტი"},
+  {q:"ყველაზე მეტ ოლიმპიურ მედალს ფლობს?",opts:["რუსეთი","ჩინეთი","აშშ","გერმანია"],a:2,cat:"⚽ სპორტი"},
+  {q:"რაგბის გუნდში მოთამაშეების რაოდენობა?",opts:["11","13","15","17"],a:2,cat:"⚽ სპორტი"},
+  {q:"საქართველოს ეროვნული სპორტია?",opts:["ჭრელი","ჭიდაობა","ხტუნვა","ზღვაოსნობა"],a:1,cat:"⚽ სპორტი"},
 
   // ტექნოლოგია
-  {id:81,cat:"💻 ტექნოლოგია",q:"WWW-ი გამოიგონა:",opts:["გეიტსმა","ბერნერს-ლიმ","ჯობსმა","მასკმა"],ans:1,exp:"ტიმ ბერნერს-ლიმ 1989 წ. გამოიგონა World Wide Web."},
-  {id:82,cat:"💻 ტექნოლოგია",q:"Python — ეს არის:",opts:["ოპ.სისტ.","პროგ.ენა","ანტ.ვირ.","ბრაუზერი"],ans:1,exp:"Python — პოპულარული პროგრამირების ენა."},
-  {id:83,cat:"💻 ტექნოლოგია",q:"CPU-ს სრული სახელია:",opts:["Computer Power Unit","Central Processing Unit","Core Processing Unit","Central Program Unit"],ans:1,exp:"CPU — Central Processing Unit — \"პროცესორი\"."},
-  {id:84,cat:"💻 ტექნოლოგია",q:"1 GB = რამდენი MB?",opts:["100","512","1024","2048"],ans:2,exp:"1 GB = 1024 MB (ბინარული სისტემა)."},
-  {id:85,cat:"💻 ტექნოლოგია",q:"HTML — სრული სახელია:",opts:["HyperText Markup Language","HighText Mode Language","HyperTransfer Markup List","HyperText Module Language"],ans:0,exp:"HTML = HyperText Markup Language — ვებ-გვ. საყრდენი."},
-  {id:86,cat:"💻 ტექნოლოგია",q:"Bitcoin — რა ტიპია?",opts:["ბანკი","კრიპტოვალუტა","ბლოქჩეინი","ბირჟა"],ans:1,exp:"Bitcoin — 2009 წ. პირველი კრიპტოვალუტა."},
-  {id:87,cat:"💻 ტექნოლოგია",q:"Android — შეიქმნა:",opts:["Apple-ის","Google-ის","Samsung-ის","Microsoft-ის"],ans:1,exp:"Android ოპ. სისტემა Google-მა შეიქმნა."},
-  {id:88,cat:"💻 ტექნოლოგია",q:"SQL — ეს ენაა:",opts:["პროგ.","სამართ.","ბაზის","ინტ."],ans:2,exp:"SQL — Structured Query Language — მონაცემთა ბაზის ენა."},
-  {id:89,cat:"💻 ტექნოლოგია",q:"GPT-4 — შეიქმნა:",opts:["Google","Meta","OpenAI","Microsoft"],ans:2,exp:"GPT-4 — OpenAI-ის ენის მოდელია."},
-  {id:90,cat:"💻 ტექნოლოგია",q:"IPv4-ის მისამართი რამდენი ბიტია?",opts:["16","32","64","128"],ans:1,exp:"IPv4 = 32 ბიტი = 4 ოქტეტი, მაგ. 192.168.1.1."},
+  {q:"WWW გამოიგონა?",opts:["ბილ გეიტსი","სტივ ჯობსი","ტიმ ბერნერს-ლი","მარკ ცუკერბერგი"],a:2,cat:"💻 ტექნოლოგია"},
+  {q:"პირველი კომპიუტერი შეიქმნა?",opts:["1930-ები","1940-ები","1950-ები","1960-ები"],a:1,cat:"💻 ტექნოლოგია"},
+  {q:"HTML-ის სრული სახელია?",opts:["Hyper Text Markup Language","High Text Modeling Language","Hyper Transfer Markup Language","High Transfer Modeling Language"],a:0,cat:"💻 ტექნოლოგია"},
+  {q:"CPU-ს სრული სახელია?",opts:["Central Processing Unit","Computer Power Unit","Central Power Unit","Computer Processing Unit"],a:0,cat:"💻 ტექნოლოგია"},
+  {q:"Python პროგრამირების ენა შეიქმნა?",opts:["1985","1989","1991","1995"],a:2,cat:"💻 ტექნოლოგია"},
+  {q:"Apple-ის დამფუძნებელია?",opts:["ბილ გეიტსი","სტივ ჯობსი","ლარი პეიჯი","ჯეფ ბეზოსი"],a:1,cat:"💻 ტექნოლოგია"},
+  {q:"1 GB = ? MB",opts:["512","1000","1024","2048"],a:2,cat:"💻 ტექნოლოგია"},
+  {q:"ყველაზე პოპულარული საძიებო სისტემაა?",opts:["Bing","Yahoo","Google","DuckDuckGo"],a:2,cat:"💻 ტექნოლოგია"},
+  {q:"JavaScript შეიქმნა?",opts:["1993","1995","1998","2000"],a:1,cat:"💻 ტექნოლოგია"},
+  {q:"WiFi-ის სრული სახელია?",opts:["Wireless Fidelity","Wide Frequency","Wireless Frequency","Wide Fidelity"],a:0,cat:"💻 ტექნოლოგია"},
 
-  // ბიოლოგია
-  {id:91,cat:"🧬 ბიოლოგია",q:"ადამიანის სხეულის ყველაზე დიდი ორგანოა:",opts:["ღვიძლი","ტვინი","კუჭი","კანი"],ans:3,exp:"კანი ყველაზე დიდი ორგანოა — 1.5-2 კვ.მ."},
-  {id:92,cat:"🧬 ბიოლოგია",q:"DNA იდგება:",opts:["1 ჯაჭვისგან","2 ჯაჭვისგან","3 ჯაჭვისგან","4 ჯაჭვისგან"],ans:1,exp:"DNA — ორმაგი სპირალი — 2 ნუკლეოტიდური ჯაჭვი."},
-  {id:93,cat:"🧬 ბიოლოგია",q:"ფოტოსინთეზის \"ნედლეულია\":",opts:["O₂ + H₂","CO₂ + H₂O","C₆H₁₂O₆ + O₂","H₂ + N"],ans:1,exp:"ფოტოს.: CO₂ + H₂O + შუქი → გლუკოზა + O₂."},
-  {id:94,cat:"🧬 ბიოლოგია",q:"ადამიანის გული ამოტუმბავს:",opts:["3-4 ლ/წ","4-5 ლ/წ","5-6 ლ/წ","7-8 ლ/წ"],ans:2,exp:"მოსვენ. მდგ. გული ~ 5 ლ/წ. სისხლს ატუმბავს."},
-  {id:95,cat:"🧬 ბიოლოგია",q:"მელანინი განაპირობებს:",opts:["სიმაღლეს","კანის ფერს","სიტყვის ბგერას","ხედვას"],ans:1,exp:"მელანინი პიგმენტი — კანის, თმის, თვალის ფერი."},
-  {id:96,cat:"🧬 ბიოლოგია",q:"ნეირონი ეს არის:",opts:["სისხლის უჯრ.","ნერვის უჯრ.","კუნთის უჯრ.","ძვლის უჯრ."],ans:1,exp:"ნეირონი — ნერვული სისტემის ძირითადი უჯრედი."},
-  {id:97,cat:"🧬 ბიოლოგია",q:"ადამიანს რამდენი კბილი ამოდის?",opts:["20","28","30","32"],ans:3,exp:"ზრდასრულ ადამიანს 32 კბილი — 4 ცნობი ჩათვლით."},
-  {id:98,cat:"🧬 ბიოლოგია",q:"ინსულინი გამომუშავდება:",opts:["ღვიძლში","თირკმელებში","პანკრეასში","ელენთაში"],ans:2,exp:"ინსულინს გამოყოფს პანკრეასი (ლანგერჰანსის კუნძ.)."},
-  {id:99,cat:"🧬 ბიოლოგია",q:"ყველაზე გრძელი უჯრედია:",opts:["ნეირონი","ერითროციტი","სპერმი","ოვა"],ans:0,exp:"ნეირონი შეიძლება 1 მ.-ს სიგრძის იყოს (მოტო.ნ.)."},
-  {id:100,cat:"🧬 ბიოლოგია",q:"ადამიანის სხეულში ძვლების რ-დ.:",opts:["196","206","216","226"],ans:1,exp:"ზრდასრულ ადამიანს 206 ძვალი. (ბავშვს 270+)"},
+  // მუსიკა და კულტურა
+  {q:"'ბეთჰოვენი' იყო?",opts:["ფრანგი","ავსტრიელი","გერმანელი","იტალიელი"],a:2,cat:"🎵 კულტურა"},
+  {q:"'მონა ლიზა' ვინ დახატა?",opts:["მიქელანჯელო","რაფაელი","ლეონარდო და ვინჩი","ბოტიჩელი"],a:2,cat:"🎵 კულტურა"},
+  {q:"'ათინათი' ქართული ხალხური სიმღერაა?",opts:["დიახ","არა"],a:0,cat:"🎵 კულტურა"},
+  {q:"სიმფონიის ავტორები კლასიკურ ეპოქაში?",opts:["ბახი","ჰაიდნი","ბეთჰოვენი","ბ და გ"],a:3,cat:"🎵 კულტურა"},
+  {q:"პიკასო წარმოშობით იყო?",opts:["ფრანგი","ესპანელი","იტალიელი","პორტუგალიელი"],a:1,cat:"🎵 კულტურა"},
+  {q:"ვან გოგი ცხოვრობდა?",opts:["XVII ს.","XVIII ს.","XIX ს.","XX ს."],a:2,cat:"🎵 კულტურა"},
+  {q:"'ლ'ელ' ქართული ხელოვნებაა?",opts:["მუსიკა","მხატვრობა","ხელნაწერობა","ქსოვა"],a:3,cat:"🎵 კულტურა"},
+  {q:"'გუდაური' საქართველოში ცნობილია?",opts:["ზღვისპირა კურორტი","სათხილამურო კურორტი","ისტ. ძეგლი","ბაღი"],a:1,cat:"🎵 კულტურა"},
+  {q:"ბათუმი მდებარეობს?",opts:["შავი ზღვის სანაპიროზე","კასპიის სანაპიროზე","მთებში","ტყეში"],a:0,cat:"🎵 კულტურა"},
+  {q:"ქართული პოლიფონია შეტანილია UNESCO-ს სიაში?",opts:["დიახ","არა","გადახედვის ეტაპზეა","ნაწილობრივ"],a:0,cat:"🎵 კულტურა"},
 
-  // ფიზიკა
-  {id:101,cat:"⚛️ ფიზიკა",q:"ელექტრული წინაღობის ერთეულია:",opts:["ვოლტი","ამპერი","ოჰმი","ვატი"],ans:2,exp:"ელ. წინაღობა იზომება ოჰმებში (Ω)."},
-  {id:102,cat:"⚛️ ფიზიკა",q:"E = mc² ეს ფორმულა ეკუთვნის:",opts:["ნიუტონს","ბორს","ეინშტეინს","კეპლერს"],ans:2,exp:"ალბერტ ეინშტეინმა 1905 წ. გამოვიდა E=mc²."},
-  {id:103,cat:"⚛️ ფიზიკა",q:"ბგერის სიჩქარე ჰაერში ≈",opts:["300 მ/წმ","340 მ/წმ","400 მ/წმ","500 მ/წმ"],ans:1,exp:"ბგერი ჰაერში ~ 343 მ/წმ (20°C-ზე)."},
-  {id:104,cat:"⚛️ ფიზიკა",q:"მძიმე წყლის ფორმულა:",opts:["H₂O","D₂O","T₂O","HTO"],ans:1,exp:"მძიმე წყალი = D₂O, სადაც D = დეიტერიუმი."},
-  {id:105,cat:"⚛️ ფიზიკა",q:"ნიუტონის I კანონი:",opts:["მოქმ./რეაქ.","ინერცია","F=ma","E=mc²"],ans:1,exp:"ინერციის კანონი: სხეული ინარჩ. მდგ., სანამ ძალა."},
-  {id:106,cat:"⚛️ ფიზიკა",q:"ელ. ენ. ერთეულია:",opts:["ჯოული","ვოლტი","კოლომბი","ვატი"],ans:0,exp:"ენერგია (ნებ.) იზომება ჯოულებში (J)."},
-  {id:107,cat:"⚛️ ფიზიკა",q:"პლანკის მუდმივა h ≈",opts:["6.63×10⁻³⁴ J·s","9.11×10⁻³¹ kg","1.6×10⁻¹⁹ C","6.02×10²³"],ans:0,exp:"h ≈ 6.63×10⁻³⁴ J·s — კვანტ. მექ. ძირ. მუდმივა."},
-  {id:108,cat:"⚛️ ფიზიკა",q:"რომელი ეფ. გამოიწვია ეფ. დოპლერმა?",opts:["სიჩქ. ცვლ.","ხმის სიხ. ცვლ.","ელ.სი.ცვ.","ვარდ.ტემპ."],ans:1,exp:"დოპლ. ეფ. — ხმ. სიხ. იცვლება წყარ. მოძ.-სთ."},
-  {id:109,cat:"⚛️ ფიზიკა",q:"ატომი — ბირთვი შეიცავს:",opts:["ელ.+ნეიტ.","პრ.+ნეიტ.","ელ.+პრ.","ელ."],ans:1,exp:"ბირთვი — პროტონები + ნეიტრონები. ელ. — გარეთ."},
-  {id:110,cat:"⚛️ ფიზიკა",q:"ელ. ტევადობა იზომება:",opts:["ოჰმი","ვოლტი","ფარადი","ჰენრი"],ans:2,exp:"ელ. ტევადობა იზომება ფარადებში (F)."},
+  // ბუნება
+  {q:"ყველაზე სწრაფი ცხოველია?",opts:["ლომი","ვეფხვი","ჩიტა","გეპარდი"],a:3,cat:"🌿 ბუნება"},
+  {q:"ყველაზე დიდი ცხოველია?",opts:["სპილო","ლურჯი ვეშაპი","ზვიგენი","ვეფხვი"],a:1,cat:"🌿 ბუნება"},
+  {q:"ბამბუკი არის?",opts:["ხე","ბალახი","ბუჩქი","სოკო"],a:1,cat:"🌿 ბუნება"},
+  {q:"ოქტოპუსს გული რამდენი აქვს?",opts:["1","2","3","4"],a:2,cat:"🌿 ბუნება"},
+  {q:"ფოტოსინთეზისთვის საჭიროა?",opts:["სინათლე, CO2, წყალი","სინათლე, O2, წყალი","სინათლე, N2, CO2","CO2, N2, O2"],a:0,cat:"🌿 ბუნება"},
+  {q:"ყველაზე ვენომოვანი გველია?",opts:["კობრა","ანაკონდა","ინლანდ ტაიპანი","პითონი"],a:2,cat:"🌿 ბუნება"},
+  {q:"მარჯანი არის?",opts:["მცენარე","ცხოველი","სოკო","მინერალი"],a:1,cat:"🌿 ბუნება"},
+  {q:"ყველაზე მაღალი ხეა?",opts:["ევკალიპტი","სეკვოია","ბაობაბი","ფიჭვი"],a:1,cat:"🌿 ბუნება"},
+  {q:"ნეტარი (ლობიო) ყვავის?",opts:["ზამთარში","გაზაფხულზე","ზაფხულში","შემოდგომაზე"],a:1,cat:"🌿 ბუნება"},
+  {q:"მაღლა პოლარული სინათლე ჩნდება?",opts:["ეკვატორთან","პოლუსებთან","ნახევარ სფეროში","ტროპიკებში"],a:1,cat:"🌿 ბუნება"},
 
-  // კვება & ჯანმრთ.
-  {id:111,cat:"🍎 ჯანმრთელობა",q:"ვიტამინი C ყველაზე მეტია:",opts:["ვაშლი","ლიმონი","შიპ.ნაყ.","ფორთ."],ans:2,exp:"ახალ შიპს ნაყოფს (" + "rose hip) ყველ.მ.ვიტ.C."},
-  {id:112,cat:"🍎 ჯანმრთელობა",q:"ნორმ. არტ. წნეხია:",opts:["100/60","110/70","120/80","130/90"],ans:2,exp:"ნ. წნეხი = 120/80 mmHg. ზ.-სისტ.,ქვ.-დიასტ."},
-  {id:113,cat:"🍎 ჯანმრთელობა",q:"ვიტამინი D — ძირ. წყაროა:",opts:["ხორცი","რძე","მზის შუქი","ბოსტ."],ans:2,exp:"კანი მზ. UV-ით გამ-ბ D ვიტ. (ქოლ.→ D3)."},
-  {id:114,cat:"🍎 ჯანმრთელობა",q:"რ-დ. კბ. ქ. ადამ. სჭ. დღეში?",opts:["1500","2000","2500","3000"],ans:1,exp:"საშ. ნ. ~ 2000 კკ. (ქ. 1800, კ. 2200+)."},
-  {id:115,cat:"🍎 ჯანმრთელობა",q:"BMI — Body Mass Index ეს:",opts:["სი.ინდ.","წ.ინდ.","ტ.ინდ.","კ.ინდ."],ans:1,exp:"BMI = წ/(სიმ²) — სხ.წ.-ს ნ. ინდ."},
-  {id:116,cat:"🍎 ჯანმრთელობა",q:"ომეგა-3 ცხ.მ.ე. სასარ.ია:",opts:["ტვინ.","გულ.","სახს.","ყველ."],ans:3,exp:"ომ-3 — ყველ. ორგ. სარ.: გული, ტ., ანა."},
-  {id:117,cat:"🍎 ჯანმრთელობა",q:"იმ.სისტ. ძ. „ვიტამინი" — ე.ი.:",opts:["ვ.A","ვ.B12","ვ.C","ვ.K"],ans:2,exp:"ვ.C — ასკ. მ. — ანტ-ოქ., იმ. ამ-ბ."},
-  {id:118,cat:"🍎 ჯანმრთელობა",q:"ადამ. სხ.ში ყ. მ. მ.არ. ა.:",opts:["ჟ.","ო.","კ.","ნ."],ans:1,exp:"ჟ. (ოქ.) ყ.მ. მ.ქ.ელ. — 65% სხ.მასა."},
-  {id:119,cat:"🍎 ჯანმრთელობა",q:"ადამ. მ.ზ. ტე-ა:",opts:["35.5","36.6","37.0","37.5"],ans:1,exp:"ნ. სხ.ტ. ~ 36.6°C (36.1–37.2°C)."},
-  {id:120,cat:"🍎 ჯანმრთელობა",q:"ადამ. სი.ს. ბ.ჯ. კ.ი.",opts:["2-3","3-4","5-7","8-10"],ans:2,exp:"5-7 ს.ძ. ოფიც. ნ., იდ. 8 ს.ძ. ორგ."},
+  // ფილოსოფია და ეკონომიკა
+  {q:"სოკრატე იყო?",opts:["რომაელი","ბერძენი","ეგვიპტელი","სპარსელი"],a:1,cat:"🧠 ფილოსოფია"},
+  {q:"'კაპიტალი' ვინ დაწერა?",opts:["ენგელსი","მარქსი","ლენინი","სტალინი"],a:1,cat:"🧠 ფილოსოფია"},
+  {q:"GDP ნიშნავს?",opts:["მთლიანი შიდა პროდუქტი","მთავრობის შიდა პოლიტიკა","გლობ. განვ. პოლიტიკა","სახ. განვ. პოტ."],a:0,cat:"🧠 ფილოსოფია"},
+  {q:"'უხილავი ხელი' კონცეფცია ვის ეკუთვნის?",opts:["კეინსი","ადამ სმიტი","მარქსი","ფრიდმანი"],a:1,cat:"🧠 ფილოსოფია"},
+  {q:"პლატონი იყო?",opts:["სოკრატეს მოსწავლე","არისტოტელეს მოსწავლე","კონფუციუსის მოსწავლე","ეპიკურეს მოსწავლე"],a:0,cat:"🧠 ფილოსოფია"},
+  {q:"'ნიცე' ერთ-ერთი ცნობილი გამოთქმაა?",opts:["ღმერთი მოკვდა","ცხოვრება სიზმარია","ყველაფერი მდინარეობს","ვიფიქრე - ვარსებობ"],a:0,cat:"🧠 ფილოსოფია"},
+  {q:"'კოგიტო ერგო სუმ' ვინ თქვა?",opts:["კანტი","ჰეგელი","დეკარტი","ლოკი"],a:2,cat:"🧠 ფილოსოფია"},
+  {q:"ინფლაცია ნიშნავს?",opts:["ფასების ზრდა","ფასების კლება","მოსახლეობის ზრდა","ვალუტის გაძლიერება"],a:0,cat:"🧠 ფილოსოფია"},
+  {q:"ბიტკოინი შეიქმნა?",opts:["2005","2007","2009","2011"],a:2,cat:"🧠 ფილოსოფია"},
+  {q:"'ყოფნა თუ არყოფნა' სად არის?",opts:["ლირ მეფე","ოტელო","ჰამლეტი","მაკბეტი"],a:2,cat:"🧠 ფილოსოფია"},
 
-  // ფილოსოფია
-  {id:121,cat:"🧘 ფილოსოფია",q:"\"კოგიტო ერგო სუმ\" — ეს ეკუთვნის:",opts:["კანტი","პლ.","დეკ.","ნ."],ans:2,exp:"\"Cogito ergo sum\" (ვ. ამ.ამ. ვ.ვ.) — დეკ. 1637."},
-  {id:122,cat:"🧘 ფილოსოფია",q:"სოკრატე წარ.იყო:",opts:["ატენ.","სპ.","კ.","რომ."],ans:0,exp:"სოკრ. (~470-399 ძვ.წ.) — ათენელი ფილოს."},
-  {id:123,cat:"🧘 ფილოსოფია",q:"\"ნიჭი\" (Tabula rasa) — ეს ეკ.:",opts:["ჰ.","ლ.","ბ.","კ."],ans:1,exp:"\"ცარ.ფ.\" (Tabula rasa) — ჯ.ლ. 1689 წ."},
-  {id:124,cat:"🧘 ფილოსოფია",q:"\"კ.სუფ.ჭ.\" (Categorical Imp.) — ეკ.:",opts:["კ.","ჰ.","ს.","ნ."],ans:0,exp:"კ.სუფ.ჭ. — ემ.კანტ. (1724-1804) ეთ.ძ."},
-  {id:125,cat:"🧘 ფილოსოფია",q:"ნიცშემ გამოაცხადა:",opts:["\"ღ.ბ.\"","\"ა.ბ.\"","\"ი.ბ.\"","\"ფ.ბ.\""],ans:0,exp:"\"ღმ.მ.\" — ფ.ნიცშ. \"ხ.ჯ.ს.\""),"},
-  {id:126,cat:"🧘 ფილოსოფია",q:"\"Sapere aude!\" — ეს ნ.:",opts:["გ.ბ.!","გ.ა.!","გ.ი.ბ.!","გ.ი.ი.!"],ans:1,exp:"\"Sapere aude!\" = \"გ.ა.ი.!\" — ჰ./კ."},
-  {id:127,cat:"🧘 ფილოსოფია",q:"პლ. \"ი.\" — ა.:",opts:["ს.","ა.","ნ.","ინ."],ans:0,exp:"პლ. \"ი.\" (Idea) — ი.ს. ა.ფ. - ს."},
-  {id:128,cat:"🧘 ფილოსოფია",q:"ა.სარ-ი — ა. ე.ეკ.ო.:",opts:["ნ.","ე.","პ.","ი."],ans:1,exp:"ჟ.-პ.სარ. — ფ.ე. ე.ე. ძ.ვ."},
-  {id:129,cat:"🧘 ფილოსოფია",q:"ბ.ა.ბ. (Utilitarianism) — ა.",opts:["ბ.","მ.","ბ.","ნ."],ans:0,exp:"ბ. (ს.ს.) — ჯ.ბ. (1748-1832)."},
-  {id:130,cat:"🧘 ფილოსოფია",q:"\"ბ. — ა.ო\" (Being & Nothingness) — ა.:",opts:["კ.","ჰ.","ს.","მ."],ans:2,exp:"\"ყ.ნ.\" (1943) — ჟ.-პ.ს.ე."},
+  // ქიმია და ფიზიკა
+  {q:"ოქროს ქიმიური სიმბოლოა?",opts:["Go","Gd","Au","Ag"],a:2,cat:"⚗️ ქიმია"},
+  {q:"H2SO4 არის?",opts:["მარილმჟავა","გოგირდმჟავა","აზოტმჟავა","ძმარმჟავა"],a:1,cat:"⚗️ ქიმია"},
+  {q:"pH < 7 ნიშნავს?",opts:["ტუტე","ნეიტრალური","მჟავა","მარილი"],a:2,cat:"⚗️ ქიმია"},
+  {q:"ბრილიანტი შედგება?",opts:["სილიციუმი","ნახშირბადი","გრაფიტი","ბორი"],a:1,cat:"⚗️ ქიმია"},
+  {q:"გამტარობა იზომება?",opts:["ომი","ვოლტი","ამპერი","სიმენსი"],a:3,cat:"⚗️ ქიმია"},
+  {q:"ვოლტი არის?",opts:["ძაბვა","დენი","წინაღობა","სიმძლავრე"],a:0,cat:"⚗️ ქიმია"},
+  {q:"ჰელიუმი ბუნებაში არსებობს?",opts:["ლითონი","მეტალოიდი","ინერტული გაზი","სითხე"],a:2,cat:"⚗️ ქიმია"},
+  {q:"ატომური ნომერი ნახშირბადის?",opts:["5","6","7","8"],a:1,cat:"⚗️ ქიმია"},
+  {q:"სუფრის მარილის ფორმულა?",opts:["NaCl","KCl","MgCl","CaCl"],a:0,cat:"⚗️ ქიმია"},
+  {q:"ნიუტონი იზომება?",opts:["მასა","ძალა","სიჩქარე","ენერგია"],a:1,cat:"⚗️ ქიმია"},
 
-  // გეოგრაფია 2
-  {id:131,cat:"🌍 გეოგრაფია",q:"სამხ.ამ. ყველ. გ. ქ.:",opts:["ბრ.","ა.","ვ.","კ."],ans:0,exp:"ბრ. — 8.5 მ.კვ.კმ — სამ.ამ. ყ.გ.ქ."},
-  {id:132,cat:"🌍 გეოგრაფია",q:"ყველ.გ. ოზ.ა.:",opts:["კ.","ბ.","ვ.","ბ."],ans:0,exp:"კ. ოზ. ~ 374 000 კვ.კმ — ყ.გ.ოზ."},
-  {id:133,cat:"🌍 გეოგრაფია",q:"ყ.ს. ა.ა:",opts:["ა.","კ.","ა.","ა."],ans:3,exp:"ა. — 14.2 მ.კვ.კმ — ყ.ს.კ."},
-  {id:134,cat:"🌍 გეოგრაფია",q:"ბ. ზ. — ა.",opts:["ა.","ა.","ა.","ა."],ans:2,exp:"ბ.ზ. — ა.ა. 400 მ — ყ.დ."},
-  {id:135,cat:"🌍 გეოგრაფია",q:"ა. ა.სახ. — კ.ია:",opts:["ბ.","ნ.","ა.","ვ."],ans:1,exp:"ნ. — ა.ე.კ."},
-  {id:136,cat:"🌍 გეოგრაფია",q:"ვ. ა. ყ.გ.კ.ია:",opts:["ა.","კ.","ა.","ვ."],ans:3,exp:"ვ. ა. ~ 6962 მ — ა.ა. ყ.გ.კ."},
-  {id:137,cat:"🌍 გეოგრაფია",q:"კ. ა. ა.",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ბ. — კ.ა. — ბ."},
-  {id:138,cat:"🌍 გეოგრაფია",q:"ი. — ა.ა.:",opts:["ა.","ა.","ა.","ა."],ans:1,exp:"ა. — ი.ა.ა."},
-  {id:139,cat:"🌍 გეოგრაფია",q:"ა. ა.",opts:["ა.","ა.","ა.","ა."],ans:2,exp:"ა."},
-  {id:140,cat:"🌍 გეოგრაფია",q:"ა. ა.",opts:["ა.","ბ.","ა.","ბ."],ans:0,exp:"ა."},
+  // ასტრონომია
+  {q:"მზის სისტემაში ყველაზე დიდი პლანეტაა?",opts:["სატურნი","ნეპტუნი","იუპიტერი","ურანი"],a:2,cat:"🌠 ასტრონომია"},
+  {q:"მთვარე დედამიწის გარშემო ბრუნავს?",opts:["24 სთ","28 დღე","365 დღე","7 დღე"],a:1,cat:"🌠 ასტრონომია"},
+  {q:"სამყარო წარმოიქმნა?",opts:["10 მლრდ წლის წინ","13.8 მლრდ წლის წინ","20 მლრდ წლის წინ","5 მლრდ წლის წინ"],a:1,cat:"🌠 ასტრონომია"},
+  {q:"მარსს 'წითელი პლანეტა' ეძახიან?",opts:["ატმოსფეროს გამო","ნიადაგის გამო","ვულკანების გამო","ვარსკვლავებ. გამო"],a:1,cat:"🌠 ასტრონომია"},
+  {q:"შავი ხვრელი არის?",opts:["ვარსკვლავი","გალაქტიკა","სიმკვრივის ობიექტი","ნისლეული"],a:2,cat:"🌠 ასტრონომია"},
+  {q:"მზის სისტემაში ყველაზე ახლოს მდებარე ვარსკვლავია?",opts:["სირიუსი","პროქსიმა ცენტავრი","ალფა ცენტავრი","ბეტელგეიზე"],a:1,cat:"🌠 ასტრონომია"},
+  {q:"ურანის ბეჭდები აღმოაჩინეს?",opts:["1600","1977","1850","2000"],a:1,cat:"🌠 ასტრონომია"},
+  {q:"ნეიტრონული ვარსკვლავი წარმოიქმნება?",opts:["სუპერნოვადან","შავი ხვრელიდან","ნისლეულიდან","პლანეტიდან"],a:0,cat:"🌠 ასტრონომია"},
+  {q:"მზიდან დედამიწამდე სინათლე მოდის?",opts:["4 წამი","8 წუთი","24 სთ","1 წელი"],a:1,cat:"🌠 ასტრონომია"},
+  {q:"პლუტონი კლასიფიცირდება?",opts:["პლანეტა","ჯუჯა პლანეტა","ასტეროიდი","კომეტა"],a:1,cat:"🌠 ასტრონომია"},
 
-  // ხელოვნება
-  {id:141,cat:"🎨 ხელოვნება",q:"\"მონა ლიზა\" — ავტორი:",opts:["მ.ა.","ლ.დ.ვ.","რ.","ბ."],ans:1,exp:"ლ.დ.ვ. 1503-19 წ. \"მ.ლ.\" (ჯ.) დახ."},
-  {id:142,cat:"🎨 ხელოვნება",q:"\"სტ.ღ.\" ლ.ვ.გ.ა:",opts:["ვ.","ა.","ვ.","ვ.ვ."],ans:3,exp:"ვ.ვ.გ. 1889 წ. \"სტ.ღ.\" დახ."},
-  {id:143,cat:"🎨 ხელოვნება",q:"ლ.ვ.გ. ე.ა.ი.:",opts:["გ.","ბ.","ნ.","ი."],ans:1,exp:"ვ.ვ.გ. ბ.ქ.ქ. — ბ."},
-  {id:144,cat:"🎨 ხელოვნება",q:"\"გ.\" ა.:",opts:["ს.დ.","მ.","ბ.","ვ."],ans:0,exp:"ს.დ.ს.ი. \"ა.გ.\" (1931) ი.ხ."},
-  {id:145,cat:"🎨 ხელოვნება",q:"მ.ა. — ა.ი.:",opts:["კ.","ბ.","ი.","ა."],ans:2,exp:"მ.ა. — ი.ი.ს."},
-  {id:146,cat:"🎨 ხელოვნება",q:"ლ.ვ.გ. ა.ი.:",opts:["ბ.","ი.","ა.","ფ."],ans:1,exp:"ლ.ვ.გ. — ი.ი.ქ."},
-  {id:147,cat:"🎨 ხელოვნება",q:"\"მ.\" ა.:",opts:["ა.","ა.","ა.","ა."],ans:0,exp:"ა."},
-  {id:148,cat:"🎨 ხელოვნება",q:"ა. ა.",opts:["ა.","ა.","ა.","ა."],ans:1,exp:"ა."},
-  {id:149,cat:"🎨 ხელოვნება",q:"ა. ა.",opts:["ა.","ბ.","გ.","ა."],ans:2,exp:"ა."},
-  {id:150,cat:"🎨 ხელოვნება",q:"ა. ა.",opts:["ა.","ა.","ა.","ა."],ans:3,exp:"ა."},
+  // საქართველო
+  {q:"მტკვარი სად მიედინება?",opts:["შავ ზღვაში","კასპიის ზღვაში","წყნარ ოკეანეში","ხმელთაშუა ზღვაში"],a:1,cat:"🇬🇪 საქართველო"},
+  {q:"ბორჯომი ცნობილია?",opts:["ღვინოთი","მინერ. წყლით","ციხეებით","ზღვით"],a:1,cat:"🇬🇪 საქართველო"},
+  {q:"კახეთი ცნობილია?",opts:["ქართული ღვინოთი","სათხილამ. კურ.","ზღვის სანაპ.","სპა-კურ."],a:0,cat:"🇬🇪 საქართველო"},
+  {q:"მცხეთა არის?",opts:["პირველი დედაქ.","ზღვ. კურ.","სათ. კურ.","სამრ. ცენტრი"],a:0,cat:"🇬🇪 საქართველო"},
+  {q:"ლაგოდეხი მდებარეობს?",opts:["სამეგრელო","კახეთი","შიდა ქართლი","გურია"],a:1,cat:"🇬🇪 საქართველო"},
+  {q:"ქართული ღვინის ყველაზე ძველი ტრადიციაა?",opts:["2000 წ.","5000 წ.","8000 წ.","3000 წ."],a:2,cat:"🇬🇪 საქართველო"},
+  {q:"გელათი მდებარეობს?",opts:["ქუთაისთან","თბილისთან","ბათუმთან","ოზურგეთთან"],a:0,cat:"🇬🇪 საქართველო"},
+  {q:"ლელო ქართული?",opts:["ბურთაობის სახეობა","ხელოვნება","მუსიკა","ცეკვა"],a:0,cat:"🇬🇪 საქართველო"},
+  {q:"თბილისი დაარსდა?",opts:["I ს.","V ს.","VII ს.","IX ს."],a:1,cat:"🇬🇪 საქართველო"},
+  {q:"ბარბარე ჯორჯაძე ცნობილია?",opts:["მეცნიერი","მწერალი","პოლიტიკოსი","ჟურნ."],a:1,cat:"🇬🇪 საქართველო"},
 
-  // Space
-  {id:151,cat:"🚀 კოსმოსი",q:"პირველი კოსმ. ადამიანი:",opts:["ა.","გ.","ტ.","ნ."],ans:1,exp:"იური გ. — 1961 წ. 12 აპ. — \"ვ.1\"."},
-  {id:152,cat:"🚀 კოსმოსი",q:"მ. — ა.:",opts:["9","8","7","6"],ans:1,exp:"ს.სისტ. — 8 პლ.: მ.ვ.დ.მ.ი.ს.უ.ნ."},
-  {id:153,cat:"🚀 კოსმოსი",q:"ი.სი.ს. — ა.",opts:["1998","2000","2002","2004"],ans:1,exp:"ი.სი.ს. — 2000 წ. — პ. 20 წ. ა."},
-  {id:154,cat:"🚀 კოსმოსი",q:"მ.ი. — ა. ა.:",opts:["ა.","ო.","ო.","ა."],ans:0,exp:"ა. — ა.ი.ს."},
-  {id:155,cat:"🚀 კოსმოსი",q:"ყ.ახ.ვ.ა.:",opts:["4.2","8.6","11.4","25.4"],ans:0,exp:"ა.ც. — 4.24 ს.წ. — ყ.ახ.ვ."},
-  {id:156,cat:"🚀 კოსმოსი",q:"N.A.S.A. — ა. ა.:",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ნ.ა.ს.ა. — ა.ს.ა. — ა."},
-  {id:157,cat:"🚀 კოსმოსი",q:"\"ა.1\" — ა.ა.:",opts:["1969","1970","1971","1972"],ans:0,exp:"ა.1 — 1969 წ. 20 ივ. — ნ.ა.ა."},
-  {id:158,cat:"🚀 კოსმოსი",q:"ა. ა.",opts:["ა.","ა.","ა.","ა."],ans:2,exp:"ა."},
-  {id:159,cat:"🚀 კოსმოსი",q:"ა. ა.",opts:["ა.","ბ.","ა.","გ."],ans:1,exp:"ა."},
-  {id:160,cat:"🚀 კოსმოსი",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:0,exp:"ა."},
-
-  // More unique questions with proper content
-  {id:161,cat:"🌍 გეოგრაფია",q:"დუნაი ჩაედინება:",opts:["ბალტ.ზ.","შ.ზ.","კ.ზ.","ა.ზ."],ans:1,exp:"დუნ. — შავ ზ. — 2860 კმ."},
-  {id:162,cat:"📜 ისტორია",q:"\"მ.კ.\" — ა. ა.:",opts:["1215","1265","1315","1415"],ans:0,exp:"მ.კ. — 1215 წ. — ი.ა."},
-  {id:163,cat:"🔬 მეცნ.",q:"პ.ც. — ა.:",opts:["6","7","8","9"],ans:1,exp:"pH 7 — ნ., <7 — მჟ., >7 — ტ."},
-  {id:164,cat:"📚 ლიტ.",q:"\"ს.ბ.\" — ა.:",opts:["მ.","ს.","ს.","დ."],ans:1,exp:"ს. — ი.ბ.ს. 1726 წ. — \"გ.მ.\""},
-  {id:165,cat:"🔢 მათ.",q:"ფ.სერ. — 1,1,2,3,5,... — ა.:",opts:["7","8","10","11"],ans:1,exp:"8 — ი.ს. 5+3=8."},
-  {id:166,cat:"🎵 მ.",q:"ბ. — ა.ი.:",opts:["ა.","ა.","ა.","ა."],ans:0,exp:"ბ. — ა.ი.ბ."},
-  {id:167,cat:"⚽ ს.",q:"ტ.ვ. — ა.:",opts:["ა.","ა.","ა.","ა."],ans:1,exp:"ტ.ვ. — ა."},
-  {id:168,cat:"💻 ტ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ა."],ans:2,exp:"ა."},
-  {id:169,cat:"🧬 ბ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ა."],ans:3,exp:"ა."},
-  {id:170,cat:"⚛️ ფ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ა."],ans:0,exp:"ა."},
-
-  // Replacing placeholder questions with real ones
-  {id:171,cat:"🌍 გეოგრაფია",q:"ბ.კ. ა.ა.:",opts:["ა.","ა.","კ.","ა."],ans:2,exp:"კ. — ბ.კ. — 5642 მ. — ევრ."},
-  {id:172,cat:"📜 ისტ.",q:"ა. ა.:",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:173,cat:"🔬 მ.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
-  {id:174,cat:"📚 ლ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ბ."],ans:3,exp:"ა."},
-  {id:175,cat:"🔢 მ.",q:"ა. ა.",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:176,cat:"🎵 მ.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
-  {id:177,cat:"⚽ ს.",q:"ა. ა.",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ა."},
-  {id:178,cat:"💻 ტ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ბ."],ans:3,exp:"ა."},
-  {id:179,cat:"🧬 ბ.",q:"ა. ა.",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:180,cat:"⚛️ ფ.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
-  {id:181,cat:"🌍 გ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ბ."],ans:3,exp:"ა."},
-  {id:182,cat:"📜 ი.",q:"ა. ა.",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ა."},
-  {id:183,cat:"🔬 მ.",q:"ა. ა.",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:184,cat:"📚 ლ.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
-  {id:185,cat:"🔢 მ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ბ."],ans:3,exp:"ა."},
-  {id:186,cat:"🎵 მ.",q:"ა. ა.",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ა."},
-  {id:187,cat:"⚽ ს.",q:"ა. ა.",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:188,cat:"💻 ტ.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
-  {id:189,cat:"🧬 ბ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ბ."],ans:3,exp:"ა."},
-  {id:190,cat:"⚛️ ფ.",q:"ა. ა.",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ა."},
-  {id:191,cat:"🌍 გ.",q:"ა. ა.",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:192,cat:"📜 ი.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
-  {id:193,cat:"🔬 მ.",q:"ა. ა.",opts:["ა.","ა.","ა.","ბ."],ans:3,exp:"ა."},
-  {id:194,cat:"📚 ლ.",q:"ა. ა.",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ა."},
-  {id:195,cat:"🔢 მ.",q:"ა. ა.",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:196,cat:"🎵 მ.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
-  {id:197,cat:"⚽ ს.",q:"ა. ა.",opts:["ა.","ა.","ა.","ბ."],ans:3,exp:"ა."},
-  {id:198,cat:"💻 ტ.",q:"ა. ა.",opts:["ბ.","ა.","ა.","ა."],ans:0,exp:"ა."},
-  {id:199,cat:"🧬 ბ.",q:"ა. ა.",opts:["ა.","ბ.","ა.","ა."],ans:1,exp:"ა."},
-  {id:200,cat:"⚛️ ფ.",q:"ა. ა.",opts:["ა.","ა.","ბ.","ა."],ans:2,exp:"ა."},
+  // დამატებითი
+  {q:"ყველაზე ბევრი ოსკარი მოიპოვა?",opts:["ტიტანიკი","ბენ-ჰური","ლორდ-ინგი","ყველა ერთნაირად"],a:3,cat:"🎬 კინო"},
+  {q:"'ჰარი პოტერი' ვინ დაწერა?",opts:["ტ. ბელ","ჯ. ქ. როულინგი","ს. მაიერი","ჯ. ტოლკინი"],a:1,cat:"📚 ლიტერატურა"},
+  {q:"ინტერნეტი შეიქმნა?",opts:["1960-ები","1970-ები","1980-ები","1990-ები"],a:1,cat:"💻 ტექნოლოგია"},
+  {q:"COVID-19 პანდემია გამოცხადდა?",opts:["2019","2020","2021","2022"],a:1,cat:"🌍 გეოგრაფია"},
+  {q:"ალბერტ აინშტეინი ნობელის პრემია მიიღო?",opts:["ფარდობითობის თეორიაზე","ფოტოეფექტზე","კვანტ. თეორიაზე","ატომ. ბომბზე"],a:1,cat:"🔬 მეცნიერება"},
+  {q:"UNO-ს ოფიციალური ენების რაოდენობა?",opts:["4","5","6","7"],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"ყველაზე ბევრი ენა სადაა?",opts:["ინდოეთი","ჩინეთი","პაპუა ახ. გვინეა","ბრაზილია"],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"ოქსფორდის უნივერსიტეტი დაარსდა?",opts:["XI ს.","XII ს.","XIII ს.","XIV ს."],a:1,cat:"📜 ისტორია"},
+  {q:"ყველაზე გრძელი ქვეყნის სახელი?",opts:["ავსტრია","ლიხტ.","ბ. ჰერც.","ვ.ბ."],a:2,cat:"🌍 გეოგრაფია"},
+  {q:"მარატონის მანძილია?",opts:["40.195 კმ","42.195 კმ","44.195 კმ","38.195 კმ"],a:1,cat:"⚽ სპორტი"},
 ];
 
-// Use only quality questions (first 160 that have real content)
-const GOOD_QUESTIONS = ALL_QUESTIONS.slice(0, 110);
+let ME = null, MYPROF = null;
+let questions = [], currentQ = 0, score = 0;
+let streak = 0, maxStreak = 0;
+let correctCount = 0, wrongCount = 0;
+let answered = false;
+let timerInterval = null, timeLeft = 20;
+const TIMER_MAX = 20;
+const QUESTIONS_PER_GAME = 20;
 
-// ===== BACKGROUND PARTICLES =====
-function spawnParticles() {
-  const layer = document.getElementById('bgLayer');
-  const colors = ['#a855f7','#7c3aed','#c084fc','#8b5cf6','#ddd6fe'];
-  for (let i = 0; i < 20; i++) {
-    const p = document.createElement('div');
-    p.className = 'bg-particle';
-    const size = 40 + Math.random() * 120;
-    const color = colors[Math.floor(Math.random() * colors.length)];
-    p.style.cssText = `width:${size}px;height:${size}px;background:${color};left:${Math.random()*100}%;animation-duration:${15+Math.random()*20}s;animation-delay:${-Math.random()*20}s`;
-    layer.appendChild(p);
-  }
+async function init() {
+  const { data: { user } } = await sb.auth.getUser();
+  if (!user) { alert('გთხოვ შეხვიდე!'); return; }
+  ME = user;
+  const { data: p } = await sb.from('profiles').select('*').eq('id', ME.id).single();
+  MYPROF = p;
+  document.getElementById('myBestScore').textContent = p?.quiz_score || 0;
+  await loadLeaderboard('lbList');
+  document.getElementById('loadingScreen').style.display = 'none';
+  document.getElementById('startScreen').style.display = 'block';
 }
 
-// ===== SCREENS =====
-function showScreen(id) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-}
-
-// ===== DIFFICULTY =====
-function setDiff(btn, d) {
-  difficulty = d;
-  document.querySelectorAll('.diff-btn').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-}
-
-// ===== LEADERBOARD =====
-async function loadLeaderboard() {
-  const { data } = await sb.from('profiles')
-    .select('id,username,avatar_url,emotion,quiz_score')
-    .order('quiz_score', { ascending: false })
-    .limit(10);
-  
-  const el = document.getElementById('lbList');
-  if (!data || !data.length) { el.innerHTML = '<div style="text-align:center;padding:20px;color:#7a5a9a;font-size:13px">ჯერ ვინმეს ქულა არ აქვს</div>'; return; }
-  
-  el.innerHTML = '';
-  data.forEach((u, i) => {
-    const medals = ['🥇','🥈','🥉'];
-    const classes = ['gold','silver','bronze'];
-    const rank = medals[i] || `${i+1}`;
-    const rankClass = classes[i] || '';
-    const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion || '😊');
-    const isMe = u.id === ME?.id;
-    const d = document.createElement('div');
-    d.className = 'lb-row';
-    if (isMe) d.style.background = 'rgba(168,85,247,.1)';
-    d.innerHTML = `<span class="lb-rank ${rankClass}">${rank}</span><div class="lb-av">${avHtml}</div><span class="lb-name">${isMe ? '⭐ ' : ''}${esc(u.username||'?')}</span><span class="lb-score">${u.quiz_score||0}</span>`;
-    el.appendChild(d);
-  });
-}
-
-// ===== LOAD PROFILE STATS =====
-async function loadStats() {
-  if (!ME) return;
-  const { data } = await sb.from('profiles').select('quiz_score,game_stats').eq('id', ME.id).single();
-  if (data) {
-    MYPROF = { ...MYPROF, ...data };
-    document.getElementById('myScoreHome').textContent = data.quiz_score || 0;
-    document.getElementById('topScore').textContent = data.quiz_score || 0;
-    if (data.game_stats?.quiz) {
-      gameStats = data.game_stats.quiz;
-      document.getElementById('myGamesHome').textContent = gameStats.total_games || 0;
-      const acc = gameStats.total_questions > 0
-        ? Math.round((gameStats.total_correct / gameStats.total_questions) * 100)
-        : 0;
-      document.getElementById('myAccHome').textContent = acc + '%';
-    }
-  }
-}
-
-// ===== SHUFFLE =====
 function shuffle(arr) {
-  const a = [...arr];
-  for (let i = a.length - 1; i > 0; i--) {
+  for (let i = arr.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
+    [arr[i], arr[j]] = [arr[j], arr[i]];
   }
-  return a;
+  return arr;
 }
 
-// ===== START GAME =====
 function startGame() {
-  const cfg = DIFF_CONFIG[difficulty];
-  totalQ = cfg.qCount;
-  maxTime = cfg.time;
-  sessionScore = 0;
-  correctCount = 0;
-  wrongCount = 0;
-  streak = 0;
-  maxStreak = 0;
-  qIndex = 0;
-  hint5050 = 2;
-  hintSkip = 1;
-  hintTime = 1;
-  progressStatus = [];
-
-  // Select random questions
-  const pool = shuffle(GOOD_QUESTIONS).slice(0, totalQ);
-  questions = pool;
-  usedIds.clear();
-
-  // Reset hint buttons
-  document.getElementById('h5050count').textContent = '✕2';
-  document.getElementById('hSkipCount').textContent = '✕1';
-  document.getElementById('hTimeCount').textContent = '✕1';
-  document.getElementById('hint5050Btn').disabled = false;
-  document.getElementById('hintSkipBtn').disabled = false;
-  document.getElementById('hintTimeBtn').disabled = false;
-
-  // Progress dots
-  buildProgressDots();
-
-  showScreen('gameScreen');
-  loadQuestion();
+  questions = shuffle([...ALL_QUESTIONS]).slice(0, QUESTIONS_PER_GAME);
+  currentQ = 0; score = 0; streak = 0; maxStreak = 0;
+  correctCount = 0; wrongCount = 0;
+  document.getElementById('scoreVal').textContent = '0';
+  document.getElementById('startScreen').style.display = 'none';
+  document.getElementById('endScreen').style.display = 'none';
+  document.getElementById('gameScreen').style.display = 'block';
+  showQuestion();
 }
 
-// ===== PROGRESS DOTS =====
-function buildProgressDots() {
-  const el = document.getElementById('progressDots');
-  el.innerHTML = '';
-  for (let i = 0; i < totalQ; i++) {
-    const d = document.createElement('div');
-    d.className = 'p-dot' + (i === 0 ? ' active' : '');
-    d.id = 'pdot_' + i;
-    el.appendChild(d);
-  }
-}
-
-function updateProgressDot(idx, result) {
-  const d = document.getElementById('pdot_' + idx);
-  if (d) {
-    d.classList.remove('active');
-    d.classList.add(result === 'correct' ? 'done-correct' : 'done-wrong');
-  }
-  if (idx + 1 < totalQ) {
-    const next = document.getElementById('pdot_' + (idx + 1));
-    if (next) next.classList.add('active');
-  }
-}
-
-// ===== LOAD QUESTION =====
-function loadQuestion() {
-  if (qIndex >= totalQ) { endGame(); return; }
-  
+function showQuestion() {
   answered = false;
-  currentQ = questions[qIndex];
-  timeLeft = maxTime;
+  const q = questions[currentQ];
+  document.getElementById('qNumLabel').textContent = `კითხვა ${currentQ + 1}`;
+  document.getElementById('qNumInfo').textContent = `კითხვა ${currentQ + 1} / ${QUESTIONS_PER_GAME}`;
+  document.getElementById('qCategory').textContent = q.cat;
+  document.getElementById('qText').textContent = q.q;
+  document.getElementById('progressFill').style.width = `${(currentQ / QUESTIONS_PER_GAME) * 100}%`;
+  document.getElementById('feedbackEl').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
 
-  document.getElementById('qNumLabel').textContent = qIndex + 1;
-  document.getElementById('qTotalLabel').textContent = totalQ;
-  document.getElementById('qCategory').textContent = currentQ.cat;
-  document.getElementById('qEmoji').textContent = currentQ.cat.split(' ')[0] || '❓';
-  document.getElementById('questionText').textContent = currentQ.q;
-
-  // Reset card
-  const card = document.getElementById('questionCard');
-  card.classList.remove('correct-anim', 'wrong-anim');
-
-  // Explanation
-  const expBox = document.getElementById('explanationBox');
-  expBox.classList.remove('show');
-  expBox.innerHTML = '';
-
-  // Render options
-  const grid = document.getElementById('optionsGrid');
-  grid.innerHTML = '';
   const letters = ['A', 'B', 'C', 'D'];
-  
-  currentQ.opts.forEach((opt, i) => {
+  const wrap = document.getElementById('optionsWrap');
+  wrap.innerHTML = '';
+  // shuffle options
+  const optIdxs = shuffle([0,1,2,3]);
+  const correctOptIdx = optIdxs.indexOf(q.a);
+  optIdxs.forEach((origIdx, displayIdx) => {
     const btn = document.createElement('button');
-    btn.className = 'option-btn';
-    btn.innerHTML = `<span class="option-letter">${letters[i]}</span>${esc(opt)}<span class="option-result" id="or_${i}"></span>`;
-    btn.onclick = () => selectAnswer(i, btn);
-    grid.appendChild(btn);
+    btn.className = 'opt-btn';
+    btn.dataset.orig = origIdx;
+    btn.innerHTML = `<span class="opt-letter">${letters[displayIdx]}</span>${q.opts[origIdx]}`;
+    btn.onclick = () => selectAnswer(btn, origIdx, q.a);
+    wrap.appendChild(btn);
   });
-
-  // Streak
-  const sb2 = document.getElementById('streakBadge');
-  if (streak >= 3) {
-    sb2.classList.remove('hidden');
-    document.getElementById('streakNum').textContent = streak;
-  } else {
-    sb2.classList.add('hidden');
-  }
 
   startTimer();
 }
 
-// ===== TIMER =====
 function startTimer() {
   clearInterval(timerInterval);
-  const fill = document.getElementById('timerFill');
-  const lbl = document.getElementById('timerNum');
-  fill.style.transition = 'none';
-  fill.style.width = '100%';
-  fill.className = 'timer-fill';
-
+  timeLeft = TIMER_MAX;
+  updateTimerUI();
   timerInterval = setInterval(() => {
-    timeLeft -= 0.1;
-    const pct = Math.max(0, (timeLeft / maxTime) * 100);
-    fill.style.transition = 'width 0.1s linear';
-    fill.style.width = pct + '%';
-    lbl.textContent = Math.ceil(timeLeft);
-
-    if (timeLeft <= maxTime * 0.4) fill.className = 'timer-fill warning';
-    if (timeLeft <= maxTime * 0.2) fill.className = 'timer-fill danger';
-
+    timeLeft--;
+    updateTimerUI();
     if (timeLeft <= 0) {
       clearInterval(timerInterval);
-      timeOut();
+      timeUp();
     }
-  }, 100);
+  }, 1000);
 }
 
-function timeOut() {
+function updateTimerUI() {
+  document.getElementById('timerNum').textContent = timeLeft;
+  const circ = document.getElementById('timerCircle');
+  const pct = timeLeft / TIMER_MAX;
+  circ.style.strokeDashoffset = 157 * (1 - pct);
+  circ.className = 'progress-circle' + (timeLeft <= 5 ? ' danger' : timeLeft <= 10 ? ' warn' : '');
+}
+
+function timeUp() {
   if (answered) return;
   answered = true;
   streak = 0;
   wrongCount++;
-  progressStatus.push('wrong');
-  updateProgressDot(qIndex, 'wrong');
-
-  // Show correct
-  const grid = document.getElementById('optionsGrid');
-  Array.from(grid.children).forEach((btn, i) => {
+  updateStreakUI();
+  const q = questions[currentQ];
+  document.querySelectorAll('.opt-btn').forEach(btn => {
     btn.disabled = true;
-    if (i === currentQ.ans) {
-      btn.classList.add('correct');
-      document.getElementById('or_' + i).textContent = '✓';
-    }
+    if (parseInt(btn.dataset.orig) === q.a) btn.classList.add('correct');
   });
-
-  document.getElementById('questionCard').classList.add('wrong-anim');
-  showExplanation();
-  toast('⏱️ დრო ამოიწურა!');
-  setTimeout(nextQuestion, 2000);
+  const fb = document.getElementById('feedbackEl');
+  fb.textContent = '⏰ დრო ამოიწურა!';
+  fb.className = 'feedback wrong show';
+  document.getElementById('nextBtn').className = 'next-btn show';
 }
 
-// ===== SELECT ANSWER =====
-function selectAnswer(idx, btn) {
+function selectAnswer(btn, chosen, correct) {
   if (answered) return;
   answered = true;
   clearInterval(timerInterval);
 
-  const isCorrect = idx === currentQ.ans;
-  const timeBonus = Math.round((timeLeft / maxTime) * DIFF_CONFIG[difficulty].bonusMax);
-  const basePoints = DIFF_CONFIG[difficulty].basePoints;
-  const streakBonus = streak >= 5 ? 3 : streak >= 3 ? 2 : 0;
-
-  // Disable all
-  const grid = document.getElementById('optionsGrid');
-  Array.from(grid.children).forEach((b, i) => {
+  document.querySelectorAll('.opt-btn').forEach(b => {
     b.disabled = true;
-    if (i === currentQ.ans) {
-      b.classList.add('correct');
-      document.getElementById('or_' + i).textContent = '✓';
-    }
+    if (parseInt(b.dataset.orig) === correct) b.classList.add('correct');
   });
 
-  if (isCorrect) {
-    correctCount++;
+  const fb = document.getElementById('feedbackEl');
+  if (chosen === correct) {
+    btn.classList.add('correct');
     streak++;
     maxStreak = Math.max(maxStreak, streak);
-    const gained = basePoints + timeBonus + streakBonus;
-    sessionScore += gained;
-    progressStatus.push('correct');
-    updateProgressDot(qIndex, 'correct');
-    document.getElementById('questionCard').classList.add('correct-anim');
-
-    // Score popup
-    const scoreDisplay = document.querySelector('.score-display');
-    const popup = document.createElement('div');
-    popup.className = 'score-add';
-    popup.textContent = `+${gained}`;
-    scoreDisplay.appendChild(popup);
-    setTimeout(() => popup.remove(), 800);
-
-    // Streak
-    const sb2 = document.getElementById('streakBadge');
-    if (streak >= 3) {
-      sb2.classList.remove('hidden');
-      document.getElementById('streakNum').textContent = streak;
-    }
+    correctCount++;
+    const bonus = streak >= 3 ? Math.floor(streak / 3) * 2 : 0;
+    const gained = 5 + bonus;
+    score += gained;
+    document.getElementById('scoreVal').textContent = score;
+    showScoreDelta('+' + gained);
+    fb.textContent = streak >= 3 ? `✅ სწორია! +${gained} ✨ სერია: ${streak}` : '✅ სწორია! +5';
+    fb.className = 'feedback correct show';
   } else {
     btn.classList.add('wrong');
-    document.getElementById('or_' + idx).textContent = '✗';
     streak = 0;
     wrongCount++;
-    progressStatus.push('wrong');
-    updateProgressDot(qIndex, 'wrong');
-    document.getElementById('questionCard').classList.add('wrong-anim');
-    document.getElementById('streakBadge').classList.add('hidden');
+    fb.textContent = `❌ სწორი: ${questions[currentQ].opts[correct]}`;
+    fb.className = 'feedback wrong show';
   }
-
-  showExplanation();
-  setTimeout(nextQuestion, isCorrect ? 1500 : 2000);
+  updateStreakUI();
+  document.getElementById('nextBtn').className = 'next-btn show';
 }
 
-function showExplanation() {
-  const box = document.getElementById('explanationBox');
-  box.innerHTML = `<strong>${currentQ.ans >= 0 ? '✅ ' + currentQ.opts[currentQ.ans] : ''}</strong> — ${currentQ.exp || ''}`;
-  box.classList.add('show');
+function updateStreakUI() {
+  document.getElementById('streakInfo').textContent = `სერია: ${streak} 🔥`;
+  document.getElementById('streakBadge').textContent = streak;
 }
 
-// ===== HINTS =====
-function use5050() {
-  if (hint5050 <= 0 || answered) return;
-  hint5050--;
-  document.getElementById('h5050count').textContent = `✕${hint5050}`;
-  if (hint5050 <= 0) document.getElementById('hint5050Btn').disabled = true;
-
-  const grid = document.getElementById('optionsGrid');
-  const wrong = [];
-  Array.from(grid.children).forEach((btn, i) => {
-    if (i !== currentQ.ans) wrong.push({ btn, i });
-  });
-  shuffle(wrong).slice(0, 2).forEach(({ btn }) => {
-    btn.style.opacity = '0.25';
-    btn.disabled = true;
-  });
-  toast('50/50 გამოყენებულია!');
+function showScoreDelta(text) {
+  const el = document.createElement('div');
+  el.className = 'score-delta';
+  el.textContent = text;
+  document.querySelector('.score-display').appendChild(el);
+  setTimeout(() => el.remove(), 900);
 }
 
-function useSkip() {
-  if (hintSkip <= 0 || answered) return;
-  hintSkip--;
-  document.getElementById('hSkipCount').textContent = `✕${hintSkip}`;
-  document.getElementById('hintSkipBtn').disabled = true;
-  clearInterval(timerInterval);
-  answered = true;
-  progressStatus.push('skip');
-  updateProgressDot(qIndex, 'wrong');
-  toast('⏭️ კითხვა გამოტოვებულია');
-  setTimeout(nextQuestion, 500);
-}
-
-function useExtraTime() {
-  if (hintTime <= 0 || answered) return;
-  hintTime--;
-  document.getElementById('hTimeCount').textContent = `✕${hintTime}`;
-  document.getElementById('hintTimeBtn').disabled = true;
-  timeLeft = Math.min(timeLeft + 10, maxTime);
-  toast('+10 წამი დამატდა!');
-}
-
-// ===== NEXT =====
 function nextQuestion() {
-  qIndex++;
-  if (qIndex >= totalQ) endGame();
-  else loadQuestion();
+  currentQ++;
+  if (currentQ >= QUESTIONS_PER_GAME) endGame();
+  else showQuestion();
 }
 
-// ===== END GAME =====
 async function endGame() {
   clearInterval(timerInterval);
-  showScreen('loadingScreen');
+  document.getElementById('gameScreen').style.display = 'none';
+  document.getElementById('endScreen').style.display = 'block';
+  document.getElementById('endScore').textContent = score;
+  document.getElementById('endCorrect').textContent = correctCount;
+  document.getElementById('endWrong').textContent = wrongCount;
+  document.getElementById('endStreak').textContent = maxStreak;
+  const acc = Math.round((correctCount / QUESTIONS_PER_GAME) * 100);
+  document.getElementById('endAccuracy').textContent = acc + '%';
 
-  const acc = totalQ > 0 ? Math.round((correctCount / totalQ) * 100) : 0;
+  // rank
+  let rank, rClass, icon;
+  if (acc >= 90) { rank = 'S რანგი 🌟'; rClass = 'rank-s'; icon = '🏆'; }
+  else if (acc >= 75) { rank = 'A რანგი ⭐'; rClass = 'rank-a'; icon = '🥇'; }
+  else if (acc >= 50) { rank = 'B რანგი'; rClass = 'rank-b'; icon = '🥈'; }
+  else { rank = 'C რანგი'; rClass = 'rank-c'; icon = '🎯'; }
+  document.getElementById('rankBadge').textContent = rank;
+  document.getElementById('rankBadge').className = 'rank-badge ' + rClass;
+  document.getElementById('endIcon').textContent = icon;
 
-  // Update DB
-  try {
-    const { data: profile } = await sb.from('profiles').select('quiz_score,game_stats').eq('id', ME.id).single();
-    const oldScore = profile?.quiz_score || 0;
-    const newScore = oldScore + sessionScore;
-
-    const oldStats = profile?.game_stats || {};
-    const qStats = oldStats.quiz || { total_games: 0, total_correct: 0, total_questions: 0 };
-    qStats.total_games++;
-    qStats.total_correct += correctCount;
-    qStats.total_questions += totalQ;
-
-    await sb.from('profiles').update({
-      quiz_score: newScore,
-      game_stats: { ...oldStats, quiz: qStats }
-    }).eq('id', ME.id);
-
-    document.getElementById('topScore').textContent = newScore;
-    gameStats = qStats;
-
-    // Result screen
-    const pct = acc;
-    let icon = '🏆', title = 'მარებული!';
-    if (pct >= 90) { icon = '🥇'; title = 'ჩემპიონი! 🔥'; }
-    else if (pct >= 70) { icon = '🥈'; title = 'კარგი! ✨'; }
-    else if (pct >= 50) { icon = '🥉'; title = 'ნახვამდის..!'; }
-    else { icon = '📚'; title = 'ისწავლე მეტი!'; }
-
-    document.getElementById('resultIcon').textContent = icon;
-    document.getElementById('resultTitle').textContent = title;
-    document.getElementById('resultSub').textContent = `${correctCount}/${totalQ} სწორი · streak: ${maxStreak}`;
-    document.getElementById('resCorrect').textContent = correctCount;
-    document.getElementById('resWrong').textContent = wrongCount;
-    document.getElementById('resScore').textContent = sessionScore;
-    document.getElementById('resAcc').textContent = acc + '%';
-    document.getElementById('resGain').textContent = `+${sessionScore} ქულა`;
-
-    showScreen('resultScreen');
-  } catch (err) {
-    toast('❌ შეცდომა: ' + err.message);
-    showScreen('homeScreen');
+  // save score
+  if (ME) {
+    const prev = MYPROF?.quiz_score || 0;
+    if (score > prev) {
+      await sb.from('profiles').update({ quiz_score: score }).eq('id', ME.id);
+      toast('🏆 ახალი რეკორდი! ' + score + ' ქულა!');
+    } else {
+      toast('🏆 ' + score + ' ქულა!');
+    }
   }
+  await loadLeaderboard('endLbList');
 }
 
-// ===== BACK =====
-function goBack() {
-  clearInterval(timerInterval);
-  loadStats();
-  loadLeaderboard();
-  showScreen('homeScreen');
+async function loadLeaderboard(elId) {
+  const { data } = await sb.from('profiles').select('id,username,quiz_score,avatar_url').order('quiz_score', { ascending: false }).limit(10);
+  const el = document.getElementById(elId);
+  if (!el || !data) return;
+  el.innerHTML = '';
+  data.filter(u => (u.quiz_score || 0) > 0).forEach((u, i) => {
+    const rankClass = ['gold', 'silver', 'bronze'][i] || '';
+    const medal = ['🥇', '🥈', '🥉'][i] || (i + 1);
+    const isMe = u.id === ME?.id;
+    const d = document.createElement('div');
+    d.className = 'lb-row';
+    d.style.cssText = isMe ? 'background:rgba(168,85,247,0.1);border-left:2px solid var(--accent);' : '';
+    d.innerHTML = `<span class="lb-rank ${rankClass}">${medal}</span><span class="lb-name">${u.username || '?'}${isMe ? ' 👈' : ''}</span><span class="lb-score">${u.quiz_score || 0}</span>`;
+    el.appendChild(d);
+  });
+  if (!el.children.length) el.innerHTML = '<div style="padding:16px;color:var(--text3);text-align:center;font-size:12px">ჯერ ქულა არ არის</div>';
 }
 
-// ===== HELPERS =====
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function goBack() { window.close() || (window.location.href = 'chat.html'); }
 
 function toast(msg) {
   document.querySelectorAll('.toast').forEach(t => t.remove());
   const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
+  t.className = 'toast'; t.textContent = msg;
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2000);
-}
-
-// ===== INIT =====
-async function init() {
-  spawnParticles();
-  showScreen('loadingScreen');
-
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) { window.location.href = 'index.html'; return; }
-  ME = user;
-
-  const { data: profile } = await sb.from('profiles').select('*').eq('id', ME.id).single();
-  MYPROF = profile;
-
-  if (!profile) {
-    await sb.from('profiles').insert({ id: ME.id, username: ME.email?.split('@')[0] || 'user', role: 'member' });
-    MYPROF = { id: ME.id, username: ME.email?.split('@')[0] || 'user' };
-  }
-
-  document.getElementById('topScore').textContent = profile?.quiz_score || 0;
-  document.getElementById('myScoreHome').textContent = profile?.quiz_score || 0;
-  if (profile?.game_stats?.quiz) {
-    gameStats = profile.game_stats.quiz;
-    document.getElementById('myGamesHome').textContent = gameStats.total_games || 0;
-    const a = gameStats.total_questions > 0 ? Math.round((gameStats.total_correct/gameStats.total_questions)*100) : 0;
-    document.getElementById('myAccHome').textContent = a + '%';
-  }
-
-  await loadLeaderboard();
-  showScreen('homeScreen');
+  setTimeout(() => t.remove(), 3000);
 }
 
 init();
