@@ -1628,11 +1628,11 @@ function buildRooms(){
     const d=document.createElement('div');
     d.className='room-item'+(r.isGame?' game-room':'');
     d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;
-  1631  d.onclick=()=>{
-1632    if(r.id===9){window.open('forum.html','_blank');return;}
-1633    if(r.id===11){window.open('nardi.html','_blank');return;}
-1634    switchRoom(r,d);
-1635  };
+ d.onclick=()=>{
+      if(r.id===9){window.open('forum.html','_blank');return;}
+      if(r.id===11){window.open('nardi.html','_blank');return;}
+      switchRoom(r,d);
+    };
   });
 }
 function switchRoom(r,clickedEl){if(!r||!r.id)return;ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
