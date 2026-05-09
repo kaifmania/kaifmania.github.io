@@ -1,0 +1,1266 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ნარდი · კაიფმანია</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);
+  --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
+  --online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
+  --glow:rgba(168,85,247,0.28);--accent:#f07aff;
+  --board-light:#c8a96e;--board-dark:#8b4513;--board-bg:#4a2c0a;
+  --white-checker:#f5f0e0;--black-checker:#2a1a0a;
+  --point-light:#d4a853;--point-dark:#8b3a1a;
+  --dice-bg:#fff;--dice-dot:#1a0a30;
+}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+@keyframes pop{from{opacity:0;transform:scale(0.8) translateY(20px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--glow)}50%{box-shadow:0 0 20px 6px var(--glow)}}
+@keyframes shake{0%,100%{transform:rotate(0)}20%{transform:rotate(-8deg)}40%{transform:rotate(8deg)}60%{transform:rotate(-5deg)}80%{transform:rotate(5deg)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@keyframes diceRoll{0%{transform:rotate(0) scale(1)}25%{transform:rotate(90deg) scale(1.1)}50%{transform:rotate(180deg) scale(0.9)}75%{transform:rotate(270deg) scale(1.1)}100%{transform:rotate(360deg) scale(1)}}
+@keyframes moveChecker{0%{opacity:1;transform:scale(1)}50%{opacity:0.6;transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
+@keyframes flash{0%,100%{background:var(--indigo-f)}50%{background:rgba(168,85,247,0.4)}}
+@keyframes winPulse{0%,100%{text-shadow:0 0 10px var(--accent)}50%{text-shadow:0 0 40px var(--accent),0 0 80px var(--glow)}}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+
+/* ═══════════════ TOP BAR ═══════════════ */
+#topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
+.tb-logo{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:var(--text);letter-spacing:1px;display:flex;align-items:center;gap:8px}
+.tb-logo span{color:var(--accent)}
+.tb-back{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;padding:5px 12px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;transition:all .2s}
+.tb-back:hover{background:var(--border);color:var(--text)}
+.tb-spacer{flex:1}
+.tb-info{display:flex;align-items:center;gap:8px}
+.tb-score{background:var(--indigo-f);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-family:'Unbounded',sans-serif;font-size:11px;color:var(--accent)}
+.tb-user{display:flex;align-items:center;gap:6px;background:var(--indigo-f);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2)}
+.tb-av{width:24px;height:24px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex-shrink:0}
+.tb-av img{width:100%;height:100%;object-fit:cover}
+
+/* ═══════════════ MAIN LAYOUT ═══════════════ */
+#appWrap{display:flex;flex:1;min-height:0;position:relative}
+#gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;position:relative;min-width:0}
+
+/* ═══════════════ LOBBY / INVITE ═══════════════ */
+#lobby{display:flex;flex-direction:column;align-items:center;gap:24px;max-width:420px;width:100%;animation:pop .4s ease}
+.lobby-icon{font-size:80px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 30px var(--glow))}
+.lobby-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--text);text-align:center;letter-spacing:1px}
+.lobby-sub{font-size:13px;color:var(--text3);text-align:center}
+.lobby-card{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:20px;display:flex;flex-direction:column;gap:12px}
+.lcard-title{font-family:'Unbounded',sans-serif;font-size:10px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:4px}
+.user-pick-list{display:flex;flex-direction:column;gap:6px;max-height:200px;overflow-y:auto}
+.user-pick-list::-webkit-scrollbar{width:3px}
+.user-pick-list::-webkit-scrollbar-thumb{background:var(--border)}
+.user-pick-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;cursor:pointer;border:1px solid transparent;transition:all .2s}
+.user-pick-item:hover{background:var(--indigo-f);border-color:var(--border)}
+.user-pick-item.selected{background:rgba(168,85,247,0.15);border-color:var(--indigo2)}
+.upi-av{width:32px;height:32px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
+.upi-av img{width:100%;height:100%;object-fit:cover}
+.upi-name{font-size:13px;color:var(--text);flex:1}
+.upi-online{width:8px;height:8px;border-radius:50%;background:var(--online);box-shadow:0 0 5px var(--online)}
+.btn-primary{padding:12px 28px;border-radius:50px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 6px 24px rgba(120,30,200,.5);transition:all .2s;width:100%}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(120,30,200,.6)}
+.btn-primary:disabled{opacity:.5;cursor:not-allowed;transform:none}
+.btn-secondary{padding:10px 20px;border-radius:50px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s}
+.btn-secondary:hover{background:var(--border);color:var(--text)}
+
+/* ═══════════════ WAITING ═══════════════ */
+#waitingScreen{display:none;flex-direction:column;align-items:center;gap:20px;animation:pop .4s ease}
+.waiting-spinner{width:60px;height:60px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:diceRoll 1s linear infinite}
+.waiting-title{font-family:'Unbounded',sans-serif;font-size:16px;color:var(--text);letter-spacing:.5px}
+.waiting-sub{font-size:12px;color:var(--text3)}
+
+/* ═══════════════ BOARD ═══════════════ */
+#boardWrap{display:none;flex-direction:row;gap:10px;width:100%;max-width:900px;height:100%;align-items:stretch;animation:pop .4s ease}
+#boardContainer{flex:1;display:flex;flex-direction:column;min-width:0}
+.board-top-info{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;padding:0 2px}
+.player-info{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:6px 12px}
+.pi-av{width:28px;height:28px;border-radius:50%;background:var(--indigo-f);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0}
+.pi-av img{width:100%;height:100%;object-fit:cover}
+.pi-name{font-size:12px;color:var(--text);font-weight:600}
+.pi-checker{font-size:16px;margin-left:4px}
+.pi-active{border-color:var(--accent);box-shadow:0 0 12px rgba(240,122,255,.3);animation:pulse 2s infinite}
+.turn-badge{font-family:'Unbounded',sans-serif;font-size:10px;color:var(--indigo2);background:var(--indigo-f);border:1px solid var(--border);border-radius:20px;padding:4px 12px;letter-spacing:.5px}
+
+#board{position:relative;background:var(--board-bg);border-radius:16px;border:3px solid var(--board-dark);flex:1;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.6),inset 0 0 60px rgba(0,0,0,.3)}
+.board-half{display:flex;flex:1;position:relative}
+.board-bar{width:40px;background:linear-gradient(135deg,#3a1a05,#2a1008);border-left:2px solid var(--board-dark);border-right:2px solid var(--board-dark);display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:8px 0;flex-shrink:0}
+.board-mid{width:40px;background:linear-gradient(135deg,#2a1008,#1a0804);border-left:2px solid var(--board-dark);border-right:2px solid var(--board-dark);display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:4px 0;gap:3px;flex-shrink:0}
+.hit-checker{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;border:2px solid rgba(255,255,255,.3);cursor:pointer;transition:all .2s}
+.hit-checker.white{background:var(--white-checker);color:#1a0a30;box-shadow:inset 0 -3px 6px rgba(0,0,0,.3)}
+.hit-checker.black{background:var(--black-checker);color:#f5f0e0;box-shadow:inset 0 -3px 6px rgba(0,0,0,.5)}
+
+.points-row{display:flex;flex:1;position:relative}
+.point{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer;transition:background .2s;border-left:1px solid rgba(0,0,0,.2)}
+.point:first-child{border-left:none}
+.point:hover{background:rgba(255,255,255,.06)}
+.point.highlight{background:rgba(168,85,247,.25);animation:flash .6s ease infinite}
+.point.selected-src{background:rgba(240,122,255,.2)}
+
+/* Triangle points */
+.point-tri{position:absolute;width:100%;height:70%;clip-path:polygon(50% 0%,0% 100%,100% 100%);display:flex;flex-direction:column;align-items:center;padding-top:2px;pointer-events:none}
+.point-tri.top-tri{top:0;transform-origin:top;clip-path:polygon(50% 100%,0% 0%,100% 0%)}
+.point-tri.light{background:var(--point-light)}
+.point-tri.dark{background:var(--point-dark)}
+.point-num{font-size:8px;font-family:'Unbounded',sans-serif;color:rgba(255,255,255,.5);text-align:center;margin-top:2px;pointer-events:none;position:absolute;bottom:-14px}
+.point-num.top-num{top:-14px;bottom:auto}
+.checkers-stack{display:flex;flex-direction:column;align-items:center;gap:-4px;width:100%;padding-top:2px;position:relative;z-index:2}
+.checkers-stack.bottom-stack{justify-content:flex-end;flex-direction:column-reverse;padding-top:0;padding-bottom:2px}
+.checker{width:85%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;border:2px solid rgba(255,255,255,.2);cursor:pointer;transition:all .15s;position:relative;margin:-3px 0;flex-shrink:0;box-sizing:border-box}
+.checker.white{background:radial-gradient(circle at 35% 35%,#fff,var(--white-checker));box-shadow:0 2px 6px rgba(0,0,0,.4),inset 0 1px 2px rgba(255,255,255,.8)}
+.checker.black{background:radial-gradient(circle at 35% 35%,#4a3a2a,var(--black-checker));box-shadow:0 2px 6px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.15)}
+.checker:hover{transform:scale(1.08);z-index:10}
+.checker.movable{box-shadow:0 0 10px var(--accent),0 2px 6px rgba(0,0,0,.4);animation:pulse 1.5s infinite}
+.checker.selected{transform:scale(1.15);z-index:20;box-shadow:0 0 20px var(--accent)}
+.checker-count{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:8px;font-weight:700;pointer-events:none}
+
+/* Dice */
+#diceArea{display:flex;align-items:center;justify-content:center;gap:10px;padding:8px;background:rgba(0,0,0,.2);flex-shrink:0}
+.dice{width:44px;height:44px;background:var(--dice-bg);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:24px;box-shadow:0 3px 10px rgba(0,0,0,.5);cursor:pointer;transition:all .2s;border:2px solid rgba(255,255,255,.3);flex-shrink:0}
+.dice.rolling{animation:shake .3s ease}
+.dice.used{opacity:.35;cursor:not-allowed;transform:scale(0.9)}
+.dice.my-turn{cursor:pointer}
+.dice.my-turn:hover{transform:scale(1.08)}
+#rollBtn{padding:8px 22px;border-radius:20px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:11px;cursor:pointer;box-shadow:0 4px 14px rgba(120,30,200,.5);transition:all .2s;letter-spacing:.5px}
+#rollBtn:hover{transform:scale(1.04);box-shadow:0 6px 20px rgba(120,30,200,.6)}
+#rollBtn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+#passBtn{padding:8px 18px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:11px;cursor:pointer;transition:all .2s;display:none}
+#passBtn:hover{background:var(--border);color:var(--text)}
+
+/* Home (bear-off zone) */
+.home-zone{width:34px;background:rgba(0,0,0,.25);border-radius:8px;display:flex;flex-direction:column;align-items:center;padding:4px;gap:2px;flex-shrink:0}
+.home-checker{width:24px;height:24px;border-radius:50%;flex-shrink:0}
+.home-zone-label{font-size:8px;color:var(--text3);font-family:'Unbounded',sans-serif;text-align:center;margin-bottom:2px}
+.home-count{font-family:'Unbounded',sans-serif;font-size:14px;color:var(--accent);text-align:center;margin-bottom:4px}
+
+/* Status */
+#statusBar{text-align:center;padding:6px;font-size:12px;color:var(--text2);min-height:28px;flex-shrink:0}
+
+/* ═══════════════ MINI CHAT ═══════════════ */
+#chatPanel{width:240px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;box-shadow:0 8px 30px rgba(0,0,0,.4)}
+.chat-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
+.chat-head-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;flex:1}
+.chat-head-close{background:rgba(255,255,255,.2);border:none;border-radius:6px;color:#fff;font-size:11px;cursor:pointer;padding:3px 7px}
+#chatMsgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:5px;min-height:0}
+#chatMsgs::-webkit-scrollbar{width:3px}
+#chatMsgs::-webkit-scrollbar-thumb{background:var(--border)}
+.cmsg{background:var(--bubble);border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:6px 10px;font-size:12px;color:var(--text);word-break:break-word;animation:msgIn .2s ease;max-width:90%}
+.cmsg.mine{background:rgba(120,30,200,0.25);border-color:rgba(168,85,247,.4);border-radius:12px 4px 12px 12px;align-self:flex-end}
+.cmsg-nick{font-size:10px;color:var(--indigo2);font-weight:600;margin-bottom:2px}
+.cmsg-sys{text-align:center;font-size:10px;color:var(--text3);padding:3px;font-style:italic}
+.chat-emoji-grid{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;border-top:1px solid var(--border);max-height:80px;overflow-y:auto;flex-shrink:0}
+.chat-emoji-grid::-webkit-scrollbar{width:2px}
+.ceg-btn{width:32px;height:32px;border-radius:8px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:all .15s;flex-shrink:0}
+.ceg-btn:hover{background:var(--border);transform:scale(1.1)}
+.ceg-btn img{width:22px;height:22px;border-radius:4px;object-fit:contain}
+.chat-input-row{display:flex;gap:6px;padding:8px;border-top:1px solid var(--border);flex-shrink:0}
+#chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:7px 10px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
+#chatInput:focus{border-color:var(--indigo2)}
+#chatInput::placeholder{color:var(--text3)}
+.chat-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:14px;padding:0 10px;cursor:pointer;flex-shrink:0}
+#emojiToggle{width:30px;height:30px;background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+#emojiToggle:hover{background:var(--border)}
+#emojiToggle.active{background:var(--indigo)}
+
+/* ═══════════════ MODALS ═══════════════ */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:400px;padding:24px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:pop .4s cubic-bezier(0.34,1.3,0.64,1)}
+.modal-x{position:absolute;top:12px;right:12px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:28px;height:28px;color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.modal-x:hover{background:var(--border)}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;color:var(--text);margin-bottom:16px;letter-spacing:1px;text-transform:uppercase}
+.modal-icon{font-size:50px;text-align:center;margin-bottom:8px;animation:float 3s ease-in-out infinite}
+.win-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;text-align:center;color:var(--accent);animation:winPulse 2s infinite}
+.modal-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:16px}
+.modal-row{display:flex;gap:8px;margin-top:8px}
+
+/* Invite notification inside page (banner) */
+#inviteBanner{position:fixed;top:60px;right:16px;width:300px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:1px solid rgba(168,85,247,.5);border-radius:18px;padding:14px 16px;z-index:9000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;animation:slideUp .3s ease;flex-direction:column;gap:10px}
+#inviteBanner.show{display:flex}
+.ib-title{font-family:'Unbounded',sans-serif;font-size:10px;letter-spacing:1.5px;color:rgba(255,255,255,.7);text-transform:uppercase}
+.ib-body{display:flex;align-items:center;gap:10px}
+.ib-av{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.ib-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.ib-info{flex:1}
+.ib-name{font-size:14px;font-weight:600;color:#fff}
+.ib-text{font-size:11px;color:rgba(255,255,255,.75)}
+.ib-btns{display:flex;gap:8px}
+.ib-accept{flex:1;background:rgba(255,255,255,.9);border:none;border-radius:12px;color:var(--indigo);font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;padding:8px;cursor:pointer;transition:all .2s}
+.ib-accept:hover{background:#fff;transform:scale(1.03)}
+.ib-decline{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:12px;color:#fff;font-size:11px;padding:8px 12px;cursor:pointer;transition:all .2s}
+.ib-decline:hover{background:rgba(255,255,255,.25)}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:pop .3s ease;white-space:nowrap}
+
+/* ═══════════════ MOBILE ═══════════════ */
+@media(max-width:700px){
+  #boardWrap{flex-direction:column;gap:8px}
+  #chatPanel{width:100%;height:200px;flex-direction:row;border-radius:14px}
+  .chat-head{writing-mode:vertical-rl;padding:10px 8px;border-radius:14px 0 0 14px;width:40px}
+  #chatMsgs{flex:1}
+  .chat-emoji-grid{display:none}
+  .chat-input-row{padding:6px}
+}
+</style>
+</head>
+<body>
+
+<!-- ═══ INVITE BANNER ═══ -->
+<div id="inviteBanner">
+  <div class="ib-title">🎲 ნარდის მოწვევა!</div>
+  <div class="ib-body">
+    <div class="ib-av" id="ibAv">👤</div>
+    <div class="ib-info">
+      <div class="ib-name" id="ibName">-</div>
+      <div class="ib-text">გამოგიგზავნა ნარდის მოწვევა</div>
+    </div>
+  </div>
+  <div class="ib-btns">
+    <button class="ib-accept" onclick="acceptInvite()">✅ დასტური</button>
+    <button class="ib-decline" onclick="declineInvite()">❌ უარი</button>
+  </div>
+</div>
+
+<!-- ═══ TOPBAR ═══ -->
+<div id="topbar">
+  <a href="chat.html" class="tb-back">← ⬅ ჩატი</a>
+  <div class="tb-logo">🎲 <span>ნარდი</span></div>
+  <div class="tb-spacer"></div>
+  <div class="tb-info" id="tbInfo" style="display:none">
+    <div class="tb-score" id="myScoreDisplay">🏆 0</div>
+    <div class="tb-user" id="myUserDisplay">
+      <div class="tb-av" id="myTbAv">😊</div>
+      <span id="myTbName">-</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div id="appWrap">
+  <div id="gameArea">
+
+    <!-- LOBBY -->
+    <div id="lobby">
+      <div class="lobby-icon">🎲</div>
+      <div class="lobby-title">ნარდი</div>
+      <div class="lobby-sub">ქართული ნარდი · ორ მოთამაშეზე</div>
+      <div class="lobby-card">
+        <div class="lcard-title">👤 ოპონენტი</div>
+        <div class="user-pick-list" id="userPickList">
+          <div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">⏳ იტვირთება...</div>
+        </div>
+        <button class="btn-primary" id="inviteBtn" onclick="sendInvite()" disabled>🎲 მოწვევის გაგზავნა</button>
+      </div>
+      <div class="lobby-card">
+        <div class="lcard-title">📊 ჩემი სტატისტიკა</div>
+        <div style="display:flex;justify-content:space-around">
+          <div style="text-align:center"><div style="font-family:'Unbounded',sans-serif;font-size:24px;color:var(--accent)" id="statWins">0</div><div style="font-size:10px;color:var(--text3)">მოგება</div></div>
+          <div style="text-align:center"><div style="font-family:'Unbounded',sans-serif;font-size:24px;color:var(--text2)" id="statLosses">0</div><div style="font-size:10px;color:var(--text3)">წაგება</div></div>
+          <div style="text-align:center"><div style="font-family:'Unbounded',sans-serif;font-size:24px;color:#4ade80" id="statScore">0</div><div style="font-size:10px;color:var(--text3)">ქულა</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WAITING -->
+    <div id="waitingScreen">
+      <div class="waiting-spinner"></div>
+      <div class="waiting-title">ველოდებით...</div>
+      <div class="waiting-sub" id="waitingFor">მოწვევა გაიგზავნა, ველოდებით პასუხს</div>
+      <button class="btn-secondary" onclick="cancelInvite()" style="margin-top:8px">❌ გაუქმება</button>
+    </div>
+
+    <!-- BOARD -->
+    <div id="boardWrap">
+      <div id="boardContainer">
+        <!-- Player infos -->
+        <div class="board-top-info">
+          <div class="player-info" id="oppInfo">
+            <div class="pi-av" id="oppAv">😊</div>
+            <span class="pi-name" id="oppName">ოპონენტი</span>
+            <span class="pi-checker">⚫</span>
+          </div>
+          <div class="turn-badge" id="turnBadge">🎲 ასვლის მომლოდინე</div>
+          <div class="player-info" id="myInfo">
+            <div class="pi-av" id="myInfoAv">😊</div>
+            <span class="pi-name" id="myInfoName">შენ</span>
+            <span class="pi-checker">⚪</span>
+          </div>
+        </div>
+
+        <!-- Board -->
+        <div id="board">
+          <!-- TOP half: points 12..1 -->
+          <div class="board-half" id="topHalf">
+            <!-- Built by JS -->
+          </div>
+          <!-- Dice / controls -->
+          <div id="diceArea">
+            <button id="rollBtn" onclick="rollDice()" disabled>🎲 გორება</button>
+            <div class="dice" id="dice1">⬜</div>
+            <div class="dice" id="dice2">⬜</div>
+            <button id="passBtn" onclick="passMove()">⏭ გამოტოვება</button>
+          </div>
+          <!-- BOTTOM half: points 13..24 -->
+          <div class="board-half" id="bottomHalf">
+            <!-- Built by JS -->
+          </div>
+        </div>
+
+        <div id="statusBar">მოთამაშეების მოლოდინში...</div>
+
+        <!-- Home zones row -->
+        <div style="display:flex;justify-content:flex-end;margin-top:6px;gap:10px">
+          <div style="text-align:center">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:2px">⚫ სახლი</div>
+            <div style="font-family:'Unbounded',sans-serif;font-size:18px;color:var(--text2)" id="blackHome">0</div>
+          </div>
+          <div style="text-align:center">
+            <div style="font-size:10px;color:var(--text3);margin-bottom:2px">⚪ სახლი</div>
+            <div style="font-family:'Unbounded',sans-serif;font-size:18px;color:var(--accent)" id="whiteHome">0</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- MINI CHAT -->
+      <div id="chatPanel">
+        <div class="chat-head">
+          <div class="chat-head-title">💬 ჩატი</div>
+        </div>
+        <div id="chatMsgs">
+          <div class="cmsg-sys">🎲 ნარდი დაიწყო!</div>
+        </div>
+        <div class="chat-emoji-grid" id="chatEmojiGrid" style="display:none"></div>
+        <div class="chat-input-row">
+          <button id="emojiToggle" onclick="toggleChatEmoji()">😊</button>
+          <input id="chatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+          <button class="chat-send" onclick="sendChatMsg()">✈️</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- WIN MODAL -->
+<div class="overlay" id="winOverlay">
+  <div class="modal" style="text-align:center">
+    <div class="modal-icon" id="winIcon">🏆</div>
+    <div class="win-title" id="winTitle">გამარჯვება!</div>
+    <div class="modal-sub" id="winSub">+5 ქულა</div>
+    <div style="font-family:'Unbounded',sans-serif;font-size:32px;color:var(--accent);margin:12px 0" id="winScore">0</div>
+    <div class="modal-row">
+      <button class="btn-primary" onclick="resetGame()">🔄 ახლიდან</button>
+      <a href="chat.html" class="btn-secondary" style="display:flex;align-items:center;justify-content:center;text-decoration:none">← ჩატი</a>
+    </div>
+  </div>
+</div>
+
+<script>
+const {createClient}=supabase;
+const sb=createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+// ════════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════════
+let ME=null,MYPROF=null,allUsers=[];
+let pendingInviteId=null,activeGameId=null,gameChannel=null,chatChannel=null;
+let selectedOpponent=null,pendingInviteFrom=null;
+let customEmojis=[],emojiCache={};
+let showEmojiGrid=false;
+
+// Board state
+const POINTS=24;
+// board[i] = {color:'white'|'black'|null, count:0}
+let board=Array.from({length:POINTS+1},()=>({color:null,count:0}));
+let whiteHome=0,blackHome=0;
+let whiteBar=0,blackBar=0; // hit checkers
+let dice=[],diceUsed=[],myColor='white',myTurn=false,gameStarted=false;
+let selectedPoint=null;
+
+// ════════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════════
+async function init(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){location.href='index.html';return;}
+  ME=user;
+  const{data:prof}=await sb.from('profiles').select('*').eq('id',ME.id).single();
+  MYPROF=prof;
+  if(!MYPROF)return;
+  
+  // Topbar
+  document.getElementById('tbInfo').style.display='flex';
+  document.getElementById('myTbName').textContent=MYPROF.username||'?';
+  document.getElementById('myScoreDisplay').textContent='🏆 '+(MYPROF.nardi_score||0);
+  const myTbAv=document.getElementById('myTbAv');
+  if(MYPROF.avatar_url)myTbAv.innerHTML=`<img src="${MYPROF.avatar_url}">`;
+  else myTbAv.textContent=MYPROF.emotion||'😊';
+  
+  // Stats
+  document.getElementById('statWins').textContent=MYPROF.nardi_wins||0;
+  document.getElementById('statLosses').textContent=MYPROF.nardi_losses||0;
+  document.getElementById('statScore').textContent=MYPROF.nardi_score||0;
+
+  await loadUsers();
+  await loadEmojis();
+  watchInvites();
+  buildBoard();
+}
+
+async function loadUsers(){
+  const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion,last_seen,nardi_score').neq('id',ME.id).order('username');
+  allUsers=data||[];
+  renderUserPick();
+}
+
+function renderUserPick(){
+  const el=document.getElementById('userPickList');
+  el.innerHTML='';
+  const online=allUsers.filter(u=>isOnline(u.last_seen));
+  const offline=allUsers.filter(u=>!isOnline(u.last_seen));
+  const show=online.length?online:allUsers;
+  if(!show.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">📭 მომხმარებელი არ არის</div>';return;}
+  show.forEach(u=>{
+    const d=document.createElement('div');
+    d.className='user-pick-item';
+    const on=isOnline(u.last_seen);
+    const avHtml=u.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u.emotion||'😊');
+    d.innerHTML=`
+      <div class="upi-av">${avHtml}</div>
+      <div class="upi-name">${esc(u.username||'?')} <span style="font-size:10px;color:var(--text3)">🏆${u.nardi_score||0}</span></div>
+      ${on?'<div class="upi-online"></div>':''}
+    `;
+    d.onclick=()=>{
+      document.querySelectorAll('.user-pick-item').forEach(i=>i.classList.remove('selected'));
+      d.classList.add('selected');
+      selectedOpponent=u;
+      document.getElementById('inviteBtn').disabled=false;
+    };
+    el.appendChild(d);
+  });
+}
+
+function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<90000;}
+
+// ════════════════════════════════════════════════
+// EMOJI
+// ════════════════════════════════════════════════
+async function loadEmojis(){
+  const{data}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});
+  customEmojis=data||[];
+  emojiCache={};
+  customEmojis.forEach(e=>{emojiCache[e.id]=e.url;});
+  buildChatEmojiGrid();
+}
+
+function buildChatEmojiGrid(){
+  const grid=document.getElementById('chatEmojiGrid');
+  grid.innerHTML='';
+  customEmojis.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.className='ceg-btn';
+    const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
+    if(isImg){const img=document.createElement('img');img.src=em.url;btn.appendChild(img);}
+    else{btn.textContent=em.url||'?';}
+    btn.onclick=()=>{
+      const inp=document.getElementById('chatInput');
+      inp.value+=isImg?`[e:${em.id}]`:em.url;
+      inp.focus();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function toggleChatEmoji(){
+  showEmojiGrid=!showEmojiGrid;
+  document.getElementById('chatEmojiGrid').style.display=showEmojiGrid?'flex':'none';
+  document.getElementById('emojiToggle').classList.toggle('active',showEmojiGrid);
+}
+
+function renderChatContent(s){
+  if(!s)return'';
+  let h=esc(s);
+  h=h.replace(/\[e:(\d+)\]/g,(m,id)=>{
+    const url=emojiCache[parseInt(id)];
+    if(!url)return m;
+    if(url.startsWith('http')||url.startsWith('data:')){
+      return`<img src="${url}" style="width:22px;height:22px;border-radius:4px;vertical-align:middle;object-fit:contain">`;
+    }
+    return`<span style="font-size:18px;vertical-align:middle">${url}</span>`;
+  });
+  return h;
+}
+
+// ════════════════════════════════════════════════
+// INVITE SYSTEM
+// ════════════════════════════════════════════════
+async function sendInvite(){
+  if(!selectedOpponent||!ME)return;
+  document.getElementById('inviteBtn').disabled=true;
+  
+  // Insert invite row
+  const{data,error}=await sb.from('nardi_invites').insert({
+    from_uid:ME.id,
+    to_uid:selectedOpponent.id,
+    status:'pending'
+  }).select('id').single();
+  
+  if(error){toast('❌ '+error.message);document.getElementById('inviteBtn').disabled=false;return;}
+  pendingInviteId=data.id;
+
+  // Also add notification
+  await sb.from('notifications').insert({
+    user_id:selectedOpponent.id,
+    from_uid:ME.id,
+    type:'nardi_invite',
+    data:{nick:MYPROF?.username,invite_id:data.id},
+    is_read:false
+  });
+
+  // Show waiting
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('waitingScreen').style.display='flex';
+  document.getElementById('waitingFor').textContent=`ველოდებით ${selectedOpponent.username||'ოპონენტს'}...`;
+  
+  // Watch for response
+  const ch=sb.channel('invite_'+data.id)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'nardi_invites',filter:`id=eq.${data.id}`},async p=>{
+      if(p.new.status==='accepted'){
+        await sb.removeChannel(ch);
+        activeGameId=p.new.game_id;
+        myColor='white';
+        await joinGame(p.new.game_id);
+      } else if(p.new.status==='declined'){
+        await sb.removeChannel(ch);
+        toast('❌ '+esc(selectedOpponent?.username)+'  უარი თქვა');
+        resetToLobby();
+      }
+    })
+    .subscribe();
+}
+
+async function cancelInvite(){
+  if(pendingInviteId){
+    await sb.from('nardi_invites').update({status:'declined'}).eq('id',pendingInviteId);
+    pendingInviteId=null;
+  }
+  resetToLobby();
+}
+
+// Watch incoming invites
+function watchInvites(){
+  sb.channel('my_invites_'+ME.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'nardi_invites',filter:`to_uid=eq.${ME.id}`},async p=>{
+      if(p.new.status!=='pending')return;
+      pendingInviteFrom=p.new;
+      const sender=allUsers.find(u=>u.id===p.new.from_uid);
+      if(!sender){
+        const{data:s}=await sb.from('profiles').select('*').eq('id',p.new.from_uid).single();
+        if(s){allUsers.push(s);showInviteBanner(p.new,s);}
+      } else showInviteBanner(p.new,sender);
+    })
+    .subscribe();
+}
+
+function showInviteBanner(invite,sender){
+  const banner=document.getElementById('inviteBanner');
+  const avHtml=sender.avatar_url?`<img src="${sender.avatar_url}">`:(sender.emotion||'👤');
+  document.getElementById('ibAv').innerHTML=avHtml;
+  document.getElementById('ibName').textContent=sender.username||'?';
+  banner.classList.add('show');
+  // Also show in notification if on nardi page
+}
+
+async function acceptInvite(){
+  if(!pendingInviteFrom)return;
+  document.getElementById('inviteBanner').classList.remove('show');
+  
+  // Create game
+  const initBoard=getInitialBoard();
+  const{data:gameRow,error}=await sb.from('nardi_games').insert({
+    player_white:pendingInviteFrom.from_uid,
+    player_black:ME.id,
+    board_state:JSON.stringify(initBoard),
+    turn:'white',
+    dice:[],
+    status:'active',
+    white_home:0,black_home:0,white_bar:0,black_bar:0
+  }).select('id').single();
+  
+  if(error){toast('❌ '+error.message);return;}
+  
+  // Update invite
+  await sb.from('nardi_invites').update({status:'accepted',game_id:gameRow.id}).eq('id',pendingInviteFrom.id);
+  
+  activeGameId=gameRow.id;
+  myColor='black';
+  pendingInviteFrom=null;
+  await joinGame(gameRow.id);
+}
+
+async function declineInvite(){
+  if(!pendingInviteFrom)return;
+  document.getElementById('inviteBanner').classList.remove('show');
+  await sb.from('nardi_invites').update({status:'declined'}).eq('id',pendingInviteFrom.id);
+  pendingInviteFrom=null;
+  toast('❌ უარი თქვი');
+}
+
+// ════════════════════════════════════════════════
+// GAME JOIN
+// ════════════════════════════════════════════════
+async function joinGame(gameId){
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('waitingScreen').style.display='none';
+  document.getElementById('boardWrap').style.display='flex';
+  
+  // Load game state
+  const{data:game}=await sb.from('nardi_games').select('*').eq('id',gameId).single();
+  if(!game)return;
+  
+  // Set opponent info
+  const oppId=myColor==='white'?game.player_black:game.player_white;
+  const opp=allUsers.find(u=>u.id===oppId)||{username:'ოპონენტი',emotion:'😊'};
+  
+  document.getElementById('oppName').textContent=opp.username||'ოპონენტი';
+  const oppAv=document.getElementById('oppAv');
+  if(opp.avatar_url)oppAv.innerHTML=`<img src="${opp.avatar_url}" style="width:100%;height:100%;object-fit:cover">`;
+  else oppAv.textContent=opp.emotion||'😊';
+  
+  const myInfoAv=document.getElementById('myInfoAv');
+  if(MYPROF.avatar_url)myInfoAv.innerHTML=`<img src="${MYPROF.avatar_url}" style="width:100%;height:100%;object-fit:cover">`;
+  else myInfoAv.textContent=MYPROF.emotion||'😊';
+  document.getElementById('myInfoName').textContent=MYPROF.username||'შენ';
+  
+  applyGameState(game);
+  gameStarted=true;
+  
+  // Subscribe real-time
+  if(gameChannel)try{sb.removeChannel(gameChannel);}catch(e){}
+  gameChannel=sb.channel('nardi_game_'+gameId)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'nardi_games',filter:`id=eq.${gameId}`},async p=>{
+      applyGameState(p.new);
+      if(p.new.status==='finished'){endGame(p.new);}
+    })
+    .subscribe();
+  
+  // Chat channel
+  if(chatChannel)try{sb.removeChannel(chatChannel);}catch(e){}
+  chatChannel=sb.channel('nardi_chat_'+gameId)
+    .on('broadcast',{event:'chat'},({payload})=>{
+      if(payload.uid!==ME.id)appendChatMsg(payload.nick,payload.content,false);
+    })
+    .subscribe();
+  
+  addSysMsg('🎲 თამაში დაიწყო! შენ ხარ '+(myColor==='white'?'⚪ თეთრი':'⚫ შავი'));
+}
+
+// ════════════════════════════════════════════════
+// BOARD LOGIC
+// ════════════════════════════════════════════════
+function getInitialBoard(){
+  // Classic nardi (long backgammon Georgian rules) starting position
+  // White moves 1→24, Black moves 24→1 (opposite)
+  // Standard long nardi: all 15 checkers start at one point
+  const b=Array.from({length:25},()=>({color:null,count:0}));
+  // White: all 15 at point 24 (Georgian nardi style)
+  b[24]={color:'white',count:15};
+  // Black: all 15 at point 1
+  b[1]={color:'black',count:15};
+  return b;
+}
+
+function applyGameState(game){
+  try{board=JSON.parse(game.board_state)||getInitialBoard();}catch(e){board=getInitialBoard();}
+  whiteHome=game.white_home||0;
+  blackHome=game.black_home||0;
+  whiteBar=game.white_bar||0;
+  blackBar=game.black_bar||0;
+  dice=game.dice||[];
+  diceUsed=game.dice_used||[];
+  
+  const isMyTurn=(game.turn===myColor);
+  myTurn=isMyTurn;
+  
+  renderBoardUI();
+  updateDiceUI();
+  updateTurnUI(game.turn,isMyTurn);
+  
+  if(game.last_move){
+    const mv=typeof game.last_move==='string'?JSON.parse(game.last_move):game.last_move;
+    if(mv.type==='sys')addSysMsg(mv.msg);
+  }
+}
+
+// ════════════════════════════════════════════════
+// BOARD RENDER
+// ════════════════════════════════════════════════
+function buildBoard(){
+  const top=document.getElementById('topHalf');
+  const bot=document.getElementById('bottomHalf');
+  top.innerHTML='';bot.innerHTML='';
+  
+  // Top half: points 12 down to 1 (for visual layout)
+  // Georgian nardi: white moves left-to-right bottom, black right-to-left top
+  // Top row shows points 13-24 from left to right
+  // Bottom row shows points 12-1 from left to right
+  
+  // We'll use a simplified visual: 
+  // Top: 13,14,15,16,17,18 | BAR | 19,20,21,22,23,24
+  // Bot: 12,11,10,9,8,7    | BAR | 6,5,4,3,2,1
+
+  const topLeft=[13,14,15,16,17,18];
+  const topRight=[19,20,21,22,23,24];
+  const botLeft=[12,11,10,9,8,7];
+  const botRight=[6,5,4,3,2,1];
+
+  function makeHalfRow(pointNums,isTop){
+    const wrap=document.createElement('div');
+    wrap.style.cssText='display:flex;flex:1;';
+    const leftPts=document.createElement('div');
+    leftPts.className='points-row';
+    leftPts.style.flex='1';
+    const midBar=document.createElement('div');
+    midBar.className='board-mid';
+    const rightPts=document.createElement('div');
+    rightPts.className='points-row';
+    rightPts.style.flex='1';
+    
+    const left=pointNums.slice(0,6);
+    const right=pointNums.slice(6);
+    
+    left.forEach(n=>leftPts.appendChild(makePoint(n,isTop)));
+    right.forEach(n=>rightPts.appendChild(makePoint(n,isTop)));
+    
+    // Hit checkers in mid bar
+    if(isTop){
+      // black bar checkers shown at top
+      const bc=document.createElement('div');
+      bc.id='barBlack';
+      bc.style.cssText='display:flex;flex-direction:column;align-items:center;gap:2px;';
+      midBar.appendChild(bc);
+    } else {
+      const wc=document.createElement('div');
+      wc.id='barWhite';
+      wc.style.cssText='display:flex;flex-direction:column;align-items:center;gap:2px;';
+      midBar.appendChild(wc);
+    }
+    
+    wrap.appendChild(leftPts);
+    wrap.appendChild(midBar);
+    wrap.appendChild(rightPts);
+    return wrap;
+  }
+
+  top.appendChild(makeHalfRow([...topLeft,...topRight],true));
+  bot.appendChild(makeHalfRow([...botLeft,...botRight],false));
+}
+
+function makePoint(num,isTop){
+  const p=document.createElement('div');
+  p.className='point';
+  p.id='pt'+num;
+  p.dataset.pt=num;
+  
+  const triClass=(num%2===0)?'dark':'light';
+  const tri=document.createElement('div');
+  tri.className=`point-tri ${isTop?'top-tri':''} ${triClass}`;
+  p.appendChild(tri);
+  
+  const numEl=document.createElement('div');
+  numEl.className='point-num'+(isTop?' top-num':'');
+  numEl.textContent=num;
+  p.appendChild(numEl);
+  
+  const stack=document.createElement('div');
+  stack.className='checkers-stack'+(isTop?'':' bottom-stack');
+  stack.id='stack'+num;
+  p.appendChild(stack);
+  
+  p.addEventListener('click',()=>onPointClick(num));
+  return p;
+}
+
+function renderBoardUI(){
+  // Clear all stacks
+  for(let i=1;i<=24;i++){
+    const s=document.getElementById('stack'+i);
+    if(s)s.innerHTML='';
+    const p=document.getElementById('pt'+i);
+    if(p){p.classList.remove('highlight','selected-src');}
+  }
+  
+  // Render checkers
+  for(let i=1;i<=24;i++){
+    const cell=board[i];
+    if(!cell||!cell.count)continue;
+    const stack=document.getElementById('stack'+i);
+    if(!stack)continue;
+    const max=Math.min(cell.count,5);
+    for(let c=0;c<max;c++){
+      const ch=document.createElement('div');
+      ch.className='checker '+(cell.color||'white');
+      if(cell.count>5&&c===max-1){
+        const cnt=document.createElement('span');
+        cnt.className='checker-count';
+        cnt.textContent=cell.count;
+        ch.appendChild(cnt);
+      }
+      stack.appendChild(ch);
+    }
+  }
+  
+  // Bar
+  const bb=document.getElementById('barBlack');
+  const wb=document.getElementById('barWhite');
+  if(bb){bb.innerHTML='';for(let i=0;i<Math.min(blackBar,3);i++){const ch=document.createElement('div');ch.className='hit-checker black';ch.textContent=blackBar>3&&i===2?blackBar:'';bb.appendChild(ch);}}
+  if(wb){wb.innerHTML='';for(let i=0;i<Math.min(whiteBar,3);i++){const ch=document.createElement('div');ch.className='hit-checker white';ch.textContent=whiteBar>3&&i===2?whiteBar:'';wb.appendChild(ch);}}
+  
+  // Home counts
+  document.getElementById('whiteHome').textContent=whiteHome;
+  document.getElementById('blackHome').textContent=blackHome;
+  
+  // Movable highlights if my turn and dice rolled
+  if(myTurn&&dice.length&&diceUsed.length<dice.length){
+    highlightMovable();
+  }
+}
+
+function highlightMovable(){
+  const remaining=getRemainingDice();
+  if(!remaining.length)return;
+  
+  // Bar first
+  const myBar=myColor==='white'?whiteBar:blackBar;
+  if(myBar>0){
+    // show bar as movable (visual only - clicking bar is handled)
+    remaining.forEach(d=>{
+      const to=myColor==='white'?d:(25-d);
+      const cell=board[to];
+      if(!cell||cell.count===0||(cell.color===myColor)||(cell.color!==myColor&&cell.count===1)){
+        const p=document.getElementById('pt'+to);
+        if(p)p.classList.add('highlight');
+      }
+    });
+    return;
+  }
+  
+  for(let i=1;i<=24;i++){
+    const cell=board[i];
+    if(!cell||cell.color!==myColor||cell.count===0)continue;
+    
+    const canMove=remaining.some(d=>{
+      const to=myColor==='white'?(i+d):(i-d);
+      return isValidMove(i,to);
+    });
+    if(canMove){
+      const stack=document.getElementById('stack'+i);
+      if(stack)stack.querySelectorAll('.checker').forEach(c=>c.classList.add('movable'));
+    }
+  }
+}
+
+function isValidMove(from,to){
+  // Bear off
+  const bearingOff=myColor==='white'?(whiteHome>0||allCheckersPast18('white')):(blackHome>0||allCheckersPast18('black'));
+  if(to>24&&myColor==='white'){return bearingOff;}
+  if(to<1&&myColor==='black'){return bearingOff;}
+  if(to<1||to>24)return false;
+  
+  const cell=board[to];
+  if(!cell)return false;
+  if(cell.color&&cell.color!==myColor&&cell.count>1)return false; // blocked (nardi rule: no blocking with 2+ differs in standard nardi - actually in Georgian nardi opponent point with 1 can't be hit either but let's use standard backgammon hit rules for playability)
+  return true;
+}
+
+function allCheckersPast18(color){
+  if(color==='white'){
+    for(let i=1;i<=18;i++){if(board[i]?.color==='white'&&board[i].count>0)return false;}
+    return true;
+  } else {
+    for(let i=7;i<=24;i++){if(board[i]?.color==='black'&&board[i].count>0)return false;}
+    return true;
+  }
+}
+
+function getRemainingDice(){
+  const used=[...diceUsed];
+  const remaining=[];
+  for(const d of dice){
+    const idx=used.indexOf(d);
+    if(idx>=0){used.splice(idx,1);}
+    else remaining.push(d);
+  }
+  return remaining;
+}
+
+// ════════════════════════════════════════════════
+// CLICK HANDLING
+// ════════════════════════════════════════════════
+function onPointClick(pt){
+  if(!myTurn||!gameStarted)return;
+  const remaining=getRemainingDice();
+  if(!remaining.length)return;
+  
+  const myBar=myColor==='white'?whiteBar:blackBar;
+  
+  // If checker on bar, must move from bar
+  if(myBar>0){
+    const to=myColor==='white'?pt:(pt); // bar entry
+    const d=myColor==='white'?(pt):(25-pt);
+    if(!remaining.includes(d)){toast('❌ ეს სვლა ვერ');return;}
+    moveFromBar(pt);
+    return;
+  }
+  
+  if(selectedPoint===null){
+    // Select source
+    const cell=board[pt];
+    if(!cell||cell.color!==myColor||cell.count===0){toast('❌ შენი ქვა ვერ');return;}
+    selectedPoint=pt;
+    const p=document.getElementById('pt'+pt);
+    if(p)p.classList.add('selected-src');
+    // highlight targets
+    remaining.forEach(d=>{
+      const to=myColor==='white'?(pt+d):(pt-d);
+      if(to>=1&&to<=24&&isValidMove(pt,to)){
+        const tp=document.getElementById('pt'+to);
+        if(tp)tp.classList.add('highlight');
+      }
+    });
+  } else if(selectedPoint===pt){
+    // Deselect
+    clearSelection();
+  } else {
+    // Move
+    const diff=myColor==='white'?(pt-selectedPoint):(selectedPoint-pt);
+    if(!remaining.includes(diff)){
+      // Try other point
+      clearSelection();
+      onPointClick(pt);
+      return;
+    }
+    doMove(selectedPoint,pt,diff);
+  }
+}
+
+function clearSelection(){
+  if(selectedPoint!==null){
+    const p=document.getElementById('pt'+selectedPoint);
+    if(p)p.classList.remove('selected-src');
+  }
+  selectedPoint=null;
+  document.querySelectorAll('.point.highlight').forEach(p=>p.classList.remove('highlight'));
+  document.querySelectorAll('.checker.selected').forEach(c=>c.classList.remove('selected'));
+}
+
+async function moveFromBar(to){
+  if(myColor==='white')whiteBar--;
+  else blackBar--;
+  
+  applyMoveToBoard(0,to);
+  diceUsed.push(myColor==='white'?to:(25-to));
+  renderBoardUI();
+  await syncGameState('bar→'+to);
+}
+
+async function doMove(from,to,dice_val){
+  clearSelection();
+  applyMoveToBoard(from,to);
+  diceUsed.push(dice_val);
+  
+  // Check bear-off
+  if(myColor==='white'&&to>24){whiteHome++;board[to]={color:null,count:0};}
+  if(myColor==='black'&&to<1){blackHome++;board[to]={color:null,count:0};}
+  
+  renderBoardUI();
+  
+  // Check win
+  if(whiteHome>=15||blackHome>=15){
+    await finishGame();
+    return;
+  }
+  
+  await syncGameState(from+'→'+to);
+}
+
+function applyMoveToBoard(from,to){
+  // Remove from source
+  if(from>0){
+    board[from].count--;
+    if(board[from].count===0)board[from].color=null;
+  }
+  
+  if(to<1||to>24)return; // bear-off handled separately
+  
+  const cell=board[to];
+  // Hit opponent
+  if(cell.color&&cell.color!==myColor&&cell.count===1){
+    if(cell.color==='white')whiteBar++;
+    else blackBar++;
+    cell.count=0;cell.color=null;
+  }
+  
+  if(!cell.color)cell.color=myColor;
+  cell.count=(cell.count||0)+1;
+}
+
+async function syncGameState(moveDesc){
+  const remaining=getRemainingDice();
+  
+  // If no moves left or all dice used → switch turn
+  const noMoves=remaining.length===0||!hasAnyMove();
+  
+  const nextTurn=noMoves?(myColor==='white'?'black':'white'):myColor;
+  const newDice=noMoves?[]:dice;
+  const newDiceUsed=noMoves?[]:diceUsed;
+  
+  const{error}=await sb.from('nardi_games').update({
+    board_state:JSON.stringify(board),
+    turn:nextTurn,
+    dice:newDice,
+    dice_used:newDiceUsed,
+    white_home:whiteHome,
+    black_home:blackHome,
+    white_bar:whiteBar,
+    black_bar:blackBar,
+    last_move:JSON.stringify({type:'move',msg:moveDesc})
+  }).eq('id',activeGameId);
+  
+  if(error)toast('❌ სინქ: '+error.message);
+  
+  if(noMoves){
+    myTurn=false;
+    dice=[];diceUsed=[];
+    addSysMsg('🔄 მოწინააღმდეგის ჯერი');
+    updateDiceUI();
+  }
+}
+
+function hasAnyMove(){
+  const remaining=getRemainingDice();
+  if(!remaining.length)return false;
+  const myBar=myColor==='white'?whiteBar:blackBar;
+  if(myBar>0){
+    return remaining.some(d=>{
+      const to=myColor==='white'?d:(25-d);
+      return to>=1&&to<=24&&isValidMove(0,to);
+    });
+  }
+  for(let i=1;i<=24;i++){
+    const cell=board[i];
+    if(!cell||cell.color!==myColor||cell.count===0)continue;
+    if(remaining.some(d=>{
+      const to=myColor==='white'?(i+d):(i-d);
+      return(to>24&&myColor==='white'&&allCheckersPast18('white'))||(to<1&&myColor==='black'&&allCheckersPast18('black'))||((to>=1&&to<=24)&&isValidMove(i,to));
+    }))return true;
+  }
+  return false;
+}
+
+async function passMove(){
+  diceUsed=[...dice];
+  await syncGameState('pass');
+}
+
+// ════════════════════════════════════════════════
+// DICE
+// ════════════════════════════════════════════════
+async function rollDice(){
+  if(!myTurn){toast('❌ შენი ჯერი არ არის');return;}
+  if(dice.length>0){toast('❌ უკვე გოგრა');return;}
+  
+  const d1=Math.ceil(Math.random()*6);
+  const d2=Math.ceil(Math.random()*6);
+  let newDice=[d1,d2];
+  if(d1===d2)newDice=[d1,d1,d1,d1]; // doubles
+  
+  dice=newDice;
+  diceUsed=[];
+  
+  document.getElementById('dice1').classList.add('rolling');
+  document.getElementById('dice2').classList.add('rolling');
+  setTimeout(()=>{
+    document.getElementById('dice1').classList.remove('rolling');
+    document.getElementById('dice2').classList.remove('rolling');
+  },300);
+  
+  await sb.from('nardi_games').update({dice:newDice,dice_used:[],last_move:JSON.stringify({type:'dice',msg:'🎲 გოგრა: '+d1+'+'+d2})}).eq('id',activeGameId);
+  
+  updateDiceUI();
+  renderBoardUI();
+  addSysMsg(`🎲 გაგდება: ${d1} + ${d2}${d1===d2?' (ორმაგი! ×4)':''}`);
+  
+  if(!hasAnyMove()){
+    addSysMsg('😞 სვლა ვერ — გამოტოვება');
+    await syncGameState('no-moves');
+  }
+}
+
+function updateDiceUI(){
+  const dice_faces=['⬜','⚀','⚁','⚂','⚃','⚄','⚅'];
+  const used=[...diceUsed];
+  const d1el=document.getElementById('dice1');
+  const d2el=document.getElementById('dice2');
+  
+  if(!dice.length){
+    d1el.textContent='⬜';d2el.textContent='⬜';
+    d1el.className='dice';d2el.className='dice';
+    return;
+  }
+  
+  d1el.textContent=dice_faces[dice[0]]||dice[0];
+  d2el.textContent=dice_faces[dice[1]||dice[0]]||dice[1];
+  
+  const usedCount=diceUsed.length;
+  d1el.className='dice'+(usedCount>0?' used':'');
+  d2el.className='dice'+(usedCount>1?' used':'');
+  
+  const rollBtn=document.getElementById('rollBtn');
+  const passBtn=document.getElementById('passBtn');
+  rollBtn.disabled=!myTurn||dice.length>0;
+  passBtn.style.display=(myTurn&&dice.length>0&&diceUsed.length<dice.length)?'':'none';
+}
+
+function updateTurnUI(turn,isMyTurn){
+  const badge=document.getElementById('turnBadge');
+  const myInfoEl=document.getElementById('myInfo');
+  const oppInfoEl=document.getElementById('oppInfo');
+  
+  badge.textContent=isMyTurn?'🎲 შენი ჯერია!':'⏳ ველოდებ...';
+  myInfoEl.classList.toggle('pi-active',isMyTurn);
+  oppInfoEl.classList.toggle('pi-active',!isMyTurn);
+  
+  document.getElementById('statusBar').textContent=isMyTurn?
+    (dice.length?'ქვა გადადი':'🎲 გადააგდე ასვლა!'):
+    '⏳ ოპონენტი წერს...';
+  
+  document.getElementById('rollBtn').disabled=!isMyTurn||dice.length>0;
+}
+
+// ════════════════════════════════════════════════
+// FINISH
+// ════════════════════════════════════════════════
+async function finishGame(){
+  const winner=whiteHome>=15?'white':'black';
+  const iWon=(winner===myColor);
+  
+  await sb.from('nardi_games').update({status:'finished',winner}).eq('id',activeGameId);
+  
+  // Update scores
+  if(iWon){
+    await sb.from('profiles').update({
+      nardi_score:(MYPROF.nardi_score||0)+5,
+      nardi_wins:(MYPROF.nardi_wins||0)+1
+    }).eq('id',ME.id);
+    MYPROF.nardi_score=(MYPROF.nardi_score||0)+5;
+    MYPROF.nardi_wins=(MYPROF.nardi_wins||0)+1;
+  } else {
+    await sb.from('profiles').update({
+      nardi_losses:(MYPROF.nardi_losses||0)+1
+    }).eq('id',ME.id);
+    MYPROF.nardi_losses=(MYPROF.nardi_losses||0)+1;
+  }
+  
+  showWinModal(iWon);
+}
+
+async function endGame(game){
+  if(!game.winner)return;
+  const iWon=game.winner===myColor;
+  showWinModal(iWon);
+}
+
+function showWinModal(iWon){
+  document.getElementById('winIcon').textContent=iWon?'🏆':'😢';
+  document.getElementById('winTitle').textContent=iWon?'გამარჯვება!':'წაგება';
+  document.getElementById('winSub').textContent=iWon?'ბრავო! +5 ქულა':'შემდეგ გაიმარჯვებ!';
+  document.getElementById('winScore').textContent='🏆 '+(MYPROF.nardi_score||0);
+  document.getElementById('winOverlay').classList.add('open');
+  document.getElementById('myScoreDisplay').textContent='🏆 '+(MYPROF.nardi_score||0);
+}
+
+// ════════════════════════════════════════════════
+// CHAT
+// ════════════════════════════════════════════════
+async function sendChatMsg(){
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();
+  if(!txt)return;
+  inp.value='';
+  
+  appendChatMsg(MYPROF?.username||'?',txt,true);
+  
+  if(chatChannel){
+    try{
+      chatChannel.send({type:'broadcast',event:'chat',payload:{uid:ME.id,nick:MYPROF?.username||'?',content:txt}});
+    }catch(e){}
+  }
+  
+  // Also save to DB for persistence
+  if(activeGameId){
+    await sb.from('nardi_chat').insert({game_id:activeGameId,user_id:ME.id,content:txt}).then(()=>{});
+  }
+}
+
+function appendChatMsg(nick,content,isMe){
+  const box=document.getElementById('chatMsgs');
+  const d=document.createElement('div');
+  d.className='cmsg'+(isMe?' mine':'');
+  const rendered=renderChatContent(content);
+  d.innerHTML=(!isMe?`<div class="cmsg-nick">${esc(nick)}</div>`:'')+'<div>'+rendered+'</div>';
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+
+function addSysMsg(msg){
+  const box=document.getElementById('chatMsgs');
+  const d=document.createElement('div');
+  d.className='cmsg-sys';
+  d.textContent=msg;
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
+}
+
+// ════════════════════════════════════════════════
+// MISC
+// ════════════════════════════════════════════════
+function resetToLobby(){
+  pendingInviteId=null;selectedOpponent=null;
+  document.getElementById('waitingScreen').style.display='none';
+  document.getElementById('lobby').style.display='flex';
+  document.getElementById('inviteBtn').disabled=false;
+  document.querySelectorAll('.user-pick-item').forEach(i=>i.classList.remove('selected'));
+}
+
+async function resetGame(){
+  document.getElementById('winOverlay').classList.remove('open');
+  if(gameChannel){try{sb.removeChannel(gameChannel);}catch(e){}gameChannel=null;}
+  if(chatChannel){try{sb.removeChannel(chatChannel);}catch(e){}chatChannel=null;}
+  activeGameId=null;gameStarted=false;myTurn=false;
+  board=getInitialBoard();whiteHome=blackHome=whiteBar=blackBar=0;dice=[];diceUsed=[];selectedPoint=null;
+  document.getElementById('boardWrap').style.display='none';
+  document.getElementById('lobby').style.display='flex';
+  document.getElementById('chatMsgs').innerHTML='<div class="cmsg-sys">🎲 ნარდი დაიწყო!</div>';
+  document.getElementById('inviteBtn').disabled=false;
+  document.querySelectorAll('.user-pick-item').forEach(i=>i.classList.remove('selected'));
+  selectedOpponent=null;
+  await loadUsers();
+}
+
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
+
+init();
+</script>
+
+</body>
+</html>
