@@ -1317,6 +1317,18 @@ const ROOMS=[
   {id:9,icon:'🧠',name:'ფორუმი'},
   {id:10,icon:'🌸',name:'ცხელი ხაზი'},
 ];
+  function switchRoom(r,clickedEl){
+  if(!r||!r.id)return;
+  if(r.id===9){window.open('forum.html','_blank');return;}
+  ROOM=r.id;
+  document.getElementById('roomTitle').textContent=r.name;
+  document.getElementById('roomIcon').textContent=r.icon;
+  document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));
+  if(clickedEl)clickedEl.classList.add('active');
+  if(r.isGame)setRoomView('game',r);
+  else{setRoomView('chat',null);loadMessages(r.id);}
+  document.getElementById('sidebar')?.classList.remove('mob-open');
+}
 function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank');}
 function updateGameScoreUI(){
   const w=document.getElementById('profWordScore'),q=document.getElementById('profQuizScore'),h=document.getElementById('profHangScore');
