@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია · ფორუმი</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body.night{--bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff}
+body.day{--bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);--text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;--online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);--glow:rgba(106,13,173,0.2);--accent:#c040ff}
+body.theme-ocean{--bg:#0a1628;--panel:#0d1f3c;--panel2:#112447;--border:rgba(0,180,255,0.3);--text:#e0f4ff;--text2:#60b8e8;--text3:#3a7ca8;--bubble:#0e2040;--input-bg:#0a1a30;--online:#00d4ff;--indigo:#005fa3;--indigo2:#0097cc;--indigo-f:rgba(0,150,200,0.15);--glow:rgba(0,180,255,0.25);--accent:#00e5ff}
+body.theme-forest{--bg:#0a1a0f;--panel:#0d2215;--panel2:#10291a;--border:rgba(0,200,80,0.3);--text:#d4f5dc;--text2:#50c870;--text3:#2a7840;--bubble:#0d2015;--input-bg:#091510;--online:#00e555;--indigo:#006830;--indigo2:#00a845;--indigo-f:rgba(0,160,60,0.15);--glow:rgba(0,200,80,0.25);--accent:#00ff80}
+body.theme-sunset{--bg:#1a0a1a;--panel:#250d20;--panel2:#30102a;--border:rgba(255,100,50,0.3);--text:#ffe0d0;--text2:#e87050;--text3:#a84030;--bubble:#250d18;--input-bg:#1a0812;--online:#ff7030;--indigo:#a03010;--indigo2:#e05530;--indigo-f:rgba(200,80,40,0.15);--glow:rgba(255,100,50,0.25);--accent:#ff8c50}
+body.theme-rose{--bg:#1a0a12;--panel:#250d18;--panel2:#300f20;--border:rgba(255,80,120,0.3);--text:#ffe0ec;--text2:#e8608a;--text3:#a83055;--bubble:#250d18;--input-bg:#1a0810;--online:#ff4080;--indigo:#a01040;--indigo2:#e03060;--indigo-f:rgba(200,40,80,0.15);--glow:rgba(255,80,120,0.25);--accent:#ff5090}
+body.theme-gold{--bg:#160f00;--panel:#1e1500;--panel2:#251900;--border:rgba(220,160,0,0.3);--text:#fff5cc;--text2:#d4a030;--text3:#a07820;--bubble:#1e1500;--input-bg:#160f00;--online:#ffc020;--indigo:#8c6000;--indigo2:#c89000;--indigo-f:rgba(200,140,0,0.15);--glow:rgba(220,160,0,0.25);--accent:#ffd040}
+body.theme-cyber{--bg:#000a0a;--panel:#001515;--panel2:#001e1e;--border:rgba(0,255,200,0.3);--text:#ccffee;--text2:#00d8a0;--text3:#008860;--bubble:#001515;--input-bg:#000a0a;--online:#00ffcc;--indigo:#006650;--indigo2:#00aa80;--indigo-f:rgba(0,200,150,0.12);--glow:rgba(0,255,200,0.25);--accent:#00ffe8}
+body.theme-lavender{--bg:#f0ecff;--panel:#e8e0ff;--panel2:#ddd5ff;--border:rgba(120,80,200,0.2);--text:#2a1060;--text2:#6040a8;--text3:#9080c0;--bubble:#fff;--input-bg:#fff;--online:#8060cc;--indigo:#5030a0;--indigo2:#7050c0;--indigo-f:rgba(100,60,180,0.1);--glow:rgba(120,80,200,0.2);--accent:#9060e0}
+body.theme-midnight{--bg:#05050f;--panel:#0a0a1e;--panel2:#0e0e28;--border:rgba(100,100,255,0.3);--text:#d0d0ff;--text2:#8080cc;--text3:#505090;--bubble:#0a0a1e;--input-bg:#05050f;--online:#6060ff;--indigo:#2020a0;--indigo2:#4040cc;--indigo-f:rgba(50,50,200,0.15);--glow:rgba(100,100,255,0.25);--accent:#8080ff}
+body.theme-cherry{--bg:#1a000a;--panel:#250010;--panel2:#300018;--border:rgba(220,0,60,0.3);--text:#ffd0e0;--text2:#cc4060;--text3:#882040;--bubble:#250010;--input-bg:#1a000a;--online:#ff2060;--indigo:#800020;--indigo2:#cc0040;--indigo-f:rgba(200,0,50,0.15);--glow:rgba(220,0,60,0.25);--accent:#ff4080}
+body.theme-mint{--bg:#001a12;--panel:#002218;--panel2:#002d20;--border:rgba(0,220,140,0.3);--text:#ccfff0;--text2:#40d8a0;--text3:#208860;--bubble:#002218;--input-bg:#001a12;--online:#00ff99;--indigo:#006640;--indigo2:#00aa70;--indigo-f:rgba(0,180,100,0.15);--glow:rgba(0,220,140,0.25);--accent:#00ffbb}
+body.theme-galaxy{--bg:#080010;--panel:#100020;--panel2:#180030;--border:rgba(180,0,255,0.3);--text:#f0d0ff;--text2:#c060f0;--text3:#803090;--bubble:#100020;--input-bg:#080010;--online:#e040ff;--indigo:#600090;--indigo2:#a000e0;--indigo-f:rgba(150,0,220,0.15);--glow:rgba(180,0,255,0.3);--accent:#e060ff}
+
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .4s,color .4s}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 20px var(--glow)) drop-shadow(0 0 40px var(--accent))}}
+@keyframes pop{from{opacity:0;transform:scale(0.92)}to{opacity:1;transform:scale(1)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* ── NAV ── */
+#topnav{display:flex;align-items:center;gap:6px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 14px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.25)}
+.nav-logo{font-size:22px;animation:flicker 2.5s ease-in-out infinite;text-decoration:none;cursor:pointer}
+.nav-brand{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1px}
+.nav-sep{color:var(--border);margin:0 4px}
+.nav-page{font-family:'Unbounded',sans-serif;font-size:11px;color:var(--accent)}
+.nav-spacer{flex:1}
+.nav-back{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:12px;text-decoration:none;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
+.nav-back:hover{background:var(--border);color:var(--text)}
+.nav-user{display:flex;align-items:center;gap:7px;padding:5px 10px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border)}
+.nav-av{width:28px;height:28px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0}
+.nav-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.nav-nick{font-size:12px;font-weight:500;color:var(--text)}
+
+/* ── LAYOUT ── */
+#wrap{max-width:860px;margin:0 auto;padding:24px 14px 60px}
+
+/* ── PAGE HEADER ── */
+.page-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;gap:12px;flex-wrap:wrap}
+.page-title{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:var(--text)}
+.page-sub{font-size:12px;color:var(--text3);margin-top:3px;font-family:'Noto Sans Georgian',sans-serif}
+.new-post-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;border-radius:14px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;letter-spacing:.5px;cursor:pointer;transition:all .2s;box-shadow:0 4px 18px rgba(120,30,200,.4)}
+.new-post-btn:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,30,200,.55)}
+
+/* ── FILTER BAR ── */
+.filter-bar{display:flex;align-items:center;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.filter-chip{padding:6px 14px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
+.filter-chip.active,.filter-chip:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
+.filter-search{flex:1;min-width:160px;padding:7px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none;transition:border-color .2s}
+.filter-search:focus{border-color:var(--indigo2)}
+.filter-search::placeholder{color:var(--text3)}
+
+/* ── POSTS LIST ── */
+.posts-list{display:flex;flex-direction:column;gap:12px}
+.post-card{background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden;transition:all .2s;cursor:pointer;animation:fadeUp .3s ease both}
+.post-card:hover{border-color:var(--indigo2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(0,0,0,.25)}
+.post-card.pinned{border-color:rgba(240,122,255,0.5);background:linear-gradient(135deg,rgba(120,30,200,0.08),var(--panel))}
+.post-head{display:flex;align-items:flex-start;gap:12px;padding:16px 18px 10px}
+.post-av{width:38px;height:38px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.post-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.post-meta{flex:1;min-width:0}
+.post-badges{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin-bottom:4px}
+.post-nick{font-size:12px;font-weight:600;color:var(--indigo2)}
+.post-role{font-size:9px;padding:2px 7px;border-radius:5px;font-weight:700;font-family:'Unbounded',sans-serif}
+.rb-founder{background:rgba(255,180,0,.18);color:#f0a500;border:1px solid rgba(255,180,0,.3)}
+.rb-admin{background:rgba(168,85,247,.2);color:#c084fc;border:1px solid rgba(168,85,247,.3)}
+.post-time{font-size:10px;color:var(--text3)}
+.post-pin-badge{font-size:9px;padding:2px 8px;border-radius:5px;background:rgba(240,122,255,0.15);border:1px solid rgba(240,122,255,0.3);color:var(--accent);font-family:'Unbounded',sans-serif;font-weight:700}
+.post-title{font-size:15px;font-weight:600;color:var(--text);padding:0 18px 8px;line-height:1.4}
+.post-preview{font-size:13px;color:var(--text2);padding:0 18px 10px;line-height:1.55;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.post-footer{display:flex;align-items:center;gap:14px;padding:10px 18px 14px;border-top:1px solid var(--border)}
+.post-stat{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text3)}
+.post-stat span{font-size:14px}
+.post-tags{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.post-tag{font-size:10px;padding:2px 9px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:.3px}
+.post-empty{text-align:center;padding:60px 20px;color:var(--text3);font-size:14px}
+.post-empty-icon{font-size:50px;display:block;margin-bottom:12px}
+
+/* ── MODAL ── */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:flex-start;justify-content:center;padding:16px;overflow-y:auto}
+.overlay.open{display:flex}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:580px;padding:26px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:pop .35s cubic-bezier(0.34,1.3,0.64,1);margin:auto}
+.modal-x{position:absolute;top:14px;right:14px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:30px;height:30px;color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.modal-x:hover{background:var(--border);color:var(--text)}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:18px;letter-spacing:1px;text-transform:uppercase;padding-right:30px}
+.lbl{font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;font-family:'Unbounded',sans-serif;margin:12px 0 6px;display:block}
+.inp{width:100%;padding:11px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:6px;transition:border-color .2s}
+.inp:focus{border-color:var(--indigo2)}
+.inp::placeholder{color:var(--text3)}
+textarea.inp{resize:vertical;min-height:90px;line-height:1.55}
+.tag-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:10px}
+.tag-btn{padding:5px 12px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:11px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
+.tag-btn.active,.tag-btn:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
+.act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-bottom:6px}
+.act-btn:hover{background:var(--border)}
+.act-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-color:transparent;color:#fff;font-weight:600}
+.act-btn.primary:hover{opacity:.9}
+.act-btn.danger{border-color:rgba(220,0,0,.3);color:#ff7777}
+.act-btn.danger:hover{background:rgba(220,0,0,.12)}
+.divider{height:1px;background:var(--border);margin:14px 0}
+
+/* ── POST DETAIL ── */
+#postDetail{display:none}
+#postDetail.open{display:block}
+.back-btn{display:inline-flex;align-items:center;gap:7px;padding:8px 16px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s;margin-bottom:20px;font-family:'Noto Sans Georgian',sans-serif}
+.back-btn:hover{background:var(--border);color:var(--text)}
+.detail-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:22px;margin-bottom:16px;animation:fadeUp .3s ease}
+.detail-title{font-size:20px;font-weight:600;color:var(--text);line-height:1.4;margin-bottom:14px}
+.detail-body{font-size:14px;color:var(--text2);line-height:1.7;white-space:pre-wrap;word-break:break-word}
+.detail-body img.chat-emoji{width:30px;height:30px;object-fit:contain;vertical-align:middle;border-radius:5px}
+.detail-body img.chat-emoji-gif{width:36px;height:36px;object-fit:contain;vertical-align:middle;border-radius:6px}
+.detail-body .chat-emoji-text{font-size:22px;vertical-align:middle}
+.detail-meta{display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.detail-tags{display:flex;gap:5px;flex-wrap:wrap;margin-top:12px}
+.detail-actions{display:flex;gap:8px;margin-top:14px;padding-top:12px;border-top:1px solid var(--border);flex-wrap:wrap}
+.detail-act{display:flex;align-items:center;gap:5px;padding:7px 14px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
+.detail-act:hover,.detail-act.active{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
+.detail-act.danger:hover{background:rgba(220,0,0,.12);color:#ff7777;border-color:rgba(220,0,0,.3)}
+
+/* ── COMMENTS ── */
+.comments-head{font-family:'Unbounded',sans-serif;font-size:10px;letter-spacing:1.5px;color:var(--text2);margin-bottom:14px;text-transform:uppercase}
+.comment-item{display:flex;gap:10px;margin-bottom:14px;animation:fadeUp .25s ease both}
+.comment-av{width:32px;height:32px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden}
+.comment-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.comment-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 14px 14px 14px;padding:9px 13px;flex:1;min-width:0}
+.comment-bubble.mine{background:rgba(120,30,200,0.22);border-color:rgba(168,85,247,0.4)}
+.comment-meta{display:flex;align-items:center;gap:6px;margin-bottom:4px;flex-wrap:wrap}
+.comment-nick{font-size:11px;font-weight:600;color:var(--indigo2);cursor:pointer}
+.comment-nick:hover{text-decoration:underline}
+.comment-time{font-size:10px;color:var(--text3)}
+.comment-text{font-size:13px;color:var(--text);line-height:1.55;word-break:break-word}
+.comment-text img.chat-emoji{width:26px;height:26px;object-fit:contain;vertical-align:middle;border-radius:4px}
+.comment-text img.chat-emoji-gif{width:32px;height:32px;object-fit:contain;vertical-align:middle;border-radius:5px}
+.comment-text .chat-emoji-text{font-size:20px;vertical-align:middle}
+.comment-del{background:none;border:none;font-size:10px;color:var(--text3);cursor:pointer;padding:1px 5px;border-radius:5px;margin-left:4px;transition:all .15s}
+.comment-del:hover{background:rgba(220,0,0,.15);color:#ff7777}
+.reply-preview-bar{background:var(--indigo-f);border-left:3px solid var(--accent);border-radius:8px;padding:5px 10px;margin-bottom:7px;font-size:11px;color:var(--text3);display:none;align-items:center;gap:8px}
+.reply-preview-bar.open{display:flex}
+.reply-preview-bar strong{color:var(--indigo2)}
+.reply-preview-cancel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:14px;padding:0 4px}
+.comment-reply-preview{background:var(--indigo-f);border-left:3px solid var(--accent);border-radius:6px;padding:4px 9px;margin-bottom:5px;font-size:11px;color:var(--text3)}
+.comment-reply-preview strong{color:var(--indigo2)}
+
+/* ── COMMENT BAR ── */
+.comment-bar{background:var(--panel2);border:1px solid var(--border);border-radius:18px;padding:10px 14px;margin-top:6px}
+.comment-bar-top{display:flex;align-items:flex-end;gap:8px}
+.comment-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:10px 14px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none;resize:none;min-height:42px;max-height:120px;overflow-y:auto;transition:border-color .2s;line-height:1.5}
+.comment-input:focus{border-color:var(--indigo2)}
+.comment-input::placeholder{color:var(--text3)}
+.comment-send{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s,box-shadow .2s;box-shadow:0 4px 14px rgba(120,30,200,.45)}
+.comment-send:hover{transform:scale(1.1)}
+.emoji-toggle{width:38px;height:38px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.emoji-toggle:hover{background:var(--border)}
+.comment-emoji-panel{background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;margin-top:8px;display:none}
+.comment-emoji-panel.open{display:block}
+.comment-emoji-grid{display:flex;flex-wrap:wrap;gap:6px;max-height:180px;overflow-y:auto}
+.comment-emoji-grid::-webkit-scrollbar{width:3px}
+.comment-emoji-grid::-webkit-scrollbar-thumb{background:var(--border)}
+.em-btn{width:48px;height:48px;border-radius:11px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;overflow:visible;flex-shrink:0}
+.em-btn:hover{background:var(--border);transform:scale(1.1)}
+.em-btn img{width:32px;height:32px;object-fit:contain;border-radius:5px}
+.em-btn .em-text{font-size:22px}
+
+/* ── LIKE CHIP ── */
+.like-chip{display:flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);font-size:12px;cursor:pointer;transition:all .15s}
+.like-chip.liked{background:rgba(240,122,255,0.2);border-color:rgba(240,122,255,0.4);color:var(--accent)}
+.like-chip span{font-size:10px;font-weight:600;color:var(--text2)}
+
+/* ── LOADING ── */
+.loader{text-align:center;padding:40px;color:var(--text3);font-size:13px}
+.spinner{width:28px;height:28px;border:3px solid var(--border);border-top-color:var(--indigo2);border-radius:50%;animation:spin 0.8s linear infinite;margin:0 auto 12px}
+
+/* ── SCROLL ── */
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--indigo2);border-radius:4px}
+.hidden{display:none!important}
+
+/* ── TOAST ── */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 22px;border-radius:22px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:fadeUp .3s ease;white-space:nowrap}
+
+/* responsive */
+@media(max-width:560px){.post-head{padding:12px 12px 8px}.post-title{padding:0 12px 7px}.post-preview{padding:0 12px 8px}.post-footer{padding:8px 12px 12px}.detail-card{padding:16px}}
+</style>
+</head>
+<body>
+
+<!-- ── NAV ── -->
+<nav id="topnav">
+  <span class="nav-logo">🔥</span>
+  <span class="nav-brand">კაიფმანია</span>
+  <span class="nav-sep">›</span>
+  <span class="nav-page">🧠 ფორუმი</span>
+  <div class="nav-spacer"></div>
+  <div class="nav-user" id="navUser" style="display:none">
+    <div class="nav-av" id="navAv">😊</div>
+    <span class="nav-nick" id="navNick">-</span>
+  </div>
+  <a href="chat.html" class="nav-back">← ჩატში დაბრუნება</a>
+</nav>
+
+<!-- ── MAIN WRAP ── -->
+<div id="wrap">
+
+  <!-- POSTS VIEW -->
+  <div id="postsView">
+    <div class="page-head">
+      <div>
+        <div class="page-title">🧠 ფორუმი</div>
+        <div class="page-sub">კითხვები, განხილვები, მოსაზრებები</div>
+      </div>
+      <button class="new-post-btn hidden" id="newPostBtn" onclick="openNewPost()">+ ახალი კითხვა</button>
+    </div>
+
+    <div class="filter-bar">
+      <button class="filter-chip active" data-cat="all" onclick="filterPosts('all',this)">🔍 ყველა</button>
+      <button class="filter-chip" data-cat="კითხვა" onclick="filterPosts('კითხვა',this)">❓ კითხვა</button>
+      <button class="filter-chip" data-cat="განხილვა" onclick="filterPosts('განხილვა',this)">💬 განხილვა</button>
+      <button class="filter-chip" data-cat="სიახლე" onclick="filterPosts('სიახლე',this)">📢 სიახლე</button>
+      <button class="filter-chip" data-cat="თამაში" onclick="filterPosts('თამაში',this)">🎮 თამაში</button>
+      <input class="filter-search" id="searchInp" placeholder="🔍 ძებნა..." oninput="searchPosts()">
+    </div>
+
+    <div id="postsList" class="posts-list">
+      <div class="loader"><div class="spinner"></div>იტვირთება...</div>
+    </div>
+  </div>
+
+  <!-- POST DETAIL -->
+  <div id="postDetail">
+    <button class="back-btn" onclick="showPostsList()">← უკან</button>
+
+    <div class="detail-card" id="detailCard"></div>
+
+    <div style="background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:20px">
+      <div class="comments-head" id="commentsHead">💬 კომენტარები</div>
+
+      <div id="commentsList"></div>
+
+      <div id="commentBarWrap">
+        <div class="reply-preview-bar" id="replyPreviewBar">
+          <span style="color:var(--accent);font-size:14px">↩️</span>
+          <span style="flex:1;font-size:11px">↩️ <strong id="replyNick"></strong>-ს პასუხობ</span>
+          <button class="reply-preview-cancel" onclick="cancelReply()">✕</button>
+        </div>
+        <div class="comment-bar">
+          <div class="comment-bar-top">
+            <button class="emoji-toggle" onclick="toggleCommentEmoji()">😊</button>
+            <textarea class="comment-input" id="commentInput" placeholder="კომენტარი..." rows="1"
+              onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendComment()}"
+              oninput="autoResize(this)"></textarea>
+            <button class="comment-send" onclick="sendComment()">✈️</button>
+          </div>
+          <div class="comment-emoji-panel" id="commentEmojiPanel">
+            <div class="comment-emoji-grid" id="commentEmojiGrid"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ── NEW POST MODAL ── -->
+<div class="overlay" id="newPostOverlay" onclick="bgClose(event,'newPostOverlay')">
+  <div class="modal">
+    <button class="modal-x" onclick="closeModal('newPostOverlay')">✕</button>
+    <div class="modal-title">✍️ ახალი კითხვა / განხილვა</div>
+
+    <span class="lbl">სათაური</span>
+    <input class="inp" id="postTitleInp" placeholder="კითხვის სათაური...">
+
+    <span class="lbl">ტექსტი</span>
+    <textarea class="inp" id="postBodyInp" placeholder="დაწვრილებით..."></textarea>
+
+    <span class="lbl">კატეგორია</span>
+    <div class="tag-row">
+      <button class="tag-btn active" onclick="pickCat(this,'კითხვა')">❓ კითხვა</button>
+      <button class="tag-btn" onclick="pickCat(this,'განხილვა')">💬 განხილვა</button>
+      <button class="tag-btn" onclick="pickCat(this,'სიახლე')">📢 სიახლე</button>
+      <button class="tag-btn" onclick="pickCat(this,'თამაში')">🎮 თამაში</button>
+      <button class="tag-btn" onclick="pickCat(this,'სხვა')">📌 სხვა</button>
+    </div>
+
+    <div id="founderPinRow" class="hidden">
+      <div class="divider"></div>
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--text2);cursor:pointer">
+        <input type="checkbox" id="postPinned" style="width:16px;height:16px;accent-color:var(--accent)">
+        📌 დააპინო (ყოველთვის ზევით)
+      </label>
+    </div>
+
+    <div class="divider"></div>
+    <button class="act-btn primary" onclick="submitPost()">✅ გამოქვეყნება</button>
+  </div>
+</div>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+let ME=null,MYPROF=null;
+let allPosts=[],currentFilter='all',customEmojis=[],emojiCache={};
+let currentPostId=null,replyTo=null;
+let postRealtimeCh=null,commentRealtimeCh=null;
+let selectedCat='კითხვა';
+
+/* ── THEME ── */
+function loadTheme(){
+  const t=localStorage.getItem('kaif_theme')||'night';
+  document.body.className=t;
+}
+loadTheme();
+
+/* ── HELPERS ── */
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),2500);
+}
+function openModal(id){document.getElementById(id).classList.add('open');}
+function closeModal(id){document.getElementById(id).classList.remove('open');}
+function bgClose(e,id){if(e.target.id===id)closeModal(id);}
+function autoResize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,120)+'px';}
+function timeAgo(ts){
+  const d=Math.floor((Date.now()-new Date(ts))/1000);
+  if(d<60)return d+'წ';if(d<3600)return Math.floor(d/60)+'წთ';
+  if(d<86400)return Math.floor(d/3600)+'სთ';
+  return Math.floor(d/86400)+'დ';
+}
+
+/* ── EMOJI RENDER ── */
+function renderContent(s){
+  if(!s)return'';
+  let h=esc(s);
+  h=h.replace(/\[b\]([\s\S]*?)\[\/b\]/g,'<strong>$1</strong>');
+  h=h.replace(/\[i\]([\s\S]*?)\[\/i\]/g,'<em>$1</em>');
+  h=h.replace(/\[u\]([\s\S]*?)\[\/u\]/g,'<u>$1</u>');
+  h=h.replace(/\[e:(\d+)\]/g,(m,id)=>{
+    const url=emojiCache[parseInt(id)];
+    if(!url)return m;
+    if(url.startsWith('http')||url.startsWith('data:')){
+      const isGif=url.toLowerCase().includes('.gif')||url.startsWith('data:image/gif');
+      return`<img src="${url}" class="${isGif?'chat-emoji-gif':'chat-emoji'}" style="${isGif?'animation-play-state:running':''}">`;
+    }
+    return`<span class="chat-emoji-text">${url}</span>`;
+  });
+  h=h.replace(/\n/g,'<br>');
+  return h;
+}
+
+/* ── ROLE HELPERS ── */
+function rbLabel(r){return r==='founder'?'👑 Founder':r==='admin'?'🛡️ Admin':'';}
+function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
+function canPost(){return MYPROF?.role==='founder'||MYPROF?.role==='admin';}
+function canDel(authorId,authorRole){
+  if(MYPROF?.role==='founder')return true;
+  if(MYPROF?.role==='admin'&&authorRole!=='founder')return true;
+  return authorId===ME?.id;
+}
+
+/* ── EMOJIS ── */
+async function loadEmojis(){
+  const{data}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});
+  customEmojis=data||[];
+  emojiCache={};
+  customEmojis.forEach(e=>emojiCache[e.id]=e.url);
+  buildCommentEmojiGrid();
+}
+function buildCommentEmojiGrid(){
+  const grid=document.getElementById('commentEmojiGrid');
+  if(!grid)return;
+  grid.innerHTML='';
+  customEmojis.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.className='em-btn';
+    const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
+    if(isImg){
+      const img=document.createElement('img');
+      img.src=em.url;
+      img.style.cssText='animation-play-state:running!important';
+      btn.appendChild(img);
+    } else {
+      const span=document.createElement('span');
+      span.className='em-text';
+      span.textContent=em.url||'?';
+      btn.appendChild(span);
+    }
+    btn.addEventListener('click',()=>{
+      const inp=document.getElementById('commentInput');
+      if(!inp)return;
+      inp.value+=isImg?`[e:${em.id}]`:em.url;
+      inp.focus();
+      autoResize(inp);
+    });
+    grid.appendChild(btn);
+  });
+}
+function toggleCommentEmoji(){
+  const p=document.getElementById('commentEmojiPanel');
+  p.classList.toggle('open');
+}
+
+/* ── POSTS ── */
+async function loadPosts(){
+  document.getElementById('postsList').innerHTML='<div class="loader"><div class="spinner"></div>იტვირთება...</div>';
+  const{data,error}=await sb.from('forum_posts')
+    .select('id,title,body,category,pinned,created_at,user_id,likes,profiles!forum_posts_user_id_fkey(username,role,avatar_url,emotion)')
+    .order('pinned',{ascending:false})
+    .order('created_at',{ascending:false})
+    .limit(60);
+  if(error){
+    if(error.code==='42P01'){
+      document.getElementById('postsList').innerHTML='<div class="post-empty"><span class="post-empty-icon">⚙️</span>ცხრილი ვერ მოიძებნა.<br><small>გთხოვ შექმენი <code>forum_posts</code> და <code>forum_comments</code> ცხრილები Supabase-ში.</small></div>';
+      return;
+    }
+    document.getElementById('postsList').innerHTML=`<div class="post-empty"><span class="post-empty-icon">❌</span>${esc(error.message)}</div>`;
+    return;
+  }
+  allPosts=data||[];
+  renderPosts();
+  watchPosts();
+}
+function renderPosts(){
+  const filter=currentFilter;
+  const q=(document.getElementById('searchInp').value||'').toLowerCase();
+  let list=allPosts;
+  if(filter!=='all')list=list.filter(p=>p.category===filter);
+  if(q)list=list.filter(p=>(p.title||'').toLowerCase().includes(q)||(p.body||'').toLowerCase().includes(q));
+  const el=document.getElementById('postsList');
+  el.innerHTML='';
+  if(!list.length){
+    el.innerHTML='<div class="post-empty"><span class="post-empty-icon">🧐</span>კითხვა ვერ მოიძებნა</div>';
+    return;
+  }
+  list.forEach((p,i)=>{
+    const card=makePostCard(p,i);
+    el.appendChild(card);
+  });
+}
+function makePostCard(p,i){
+  const card=document.createElement('div');
+  card.className='post-card'+(p.pinned?' pinned':'');
+  card.style.animationDelay=(i*0.04)+'s';
+  const role=p.profiles?.role;
+  const avHtml=p.profiles?.avatar_url
+    ?`<img src="${esc(p.profiles.avatar_url)}">`
+    :(p.profiles?.emotion||'😊');
+  const rbadge=role&&role!=='member'
+    ?`<span class="post-role ${rbClass(role)}">${rbLabel(role)}</span>`:'' ;
+  const pinBadge=p.pinned?'<span class="post-pin-badge">📌 PINNED</span>':'';
+  const catColors={კითხვა:'#a855f7',განხილვა:'#60b8e8',სიახლე:'#f0a500',თამაში:'#4ade80',სხვა:'#888'};
+  const catColor=catColors[p.category]||'#888';
+  const preview=(p.body||'').replace(/\[e:\d+\]/g,'').replace(/\[\/?\w[^\]]*\]/g,'').substring(0,140);
+  card.innerHTML=`
+    <div class="post-head">
+      <div class="post-av">${avHtml}</div>
+      <div class="post-meta">
+        <div class="post-badges">
+          <span class="post-nick">${esc(p.profiles?.username||'?')}</span>
+          ${rbadge}${pinBadge}
+          <span class="post-time">${timeAgo(p.created_at)}</span>
+        </div>
+      </div>
+    </div>
+    <div class="post-title">${esc(p.title||'')}</div>
+    ${preview?`<div class="post-preview">${esc(preview)}${(p.body||'').length>140?'...':''}</div>`:''}
+    <div class="post-footer">
+      <div class="post-tags">
+        <span class="post-tag" style="color:${catColor};border-color:${catColor}44">${esc(p.category||'')}</span>
+      </div>
+      <div class="post-stat"><span>❤️</span>${p.likes||0}</div>
+      <div class="post-stat"><span>💬</span><span id="cmcount_${p.id}">…</span></div>
+    </div>
+  `;
+  card.onclick=()=>openPost(p.id);
+  loadCommentCount(p.id);
+  return card;
+}
+async function loadCommentCount(postId){
+  const{count}=await sb.from('forum_comments').select('id',{count:'exact',head:true}).eq('post_id',postId);
+  const el=document.getElementById('cmcount_'+postId);
+  if(el)el.textContent=count||0;
+}
+function filterPosts(cat,btn){
+  currentFilter=cat;
+  document.querySelectorAll('.filter-chip').forEach(b=>b.classList.toggle('active',b===btn));
+  renderPosts();
+}
+function searchPosts(){renderPosts();}
+
+/* ── POST DETAIL ── */
+async function openPost(postId){
+  currentPostId=postId;
+  document.getElementById('postsView').style.display='none';
+  document.getElementById('postDetail').classList.add('open');
+  document.getElementById('detailCard').innerHTML='<div class="loader"><div class="spinner"></div>იტვირთება...</div>';
+  document.getElementById('commentsList').innerHTML='';
+  const{data:post}=await sb.from('forum_posts')
+    .select('*,profiles!forum_posts_user_id_fkey(username,role,avatar_url,emotion)')
+    .eq('id',postId).single();
+  if(!post){toast('❌ პოსტი ვერ მოიძებნა');showPostsList();return;}
+  renderDetail(post);
+  await loadComments(postId);
+  watchComments(postId);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function renderDetail(post){
+  const role=post.profiles?.role;
+  const avHtml=post.profiles?.avatar_url
+    ?`<img src="${esc(post.profiles.avatar_url)}">`
+    :(post.profiles?.emotion||'😊');
+  const rbadge=role&&role!=='member'
+    ?`<span class="post-role ${rbClass(role)}">${rbLabel(role)}</span>`:'' ;
+  const isAdmin=canPost(),isMe=post.user_id===ME?.id;
+  const myLike=!!(post.liked_by||[]).find?.(id=>id===ME?.id);
+  document.getElementById('detailCard').innerHTML=`
+    <div class="detail-meta">
+      <div style="width:40px;height:40px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden">${avHtml}</div>
+      <div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+          <span style="font-size:13px;font-weight:600;color:var(--indigo2)">${esc(post.profiles?.username||'?')}</span>
+          ${rbadge}
+          ${post.pinned?'<span class="post-pin-badge">📌 PINNED</span>':''}
+        </div>
+        <div style="font-size:11px;color:var(--text3);margin-top:2px">${new Date(post.created_at).toLocaleString('ka-GE')}</div>
+      </div>
+      <div class="detail-tags" style="margin:0 0 0 auto">
+        <span class="post-tag">${esc(post.category||'')}</span>
+      </div>
+    </div>
+    <div class="detail-title">${esc(post.title||'')}</div>
+    <div class="detail-body" id="detailBody">${renderContent(post.body||'')}</div>
+    <div class="detail-actions">
+      <div class="like-chip${myLike?' liked':''}" id="likeChip" onclick="toggleLike('${post.id}',${post.likes||0})">
+        ❤️ <span id="likeCount">${post.likes||0}</span>
+      </div>
+      ${canDel(post.user_id,role)?`<button class="detail-act danger" onclick="deletePost('${post.id}')">🗑 წაშლა</button>`:''}
+      ${isAdmin&&!post.pinned?`<button class="detail-act" onclick="pinPost('${post.id}',true)">📌 დაპინება</button>`:''}
+      ${isAdmin&&post.pinned?`<button class="detail-act active" onclick="pinPost('${post.id}',false)">📌 გაუქმება</button>`:''}
+    </div>
+  `;
+}
+async function toggleLike(postId,currentLikes){
+  const chip=document.getElementById('likeChip');
+  const isLiked=chip.classList.contains('liked');
+  const newLikes=isLiked?Math.max(0,currentLikes-1):currentLikes+1;
+  chip.classList.toggle('liked',!isLiked);
+  document.getElementById('likeCount').textContent=newLikes;
+  await sb.from('forum_posts').update({likes:newLikes}).eq('id',postId);
+}
+async function deletePost(postId){
+  if(!confirm('პოსტი წაიშალა?'))return;
+  await sb.from('forum_comments').delete().eq('post_id',postId);
+  await sb.from('forum_posts').delete().eq('id',postId);
+  toast('🗑 წაიშალა');
+  showPostsList();
+}
+async function pinPost(postId,pin){
+  await sb.from('forum_posts').update({pinned:pin}).eq('id',postId);
+  toast(pin?'📌 დაპინდა':'📌 გაუქმდა');
+  const post=allPosts.find(p=>String(p.id)===String(postId));
+  if(post){post.pinned=pin;openPost(postId);}
+}
+function showPostsList(){
+  if(commentRealtimeCh){try{sb.removeChannel(commentRealtimeCh);}catch(e){}commentRealtimeCh=null;}
+  document.getElementById('postDetail').classList.remove('open');
+  document.getElementById('postsView').style.display='';
+  currentPostId=null;replyTo=null;
+  document.getElementById('replyPreviewBar').classList.remove('open');
+  document.getElementById('commentEmojiPanel').classList.remove('open');
+  document.getElementById('commentInput').value='';
+}
+
+/* ── COMMENTS ── */
+async function loadComments(postId){
+  const{data}=await sb.from('forum_comments')
+    .select('*,profiles!forum_comments_user_id_fkey(username,role,avatar_url,emotion)')
+    .eq('post_id',postId).order('created_at',{ascending:true});
+  const list=document.getElementById('commentsList');
+  list.innerHTML='';
+  (data||[]).forEach(c=>appendComment(c));
+  document.getElementById('commentsHead').textContent=`💬 კომენტარები (${(data||[]).length})`;
+}
+function appendComment(c){
+  const isMe=c.user_id===ME?.id;
+  const role=c.profiles?.role;
+  const avHtml=c.profiles?.avatar_url
+    ?`<img src="${esc(c.profiles.avatar_url)}">`
+    :(c.profiles?.emotion||'😊');
+  const rbadge=role&&role!=='member'
+    ?`<span class="post-role ${rbClass(role)}" style="font-size:8px">${rbLabel(role)}</span>`:'' ;
+  const canD=canDel(c.user_id,role);
+  let replyHtml='';
+  let displayText=c.content||'';
+  if(displayText.startsWith('[reply:')){
+    const m=displayText.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);
+    if(m){
+      replyHtml=`<div class="comment-reply-preview"><strong>${esc(m[1])}</strong>: ${esc(m[2].substring(0,60))}</div>`;
+      displayText=m[3];
+    }
+  }
+  const item=document.createElement('div');
+  item.className='comment-item';
+  item.id='cmt_'+c.id;
+  item.innerHTML=`
+    <div class="comment-av">${avHtml}</div>
+    <div class="comment-bubble${isMe?' mine':''}">
+      <div class="comment-meta">
+        <span class="comment-nick">${esc(c.profiles?.username||'?')}</span>
+        ${rbadge}
+        ${isMe?'<span style="font-size:9px;color:var(--indigo2);font-weight:600">შენ</span>':''}
+        <span class="comment-time">${timeAgo(c.created_at)}</span>
+        <button class="reply-preview-cancel" style="font-size:13px;padding:1px 6px;border-radius:8px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)" onclick="setReply('${esc(c.profiles?.username||'?')}','${esc((c.content||'').substring(0,60))}')">↩️</button>
+        ${canD?`<button class="comment-del" onclick="deleteComment('${c.id}')">🗑</button>`:''}
+      </div>
+      ${replyHtml}
+      <div class="comment-text">${renderContent(displayText)}</div>
+    </div>
+  `;
+  const list=document.getElementById('commentsList');
+  list.appendChild(item);
+  list.scrollTop=list.scrollHeight;
+  const cnt=document.getElementById('commentsHead');
+  if(cnt){const cur=parseInt(cnt.textContent.match(/\d+/)?.[0]||'0');cnt.textContent=`💬 კომენტარები (${cur+1})`;}
+}
+function setReply(nick,content){
+  replyTo={nick,content};
+  document.getElementById('replyPreviewBar').classList.add('open');
+  document.getElementById('replyNick').textContent=nick;
+  document.getElementById('commentInput').focus();
+}
+function cancelReply(){
+  replyTo=null;
+  document.getElementById('replyPreviewBar').classList.remove('open');
+}
+async function sendComment(){
+  const inp=document.getElementById('commentInput');
+  let txt=inp.value.trim();
+  if(!txt||!currentPostId)return;
+  if(replyTo){txt=`[reply:${replyTo.nick}|${replyTo.content.substring(0,60)}]${txt}`;cancelReply();}
+  inp.value='';
+  inp.style.height='auto';
+  document.getElementById('commentEmojiPanel').classList.remove('open');
+  const{error}=await sb.from('forum_comments').insert({post_id:currentPostId,user_id:ME.id,content:txt});
+  if(error){toast('❌ '+error.message);return;}
+}
+async function deleteComment(id){
+  if(!confirm('კომენტარი წაიშალა?'))return;
+  await sb.from('forum_comments').delete().eq('id',id);
+  document.getElementById('cmt_'+id)?.remove();
+  const cnt=document.getElementById('commentsHead');
+  if(cnt){const cur=parseInt(cnt.textContent.match(/\d+/)?.[0]||'0');cnt.textContent=`💬 კომენტარები (${Math.max(0,cur-1)})`;}
+  toast('🗑 კომენტარი წაიშალა');
+}
+
+/* ── REALTIME ── */
+function watchPosts(){
+  if(postRealtimeCh){try{sb.removeChannel(postRealtimeCh);}catch(e){}postRealtimeCh=null;}
+  postRealtimeCh=sb.channel('forum_posts_watch')
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'forum_posts'},async p=>{
+      const{data}=await sb.from('forum_posts').select('*,profiles!forum_posts_user_id_fkey(username,role,avatar_url,emotion)').eq('id',p.new.id).single();
+      if(data){allPosts.unshift(data);renderPosts();}
+    })
+    .on('postgres_changes',{event:'DELETE',schema:'public',table:'forum_posts'},p=>{
+      allPosts=allPosts.filter(post=>String(post.id)!==String(p.old.id));
+      renderPosts();
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'forum_posts'},p=>{
+      const idx=allPosts.findIndex(post=>String(post.id)===String(p.new.id));
+      if(idx>=0){allPosts[idx]={...allPosts[idx],...p.new};renderPosts();}
+    })
+    .subscribe();
+}
+function watchComments(postId){
+  if(commentRealtimeCh){try{sb.removeChannel(commentRealtimeCh);}catch(e){}commentRealtimeCh=null;}
+  commentRealtimeCh=sb.channel('forum_comments_'+postId)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'forum_comments',filter:`post_id=eq.${postId}`},async p=>{
+      if(document.getElementById('cmt_'+p.new.id))return;
+      const{data}=await sb.from('forum_comments').select('*,profiles!forum_comments_user_id_fkey(username,role,avatar_url,emotion)').eq('id',p.new.id).single();
+      if(data)appendComment(data);
+    })
+    .subscribe();
+}
+
+/* ── NEW POST ── */
+function openNewPost(){
+  if(!canPost()){toast('❌ მხოლოდ ადმინი/დამფუძნებელი');return;}
+  document.getElementById('postTitleInp').value='';
+  document.getElementById('postBodyInp').value='';
+  selectedCat='კითხვა';
+  document.querySelectorAll('.tag-btn').forEach((b,i)=>b.classList.toggle('active',i===0));
+  document.getElementById('postPinned').checked=false;
+  document.getElementById('founderPinRow').classList.toggle('hidden',MYPROF?.role!=='founder');
+  openModal('newPostOverlay');
+}
+function pickCat(btn,cat){
+  selectedCat=cat;
+  document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+async function submitPost(){
+  const title=document.getElementById('postTitleInp').value.trim();
+  const body=document.getElementById('postBodyInp').value.trim();
+  if(!title){toast('❌ სათაური ცარიელია');return;}
+  const pinned=MYPROF?.role==='founder'&&document.getElementById('postPinned').checked;
+  const{error}=await sb.from('forum_posts').insert({
+    user_id:ME.id,title,body,category:selectedCat,pinned,likes:0
+  });
+  if(error){toast('❌ '+error.message);return;}
+  closeModal('newPostOverlay');
+  toast('✅ გამოქვეყნდა!');
+}
+
+/* ── INIT ── */
+async function init(){
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){location.href='index.html';return;}
+  ME=user;
+  const{data:prof}=await sb.from('profiles').select('*').eq('id',ME.id).single();
+  MYPROF=prof;
+  if(MYPROF?.is_blocked){alert('დაბლოკილია');await sb.auth.signOut();location.href='index.html';return;}
+  if(MYPROF?.theme)document.body.className=MYPROF.theme;
+  const navAv=document.getElementById('navAv'),navNick=document.getElementById('navNick'),navUser=document.getElementById('navUser');
+  if(MYPROF?.avatar_url)navAv.innerHTML=`<img src="${MYPROF.avatar_url}">`;
+  else navAv.textContent=MYPROF?.emotion||'😊';
+  navNick.textContent=MYPROF?.username||'?';
+  navUser.style.display='flex';
+  const newBtn=document.getElementById('newPostBtn');
+  if(canPost())newBtn.classList.remove('hidden');
+  await loadEmojis();
+  await loadPosts();
+}
+init();
+</script>
+</body>
+</html>
