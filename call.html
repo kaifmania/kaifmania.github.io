@@ -1,0 +1,70 @@
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[4] renderDMContent ფუნქცია — იპოვე:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function renderDMContent(content){
+  if(!content)return'';
+  if(content.startsWith('[dmimg]')){
+
+ამ ფუნქციის დასაწყისში, if(!content)return''; შემდეგ, დაამატე:
+
+  // CALL MESSAGE
+  if(content.startsWith('[call:')){
+    const m=content.match(/^\[call:(\w+):([^:]+):([^\]]+)\]/);
+    if(m){
+      const type=m[1],callId=m[2],url=m[3];
+      const emoji=type==='video'?'📹':'☎️';
+      const label=type==='video'?'ვიდეო ზარი':'ხმოვანი ზარი';
+      return`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:linear-gradient(135deg,rgba(120,30,200,0.2),rgba(168,85,247,0.15));border:1px solid rgba(168,85,247,0.3);border-radius:12px;cursor:pointer;margin-top:2px" onclick="joinCall('${url}')">
+        <span style="font-size:24px">${emoji}</span>
+        <div>
+          <div style="font-size:12px;font-weight:600;color:#c084fc">${label}</div>
+          <div style="font-size:10px;color:var(--text3)">შეხვედრის ბმული</div>
+        </div>
+        <div style="margin-left:auto;background:linear-gradient(135deg,rgba(0,200,80,.8),rgba(0,220,100,.9));border-radius:8px;padding:5px 12px;font-size:11px;color:#fff;font-weight:600">შეერთება</div>
+      </div>`;
+    }
+  }
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+[5] joinCall ფუნქცია — დაამატე startCall-ის შემდეგ:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+function joinCall(url){
+  window.open(url,'_blank','width=400,height=680');
+}
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+SUPABASE SQL — გაუშვი SQL Editor-ში:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+create table if not exists calls (
+  id uuid default gen_random_uuid() primary key,
+  caller_id uuid references profiles(id) on delete cascade,
+  callee_id uuid references profiles(id) on delete cascade,
+  mode text default 'video',
+  status text default 'ringing',
+  created_at timestamptz default now(),
+  ended_at timestamptz,
+  duration_sec int
+);
+
+create table if not exists call_signals (
+  id bigserial primary key,
+  call_id uuid references calls(id) on delete cascade,
+  sender_id uuid references profiles(id) on delete cascade,
+  type text,
+  payload text,
+  created_at timestamptz default now()
+);
+
+alter table calls enable row level security;
+alter table call_signals enable row level security;
+
+create policy "calls_all" on calls for all using (true) with check (true);
+create policy "signals_all" on call_signals for all using (true) with check (true);
+
+create index if not exists idx_call_signals_call_id on call_signals(call_id);
+create index if not exists idx_calls_callee on calls(callee_id);
