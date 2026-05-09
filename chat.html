@@ -1635,6 +1635,7 @@ function buildRooms(){
    };
  el.appendChild(d);
   });
+  }
 function switchRoom(r,clickedEl){if(!r||!r.id)return;ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
 async function loadAllUsers(){const{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];renderUserLists();}
 function updateOnlineBadge(){const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));const cnt=document.getElementById('onlineCnt');if(cnt)cnt.textContent=`● ${onlineNow.length} ონლაინი`;}
