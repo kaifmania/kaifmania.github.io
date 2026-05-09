@@ -563,9 +563,15 @@ function endGame(winnerIdx, isLegit){
   document.getElementById('goSub').textContent=isLegit?'სუფთა გამარჯვება! ყველა ბურთი + 8 ბურთი.':'ოპონენტმა 8 ბურთი გაუშვა ვადამდე.';
   document.getElementById('gameOverOverlay').classList.add('show');
   sysChat('🏆 '+winner+' გაიმარჯვა!');
-  // Save score
-  if(ME&&MYPROF&&winnerIdx===0&&!vsAI){
-    sb.from('profiles').update({billiard_score:(MYPROF.billiard_score||0)+1}).eq('id',ME.id);
+  // Save score if this player won (player index 0 = local player in both modes)
+  const localWon = (winnerIdx === 0);
+  if(ME && MYPROF && localWon){
+    const newScore = (MYPROF.billiard_score||0) + 1;
+    MYPROF.billiard_score = newScore;
+    await sb.from('profiles').update({billiard_score: newScore}).eq('id', ME.id);
+    // Notify chat.html (opener) to refresh score UI
+    try{ if(window.opener && !window.opener.closed) window.opener.postMessage({type:'game_score',field:'billiard_score',value:1},'*'); }catch(e){}
+    toast('🏆 +1 ქულა! სულ: '+newScore);
   }
 }
 
