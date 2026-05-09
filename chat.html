@@ -1310,6 +1310,7 @@ const ROOMS=[
   {id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი = 5 ქულა',gameScoreField:'quiz_score'},
   {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},
   {id:5,icon:'🎵',name:'მუსიკ კლაბი'},
+  {id:11, icon:'🎲', name:'ნარდი'},
   {id:6,icon:'💜',name:'ბილიარდი',isGame:true,gameFile:'billiards.html',gameName:'ბილიარდი',gameDesc:'კლასიკური 8-ბურთი · მოგება = 5 ქულა',gameScoreField:'billiard_score'},
   {id:7,icon:'🌊',name:'ოშენ ვაიბ'},
   {id:8,icon:'🦋',name:'ადმინისტრაცია'},
@@ -1607,7 +1608,10 @@ async function sendPhotoComment(){
 }
 
 /* ===================== USERS ===================== */
-function buildRooms(){const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';ROOMS.forEach(r=>{const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;d.onclick=()=>switchRoom(r,d);el.appendChild(d);});}
+function buildRooms(){const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';ROOMS.forEach(r=>{const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;d.onclick=()=>{
+  if(r.id===11){window.open('nardi.html','_blank');return;}
+  switchRoom(r,d);
+};
 function switchRoom(r,clickedEl){if(!r||!r.id)return;ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
 async function loadAllUsers(){const{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];renderUserLists();}
 function updateOnlineBadge(){const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));const cnt=document.getElementById('onlineCnt');if(cnt)cnt.textContent=`● ${onlineNow.length} ონლაინი`;}
