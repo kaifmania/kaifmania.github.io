@@ -14,22 +14,19 @@
   --online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
   --glow:rgba(168,85,247,0.28);--accent:#f07aff;
   --board-bg:#1e3a1e;--board-border:#0a1f0a;
-  --point-light:#c8392b;--point-dark:#e8c547;
   --white-checker:#f5f0e0;--black-checker:#1a1a2e;
-  --dice-bg:#fff;--dice-dot:#1a0a30;
 }
 body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
 @keyframes pop{from{opacity:0;transform:scale(0.85) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--glow)}50%{box-shadow:0 0 20px 6px var(--glow)}}
 @keyframes shake{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-10deg) scale(1.1)}40%{transform:rotate(10deg) scale(1.1)}60%{transform:rotate(-6deg)}80%{transform:rotate(6deg)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes winPulse{0%,100%{text-shadow:0 0 10px var(--accent)}50%{text-shadow:0 0 40px var(--accent),0 0 80px var(--glow)}}
 @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@keyframes flash{0%,100%{background:rgba(168,85,247,.18)}50%{background:rgba(168,85,247,.45)}}
+@keyframes flash{0%,100%{background:rgba(168,85,247,.25)}50%{background:rgba(168,85,247,.5)}}
 @keyframes spin{to{transform:rotate(360deg)}}
-@keyframes checkerPop{0%{transform:scale(0.5);opacity:0}60%{transform:scale(1.15)}100%{transform:scale(1);opacity:1}}
+@keyframes bearIn{0%{transform:scale(0.4);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 
 /* ═══ TOPBAR ═══ */
 #topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
@@ -77,26 +74,49 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .waiting-sub{font-size:12px;color:var(--text3);text-align:center}
 
 /* ═══ BOARD WRAP ═══ */
-#boardWrap{display:none;flex-direction:row;gap:10px;width:100%;max-width:960px;height:100%;align-items:stretch;animation:pop .4s ease}
+#boardWrap{display:none;flex-direction:row;gap:10px;width:100%;max-width:1020px;height:100%;align-items:stretch;animation:pop .4s ease}
 
 /* ═══ BOARD CONTAINER ═══ */
 #boardContainer{flex:1;display:flex;flex-direction:column;min-width:0;gap:6px}
 
-.board-top-info{display:flex;justify-content:space-between;align-items:center}
-.player-info{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:5px 10px;transition:all .3s}
+.board-top-info{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.player-info{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:5px 10px;transition:all .3s;flex-shrink:0}
 .pi-av{width:26px;height:26px;border-radius:50%;background:var(--indigo-f);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0}
 .pi-av img{width:100%;height:100%;object-fit:cover}
 .pi-name{font-size:11px;color:var(--text);font-weight:600}
 .pi-checker{font-size:14px;margin-left:3px}
 .pi-active{border-color:var(--accent);box-shadow:0 0 10px rgba(240,122,255,.3)}
-.turn-badge{font-family:'Unbounded',sans-serif;font-size:9px;color:var(--indigo2);background:var(--indigo-f);border:1px solid var(--border);border-radius:18px;padding:4px 10px}
+.turn-badge{font-family:'Unbounded',sans-serif;font-size:9px;color:var(--indigo2);background:var(--indigo-f);border:1px solid var(--border);border-radius:18px;padding:4px 10px;white-space:nowrap}
 
-/* ═══ BOARD ═══ */
-#board{position:relative;background:var(--board-bg);border-radius:14px;border:3px solid #0a2a0a;flex:1;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.7),inset 0 0 80px rgba(0,0,0,.4);min-height:0}
+/* ═══ MAIN BOARD LAYOUT ═══ */
+/* Board + bear-off columns side by side */
+.board-and-bearoff{display:flex;flex:1;min-height:0;gap:5px}
+#board{
+  position:relative;background:var(--board-bg);border-radius:14px;border:3px solid #0a2a0a;
+  flex:1;display:flex;flex-direction:column;overflow:hidden;
+  box-shadow:0 8px 40px rgba(0,0,0,.7),inset 0 0 80px rgba(0,0,0,.4);min-height:0
+}
 
+/* Bear-off column (home) */
+.bearoff-col{
+  width:52px;display:flex;flex-direction:column;gap:4px;flex-shrink:0;
+}
+.bearoff-zone{
+  flex:1;background:var(--panel);border:2px solid var(--border);border-radius:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
+  padding:5px 3px;gap:1px;overflow:hidden;position:relative;cursor:pointer;transition:all .2s;
+}
+.bearoff-zone.can-bear{border-color:var(--accent);box-shadow:0 0 12px rgba(240,122,255,.4);animation:flash .5s ease infinite;}
+.bearoff-label{font-size:8px;font-family:'Unbounded',sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;text-align:center;flex-shrink:0}
+.bearoff-count{font-family:'Unbounded',sans-serif;font-size:18px;color:var(--accent);position:absolute;bottom:6px;left:0;right:0;text-align:center}
+.bearoff-checker{width:80%;aspect-ratio:1;border-radius:50%;flex-shrink:0;margin:1px 0;border:1.5px solid rgba(255,255,255,.15);animation:bearIn .25s ease}
+.bearoff-checker.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb);box-shadow:0 2px 6px rgba(0,0,0,.4)}
+.bearoff-checker.black{background:radial-gradient(circle at 35% 30%,#555,#0a0a15);box-shadow:0 2px 6px rgba(0,0,0,.6)}
+
+/* ═══ BOARD SECTIONS ═══ */
 .board-section{display:flex;flex:1;min-height:0}
 .points-side{display:flex;flex:1;min-width:0}
-.board-bar{width:38px;background:linear-gradient(135deg,#0a1f0a,#061206);border-left:2px solid #0a2a0a;border-right:2px solid #0a2a0a;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:6px 0;flex-shrink:0}
+.board-bar{width:36px;background:linear-gradient(135deg,#0a1f0a,#061206);border-left:2px solid #0a2a0a;border-right:2px solid #0a2a0a;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:6px 0;flex-shrink:0}
 
 /* Point triangles */
 .point{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer;transition:background .15s;min-width:0;overflow:visible}
@@ -105,21 +125,25 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .point.selected-src{background:rgba(240,122,255,.2)}
 
 .tri{position:absolute;width:100%;pointer-events:none}
-.tri-top{top:0;height:75%}
-.tri-bot{bottom:0;height:75%}
+.tri-top{top:0;height:78%}
+.tri-bot{bottom:0;height:78%}
 .tri svg{width:100%;height:100%;display:block}
 
-.checkers-stack{width:100%;display:flex;flex-direction:column;align-items:center;gap:0px;z-index:2;position:absolute}
+.checkers-stack{width:100%;display:flex;flex-direction:column;align-items:center;z-index:2;position:absolute}
 .checkers-stack.top-stack{top:4px;flex-direction:column}
 .checkers-stack.bot-stack{bottom:4px;flex-direction:column-reverse}
 
-.checker{width:80%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;transition:transform .15s;position:relative;flex-shrink:0;margin:1px 0;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.5)}
+.checker{
+  width:78%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-size:9px;font-weight:700;cursor:pointer;transition:transform .15s;position:relative;
+  flex-shrink:0;margin:1px 0;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.5)
+}
 .checker.white{background:radial-gradient(circle at 35% 30%,#fff 0%,#ddd 40%,#bbb 100%);border-color:rgba(255,255,255,.5);box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.9)}
 .checker.black{background:radial-gradient(circle at 35% 30%,#555 0%,#222 40%,#0a0a15 100%);border-color:rgba(255,255,255,.2);box-shadow:0 2px 8px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.1)}
 .checker:hover{transform:scale(1.1);z-index:10}
 .checker.movable{box-shadow:0 0 12px var(--accent),0 2px 6px rgba(0,0,0,.4)!important}
 .checker.selected{transform:scale(1.18);z-index:20;box-shadow:0 0 18px var(--accent)!important}
-.checker-count{position:absolute;font-size:8px;font-weight:900;color:inherit;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}
+.checker-count{position:absolute;font-size:8px;font-weight:900;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}
 .checker.white .checker-count{color:#1a0a30}
 .checker.black .checker-count{color:#fff}
 
@@ -130,7 +154,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 
 /* Dice area */
 #diceArea{display:flex;align-items:center;justify-content:center;gap:8px;padding:7px;background:rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0}
-.dice{width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.4);cursor:default;transition:all .2s;border:2px solid rgba(255,255,255,.2);flex-shrink:0}
+.dice{width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.4);cursor:default;transition:all .2s;border:2px solid rgba(255,255,255,.2);flex-shrink:0;color:#111}
 .dice.rolling{animation:shake .4s ease}
 .dice.used{opacity:.3;transform:scale(0.88)}
 #rollBtn{padding:7px 18px;border-radius:18px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;cursor:pointer;box-shadow:0 4px 14px rgba(120,30,200,.5);transition:all .2s;letter-spacing:.4px}
@@ -140,32 +164,35 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 #passBtn:hover{background:var(--border);color:var(--text)}
 
 /* Bar checkers */
-.bar-chip{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid rgba(255,255,255,.2);flex-shrink:0;cursor:pointer}
+.bar-chip{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid rgba(255,255,255,.2);flex-shrink:0;cursor:pointer;margin:2px}
 .bar-chip.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb);color:#1a0a30}
 .bar-chip.black{background:radial-gradient(circle at 35% 30%,#555,#111);color:#fff}
+.bar-chip.highlight{box-shadow:0 0 10px var(--accent)}
 
 /* Status */
 #statusBar{text-align:center;font-size:11px;color:var(--text2);min-height:22px;flex-shrink:0;padding:2px}
 
-/* Home counts */
-.home-row{display:flex;justify-content:flex-end;gap:14px;padding:2px 4px;flex-shrink:0}
-.home-item{text-align:center}
-.home-label{font-size:9px;color:var(--text3);margin-bottom:1px}
-.home-count{font-family:'Unbounded',sans-serif;font-size:16px;color:var(--accent)}
-
 /* ═══ CHAT PANEL ═══ */
-#chatPanel{width:230px;background:var(--panel);border:1px solid var(--border);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;box-shadow:0 6px 28px rgba(0,0,0,.4)}
+#chatPanel{width:220px;background:var(--panel);border:1px solid var(--border);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;box-shadow:0 6px 28px rgba(0,0,0,.4)}
 .chat-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
 .chat-head-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;flex:1}
 #chatMsgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:5px;min-height:0}
 #chatMsgs::-webkit-scrollbar{width:3px}
 #chatMsgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.cmsg{background:var(--bubble);border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:6px 10px;font-size:12px;color:var(--text);word-break:break-word;animation:msgIn .2s ease;max-width:92%;align-self:flex-start}
-.cmsg.mine{background:rgba(120,30,200,.25);border-color:rgba(168,85,247,.4);border-radius:12px 4px 12px 12px;align-self:flex-end}
+/* mine = right-aligned; theirs = left-aligned */
+.cmsg{
+  background:var(--bubble);border:1px solid var(--border);
+  border-radius:4px 12px 12px 12px;padding:6px 10px;font-size:12px;
+  color:var(--text);word-break:break-word;animation:msgIn .2s ease;
+  max-width:88%;align-self:flex-start
+}
+.cmsg.mine{
+  background:rgba(120,30,200,.28);border-color:rgba(168,85,247,.45);
+  border-radius:12px 4px 12px 12px;align-self:flex-end
+}
 .cmsg-nick{font-size:10px;color:var(--indigo2);font-weight:600;margin-bottom:2px}
 .cmsg-sys{text-align:center;font-size:10px;color:var(--text3);padding:3px;font-style:italic;align-self:center}
 .chat-emoji-grid{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;border-top:1px solid var(--border);max-height:76px;overflow-y:auto;flex-shrink:0}
-.chat-emoji-grid::-webkit-scrollbar{width:2px}
 .ceg-btn{width:30px;height:30px;border-radius:7px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;flex-shrink:0}
 .ceg-btn:hover{background:var(--border);transform:scale(1.12)}
 .ceg-btn img{width:20px;height:20px;border-radius:3px;object-fit:contain}
@@ -191,7 +218,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .ib-accept{flex:1;background:rgba(255,255,255,.9);border:none;border-radius:10px;color:var(--indigo);font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;padding:7px;cursor:pointer;transition:all .2s}
 .ib-accept:hover{background:#fff;transform:scale(1.03)}
 .ib-decline{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:10px;color:#fff;font-size:11px;padding:7px 11px;cursor:pointer}
-.ib-decline:hover{background:rgba(255,255,255,.25)}
 
 /* ═══ MODALS ═══ */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
@@ -201,14 +227,13 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .win-title{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;text-align:center;color:var(--accent);animation:winPulse 2s infinite}
 .modal-sub{font-size:12px;color:var(--text2);text-align:center;margin:8px 0}
 .modal-row{display:flex;gap:8px;margin-top:10px}
-
 .toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:9px 18px;border-radius:18px;font-size:12px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:pop .3s ease;white-space:nowrap}
 
 /* ═══ MOBILE ═══ */
 @media(max-width:680px){
   #boardWrap{flex-direction:column}
-  #chatPanel{width:100%;height:180px;border-radius:12px}
-  #chatPanel .chat-emoji-grid{display:none}
+  #chatPanel{width:100%;height:170px;border-radius:12px}
+  .bearoff-col{width:40px}
 }
 </style>
 </head>
@@ -235,7 +260,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   <a href="chat.html" class="tb-back">← ჩატი</a>
   <div class="tb-logo">🎲 <span>ნარდი</span></div>
   <div class="tb-spacer"></div>
-  <div style="display:flex;align-items:center;gap:8px" id="tbInfo" style="display:none">
+  <div style="display:flex;align-items:center;gap:8px" id="tbInfo">
     <div class="tb-score" id="myScoreDisplay">🏆 0</div>
     <div class="tb-user">
       <div class="tb-av" id="myTbAv">😊</div>
@@ -281,7 +306,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   <!-- BOARD -->
   <div id="boardWrap">
 
-    <!-- LEFT: board + controls -->
+    <!-- LEFT: board + bear-off -->
     <div id="boardContainer">
 
       <!-- Player headers -->
@@ -289,38 +314,55 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
         <div class="player-info" id="oppInfo">
           <div class="pi-av" id="oppAv">😊</div>
           <span class="pi-name" id="oppName">ოპონენტი</span>
-          <span class="pi-checker">⚫</span>
+          <span class="pi-checker" id="oppCheckerIcon">⚫</span>
         </div>
         <div class="turn-badge" id="turnBadge">⏳</div>
         <div class="player-info" id="myInfo">
           <div class="pi-av" id="myInfoAv">😊</div>
           <span class="pi-name" id="myInfoName">შენ</span>
-          <span class="pi-checker">⚪</span>
+          <span class="pi-checker" id="myCheckerIcon">⚪</span>
         </div>
       </div>
 
-      <!-- Board -->
-      <div id="board">
-        <!-- TOP: points 13-24 -->
-        <div class="board-section" id="topSection"></div>
-        <!-- Dice row -->
-        <div id="diceArea">
-          <button id="rollBtn" onclick="rollDice()" disabled>🎲 გაგდება</button>
-          <div class="dice" id="dice1">·</div>
-          <div class="dice" id="dice2">·</div>
-          <div class="dice" id="dice3" style="display:none">·</div>
-          <div class="dice" id="dice4" style="display:none">·</div>
-          <button id="passBtn" onclick="passMove()">⏭ გამოტოვება</button>
+      <!-- Board + Bear-off zones -->
+      <div class="board-and-bearoff">
+
+        <!-- Board -->
+        <div id="board">
+          <!-- TOP: points 13-24 -->
+          <div class="board-section" id="topSection"></div>
+          <!-- Dice row -->
+          <div id="diceArea">
+            <button id="rollBtn" onclick="rollDice()" disabled>🎲 გაგორება</button>
+            <div class="dice" id="dice1">·</div>
+            <div class="dice" id="dice2">·</div>
+            <div class="dice" id="dice3" style="display:none">·</div>
+            <div class="dice" id="dice4" style="display:none">·</div>
+            <button id="passBtn" onclick="passMove()">⏭ გამოტოვება</button>
+          </div>
+          <!-- BOTTOM: points 1-12 -->
+          <div class="board-section" id="botSection"></div>
         </div>
-        <!-- BOTTOM: points 1-12 -->
-        <div class="board-section" id="botSection"></div>
-      </div>
+
+        <!-- Bear-off column -->
+        <div class="bearoff-col">
+          <!-- Opponent bear-off (top) -->
+          <div class="bearoff-zone" id="bearoffOpp" onclick="onBearOffClick('opp')">
+            <div class="bearoff-label" id="bearoffOppLabel">⚫<br>სახლი</div>
+            <div id="bearoffOppCheckers"></div>
+            <div class="bearoff-count" id="bearoffOppCount">0</div>
+          </div>
+          <!-- My bear-off (bottom) -->
+          <div class="bearoff-zone" id="bearoffMe" onclick="onBearOffClick('me')">
+            <div class="bearoff-label" id="bearoffMeLabel">⚪<br>სახლი</div>
+            <div id="bearoffMeCheckers"></div>
+            <div class="bearoff-count" id="bearoffMeCount">0</div>
+          </div>
+        </div>
+
+      </div><!-- /board-and-bearoff -->
 
       <div id="statusBar">მოთამაშეების მოლოდინში...</div>
-      <div class="home-row">
-        <div class="home-item"><div class="home-label">⚫ სახლი</div><div class="home-count" id="blackHome">0</div></div>
-        <div class="home-item"><div class="home-label">⚪ სახლი</div><div class="home-count" id="whiteHome">0</div></div>
-      </div>
 
     </div><!-- /boardContainer -->
 
@@ -370,8 +412,7 @@ const sb=createClient(
 let ME=null,MYPROF=null,allUsers=[];
 let pendingInviteId=null,activeGameId=null,gameChannel=null,chatChannel=null;
 let selectedOpponent=null,pendingInviteFrom=null;
-let customEmojis=[],emojiCache={};
-let showEmojiGrid=false;
+let customEmojis=[],emojiCache={},showEmojiGrid=false;
 
 // board[1..24]: {color:'white'|'black'|null, count:0}
 let board=[];
@@ -379,20 +420,31 @@ let whiteHome=0,blackHome=0,whiteBar=0,blackBar=0;
 let dice=[],diceUsed=[],myColor='white',myTurn=false,gameStarted=false;
 let selectedPoint=null;
 
-// ─── STANDARD BACKGAMMON STARTING POSITION ───
-// White moves 1→24, Black moves 24→1
-// Standard setup:
-//   White: 2 on 24, 5 on 13, 3 on 8, 5 on 6
-//   Black: 2 on 1,  5 on 12, 3 on 17, 5 on 19
+/*
+  STANDARD BACKGAMMON STARTING POSITION
+  ─────────────────────────────────────
+  View from White player perspective:
+    Bottom-right: points 1-6  (White's home board)
+    Bottom-left:  points 7-12
+    Top-left:     points 13-18
+    Top-right:    points 19-24 (White's starting area)
+
+  WHITE moves: LOW → HIGH (1 → 24, then bear off)
+  BLACK moves: HIGH → LOW (24 → 1, then bear off)
+
+  Standard setup:
+    White: 2 on pt24, 5 on pt13, 3 on pt8, 5 on pt6
+    Black: 2 on pt1,  5 on pt12, 3 on pt17, 5 on pt19
+*/
 function getInitialBoard(){
-  const b=Array.from({length:25},()=>({color:null,count:0}));
-  // White checkers (move toward 24)
+  const b=Array.from({length:25},(_,i)=>({color:null,count:0}));
+  // White (moves 1→24)
   b[24]={color:'white',count:2};
   b[13]={color:'white',count:5};
-  b[8]={color:'white',count:3};
-  b[6]={color:'white',count:5};
-  // Black checkers (move toward 1)
-  b[1]={color:'black',count:2};
+  b[8]= {color:'white',count:3};
+  b[6]= {color:'white',count:5};
+  // Black (moves 24→1)
+  b[1]= {color:'black',count:2};
   b[12]={color:'black',count:5};
   b[17]={color:'black',count:3};
   b[19]={color:'black',count:5};
@@ -408,7 +460,6 @@ async function init(){
   MYPROF=prof;
   if(!MYPROF)return;
 
-  document.getElementById('tbInfo').style.display='flex';
   document.getElementById('myTbName').textContent=MYPROF.username||'?';
   document.getElementById('myScoreDisplay').textContent='🏆 '+(MYPROF.nardi_score||0);
   const myTbAv=document.getElementById('myTbAv');
@@ -434,13 +485,11 @@ async function loadUsers(){
 function isOnline(ts){return ts&&Date.now()-new Date(ts).getTime()<90000;}
 
 function renderUserPick(){
-  const el=document.getElementById('userPickList');
-  el.innerHTML='';
+  const el=document.getElementById('userPickList');el.innerHTML='';
   const list=[...allUsers].sort((a,b)=>(isOnline(b.last_seen)?1:0)-(isOnline(a.last_seen)?1:0));
   if(!list.length){el.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:14px">📭 მომხმარებელი არ არის</div>';return;}
   list.forEach(u=>{
-    const d=document.createElement('div');
-    d.className='user-pick-item';
+    const d=document.createElement('div');d.className='user-pick-item';
     const on=isOnline(u.last_seen);
     const avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');
     d.innerHTML=`<div class="upi-av">${avHtml}</div><div class="upi-name">${esc(u.username||'?')} <span style="font-size:10px;color:var(--text3)">🏆${u.nardi_score||0}</span></div>${on?'<div class="upi-online"></div>':''}`;
@@ -518,10 +567,9 @@ function watchInvites(){
     }).subscribe();
 }
 function showInviteBanner(invite,sender){
-  const banner=document.getElementById('inviteBanner');
   document.getElementById('ibAv').innerHTML=sender.avatar_url?`<img src="${sender.avatar_url}">`:(sender.emotion||'👤');
   document.getElementById('ibName').textContent=sender.username||'?';
-  banner.classList.add('show');
+  document.getElementById('inviteBanner').classList.add('show');
 }
 async function acceptInvite(){
   if(!pendingInviteFrom)return;
@@ -549,30 +597,49 @@ async function joinGame(gameId){
   document.getElementById('lobby').style.display='none';
   document.getElementById('waitingScreen').style.display='none';
   document.getElementById('boardWrap').style.display='flex';
+
   const{data:game}=await sb.from('nardi_games').select('*').eq('id',gameId).single();
   if(!game)return;
   const oppId=myColor==='white'?game.player_black:game.player_white;
   let opp=allUsers.find(u=>u.id===oppId);
   if(!opp){const{data:o}=await sb.from('profiles').select('*').eq('id',oppId).single();opp=o||{username:'ოპონენტი',emotion:'😊'};}
+
   document.getElementById('oppName').textContent=opp.username||'ოპონენტი';
   const oppAv=document.getElementById('oppAv');
   if(opp.avatar_url)oppAv.innerHTML=`<img src="${opp.avatar_url}" style="width:100%;height:100%;object-fit:cover">`;
   else oppAv.textContent=opp.emotion||'😊';
+
   const myInfoAv=document.getElementById('myInfoAv');
   if(MYPROF.avatar_url)myInfoAv.innerHTML=`<img src="${MYPROF.avatar_url}" style="width:100%;height:100%;object-fit:cover">`;
   else myInfoAv.textContent=MYPROF.emotion||'😊';
   document.getElementById('myInfoName').textContent=MYPROF.username||'შენ';
-  applyGameState(game);gameStarted=true;
+
+  // Update checker icons and bear-off labels based on my color
+  const myIcon=myColor==='white'?'⚪':'⚫';
+  const oppIcon=myColor==='white'?'⚫':'⚪';
+  document.getElementById('myCheckerIcon').textContent=myIcon;
+  document.getElementById('oppCheckerIcon').textContent=oppIcon;
+  document.getElementById('bearoffMeLabel').innerHTML=myIcon+'<br>სახლი';
+  document.getElementById('bearoffOppLabel').innerHTML=oppIcon+'<br>სახლი';
+
+  applyGameState(game);
+  gameStarted=true;
+
   if(gameChannel)try{sb.removeChannel(gameChannel);}catch(e){}
   gameChannel=sb.channel('nardi_game_'+gameId)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'nardi_games',filter:`id=eq.${gameId}`},async p=>{
-      applyGameState(p.new);if(p.new.status==='finished')endGame(p.new);
+      applyGameState(p.new);
+      if(p.new.status==='finished')endGame(p.new);
     }).subscribe();
+
   if(chatChannel)try{sb.removeChannel(chatChannel);}catch(e){}
   chatChannel=sb.channel('nardi_chat_'+gameId)
-    .on('broadcast',{event:'chat'},({payload})=>{if(payload.uid!==ME.id)appendChatMsg(payload.nick,payload.content,false);})
-    .subscribe();
+    .on('broadcast',{event:'chat'},({payload})=>{
+      if(payload.uid!==ME.id)appendChatMsg(payload.nick,payload.content,false);
+    }).subscribe();
+
   addSysMsg('🎲 თამაში დაიწყო! შენ ხარ '+(myColor==='white'?'⚪ თეთრი':'⚫ შავი'));
+  addSysMsg('თეთრი 1→24, შავი 24→1 მიმართულებით');
 }
 
 // ─── APPLY STATE ───
@@ -582,32 +649,45 @@ function applyGameState(game){
   whiteBar=game.white_bar||0;blackBar=game.black_bar||0;
   dice=game.dice||[];diceUsed=game.dice_used||[];
   myTurn=(game.turn===myColor);
-  renderBoardUI();updateDiceUI();updateTurnUI(game.turn,myTurn);
+  renderBoardUI();
+  updateDiceUI();
+  updateTurnUI(game.turn,myTurn);
 }
 
 // ─── BUILD BOARD HTML ───
+/*
+  Board layout (standard orientation, white at bottom):
+
+  TOP (opponent's home side):
+    LEFT half:  points 13,14,15,16,17,18  (triangles point DOWN)
+    BAR
+    RIGHT half: points 19,20,21,22,23,24
+
+  BOTTOM (my home side):
+    LEFT half:  points 12,11,10,9,8,7  (triangles point UP)
+    BAR
+    RIGHT half: points 6,5,4,3,2,1
+*/
 function buildBoard(){
-  // Top section: points 13-18 (left) | BAR | 19-24 (right)  — numbers shown at bottom of triangle
-  // Bottom section: points 12-7 (left) | BAR | 6-1 (right) — numbers shown at top of triangle
   const topEl=document.getElementById('topSection');
   const botEl=document.getElementById('botSection');
 
-  // Top half
   topEl.innerHTML='';
-  const topLeft=document.createElement('div');topLeft.className='points-side';topLeft.style.flex='1';
+  const topLeft=document.createElement('div');topLeft.className='points-side';
   const topBar=document.createElement('div');topBar.className='board-bar';
-  const topRight=document.createElement('div');topRight.className='points-side';topRight.style.flex='1';
-  topBar.innerHTML='<div id="barBlack" style="display:flex;flex-direction:column;align-items:center;gap:2px"></div>';
+  topBar.innerHTML='<div id="barBlack" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="onBarClick()"></div>';
+  const topRight=document.createElement('div');topRight.className='points-side';
+  // Points 13-18 left, 19-24 right (top triangles point DOWN)
   [13,14,15,16,17,18].forEach(n=>topLeft.appendChild(makePoint(n,true)));
   [19,20,21,22,23,24].forEach(n=>topRight.appendChild(makePoint(n,true)));
   topEl.appendChild(topLeft);topEl.appendChild(topBar);topEl.appendChild(topRight);
 
-  // Bottom half
   botEl.innerHTML='';
-  const botLeft=document.createElement('div');botLeft.className='points-side';botLeft.style.flex='1';
+  const botLeft=document.createElement('div');botLeft.className='points-side';
   const botBar=document.createElement('div');botBar.className='board-bar';
-  const botRight=document.createElement('div');botRight.className='points-side';botRight.style.flex='1';
-  botBar.innerHTML='<div id="barWhite" style="display:flex;flex-direction:column;align-items:center;gap:2px"></div>';
+  botBar.innerHTML='<div id="barWhite" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="onBarClick()"></div>';
+  const botRight=document.createElement('div');botRight.className='points-side';
+  // Points 12-7 left, 6-1 right (bottom triangles point UP)
   [12,11,10,9,8,7].forEach(n=>botLeft.appendChild(makePoint(n,false)));
   [6,5,4,3,2,1].forEach(n=>botRight.appendChild(makePoint(n,false)));
   botEl.appendChild(botLeft);botEl.appendChild(botBar);botEl.appendChild(botRight);
@@ -616,18 +696,16 @@ function buildBoard(){
 function makePoint(num,isTop){
   const p=document.createElement('div');
   p.className='point';p.id='pt'+num;p.dataset.pt=num;
-  // Triangle color: alternating red/yellow like classic board
-  const col=(num%2===0)?'#c8392b':'#d4a82a';
+  // Alternate colors: odd=deep red, even=golden
+  const col=(num%2!==0)?'#b83030':'#c8951a';
   const triHtml=isTop
-    ?`<div class="tri tri-top"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,4 2,96 58,96" fill="${col}" opacity="0.85"/></svg></div>`
-    :`<div class="tri tri-bot"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,96 2,4 58,4" fill="${col}" opacity="0.85"/></svg></div>`;
+    ?`<div class="tri tri-top"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,4 2,96 58,96" fill="${col}" opacity="0.82"/></svg></div>`
+    :`<div class="tri tri-bot"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,96 2,4 58,4" fill="${col}" opacity="0.82"/></svg></div>`;
   p.innerHTML=triHtml;
-  // Number label
   const numEl=document.createElement('div');
   numEl.className='pt-num '+(isTop?'top-num':'bot-num');
   numEl.textContent=num;
   p.appendChild(numEl);
-  // Stack
   const stack=document.createElement('div');
   stack.className='checkers-stack '+(isTop?'top-stack':'bot-stack');
   stack.id='stack'+num;
@@ -647,7 +725,8 @@ function renderBoardUI(){
     const stack=document.getElementById('stack'+i);if(!stack)continue;
     const maxShow=Math.min(cell.count,6);
     for(let c=0;c<maxShow;c++){
-      const ch=document.createElement('div');ch.className='checker '+(cell.color||'white');
+      const ch=document.createElement('div');
+      ch.className='checker '+(cell.color||'white');
       if(cell.count>6&&c===maxShow-1){
         const cnt=document.createElement('span');cnt.className='checker-count';cnt.textContent=cell.count;ch.appendChild(cnt);
       }
@@ -655,116 +734,257 @@ function renderBoardUI(){
     }
   }
   // Bar
-  const bb=document.getElementById('barBlack');
-  const wb=document.getElementById('barWhite');
-  if(bb){bb.innerHTML='';for(let i=0;i<Math.min(blackBar,4);i++){const c=document.createElement('div');c.className='bar-chip black';c.textContent=(blackBar>4&&i===3)?blackBar:'';bb.appendChild(c);}}
-  if(wb){wb.innerHTML='';for(let i=0;i<Math.min(whiteBar,4);i++){const c=document.createElement('div');c.className='bar-chip white';c.textContent=(whiteBar>4&&i===3)?whiteBar:'';wb.appendChild(c);}}
-  document.getElementById('whiteHome').textContent=whiteHome;
-  document.getElementById('blackHome').textContent=blackHome;
+  renderBar('barBlack',blackBar,'black');
+  renderBar('barWhite',whiteBar,'white');
+  // Bear-off zones
+  renderBearOff();
+  // Highlight movable if my turn
   if(myTurn&&dice.length&&getRemainingDice().length)highlightMovable();
 }
 
+function renderBar(id,count,color){
+  const el=document.getElementById(id);if(!el)return;
+  el.innerHTML='';
+  const show=Math.min(count,4);
+  for(let i=0;i<show;i++){
+    const c=document.createElement('div');c.className='bar-chip '+color;
+    if(count>4&&i===show-1)c.textContent=count;
+    el.appendChild(c);
+  }
+}
+
+function renderBearOff(){
+  const myBearCount=myColor==='white'?whiteHome:blackHome;
+  const oppBearCount=myColor==='white'?blackHome:whiteHome;
+  const myBearColor=myColor;
+  const oppBearColor=myColor==='white'?'black':'white';
+
+  // My bear-off (bottom zone)
+  renderBearOffZone('bearoffMeCheckers','bearoffMeCount',myBearCount,myBearColor);
+  // Opp bear-off (top zone)
+  renderBearOffZone('bearoffOppCheckers','bearoffOppCount',oppBearCount,oppBearColor);
+
+  // Highlight my bear-off zone if I can bear off
+  const meZone=document.getElementById('bearoffMe');
+  if(myTurn&&dice.length&&getRemainingDice().length&&canBearOff(myColor)){
+    meZone.classList.add('can-bear');
+  }else{
+    meZone.classList.remove('can-bear');
+  }
+}
+
+function renderBearOffZone(checkerId,countId,count,color){
+  const box=document.getElementById(checkerId);
+  const cnt=document.getElementById(countId);
+  if(!box||!cnt)return;
+  box.innerHTML='';
+  cnt.textContent=count||0;
+  const show=Math.min(count,8);
+  for(let i=0;i<show;i++){
+    const c=document.createElement('div');c.className='bearoff-checker '+color;
+    const sz=Math.max(18,32-show*2);
+    c.style.width=sz+'px';c.style.height=sz+'px';
+    box.appendChild(c);
+  }
+}
+
+// ─── BEAR-OFF CLICK ───
+function onBearOffClick(who){
+  if(who!=='me')return;
+  if(!myTurn||!gameStarted)return;
+  const rem=getRemainingDice();if(!rem.length)return;
+  if(!canBearOff(myColor)){toast('❌ ჯერ ყველა ქვა სახლის სექტორში უნდა იყოს');return;}
+  // Try to bear off with best die
+  tryBearOff();
+}
+
+async function tryBearOff(){
+  // Must have selected a point to bear off from, or auto-pick
+  if(selectedPoint!==null){
+    const from=selectedPoint;
+    const rem=getRemainingDice();
+    // Find valid die
+    const myDir=myColor==='white'?1:-1;
+    let usedDie=null;
+    for(const d of rem){
+      const wouldLand=myColor==='white'?(from+d):(from-d);
+      if(myColor==='white'&&wouldLand>24){usedDie=d;break;}
+      if(myColor==='black'&&wouldLand<1){usedDie=d;break;}
+    }
+    if(usedDie===null){toast('❌ ამ ქვის გამოსაყვანად ასვლა არ გამოდის');clearSelection();return;}
+    clearSelection();
+    board[from].count--;if(!board[from].count)board[from].color=null;
+    if(myColor==='white')whiteHome++;else blackHome++;
+    diceUsed.push(usedDie);
+    renderBoardUI();
+    if(whiteHome>=15||blackHome>=15){await finishGame();return;}
+    await syncGameState('bear-off from '+from);
+  }else{
+    toast('⬆ ჯერ ქვაზე დააჭირე, შემდეგ სახლზე');
+  }
+}
+
 function highlightMovable(){
+  clearHighlights();
   const rem=getRemainingDice();if(!rem.length)return;
   const myBar=myColor==='white'?whiteBar:blackBar;
+
   if(myBar>0){
+    // Highlight entry points for bar checkers
     rem.forEach(d=>{
       const to=myColor==='white'?d:(25-d);
-      if(to>=1&&to<=24&&canLand(to)){const p=document.getElementById('pt'+to);if(p)p.classList.add('highlight');}
-    });return;
+      if(to>=1&&to<=24&&canLand(to)){
+        document.getElementById('pt'+to)?.classList.add('highlight');
+      }
+    });
+    // Highlight bar chip
+    const barEl=document.getElementById(myColor==='white'?'barWhite':'barBlack');
+    if(barEl)barEl.querySelectorAll('.bar-chip').forEach(c=>c.classList.add('highlight'));
+    return;
   }
+
+  const canBO=canBearOff(myColor);
   for(let i=1;i<=24;i++){
     const cell=board[i];if(!cell||cell.color!==myColor||!cell.count)continue;
-    const canMove=rem.some(d=>{
+    const movable=rem.some(d=>{
       const to=myColor==='white'?(i+d):(i-d);
-      return isValidDest(i,to);
+      if(myColor==='white'&&to>24&&canBO)return true;
+      if(myColor==='black'&&to<1&&canBO)return true;
+      return to>=1&&to<=24&&canLand(to);
     });
-    if(canMove){
+    if(movable){
       const stack=document.getElementById('stack'+i);
       if(stack)stack.querySelectorAll('.checker').forEach(c=>c.classList.add('movable'));
     }
   }
+  // Bear-off zone highlight handled in renderBearOff
+}
+
+function clearHighlights(){
+  document.querySelectorAll('.point.highlight').forEach(p=>p.classList.remove('highlight'));
+  document.querySelectorAll('.checker.movable,.checker.selected').forEach(c=>c.classList.remove('movable','selected'));
 }
 
 function canLand(to){
   if(to<1||to>24)return false;
   const cell=board[to];
-  return!cell||(cell.color===myColor)||(!cell.color)||(cell.color!==myColor&&cell.count===1);
-}
-
-function isValidDest(from,to){
-  const isBearOff=myColor==='white'?(to>24&&canBearOff('white')):(to<1&&canBearOff('black'));
-  if(isBearOff)return true;
-  return canLand(to);
+  if(!cell||!cell.color||cell.count===0)return true;
+  if(cell.color===myColor)return true;
+  if(cell.color!==myColor&&cell.count===1)return true; // hit
+  return false;
 }
 
 function canBearOff(color){
   if(color==='white'){
-    for(let i=1;i<=18;i++)if(board[i]?.color==='white'&&board[i].count>0)return false;
+    // All white checkers must be in points 1-6
+    for(let i=7;i<=24;i++)if(board[i]?.color==='white'&&board[i].count>0)return false;
+    if(whiteBar>0)return false;
     return true;
   }else{
-    for(let i=7;i<=24;i++)if(board[i]?.color==='black'&&board[i].count>0)return false;
+    // All black checkers must be in points 19-24
+    for(let i=1;i<=18;i++)if(board[i]?.color==='black'&&board[i].count>0)return false;
+    if(blackBar>0)return false;
     return true;
   }
 }
 
 function getRemainingDice(){
   const used=[...diceUsed];const rem=[];
-  for(const d of dice){const idx=used.indexOf(d);if(idx>=0)used.splice(idx,1);else rem.push(d);}
+  for(const d of dice){
+    const idx=used.indexOf(d);
+    if(idx>=0)used.splice(idx,1);
+    else rem.push(d);
+  }
   return rem;
 }
 
-// ─── CLICK ───
+// ─── BAR CLICK ───
+function onBarClick(){
+  if(!myTurn||!gameStarted)return;
+  const myBar=myColor==='white'?whiteBar:blackBar;
+  if(!myBar){toast('ბარში ქვა არ გაქვს');return;}
+  // Highlight entry squares
+  clearHighlights();
+  const rem=getRemainingDice();
+  rem.forEach(d=>{
+    const to=myColor==='white'?d:(25-d);
+    if(to>=1&&to<=24&&canLand(to))document.getElementById('pt'+to)?.classList.add('highlight');
+  });
+  selectedPoint='bar';
+}
+
+// ─── POINT CLICK ───
 function onPointClick(pt){
   if(!myTurn||!gameStarted)return;
   const rem=getRemainingDice();if(!rem.length)return;
   const myBar=myColor==='white'?whiteBar:blackBar;
-  if(myBar>0){
+
+  // If checkers on bar, must enter first
+  if(myBar>0||selectedPoint==='bar'){
     const d=myColor==='white'?pt:(25-pt);
     if(!rem.includes(d)){toast('❌ ამ ასვლით ვერ');return;}
-    moveFromBar(pt);return;
+    if(!canLand(pt)){toast('❌ ვერ ჩადგები');return;}
+    moveFromBar(pt,d);
+    return;
   }
+
   if(selectedPoint===null){
     const cell=board[pt];
     if(!cell||cell.color!==myColor||!cell.count){toast('❌ შენი ქვა ვერ');return;}
     selectedPoint=pt;
     document.getElementById('pt'+pt)?.classList.add('selected-src');
+    clearHighlights();
     rem.forEach(d=>{
       const to=myColor==='white'?(pt+d):(pt-d);
-      if(isValidDest(pt,to)&&to>=1&&to<=24){document.getElementById('pt'+to)?.classList.add('highlight');}
+      if(to>=1&&to<=24&&canLand(to))document.getElementById('pt'+to)?.classList.add('highlight');
+      else if((myColor==='white'&&to>24)||(myColor==='black'&&to<1)){
+        if(canBearOff(myColor))document.getElementById('bearoffMe')?.classList.add('can-bear');
+      }
     });
-  }else if(selectedPoint===pt){clearSelection();}
-  else{
+  }else if(selectedPoint===pt){
+    clearSelection();
+  }else{
     const diff=myColor==='white'?(pt-selectedPoint):(selectedPoint-pt);
-    if(!rem.includes(diff)){clearSelection();onPointClick(pt);return;}
+    if(!rem.includes(diff)||diff<=0){
+      clearSelection();
+      onPointClick(pt);
+      return;
+    }
+    if(!canLand(pt)){toast('❌ ვერ ჩადგები');clearSelection();return;}
     doMove(selectedPoint,pt,diff);
   }
 }
 
 function clearSelection(){
-  if(selectedPoint!==null)document.getElementById('pt'+selectedPoint)?.classList.remove('selected-src');
+  if(selectedPoint!==null&&selectedPoint!=='bar'){
+    document.getElementById('pt'+selectedPoint)?.classList.remove('selected-src');
+  }
   selectedPoint=null;
-  document.querySelectorAll('.point.highlight').forEach(p=>p.classList.remove('highlight'));
-  document.querySelectorAll('.checker.movable,.checker.selected').forEach(c=>c.classList.remove('movable','selected'));
+  clearHighlights();
+  document.getElementById('bearoffMe')?.classList.remove('can-bear');
 }
 
-async function moveFromBar(to){
+async function moveFromBar(to,dv){
   if(myColor==='white')whiteBar--;else blackBar--;
   applyMoveToBoard(0,to);
-  diceUsed.push(myColor==='white'?to:(25-to));
-  renderBoardUI();await syncGameState('ბარ→'+to);
+  diceUsed.push(dv);
+  clearSelection();
+  renderBoardUI();
+  await syncGameState('ბარ→'+to);
 }
 
 async function doMove(from,to,dv){
   clearSelection();
   // Bear off?
-  if(myColor==='white'&&to>24){
+  if(myColor==='white'&&to>24&&canBearOff('white')){
     board[from].count--;if(!board[from].count)board[from].color=null;
     whiteHome++;
-  }else if(myColor==='black'&&to<1){
+  }else if(myColor==='black'&&to<1&&canBearOff('black')){
     board[from].count--;if(!board[from].count)board[from].color=null;
     blackHome++;
-  }else{applyMoveToBoard(from,to);}
+  }else{
+    applyMoveToBoard(from,to);
+  }
   diceUsed.push(dv);
   renderBoardUI();
   if(whiteHome>=15||blackHome>=15){await finishGame();return;}
@@ -775,6 +995,7 @@ function applyMoveToBoard(from,to){
   if(from>0){board[from].count--;if(!board[from].count)board[from].color=null;}
   if(to<1||to>24)return;
   const cell=board[to];
+  // Hit blot
   if(cell.color&&cell.color!==myColor&&cell.count===1){
     if(cell.color==='white')whiteBar++;else blackBar++;
     cell.count=0;cell.color=null;
@@ -788,39 +1009,66 @@ async function syncGameState(moveDesc){
   const noMoves=!rem.length||!hasAnyMove();
   const nextTurn=noMoves?(myColor==='white'?'black':'white'):myColor;
   const{error}=await sb.from('nardi_games').update({
-    board_state:JSON.stringify(board),turn:nextTurn,
-    dice:noMoves?[]:dice,dice_used:noMoves?[]:diceUsed,
-    white_home:whiteHome,black_home:blackHome,white_bar:whiteBar,black_bar:blackBar,
+    board_state:JSON.stringify(board),
+    turn:nextTurn,
+    dice:noMoves?[]:dice,
+    dice_used:noMoves?[]:diceUsed,
+    white_home:whiteHome,black_home:blackHome,
+    white_bar:whiteBar,black_bar:blackBar,
     last_move:JSON.stringify({type:'move',msg:moveDesc})
   }).eq('id',activeGameId);
   if(error)toast('❌ '+error.message);
-  if(noMoves){myTurn=false;dice=[];diceUsed=[];addSysMsg('🔄 მოწინააღმდეგის ჯერი');updateDiceUI();}
+  if(noMoves){
+    myTurn=false;dice=[];diceUsed=[];
+    addSysMsg('🔄 მოწინააღმდეგის ჯერი');
+    updateDiceUI();
+    renderBoardUI();
+  }
 }
 
 function hasAnyMove(){
   const rem=getRemainingDice();if(!rem.length)return false;
   const myBar=myColor==='white'?whiteBar:blackBar;
-  if(myBar>0)return rem.some(d=>{const to=myColor==='white'?d:(25-d);return to>=1&&to<=24&&canLand(to);});
+  if(myBar>0){
+    return rem.some(d=>{
+      const to=myColor==='white'?d:(25-d);
+      return to>=1&&to<=24&&canLand(to);
+    });
+  }
+  const canBO=canBearOff(myColor);
   for(let i=1;i<=24;i++){
     const cell=board[i];if(!cell||cell.color!==myColor||!cell.count)continue;
-    if(rem.some(d=>{const to=myColor==='white'?(i+d):(i-d);return isValidDest(i,to);}))return true;
+    if(rem.some(d=>{
+      const to=myColor==='white'?(i+d):(i-d);
+      if((myColor==='white'&&to>24)||(myColor==='black'&&to<1))return canBO;
+      return to>=1&&to<=24&&canLand(to);
+    }))return true;
   }
   return false;
 }
 
-async function passMove(){diceUsed=[...dice];await syncGameState('გამოტოვება');}
+async function passMove(){
+  diceUsed=[...dice];
+  await syncGameState('გამოტოვება');
+}
 
 // ─── DICE ───
 async function rollDice(){
   if(!myTurn){toast('❌ შენი ჯერი არ არის');return;}
-  if(dice.length>0){toast('❌ უკვე გადაგდებულია');return;}
+  if(dice.length>0){toast('❌ უკვე გაგორებულია');return;}
   const d1=Math.ceil(Math.random()*6),d2=Math.ceil(Math.random()*6);
   const isDouble=d1===d2;
   const newDice=isDouble?[d1,d1,d1,d1]:[d1,d2];
   dice=newDice;diceUsed=[];
-  ['dice1','dice2','dice3','dice4'].forEach(id=>document.getElementById(id).classList.add('rolling'));
+  ['dice1','dice2','dice3','dice4'].forEach(id=>{
+    const el=document.getElementById(id);
+    el.classList.remove('used');el.classList.add('rolling');
+  });
   setTimeout(()=>['dice1','dice2','dice3','dice4'].forEach(id=>document.getElementById(id).classList.remove('rolling')),400);
-  await sb.from('nardi_games').update({dice:newDice,dice_used:[],last_move:JSON.stringify({type:'dice',msg:'🎲 '+d1+'+'+d2})}).eq('id',activeGameId);
+  await sb.from('nardi_games').update({
+    dice:newDice,dice_used:[],
+    last_move:JSON.stringify({type:'dice',msg:'🎲 '+d1+'+'+d2})
+  }).eq('id',activeGameId);
   updateDiceUI();renderBoardUI();
   addSysMsg(`🎲 ${d1}+${d2}${isDouble?' (ორმაგი! ×4)':''}`);
   if(!hasAnyMove()){addSysMsg('😞 სვლა შეუძლებელია — გამოტოვება');await syncGameState('no-moves');}
@@ -829,24 +1077,27 @@ async function rollDice(){
 const FACES=['·','⚀','⚁','⚂','⚃','⚄','⚅'];
 function updateDiceUI(){
   const isDouble=dice.length===4;
-  const show=[dice[0]||0,dice[1]||dice[0]||0,dice[2]||0,dice[3]||0];
   for(let i=0;i<4;i++){
     const el=document.getElementById('dice'+(i+1));
-    el.style.display=(i<(isDouble?4:2))?'flex':'none';
-    el.textContent=FACES[show[i]]||show[i]||'·';
-    const usedSoFar=diceUsed.filter(v=>v===dice[i]).length;
-    const totalOfVal=dice.filter(v=>v===dice[i]).length;
-    el.className='dice'+(diceUsed.length>i?' used':'');
+    const show=i<(isDouble?4:2);
+    el.style.display=show?'flex':'none';
+    if(show){
+      el.textContent=FACES[dice[i]]||dice[i]||'·';
+      el.className='dice'+(i<diceUsed.length?' used':'');
+    }
   }
   document.getElementById('rollBtn').disabled=!myTurn||dice.length>0;
-  document.getElementById('passBtn').style.display=(myTurn&&dice.length&&getRemainingDice().length)?'':'none';
+  const rem=getRemainingDice();
+  document.getElementById('passBtn').style.display=(myTurn&&dice.length&&rem.length)?'inline-block':'none';
 }
 
 function updateTurnUI(turn,isMyTurn){
   document.getElementById('turnBadge').textContent=isMyTurn?'🎲 შენი ჯერია!':'⏳ ველოდები...';
   document.getElementById('myInfo').classList.toggle('pi-active',isMyTurn);
   document.getElementById('oppInfo').classList.toggle('pi-active',!isMyTurn);
-  document.getElementById('statusBar').textContent=isMyTurn?(dice.length?'ქვა გადადი ⬇':'🎲 გადააგდე ასვლა!'):'⏳ ოპონენტის ჯერია...';
+  document.getElementById('statusBar').textContent=isMyTurn
+    ?(dice.length?'ქვა გადადი':'🎲 გაახე ზარი!')
+    :'⏳ ოპონენტის ჯერია...';
   document.getElementById('rollBtn').disabled=!isMyTurn||dice.length>0;
 }
 
@@ -876,16 +1127,27 @@ function showWinModal(iWon){
 
 // ─── CHAT ───
 async function sendChatMsg(){
-  const inp=document.getElementById('chatInput');const txt=inp.value.trim();if(!txt)return;
-  inp.value='';appendChatMsg(MYPROF?.username||'?',txt,true);
-  if(chatChannel)try{chatChannel.send({type:'broadcast',event:'chat',payload:{uid:ME.id,nick:MYPROF?.username||'?',content:txt}});}catch(e){}
+  const inp=document.getElementById('chatInput');
+  const txt=inp.value.trim();if(!txt)return;
+  inp.value='';
+  // My message appears on the RIGHT
+  appendChatMsg(MYPROF?.username||'?',txt,true);
+  if(chatChannel){
+    try{
+      chatChannel.send({type:'broadcast',event:'chat',payload:{uid:ME.id,nick:MYPROF?.username||'?',content:txt}});
+    }catch(e){}
+  }
   if(activeGameId)await sb.from('nardi_chat').insert({game_id:activeGameId,user_id:ME.id,content:txt});
 }
 function appendChatMsg(nick,content,isMe){
   const box=document.getElementById('chatMsgs');
-  const d=document.createElement('div');d.className='cmsg'+(isMe?' mine':'');
-  d.innerHTML=(!isMe?`<div class="cmsg-nick">${esc(nick)}</div>`:'')+'<div>'+renderChatContent(content)+'</div>';
-  box.appendChild(d);box.scrollTop=box.scrollHeight;
+  const d=document.createElement('div');
+  // isMe=true → mine class (right side), isMe=false → their message (left side)
+  d.className='cmsg'+(isMe?' mine':'');
+  d.innerHTML=(!isMe?`<div class="cmsg-nick">${esc(nick)}</div>`:'')
+    +'<div>'+renderChatContent(content)+'</div>';
+  box.appendChild(d);
+  box.scrollTop=box.scrollHeight;
 }
 function addSysMsg(msg){
   const box=document.getElementById('chatMsgs');
@@ -906,7 +1168,8 @@ async function resetGame(){
   if(gameChannel){try{sb.removeChannel(gameChannel);}catch(e){}gameChannel=null;}
   if(chatChannel){try{sb.removeChannel(chatChannel);}catch(e){}chatChannel=null;}
   activeGameId=null;gameStarted=false;myTurn=false;
-  board=getInitialBoard();whiteHome=blackHome=whiteBar=blackBar=0;dice=[];diceUsed=[];selectedPoint=null;
+  board=getInitialBoard();whiteHome=blackHome=whiteBar=blackBar=0;
+  dice=[];diceUsed=[];selectedPoint=null;
   document.getElementById('boardWrap').style.display='none';
   document.getElementById('lobby').style.display='flex';
   document.getElementById('chatMsgs').innerHTML='<div class="cmsg-sys">🎲 კეთილი იყოს!</div>';
