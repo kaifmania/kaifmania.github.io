@@ -28,7 +28,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 @keyframes bearIn{0%{transform:scale(0.4);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
 @keyframes checkerPulse{0%,100%{box-shadow:0 0 14px var(--accent),0 2px 6px rgba(0,0,0,.4)}50%{box-shadow:0 0 24px var(--accent),0 2px 10px rgba(0,0,0,.5)}}
 
-/* ═══ TOPBAR ═══ */
 #topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
 .tb-logo{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:var(--text);display:flex;align-items:center;gap:8px}
 .tb-logo span{color:var(--accent)}
@@ -40,11 +39,9 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .tb-av{width:24px;height:24px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex-shrink:0}
 .tb-av img{width:100%;height:100%;object-fit:cover}
 
-/* ═══ MAIN ═══ */
 #appWrap{display:flex;flex:1;min-height:0}
 #gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;position:relative;min-width:0;overflow:hidden}
 
-/* ═══ LOBBY ═══ */
 #lobby{display:flex;flex-direction:column;align-items:center;gap:20px;max-width:400px;width:100%;animation:pop .4s ease}
 .lobby-icon{font-size:72px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 24px var(--glow))}
 .lobby-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--text);text-align:center}
@@ -67,16 +64,12 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .btn-secondary{padding:9px 18px;border-radius:50px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s;width:100%;text-align:center}
 .btn-secondary:hover{background:var(--border);color:var(--text)}
 
-/* ═══ WAITING ═══ */
 #waitingScreen{display:none;flex-direction:column;align-items:center;gap:18px;animation:pop .4s ease}
 .waiting-spinner{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
 .waiting-title{font-family:'Unbounded',sans-serif;font-size:15px;color:var(--text)}
 .waiting-sub{font-size:12px;color:var(--text3);text-align:center}
 
-/* ═══ BOARD WRAP ═══ */
 #boardWrap{display:none;flex-direction:row;gap:10px;width:100%;max-width:1020px;height:100%;align-items:stretch;animation:pop .4s ease}
-
-/* ═══ BOARD CONTAINER ═══ */
 #boardContainer{flex:1;display:flex;flex-direction:column;min-width:0;gap:6px}
 .board-top-info{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .player-info{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:5px 10px;transition:all .3s;flex-shrink:0}
@@ -87,21 +80,11 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .pi-active{border-color:var(--accent);box-shadow:0 0 10px rgba(240,122,255,.3)}
 .turn-badge{font-family:'Unbounded',sans-serif;font-size:9px;color:var(--indigo2);background:var(--indigo-f);border:1px solid var(--border);border-radius:18px;padding:4px 10px;white-space:nowrap}
 
-/* ═══ BOARD LAYOUT ═══ */
 .board-and-bearoff{display:flex;flex:1;min-height:0;gap:5px}
-#board{
-  position:relative;background:var(--board-bg);border-radius:14px;border:3px solid #0a2a0a;
-  flex:1;display:flex;flex-direction:column;overflow:hidden;
-  box-shadow:0 8px 40px rgba(0,0,0,.7),inset 0 0 80px rgba(0,0,0,.4);min-height:0
-}
+#board{position:relative;background:var(--board-bg);border-radius:14px;border:3px solid #0a2a0a;flex:1;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.7),inset 0 0 80px rgba(0,0,0,.4);min-height:0}
 
-/* Bear-off column */
 .bearoff-col{width:52px;display:flex;flex-direction:column;gap:4px;flex-shrink:0}
-.bearoff-zone{
-  flex:1;background:var(--panel);border:2px solid var(--border);border-radius:10px;
-  display:flex;flex-direction:column;align-items:center;justify-content:flex-start;
-  padding:5px 3px;gap:1px;overflow:hidden;position:relative;cursor:pointer;transition:all .2s
-}
+.bearoff-zone{flex:1;background:var(--panel);border:2px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5px 3px;gap:1px;overflow:hidden;position:relative;cursor:pointer;transition:all .2s}
 .bearoff-zone.can-bear{border-color:var(--accent);box-shadow:0 0 12px rgba(240,122,255,.4);animation:flash .6s ease infinite}
 .bearoff-label{font-size:8px;font-family:'Unbounded',sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;text-align:center;flex-shrink:0}
 .bearoff-count{font-family:'Unbounded',sans-serif;font-size:18px;color:var(--accent);position:absolute;bottom:6px;left:0;right:0;text-align:center}
@@ -109,148 +92,54 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .bearoff-checker.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb);box-shadow:0 2px 6px rgba(0,0,0,.4)}
 .bearoff-checker.black{background:radial-gradient(circle at 35% 30%,#555,#0a0a15);box-shadow:0 2px 6px rgba(0,0,0,.6)}
 
-/* ═══ BOARD SECTIONS ═══ */
-/*
-  STANDARD BACKGAMMON LAYOUT (from white's perspective):
-
-  TOP row    (opponent's side):
-    Left half:  pts 13–18   (left→right, triangles pointing DOWN)
-    Right half: pts 19–24   (left→right, triangles pointing DOWN)
-    ← black home board is TOP-RIGHT (pts 19-24)
-
-  BOTTOM row  (my side):
-    Left half:  pts 12–7    (left→right, descending, triangles pointing UP)
-    Right half: pts 6–1     (left→right, descending, triangles pointing UP)
-    ← white home board is BOTTOM-RIGHT (pts 1-6)
-
-  White moves: 24 → 23 → ... → 2 → 1  (right→left on top, then right→left on bottom)
-  Black moves:  1 →  2 → ... → 23 → 24  (right→left on bottom, then right→left on top)
-
-  Starting positions:
-    White: pt24=2, pt13=5, pt8=3, pt6=5
-    Black: pt1=2,  pt12=5, pt17=3, pt19=5
-*/
 .board-half{display:flex;flex:1;min-height:0}
 .board-row{display:flex;flex:1;min-height:0}
-.board-bar{
-  width:38px;background:linear-gradient(135deg,#0a1f0a,#061206);
-  border-left:2px solid #0a2a0a;border-right:2px solid #0a2a0a;
-  display:flex;flex-direction:column;align-items:center;justify-content:space-around;
-  padding:6px 0;flex-shrink:0
-}
+.board-bar{width:38px;background:linear-gradient(135deg,#0a1f0a,#061206);border-left:2px solid #0a2a0a;border-right:2px solid #0a2a0a;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:6px 0;flex-shrink:0}
 
-/* Points */
-.point{
-  flex:1;display:flex;flex-direction:column;align-items:center;
-  position:relative;cursor:pointer;transition:background .15s;min-width:0;overflow:visible
-}
+.point{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer;transition:background .15s;min-width:0;overflow:visible}
 .point:hover{background:rgba(255,255,255,.04)}
 .point.highlight{background:rgba(168,85,247,.28)!important;animation:flash .6s ease infinite}
 .point.selected-src{background:rgba(240,122,255,.18)!important}
 
-/* Triangles */
 .tri{position:absolute;width:100%;pointer-events:none}
 .tri-top{top:0;height:80%}
 .tri-bot{bottom:0;height:80%}
 .tri svg{width:100%;height:100%;display:block}
 
-/* Checker stacks */
-.checkers-stack{
-  width:100%;display:flex;flex-direction:column;align-items:center;
-  z-index:2;position:absolute;overflow:visible
-}
-/* Top points: stack grows downward from top */
+.checkers-stack{width:100%;display:flex;flex-direction:column;align-items:center;z-index:2;position:absolute;overflow:visible}
 .checkers-stack.top-stack{top:3px;flex-direction:column}
-/* Bottom points: stack grows upward from bottom */
 .checkers-stack.bot-stack{bottom:3px;flex-direction:column-reverse}
 
-.checker{
-  width:82%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
-  font-size:9px;font-weight:700;cursor:pointer;transition:transform .12s;position:relative;
-  flex-shrink:0;margin:1px 0;border:2px solid rgba(255,255,255,.15);
-  box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none;
-}
-.checker.white{
-  background:radial-gradient(circle at 35% 30%,#fff 0%,#ddd 40%,#bbb 100%);
-  border-color:rgba(255,255,255,.5);
-  box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.9)
-}
-.checker.black{
-  background:radial-gradient(circle at 35% 30%,#666 0%,#222 40%,#0a0a15 100%);
-  border-color:rgba(255,255,255,.2);
-  box-shadow:0 2px 8px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.15)
-}
-.checker.movable{
-  box-shadow:0 0 16px var(--accent),0 2px 8px rgba(0,0,0,.5)!important;
-  transform:scale(1.1);
-  animation:checkerPulse .8s ease infinite
-}
-.checker-count{
-  position:absolute;font-size:8px;font-weight:900;
-  pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)
-}
+.checker{width:82%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;transition:transform .12s;position:relative;flex-shrink:0;margin:1px 0;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none}
+.checker.white{background:radial-gradient(circle at 35% 30%,#fff 0%,#ddd 40%,#bbb 100%);border-color:rgba(255,255,255,.5);box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.9)}
+.checker.black{background:radial-gradient(circle at 35% 30%,#666 0%,#222 40%,#0a0a15 100%);border-color:rgba(255,255,255,.2);box-shadow:0 2px 8px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.15)}
+.checker.movable{box-shadow:0 0 16px var(--accent),0 2px 8px rgba(0,0,0,.5)!important;transform:scale(1.1);animation:checkerPulse .8s ease infinite}
+.checker-count{position:absolute;font-size:8px;font-weight:900;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}
 .checker.white .checker-count{color:#1a0a30}
 .checker.black .checker-count{color:#eee}
 
-.pt-num{
-  font-size:8px;font-family:'Unbounded',sans-serif;
-  color:rgba(255,255,255,.45);position:absolute;z-index:3;pointer-events:none
-}
+.pt-num{font-size:8px;font-family:'Unbounded',sans-serif;color:rgba(255,255,255,.45);position:absolute;z-index:3;pointer-events:none}
 .pt-num.top-num{bottom:3px}
 .pt-num.bot-num{top:3px}
 
-/* ═══ DICE AREA ═══ */
-#diceArea{
-  display:flex;align-items:center;justify-content:center;gap:8px;
-  padding:8px;background:rgba(0,0,0,.4);
-  border-top:1px solid rgba(255,255,255,.06);
-  border-bottom:1px solid rgba(255,255,255,.06);
-  flex-shrink:0;position:relative;overflow:visible;min-height:62px
-}
+#diceArea{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;position:relative;overflow:visible;min-height:62px}
 #rollingOverlay{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:50}
-.rolling-die{
-  position:absolute;width:40px;height:40px;background:#fff;border-radius:9px;
-  display:flex;align-items:center;justify-content:center;font-size:20px;color:#111;
-  box-shadow:0 4px 20px rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.3);
-  will-change:transform;pointer-events:none;
-}
-
-.dice{
-  width:42px;height:42px;background:#fff;border-radius:9px;
-  display:flex;align-items:center;justify-content:center;font-size:22px;
-  box-shadow:0 3px 12px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.4);
-  cursor:default;transition:all .25s;border:2px solid rgba(255,255,255,.2);
-  flex-shrink:0;color:#111
-}
+.rolling-die{position:absolute;width:40px;height:40px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#111;box-shadow:0 4px 20px rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.3);will-change:transform;pointer-events:none}
+.dice{width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.4);cursor:default;transition:all .25s;border:2px solid rgba(255,255,255,.2);flex-shrink:0;color:#111}
 .dice.used{opacity:.25;transform:scale(0.84)}
-#rollBtn{
-  padding:7px 18px;border-radius:18px;
-  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
-  border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;
-  cursor:pointer;box-shadow:0 4px 14px rgba(120,30,200,.5);transition:all .2s;letter-spacing:.4px
-}
+#rollBtn{padding:7px 18px;border-radius:18px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;cursor:pointer;box-shadow:0 4px 14px rgba(120,30,200,.5);transition:all .2s;letter-spacing:.4px}
 #rollBtn:hover:not(:disabled){transform:scale(1.05)}
 #rollBtn:disabled{opacity:.35;cursor:not-allowed}
-#passBtn{
-  padding:7px 14px;border-radius:18px;background:var(--indigo-f);
-  border:1px solid var(--border);color:var(--text2);font-size:10px;
-  cursor:pointer;transition:all .2s;display:none
-}
+#passBtn{padding:7px 14px;border-radius:18px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:10px;cursor:pointer;transition:all .2s;display:none}
 #passBtn:hover{background:var(--border);color:var(--text)}
 
-/* Bar chips */
-.bar-chip{
-  width:28px;height:28px;border-radius:50%;display:flex;align-items:center;
-  justify-content:center;font-size:10px;font-weight:700;
-  border:2px solid rgba(255,255,255,.2);flex-shrink:0;cursor:pointer;margin:2px
-}
+.bar-chip{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid rgba(255,255,255,.2);flex-shrink:0;cursor:pointer;margin:2px}
 .bar-chip.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb);color:#1a0a30}
 .bar-chip.black{background:radial-gradient(circle at 35% 30%,#555,#111);color:#fff}
 .bar-chip.highlight-chip{box-shadow:0 0 12px var(--accent)}
 
 #statusBar{text-align:center;font-size:11px;color:var(--text2);min-height:22px;flex-shrink:0;padding:2px}
 
-/* ═══ CHAT PANEL ═══ */
 #chatPanel{width:220px;background:var(--panel);border:1px solid var(--border);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;box-shadow:0 6px 28px rgba(0,0,0,.4)}
 .chat-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
 .chat-head-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;flex:1}
@@ -274,7 +163,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 #emojiToggle:hover{background:var(--border)}
 #emojiToggle.active{background:var(--indigo)}
 
-/* ═══ INVITE BANNER ═══ */
 #inviteBanner{position:fixed;top:60px;right:16px;width:290px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:1px solid rgba(168,85,247,.5);border-radius:16px;padding:12px 14px;z-index:9000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;animation:slideUp .3s ease;flex-direction:column;gap:9px}
 #inviteBanner.show{display:flex}
 .ib-title{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,.7);text-transform:uppercase}
@@ -288,7 +176,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .ib-accept:hover{background:#fff;transform:scale(1.03)}
 .ib-decline{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:10px;color:#fff;font-size:11px;padding:7px 11px;cursor:pointer}
 
-/* ═══ MODALS ═══ */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
 .modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:380px;padding:22px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:pop .4s cubic-bezier(0.34,1.3,0.64,1)}
@@ -298,7 +185,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .modal-row{display:flex;gap:8px;margin-top:10px}
 .toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:9px 18px;border-radius:18px;font-size:12px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:pop .3s ease;white-space:nowrap}
 
-/* ═══ MOBILE ═══ */
 @media(max-width:680px){
   #boardWrap{flex-direction:column}
   #chatPanel{width:100%;height:160px;border-radius:12px}
@@ -308,7 +194,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 </head>
 <body>
 
-<!-- INVITE BANNER -->
 <div id="inviteBanner">
   <div class="ib-title">🎲 ნარდის მოწვევა</div>
   <div class="ib-body">
@@ -324,7 +209,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- TOPBAR -->
 <div id="topbar">
   <a href="chat.html" class="tb-back">← ჩატი</a>
   <div class="tb-logo">🎲 <span>ნარდი</span></div>
@@ -338,11 +222,9 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- MAIN -->
 <div id="appWrap">
 <div id="gameArea">
 
-  <!-- LOBBY -->
   <div id="lobby">
     <div class="lobby-icon">🎲</div>
     <div class="lobby-title">ნარდი</div>
@@ -364,7 +246,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
     </div>
   </div>
 
-  <!-- WAITING -->
   <div id="waitingScreen">
     <div class="waiting-spinner"></div>
     <div class="waiting-title">ველოდებით...</div>
@@ -372,12 +253,10 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
     <button class="btn-secondary" onclick="cancelInvite()" style="margin-top:6px;max-width:200px">❌ გაუქმება</button>
   </div>
 
-  <!-- BOARD -->
   <div id="boardWrap">
 
     <div id="boardContainer">
 
-      <!-- Player headers -->
       <div class="board-top-info">
         <div class="player-info" id="oppInfo">
           <div class="pi-av" id="oppAv">😊</div>
@@ -392,37 +271,19 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
         </div>
       </div>
 
-      <!-- Board + Bear-off -->
       <div class="board-and-bearoff">
 
-        <!-- THE BOARD -->
         <div id="board">
-          <!--
-            TOP ROW  — triangles point DOWN, numbers at bottom edge
-            Left:  pts 13,14,15,16,17,18   (left→right)
-            Right: pts 19,20,21,22,23,24   (left→right)  ← BLACK home board
-
-            BOTTOM ROW — triangles point UP, numbers at top edge
-            Left:  pts 12,11,10,9,8,7    (left→right)
-            Right: pts 6,5,4,3,2,1       (left→right)   ← WHITE home board
-          -->
-
-          <!-- TOP ROW -->
           <div class="board-row" id="topRow">
-            <!-- top-left half: 13→18 -->
             <div class="board-half" id="topLeft"></div>
-            <!-- center bar -->
             <div class="board-bar">
-              <!-- black checkers on bar (enter from top toward bottom) -->
               <div id="barBlackEl" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="onBarClick('black')"></div>
             </div>
-            <!-- top-right half: 19→24 -->
             <div class="board-half" id="topRight"></div>
           </div>
 
-          <!-- DICE ROW -->
           <div id="diceArea">
-            <button id="rollBtn" onclick="rollDice()" disabled>🎲 გაახე</button>
+            <button id="rollBtn" onclick="rollDice()" disabled>🎲 გააგორე</button>
             <div class="dice" id="dice1">·</div>
             <div class="dice" id="dice2">·</div>
             <div class="dice" id="dice3" style="display:none">·</div>
@@ -431,30 +292,21 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
             <div id="rollingOverlay"></div>
           </div>
 
-          <!-- BOTTOM ROW -->
           <div class="board-row" id="botRow">
-            <!-- bottom-left half: 12→7 -->
             <div class="board-half" id="botLeft"></div>
-            <!-- center bar -->
             <div class="board-bar">
-              <!-- white checkers on bar (enter from bottom toward top) -->
               <div id="barWhiteEl" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="onBarClick('white')"></div>
             </div>
-            <!-- bottom-right half: 6→1 -->
             <div class="board-half" id="botRight"></div>
           </div>
+        </div>
 
-        </div><!-- /#board -->
-
-        <!-- Bear-off column -->
         <div class="bearoff-col">
-          <!-- Opponent's borne-off checkers (top) -->
           <div class="bearoff-zone" id="bearoffOpp">
             <div class="bearoff-label" id="bearoffOppLabel">⚫<br>სახლი</div>
             <div id="bearoffOppCheckers"></div>
             <div class="bearoff-count" id="bearoffOppCount">0</div>
           </div>
-          <!-- My borne-off checkers (bottom) -->
           <div class="bearoff-zone" id="bearoffMe" onclick="onBearOffClick()">
             <div class="bearoff-label" id="bearoffMeLabel">⚪<br>სახლი</div>
             <div id="bearoffMeCheckers"></div>
@@ -462,13 +314,12 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
           </div>
         </div>
 
-      </div><!-- /.board-and-bearoff -->
+      </div>
 
       <div id="statusBar">მოთამაშეების მოლოდინში...</div>
 
-    </div><!-- /#boardContainer -->
+    </div>
 
-    <!-- Chat -->
     <div id="chatPanel">
       <div class="chat-head">
         <div class="chat-head-title">💬 ჩატი</div>
@@ -484,12 +335,11 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
       </div>
     </div>
 
-  </div><!-- /#boardWrap -->
+  </div>
 
 </div>
 </div>
 
-<!-- WIN MODAL -->
 <div class="overlay" id="winOverlay">
   <div class="modal" style="text-align:center">
     <div class="modal-icon" id="winIcon">🏆</div>
@@ -511,9 +361,9 @@ const sb = createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-// ══════════════════════════════════════
+// ============================================================
 //  AUDIO
-// ══════════════════════════════════════
+// ============================================================
 const AudioCtx = window.AudioContext || window.webkitAudioContext;
 let audioCtx = null;
 function getAudio() {
@@ -588,9 +438,9 @@ function playWin() {
   });
 }
 
-// ══════════════════════════════════════
+// ============================================================
 //  DICE ANIMATION
-// ══════════════════════════════════════
+// ============================================================
 const FACES = ['·', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
 
 function animateDiceRoll(finalValues, callback) {
@@ -630,44 +480,27 @@ function animateDiceRoll(finalValues, callback) {
   requestAnimationFrame(frame);
 }
 
-// ══════════════════════════════════════
+// ============================================================
 //  STATE
-// ══════════════════════════════════════
+// ============================================================
 let ME = null, MYPROF = null, allUsers = [];
 let pendingInviteId = null, activeGameId = null, gameChannel = null, chatChannel = null;
 let selectedOpponent = null, pendingInviteFrom = null;
 let customEmojis = [], emojiCache = {}, showEmojiGrid = false;
 
-/*
-  board[1..24]: {color: 'white'|'black'|null, count: number}
-  board[0] = unused placeholder
-
-  POINT NUMBERING (standard backgammon, from white's perspective):
-    - White moves 24 → 1   (bearing off at 1-side)
-    - Black moves  1 → 24  (bearing off at 24-side)
-    
-  SCREEN LAYOUT:
-    TOP-LEFT:   pts 13,14,15,16,17,18  (triangles point DOWN)
-    TOP-RIGHT:  pts 19,20,21,22,23,24  (triangles point DOWN)  ← BLACK home
-    BOT-LEFT:   pts 12,11,10, 9, 8, 7  (triangles point UP)
-    BOT-RIGHT:  pts  6, 5, 4, 3, 2, 1  (triangles point UP)    ← WHITE home
-*/
-
 let board = [];
-let whiteHome = 0, blackHome = 0; // borne off
-let whiteBar = 0, blackBar = 0;   // on the bar
+let whiteHome = 0, blackHome = 0;
+let whiteBar = 0, blackBar = 0;
 let dice = [], diceUsed = [];
 let myColor = 'white', myTurn = false, gameStarted = false;
-let selectedPoint = null; // null | 'bar' | 1..24
+let selectedPoint = null;
 
 function getInitialBoard() {
   const b = Array.from({ length: 25 }, () => ({ color: null, count: 0 }));
-  // White (moves 24→1, home at 1-6)
   b[24] = { color: 'white', count: 2 };
   b[13] = { color: 'white', count: 5 };
   b[8]  = { color: 'white', count: 3 };
   b[6]  = { color: 'white', count: 5 };
-  // Black (moves 1→24, home at 19-24)
   b[1]  = { color: 'black', count: 2 };
   b[12] = { color: 'black', count: 5 };
   b[17] = { color: 'black', count: 3 };
@@ -675,9 +508,48 @@ function getInitialBoard() {
   return b;
 }
 
-// ══════════════════════════════════════
+function getRemainingDice() {
+  const pool = [...dice];
+  for (const used of diceUsed) {
+    const idx = pool.indexOf(used);
+    if (idx !== -1) pool.splice(idx, 1);
+  }
+  return pool;
+}
+
+function getTargetPoint(from, die) {
+  if (myColor === 'white') return from - die;
+  else return from + die;
+}
+
+function canLand(pt) {
+  if (pt < 1 || pt > 24) return false;
+  const cell = board[pt];
+  if (!cell || !cell.color || cell.count === 0) return true;
+  if (cell.color === myColor) return true;
+  if (cell.count === 1) return true;
+  return false;
+}
+
+function canBearOff(color) {
+  if (color === 'white') {
+    if (whiteBar > 0) return false;
+    for (let i = 7; i <= 24; i++) {
+      if (board[i] && board[i].color === 'white' && board[i].count > 0) return false;
+    }
+    return true;
+  } else {
+    if (blackBar > 0) return false;
+    for (let i = 1; i <= 18; i++) {
+      if (board[i] && board[i].color === 'black' && board[i].count > 0) return false;
+    }
+    return true;
+  }
+}
+
+// ============================================================
 //  INIT
-// ══════════════════════════════════════
+// ============================================================
 async function init() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) { location.href = 'index.html'; return; }
@@ -699,7 +571,7 @@ async function init() {
   await loadUsers();
   await loadEmojis();
   watchInvites();
-  buildBoard(); // build static HTML structure
+  buildBoard();
 }
 
 async function loadUsers() {
@@ -728,15 +600,16 @@ function renderUserPick() {
   });
 }
 
-// ══════════════════════════════════════
+// ============================================================
 //  EMOJI
-// ══════════════════════════════════════
+// ============================================================
 async function loadEmojis() {
   const { data } = await sb.from('global_emojis').select('id,url').order('id', { ascending: true });
   customEmojis = data || []; emojiCache = {};
   customEmojis.forEach(e => { emojiCache[e.id] = e.url; });
   buildChatEmojiGrid();
 }
+
 function buildChatEmojiGrid() {
   const grid = document.getElementById('chatEmojiGrid'); grid.innerHTML = '';
   customEmojis.forEach(em => {
@@ -748,11 +621,13 @@ function buildChatEmojiGrid() {
     grid.appendChild(btn);
   });
 }
+
 function toggleChatEmoji() {
   showEmojiGrid = !showEmojiGrid;
   document.getElementById('chatEmojiGrid').style.display = showEmojiGrid ? 'flex' : 'none';
   document.getElementById('emojiToggle').classList.toggle('active', showEmojiGrid);
 }
+
 function renderChatContent(s) {
   if (!s) return '';
   let h = esc(s);
@@ -764,9 +639,9 @@ function renderChatContent(s) {
   return h;
 }
 
-// ══════════════════════════════════════
+// ============================================================
 //  INVITES
-// ══════════════════════════════════════
+// ============================================================
 async function sendInvite() {
   if (!selectedOpponent || !ME) return;
   document.getElementById('inviteBtn').disabled = true;
@@ -792,10 +667,12 @@ async function sendInvite() {
       }
     }).subscribe();
 }
+
 async function cancelInvite() {
   if (pendingInviteId) { await sb.from('nardi_invites').update({ status: 'declined' }).eq('id', pendingInviteId); pendingInviteId = null; }
   resetToLobby();
 }
+
 function watchInvites() {
   sb.channel('my_invites_' + ME.id)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'nardi_invites', filter: `to_uid=eq.${ME.id}` }, async p => {
@@ -806,11 +683,13 @@ function watchInvites() {
       if (sender) showInviteBanner(p.new, sender);
     }).subscribe();
 }
+
 function showInviteBanner(invite, sender) {
   document.getElementById('ibAv').innerHTML = sender.avatar_url ? `<img src="${sender.avatar_url}">` : (sender.emotion || '👤');
   document.getElementById('ibName').textContent = sender.username || '?';
   document.getElementById('inviteBanner').classList.add('show');
 }
+
 async function acceptInvite() {
   if (!pendingInviteFrom) return;
   document.getElementById('inviteBanner').classList.remove('show');
@@ -833,6 +712,7 @@ async function acceptInvite() {
   pendingInviteFrom = null;
   await joinGame(gameRow.id);
 }
+
 async function declineInvite() {
   if (!pendingInviteFrom) return;
   document.getElementById('inviteBanner').classList.remove('show');
@@ -841,9 +721,9 @@ async function declineInvite() {
   toast('❌ უარი თქვი');
 }
 
-// ══════════════════════════════════════
+// ============================================================
 //  JOIN GAME
-// ══════════════════════════════════════
+// ============================================================
 async function joinGame(gameId) {
   document.getElementById('lobby').style.display = 'none';
   document.getElementById('waitingScreen').style.display = 'none';
@@ -893,17 +773,13 @@ async function joinGame(gameId) {
   addSysMsg(myColor === 'white' ? '⚪ მოძრაობ: 24→1' : '⚫ მოძრაობ: 1→24');
 }
 
-// ══════════════════════════════════════
-//  APPLY STATE FROM DB
-// ══════════════════════════════════════
 function applyGameState(game) {
   try { board = JSON.parse(game.board_state) || getInitialBoard(); } catch (e) { board = getInitialBoard(); }
   whiteHome = game.white_home || 0;
   blackHome = game.black_home || 0;
   whiteBar  = game.white_bar  || 0;
   blackBar  = game.black_bar  || 0;
-  // CRITICAL: load both dice and dice_used from DB exactly as stored
-  dice     = Array.isArray(game.dice)      ? [...game.dice]      : [];
+  dice = Array.isArray(game.dice) ? [...game.dice] : [];
   diceUsed = Array.isArray(game.dice_used) ? [...game.dice_used] : [];
   myTurn = (game.turn === myColor);
   selectedPoint = null;
@@ -912,26 +788,16 @@ function applyGameState(game) {
   updateTurnUI(game.turn, myTurn);
 }
 
-// ══════════════════════════════════════
-//  BUILD BOARD STRUCTURE (static HTML)
-//
-//  Top section:  triangles point DOWN, stack grows from top downward
-//  Bottom section: triangles point UP, stack grows from bottom upward
-// ══════════════════════════════════════
+// ============================================================
+//  BUILD BOARD
+// ============================================================
 function buildBoard() {
-  // Top-left: pts 13,14,15,16,17,18
   const tl = document.getElementById('topLeft'); tl.innerHTML = '';
   [13, 14, 15, 16, 17, 18].forEach(n => tl.appendChild(makePoint(n, true)));
-
-  // Top-right: pts 19,20,21,22,23,24
   const tr = document.getElementById('topRight'); tr.innerHTML = '';
   [19, 20, 21, 22, 23, 24].forEach(n => tr.appendChild(makePoint(n, true)));
-
-  // Bottom-left: pts 12,11,10,9,8,7
   const bl = document.getElementById('botLeft'); bl.innerHTML = '';
   [12, 11, 10, 9, 8, 7].forEach(n => bl.appendChild(makePoint(n, false)));
-
-  // Bottom-right: pts 6,5,4,3,2,1
   const br = document.getElementById('botRight'); br.innerHTML = '';
   [6, 5, 4, 3, 2, 1].forEach(n => br.appendChild(makePoint(n, false)));
 }
@@ -941,47 +807,31 @@ function makePoint(num, isTop) {
   p.className = 'point';
   p.id = 'pt' + num;
   p.dataset.pt = String(num);
-
-  // Alternate triangle colors
   const col = (num % 2 !== 0) ? '#b83030' : '#c8951a';
-
   if (isTop) {
-    // Triangle tip points DOWN (toward center)
     p.innerHTML = `<div class="tri tri-top"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,96 2,4 58,4" fill="${col}" opacity="0.85"/></svg></div>`;
   } else {
-    // Triangle tip points UP (toward center)
     p.innerHTML = `<div class="tri tri-bot"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,4 2,96 58,96" fill="${col}" opacity="0.85"/></svg></div>`;
   }
-
-  // Point number label
   const numEl = document.createElement('div');
   numEl.className = 'pt-num ' + (isTop ? 'top-num' : 'bot-num');
   numEl.textContent = num;
   p.appendChild(numEl);
-
-  // Checker stack container
   const stack = document.createElement('div');
   stack.className = 'checkers-stack ' + (isTop ? 'top-stack' : 'bot-stack');
   stack.id = 'stack' + num;
   p.appendChild(stack);
-
   p.addEventListener('click', () => onPointClick(num));
   return p;
 }
 
-// ══════════════════════════════════════
-//  RENDER BOARD
-// ══════════════════════════════════════
 function renderBoardUI() {
-  // Clear all stacks and highlights
   for (let i = 1; i <= 24; i++) {
     const s = document.getElementById('stack' + i);
     if (s) s.innerHTML = '';
     const p = document.getElementById('pt' + i);
     if (p) p.classList.remove('highlight', 'selected-src');
   }
-
-  // Render checkers on each point
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
     if (!cell || !cell.count) continue;
@@ -1000,14 +850,12 @@ function renderBoardUI() {
       stack.appendChild(ch);
     }
   }
-
   renderBarUI();
   renderBearOff();
   if (myTurn && gameStarted && dice.length && getRemainingDice().length) highlightMovable();
 }
 
 function renderBarUI() {
-  // Black bar (top section)
   const bbEl = document.getElementById('barBlackEl');
   if (bbEl) {
     bbEl.innerHTML = '';
@@ -1019,7 +867,6 @@ function renderBarUI() {
       bbEl.appendChild(c);
     }
   }
-  // White bar (bottom section)
   const wbEl = document.getElementById('barWhiteEl');
   if (wbEl) {
     wbEl.innerHTML = '';
@@ -1038,7 +885,6 @@ function renderBearOff() {
   const oppBearCount = myColor === 'white' ? blackHome : whiteHome;
   renderBearOffZone('bearoffMeCheckers',  'bearoffMeCount',  myBearCount,  myColor);
   renderBearOffZone('bearoffOppCheckers', 'bearoffOppCount', oppBearCount, myColor === 'white' ? 'black' : 'white');
-
   const meZone = document.getElementById('bearoffMe');
   const shouldGlow = myTurn && gameStarted && dice.length && getRemainingDice().length && canBearOff(myColor);
   meZone.classList.toggle('can-bear', !!shouldGlow);
@@ -1060,75 +906,31 @@ function renderBearOffZone(checkerId, countId, count, color) {
   }
 }
 
-// ══════════════════════════════════════
-//  DICE LOGIC
-// ══════════════════════════════════════
-
-/**
- * Returns array of dice values that have NOT yet been used.
- * diceUsed is a multiset — each entry consumes one matching dice value.
- */
-function getRemainingDice() {
-  const pool = [...dice];
-  for (const d of diceUsed) {
-    const idx = pool.indexOf(d);
-    if (idx >= 0) pool.splice(idx, 1);
-  }
-  return pool;
-}
-
-// ══════════════════════════════════════
+// ============================================================
 //  MOVEMENT LOGIC
-//
-//  White moves: point decreases  (24→1)   to = from - die
-//  Black moves: point increases  (1→24)   to = from + die
-//
-//  Bar entry:
-//    White enters on opponent's home board (pts 19-24)
-//      die d → enters on pt (25 - d)   [die=1→pt24, die=6→pt19]
-//    Black enters on opponent's home board (pts 1-6)
-//      die d → enters on pt d          [die=1→pt1,  die=6→pt6]
-//
-//  Bear-off:
-//    White bears off from pts 1-6 (home board)
-//      die d → bears off checker from pt d (exact)
-//      or largest die if no checker on higher pt
-//    Black bears off from pts 19-24 (home board)
-//      die d → bears off checker from pt (25-d) (exact)
-//      or largest die if no checker on lower pt
-// ══════════════════════════════════════
-
-function getTargetPoint(from, die) {
-  // Returns destination point for a move, or null if off-board
-  if (myColor === 'white') return from - die;
-  else return from + die;
-}
-
-function canLand(pt) {
-  if (pt < 1 || pt > 24) return false;
-  const cell = board[pt];
-  if (!cell || !cell.color || cell.count === 0) return true;
-  if (cell.color === myColor) return true;
-  if (cell.count === 1) return true; // can hit blot
-  return false;
-}
-
-function canBearOff(color) {
-  if (color === 'white') {
-    // All white checkers must be in pts 1-6
-    if (whiteBar > 0) return false;
-    for (let i = 7; i <= 24; i++) {
-      if (board[i] && board[i].color === 'white' && board[i].count > 0) return false;
-    }
-    return true;
-  } else {
-    // All black checkers must be in pts 19-24
-    if (blackBar > 0) return false;
-    for (let i = 1; i <= 18; i++) {
-      if (board[i] && board[i].color === 'black' && board[i].count > 0) return false;
-    }
-    return true;
+// ============================================================
+function hasAnyLegalMove() {
+  const rem = getRemainingDice();
+  if (!rem.length) return false;
+  const myBar = myColor === 'white' ? whiteBar : blackBar;
+  if (myBar > 0) {
+    return rem.some(d => {
+      const to = myColor === 'white' ? (25 - d) : d;
+      return to >= 1 && to <= 24 && canLand(to);
+    });
   }
+  const canBO = canBearOff(myColor);
+  for (let i = 1; i <= 24; i++) {
+    const cell = board[i];
+    if (!cell || cell.color !== myColor || !cell.count) continue;
+    if (rem.some(d => {
+      const to = getTargetPoint(i, d);
+      if (to === null) return false;
+      if (to < 1 || to > 24) return canBO;
+      return canLand(to);
+    })) return true;
+  }
+  return false;
 }
 
 function highlightMovable() {
@@ -1136,28 +938,23 @@ function highlightMovable() {
   const rem = getRemainingDice();
   if (!rem.length) return;
   const myBar = myColor === 'white' ? whiteBar : blackBar;
-
   if (myBar > 0) {
-    // Must enter from bar — highlight valid entry points
     rem.forEach(d => {
       const to = myColor === 'white' ? (25 - d) : d;
       if (to >= 1 && to <= 24 && canLand(to)) {
         document.getElementById('pt' + to)?.classList.add('highlight');
       }
     });
-    // Highlight bar chips
     const barEl = document.getElementById(myColor === 'white' ? 'barWhiteEl' : 'barBlackEl');
     if (barEl) barEl.querySelectorAll('.bar-chip').forEach(c => c.classList.add('highlight-chip'));
     return;
   }
-
   const canBO = canBearOff(myColor);
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
     if (!cell || cell.color !== myColor || !cell.count) continue;
     const isMovable = rem.some(d => {
       const to = getTargetPoint(i, d);
-      if (to === null) return false;
       if (myColor === 'white' && to < 1) return canBO;
       if (myColor === 'black' && to > 24) return canBO;
       return to >= 1 && to <= 24 && canLand(to);
@@ -1176,21 +973,15 @@ function clearHighlights() {
   document.getElementById('bearoffMe')?.classList.remove('can-bear');
 }
 
-// ══════════════════════════════════════
-//  BAR CLICK
-// ══════════════════════════════════════
 function onBarClick(color) {
   if (!myTurn || !gameStarted) return;
-  if (color !== myColor) return; // can't click opponent's bar
+  if (color !== myColor) return;
   const myBar = myColor === 'white' ? whiteBar : blackBar;
   if (!myBar) { toast('ბარში ქვა არ გაქვს'); return; }
   const rem = getRemainingDice();
-  if (!rem.length) { toast('ჯერ ზარი გაახე'); return; }
-
+  if (!rem.length) { toast('ჯერ ზარი გააგორე'); return; }
   clearHighlights();
   selectedPoint = 'bar';
-
-  // Highlight valid entry points
   let hasAny = false;
   rem.forEach(d => {
     const to = myColor === 'white' ? (25 - d) : d;
@@ -1202,23 +993,17 @@ function onBarClick(color) {
   if (!hasAny) toast('❌ ბარიდან შესვლა შეუძლებელია — გამოტოვება გჭირდება');
 }
 
-// ══════════════════════════════════════
-//  POINT CLICK
-// ══════════════════════════════════════
 function onPointClick(pt) {
   if (!myTurn || !gameStarted) return;
   const rem = getRemainingDice();
-  if (!rem.length) { toast('ჯერ ზარი გაახე'); return; }
+  if (!rem.length) { toast('ჯერ ზარი გააგორე'); return; }
   const myBar = myColor === 'white' ? whiteBar : blackBar;
 
-  // ── Case 1: checker is on bar — must enter first ──
   if (myBar > 0) {
     if (selectedPoint !== 'bar') {
       onBarClick(myColor);
       return;
     }
-    // Try to enter on clicked point
-    // White: die = 25 - pt;  Black: die = pt
     const dieNeeded = myColor === 'white' ? (25 - pt) : pt;
     if (!rem.includes(dieNeeded)) { toast('❌ ამ წერტილზე ვერ შეხვალ (ზარი არ გამოდის)'); return; }
     if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); return; }
@@ -1226,11 +1011,9 @@ function onPointClick(pt) {
     return;
   }
 
-  // ── Case 2: no source selected yet — pick own checker ──
   if (selectedPoint === null) {
     const cell = board[pt];
     if (!cell || cell.color !== myColor || !cell.count) return;
-    // Check if this point has any legal moves
     const canBO = canBearOff(myColor);
     const hasMoves = rem.some(d => {
       const to = getTargetPoint(pt, d);
@@ -1239,40 +1022,30 @@ function onPointClick(pt) {
       return to !== null && to >= 1 && to <= 24 && canLand(to);
     });
     if (!hasMoves) { toast('❌ ამ ქვით სვლა შეუძლებელია'); return; }
-
     selectedPoint = pt;
     clearHighlights();
     document.getElementById('pt' + pt)?.classList.add('selected-src');
-
-    // Highlight destinations
     const canBONow = canBearOff(myColor);
     rem.forEach(d => {
       const to = getTargetPoint(pt, d);
       if (to !== null && to >= 1 && to <= 24 && canLand(to)) {
         document.getElementById('pt' + to)?.classList.add('highlight');
       }
-      // Bear-off highlight
-      if ((myColor === 'white' && to !== null && to < 1 && canBONow) ||
-          (myColor === 'black' && to !== null && to > 24 && canBONow)) {
+      if ((myColor === 'white' && to < 1 && canBONow) || (myColor === 'black' && to > 24 && canBONow)) {
         document.getElementById('bearoffMe')?.classList.add('can-bear');
       }
     });
     return;
   }
 
-  // ── Case 3: same point clicked — deselect ──
   if (selectedPoint === pt) {
     clearSelection();
     return;
   }
 
-  // ── Case 4: destination clicked ──
   const from = selectedPoint;
-  // die needed: white = from - pt; black = pt - from
   const dieNeeded = myColor === 'white' ? (from - pt) : (pt - from);
-
   if (dieNeeded <= 0 || !rem.includes(dieNeeded)) {
-    // Maybe they're clicking another own checker to switch selection
     const cell = board[pt];
     if (cell && cell.color === myColor && cell.count > 0) {
       clearSelection();
@@ -1283,7 +1056,6 @@ function onPointClick(pt) {
     clearSelection();
     return;
   }
-
   if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); clearSelection(); return; }
   doMove(from, pt, dieNeeded);
 }
@@ -1296,52 +1068,33 @@ function clearSelection() {
   clearHighlights();
 }
 
-// ══════════════════════════════════════
-//  EXECUTE MOVES
-// ══════════════════════════════════════
-
-// Apply a single checker movement on the board array
 function applyMoveToBoard(from, to) {
-  // Remove from source
   if (from > 0 && from <= 24) {
     board[from].count--;
     if (board[from].count <= 0) { board[from].count = 0; board[from].color = null; }
   }
-
-  // If bearing off
   if (to < 1 || to > 24) return;
-
-  // Check for hit
   const cell = board[to];
   if (cell.color && cell.color !== myColor && cell.count === 1) {
-    // Hit blot — send opponent to bar
     if (cell.color === 'white') whiteBar++;
     else blackBar++;
     cell.count = 0; cell.color = null;
     playHit();
   }
-
   if (!cell.color) cell.color = myColor;
   cell.count = (cell.count || 0) + 1;
 }
 
 async function doMoveFromBar(to, dieValue) {
-  // Decrement bar
   if (myColor === 'white') whiteBar--;
   else blackBar--;
-
-  // Check for hit at destination
   const cell = board[to];
   const wasHit = cell.color && cell.color !== myColor && cell.count === 1;
-
-  // Apply to board (from=0 means bar)
   applyMoveToBoard(0, to);
-
   diceUsed.push(dieValue);
   clearSelection();
   if (wasHit) playHit(); else playCheckerMove();
   renderBoardUI();
-
   if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
   await syncGameState('bar→' + to);
 }
@@ -1349,25 +1102,19 @@ async function doMoveFromBar(to, dieValue) {
 async function doMove(from, to, dieValue) {
   const cell = board[to];
   const wasHit = cell.color && cell.color !== myColor && cell.count === 1;
-
   applyMoveToBoard(from, to);
   diceUsed.push(dieValue);
-
   if (!wasHit) playCheckerMove();
   clearSelection();
   renderBoardUI();
-
   if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
   await syncGameState(from + '→' + to);
 }
 
-// ══════════════════════════════════════
-//  BEAR-OFF
-// ══════════════════════════════════════
 function onBearOffClick() {
   if (!myTurn || !gameStarted) return;
   const rem = getRemainingDice();
-  if (!rem.length) { toast('ჯერ ზარი გაახე'); return; }
+  if (!rem.length) { toast('ჯერ ზარი გააგორე'); return; }
   if (!canBearOff(myColor)) { toast('❌ ჯერ ყველა ქვა სახლის სექტორში უნდა იყოს'); return; }
   if (selectedPoint === null || selectedPoint === 'bar') {
     toast('⬆ ჯერ ქვაზე დააჭირე, შემდეგ სახლზე');
@@ -1379,14 +1126,10 @@ function onBearOffClick() {
 async function doBearOff(from) {
   const rem = getRemainingDice();
   let usedDie = null;
-
   if (myColor === 'white') {
-    // White home = pts 1-6; die value corresponds to point number
-    // Exact: die === pt
     if (rem.includes(from)) {
       usedDie = from;
     } else {
-      // Larger die: can use if no checker on a higher-numbered point in home board
       const higherDies = rem.filter(d => d > from);
       if (higherDies.length) {
         let blockedByHigher = false;
@@ -1397,21 +1140,13 @@ async function doBearOff(from) {
       }
     }
   } else {
-    // Black home = pts 19-24; die d removes from pt (25-d)
-    // i.e. pt19→die6, pt20→die5, pt21→die4, pt22→die3, pt23→die2, pt24→die1
-    const exactDie = 25 - from; // die value that exactly matches this point
+    const exactDie = 25 - from;
     if (rem.includes(exactDie)) {
       usedDie = exactDie;
     } else {
-      // Larger die means larger (25-d) is smaller... wait:
-      // For black, "higher" means closer to pt19 (further from start)
-      // A die larger than exactDie means we're removing from lower-numbered point
-      // Actually: if die > (25-from), we remove from pt(25-die) which is < from
-      // We can use larger die only if no checker on lower-numbered point in home
       const higherDies = rem.filter(d => d > exactDie);
       if (higherDies.length) {
         let blockedByLower = false;
-        // Lower point = higher point number for black
         for (let i = from - 1; i >= 19; i--) {
           if (board[i] && board[i].color === 'black' && board[i].count > 0) { blockedByLower = true; break; }
         }
@@ -1419,12 +1154,10 @@ async function doBearOff(from) {
       }
     }
   }
-
   if (usedDie === null) {
     toast('❌ ამ ქვის გამოსაყვანად ზარი არ გამოდის');
     clearSelection(); return;
   }
-
   clearSelection();
   board[from].count--;
   if (board[from].count <= 0) { board[from].count = 0; board[from].color = null; }
@@ -1432,91 +1165,16 @@ async function doBearOff(from) {
   diceUsed.push(usedDie);
   playCheckerMove();
   renderBoardUI();
-
   if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
   await syncGameState('bear-off from ' + from);
 }
 
-// ══════════════════════════════════════
-//  SYNC TO DATABASE
-// ══════════════════════════════════════
-async function syncGameState(moveDesc) {
-  const rem = getRemainingDice();
-  const noMovesLeft = rem.length === 0 || !hasAnyLegalMove();
-
-  let nextTurn = myColor;
-  let nextDice = dice;
-  let nextDiceUsed = diceUsed;
-
-  if (noMovesLeft) {
-    nextTurn = myColor === 'white' ? 'black' : 'white';
-    nextDice = [];
-    nextDiceUsed = [];
-  }
-
-  const { error } = await sb.from('nardi_games').update({
-    board_state: JSON.stringify(board),
-    turn: nextTurn,
-    dice: nextDice,
-    dice_used: nextDiceUsed,
-    white_home: whiteHome,
-    black_home: blackHome,
-    white_bar: whiteBar,
-    black_bar: blackBar,
-    last_move: JSON.stringify({ type: 'move', msg: moveDesc })
-  }).eq('id', activeGameId);
-
-  if (error) { toast('❌ ' + error.message); return; }
-
-  if (noMovesLeft) {
-    myTurn = false;
-    dice = [];
-    diceUsed = [];
-    updateDiceUI();
-    updateTurnUI(nextTurn, false);
-    renderBoardUI();
-    addSysMsg('🔄 მოწინააღმდეგის ჯერი');
-  }
-}
-
-function hasAnyLegalMove() {
-  const rem = getRemainingDice();
-  if (!rem.length) return false;
-  const myBar = myColor === 'white' ? whiteBar : blackBar;
-
-  if (myBar > 0) {
-    return rem.some(d => {
-      const to = myColor === 'white' ? (25 - d) : d;
-      return to >= 1 && to <= 24 && canLand(to);
-    });
-  }
-
-  const canBO = canBearOff(myColor);
-  for (let i = 1; i <= 24; i++) {
-    const cell = board[i];
-    if (!cell || cell.color !== myColor || !cell.count) continue;
-    if (rem.some(d => {
-      const to = getTargetPoint(i, d);
-      if (myColor === 'white' && to !== null && to < 1) return canBO;
-      if (myColor === 'black' && to !== null && to > 24) return canBO;
-      return to !== null && to >= 1 && to <= 24 && canLand(to);
-    })) return true;
-  }
-  return false;
-}
-
-async function passMove() {
-  if (!myTurn) return;
-  diceUsed = [...dice]; // mark all dice as used
-  await syncGameState('გამოტოვება');
-}
-
-// ══════════════════════════════════════
-//  DICE ROLL
-// ══════════════════════════════════════
+// ============================================================
+//  DICE & SYNC
+// ============================================================
 async function rollDice() {
   if (!myTurn) { toast('❌ შენი ჯერი არ არის'); return; }
-  if (dice.length > 0) { toast('❌ ზარი უკვე გაახე'); return; }
+  if (dice.length > 0) { toast('❌ ზარი უკვე გააგდე'); return; }
 
   const d1 = Math.ceil(Math.random() * 6);
   const d2 = Math.ceil(Math.random() * 6);
@@ -1529,12 +1187,11 @@ async function rollDice() {
   await new Promise(resolve => animateDiceRoll(newDice, resolve));
   playDiceLand();
 
-  dice = newDice;
+  dice = [...newDice];
   diceUsed = [];
 
-  // IMPORTANT: save dice AND dice_used=[](empty) atomically
   const { error } = await sb.from('nardi_games').update({
-    dice: newDice,
+    dice: dice,
     dice_used: [],
     last_move: JSON.stringify({ type: 'dice', msg: '🎲 ' + d1 + '+' + d2 })
   }).eq('id', activeGameId);
@@ -1551,6 +1208,46 @@ async function rollDice() {
   }
 }
 
+async function passMove() {
+  if (!myTurn) return;
+  diceUsed = [...dice];
+  await syncGameState('გამოტოვება');
+}
+
+async function syncGameState(moveDesc) {
+  const rem = getRemainingDice();
+  const noMovesLeft = rem.length === 0 || !hasAnyLegalMove();
+  let nextTurn = myColor;
+  let nextDice = dice;
+  let nextDiceUsed = diceUsed;
+  if (noMovesLeft) {
+    nextTurn = myColor === 'white' ? 'black' : 'white';
+    nextDice = [];
+    nextDiceUsed = [];
+  }
+  const { error } = await sb.from('nardi_games').update({
+    board_state: JSON.stringify(board),
+    turn: nextTurn,
+    dice: nextDice,
+    dice_used: nextDiceUsed,
+    white_home: whiteHome,
+    black_home: blackHome,
+    white_bar: whiteBar,
+    black_bar: blackBar,
+    last_move: JSON.stringify({ type: 'move', msg: moveDesc })
+  }).eq('id', activeGameId);
+  if (error) { toast('❌ ' + error.message); return; }
+  if (noMovesLeft) {
+    myTurn = false;
+    dice = [];
+    diceUsed = [];
+    updateDiceUI();
+    updateTurnUI(nextTurn, false);
+    renderBoardUI();
+    addSysMsg('🔄 მოწინააღმდეგის ჯერი');
+  }
+}
+
 function updateDiceUI() {
   const isDouble = dice.length === 4;
   const diceCount = isDouble ? 4 : 2;
@@ -1561,11 +1258,7 @@ function updateDiceUI() {
     if (show) {
       const val = dice[i];
       el.textContent = val ? FACES[val] : '·';
-      // Mark as used if this index's die has been used
-      // For doubles all 4 slots; count how many used from diceUsed
       const usedCount = diceUsed.filter(d => d === (dice[i] || 0)).length;
-      const thisValTotal = dice.filter(d => d === dice[i]).length;
-      // Determine which slots are used
       const slotsOfThisVal = dice.map((d, idx) => d === dice[i] ? idx : -1).filter(x => x >= 0);
       const usedSlots = slotsOfThisVal.slice(0, usedCount);
       el.className = 'dice' + (usedSlots.includes(i) ? ' used' : '');
@@ -1581,14 +1274,14 @@ function updateTurnUI(turn, isMyTurn) {
   document.getElementById('myInfo').classList.toggle('pi-active', isMyTurn);
   document.getElementById('oppInfo').classList.toggle('pi-active', !isMyTurn);
   document.getElementById('statusBar').textContent = isMyTurn
-    ? (dice.length ? '✋ ქვა გადადი' : '🎲 გაახე ზარი!')
+    ? (dice.length ? '✋ ქვა გადადი' : '🎲 გააგორე ზარი!')
     : '⏳ ოპონენტის ჯერია...';
   document.getElementById('rollBtn').disabled = !isMyTurn || dice.length > 0;
 }
 
-// ══════════════════════════════════════
-//  FINISH
-// ══════════════════════════════════════
+// ============================================================
+//  FINISH GAME
+// ============================================================
 async function finishGame() {
   const winner = whiteHome >= 15 ? 'white' : 'black';
   const iWon = winner === myColor;
@@ -1607,7 +1300,9 @@ async function finishGame() {
   }
   showWinModal(iWon);
 }
+
 function endGame(game) { if (game.winner) showWinModal(game.winner === myColor); }
+
 function showWinModal(iWon) {
   document.getElementById('winIcon').textContent = iWon ? '🏆' : '😢';
   document.getElementById('winTitle').textContent = iWon ? 'გამარჯვება!' : 'წაგება';
@@ -1617,9 +1312,9 @@ function showWinModal(iWon) {
   document.getElementById('myScoreDisplay').textContent = '🏆 ' + (MYPROF.nardi_score || 0);
 }
 
-// ══════════════════════════════════════
+// ============================================================
 //  CHAT
-// ══════════════════════════════════════
+// ============================================================
 async function sendChatMsg() {
   const inp = document.getElementById('chatInput');
   const txt = inp.value.trim(); if (!txt) return;
@@ -1630,6 +1325,7 @@ async function sendChatMsg() {
   }
   if (activeGameId) await sb.from('nardi_chat').insert({ game_id: activeGameId, user_id: ME.id, content: txt });
 }
+
 function appendChatMsg(nick, content, isMe) {
   const box = document.getElementById('chatMsgs');
   const d = document.createElement('div');
@@ -1637,15 +1333,16 @@ function appendChatMsg(nick, content, isMe) {
   d.innerHTML = (!isMe ? `<div class="cmsg-nick">${esc(nick)}</div>` : '') + '<div>' + renderChatContent(content) + '</div>';
   box.appendChild(d); box.scrollTop = box.scrollHeight;
 }
+
 function addSysMsg(msg) {
   const box = document.getElementById('chatMsgs');
   const d = document.createElement('div'); d.className = 'cmsg-sys'; d.textContent = msg;
   box.appendChild(d); box.scrollTop = box.scrollHeight;
 }
 
-// ══════════════════════════════════════
-//  MISC HELPERS
-// ══════════════════════════════════════
+// ============================================================
+//  MISC
+// ============================================================
 function resetToLobby() {
   pendingInviteId = null; selectedOpponent = null;
   document.getElementById('waitingScreen').style.display = 'none';
@@ -1653,6 +1350,7 @@ function resetToLobby() {
   document.getElementById('inviteBtn').disabled = false;
   document.querySelectorAll('.user-pick-item').forEach(i => i.classList.remove('selected'));
 }
+
 async function resetGame() {
   document.getElementById('winOverlay').classList.remove('open');
   if (gameChannel) { try { sb.removeChannel(gameChannel); } catch (e) {} gameChannel = null; }
@@ -1669,6 +1367,7 @@ async function resetGame() {
   selectedOpponent = null;
   await loadUsers();
 }
+
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
 function toast(msg) {
   const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg;
