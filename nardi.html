@@ -19,14 +19,35 @@
 body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
 @keyframes pop{from{opacity:0;transform:scale(0.85) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
-@keyframes shake{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-10deg) scale(1.1)}40%{transform:rotate(10deg) scale(1.1)}60%{transform:rotate(-6deg)}80%{transform:rotate(6deg)}}
+@keyframes shake{0%,100%{transform:rotate(0) scale(1)}20%{transform:rotate(-14deg) scale(1.15)}40%{transform:rotate(14deg) scale(1.15)}60%{transform:rotate(-8deg)}80%{transform:rotate(8deg)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
 @keyframes winPulse{0%,100%{text-shadow:0 0 10px var(--accent)}50%{text-shadow:0 0 40px var(--accent),0 0 80px var(--glow)}}
 @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-@keyframes flash{0%,100%{background:rgba(168,85,247,.25)}50%{background:rgba(168,85,247,.5)}}
+@keyframes flash{0%,100%{background:rgba(168,85,247,.22)}50%{background:rgba(168,85,247,.48)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes bearIn{0%{transform:scale(0.4);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
+@keyframes diceRoll{
+  0%{transform:translate(0,0) rotate(0deg) scale(1)}
+  15%{transform:translate(30px,-40px) rotate(120deg) scale(1.1)}
+  30%{transform:translate(-20px,-70px) rotate(240deg) scale(1.05)}
+  45%{transform:translate(40px,-50px) rotate(360deg) scale(1.1)}
+  60%{transform:translate(-30px,-30px) rotate(480deg) scale(1.05)}
+  75%{transform:translate(20px,-15px) rotate(600deg) scale(1.08)}
+  90%{transform:translate(-5px,-5px) rotate(700deg) scale(1.02)}
+  100%{transform:translate(0,0) rotate(720deg) scale(1)}
+}
+@keyframes diceLand{
+  0%{transform:scale(1.2)}
+  50%{transform:scale(0.92)}
+  75%{transform:scale(1.06)}
+  100%{transform:scale(1)}
+}
+@keyframes checkerMove{
+  0%{transform:scale(1)}
+  50%{transform:scale(1.15) translateY(-4px)}
+  100%{transform:scale(1)}
+}
 
 /* ═══ TOPBAR ═══ */
 #topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
@@ -78,7 +99,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 
 /* ═══ BOARD CONTAINER ═══ */
 #boardContainer{flex:1;display:flex;flex-direction:column;min-width:0;gap:6px}
-
 .board-top-info{display:flex;justify-content:space-between;align-items:center;gap:8px}
 .player-info{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:5px 10px;transition:all .3s;flex-shrink:0}
 .pi-av{width:26px;height:26px;border-radius:50%;background:var(--indigo-f);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0}
@@ -88,7 +108,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .pi-active{border-color:var(--accent);box-shadow:0 0 10px rgba(240,122,255,.3)}
 .turn-badge{font-family:'Unbounded',sans-serif;font-size:9px;color:var(--indigo2);background:var(--indigo-f);border:1px solid var(--border);border-radius:18px;padding:4px 10px;white-space:nowrap}
 
-/* ═══ MAIN BOARD LAYOUT ═══ */
+/* ═══ BOARD LAYOUT ═══ */
 .board-and-bearoff{display:flex;flex:1;min-height:0;gap:5px}
 #board{
   position:relative;background:var(--board-bg);border-radius:14px;border:3px solid #0a2a0a;
@@ -111,15 +131,28 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .bearoff-checker.black{background:radial-gradient(circle at 35% 30%,#555,#0a0a15);box-shadow:0 2px 6px rgba(0,0,0,.6)}
 
 /* ═══ BOARD SECTIONS ═══ */
+/* 
+  BOARD LAYOUT (from player "white" perspective):
+  TOP ROW:    pts 13-18 (left) | bar | pts 19-24 (right)   ← opponent (black) home at top-right
+  BOTTOM ROW: pts 12-7 (left)  | bar | pts 6-1  (right)    ← my (white) home at bottom-right
+  
+  White moves: 24→23→...→2→1 (right-to-left on top, then right-to-left on bottom)
+  Actually standard backgammon from white's view:
+    White checkers start at 24,13,8,6 and move toward 1
+    Bottom row left-to-right = pts 12,11,10,9,8,7
+    Bottom row right-to-left = pts 6,5,4,3,2,1  (white home board)
+    Top row left-to-right = pts 13,14,15,16,17,18
+    Top row right-to-left = pts 19,20,21,22,23,24 (black home board)
+*/
 .board-section{display:flex;flex:1;min-height:0}
 .points-side{display:flex;flex:1;min-width:0}
 .board-bar{width:36px;background:linear-gradient(135deg,#0a1f0a,#061206);border-left:2px solid #0a2a0a;border-right:2px solid #0a2a0a;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:6px 0;flex-shrink:0}
 
-/* Point triangles */
+/* Points */
 .point{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer;transition:background .15s;min-width:0;overflow:visible}
 .point:hover{background:rgba(255,255,255,.04)}
-.point.highlight{background:rgba(168,85,247,.3);animation:flash .5s ease infinite}
-.point.selected-src{background:rgba(240,122,255,.2)}
+.point.highlight{background:rgba(168,85,247,.28);animation:flash .5s ease infinite}
+.point.selected-src{background:rgba(240,122,255,.18)}
 
 .tri{position:absolute;width:100%;pointer-events:none}
 .tri-top{top:0;height:78%}
@@ -134,38 +167,47 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   width:78%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;
   font-size:9px;font-weight:700;cursor:pointer;transition:transform .15s;position:relative;
   flex-shrink:0;margin:1px 0;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.5);
-  pointer-events:none;/* FIX: checkers don't intercept clicks, point handles it */
+  pointer-events:none;
 }
 .checker.white{background:radial-gradient(circle at 35% 30%,#fff 0%,#ddd 40%,#bbb 100%);border-color:rgba(255,255,255,.5);box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.9)}
 .checker.black{background:radial-gradient(circle at 35% 30%,#555 0%,#222 40%,#0a0a15 100%);border-color:rgba(255,255,255,.2);box-shadow:0 2px 8px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.1)}
-.checker.movable{box-shadow:0 0 12px var(--accent),0 2px 6px rgba(0,0,0,.4)!important;transform:scale(1.06)}
+.checker.movable{box-shadow:0 0 14px var(--accent),0 2px 6px rgba(0,0,0,.4)!important;transform:scale(1.08);animation:checkerMove .6s ease infinite alternate}
 .checker-count{position:absolute;font-size:8px;font-weight:900;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}
 .checker.white .checker-count{color:#1a0a30}
 .checker.black .checker-count{color:#fff}
 
-/* Point numbers */
 .pt-num{font-size:8px;font-family:'Unbounded',sans-serif;color:rgba(255,255,255,.4);position:absolute;z-index:3;pointer-events:none}
 .pt-num.top-num{bottom:3px}
 .pt-num.bot-num{top:3px}
 
-/* Dice area */
-#diceArea{display:flex;align-items:center;justify-content:center;gap:8px;padding:7px;background:rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0}
-.dice{width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.4);cursor:default;transition:all .2s;border:2px solid rgba(255,255,255,.2);flex-shrink:0;color:#111}
-.dice.rolling{animation:shake .4s ease}
-.dice.used{opacity:.3;transform:scale(0.88)}
+/* ═══ DICE AREA ═══ */
+#diceArea{display:flex;align-items:center;justify-content:center;gap:8px;padding:7px;background:rgba(0,0,0,.35);border-top:1px solid rgba(255,255,255,.05);border-bottom:1px solid rgba(255,255,255,.05);flex-shrink:0;position:relative;overflow:visible}
+
+/* Rolling dice overlay — shown during animation */
+#rollingOverlay{
+  position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:50;
+}
+.rolling-die{
+  position:absolute;width:40px;height:40px;background:#fff;border-radius:9px;
+  display:flex;align-items:center;justify-content:center;font-size:20px;color:#111;
+  box-shadow:0 4px 20px rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.3);
+  will-change:transform;pointer-events:none;
+}
+
+.dice{width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.4);cursor:default;transition:all .3s;border:2px solid rgba(255,255,255,.2);flex-shrink:0;color:#111}
+.dice.used{opacity:.28;transform:scale(0.86)}
 #rollBtn{padding:7px 18px;border-radius:18px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;cursor:pointer;box-shadow:0 4px 14px rgba(120,30,200,.5);transition:all .2s;letter-spacing:.4px}
 #rollBtn:hover:not(:disabled){transform:scale(1.05)}
 #rollBtn:disabled{opacity:.35;cursor:not-allowed}
 #passBtn{padding:7px 14px;border-radius:18px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:10px;cursor:pointer;transition:all .2s;display:none}
 #passBtn:hover{background:var(--border);color:var(--text)}
 
-/* Bar checkers */
+/* Bar */
 .bar-chip{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid rgba(255,255,255,.2);flex-shrink:0;cursor:pointer;margin:2px}
 .bar-chip.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb);color:#1a0a30}
 .bar-chip.black{background:radial-gradient(circle at 35% 30%,#555,#111);color:#fff}
 .bar-chip.highlight{box-shadow:0 0 10px var(--accent)}
 
-/* Status */
 #statusBar{text-align:center;font-size:11px;color:var(--text2);min-height:22px;flex-shrink:0;padding:2px}
 
 /* ═══ CHAT PANEL ═══ */
@@ -293,7 +335,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   <!-- BOARD -->
   <div id="boardWrap">
 
-    <!-- LEFT: board + bear-off -->
     <div id="boardContainer">
 
       <!-- Player headers -->
@@ -311,11 +352,24 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
         </div>
       </div>
 
-      <!-- Board + Bear-off zones -->
+      <!-- Board + Bear-off -->
       <div class="board-and-bearoff">
 
-        <!-- Board -->
         <div id="board">
+          <!--
+            CORRECT BOARD LAYOUT (white's perspective, white moves 24→1):
+            
+            TOP SECTION (opponent side, points face down):
+              Left half:  13,14,15,16,17,18  (left→right)
+              Right half: 19,20,21,22,23,24  (left→right)
+            
+            BOTTOM SECTION (my side, points face up):
+              Left half:  12,11,10,9,8,7  (left→right)
+              Right half: 6,5,4,3,2,1    (left→right)
+            
+            White home board = pts 1-6 (bottom right)
+            Black home board = pts 19-24 (top right)
+          -->
           <div class="board-section" id="topSection"></div>
           <div id="diceArea">
             <button id="rollBtn" onclick="rollDice()" disabled>🎲 გაგორება</button>
@@ -324,6 +378,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
             <div class="dice" id="dice3" style="display:none">·</div>
             <div class="dice" id="dice4" style="display:none">·</div>
             <button id="passBtn" onclick="passMove()">⏭ გამოტოვება</button>
+            <div id="rollingOverlay"></div>
           </div>
           <div class="board-section" id="botSection"></div>
         </div>
@@ -348,7 +403,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 
     </div>
 
-    <!-- RIGHT: chat -->
+    <!-- Chat -->
     <div id="chatPanel">
       <div class="chat-head">
         <div class="chat-head-title">💬 ჩატი</div>
@@ -390,7 +445,182 @@ const sb=createClient(
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-// ─── STATE ───
+// ══════════════════════════════════════
+//  AUDIO ENGINE
+// ══════════════════════════════════════
+const AudioCtx=window.AudioContext||window.webkitAudioContext;
+let audioCtx=null;
+
+function getAudio(){
+  if(!audioCtx)audioCtx=new AudioCtx();
+  if(audioCtx.state==='suspended')audioCtx.resume();
+  return audioCtx;
+}
+
+// Dice roll sound — rattling noise
+function playDiceRoll(){
+  const ctx=getAudio();
+  const dur=0.7;
+  for(let i=0;i<18;i++){
+    const t=ctx.currentTime+i*(dur/18)*0.9+Math.random()*0.02;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='square';
+    osc.frequency.setValueAtTime(200+Math.random()*600,t);
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(0.04+Math.random()*0.04,t+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+    osc.start(t);osc.stop(t+0.07);
+  }
+}
+
+// Dice land sound — wooden clack
+function playDiceLand(){
+  const ctx=getAudio();
+  [0,0.04].forEach(delay=>{
+    const t=ctx.currentTime+delay;
+    const buf=ctx.createBuffer(1,ctx.sampleRate*0.08,ctx.sampleRate);
+    const data=buf.getChannelData(0);
+    for(let i=0;i<data.length;i++){
+      data[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.012));
+    }
+    const src=ctx.createBufferSource();
+    const gain=ctx.createGain();
+    const filt=ctx.createBiquadFilter();
+    filt.type='bandpass';filt.frequency.value=800;filt.Q.value=0.6;
+    src.buffer=buf;
+    src.connect(filt);filt.connect(gain);gain.connect(ctx.destination);
+    gain.gain.setValueAtTime(0.5,t);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+0.08);
+    src.start(t);src.stop(t+0.09);
+  });
+}
+
+// Checker move — soft click
+function playCheckerMove(){
+  const ctx=getAudio();
+  const t=ctx.currentTime;
+  const buf=ctx.createBuffer(1,ctx.sampleRate*0.06,ctx.sampleRate);
+  const data=buf.getChannelData(0);
+  for(let i=0;i<data.length;i++){
+    data[i]=(Math.random()*2-1)*Math.exp(-i/(ctx.sampleRate*0.008));
+  }
+  const src=ctx.createBufferSource();
+  const gain=ctx.createGain();
+  const filt=ctx.createBiquadFilter();
+  filt.type='highpass';filt.frequency.value=400;
+  src.buffer=buf;
+  src.connect(filt);filt.connect(gain);gain.connect(ctx.destination);
+  gain.gain.setValueAtTime(0.3,t);
+  gain.gain.exponentialRampToValueAtTime(0.001,t+0.06);
+  src.start(t);src.stop(t+0.07);
+}
+
+// Hit blot — thwack
+function playHit(){
+  const ctx=getAudio();
+  const t=ctx.currentTime;
+  [0,0.02,0.04].forEach((d,i)=>{
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.frequency.setValueAtTime(300-i*60,t+d);
+    osc.frequency.exponentialRampToValueAtTime(80,t+d+0.12);
+    gain.gain.setValueAtTime(0.15,t+d);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+d+0.14);
+    osc.start(t+d);osc.stop(t+d+0.15);
+  });
+}
+
+// Win fanfare
+function playWin(){
+  const ctx=getAudio();
+  [0,261.6,329.6,392,523.2].forEach((freq,i)=>{
+    if(!freq)return;
+    const t=ctx.currentTime+i*0.1;
+    const osc=ctx.createOscillator();
+    const gain=ctx.createGain();
+    osc.connect(gain);gain.connect(ctx.destination);
+    osc.type='sine';osc.frequency.value=freq;
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(0.18,t+0.03);
+    gain.gain.exponentialRampToValueAtTime(0.001,t+0.35);
+    osc.start(t);osc.stop(t+0.36);
+  });
+}
+
+// ══════════════════════════════════════
+//  DICE ROLL ANIMATION (3D on board)
+// ══════════════════════════════════════
+function animateDiceRoll(finalValues, callback){
+  const overlay=document.getElementById('rollingOverlay');
+  const area=document.getElementById('diceArea');
+  const rect=area.getBoundingClientRect();
+  overlay.innerHTML='';
+
+  const FACES=['·','⚀','⚁','⚂','⚃','⚄','⚅'];
+  const count=finalValues.length<=2?2:4;
+  const dies=[];
+
+  // Create animated dice
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div');
+    el.className='rolling-die';
+    el.textContent=FACES[Math.ceil(Math.random()*6)];
+    // Start positions spread across the dice area
+    const startX=(rect.width/2)-40+i*12;
+    const startY=0;
+    el.style.left=startX+'px';
+    el.style.top=startY+'px';
+    overlay.appendChild(el);
+    dies.push(el);
+  }
+
+  const duration=750;
+  const start=performance.now();
+
+  function frame(now){
+    const t=Math.min((now-start)/duration,1);
+    const ease=t<0.5?4*t*t*t:(t-1)*(2*t-2)*(2*t-2)+1;
+
+    dies.forEach((el,i)=>{
+      // Each die traces a unique arc across the board area
+      const phase=i/count;
+      const angle=(t*4+phase)*Math.PI*2;
+      const radius=30+i*18;
+      const x=(rect.width/2)-20+Math.sin(angle)*radius;
+      const bounce=Math.abs(Math.sin(t*Math.PI*3))*(1-t)*35;
+      const y=-bounce+(t*0)+(Math.random()*2-1)*2;
+      const rot=t*720+i*90;
+      const scale=1+Math.sin(t*Math.PI)*0.15;
+
+      el.style.transform=`translate(${x-(rect.width/2)+20}px,${y}px) rotate(${rot}deg) scale(${scale})`;
+      // Randomize face mid-roll
+      if(Math.random()<0.12)el.textContent=FACES[Math.ceil(Math.random()*6)];
+    });
+
+    if(t<1){
+      requestAnimationFrame(frame);
+    }else{
+      // Show final values
+      dies.forEach((el,i)=>{
+        el.textContent=FACES[finalValues[i]||1];
+        el.style.transform='scale(1)';
+      });
+      // Brief pause showing final values then fade out
+      setTimeout(()=>{
+        dies.forEach(el=>{el.style.transition='opacity .2s';el.style.opacity='0';});
+        setTimeout(()=>{overlay.innerHTML='';callback();},220);
+      },200);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+// ══════════════════════════════════════
+//  STATE
+// ══════════════════════════════════════
 let ME=null,MYPROF=null,allUsers=[];
 let pendingInviteId=null,activeGameId=null,gameChannel=null,chatChannel=null;
 let selectedOpponent=null,pendingInviteFrom=null;
@@ -399,14 +629,33 @@ let customEmojis=[],emojiCache={},showEmojiGrid=false;
 let board=[];
 let whiteHome=0,blackHome=0,whiteBar=0,blackBar=0;
 let dice=[],diceUsed=[],myColor='white',myTurn=false,gameStarted=false;
-let selectedPoint=null; // null | number | 'bar'
+let selectedPoint=null;
 
+/*
+  BOARD POINT NUMBERING — Standard Backgammon (from White's perspective)
+  
+  White moves from high numbers to low: 24 → 23 → ... → 2 → 1
+  Black moves from low numbers to high: 1 → 2 → ... → 23 → 24
+  
+  Initial setup (classic):
+    White: 2 on pt24, 5 on pt13, 3 on pt8, 5 on pt6
+    Black: 2 on pt1,  5 on pt12, 3 on pt17, 5 on pt19
+  
+  VISUAL LAYOUT on screen:
+    TOP row    (points going left→right):  13,14,15,16,17,18 | BAR | 19,20,21,22,23,24
+    BOTTOM row (points going left→right):  12,11,10, 9, 8, 7 | BAR |  6, 5, 4, 3, 2, 1
+    
+    White home = pts 1-6 = bottom-right
+    Black home = pts 19-24 = top-right
+*/
 function getInitialBoard(){
   const b=Array.from({length:25},()=>({color:null,count:0}));
+  // White checkers (move toward pt1)
   b[24]={color:'white',count:2};
   b[13]={color:'white',count:5};
   b[8]= {color:'white',count:3};
   b[6]= {color:'white',count:5};
+  // Black checkers (move toward pt24)
   b[1]= {color:'black',count:2};
   b[12]={color:'black',count:5};
   b[17]={color:'black',count:3};
@@ -414,7 +663,9 @@ function getInitialBoard(){
   return b;
 }
 
-// ─── INIT ───
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
 async function init(){
   const{data:{user}}=await sb.auth.getUser();
   if(!user){location.href='index.html';return;}
@@ -465,7 +716,9 @@ function renderUserPick(){
   });
 }
 
-// ─── EMOJI ───
+// ══════════════════════════════════════
+//  EMOJI
+// ══════════════════════════════════════
 async function loadEmojis(){
   const{data}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});
   customEmojis=data||[];emojiCache={};
@@ -499,7 +752,9 @@ function renderChatContent(s){
   return h;
 }
 
-// ─── INVITES ───
+// ══════════════════════════════════════
+//  INVITES
+// ══════════════════════════════════════
 async function sendInvite(){
   if(!selectedOpponent||!ME)return;
   document.getElementById('inviteBtn').disabled=true;
@@ -555,7 +810,9 @@ async function declineInvite(){
   pendingInviteFrom=null;toast('❌ უარი თქვი');
 }
 
-// ─── JOIN GAME ───
+// ══════════════════════════════════════
+//  JOIN GAME
+// ══════════════════════════════════════
 async function joinGame(gameId){
   document.getElementById('lobby').style.display='none';
   document.getElementById('waitingScreen').style.display='none';
@@ -601,49 +858,79 @@ async function joinGame(gameId){
     }).subscribe();
 
   addSysMsg('🎲 თამაში დაიწყო! შენ ხარ '+(myColor==='white'?'⚪ თეთრი':'⚫ შავი'));
-  addSysMsg('თეთრი 1→24, შავი 24→1 მიმართულებით');
+  addSysMsg(myColor==='white'?'თეთრი: 24→1 (ქვემოთ-მარჯვნივ)':'შავი: 1→24 (ზემოთ-მარჯვნივ)');
 }
 
-// ─── APPLY STATE ───
+// ══════════════════════════════════════
+//  APPLY STATE
+// ══════════════════════════════════════
 function applyGameState(game){
   try{board=JSON.parse(game.board_state)||getInitialBoard();}catch(e){board=getInitialBoard();}
   whiteHome=game.white_home||0;blackHome=game.black_home||0;
   whiteBar=game.white_bar||0;blackBar=game.black_bar||0;
   dice=game.dice||[];diceUsed=game.dice_used||[];
   myTurn=(game.turn===myColor);
-  selectedPoint=null; // FIX: reset selection on state update
+  selectedPoint=null;
   renderBoardUI();
   updateDiceUI();
   updateTurnUI(game.turn,myTurn);
 }
 
-// ─── BUILD BOARD HTML ───
+// ══════════════════════════════════════
+//  BUILD BOARD HTML
+//  
+//  CRITICAL: Point positions on screen
+//  
+//  Top section — triangles point DOWN (toward center):
+//    Visual left half:  pt13, pt14, pt15, pt16, pt17, pt18  (left→right)
+//    Visual right half: pt19, pt20, pt21, pt22, pt23, pt24  (left→right)
+//    Numbers shown at BOTTOM of triangle (near center)
+//  
+//  Bottom section — triangles point UP (toward center):
+//    Visual left half:  pt12, pt11, pt10, pt9, pt8, pt7  (left→right)
+//    Visual right half: pt6,  pt5,  pt4,  pt3, pt2, pt1  (left→right)
+//    Numbers shown at TOP of triangle (near center)
+//  
+//  White home = bottom-right = pts 1-6
+//  Black home = top-right    = pts 19-24
+// ══════════════════════════════════════
 function buildBoard(){
   const topEl=document.getElementById('topSection');
   const botEl=document.getElementById('botSection');
 
+  // ── TOP SECTION (triangles point down) ──
   topEl.innerHTML='';
   const topLeft=document.createElement('div');topLeft.className='points-side';
   const topBar=document.createElement('div');topBar.className='board-bar';
   topBar.innerHTML='<div id="barBlack" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="onBarClick()"></div>';
   const topRight=document.createElement('div');topRight.className='points-side';
+
+  // Top-left: 13→18 left to right
   [13,14,15,16,17,18].forEach(n=>topLeft.appendChild(makePoint(n,true)));
+  // Top-right: 19→24 left to right
   [19,20,21,22,23,24].forEach(n=>topRight.appendChild(makePoint(n,true)));
+
   topEl.appendChild(topLeft);topEl.appendChild(topBar);topEl.appendChild(topRight);
 
+  // ── BOTTOM SECTION (triangles point up) ──
   botEl.innerHTML='';
   const botLeft=document.createElement('div');botLeft.className='points-side';
   const botBar=document.createElement('div');botBar.className='board-bar';
   botBar.innerHTML='<div id="barWhite" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="onBarClick()"></div>';
   const botRight=document.createElement('div');botRight.className='points-side';
+
+  // Bottom-left: 12→7 left to right (descending)
   [12,11,10,9,8,7].forEach(n=>botLeft.appendChild(makePoint(n,false)));
+  // Bottom-right: 6→1 left to right (descending) — white home board
   [6,5,4,3,2,1].forEach(n=>botRight.appendChild(makePoint(n,false)));
+
   botEl.appendChild(botLeft);botEl.appendChild(botBar);botEl.appendChild(botRight);
 }
 
 function makePoint(num,isTop){
   const p=document.createElement('div');
   p.className='point';p.id='pt'+num;p.dataset.pt=String(num);
+  // Alternate colors: odd=dark red, even=amber/gold
   const col=(num%2!==0)?'#b83030':'#c8951a';
   const triHtml=isTop
     ?`<div class="tri tri-top"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,4 2,96 58,96" fill="${col}" opacity="0.82"/></svg></div>`
@@ -657,12 +944,13 @@ function makePoint(num,isTop){
   stack.className='checkers-stack '+(isTop?'top-stack':'bot-stack');
   stack.id='stack'+num;
   p.appendChild(stack);
-  // FIX: use integer in closure directly
   p.addEventListener('click',()=>onPointClick(num));
   return p;
 }
 
-// ─── RENDER ───
+// ══════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════
 function renderBoardUI(){
   for(let i=1;i<=24;i++){
     const s=document.getElementById('stack'+i);if(s)s.innerHTML='';
@@ -703,10 +991,8 @@ function renderBearOff(){
   const oppBearCount=myColor==='white'?blackHome:whiteHome;
   const myBearColor=myColor;
   const oppBearColor=myColor==='white'?'black':'white';
-
   renderBearOffZone('bearoffMeCheckers','bearoffMeCount',myBearCount,myBearColor);
   renderBearOffZone('bearoffOppCheckers','bearoffOppCount',oppBearCount,oppBearColor);
-
   const meZone=document.getElementById('bearoffMe');
   if(myTurn&&gameStarted&&dice.length&&getRemainingDice().length&&canBearOff(myColor)){
     meZone.classList.add('can-bear');
@@ -719,8 +1005,7 @@ function renderBearOffZone(checkerId,countId,count,color){
   const box=document.getElementById(checkerId);
   const cnt=document.getElementById(countId);
   if(!box||!cnt)return;
-  box.innerHTML='';
-  cnt.textContent=count||0;
+  box.innerHTML='';cnt.textContent=count||0;
   const show=Math.min(count,8);
   for(let i=0;i<show;i++){
     const c=document.createElement('div');c.className='bearoff-checker '+color;
@@ -730,80 +1015,14 @@ function renderBearOffZone(checkerId,countId,count,color){
   }
 }
 
-// ─── BEAR-OFF CLICK ───
-function onBearOffClick(who){
-  if(who!=='me')return;
-  if(!myTurn||!gameStarted)return;
-  const rem=getRemainingDice();if(!rem.length)return;
-  if(!canBearOff(myColor)){toast('❌ ჯერ ყველა ქვა სახლის სექტორში უნდა იყოს');return;}
-  if(selectedPoint===null||selectedPoint==='bar'){
-    toast('⬆ ჯერ ქვაზე დააჭირე, შემდეგ სახლზე');
-    return;
-  }
-  doBearOffFromSelected();
-}
-
-async function doBearOffFromSelected(){
-  const from=selectedPoint;
-  if(typeof from!=='number'){clearSelection();return;}
-  const rem=getRemainingDice();
-
-  // FIX: find best die — exact match first, then largest available if bearing off past end
-  let usedDie=null;
-
-  if(myColor==='white'){
-    // White bears off from pts 1-6, moving toward 24+
-    // Exact die: from + die > 24
-    const exactDies=rem.filter(d=>from+d>24);
-    if(exactDies.length){
-      // Use smallest die that works to be fair
-      usedDie=Math.min(...exactDies);
-    } else {
-      // No die overshoots — can't bear off this checker unless exact
-      // Actually in backgammon you can use a higher die only if no checker is on a higher point
-      // Check if no checker on higher point than from
-      let higherExists=false;
-      for(let i=from+1;i<=6;i++){
-        if(board[i]&&board[i].color===myColor&&board[i].count>0){higherExists=true;break;}
-      }
-      if(!higherExists){
-        // Use largest available die
-        usedDie=Math.max(...rem);
-        if(from+usedDie<=24)usedDie=null; // still can't bear off
-      }
-    }
-  } else {
-    // Black bears off from pts 19-24, moving toward 1-
-    const exactDies=rem.filter(d=>from-d<1);
-    if(exactDies.length){
-      usedDie=Math.min(...exactDies);
-    } else {
-      let lowerExists=false;
-      for(let i=from-1;i>=19;i--){
-        if(board[i]&&board[i].color===myColor&&board[i].count>0){lowerExists=true;break;}
-      }
-      if(!lowerExists){
-        usedDie=Math.max(...rem);
-        if(from-usedDie>=1)usedDie=null;
-      }
-    }
-  }
-
-  if(usedDie===null){
-    toast('❌ ამ ქვის გამოსაყვანად სათანადო ზარი არ არის');
-    clearSelection();
-    return;
-  }
-
-  clearSelection();
-  board[from].count--;
-  if(!board[from].count)board[from].color=null;
-  if(myColor==='white')whiteHome++;else blackHome++;
-  diceUsed.push(usedDie);
-  renderBoardUI();
-  if(whiteHome>=15||blackHome>=15){await finishGame();return;}
-  await syncGameState('bear-off from '+from);
-}
+// ══════════════════════════════════════
+//  MOVEMENT LOGIC
+//
+//  White moves: from higher pt# to lower pt# (24→1)
+//    diff = from - to  (positive means moving correctly)
+//  Black moves: from lower pt# to higher pt# (1→24)
+//    diff = to - from  (positive means moving correctly)
+// ══════════════════════════════════════
 
 function highlightMovable(){
   clearHighlights();
@@ -811,8 +1030,38 @@ function highlightMovable(){
   const myBar=myColor==='white'?whiteBar:blackBar;
 
   if(myBar>0){
+    // Must enter from bar
+    // White enters on: die value = entry point (white enters on 1-6 from the top... wait)
+    // Standard: white enters from bar onto points 1-6 (opponent's home board = top-right for white)
+    // Actually: white bar entry = pt = die value (1-6), because white is moving toward 1
+    // But wait: white home is 1-6, black home is 19-24
+    // White enters from bar onto black's home board (pts 19-24)... No.
+    // 
+    // STANDARD BACKGAMMON: When a checker is hit, it goes to bar.
+    // White must re-enter on black's home board = pts 1-6 using die value directly.
+    // Black must re-enter on white's home board = pts 19-24 using (25-die) formula.
+    //
+    // Wait, let me be precise:
+    // White bar entry: die=d means white enters on point d (where d=1..6)
+    //   Because white is moving 24→1, entering from bar means coming in on the opponent's side
+    //   Opponent's (black's) home = pts 1-6... Hmm no.
+    //
+    // ACTUAL RULE: White enters from bar onto Black's home board.
+    //   Black's home board = pts 19-24 (top-right)
+    //   Die value d means white enters on pt (25-d): d=1→pt24, d=2→pt23, etc.
+    //   This is because white moves toward 1, enters from the 24-end.
+    //
+    // Black enters from bar onto White's home board.
+    //   White's home board = pts 1-6 (bottom-right)  
+    //   Die value d means black enters on pt d: d=1→pt1, d=2→pt2, etc.
+    //   Black moves toward 24, enters from the 1-end.
+    //
+    // Summary:
+    //   White bar entry point = 25 - die
+    //   Black bar entry point = die
+
     rem.forEach(d=>{
-      const to=myColor==='white'?d:(25-d);
+      const to=myColor==='white'?(25-d):d;
       if(to>=1&&to<=24&&canLand(to)){
         document.getElementById('pt'+to)?.classList.add('highlight');
       }
@@ -826,9 +1075,11 @@ function highlightMovable(){
   for(let i=1;i<=24;i++){
     const cell=board[i];if(!cell||cell.color!==myColor||!cell.count)continue;
     const isMovable=rem.some(d=>{
-      const to=myColor==='white'?(i+d):(i-d);
-      if(myColor==='white'&&to>24&&canBO)return true;
-      if(myColor==='black'&&to<1&&canBO)return true;
+      // White moves toward 1: to = from - die
+      // Black moves toward 24: to = from + die
+      const to=myColor==='white'?(i-d):(i+d);
+      if(myColor==='white'&&to<1&&canBO)return true;
+      if(myColor==='black'&&to>24&&canBO)return true;
       return to>=1&&to<=24&&canLand(to);
     });
     if(isMovable){
@@ -854,10 +1105,12 @@ function canLand(to){
 
 function canBearOff(color){
   if(color==='white'){
+    // All white checkers must be in pts 1-6
     for(let i=7;i<=24;i++)if(board[i]?.color==='white'&&board[i].count>0)return false;
     if(whiteBar>0)return false;
     return true;
   }else{
+    // All black checkers must be in pts 19-24
     for(let i=1;i<=18;i++)if(board[i]?.color==='black'&&board[i].count>0)return false;
     if(blackBar>0)return false;
     return true;
@@ -865,7 +1118,6 @@ function canBearOff(color){
 }
 
 function getRemainingDice(){
-  // FIX: proper remaining dice calculation
   const used=[...diceUsed];
   const rem=[];
   for(const d of dice){
@@ -876,7 +1128,9 @@ function getRemainingDice(){
   return rem;
 }
 
-// ─── BAR CLICK ───
+// ══════════════════════════════════════
+//  BAR CLICK
+// ══════════════════════════════════════
 function onBarClick(){
   if(!myTurn||!gameStarted)return;
   const myBar=myColor==='white'?whiteBar:blackBar;
@@ -885,106 +1139,81 @@ function onBarClick(){
   selectedPoint='bar';
   const rem=getRemainingDice();
   rem.forEach(d=>{
-    const to=myColor==='white'?d:(25-d);
+    // White bar entry: 25-d, Black bar entry: d
+    const to=myColor==='white'?(25-d):d;
     if(to>=1&&to<=24&&canLand(to))document.getElementById('pt'+to)?.classList.add('highlight');
   });
 }
 
-// ─── POINT CLICK ─── (FIX: main logic rewritten cleanly)
+// ══════════════════════════════════════
+//  POINT CLICK — main interaction
+// ══════════════════════════════════════
 function onPointClick(pt){
   if(!myTurn||!gameStarted)return;
   const rem=getRemainingDice();if(!rem.length)return;
   const myBar=myColor==='white'?whiteBar:blackBar;
 
-  // Phase 1: Must enter from bar
+  // Must enter from bar first
   if(myBar>0){
-    if(selectedPoint!=='bar'){
-      // Force bar mode
-      onBarClick();
-      return;
-    }
-    // Try to enter at pt using a die
-    const dieNeeded=myColor==='white'?pt:(25-pt);
-    if(!rem.includes(dieNeeded)){
-      toast('❌ ამ ასვლით ვერ შეხვალ');
-      return;
-    }
-    if(!canLand(pt)){
-      toast('❌ ეს წერტილი დაკავებულია');
-      return;
-    }
+    if(selectedPoint!=='bar'){onBarClick();return;}
+    // White bar entry: die = 25 - pt
+    // Black bar entry: die = pt
+    const dieNeeded=myColor==='white'?(25-pt):pt;
+    if(!rem.includes(dieNeeded)){toast('❌ ამ ასვლით ვერ შეხვალ');return;}
+    if(!canLand(pt)){toast('❌ ეს წერტილი დაკავებულია');return;}
     moveFromBar(pt,dieNeeded);
     return;
   }
 
-  // Phase 2: No checker selected yet — select source
+  // No selection yet — pick source
   if(selectedPoint===null){
     const cell=board[pt];
-    if(!cell||cell.color!==myColor||!cell.count){
-      // Clicked on empty or opponent — ignore silently
-      return;
-    }
-    // Check this checker has at least one valid move
+    if(!cell||cell.color!==myColor||!cell.count)return;
     const hasMoves=rem.some(d=>{
-      const to=myColor==='white'?(pt+d):(pt-d);
-      if((myColor==='white'&&to>24)||(myColor==='black'&&to<1))return canBearOff(myColor);
+      const to=myColor==='white'?(pt-d):(pt+d);
+      if(myColor==='white'&&to<1)return canBearOff(myColor);
+      if(myColor==='black'&&to>24)return canBearOff(myColor);
       return to>=1&&to<=24&&canLand(to);
     });
-    if(!hasMoves){
-      toast('❌ ამ ქვით სვლა შეუძლებელია');
-      return;
-    }
+    if(!hasMoves){toast('❌ ამ ქვით სვლა შეუძლებელია');return;}
     selectedPoint=pt;
-    document.getElementById('pt'+pt)?.classList.add('selected-src');
-    // Show destinations
     clearHighlights();
     document.getElementById('pt'+pt)?.classList.add('selected-src');
+    // Show valid destinations
     rem.forEach(d=>{
-      const to=myColor==='white'?(pt+d):(pt-d);
+      const to=myColor==='white'?(pt-d):(pt+d);
       if(to>=1&&to<=24&&canLand(to)){
         document.getElementById('pt'+to)?.classList.add('highlight');
       }
     });
-    // Highlight bear-off zone if applicable
+    // Bear-off highlight
     if(canBearOff(myColor)){
       const canBOWithDie=rem.some(d=>{
-        const to=myColor==='white'?(pt+d):(pt-d);
-        return (myColor==='white'&&to>24)||(myColor==='black'&&to<1);
+        const to=myColor==='white'?(pt-d):(pt+d);
+        return(myColor==='white'&&to<1)||(myColor==='black'&&to>24);
       });
       if(canBOWithDie)document.getElementById('bearoffMe')?.classList.add('can-bear');
     }
     return;
   }
 
-  // Phase 3: Same point clicked — deselect
-  if(selectedPoint===pt){
-    clearSelection();
-    return;
-  }
+  // Same point — deselect
+  if(selectedPoint===pt){clearSelection();return;}
 
-  // Phase 4: Destination selected
-  const diff=myColor==='white'?(pt-selectedPoint):(selectedPoint-pt);
+  // Destination
+  // White: moves from→to where to = from - die → die = from - to (must be positive)
+  // Black: moves from→to where to = from + die → die = to - from (must be positive)
+  const diff=myColor==='white'?(selectedPoint-pt):(pt-selectedPoint);
 
-  // FIX: Only accept if diff is positive and in rem
   if(diff<=0||!rem.includes(diff)){
-    // Invalid destination — check if clicking own checker to switch selection
+    // Try switching selection to another own checker
     const cell=board[pt];
-    if(cell&&cell.color===myColor&&cell.count>0){
-      // Switch selection to this checker
-      clearSelection();
-      onPointClick(pt);
-      return;
-    }
+    if(cell&&cell.color===myColor&&cell.count>0){clearSelection();onPointClick(pt);return;}
     toast('❌ ეს სვლა ზარით ვერ გამოვა');
     clearSelection();
     return;
   }
-
-  if(!canLand(pt)){
-    toast('❌ ეს წერტილი დაკავებულია');
-    clearSelection();
-    return;
-  }
+  if(!canLand(pt)){toast('❌ ეს წერტილი დაკავებულია');clearSelection();return;}
 
   doMove(selectedPoint,pt,diff);
 }
@@ -1003,19 +1232,20 @@ async function moveFromBar(to,dv){
   applyMoveToBoard(0,to);
   diceUsed.push(dv);
   clearSelection();
+  playCheckerMove();
   renderBoardUI();
   await syncGameState('bar→'+to);
 }
 
 async function doMove(from,to,dv){
-  const srcPt=from; // capture before clearSelection
+  const wasHit=board[to]?.color&&board[to].color!==myColor&&board[to].count===1;
   clearSelection();
-
-  applyMoveToBoard(srcPt,to);
+  applyMoveToBoard(from,to);
   diceUsed.push(dv);
+  if(wasHit)playHit();else playCheckerMove();
   renderBoardUI();
   if(whiteHome>=15||blackHome>=15){await finishGame();return;}
-  await syncGameState(srcPt+'→'+to);
+  await syncGameState(from+'→'+to);
 }
 
 function applyMoveToBoard(from,to){
@@ -1025,7 +1255,6 @@ function applyMoveToBoard(from,to){
   }
   if(to<1||to>24)return;
   const cell=board[to];
-  // Hit blot
   if(cell.color&&cell.color!==myColor&&cell.count===1){
     if(cell.color==='white')whiteBar++;else blackBar++;
     cell.count=0;cell.color=null;
@@ -1034,10 +1263,80 @@ function applyMoveToBoard(from,to){
   cell.count=(cell.count||0)+1;
 }
 
-// ─── SYNC ─── (FIX: hasAnyMove check fixed)
+// ══════════════════════════════════════
+//  BEAR-OFF
+// ══════════════════════════════════════
+function onBearOffClick(who){
+  if(who!=='me')return;
+  if(!myTurn||!gameStarted)return;
+  const rem=getRemainingDice();if(!rem.length)return;
+  if(!canBearOff(myColor)){toast('❌ ჯერ ყველა ქვა სახლის სექტორში უნდა იყოს');return;}
+  if(selectedPoint===null||selectedPoint==='bar'){toast('⬆ ჯერ ქვაზე დააჭირე, შემდეგ სახლზე');return;}
+  doBearOffFromSelected();
+}
+
+async function doBearOffFromSelected(){
+  const from=selectedPoint;
+  if(typeof from!=='number'){clearSelection();return;}
+  const rem=getRemainingDice();
+  let usedDie=null;
+
+  if(myColor==='white'){
+    // White bears off from pts 1-6, needs die >= (pt value) or exact
+    // Exact: die === pt value
+    const exactDies=rem.filter(d=>d===from);
+    if(exactDies.length){
+      usedDie=exactDies[0];
+    } else {
+      // Check if can use larger die (no checker on higher point in home)
+      const higherDies=rem.filter(d=>d>from);
+      if(higherDies.length){
+        // Can only use larger die if no checker on a higher point
+        let higherExists=false;
+        for(let i=from+1;i<=6;i++){
+          if(board[i]&&board[i].color==='white'&&board[i].count>0){higherExists=true;break;}
+        }
+        if(!higherExists)usedDie=Math.min(...higherDies);
+      }
+    }
+  } else {
+    // Black bears off from pts 19-24
+    const exactDies=rem.filter(d=>d===(25-from));
+    if(exactDies.length){
+      usedDie=exactDies[0];
+    } else {
+      const higherDies=rem.filter(d=>d>(25-from));
+      if(higherDies.length){
+        let lowerExists=false;
+        for(let i=from-1;i>=19;i--){
+          if(board[i]&&board[i].color==='black'&&board[i].count>0){lowerExists=true;break;}
+        }
+        if(!lowerExists)usedDie=Math.min(...higherDies);
+      }
+    }
+  }
+
+  if(usedDie===null){
+    toast('❌ ამ ქვის გამოსაყვანად სათანადო ზარი არ არის');
+    clearSelection();return;
+  }
+
+  clearSelection();
+  board[from].count--;
+  if(!board[from].count)board[from].color=null;
+  if(myColor==='white')whiteHome++;else blackHome++;
+  diceUsed.push(usedDie);
+  playCheckerMove();
+  renderBoardUI();
+  if(whiteHome>=15||blackHome>=15){await finishGame();return;}
+  await syncGameState('bear-off from '+from);
+}
+
+// ══════════════════════════════════════
+//  SYNC
+// ══════════════════════════════════════
 async function syncGameState(moveDesc){
   const rem=getRemainingDice();
-  // FIX: only switch turn when truly no moves left
   const noMoves=rem.length===0||!hasAnyMove();
   const nextTurn=noMoves?(myColor==='white'?'black':'white'):myColor;
 
@@ -1067,7 +1366,7 @@ function hasAnyMove(){
   const myBar=myColor==='white'?whiteBar:blackBar;
   if(myBar>0){
     return rem.some(d=>{
-      const to=myColor==='white'?d:(25-d);
+      const to=myColor==='white'?(25-d):d;
       return to>=1&&to<=24&&canLand(to);
     });
   }
@@ -1075,8 +1374,9 @@ function hasAnyMove(){
   for(let i=1;i<=24;i++){
     const cell=board[i];if(!cell||cell.color!==myColor||!cell.count)continue;
     if(rem.some(d=>{
-      const to=myColor==='white'?(i+d):(i-d);
-      if((myColor==='white'&&to>24)||(myColor==='black'&&to<1))return canBO;
+      const to=myColor==='white'?(i-d):(i+d);
+      if(myColor==='white'&&to<1)return canBO;
+      if(myColor==='black'&&to>24)return canBO;
       return to>=1&&to<=24&&canLand(to);
     }))return true;
   }
@@ -1089,20 +1389,32 @@ async function passMove(){
   await syncGameState('გამოტოვება');
 }
 
-// ─── DICE ───
+// ══════════════════════════════════════
+//  DICE ROLL
+// ══════════════════════════════════════
 async function rollDice(){
   if(!myTurn){toast('❌ შენი ჯერი არ არის');return;}
   if(dice.length>0){toast('❌ უკვე გაგორებულია');return;}
+
   const d1=Math.ceil(Math.random()*6),d2=Math.ceil(Math.random()*6);
   const isDouble=d1===d2;
   const newDice=isDouble?[d1,d1,d1,d1]:[d1,d2];
-  dice=newDice;diceUsed=[];
 
-  ['dice1','dice2','dice3','dice4'].forEach(id=>{
-    const el=document.getElementById(id);
-    el.classList.remove('used');el.classList.add('rolling');
+  // Disable roll button during animation
+  document.getElementById('rollBtn').disabled=true;
+
+  // Play roll sound
+  playDiceRoll();
+
+  // Animate dice rolling on the board
+  await new Promise(resolve=>{
+    animateDiceRoll(newDice,resolve);
   });
-  setTimeout(()=>['dice1','dice2','dice3','dice4'].forEach(id=>document.getElementById(id).classList.remove('rolling')),400);
+
+  // Land sound
+  playDiceLand();
+
+  dice=newDice;diceUsed=[];
 
   await sb.from('nardi_games').update({
     dice:newDice,dice_used:[],
@@ -1128,12 +1440,7 @@ function updateDiceUI(){
     el.style.display=show?'flex':'none';
     if(show){
       el.textContent=FACES[dice[i]]||dice[i]||'·';
-      // FIX: correctly mark used dice
-      const usedCount=diceUsed.filter(d=>d===dice[i]).length;
-      const totalCount=dice.filter(d=>d===dice[i]).length;
-      // Mark die as used based on position
-      const usedSoFar=diceUsed.length;
-      el.className='dice'+(i<usedSoFar?' used':'');
+      el.className='dice'+(i<diceUsed.length?' used':'');
     }
   }
   document.getElementById('rollBtn').disabled=!myTurn||dice.length>0;
@@ -1151,7 +1458,9 @@ function updateTurnUI(turn,isMyTurn){
   document.getElementById('rollBtn').disabled=!isMyTurn||dice.length>0;
 }
 
-// ─── FINISH ───
+// ══════════════════════════════════════
+//  FINISH
+// ══════════════════════════════════════
 async function finishGame(){
   const winner=whiteHome>=15?'white':'black';
   const iWon=winner===myColor;
@@ -1159,6 +1468,7 @@ async function finishGame(){
   if(iWon){
     await sb.from('profiles').update({nardi_score:(MYPROF.nardi_score||0)+5,nardi_wins:(MYPROF.nardi_wins||0)+1}).eq('id',ME.id);
     MYPROF.nardi_score=(MYPROF.nardi_score||0)+5;MYPROF.nardi_wins=(MYPROF.nardi_wins||0)+1;
+    playWin();
   }else{
     await sb.from('profiles').update({nardi_losses:(MYPROF.nardi_losses||0)+1}).eq('id',ME.id);
     MYPROF.nardi_losses=(MYPROF.nardi_losses||0)+1;
@@ -1175,7 +1485,9 @@ function showWinModal(iWon){
   document.getElementById('myScoreDisplay').textContent='🏆 '+(MYPROF.nardi_score||0);
 }
 
-// ─── CHAT ───
+// ══════════════════════════════════════
+//  CHAT
+// ══════════════════════════════════════
 async function sendChatMsg(){
   const inp=document.getElementById('chatInput');
   const txt=inp.value.trim();if(!txt)return;
@@ -1190,10 +1502,8 @@ function appendChatMsg(nick,content,isMe){
   const box=document.getElementById('chatMsgs');
   const d=document.createElement('div');
   d.className='cmsg'+(isMe?' mine':'');
-  d.innerHTML=(!isMe?`<div class="cmsg-nick">${esc(nick)}</div>`:'')
-    +'<div>'+renderChatContent(content)+'</div>';
-  box.appendChild(d);
-  box.scrollTop=box.scrollHeight;
+  d.innerHTML=(!isMe?`<div class="cmsg-nick">${esc(nick)}</div>`:'')+'<div>'+renderChatContent(content)+'</div>';
+  box.appendChild(d);box.scrollTop=box.scrollHeight;
 }
 function addSysMsg(msg){
   const box=document.getElementById('chatMsgs');
@@ -1201,7 +1511,9 @@ function addSysMsg(msg){
   box.appendChild(d);box.scrollTop=box.scrollHeight;
 }
 
-// ─── MISC ───
+// ══════════════════════════════════════
+//  MISC
+// ══════════════════════════════════════
 function resetToLobby(){
   pendingInviteId=null;selectedOpponent=null;
   document.getElementById('waitingScreen').style.display='none';
