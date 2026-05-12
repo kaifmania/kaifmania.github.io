@@ -1047,6 +1047,8 @@ async function acceptInvite() {
   document.getElementById('invBanner').classList.remove('show');
 
   const initB = initBoard();
+
+  // ── step 1: create game row ──
   const {data: gr, error} = await sb.from('nardi_games').insert({
     player_white: pendingInv.from_uid,
     player_black: ME.id,
@@ -1060,7 +1062,13 @@ async function acceptInvite() {
     black_off:    0
   }).select('id').single();
 
-  if (error) { toast('❌ ' + error.message); return; }
+  if (error) {
+    console.error('nardi_games INSERT error:', error);
+    toast('❌ ' + (error.message || error.code || JSON.stringify(error)));
+    // re-show banner so user can retry
+    document.getElementById('invBanner').classList.add('show');
+    return;
+  }
 
   // update DB
   await sb.from('nardi_invites').update({
