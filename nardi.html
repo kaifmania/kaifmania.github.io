@@ -488,19 +488,31 @@ let pendingInviteId = null, activeGameId = null, gameChannel = null, chatChannel
 let selectedOpponent = null, pendingInviteFrom = null;
 let customEmojis = [], emojiCache = {}, showEmojiGrid = false;
 
+// board[1..24]: {color: 'white'|'black'|null, count: number}
+// board[0] unused, board[25] unused
 let board = [];
 let whiteHome = 0, blackHome = 0;
 let whiteBar = 0, blackBar = 0;
-let dice = [], diceUsed = [];
-let myColor = 'white', myTurn = false, gameStarted = false;
-let selectedPoint = null;
 
+// dice: array of face values e.g. [3,5] or [4,4,4,4]
+// diceUsed: parallel boolean array, same length as dice
+// e.g. dice=[3,5], diceUsed=[true,false] means first die used
+let dice = [], diceUsed = [];
+
+let myColor = 'white', myTurn = false, gameStarted = false;
+let selectedPoint = null; // null | 'bar' | 1..24
+
+// ============================================================
+//  BOARD INIT
+// ============================================================
 function getInitialBoard() {
-  const b = Array.from({ length: 25 }, () => ({ color: null, count: 0 }));
+  const b = Array.from({ length: 26 }, () => ({ color: null, count: 0 }));
+  // White moves 24→1 (home: pts 1-6)
   b[24] = { color: 'white', count: 2 };
   b[13] = { color: 'white', count: 5 };
   b[8]  = { color: 'white', count: 3 };
   b[6]  = { color: 'white', count: 5 };
+  // Black moves 1→24 (home: pts 19-24)
   b[1]  = { color: 'black', count: 2 };
   b[12] = { color: 'black', count: 5 };
   b[17] = { color: 'black', count: 3 };
@@ -508,29 +520,62 @@ function getInitialBoard() {
   return b;
 }
 
-function getRemainingDice() {
-  const pool = [...dice];
-  for (const used of diceUsed) {
-    const idx = pool.indexOf(used);
-    if (idx !== -1) pool.splice(idx, 1);
+// ============================================================
+//  DICE HELPERS — clean parallel boolean tracking
+// ============================================================
+
+// Returns array of indices of unused dice
+function unusedDiceIndices() {
+  const idxs = [];
+  for (let i = 0; i < dice.length; i++) {
+    if (!diceUsed[i]) idxs.push(i);
   }
-  return pool;
+  return idxs;
 }
 
-function getTargetPoint(from, die) {
-  if (myColor === 'white') return from - die;
-  else return from + die;
+// Returns array of face values that are still available
+function remainingDiceValues() {
+  return unusedDiceIndices().map(i => dice[i]);
 }
 
-function canLand(pt) {
-  if (pt < 1 || pt > 24) return false;
-  const cell = board[pt];
-  if (!cell || !cell.color || cell.count === 0) return true;
-  if (cell.color === myColor) return true;
-  if (cell.count === 1) return true;
+// Mark one die of given face value as used. Returns true if found.
+function consumeDie(value) {
+  for (let i = 0; i < dice.length; i++) {
+    if (!diceUsed[i] && dice[i] === value) {
+      diceUsed[i] = true;
+      return true;
+    }
+  }
   return false;
 }
 
+// All dice used?
+function allDiceUsed() {
+  return diceUsed.every(u => u);
+}
+
+// ============================================================
+//  MOVEMENT RULES
+// ============================================================
+
+// Target point after moving die d from point 'from' for myColor
+// Returns point number (may be <1 or >24 for bear-off)
+function targetPoint(from, d) {
+  if (myColor === 'white') return from - d;
+  else return from + d;
+}
+
+// Can a checker land on point pt?
+function canLand(pt) {
+  if (pt < 1 || pt > 24) return false;
+  const cell = board[pt];
+  if (!cell || !cell.color || cell.count === 0) return true; // empty
+  if (cell.color === myColor) return true;                   // own checker
+  if (cell.count === 1) return true;                         // blot — can hit
+  return false;                                              // blocked
+}
+
+// All my checkers in home board?
 function canBearOff(color) {
   if (color === 'white') {
     if (whiteBar > 0) return false;
@@ -545,6 +590,37 @@ function canBearOff(color) {
     }
     return true;
   }
+}
+
+// Does myColor have any legal move with remaining dice?
+function hasAnyLegalMove() {
+  const rem = remainingDiceValues();
+  if (!rem.length) return false;
+  const myBar = myColor === 'white' ? whiteBar : blackBar;
+
+  if (myBar > 0) {
+    // Must enter from bar
+    return rem.some(d => {
+      const to = myColor === 'white' ? (25 - d) : d;
+      return to >= 1 && to <= 24 && canLand(to);
+    });
+  }
+
+  const canBO = canBearOff(myColor);
+  for (let i = 1; i <= 24; i++) {
+    const cell = board[i];
+    if (!cell || cell.color !== myColor || !cell.count) continue;
+    for (const d of rem) {
+      const to = targetPoint(i, d);
+      if (to >= 1 && to <= 24 && canLand(to)) return true;
+      if (canBO) {
+        // Bear off: exact or higher die when no checker further from home
+        if (myColor === 'white' && to < 1) return true;
+        if (myColor === 'black' && to > 24) return true;
+      }
+    }
+  }
+  return false;
 }
 
 // ============================================================
@@ -770,26 +846,60 @@ async function joinGame(gameId) {
     }).subscribe();
 
   addSysMsg('🎲 თამაში დაიწყო! შენ ხარ ' + (myColor === 'white' ? '⚪ თეთრი' : '⚫ შავი'));
-  addSysMsg(myColor === 'white' ? '⚪ მოძრაობ: 24→1' : '⚫ მოძრაობ: 1→24');
+  addSysMsg(myColor === 'white' ? '⚪ მოძრაობ: 24→1 (სახლი: 1-6)' : '⚫ მოძრაობ: 1→24 (სახლი: 19-24)');
 }
 
+// ============================================================
+//  APPLY STATE FROM DB
+// ============================================================
 function applyGameState(game) {
-  try { board = JSON.parse(game.board_state) || getInitialBoard(); } catch (e) { board = getInitialBoard(); }
+  try { board = JSON.parse(game.board_state); } catch (e) { board = getInitialBoard(); }
+  if (!board || board.length < 25) board = getInitialBoard();
+
   whiteHome = game.white_home || 0;
   blackHome = game.black_home || 0;
   whiteBar  = game.white_bar  || 0;
   blackBar  = game.black_bar  || 0;
+
+  // Restore dice as face-value array
   dice = Array.isArray(game.dice) ? [...game.dice] : [];
-  diceUsed = Array.isArray(game.dice_used) ? [...game.dice_used] : [];
+
+  // Restore diceUsed as parallel boolean array
+  // DB stores either boolean array or legacy value array — handle both
+  if (Array.isArray(game.dice_used) && game.dice_used.length === dice.length) {
+    if (game.dice_used.every(v => typeof v === 'boolean')) {
+      diceUsed = [...game.dice_used];
+    } else {
+      // Legacy: was stored as used values. Rebuild booleans.
+      diceUsed = rebuildDiceUsed(dice, game.dice_used);
+    }
+  } else {
+    diceUsed = dice.map(() => false);
+  }
+
   myTurn = (game.turn === myColor);
   selectedPoint = null;
   renderBoardUI();
   updateDiceUI();
-  updateTurnUI(game.turn, myTurn);
+  updateTurnUI(myTurn);
+}
+
+// Convert legacy "used values array" to boolean array
+function rebuildDiceUsed(diceArr, usedVals) {
+  const bools = diceArr.map(() => false);
+  const remaining = [...usedVals];
+  for (let i = 0; i < diceArr.length; i++) {
+    const idx = remaining.indexOf(diceArr[i]);
+    if (idx !== -1) {
+      bools[i] = true;
+      remaining.splice(idx, 1);
+    }
+  }
+  return bools;
 }
 
 // ============================================================
-//  BUILD BOARD
+//  BUILD BOARD DOM
 // ============================================================
 function buildBoard() {
   const tl = document.getElementById('topLeft'); tl.innerHTML = '';
@@ -825,23 +935,29 @@ function makePoint(num, isTop) {
   return p;
 }
 
+// ============================================================
+//  RENDER
+// ============================================================
 function renderBoardUI() {
+  // Clear all stacks and highlights
   for (let i = 1; i <= 24; i++) {
     const s = document.getElementById('stack' + i);
     if (s) s.innerHTML = '';
     const p = document.getElementById('pt' + i);
     if (p) p.classList.remove('highlight', 'selected-src');
   }
+
+  // Render checkers on each point
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
-    if (!cell || !cell.count) continue;
+    if (!cell || !cell.count || !cell.color) continue;
     const stack = document.getElementById('stack' + i);
     if (!stack) continue;
     const maxShow = Math.min(cell.count, 6);
     for (let c = 0; c < maxShow; c++) {
       const ch = document.createElement('div');
-      ch.className = 'checker ' + (cell.color || 'white');
-      if (cell.count > 6 && c === maxShow - 1) {
+      ch.className = 'checker ' + cell.color;
+      if (cell.count > 1 && c === maxShow - 1) {
         const cnt = document.createElement('span');
         cnt.className = 'checker-count';
         cnt.textContent = cell.count;
@@ -850,9 +966,14 @@ function renderBoardUI() {
       stack.appendChild(ch);
     }
   }
+
   renderBarUI();
   renderBearOff();
-  if (myTurn && gameStarted && dice.length && getRemainingDice().length) highlightMovable();
+
+  // Highlight movable checkers only on my turn after dice rolled
+  if (myTurn && gameStarted && dice.length > 0 && remainingDiceValues().length > 0) {
+    highlightMovable();
+  }
 }
 
 function renderBarUI() {
@@ -883,11 +1004,12 @@ function renderBarUI() {
 function renderBearOff() {
   const myBearCount  = myColor === 'white' ? whiteHome : blackHome;
   const oppBearCount = myColor === 'white' ? blackHome : whiteHome;
+  const oppColor     = myColor === 'white' ? 'black' : 'white';
   renderBearOffZone('bearoffMeCheckers',  'bearoffMeCount',  myBearCount,  myColor);
-  renderBearOffZone('bearoffOppCheckers', 'bearoffOppCount', oppBearCount, myColor === 'white' ? 'black' : 'white');
-  const meZone = document.getElementById('bearoffMe');
-  const shouldGlow = myTurn && gameStarted && dice.length && getRemainingDice().length && canBearOff(myColor);
-  meZone.classList.toggle('can-bear', !!shouldGlow);
+  renderBearOffZone('bearoffOppCheckers', 'bearoffOppCount', oppBearCount, oppColor);
+
+  const canBO = myTurn && gameStarted && dice.length > 0 && remainingDiceValues().length > 0 && canBearOff(myColor);
+  document.getElementById('bearoffMe').classList.toggle('can-bear', !!canBO);
 }
 
 function renderBearOffZone(checkerId, countId, count, color) {
@@ -907,57 +1029,41 @@ function renderBearOffZone(checkerId, countId, count, color) {
 }
 
 // ============================================================
-//  MOVEMENT LOGIC
+//  HIGHLIGHT LOGIC
 // ============================================================
-function hasAnyLegalMove() {
-  const rem = getRemainingDice();
-  if (!rem.length) return false;
-  const myBar = myColor === 'white' ? whiteBar : blackBar;
-  if (myBar > 0) {
-    return rem.some(d => {
-      const to = myColor === 'white' ? (25 - d) : d;
-      return to >= 1 && to <= 24 && canLand(to);
-    });
-  }
-  const canBO = canBearOff(myColor);
-  for (let i = 1; i <= 24; i++) {
-    const cell = board[i];
-    if (!cell || cell.color !== myColor || !cell.count) continue;
-    if (rem.some(d => {
-      const to = getTargetPoint(i, d);
-      if (to === null) return false;
-      if (to < 1 || to > 24) return canBO;
-      return canLand(to);
-    })) return true;
-  }
-  return false;
-}
-
 function highlightMovable() {
   clearHighlights();
-  const rem = getRemainingDice();
+  const rem = remainingDiceValues();
   if (!rem.length) return;
+
   const myBar = myColor === 'white' ? whiteBar : blackBar;
+
   if (myBar > 0) {
+    // Highlight entry points from bar
     rem.forEach(d => {
       const to = myColor === 'white' ? (25 - d) : d;
       if (to >= 1 && to <= 24 && canLand(to)) {
         document.getElementById('pt' + to)?.classList.add('highlight');
       }
     });
+    // Glow the bar chips
     const barEl = document.getElementById(myColor === 'white' ? 'barWhiteEl' : 'barBlackEl');
     if (barEl) barEl.querySelectorAll('.bar-chip').forEach(c => c.classList.add('highlight-chip'));
     return;
   }
+
   const canBO = canBearOff(myColor);
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
     if (!cell || cell.color !== myColor || !cell.count) continue;
     const isMovable = rem.some(d => {
-      const to = getTargetPoint(i, d);
-      if (myColor === 'white' && to < 1) return canBO;
-      if (myColor === 'black' && to > 24) return canBO;
-      return to >= 1 && to <= 24 && canLand(to);
+      const to = targetPoint(i, d);
+      if (to >= 1 && to <= 24 && canLand(to)) return true;
+      if (canBO) {
+        if (myColor === 'white' && to < 1) return true;
+        if (myColor === 'black' && to > 24) return true;
+      }
+      return false;
     });
     if (isMovable) {
       document.getElementById('stack' + i)?.querySelectorAll('.checker').forEach(c => c.classList.add('movable'));
@@ -973,204 +1079,264 @@ function clearHighlights() {
   document.getElementById('bearoffMe')?.classList.remove('can-bear');
 }
 
+function showDestinations(fromPt) {
+  // Called after selecting a source point — highlight valid destinations
+  clearHighlights();
+  if (fromPt !== 'bar') {
+    document.getElementById('pt' + fromPt)?.classList.add('selected-src');
+  }
+
+  const rem = remainingDiceValues();
+  const canBO = canBearOff(myColor);
+
+  if (fromPt === 'bar') {
+    rem.forEach(d => {
+      const to = myColor === 'white' ? (25 - d) : d;
+      if (to >= 1 && to <= 24 && canLand(to)) {
+        document.getElementById('pt' + to)?.classList.add('highlight');
+      }
+    });
+  } else {
+    let anyDest = false;
+    rem.forEach(d => {
+      const to = targetPoint(fromPt, d);
+      if (to >= 1 && to <= 24 && canLand(to)) {
+        document.getElementById('pt' + to)?.classList.add('highlight');
+        anyDest = true;
+      }
+      if (canBO) {
+        if ((myColor === 'white' && to < 1) || (myColor === 'black' && to > 24)) {
+          document.getElementById('bearoffMe')?.classList.add('can-bear');
+          anyDest = true;
+        }
+      }
+    });
+    if (!anyDest) toast('❌ ამ ქვით სვლა შეუძლებელია');
+  }
+}
+
+// ============================================================
+//  CLICK HANDLERS
+// ============================================================
 function onBarClick(color) {
   if (!myTurn || !gameStarted) return;
   if (color !== myColor) return;
   const myBar = myColor === 'white' ? whiteBar : blackBar;
-  if (!myBar) { toast('ბარში ქვა არ გაქვს'); return; }
-  const rem = getRemainingDice();
-  if (!rem.length) { toast('ჯერ ზარი გააგორე'); return; }
-  clearHighlights();
+  if (!myBar) return;
+  if (!dice.length || !remainingDiceValues().length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
+
   selectedPoint = 'bar';
-  let hasAny = false;
-  rem.forEach(d => {
-    const to = myColor === 'white' ? (25 - d) : d;
-    if (to >= 1 && to <= 24 && canLand(to)) {
-      document.getElementById('pt' + to)?.classList.add('highlight');
-      hasAny = true;
-    }
-  });
-  if (!hasAny) toast('❌ ბარიდან შესვლა შეუძლებელია — გამოტოვება გჭირდება');
+  showDestinations('bar');
 }
 
 function onPointClick(pt) {
   if (!myTurn || !gameStarted) return;
-  const rem = getRemainingDice();
-  if (!rem.length) { toast('ჯერ ზარი გააგორე'); return; }
+  if (!dice.length || !remainingDiceValues().length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
+
   const myBar = myColor === 'white' ? whiteBar : blackBar;
 
+  // ── If I have checkers on bar, force entry first ──
   if (myBar > 0) {
     if (selectedPoint !== 'bar') {
+      // Auto-select bar
       onBarClick(myColor);
-      return;
     }
-    const dieNeeded = myColor === 'white' ? (25 - pt) : pt;
-    if (!rem.includes(dieNeeded)) { toast('❌ ამ წერტილზე ვერ შეხვალ (ზარი არ გამოდის)'); return; }
-    if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); return; }
-    doMoveFromBar(pt, dieNeeded);
+    // Try to land on clicked point from bar
+    if (selectedPoint === 'bar') {
+      const rem = remainingDiceValues();
+      const dieNeeded = myColor === 'white' ? (25 - pt) : pt;
+      if (!rem.includes(dieNeeded)) { toast('❌ ამ წერტილზე ბარიდან ვერ შეხვალ'); return; }
+      if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); return; }
+      execMoveFromBar(pt, dieNeeded);
+    }
     return;
   }
 
+  // ── No source selected yet ──
   if (selectedPoint === null) {
     const cell = board[pt];
-    if (!cell || cell.color !== myColor || !cell.count) return;
-    const canBO = canBearOff(myColor);
-    const hasMoves = rem.some(d => {
-      const to = getTargetPoint(pt, d);
-      if (myColor === 'white' && to < 1) return canBO;
-      if (myColor === 'black' && to > 24) return canBO;
-      return to !== null && to >= 1 && to <= 24 && canLand(to);
-    });
-    if (!hasMoves) { toast('❌ ამ ქვით სვლა შეუძლებელია'); return; }
+    if (!cell || cell.color !== myColor || !cell.count) {
+      toast('❌ შენი ქვა არ არის'); return;
+    }
     selectedPoint = pt;
-    clearHighlights();
-    document.getElementById('pt' + pt)?.classList.add('selected-src');
-    const canBONow = canBearOff(myColor);
-    rem.forEach(d => {
-      const to = getTargetPoint(pt, d);
-      if (to !== null && to >= 1 && to <= 24 && canLand(to)) {
-        document.getElementById('pt' + to)?.classList.add('highlight');
-      }
-      if ((myColor === 'white' && to < 1 && canBONow) || (myColor === 'black' && to > 24 && canBONow)) {
-        document.getElementById('bearoffMe')?.classList.add('can-bear');
-      }
-    });
+    showDestinations(pt);
     return;
   }
 
+  // ── Clicking the same point — deselect ──
   if (selectedPoint === pt) {
-    clearSelection();
+    selectedPoint = null;
+    clearHighlights();
+    highlightMovable();
     return;
   }
 
+  // ── Clicking another own checker — reselect ──
+  const clickedCell = board[pt];
+  if (clickedCell && clickedCell.color === myColor && clickedCell.count > 0) {
+    selectedPoint = pt;
+    showDestinations(pt);
+    return;
+  }
+
+  // ── Attempt move from selectedPoint to pt ──
   const from = selectedPoint;
   const dieNeeded = myColor === 'white' ? (from - pt) : (pt - from);
+  const rem = remainingDiceValues();
+
   if (dieNeeded <= 0 || !rem.includes(dieNeeded)) {
-    const cell = board[pt];
-    if (cell && cell.color === myColor && cell.count > 0) {
-      clearSelection();
-      onPointClick(pt);
-      return;
-    }
-    toast('❌ ამ სვლისთვის ზარი არ გამოდის');
-    clearSelection();
+    toast('❌ ამ სვლისთვის ზარი არ გამოდის'); 
+    selectedPoint = null;
+    clearHighlights();
+    highlightMovable();
     return;
   }
-  if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); clearSelection(); return; }
-  doMove(from, pt, dieNeeded);
-}
-
-function clearSelection() {
-  if (selectedPoint !== null && selectedPoint !== 'bar') {
-    document.getElementById('pt' + selectedPoint)?.classList.remove('selected-src');
+  if (!canLand(pt)) {
+    toast('❌ ეს წერტილი დაბლოკილია');
+    selectedPoint = null;
+    clearHighlights();
+    highlightMovable();
+    return;
   }
-  selectedPoint = null;
-  clearHighlights();
-}
 
-function applyMoveToBoard(from, to) {
-  if (from > 0 && from <= 24) {
-    board[from].count--;
-    if (board[from].count <= 0) { board[from].count = 0; board[from].color = null; }
-  }
-  if (to < 1 || to > 24) return;
-  const cell = board[to];
-  if (cell.color && cell.color !== myColor && cell.count === 1) {
-    if (cell.color === 'white') whiteBar++;
-    else blackBar++;
-    cell.count = 0; cell.color = null;
-    playHit();
-  }
-  if (!cell.color) cell.color = myColor;
-  cell.count = (cell.count || 0) + 1;
-}
-
-async function doMoveFromBar(to, dieValue) {
-  if (myColor === 'white') whiteBar--;
-  else blackBar--;
-  const cell = board[to];
-  const wasHit = cell.color && cell.color !== myColor && cell.count === 1;
-  applyMoveToBoard(0, to);
-  diceUsed.push(dieValue);
-  clearSelection();
-  if (wasHit) playHit(); else playCheckerMove();
-  renderBoardUI();
-  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
-  await syncGameState('bar→' + to);
-}
-
-async function doMove(from, to, dieValue) {
-  const cell = board[to];
-  const wasHit = cell.color && cell.color !== myColor && cell.count === 1;
-  applyMoveToBoard(from, to);
-  diceUsed.push(dieValue);
-  if (!wasHit) playCheckerMove();
-  clearSelection();
-  renderBoardUI();
-  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
-  await syncGameState(from + '→' + to);
+  execMove(from, pt, dieNeeded);
 }
 
 function onBearOffClick() {
   if (!myTurn || !gameStarted) return;
-  const rem = getRemainingDice();
-  if (!rem.length) { toast('ჯერ ზარი გააგორე'); return; }
-  if (!canBearOff(myColor)) { toast('❌ ჯერ ყველა ქვა სახლის სექტორში უნდა იყოს'); return; }
+  if (!dice.length || !remainingDiceValues().length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
+  if (!canBearOff(myColor)) { toast('❌ ყველა ქვა სახლის სექტორში უნდა იყოს'); return; }
   if (selectedPoint === null || selectedPoint === 'bar') {
-    toast('⬆ ჯერ ქვაზე დააჭირე, შემდეგ სახლზე');
-    return;
+    toast('⬆ ჯერ ქვაზე დააჭირე, შემდეგ სახლზე'); return;
   }
-  doBearOff(selectedPoint);
-}
-
-async function doBearOff(from) {
-  const rem = getRemainingDice();
-  let usedDie = null;
-  if (myColor === 'white') {
-    if (rem.includes(from)) {
-      usedDie = from;
-    } else {
-      const higherDies = rem.filter(d => d > from);
-      if (higherDies.length) {
-        let blockedByHigher = false;
-        for (let i = from + 1; i <= 6; i++) {
-          if (board[i] && board[i].color === 'white' && board[i].count > 0) { blockedByHigher = true; break; }
-        }
-        if (!blockedByHigher) usedDie = Math.min(...higherDies);
-      }
-    }
-  } else {
-    const exactDie = 25 - from;
-    if (rem.includes(exactDie)) {
-      usedDie = exactDie;
-    } else {
-      const higherDies = rem.filter(d => d > exactDie);
-      if (higherDies.length) {
-        let blockedByLower = false;
-        for (let i = from - 1; i >= 19; i--) {
-          if (board[i] && board[i].color === 'black' && board[i].count > 0) { blockedByLower = true; break; }
-        }
-        if (!blockedByLower) usedDie = Math.min(...higherDies);
-      }
-    }
-  }
-  if (usedDie === null) {
-    toast('❌ ამ ქვის გამოსაყვანად ზარი არ გამოდის');
-    clearSelection(); return;
-  }
-  clearSelection();
-  board[from].count--;
-  if (board[from].count <= 0) { board[from].count = 0; board[from].color = null; }
-  if (myColor === 'white') whiteHome++; else blackHome++;
-  diceUsed.push(usedDie);
-  playCheckerMove();
-  renderBoardUI();
-  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
-  await syncGameState('bear-off from ' + from);
+  execBearOff(selectedPoint);
 }
 
 // ============================================================
-//  DICE & SYNC
+//  EXECUTE MOVES — board mutation + sync
+// ============================================================
+
+// Apply a checker move on the local board (mutates board, whiteBar, blackBar)
+// Returns whether a hit happened
+function applyCheckerMove(fromPt, toPt) {
+  // Remove from source (fromPt=0 means from bar — already decremented externally)
+  if (fromPt >= 1 && fromPt <= 24) {
+    board[fromPt].count--;
+    if (board[fromPt].count <= 0) { board[fromPt].count = 0; board[fromPt].color = null; }
+  }
+
+  if (toPt < 1 || toPt > 24) return false; // bear-off handled separately
+
+  const cell = board[toPt];
+  let hit = false;
+
+  // Hit opponent blot
+  if (cell.color && cell.color !== myColor && cell.count === 1) {
+    if (cell.color === 'white') whiteBar++;
+    else blackBar++;
+    cell.count = 0; cell.color = null;
+    hit = true;
+  }
+
+  // Land checker
+  if (!cell.color) cell.color = myColor;
+  cell.count = (cell.count || 0) + 1;
+
+  return hit;
+}
+
+async function execMoveFromBar(toPt, dieValue) {
+  // Decrement bar
+  if (myColor === 'white') whiteBar--; else blackBar--;
+
+  const hit = applyCheckerMove(0, toPt); // fromPt=0 skips source decrement
+
+  consumeDie(dieValue);
+  selectedPoint = null;
+
+  if (hit) playHit(); else playCheckerMove();
+  renderBoardUI();
+
+  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
+  await syncGameState('bar→' + toPt);
+}
+
+async function execMove(fromPt, toPt, dieValue) {
+  const hit = applyCheckerMove(fromPt, toPt);
+
+  consumeDie(dieValue);
+  selectedPoint = null;
+
+  if (hit) playHit(); else playCheckerMove();
+  renderBoardUI();
+
+  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
+  await syncGameState(fromPt + '→' + toPt);
+}
+
+async function execBearOff(fromPt) {
+  const rem = remainingDiceValues();
+  let usedDieValue = null;
+
+  if (myColor === 'white') {
+    // White home: pts 1-6. Die value = point number.
+    const exactDie = fromPt; // e.g. from pt 3, need die 3
+    if (rem.includes(exactDie)) {
+      usedDieValue = exactDie;
+    } else {
+      // Use higher die only if no checker on higher point
+      const higherDies = rem.filter(d => d > exactDie);
+      if (higherDies.length) {
+        let hasHigherChecker = false;
+        for (let i = fromPt + 1; i <= 6; i++) {
+          if (board[i] && board[i].color === 'white' && board[i].count > 0) { hasHigherChecker = true; break; }
+        }
+        if (!hasHigherChecker) usedDieValue = Math.min(...higherDies);
+      }
+    }
+  } else {
+    // Black home: pts 19-24. Die value = 25 - point.
+    const exactDie = 25 - fromPt; // e.g. from pt 22, need die 3
+    if (rem.includes(exactDie)) {
+      usedDieValue = exactDie;
+    } else {
+      const higherDies = rem.filter(d => d > exactDie);
+      if (higherDies.length) {
+        let hasLowerChecker = false;
+        for (let i = fromPt - 1; i >= 19; i--) {
+          if (board[i] && board[i].color === 'black' && board[i].count > 0) { hasLowerChecker = true; break; }
+        }
+        if (!hasLowerChecker) usedDieValue = Math.min(...higherDies);
+      }
+    }
+  }
+
+  if (usedDieValue === null) {
+    toast('❌ ამ ქვის გამოსაყვანად ზარი არ გამოდის');
+    selectedPoint = null;
+    clearHighlights();
+    highlightMovable();
+    return;
+  }
+
+  // Remove checker from board
+  board[fromPt].count--;
+  if (board[fromPt].count <= 0) { board[fromPt].count = 0; board[fromPt].color = null; }
+
+  if (myColor === 'white') whiteHome++; else blackHome++;
+
+  consumeDie(usedDieValue);
+  selectedPoint = null;
+
+  playCheckerMove();
+  renderBoardUI();
+
+  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
+  await syncGameState('bear-off:' + fromPt);
+}
+
+// ============================================================
+//  PASS / ROLL
 // ============================================================
 async function rollDice() {
   if (!myTurn) { toast('❌ შენი ჯერი არ არის'); return; }
@@ -1188,11 +1354,11 @@ async function rollDice() {
   playDiceLand();
 
   dice = [...newDice];
-  diceUsed = [];
+  diceUsed = dice.map(() => false); // all unused
 
   const { error } = await sb.from('nardi_games').update({
     dice: dice,
-    dice_used: [],
+    dice_used: diceUsed,
     last_move: JSON.stringify({ type: 'dice', msg: '🎲 ' + d1 + '+' + d2 })
   }).eq('id', activeGameId);
 
@@ -1210,21 +1376,28 @@ async function rollDice() {
 
 async function passMove() {
   if (!myTurn) return;
-  diceUsed = [...dice];
+  // Mark all remaining dice as used and end turn
+  diceUsed = dice.map(() => true);
   await syncGameState('გამოტოვება');
 }
 
+// ============================================================
+//  SYNC GAME STATE TO DB
+// ============================================================
 async function syncGameState(moveDesc) {
-  const rem = getRemainingDice();
-  const noMovesLeft = rem.length === 0 || !hasAnyLegalMove();
+  const rem = remainingDiceValues();
+  const turnDone = rem.length === 0 || !hasAnyLegalMove();
+
   let nextTurn = myColor;
   let nextDice = dice;
   let nextDiceUsed = diceUsed;
-  if (noMovesLeft) {
+
+  if (turnDone) {
     nextTurn = myColor === 'white' ? 'black' : 'white';
     nextDice = [];
     nextDiceUsed = [];
   }
+
   const { error } = await sb.from('nardi_games').update({
     board_state: JSON.stringify(board),
     turn: nextTurn,
@@ -1236,40 +1409,47 @@ async function syncGameState(moveDesc) {
     black_bar: blackBar,
     last_move: JSON.stringify({ type: 'move', msg: moveDesc })
   }).eq('id', activeGameId);
+
   if (error) { toast('❌ ' + error.message); return; }
-  if (noMovesLeft) {
+
+  if (turnDone) {
     myTurn = false;
     dice = [];
     diceUsed = [];
     updateDiceUI();
-    updateTurnUI(nextTurn, false);
+    updateTurnUI(false);
     renderBoardUI();
     addSysMsg('🔄 მოწინააღმდეგის ჯერი');
+  } else {
+    updateDiceUI();
+    renderBoardUI();
   }
 }
 
+// ============================================================
+//  DICE UI
+// ============================================================
 function updateDiceUI() {
-  const isDouble = dice.length === 4;
-  const diceCount = isDouble ? 4 : 2;
+  const count = dice.length; // 0, 2, or 4
   for (let i = 0; i < 4; i++) {
     const el = document.getElementById('dice' + (i + 1));
-    const show = i < diceCount;
-    el.style.display = show ? 'flex' : 'none';
-    if (show) {
-      const val = dice[i];
-      el.textContent = val ? FACES[val] : '·';
-      const usedCount = diceUsed.filter(d => d === (dice[i] || 0)).length;
-      const slotsOfThisVal = dice.map((d, idx) => d === dice[i] ? idx : -1).filter(x => x >= 0);
-      const usedSlots = slotsOfThisVal.slice(0, usedCount);
-      el.className = 'dice' + (usedSlots.includes(i) ? ' used' : '');
+    if (i < count) {
+      el.style.display = 'flex';
+      el.textContent = dice[i] ? FACES[dice[i]] : '·';
+      el.className = 'dice' + (diceUsed[i] ? ' used' : '');
+    } else {
+      el.style.display = 'none';
     }
   }
+
   document.getElementById('rollBtn').disabled = !myTurn || dice.length > 0;
-  const rem = getRemainingDice();
-  document.getElementById('passBtn').style.display = (myTurn && dice.length && rem.length) ? 'inline-block' : 'none';
+
+  const rem = remainingDiceValues();
+  const showPass = myTurn && dice.length > 0 && rem.length > 0;
+  document.getElementById('passBtn').style.display = showPass ? 'inline-block' : 'none';
 }
 
-function updateTurnUI(turn, isMyTurn) {
+function updateTurnUI(isMyTurn) {
   document.getElementById('turnBadge').textContent = isMyTurn ? '🎲 შენი ჯერია!' : '⏳ ველოდები...';
   document.getElementById('myInfo').classList.toggle('pi-active', isMyTurn);
   document.getElementById('oppInfo').classList.toggle('pi-active', !isMyTurn);
@@ -1287,16 +1467,16 @@ async function finishGame() {
   const iWon = winner === myColor;
   await sb.from('nardi_games').update({ status: 'finished', winner }).eq('id', activeGameId);
   if (iWon) {
-    await sb.from('profiles').update({
-      nardi_score: (MYPROF.nardi_score || 0) + 5,
-      nardi_wins: (MYPROF.nardi_wins || 0) + 1
-    }).eq('id', ME.id);
-    MYPROF.nardi_score = (MYPROF.nardi_score || 0) + 5;
-    MYPROF.nardi_wins = (MYPROF.nardi_wins || 0) + 1;
+    const newScore = (MYPROF.nardi_score || 0) + 5;
+    const newWins  = (MYPROF.nardi_wins  || 0) + 1;
+    await sb.from('profiles').update({ nardi_score: newScore, nardi_wins: newWins }).eq('id', ME.id);
+    MYPROF.nardi_score = newScore;
+    MYPROF.nardi_wins  = newWins;
     playWin();
   } else {
-    await sb.from('profiles').update({ nardi_losses: (MYPROF.nardi_losses || 0) + 1 }).eq('id', ME.id);
-    MYPROF.nardi_losses = (MYPROF.nardi_losses || 0) + 1;
+    const newLosses = (MYPROF.nardi_losses || 0) + 1;
+    await sb.from('profiles').update({ nardi_losses: newLosses }).eq('id', ME.id);
+    MYPROF.nardi_losses = newLosses;
   }
   showWinModal(iWon);
 }
@@ -1304,10 +1484,10 @@ async function finishGame() {
 function endGame(game) { if (game.winner) showWinModal(game.winner === myColor); }
 
 function showWinModal(iWon) {
-  document.getElementById('winIcon').textContent = iWon ? '🏆' : '😢';
-  document.getElementById('winTitle').textContent = iWon ? 'გამარჯვება!' : 'წაგება';
-  document.getElementById('winSub').textContent = iWon ? 'ბრავო! +5 ქულა' : 'შემდეგ გაიმარჯვებ!';
-  document.getElementById('winScore').textContent = '🏆 ' + (MYPROF.nardi_score || 0);
+  document.getElementById('winIcon').textContent  = iWon ? '🏆' : '😢';
+  document.getElementById('winTitle').textContent  = iWon ? 'გამარჯვება!' : 'წაგება';
+  document.getElementById('winSub').textContent    = iWon ? 'ბრავო! +5 ქულა' : 'შემდეგ გაიმარჯვებ!';
+  document.getElementById('winScore').textContent  = '🏆 ' + (MYPROF.nardi_score || 0);
   document.getElementById('winOverlay').classList.add('open');
   document.getElementById('myScoreDisplay').textContent = '🏆 ' + (MYPROF.nardi_score || 0);
 }
@@ -1354,7 +1534,7 @@ function resetToLobby() {
 async function resetGame() {
   document.getElementById('winOverlay').classList.remove('open');
   if (gameChannel) { try { sb.removeChannel(gameChannel); } catch (e) {} gameChannel = null; }
-  if (chatChannel)  { try { sb.removeChannel(chatChannel);  } catch (e) {} chatChannel  = null; }
+  if (chatChannel) { try { sb.removeChannel(chatChannel); } catch (e) {} chatChannel  = null; }
   activeGameId = null; gameStarted = false; myTurn = false;
   board = getInitialBoard();
   whiteHome = blackHome = whiteBar = blackBar = 0;
