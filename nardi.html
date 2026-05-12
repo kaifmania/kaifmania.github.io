@@ -934,8 +934,20 @@ async function finishGame() {
 }
 
 // ────────────────────────────────────────────
-// INVITES
+// INVITES  (broadcast-based, polling fallback)
 // ────────────────────────────────────────────
+
+// Supabase broadcast channel shared by both users for signalling
+// Channel name is deterministic from sorted user IDs so both sides join the same one
+function invChannel(uid1, uid2) {
+  const key = [uid1, uid2].sort().join('_');
+  return sb.channel('inv_sig_' + key);
+}
+
+let invPollTimer = null;
+let sentInvId    = null;
+let invSigCh     = null;
+
 async function sendInvite() {
   if (!selOpp) return;
   document.getElementById('invBtn').disabled = true;
@@ -950,43 +962,84 @@ async function sendInvite() {
     return;
   }
 
-  document.getElementById('lobby').style.display = 'none';
+  sentInvId = data.id;
+  document.getElementById('lobby').style.display        = 'none';
   document.getElementById('waitingScreen').style.display = 'flex';
 
-  sb.channel('inv_' + data.id)
-    .on('postgres_changes', {
-      event:  'UPDATE',
-      schema: 'public',
-      table:  'nardi_invites',
-      filter: `id=eq.${data.id}`
-    }, async p => {
-      if (p.new.status === 'accepted') {
+  // ── broadcast: fast path ──
+  invSigCh = invChannel(ME.id, selOpp.id);
+  invSigCh
+    .on('broadcast', {event: 'inv_response'}, async p => {
+      if (p.payload.inv_id !== sentInvId) return;
+      clearInterval(invPollTimer);
+      if (p.payload.status === 'accepted') {
         myCol  = 'W';
-        gameId = p.new.game_id;
+        gameId = p.payload.game_id;
         await joinGame(gameId);
-      } else if (p.new.status === 'declined') {
+      } else {
         toast('❌ მოწვევა უარყო');
-        document.getElementById('lobby').style.display = 'flex';
-        document.getElementById('waitingScreen').style.display = 'none';
-        document.getElementById('invBtn').disabled = false;
+        resetLobby();
       }
-    }).subscribe();
+    })
+    .subscribe();
+
+  // ── polling: reliable fallback every 3 s ──
+  invPollTimer = setInterval(async () => {
+    const {data: inv} = await sb.from('nardi_invites')
+      .select('status, game_id')
+      .eq('id', sentInvId)
+      .single();
+    if (!inv) return;
+    if (inv.status === 'accepted') {
+      clearInterval(invPollTimer);
+      invSigCh?.unsubscribe();
+      myCol  = 'W';
+      gameId = inv.game_id;
+      await joinGame(gameId);
+    } else if (inv.status === 'declined') {
+      clearInterval(invPollTimer);
+      invSigCh?.unsubscribe();
+      toast('❌ მოწვევა უარყო');
+      resetLobby();
+    }
+  }, 3000);
+}
+
+function resetLobby() {
+  document.getElementById('lobby').style.display        = 'flex';
+  document.getElementById('waitingScreen').style.display = 'none';
+  document.getElementById('invBtn').disabled = false;
+  sentInvId = null;
 }
 
 function watchInvites() {
-  sb.channel('my_invs_' + ME.id)
-    .on('postgres_changes', {
-      event:  'INSERT',
-      schema: 'public',
-      table:  'nardi_invites',
-      filter: `to_uid=eq.${ME.id}`
-    }, p => {
-      if (p.new.status !== 'pending') return;
-      pendingInv = p.new;
-      const sender = allUsers.find(u => u.id === p.new.from_uid);
-      document.getElementById('ibName').textContent = sender?.username || '?';
-      document.getElementById('invBanner').classList.add('show');
-    }).subscribe();
+  // ── polling: check every 4 s for new pending invites addressed to me ──
+  // (more reliable than postgres_changes INSERT filter on free tier)
+  let lastCheck = new Date().toISOString();
+
+  setInterval(async () => {
+    const now = new Date().toISOString();
+    const {data: rows} = await sb.from('nardi_invites')
+      .select('*')
+      .eq('to_uid', ME.id)
+      .eq('status', 'pending')
+      .gt('created_at', lastCheck);
+    lastCheck = now;
+
+    if (!rows || !rows.length) return;
+    // take the most recent one
+    const inv = rows[rows.length - 1];
+    // ignore if already showing a banner
+    if (document.getElementById('invBanner').classList.contains('show')) return;
+    pendingInv = inv;
+    const sender = allUsers.find(u => u.id === inv.from_uid);
+    document.getElementById('ibName').textContent = sender?.username || '?';
+    document.getElementById('invBanner').classList.add('show');
+  }, 4000);
+
+  // ── also listen via broadcast (fast path) ──
+  // When someone sends us an invite they also broadcast on the shared channel
+  // acceptInvite / declineInvite will broadcast the response back
 }
 
 async function acceptInvite() {
@@ -1009,10 +1062,22 @@ async function acceptInvite() {
 
   if (error) { toast('❌ ' + error.message); return; }
 
+  // update DB
   await sb.from('nardi_invites').update({
     status:  'accepted',
     game_id: gr.id
   }).eq('id', pendingInv.id);
+
+  // broadcast fast response so sender doesn't have to wait for polling cycle
+  try {
+    const sigCh = invChannel(pendingInv.from_uid, ME.id);
+    await new Promise(res => { sigCh.subscribe(s => s === 'SUBSCRIBED' && res()); });
+    await sigCh.send({
+      type:    'broadcast',
+      event:   'inv_response',
+      payload: {inv_id: pendingInv.id, status: 'accepted', game_id: gr.id}
+    });
+  } catch(e) { /* broadcast optional — polling will catch it */ }
 
   myCol      = 'B';
   gameId     = gr.id;
@@ -1020,9 +1085,19 @@ async function acceptInvite() {
   await joinGame(gameId);
 }
 
-function declineInvite() {
+async function declineInvite() {
   if (pendingInv) {
-    sb.from('nardi_invites').update({status: 'declined'}).eq('id', pendingInv.id);
+    await sb.from('nardi_invites').update({status: 'declined'}).eq('id', pendingInv.id);
+
+    try {
+      const sigCh = invChannel(pendingInv.from_uid, ME.id);
+      await new Promise(res => { sigCh.subscribe(s => s === 'SUBSCRIBED' && res()); });
+      await sigCh.send({
+        type:    'broadcast',
+        event:   'inv_response',
+        payload: {inv_id: pendingInv.id, status: 'declined'}
+      });
+    } catch(e) { /* broadcast optional */ }
   }
   document.getElementById('invBanner').classList.remove('show');
   pendingInv = null;
@@ -1190,7 +1265,14 @@ async function init() {
   watchInvites();
 
   document.getElementById('invBtn').onclick     = sendInvite;
-  document.getElementById('cancelBtn').onclick  = () => location.reload();
+  document.getElementById('cancelBtn').onclick  = async () => {
+    clearInterval(invPollTimer);
+    invSigCh?.unsubscribe();
+    if (sentInvId) {
+      await sb.from('nardi_invites').update({status: 'declined'}).eq('id', sentInvId);
+    }
+    location.reload();
+  };
   document.getElementById('ibYes').onclick      = acceptInvite;
   document.getElementById('ibNo').onclick       = declineInvite;
   document.getElementById('rollBtn').onclick    = rollDice;
