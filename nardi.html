@@ -106,17 +106,18 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .tri-bot{bottom:0;height:80%}
 .tri svg{width:100%;height:100%;display:block}
 
-.checkers-stack{width:100%;display:flex;flex-direction:column;align-items:center;z-index:2;position:absolute;overflow:visible}
-.checkers-stack.top-stack{top:3px;flex-direction:column}
-.checkers-stack.bot-stack{bottom:3px;flex-direction:column-reverse}
+.checkers-stack{width:100%;display:flex;flex-direction:column;align-items:center;z-index:2;position:absolute;overflow:hidden;max-height:88%}
+.checkers-stack.top-stack{top:2px;flex-direction:column}
+.checkers-stack.bot-stack{bottom:2px;flex-direction:column-reverse}
 
-.checker{width:82%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;transition:transform .12s;position:relative;flex-shrink:0;margin:1px 0;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none}
+/* width is set dynamically by renderStack() based on count */
+.checker{width:76%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;transition:transform .12s;position:relative;flex-shrink:0;margin:0;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none}
 .checker.white{background:radial-gradient(circle at 35% 30%,#fff 0%,#ddd 40%,#bbb 100%);border-color:rgba(255,255,255,.5);box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.9)}
 .checker.black{background:radial-gradient(circle at 35% 30%,#666 0%,#222 40%,#0a0a15 100%);border-color:rgba(255,255,255,.2);box-shadow:0 2px 8px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.15)}
-.checker.movable{box-shadow:0 0 16px var(--accent),0 2px 8px rgba(0,0,0,.5)!important;transform:scale(1.1);animation:checkerPulse .8s ease infinite}
-.checker-count{position:absolute;font-size:8px;font-weight:900;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8)}
-.checker.white .checker-count{color:#1a0a30}
-.checker.black .checker-count{color:#eee}
+.checker.movable{box-shadow:0 0 16px var(--accent),0 2px 8px rgba(0,0,0,.5)!important;transform:scale(1.05);animation:checkerPulse .8s ease infinite}
+.checker-count{position:absolute;font-size:9px;font-weight:900;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8);background:rgba(0,0,0,.55);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;top:0;right:0}
+.checker.white .checker-count{color:#fff}
+.checker.black .checker-count{color:#fff}
 
 .pt-num{font-size:8px;font-family:'Unbounded',sans-serif;color:rgba(255,255,255,.45);position:absolute;z-index:3;pointer-events:none}
 .pt-num.top-num{bottom:3px}
@@ -854,7 +855,14 @@ async function joinGame(gameId) {
 // ============================================================
 function applyGameState(game) {
   try { board = JSON.parse(game.board_state); } catch (e) { board = getInitialBoard(); }
-  if (!board || board.length < 25) board = getInitialBoard();
+  // board must be array with at least indices 0..24 accessible
+  if (!Array.isArray(board) || board.length < 25) board = getInitialBoard();
+  // Ensure every slot exists and has proper shape
+  for (let i = 0; i <= 25; i++) {
+    if (!board[i] || typeof board[i] !== 'object') board[i] = { color: null, count: 0 };
+    if (!board[i].color) board[i].color = null;
+    if (typeof board[i].count !== 'number') board[i].count = 0;
+  }
 
   whiteHome = game.white_home || 0;
   blackHome = game.black_home || 0;
@@ -938,6 +946,27 @@ function makePoint(num, isTop) {
 // ============================================================
 //  RENDER
 // ============================================================
+
+// Render a stack of checkers. Shows max 5 circles; if count>5 the last shows the number.
+function renderStack(stackEl, color, count) {
+  stackEl.innerHTML = '';
+  const show = Math.min(count, 5);
+  // Shrink checker width when many so they fit
+  const pct = (show <= 1 ? 82 : show <= 3 ? 78 : show <= 4 ? 72 : 66) + '%';
+  for (let c = 0; c < show; c++) {
+    const ch = document.createElement('div');
+    ch.className = 'checker ' + color;
+    ch.style.width = pct;
+    if (c === show - 1 && count > 5) {
+      const cnt = document.createElement('span');
+      cnt.className = 'checker-count';
+      cnt.textContent = count;
+      ch.appendChild(cnt);
+    }
+    stackEl.appendChild(ch);
+  }
+}
+
 function renderBoardUI() {
   // Clear all stacks and highlights
   for (let i = 1; i <= 24; i++) {
@@ -953,18 +982,7 @@ function renderBoardUI() {
     if (!cell || !cell.count || !cell.color) continue;
     const stack = document.getElementById('stack' + i);
     if (!stack) continue;
-    const maxShow = Math.min(cell.count, 6);
-    for (let c = 0; c < maxShow; c++) {
-      const ch = document.createElement('div');
-      ch.className = 'checker ' + cell.color;
-      if (cell.count > 1 && c === maxShow - 1) {
-        const cnt = document.createElement('span');
-        cnt.className = 'checker-count';
-        cnt.textContent = cell.count;
-        ch.appendChild(cnt);
-      }
-      stack.appendChild(ch);
-    }
+    renderStack(stack, cell.color, cell.count);
   }
 
   renderBarUI();
@@ -1137,18 +1155,18 @@ function onPointClick(pt) {
 
   // ── If I have checkers on bar, force entry first ──
   if (myBar > 0) {
+    // If bar not yet selected, select it first (shows destinations)
     if (selectedPoint !== 'bar') {
-      // Auto-select bar
-      onBarClick(myColor);
+      selectedPoint = 'bar';
+      showDestinations('bar');
+      return;
     }
-    // Try to land on clicked point from bar
-    if (selectedPoint === 'bar') {
-      const rem = remainingDiceValues();
-      const dieNeeded = myColor === 'white' ? (25 - pt) : pt;
-      if (!rem.includes(dieNeeded)) { toast('❌ ამ წერტილზე ბარიდან ვერ შეხვალ'); return; }
-      if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); return; }
-      execMoveFromBar(pt, dieNeeded);
-    }
+    // Bar is selected — try to move to clicked point
+    const rem = remainingDiceValues();
+    const dieNeeded = myColor === 'white' ? (25 - pt) : pt;
+    if (!rem.includes(dieNeeded)) { toast('❌ ამ წერტილზე ბარიდან ვერ შეხვალ'); return; }
+    if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); return; }
+    execMoveFromBar(pt, dieNeeded);
     return;
   }
 
@@ -1185,7 +1203,7 @@ function onPointClick(pt) {
   const rem = remainingDiceValues();
 
   if (dieNeeded <= 0 || !rem.includes(dieNeeded)) {
-    toast('❌ ამ სვლისთვის ზარი არ გამოდის'); 
+    toast('❌ ამ სვლისთვის ზარი არ გამოდის');
     selectedPoint = null;
     clearHighlights();
     highlightMovable();
