@@ -196,6 +196,8 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
             <button id="rollBtn" disabled>🎲 გააგორე</button>
             <div class="dice" id="dice1">·</div>
             <div class="dice" id="dice2">·</div>
+            <div class="dice" id="dice3" style="display:none">·</div>
+            <div class="dice" id="dice4" style="display:none">·</div>
             <button id="passBtn">⏭ გამოტოვება</button>
           </div>
           <div class="board-row" id="botRow">
@@ -284,11 +286,14 @@ function unusedDiceIndices() { return dice.map((_, i) => !diceUsed[i] ? i : null
 function remainingDiceValues() { return unusedDiceIndices().map(i => dice[i]); }
 function consumeDie(value) {
   for (let i = 0; i < dice.length; i++) {
-    if (!diceUsed[i] && dice[i] === value) { diceUsed[i] = true; return true; }
+    if (!diceUsed[i] && dice[i] === value) { 
+      diceUsed[i] = true; 
+      return true; 
+    }
   }
   return false;
 }
-function allDiceUsed() { return diceUsed.every(u => u); }
+
 function targetPoint(from, d) { return myColor === 'white' ? from - d : from + d; }
 
 function canLand(pt) {
@@ -753,14 +758,18 @@ async function rollDice() {
   
   if (isDouble) {
     dice = [d1, d1, d1, d1];
-    addSysMsg(`🎲 🎲 ${d1}:${d2} → დუბლი! 4 ზარი`);
+    addSysMsg(`🎲🎲 ${d1}:${d2} → დუბლი! 4 ზარი: ${d1},${d1},${d1},${d1}`);
   } else {
     dice = [d1, d2];
     addSysMsg(`🎲 ${d1} + ${d2}`);
   }
   
   diceUsed = dice.map(() => false);
-  await sb.from('nardi_games').update({ dice, dice_used: diceUsed }).eq('id', activeGameId);
+  
+  await sb.from('nardi_games').update({ 
+    dice: dice, 
+    dice_used: diceUsed 
+  }).eq('id', activeGameId);
   
   updateDiceUI();
   renderBoardUI();
@@ -779,6 +788,7 @@ async function passMove() {
 
 function updateDiceUI() {
   const faces = ['·', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  
   for (let i = 0; i < 4; i++) {
     const el = document.getElementById('dice' + (i + 1));
     if (el) {
@@ -791,6 +801,7 @@ function updateDiceUI() {
       }
     }
   }
+  
   document.getElementById('rollBtn').disabled = !myTurn || dice.length > 0;
   const hasMoves = dice.length > 0 && remainingDiceValues().length > 0;
   document.getElementById('passBtn').style.display = (myTurn && hasMoves) ? 'inline-block' : 'none';
