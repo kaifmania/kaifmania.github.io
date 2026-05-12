@@ -594,9 +594,10 @@ async function afterMove() {
     // sync partial board state so opponent can see
     await sb.from('nardi_games').update({
       board_state: JSON.stringify(board),
-      bar_state:   JSON.stringify(bar),
-      white_off:   whiteOff,
-      black_off:   blackOff,
+      white_bar:   bar.W,
+      black_bar:   bar.B,
+      white_home:  whiteOff,
+      black_home:  blackOff,
       dice:        dice,
       dice_used:   diceUsed
     }).eq('id', gameId);
@@ -608,9 +609,10 @@ async function endTurn() {
   const next = myCol === 'W' ? 'B' : 'W';
   await sb.from('nardi_games').update({
     board_state: JSON.stringify(board),
-    bar_state:   JSON.stringify(bar),
-    white_off:   whiteOff,
-    black_off:   blackOff,
+    white_bar:   bar.W,
+    black_bar:   bar.B,
+    white_home:  whiteOff,
+    black_home:  blackOff,
     turn:        next,
     dice:        [],
     dice_used:   []
@@ -908,9 +910,10 @@ async function finishGame() {
 
   await sb.from('nardi_games').update({
     board_state: JSON.stringify(board),
-    bar_state:   JSON.stringify(bar),
-    white_off:   whiteOff,
-    black_off:   blackOff,
+    white_bar:   bar.W,
+    black_bar:   bar.B,
+    white_home:  whiteOff,
+    black_home:  blackOff,
     status:      'finished',
     winner:      winner
   }).eq('id', gameId);
@@ -1053,13 +1056,14 @@ async function acceptInvite() {
     player_white: pendingInv.from_uid,
     player_black: ME.id,
     board_state:  JSON.stringify(initB),
-    bar_state:    JSON.stringify({W: 0, B: 0}),
     turn:         'W',
     dice:         [],
     dice_used:    [],
     status:       'active',
-    white_off:    0,
-    black_off:    0
+    white_home:   0,
+    black_home:   0,
+    white_bar:    0,
+    black_bar:    0
   }).select('id').single();
 
   if (error) {
@@ -1173,11 +1177,11 @@ async function joinGame(gid) {
 // ── load game state from DB row ──
 function loadGameState(g) {
   board    = JSON.parse(g.board_state);
-  bar      = g.bar_state ? JSON.parse(g.bar_state) : {W: 0, B: 0};
-  whiteOff = g.white_off  || 0;
-  blackOff = g.black_off  || 0;
+  // DB stores bar as separate integer columns, off as white_home/black_home
+  bar      = {W: g.white_bar || 0, B: g.black_bar || 0};
+  whiteOff = g.white_home || 0;
+  blackOff = g.black_home || 0;
   dice     = Array.isArray(g.dice) ? g.dice : [];
-  // dice_used can be stored as array of booleans or come back as strings
   if (Array.isArray(g.dice_used) && g.dice_used.length === dice.length) {
     diceUsed = g.dice_used.map(v => v === true || v === 'true');
   } else {
