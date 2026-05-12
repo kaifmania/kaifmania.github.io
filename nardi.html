@@ -29,7 +29,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .tb-av{width:24px;height:24px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden}
 .tb-av img{width:100%;height:100%;object-fit:cover}
 #appWrap{display:flex;flex:1;min-height:0}
-#gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;position:relative}
+#gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px}
 #lobby{display:flex;flex-direction:column;align-items:center;gap:20px;max-width:400px;width:100%;animation:pop .4s ease}
 .lobby-icon{font-size:72px}
 .lobby-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;text-align:center}
@@ -119,7 +119,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .win-title{font-family:'Unbounded',sans-serif;font-size:20px;color:var(--accent)}
 .modal-row{display:flex;gap:10px;margin-top:15px}
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--indigo2);color:#fff;padding:8px 20px;border-radius:30px;font-size:12px;z-index:99999;animation:pop .3s ease}
-@media(max-width:680px){#chatPanel{width:180px}}
 </style>
 </head>
 <body>
@@ -257,24 +256,22 @@ let ME = null, MYPROF = null, allUsers = [];
 let pendingInviteId = null, activeGameId = null, gameChannel = null, chatChannel = null;
 let selectedOpponent = null, currentInvite = null;
 
-// Game state (ქართული ნარდი - არა Backgammon!)
-let board = [];           // 1-24
-let whiteHome = 0, blackHome = 0;  // გაყვანილი ქვები
+// Game state
+let board = [];
+let whiteHome = 0, blackHome = 0;
 let dice = [], diceUsed = [];
-let myColor = 'white';    // white ან black
+let myColor = 'white';
 let myTurn = false;
 let gameStarted = false;
-let selectedPoint = null;  // არჩეული ქვა გადასაადგილებლად
+let selectedPoint = null;
 
-// ========== საწყისი დაფა (ქართული ნარდი) ==========
+// ========== საწყისი დაფა ==========
 function getInitialBoard() {
   const b = Array.from({ length: 26 }, () => ({ color: null, count: 0 }));
-  // თეთრი: 24-დან 1-ისკენ
   b[24] = { color: 'white', count: 2 };
   b[13] = { color: 'white', count: 5 };
   b[8] = { color: 'white', count: 3 };
   b[6] = { color: 'white', count: 5 };
-  // შავი: 1-დან 24-ისკენ
   b[1] = { color: 'black', count: 2 };
   b[12] = { color: 'black', count: 5 };
   b[17] = { color: 'black', count: 3 };
@@ -282,7 +279,7 @@ function getInitialBoard() {
   return b;
 }
 
-// ========== დამხმარე ფუნქციები ==========
+// ========== დამხმარე ==========
 function unusedDiceIndices() { return dice.map((_, i) => !diceUsed[i] ? i : null).filter(i => i !== null); }
 function remainingDiceValues() { return unusedDiceIndices().map(i => dice[i]); }
 function consumeDie(value) {
@@ -292,22 +289,17 @@ function consumeDie(value) {
   return false;
 }
 function allDiceUsed() { return diceUsed.every(u => u); }
-
-// მიმართულება: თეთრი ← (24→1), შავი → (1→24)
 function targetPoint(from, d) { return myColor === 'white' ? from - d : from + d; }
 
-// შეუძლია თუ არა ამ წერტილში ჩაჯდომა
 function canLand(pt) {
   if (pt < 1 || pt > 24) return false;
   const cell = board[pt];
   if (!cell || !cell.color || cell.count === 0) return true;
   if (cell.color === myColor) return true;
-  // მოწინააღმდეგის 1 ქვა → შეიძლება "მოკვლა" (გაცოცხლება)
   if (cell.count === 1) return true;
-  return false; // 2+ ქვა → დაბლოკილია
+  return false;
 }
 
-// ყველა ქვა სახლშია?
 function allInHome() {
   if (myColor === 'white') {
     for (let i = 7; i <= 24; i++) {
@@ -321,54 +313,49 @@ function allInHome() {
   return true;
 }
 
-// "მოკლული" ქვების გაცოცხლება - 24-დან ან 1-დან
 function hasDeadCheckers() {
   if (myColor === 'white') {
-    // თეთრის მოკლული ქვები 24-ზე ინახება
     return board[24] && board[24].color === 'white' && board[24].count > 0;
   } else {
-    // შავის მოკლული ქვები 1-ზე ინახება
     return board[1] && board[1].color === 'black' && board[1].count > 0;
   }
 }
 
-// "მოკლული" ქვის გაცოცხლება - სჭირდება ზუსტი ზარი
 function canRevive(d) {
   if (myColor === 'white') {
-    const target = 25 - d;  // 24-დან d ნაბიჯით
+    const target = 25 - d;
     if (target < 1 || target > 24) return false;
     return canLand(target);
   } else {
-    const target = d;  // 1-დან d ნაბიჯით
+    const target = d;
     if (target < 1 || target > 24) return false;
     return canLand(target);
   }
 }
 
-// აქვს თუ არა რაიმე სვლა
+// ========== სვლების შემოწმება ==========
 function hasAnyLegalMove() {
   const rem = remainingDiceValues();
   if (!rem.length) return false;
   
-  // ჯერ "მოკლული" ქვების შემოყვანა
   if (hasDeadCheckers()) {
-    return rem.some(d => canRevive(d));
+    for (const d of rem) {
+      if (canRevive(d)) return true;
+    }
+    return false;
   }
   
-  // ყველა ქვა სახლშია? → გაყვანა
   if (allInHome()) {
     for (const d of rem) {
       for (let i = 1; i <= 6; i++) {
-        const cell = board[i];
-        if (cell && cell.color === myColor && cell.count > 0) {
+        if (board[i] && board[i].color === myColor && board[i].count > 0) {
           if (i === d) return true;
           if (i < d) {
-            // თუ იმ რიცხვზე ქვა არ გაქვს, უფრო მაღლიდან გაყვანა
             let hasExact = false;
             for (let j = d; j <= 6; j++) {
-              if (board[j] && board[j].color === myColor && board[j].count > 0) { hasExact = true; break; }
+              if (board[j] && board[j].color === myColor && board[j].count > 0) hasExact = true;
             }
-            if (!hasExact && i === Math.max(...rem.filter(r => r >= i))) return true;
+            if (!hasExact) return true;
           }
         }
       }
@@ -376,7 +363,6 @@ function hasAnyLegalMove() {
     return false;
   }
   
-  // ჩვეულებრივი სვლები
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
     if (!cell || cell.color !== myColor || cell.count === 0) continue;
@@ -389,21 +375,16 @@ function hasAnyLegalMove() {
 }
 
 // ========== სვლების შესრულება ==========
-// "მოკვლა" - მოწინააღმდეგის ქვა მიდის სათავეში (24 ან 1)
 function applyMove(fromPt, toPt) {
-  // ქვის ამოღება საწყისი წერტილიდან
   if (fromPt >= 1 && fromPt <= 24) {
     board[fromPt].count--;
     if (board[fromPt].count === 0) board[fromPt].color = null;
   }
   
-  // ჩაჯდომა სამიზნე წერტილში
   const cell = board[toPt];
   let killed = false;
   
-  // თუ მოწინააღმდეგის 1 ქვაა → "მოკვლა"
   if (cell.color && cell.color !== myColor && cell.count === 1) {
-    // მოკლული ქვა მიდის თავში (თეთრი → 24, შავი → 1)
     const deadColor = cell.color;
     if (deadColor === 'white') {
       board[24].color = 'white';
@@ -417,24 +398,19 @@ function applyMove(fromPt, toPt) {
     killed = true;
   }
   
-  // ჩაჯდომა
   if (!cell.color) cell.color = myColor;
   cell.count = (cell.count || 0) + 1;
-  
   return killed;
 }
 
-// გაყვანა სახლიდან
 function bearOff(point, dieValue) {
   if (point === dieValue) {
-    // ზუსტად იმ წერტილიდან გაყვანა
     board[point].count--;
     if (board[point].count === 0) board[point].color = null;
     if (myColor === 'white') whiteHome++;
     else blackHome++;
     return true;
   } else if (point < dieValue) {
-    // უფრო მაღალი რიცხვიდან გაყვანა (თუ ზუსტი არ გვაქვს)
     let hasExact = false;
     for (let i = dieValue; i <= 6; i++) {
       if (board[i] && board[i].color === myColor && board[i].count > 0) {
@@ -453,9 +429,8 @@ function bearOff(point, dieValue) {
   return false;
 }
 
-// ========== UI რენდერი ==========
+// ========== UI ==========
 function renderBoardUI() {
-  // გასუფთავება
   for (let i = 1; i <= 24; i++) {
     const stack = document.getElementById('stack' + i);
     if (stack) stack.innerHTML = '';
@@ -463,7 +438,6 @@ function renderBoardUI() {
     if (pt) pt.classList.remove('highlight', 'selected-src');
   }
   
-  // ქვების განთავსება
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
     if (!cell || !cell.count || !cell.color) continue;
@@ -486,7 +460,6 @@ function renderBoardUI() {
     }
   }
   
-  // სახლების რენდერი
   const myBearCount = myColor === 'white' ? whiteHome : blackHome;
   const oppBearCount = myColor === 'white' ? blackHome : whiteHome;
   const myBearDiv = document.getElementById('bearoffMeCheckers');
@@ -510,7 +483,6 @@ function renderBoardUI() {
   document.getElementById('bearoffMeCount').textContent = myBearCount;
   document.getElementById('bearoffOppCount').textContent = oppBearCount;
   
-  // მოძრავი ქვების მონიშვნა
   if (myTurn && gameStarted && dice.length && remainingDiceValues().length) {
     highlightMovable();
   }
@@ -521,7 +493,6 @@ function highlightMovable() {
   const rem = remainingDiceValues();
   if (!rem.length) return;
   
-  // მოკლული ქვების შემოყვანა
   if (hasDeadCheckers()) {
     rem.forEach(d => {
       if (canRevive(d)) {
@@ -532,7 +503,6 @@ function highlightMovable() {
     return;
   }
   
-  // ყველა ქვა სახლში → გაყვანა
   if (allInHome()) {
     for (let i = 1; i <= 6; i++) {
       if (board[i] && board[i].color === myColor && board[i].count > 0) {
@@ -553,7 +523,6 @@ function highlightMovable() {
     return;
   }
   
-  // ჩვეულებრივი სვლები
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
     if (!cell || cell.color !== myColor || !cell.count) continue;
@@ -579,7 +548,6 @@ function showDestinations(fromPt) {
   if (fromPt !== 'bearoff') document.getElementById('pt' + fromPt)?.classList.add('selected-src');
   const rem = remainingDiceValues();
   
-  // მოკლული ქვის შემოყვანა
   if (hasDeadCheckers()) {
     rem.forEach(d => {
       if (canRevive(d)) {
@@ -590,7 +558,6 @@ function showDestinations(fromPt) {
     return;
   }
   
-  // სახლიდან გაყვანა
   if (allInHome() && fromPt !== 'bearoff') {
     rem.forEach(d => {
       if (fromPt === d) {
@@ -606,7 +573,6 @@ function showDestinations(fromPt) {
     return;
   }
   
-  // ჩვეულებრივი სვლები
   rem.forEach(d => {
     const to = targetPoint(fromPt, d);
     if (to >= 1 && to <= 24 && canLand(to)) {
@@ -615,12 +581,11 @@ function showDestinations(fromPt) {
   });
 }
 
-// ========== კლიკების დამუშავება ==========
+// ========== კლიკები ==========
 function onPointClick(pt) {
   if (!myTurn || !gameStarted) { toast('❌ შენი ჯერი არ არის'); return; }
   if (!dice.length || !remainingDiceValues().length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
   
-  // მოკლული ქვების შემოყვანა
   if (hasDeadCheckers()) {
     const dieNeeded = myColor === 'white' ? 25 - pt : pt;
     if (!remainingDiceValues().includes(dieNeeded)) { toast('❌ ამ წერტილში ვერ შეხვალ'); return; }
@@ -629,7 +594,6 @@ function onPointClick(pt) {
     return;
   }
   
-  // თუ ქვა არ არის არჩეული
   if (selectedPoint === null) {
     const cell = board[pt];
     if (!cell || cell.color !== myColor || !cell.count) { toast('❌ შენი ქვა არ არის'); return; }
@@ -638,7 +602,6 @@ function onPointClick(pt) {
     return;
   }
   
-  // იგივე წერტილი → გაუქმება
   if (selectedPoint === pt) {
     selectedPoint = null;
     clearHighlights();
@@ -646,7 +609,6 @@ function onPointClick(pt) {
     return;
   }
   
-  // სხვა წერტილზე დაჭერა → სვლა
   const from = selectedPoint;
   const dieNeeded = myColor === 'white' ? (from - pt) : (pt - from);
   if (dieNeeded <= 0 || !remainingDiceValues().includes(dieNeeded)) {
@@ -713,7 +675,6 @@ async function execMove(fromPt, toPt, dieValue) {
 }
 
 async function execRevive(toPt, dieValue) {
-  // მოკლული ქვის ამოღება სათავიდან
   if (myColor === 'white') {
     board[24].count--;
     if (board[24].count === 0) board[24].color = null;
@@ -722,10 +683,8 @@ async function execRevive(toPt, dieValue) {
     if (board[1].count === 0) board[1].color = null;
   }
   
-  // ჩაჯდომა
   const cell = board[toPt];
   if (cell.color && cell.color !== myColor && cell.count === 1) {
-    // კიდევ ერთი მოკვლა!
     const deadColor = cell.color;
     if (deadColor === 'white') {
       board[24].color = 'white';
@@ -790,17 +749,21 @@ async function rollDice() {
   
   const d1 = Math.ceil(Math.random() * 6);
   const d2 = Math.ceil(Math.random() * 6);
-  const isDouble = d1 === d2;
-  const newDice = isDouble ? [d1, d1, d1, d1] : [d1, d2];
+  const isDouble = (d1 === d2);
   
-  dice = [...newDice];
+  if (isDouble) {
+    dice = [d1, d1, d1, d1];
+    addSysMsg(`🎲 🎲 ${d1}:${d2} → დუბლი! 4 ზარი`);
+  } else {
+    dice = [d1, d2];
+    addSysMsg(`🎲 ${d1} + ${d2}`);
+  }
+  
   diceUsed = dice.map(() => false);
-  
   await sb.from('nardi_games').update({ dice, dice_used: diceUsed }).eq('id', activeGameId);
   
   updateDiceUI();
   renderBoardUI();
-  addSysMsg(`🎲 ${d1}+${d2}${isDouble ? ' (ორმაგი!)' : ''}`);
   
   if (!hasAnyLegalMove()) {
     addSysMsg('😞 სვლა შეუძლებელია — გამოტოვება');
@@ -816,14 +779,16 @@ async function passMove() {
 
 function updateDiceUI() {
   const faces = ['·', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 4; i++) {
     const el = document.getElementById('dice' + (i + 1));
-    if (i < dice.length) {
-      el.style.display = 'flex';
-      el.textContent = dice[i] ? faces[dice[i]] : '·';
-      el.className = 'dice' + (diceUsed[i] ? ' used' : '');
-    } else {
-      el.style.display = 'none';
+    if (el) {
+      if (i < dice.length) {
+        el.style.display = 'flex';
+        el.textContent = dice[i] ? faces[dice[i]] : '·';
+        el.className = 'dice' + (diceUsed[i] ? ' used' : '');
+      } else {
+        el.style.display = 'none';
+      }
     }
   }
   document.getElementById('rollBtn').disabled = !myTurn || dice.length > 0;
@@ -848,7 +813,8 @@ async function finishGame() {
     const newScore = (MYPROF.nardi_score || 0) + 5;
     const newWins = (MYPROF.nardi_wins || 0) + 1;
     await sb.from('profiles').update({ nardi_score: newScore, nardi_wins: newWins }).eq('id', ME.id);
-    MYPROF.nardi_score = newScore; MYPROF.nardi_wins = newWins;
+    MYPROF.nardi_score = newScore;
+    MYPROF.nardi_wins = newWins;
   } else {
     const newLosses = (MYPROF.nardi_losses || 0) + 1;
     await sb.from('profiles').update({ nardi_losses: newLosses }).eq('id', ME.id);
@@ -892,7 +858,6 @@ function watchInvites() {
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'nardi_invites', filter: `to_uid=eq.${ME.id}` }, async p => {
       if (p.new.status !== 'pending') return;
       currentInvite = p.new;
-      document.getElementById('ibName').innerHTML = `🎲 მოწვევა`;
       document.getElementById('inviteBanner').classList.add('show');
     }).subscribe();
 }
@@ -961,10 +926,10 @@ async function joinGame(gameId) {
       if (whiteHome >= 15 || blackHome >= 15) showWinModal(whiteHome >= 15 ? myColor === 'white' : myColor === 'black');
     }).subscribe();
   
-  addSysMsg('🎲 თამაში დაიწყო! შენ ხარ ' + (myColor === 'white' ? '⚪ თეთრი' : '⚫ შავი'));
+  addSysMsg('🎲 თამაში დაიწყო!');
 }
 
-// ========== UI ფუნქციები ==========
+// ========== UI ==========
 function buildBoard() {
   const tl = document.getElementById('topLeft'); tl.innerHTML = '';
   [13,14,15,16,17,18].forEach(n => tl.appendChild(makePoint(n, true)));
