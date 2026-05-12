@@ -14,79 +14,72 @@
   --online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
   --glow:rgba(168,85,247,0.28);--accent:#f07aff;
   --board-bg:#1e3a1e;--board-border:#0a1f0a;
-  --white-checker:#f5f0e0;--black-checker:#1a1a2e;
 }
 body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 @keyframes pop{from{opacity:0;transform:scale(0.85) translateY(16px)}to{opacity:1;transform:scale(1) translateY(0)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
-@keyframes winPulse{0%,100%{text-shadow:0 0 10px var(--accent)}50%{text-shadow:0 0 40px var(--accent),0 0 80px var(--glow)}}
-@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 @keyframes flash{0%,100%{background:rgba(168,85,247,.22)}50%{background:rgba(168,85,247,.48)}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes bearIn{0%{transform:scale(0.4);opacity:0}60%{transform:scale(1.2)}100%{transform:scale(1);opacity:1}}
-@keyframes checkerPulse{0%,100%{box-shadow:0 0 14px var(--accent),0 2px 6px rgba(0,0,0,.4)}50%{box-shadow:0 0 24px var(--accent),0 2px 10px rgba(0,0,0,.5)}}
-#topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0;z-index:100}
+@keyframes checkerPulse{0%,100%{box-shadow:0 0 14px var(--accent)}50%{box-shadow:0 0 24px var(--accent)}}
+#topbar{display:flex;align-items:center;gap:10px;padding:8px 14px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
 .tb-logo{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:var(--text);display:flex;align-items:center;gap:8px}
 .tb-logo span{color:var(--accent)}
-.tb-back{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;padding:5px 12px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;transition:all .2s}
+.tb-back{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;padding:5px 12px;cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px}
 .tb-back:hover{background:var(--border);color:var(--text)}
 .tb-spacer{flex:1}
 .tb-score{background:var(--indigo-f);border:1px solid var(--border);border-radius:20px;padding:4px 14px;font-family:'Unbounded',sans-serif;font-size:11px;color:var(--accent)}
 .tb-user{display:flex;align-items:center;gap:6px;background:var(--indigo-f);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:12px;color:var(--text2)}
-.tb-av{width:24px;height:24px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex-shrink:0}
+.tb-av{width:24px;height:24px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden}
 .tb-av img{width:100%;height:100%;object-fit:cover}
 #appWrap{display:flex;flex:1;min-height:0}
 #gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:12px;position:relative;min-width:0;overflow:hidden}
 #lobby{display:flex;flex-direction:column;align-items:center;gap:20px;max-width:400px;width:100%;animation:pop .4s ease}
-.lobby-icon{font-size:72px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 24px var(--glow))}
+.lobby-icon{font-size:72px;animation:float 3s ease-in-out infinite}
 .lobby-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--text);text-align:center}
 .lobby-sub{font-size:12px;color:var(--text3);text-align:center}
 .lobby-card{width:100%;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:10px}
-.lcard-title{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:2px}
+.lcard-title{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase}
 .user-pick-list{display:flex;flex-direction:column;gap:5px;max-height:180px;overflow-y:auto}
-.user-pick-list::-webkit-scrollbar{width:3px}
-.user-pick-list::-webkit-scrollbar-thumb{background:var(--border)}
-.user-pick-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent;transition:all .2s}
+.user-pick-item{display:flex;align-items:center;gap:10px;padding:8px 10px;border-radius:10px;cursor:pointer;border:1px solid transparent}
 .user-pick-item:hover{background:var(--indigo-f);border-color:var(--border)}
 .user-pick-item.selected{background:rgba(168,85,247,.15);border-color:var(--indigo2)}
-.upi-av{width:30px;height:30px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:15px;flex-shrink:0;overflow:hidden}
+.upi-av{width:30px;height:30px;border-radius:50%;background:var(--panel2);display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden}
 .upi-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .upi-name{font-size:13px;color:var(--text);flex:1}
-.upi-online{width:7px;height:7px;border-radius:50%;background:var(--online);box-shadow:0 0 5px var(--online);flex-shrink:0}
-.btn-primary{padding:11px 24px;border-radius:50px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.5px;box-shadow:0 6px 20px rgba(120,30,200,.5);transition:all .2s;width:100%}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(120,30,200,.6)}
-.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
-.btn-secondary{padding:9px 18px;border-radius:50px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;transition:all .2s;width:100%;text-align:center}
+.upi-online{width:7px;height:7px;border-radius:50%;background:var(--online);box-shadow:0 0 5px var(--online)}
+.btn-primary{padding:11px 24px;border-radius:50px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(120,30,200,.5);width:100%}
+.btn-primary:hover{transform:translateY(-2px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed}
+.btn-secondary{padding:9px 18px;border-radius:50px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:12px;cursor:pointer;width:100%;text-align:center}
 .btn-secondary:hover{background:var(--border);color:var(--text)}
 #waitingScreen{display:none;flex-direction:column;align-items:center;gap:18px;animation:pop .4s ease}
 .waiting-spinner{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
 .waiting-title{font-family:'Unbounded',sans-serif;font-size:15px;color:var(--text)}
-.waiting-sub{font-size:12px;color:var(--text3);text-align:center}
 #boardWrap{display:none;flex-direction:row;gap:10px;width:100%;max-width:1020px;height:100%;align-items:stretch;animation:pop .4s ease}
 #boardContainer{flex:1;display:flex;flex-direction:column;min-width:0;gap:6px}
 .board-top-info{display:flex;justify-content:space-between;align-items:center;gap:8px}
-.player-info{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:5px 10px;transition:all .3s;flex-shrink:0}
-.pi-av{width:26px;height:26px;border-radius:50%;background:var(--indigo-f);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden;flex-shrink:0}
+.player-info{display:flex;align-items:center;gap:7px;background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:5px 10px}
+.pi-av{width:26px;height:26px;border-radius:50%;background:var(--indigo-f);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden}
 .pi-av img{width:100%;height:100%;object-fit:cover}
 .pi-name{font-size:11px;color:var(--text);font-weight:600}
 .pi-checker{font-size:14px;margin-left:3px}
 .pi-active{border-color:var(--accent);box-shadow:0 0 10px rgba(240,122,255,.3)}
-.turn-badge{font-family:'Unbounded',sans-serif;font-size:9px;color:var(--indigo2);background:var(--indigo-f);border:1px solid var(--border);border-radius:18px;padding:4px 10px;white-space:nowrap}
+.turn-badge{font-family:'Unbounded',sans-serif;font-size:9px;color:var(--indigo2);background:var(--indigo-f);border:1px solid var(--border);border-radius:18px;padding:4px 10px}
 .board-and-bearoff{display:flex;flex:1;min-height:0;gap:5px}
-#board{position:relative;background:var(--board-bg);border-radius:14px;border:3px solid #0a2a0a;flex:1;display:flex;flex-direction:column;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.7),inset 0 0 80px rgba(0,0,0,.4);min-height:0}
+#board{position:relative;background:#1e3a1e;border-radius:14px;border:3px solid #0a2a0a;flex:1;display:flex;flex-direction:column;overflow:hidden;min-height:0}
 .bearoff-col{width:52px;display:flex;flex-direction:column;gap:4px;flex-shrink:0}
-.bearoff-zone{flex:1;background:var(--panel);border:2px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5px 3px;gap:1px;overflow:hidden;position:relative;cursor:pointer;transition:all .2s}
+.bearoff-zone{flex:1;background:var(--panel);border:2px solid var(--border);border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding:5px 3px;gap:1px;overflow:hidden;position:relative;cursor:pointer}
 .bearoff-zone.can-bear{border-color:var(--accent);box-shadow:0 0 12px rgba(240,122,255,.4);animation:flash .6s ease infinite}
-.bearoff-label{font-size:8px;font-family:'Unbounded',sans-serif;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin-bottom:3px;text-align:center;flex-shrink:0}
+.bearoff-label{font-size:8px;font-family:'Unbounded',sans-serif;color:var(--text3);text-transform:uppercase;text-align:center}
 .bearoff-count{font-family:'Unbounded',sans-serif;font-size:18px;color:var(--accent);position:absolute;bottom:6px;left:0;right:0;text-align:center}
-.bearoff-checker{width:80%;aspect-ratio:1;border-radius:50%;flex-shrink:0;margin:1px 0;border:1.5px solid rgba(255,255,255,.15);animation:bearIn .25s ease}
-.bearoff-checker.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb);box-shadow:0 2px 6px rgba(0,0,0,.4)}
-.bearoff-checker.black{background:radial-gradient(circle at 35% 30%,#555,#0a0a15);box-shadow:0 2px 6px rgba(0,0,0,.6)}
-.board-half{display:flex;flex:1;min-height:0}
-.board-row{display:flex;flex:1;min-height:0}
-.board-bar{width:38px;background:linear-gradient(135deg,#0a1f0a,#061206);border-left:2px solid #0a2a0a;border-right:2px solid #0a2a0a;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:6px 0;flex-shrink:0}
-.point{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer;transition:background .15s;min-width:0;overflow:visible}
+.bearoff-checker{width:80%;aspect-ratio:1;border-radius:50%;margin:1px 0;animation:bearIn .25s ease}
+.bearoff-checker.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb)}
+.bearoff-checker.black{background:radial-gradient(circle at 35% 30%,#555,#0a0a15)}
+.board-half{display:flex;flex:1}
+.board-row{display:flex;flex:1}
+.board-bar{width:38px;background:#0a1f0a;border-left:2px solid #0a2a0a;border-right:2px solid #0a2a0a;display:flex;flex-direction:column;align-items:center;justify-content:space-around;padding:6px 0;flex-shrink:0}
+.point{flex:1;display:flex;flex-direction:column;align-items:center;position:relative;cursor:pointer}
 .point:hover{background:rgba(255,255,255,.04)}
 .point.highlight{background:rgba(168,85,247,.28)!important;animation:flash .6s ease infinite}
 .point.selected-src{background:rgba(240,122,255,.18)!important}
@@ -97,76 +90,58 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .checkers-stack{width:100%;display:flex;flex-direction:column;align-items:center;z-index:2;position:absolute;overflow:hidden;max-height:88%}
 .checkers-stack.top-stack{top:2px;flex-direction:column}
 .checkers-stack.bot-stack{bottom:2px;flex-direction:column-reverse}
-.checker{width:76%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;cursor:pointer;transition:transform .12s;position:relative;flex-shrink:0;margin:0;border:2px solid rgba(255,255,255,.15);box-shadow:0 2px 6px rgba(0,0,0,.5);pointer-events:none}
-.checker.white{background:radial-gradient(circle at 35% 30%,#fff 0%,#ddd 40%,#bbb 100%);border-color:rgba(255,255,255,.5);box-shadow:0 2px 8px rgba(0,0,0,.4),inset 0 1px 3px rgba(255,255,255,.9)}
-.checker.black{background:radial-gradient(circle at 35% 30%,#666 0%,#222 40%,#0a0a15 100%);border-color:rgba(255,255,255,.2);box-shadow:0 2px 8px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.15)}
-.checker.movable{box-shadow:0 0 16px var(--accent),0 2px 8px rgba(0,0,0,.5)!important;transform:scale(1.05);animation:checkerPulse .8s ease infinite}
-.checker-count{position:absolute;font-size:9px;font-weight:900;pointer-events:none;text-shadow:0 1px 2px rgba(0,0,0,.8);background:rgba(0,0,0,.55);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;top:0;right:0}
-.checker.white .checker-count{color:#fff}
-.checker.black .checker-count{color:#fff}
+.checker{width:76%;aspect-ratio:1;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;position:relative;margin:0;border:2px solid rgba(255,255,255,.15);pointer-events:none}
+.checker.white{background:radial-gradient(circle at 35% 30%,#fff 0%,#ddd 40%,#bbb 100%)}
+.checker.black{background:radial-gradient(circle at 35% 30%,#666 0%,#222 40%,#0a0a15 100%)}
+.checker.movable{box-shadow:0 0 16px var(--accent);transform:scale(1.05);animation:checkerPulse .8s ease infinite}
+.checker-count{position:absolute;font-size:9px;font-weight:900;background:rgba(0,0,0,.55);border-radius:50%;width:14px;height:14px;display:flex;align-items:center;justify-content:center;top:0;right:0}
 .pt-num{font-size:8px;font-family:'Unbounded',sans-serif;color:rgba(255,255,255,.45);position:absolute;z-index:3;pointer-events:none}
 .pt-num.top-num{bottom:3px}
 .pt-num.bot-num{top:3px}
-#diceArea{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;background:rgba(0,0,0,.4);border-top:1px solid rgba(255,255,255,.06);border-bottom:1px solid rgba(255,255,255,.06);flex-shrink:0;position:relative;overflow:visible;min-height:62px}
-#rollingOverlay{position:absolute;inset:0;pointer-events:none;overflow:visible;z-index:50}
-.rolling-die{position:absolute;width:40px;height:40px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:20px;color:#111;box-shadow:0 4px 20px rgba(0,0,0,.7);border:2px solid rgba(255,255,255,.3);will-change:transform;pointer-events:none}
-.dice{width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.6),inset 0 1px 2px rgba(255,255,255,.4);cursor:default;transition:all .25s;border:2px solid rgba(255,255,255,.2);flex-shrink:0;color:#111}
+#diceArea{display:flex;align-items:center;justify-content:center;gap:8px;padding:8px;background:rgba(0,0,0,.4);flex-shrink:0;min-height:62px}
+.dice{width:42px;height:42px;background:#fff;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:22px;box-shadow:0 3px 12px rgba(0,0,0,.6);border:2px solid rgba(255,255,255,.2);color:#111}
 .dice.used{opacity:.25;transform:scale(0.84)}
-#rollBtn{padding:7px 18px;border-radius:18px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;cursor:pointer;box-shadow:0 4px 14px rgba(120,30,200,.5);transition:all .2s;letter-spacing:.4px}
-#rollBtn:hover:not(:disabled){transform:scale(1.05)}
+#rollBtn{padding:7px 18px;border-radius:18px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:10px;cursor:pointer}
 #rollBtn:disabled{opacity:.35;cursor:not-allowed}
-#passBtn{padding:7px 14px;border-radius:18px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:10px;cursor:pointer;transition:all .2s;display:none}
-#passBtn:hover{background:var(--border);color:var(--text)}
-.bar-chip{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid rgba(255,255,255,.2);flex-shrink:0;cursor:pointer;margin:2px}
-.bar-chip.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb);color:#1a0a30}
-.bar-chip.black{background:radial-gradient(circle at 35% 30%,#555,#111);color:#fff}
+#passBtn{padding:7px 14px;border-radius:18px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:10px;cursor:pointer;display:none}
+.bar-chip{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;border:2px solid rgba(255,255,255,.2);cursor:pointer;margin:2px}
+.bar-chip.white{background:radial-gradient(circle at 35% 30%,#fff,#bbb)}
+.bar-chip.black{background:radial-gradient(circle at 35% 30%,#555,#111)}
 .bar-chip.highlight-chip{box-shadow:0 0 12px var(--accent)}
-#statusBar{text-align:center;font-size:11px;color:var(--text2);min-height:22px;flex-shrink:0;padding:2px}
-#chatPanel{width:220px;background:var(--panel);border:1px solid var(--border);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0;box-shadow:0 6px 28px rgba(0,0,0,.4)}
-.chat-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:10px 14px;display:flex;align-items:center;gap:8px;flex-shrink:0}
-.chat-head-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:#fff;letter-spacing:1px;flex:1}
+#statusBar{text-align:center;font-size:11px;color:var(--text2);min-height:22px;padding:2px}
+#chatPanel{width:220px;background:var(--panel);border:1px solid var(--border);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;flex-shrink:0}
+.chat-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:10px 14px;display:flex;align-items:center;gap:8px}
+.chat-head-title{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:#fff;flex:1}
 #chatMsgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:5px;min-height:0}
-#chatMsgs::-webkit-scrollbar{width:3px}
-#chatMsgs::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
-.cmsg{background:var(--bubble);border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:6px 10px;font-size:12px;color:var(--text);word-break:break-word;animation:msgIn .2s ease;max-width:88%;align-self:flex-start}
+.cmsg{background:var(--bubble);border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:6px 10px;font-size:12px;color:var(--text);max-width:88%;align-self:flex-start}
 .cmsg.mine{background:rgba(120,30,200,.28);border-color:rgba(168,85,247,.45);border-radius:12px 4px 12px 12px;align-self:flex-end}
 .cmsg-nick{font-size:10px;color:var(--indigo2);font-weight:600;margin-bottom:2px}
 .cmsg-sys{text-align:center;font-size:10px;color:var(--text3);padding:3px;font-style:italic;align-self:center}
-.chat-emoji-grid{display:flex;flex-wrap:wrap;gap:4px;padding:6px 8px;border-top:1px solid var(--border);max-height:76px;overflow-y:auto;flex-shrink:0}
-.ceg-btn{width:30px;height:30px;border-radius:7px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:15px;transition:all .15s;flex-shrink:0}
-.ceg-btn:hover{background:var(--border);transform:scale(1.12)}
-.ceg-btn img{width:20px;height:20px;border-radius:3px;object-fit:contain}
 .chat-input-row{display:flex;gap:5px;padding:8px;border-top:1px solid var(--border);flex-shrink:0}
-#chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:6px 10px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
+#chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:6px 10px;color:var(--text);font-size:12px;outline:none}
 #chatInput:focus{border-color:var(--indigo2)}
-#chatInput::placeholder{color:var(--text3)}
-.chat-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:9px;color:#fff;font-size:13px;padding:0 9px;cursor:pointer;flex-shrink:0}
-#emojiToggle{width:28px;height:28px;background:var(--indigo-f);border:1px solid var(--border);border-radius:7px;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
-#emojiToggle:hover{background:var(--border)}
-#emojiToggle.active{background:var(--indigo)}
-#inviteBanner{position:fixed;top:60px;right:16px;width:290px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:1px solid rgba(168,85,247,.5);border-radius:16px;padding:12px 14px;z-index:9000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;animation:slideUp .3s ease;flex-direction:column;gap:9px}
+.chat-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:9px;color:#fff;font-size:13px;padding:0 9px;cursor:pointer}
+#inviteBanner{position:fixed;top:60px;right:16px;width:290px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border-radius:16px;padding:12px 14px;z-index:9000;display:none;flex-direction:column;gap:9px}
 #inviteBanner.show{display:flex}
-.ib-title{font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:1.5px;color:rgba(255,255,255,.7);text-transform:uppercase}
+.ib-title{font-family:'Unbounded',sans-serif;font-size:9px;color:rgba(255,255,255,.7)}
 .ib-body{display:flex;align-items:center;gap:10px}
-.ib-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;overflow:hidden}
+.ib-av{width:34px;height:34px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:17px;overflow:hidden}
 .ib-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .ib-name{font-size:13px;font-weight:600;color:#fff}
 .ib-text{font-size:11px;color:rgba(255,255,255,.75)}
 .ib-btns{display:flex;gap:7px}
-.ib-accept{flex:1;background:rgba(255,255,255,.9);border:none;border-radius:10px;color:var(--indigo);font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;padding:7px;cursor:pointer;transition:all .2s}
-.ib-accept:hover{background:#fff;transform:scale(1.03)}
+.ib-accept{flex:1;background:rgba(255,255,255,.9);border:none;border-radius:10px;color:var(--indigo);font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;padding:7px;cursor:pointer}
 .ib-decline{background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);border-radius:10px;color:#fff;font-size:11px;padding:7px 11px;cursor:pointer}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.78);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
-.modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:380px;padding:22px;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:pop .4s cubic-bezier(0.34,1.3,0.64,1)}
-.modal-icon{font-size:48px;text-align:center;margin-bottom:6px;animation:float 3s ease-in-out infinite}
-.win-title{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;text-align:center;color:var(--accent);animation:winPulse 2s infinite}
-.modal-sub{font-size:12px;color:var(--text2);text-align:center;margin:8px 0}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:380px;padding:22px;text-align:center}
+.modal-icon{font-size:48px;margin-bottom:6px}
+.win-title{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:var(--accent)}
 .modal-row{display:flex;gap:8px;margin-top:10px}
-.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:9px 18px;border-radius:18px;font-size:12px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:pop .3s ease;white-space:nowrap}
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:9px 18px;border-radius:18px;font-size:12px;z-index:99999;animation:pop .3s ease}
 @media(max-width:680px){
   #boardWrap{flex-direction:column}
-  #chatPanel{width:100%;height:160px;border-radius:12px}
+  #chatPanel{width:100%;height:160px}
   .bearoff-col{width:40px}
 }
 </style>
@@ -183,8 +158,8 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
     </div>
   </div>
   <div class="ib-btns">
-    <button class="ib-accept" onclick="window.acceptInvite && acceptInvite()">✅ დასტური</button>
-    <button class="ib-decline" onclick="window.declineInvite && declineInvite()">❌ უარი</button>
+    <button class="ib-accept" id="acceptInviteBtn">✅ დასტური</button>
+    <button class="ib-decline" id="declineInviteBtn">❌ უარი</button>
   </div>
 </div>
 
@@ -213,13 +188,13 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
       <div class="user-pick-list" id="userPickList">
         <div style="color:var(--text3);font-size:12px;text-align:center;padding:14px">⏳ იტვირთება...</div>
       </div>
-      <button class="btn-primary" id="inviteBtn" onclick="window.sendInvite && sendInvite()" disabled>🎲 მოწვევის გაგზავნა</button>
+      <button class="btn-primary" id="inviteBtn" disabled>🎲 მოწვევის გაგზავნა</button>
     </div>
     <div class="lobby-card">
       <div class="lcard-title">📊 სტატისტიკა</div>
       <div style="display:flex;justify-content:space-around">
         <div style="text-align:center"><div style="font-family:'Unbounded',sans-serif;font-size:22px;color:var(--accent)" id="statWins">0</div><div style="font-size:10px;color:var(--text3)">მოგება</div></div>
-        <div style="text-align:center"><div style="text-align:center"><div style="font-family:'Unbounded',sans-serif;font-size:22px;color:var(--text2)" id="statLosses">0</div><div style="font-size:10px;color:var(--text3)">წაგება</div></div>
+        <div style="text-align:center"><div style="font-family:'Unbounded',sans-serif;font-size:22px;color:var(--text2)" id="statLosses">0</div><div style="font-size:10px;color:var(--text3)">წაგება</div></div>
         <div style="text-align:center"><div style="font-family:'Unbounded',sans-serif;font-size:22px;color:#4ade80" id="statScore">0</div><div style="font-size:10px;color:var(--text3)">ქულა</div></div>
       </div>
     </div>
@@ -229,7 +204,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
     <div class="waiting-spinner"></div>
     <div class="waiting-title">ველოდებით...</div>
     <div class="waiting-sub" id="waitingFor">მოწვევა გაიგზავნა</div>
-    <button class="btn-secondary" onclick="window.cancelInvite && cancelInvite()" style="margin-top:6px;max-width:200px">❌ გაუქმება</button>
+    <button class="btn-secondary" id="cancelInviteBtn" style="margin-top:6px;max-width:200px">❌ გაუქმება</button>
   </div>
 
   <div id="boardWrap">
@@ -252,23 +227,22 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
           <div class="board-row" id="topRow">
             <div class="board-half" id="topLeft"></div>
             <div class="board-bar">
-              <div id="barBlackEl" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="window.onBarClick && onBarClick('black')"></div>
+              <div id="barBlackEl" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer"></div>
             </div>
             <div class="board-half" id="topRight"></div>
           </div>
           <div id="diceArea">
-            <button id="rollBtn" onclick="window.rollDice && rollDice()" disabled>🎲 გააგორე</button>
+            <button id="rollBtn" disabled>🎲 გააგორე</button>
             <div class="dice" id="dice1">·</div>
             <div class="dice" id="dice2">·</div>
             <div class="dice" id="dice3" style="display:none">·</div>
             <div class="dice" id="dice4" style="display:none">·</div>
-            <button id="passBtn" onclick="window.passMove && passMove()">⏭ გამოტოვება</button>
-            <div id="rollingOverlay"></div>
+            <button id="passBtn">⏭ გამოტოვება</button>
           </div>
           <div class="board-row" id="botRow">
             <div class="board-half" id="botLeft"></div>
             <div class="board-bar">
-              <div id="barWhiteEl" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer" onclick="window.onBarClick && onBarClick('white')"></div>
+              <div id="barWhiteEl" style="display:flex;flex-direction:column;align-items:center;gap:2px;cursor:pointer"></div>
             </div>
             <div class="board-half" id="botRight"></div>
           </div>
@@ -279,7 +253,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
             <div id="bearoffOppCheckers"></div>
             <div class="bearoff-count" id="bearoffOppCount">0</div>
           </div>
-          <div class="bearoff-zone" id="bearoffMe" onclick="window.onBearOffClick && onBearOffClick()">
+          <div class="bearoff-zone" id="bearoffMe">
             <div class="bearoff-label" id="bearoffMeLabel">⚪<br>სახლი</div>
             <div id="bearoffMeCheckers"></div>
             <div class="bearoff-count" id="bearoffMeCount">0</div>
@@ -296,11 +270,9 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
       <div id="chatMsgs">
         <div class="cmsg-sys">🎲 კეთილი იყოს!</div>
       </div>
-      <div class="chat-emoji-grid" id="chatEmojiGrid" style="display:none"></div>
       <div class="chat-input-row">
-        <button id="emojiToggle" onclick="window.toggleChatEmoji && toggleChatEmoji()">😊</button>
-        <input id="chatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')window.sendChatMsg && sendChatMsg()">
-        <button class="chat-send" onclick="window.sendChatMsg && sendChatMsg()">✈️</button>
+        <input id="chatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+        <button class="chat-send" onclick="sendChatMsg()">✈️</button>
       </div>
     </div>
   </div>
@@ -309,13 +281,13 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 </div>
 
 <div class="overlay" id="winOverlay">
-  <div class="modal" style="text-align:center">
+  <div class="modal">
     <div class="modal-icon" id="winIcon">🏆</div>
     <div class="win-title" id="winTitle">გამარჯვება!</div>
     <div class="modal-sub" id="winSub">+5 ქულა</div>
     <div style="font-family:'Unbounded',sans-serif;font-size:28px;color:var(--accent);margin:10px 0" id="winScore">0</div>
     <div class="modal-row">
-      <button class="btn-primary" onclick="window.resetGame && resetGame()">🔄 ახლიდან</button>
+      <button class="btn-primary" id="resetGameBtn">🔄 ახლიდან</button>
       <a href="chat.html" class="btn-secondary" style="display:flex;align-items:center;justify-content:center;text-decoration:none">← ჩატი</a>
     </div>
   </div>
@@ -324,19 +296,13 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 <script>
 'use strict';
 
-// ========== FIXED NARDI GAME ==========
-// პრობლემები გამოსწორებულია:
-// 1. ქვების გადაადგილების ლოგიკა
-// 2. ზარების სწორი გამოყენება
-// 3. ბლოკირებული წერტილების შემოწმება
-
-const {createClient} = supabase;
+const { createClient } = supabase;
 const sb = createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-// ── STATE ──
+// STATE
 let ME = null;
 let MYPROF = null;
 let allUsers = [];
@@ -345,96 +311,60 @@ let activeGameId = null;
 let gameChannel = null;
 let chatChannel = null;
 let selectedOpponent = null;
-let pendingInviteFrom = null;
-let customEmojis = [];
-let emojiCache = {};
-let showEmojiGrid = false;
+let currentInvite = null; // აქ ვინახავთ მოწვევას
 
 // Game state
 let board = [];
-let whiteHome = 0;
-let blackHome = 0;
-let whiteBar = 0;
-let blackBar = 0;
-let dice = [];
-let diceUsed = [];
+let whiteHome = 0, blackHome = 0, whiteBar = 0, blackBar = 0;
+let dice = [], diceUsed = [];
 let myColor = 'white';
 let myTurn = false;
 let gameStarted = false;
 let selectedPoint = null;
 
-// ── AUDIO (simplified) ──
-function playDiceLand() { try { new Audio('data:audio/wav;base64,U3RlYWx0aCBpcyBhd2Vzb21l')?.play().catch(()=>{}); } catch(e){} }
-function playCheckerMove() { try { new Audio('data:audio/wav;base64,U3RlYWx0aCBpcyBhd2Vzb21l')?.play().catch(()=>{}); } catch(e){} }
-function playHit() { try { new Audio('data:audio/wav;base64,U3RlYWx0aCBpcyBhd2Vzb21l')?.play().catch(()=>{}); } catch(e){} }
-function playWin() { try { new Audio('data:audio/wav;base64,U3RlYWx0aCBpcyBhd2Vzb21l')?.play().catch(()=>{}); } catch(e){} }
-
-// ── BOARD INIT (Correct Backgammon setup) ──
+// INITIAL BOARD (Backgammon setup)
 function getInitialBoard() {
   const b = Array.from({ length: 26 }, () => ({ color: null, count: 0 }));
-  // White (moves from 24 → 1)
-  b[24] = { color: 'white', count: 2 };  // point 24
-  b[13] = { color: 'white', count: 5 };  // point 13 (mid)
-  b[8] = { color: 'white', count: 3 };   // point 8
-  b[6] = { color: 'white', count: 5 };   // point 6 (home)
-  // Black (moves from 1 → 24)
-  b[1] = { color: 'black', count: 2 };   // point 1
-  b[12] = { color: 'black', count: 5 };  // point 12 (mid)
-  b[17] = { color: 'black', count: 3 };  // point 17
-  b[19] = { color: 'black', count: 5 };  // point 19 (home)
+  b[24] = { color: 'white', count: 2 };
+  b[13] = { color: 'white', count: 5 };
+  b[8] = { color: 'white', count: 3 };
+  b[6] = { color: 'white', count: 5 };
+  b[1] = { color: 'black', count: 2 };
+  b[12] = { color: 'black', count: 5 };
+  b[17] = { color: 'black', count: 3 };
+  b[19] = { color: 'black', count: 5 };
   return b;
 }
 
-// ── HELPERS ──
 function unusedDiceIndices() { return dice.map((_, i) => !diceUsed[i] ? i : null).filter(i => i !== null); }
 function remainingDiceValues() { return unusedDiceIndices().map(i => dice[i]); }
 function consumeDie(value) {
   for (let i = 0; i < dice.length; i++) {
-    if (!diceUsed[i] && dice[i] === value) {
-      diceUsed[i] = true;
-      return true;
-    }
+    if (!diceUsed[i] && dice[i] === value) { diceUsed[i] = true; return true; }
   }
   return false;
 }
-function allDiceUsed() { return diceUsed.every(u => u); }
 
-// FIXED: target point calculation
-function targetPoint(from, d) {
-  if (myColor === 'white') return from - d;
-  return from + d;
-}
-
-// FIXED: check if a point is blocked for landing
-function isPointBlocked(pt, color) {
-  if (pt < 1 || pt > 24) return false;
-  const cell = board[pt];
-  if (!cell || !cell.color || cell.count === 0) return false;
-  // Blocked if opponent has 2 or more checkers
-  if (cell.color !== color && cell.count >= 2) return true;
-  return false;
-}
+function targetPoint(from, d) { return myColor === 'white' ? from - d : from + d; }
 
 function canLand(pt) {
   if (pt < 1 || pt > 24) return false;
   const cell = board[pt];
   if (!cell || !cell.color || cell.count === 0) return true;
   if (cell.color === myColor) return true;
-  if (cell.count === 1) return true;
+  if (cell.count === 1) return true; // can hit
   return false;
 }
 
 function canBearOff() {
   if (myColor === 'white') {
     if (whiteBar > 0) return false;
-    // All checkers must be in home board (points 1-6)
     for (let i = 7; i <= 24; i++) {
       if (board[i] && board[i].color === 'white' && board[i].count > 0) return false;
     }
     return true;
   } else {
     if (blackBar > 0) return false;
-    // All checkers must be in home board (points 19-24)
     for (let i = 1; i <= 18; i++) {
       if (board[i] && board[i].color === 'black' && board[i].count > 0) return false;
     }
@@ -442,14 +372,10 @@ function canBearOff() {
   }
 }
 
-// FIXED: check if there's any legal move
 function hasAnyLegalMove() {
   const rem = remainingDiceValues();
   if (!rem.length) return false;
-  
   const myBar = myColor === 'white' ? whiteBar : blackBar;
-  
-  // Moves from bar
   if (myBar > 0) {
     for (const d of rem) {
       const to = myColor === 'white' ? (25 - d) : d;
@@ -457,27 +383,26 @@ function hasAnyLegalMove() {
     }
     return false;
   }
-  
   const canBO = canBearOff();
-  
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
     if (!cell || cell.color !== myColor || cell.count === 0) continue;
     for (const d of rem) {
       const to = targetPoint(i, d);
-      // Normal move
       if (to >= 1 && to <= 24 && canLand(to)) return true;
-      // Bear off move
-      if (canBO) {
-        if (myColor === 'white' && to < 1) return true;
-        if (myColor === 'black' && to > 24) return true;
-      }
+      if (canBO && ((myColor === 'white' && to < 1) || (myColor === 'black' && to > 24))) return true;
     }
   }
   return false;
 }
 
-// ── INIT ──
+// SOUND EFFECTS (simple)
+function playSound() { try { new Audio('data:audio/wav;base64,U3RlYWx0aCBpcyBhd2Vzb21l').play().catch(()=>{}); } catch(e){} }
+function playHit() { playSound(); }
+function playCheckerMove() { playSound(); }
+function playWin() { playSound(); }
+
+// MAIN INIT
 async function init() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) { location.href = 'index.html'; return; }
@@ -496,36 +421,26 @@ async function init() {
   document.getElementById('statScore').textContent = MYPROF.nardi_score || 0;
   
   await loadUsers();
-  await loadEmojis();
-  watchInvites();
   buildBoard();
+  attachEventListeners();
+  watchInvites();
 }
 
 async function loadUsers() {
-  const { data } = await sb.from('profiles')
-    .select('id,username,avatar_url,emotion,last_seen,nardi_score')
-    .neq('id', ME.id)
-    .order('username');
+  const { data } = await sb.from('profiles').select('id,username,avatar_url,emotion,last_seen,nardi_score').neq('id', ME.id).order('username');
   allUsers = data || [];
   renderUserPick();
 }
 
-function isOnline(ts) { return ts && Date.now() - new Date(ts).getTime() < 90000; }
-
 function renderUserPick() {
   const el = document.getElementById('userPickList');
   el.innerHTML = '';
-  const list = [...allUsers].sort((a, b) => (isOnline(b.last_seen) ? 1 : 0) - (isOnline(a.last_seen) ? 1 : 0));
-  if (!list.length) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:14px">📭 მომხმარებელი არ არის</div>';
-    return;
-  }
-  list.forEach(u => {
+  if (!allUsers.length) { el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:14px">📭 მომხმარებელი არ არის</div>'; return; }
+  allUsers.forEach(u => {
     const d = document.createElement('div');
     d.className = 'user-pick-item';
-    const on = isOnline(u.last_seen);
     const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion || '😊');
-    d.innerHTML = `<div class="upi-av">${avHtml}</div><div class="upi-name">${esc(u.username || '?')} <span style="font-size:10px;color:var(--text3)">🏆${u.nardi_score || 0}</span></div>${on ? '<div class="upi-online"></div>' : ''}`;
+    d.innerHTML = `<div class="upi-av">${avHtml}</div><div class="upi-name">${esc(u.username || '?')} <span style="font-size:10px;color:var(--text3)">🏆${u.nardi_score || 0}</span></div>`;
     d.onclick = () => {
       document.querySelectorAll('.user-pick-item').forEach(i => i.classList.remove('selected'));
       d.classList.add('selected');
@@ -536,55 +451,7 @@ function renderUserPick() {
   });
 }
 
-// ── EMOJI ──
-async function loadEmojis() {
-  const { data } = await sb.from('global_emojis').select('id,url').order('id', { ascending: true });
-  customEmojis = data || [];
-  emojiCache = {};
-  customEmojis.forEach(e => { emojiCache[e.id] = e.url; });
-  buildChatEmojiGrid();
-}
-
-function buildChatEmojiGrid() {
-  const grid = document.getElementById('chatEmojiGrid');
-  grid.innerHTML = '';
-  customEmojis.forEach(em => {
-    const btn = document.createElement('button');
-    btn.className = 'ceg-btn';
-    const isImg = em.url && (em.url.startsWith('http') || em.url.startsWith('data:'));
-    if (isImg) {
-      const img = document.createElement('img');
-      img.src = em.url;
-      btn.appendChild(img);
-    } else btn.textContent = em.url || '?';
-    btn.onclick = () => {
-      const inp = document.getElementById('chatInput');
-      inp.value += isImg ? `[e:${em.id}]` : em.url;
-      inp.focus();
-    };
-    grid.appendChild(btn);
-  });
-}
-
-function toggleChatEmoji() {
-  showEmojiGrid = !showEmojiGrid;
-  document.getElementById('chatEmojiGrid').style.display = showEmojiGrid ? 'flex' : 'none';
-  document.getElementById('emojiToggle').classList.toggle('active', showEmojiGrid);
-}
-
-function renderChatContent(s) {
-  if (!s) return '';
-  let h = esc(s);
-  h = h.replace(/\[e:(\d+)\]/g, (m, id) => {
-    const url = emojiCache[parseInt(id)];
-    if (!url) return m;
-    if (url.startsWith('http') || url.startsWith('data:')) return `<img src="${url}" style="width:20px;height:20px;border-radius:3px;vertical-align:middle;object-fit:contain">`;
-    return `<span style="font-size:17px;vertical-align:middle">${url}</span>`;
-  });
-  return h;
-}
-
-// ── INVITES ──
+// INVITE SYSTEM
 async function sendInvite() {
   if (!selectedOpponent || !ME) return;
   document.getElementById('inviteBtn').disabled = true;
@@ -621,9 +488,9 @@ async function sendInvite() {
     }).subscribe();
 }
 
-async function cancelInvite() {
+function cancelInvite() {
   if (pendingInviteId) {
-    await sb.from('nardi_invites').update({ status: 'declined' }).eq('id', pendingInviteId);
+    sb.from('nardi_invites').update({ status: 'declined' }).eq('id', pendingInviteId);
     pendingInviteId = null;
   }
   resetToLobby();
@@ -633,29 +500,31 @@ function watchInvites() {
   sb.channel('my_invites_' + ME.id)
     .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'nardi_invites', filter: `to_uid=eq.${ME.id}` }, async p => {
       if (p.new.status !== 'pending') return;
-      pendingInviteFrom = p.new;
+      currentInvite = p.new;
       let sender = allUsers.find(u => u.id === p.new.from_uid);
       if (!sender) {
         const { data: s } = await sb.from('profiles').select('*').eq('id', p.new.from_uid).single();
         if (s) { allUsers.push(s); sender = s; }
       }
-      if (sender) showInviteBanner(p.new, sender);
+      if (sender) showInviteBanner(sender);
     }).subscribe();
 }
 
-function showInviteBanner(invite, sender) {
-  document.getElementById('ibAv').innerHTML = sender.avatar_url ? `<img src="${sender.avatar_url}">` : (sender.emotion || '👤');
+function showInviteBanner(sender) {
+  const ibAv = document.getElementById('ibAv');
+  if (sender.avatar_url) ibAv.innerHTML = `<img src="${sender.avatar_url}">`;
+  else ibAv.textContent = sender.emotion || '👤';
   document.getElementById('ibName').textContent = sender.username || '?';
   document.getElementById('inviteBanner').classList.add('show');
-  window.pendingInviteData = invite;
 }
 
 async function acceptInvite() {
-  if (!window.pendingInviteData) return;
+  if (!currentInvite) { toast('❌ მოწვევა ვერ მოიძებნა'); return; }
   document.getElementById('inviteBanner').classList.remove('show');
+  
   const initBoard = getInitialBoard();
   const { data: gameRow, error } = await sb.from('nardi_games').insert({
-    player_white: window.pendingInviteData.from_uid,
+    player_white: currentInvite.from_uid,
     player_black: ME.id,
     board_state: JSON.stringify(initBoard),
     turn: 'white',
@@ -667,23 +536,25 @@ async function acceptInvite() {
     white_bar: 0,
     black_bar: 0
   }).select('id').single();
+  
   if (error) { toast('❌ ' + error.message); return; }
-  await sb.from('nardi_invites').update({ status: 'accepted', game_id: gameRow.id }).eq('id', window.pendingInviteData.id);
+  
+  await sb.from('nardi_invites').update({ status: 'accepted', game_id: gameRow.id }).eq('id', currentInvite.id);
   activeGameId = gameRow.id;
   myColor = 'black';
-  window.pendingInviteFrom = null;
+  currentInvite = null;
   await joinGame(gameRow.id);
 }
 
-async function declineInvite() {
-  if (!window.pendingInviteData) return;
+function declineInvite() {
+  if (!currentInvite) return;
   document.getElementById('inviteBanner').classList.remove('show');
-  await sb.from('nardi_invites').update({ status: 'declined' }).eq('id', window.pendingInviteData.id);
-  window.pendingInviteData = null;
+  sb.from('nardi_invites').update({ status: 'declined' }).eq('id', currentInvite.id);
+  currentInvite = null;
   toast('❌ უარი თქვი');
 }
 
-// ── JOIN GAME ──
+// JOIN GAME
 async function joinGame(gameId) {
   document.getElementById('lobby').style.display = 'none';
   document.getElementById('waitingScreen').style.display = 'none';
@@ -726,49 +597,26 @@ async function joinGame(gameId) {
       if (p.new.status === 'finished') endGame(p.new);
     }).subscribe();
   
-  if (chatChannel) try { sb.removeChannel(chatChannel); } catch(e) {}
-  chatChannel = sb.channel('nardi_chat_' + gameId)
-    .on('broadcast', { event: 'chat' }, ({ payload }) => {
-      if (payload.uid !== ME.id) appendChatMsg(payload.nick, payload.content, false);
-    }).subscribe();
-  
   addSysMsg('🎲 თამაში დაიწყო! შენ ხარ ' + (myColor === 'white' ? '⚪ თეთრი' : '⚫ შავი'));
-  addSysMsg(myColor === 'white' ? '⚪ მოძრაობ: 24→1 (სახლი: 1-6)' : '⚫ მოძრაობ: 1→24 (სახლი: 19-24)');
 }
 
-// ── APPLY STATE ──
 function applyGameState(game) {
   if (selectedPoint !== null) return;
-  
   try { board = JSON.parse(game.board_state); } catch(e) { board = getInitialBoard(); }
-  if (!Array.isArray(board) || board.length < 25) board = getInitialBoard();
-  for (let i = 0; i <= 25; i++) {
-    if (!board[i] || typeof board[i] !== 'object') board[i] = { color: null, count: 0 };
-    if (!board[i].color) board[i].color = null;
-    if (typeof board[i].count !== 'number') board[i].count = 0;
-  }
   whiteHome = game.white_home || 0;
   blackHome = game.black_home || 0;
   whiteBar = game.white_bar || 0;
   blackBar = game.black_bar || 0;
   dice = Array.isArray(game.dice) ? [...game.dice] : [];
-  if (Array.isArray(game.dice_used)) {
-    if (game.dice_used.length === dice.length && game.dice_used.every(v => typeof v === 'boolean')) {
-      diceUsed = [...game.dice_used];
-    } else {
-      diceUsed = dice.map(() => false);
-    }
-  } else {
-    diceUsed = dice.map(() => false);
-  }
+  diceUsed = Array.isArray(game.dice_used) ? game.dice_used.map(v => v === true) : dice.map(() => false);
   myTurn = (game.turn === myColor);
   selectedPoint = null;
   renderBoardUI();
   updateDiceUI();
-  updateTurnUI(myTurn);
+  updateTurnUI();
 }
 
-// ── BUILD BOARD DOM ──
+// BUILD BOARD
 function buildBoard() {
   const tl = document.getElementById('topLeft');
   tl.innerHTML = '';
@@ -790,11 +638,8 @@ function makePoint(num, isTop) {
   p.id = 'pt' + num;
   p.dataset.pt = String(num);
   const col = (num % 2 !== 0) ? '#b83030' : '#c8951a';
-  if (isTop) {
-    p.innerHTML = `<div class="tri tri-top"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,96 2,4 58,4" fill="${col}" opacity="0.85"/></svg></div>`;
-  } else {
-    p.innerHTML = `<div class="tri tri-bot"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,4 2,96 58,96" fill="${col}" opacity="0.85"/></svg></div>`;
-  }
+  if (isTop) p.innerHTML = `<div class="tri tri-top"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,96 2,4 58,4" fill="${col}" opacity="0.85"/></svg></div>`;
+  else p.innerHTML = `<div class="tri tri-bot"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,4 2,96 58,96" fill="${col}" opacity="0.85"/></svg></div>`;
   const numEl = document.createElement('div');
   numEl.className = 'pt-num ' + (isTop ? 'top-num' : 'bot-num');
   numEl.textContent = num;
@@ -807,7 +652,6 @@ function makePoint(num, isTop) {
   return p;
 }
 
-// ── RENDER ──
 function renderStack(stackEl, color, count) {
   stackEl.innerHTML = '';
   const show = Math.min(count, 5);
@@ -837,39 +681,18 @@ function renderBoardUI() {
     const cell = board[i];
     if (!cell || !cell.count || !cell.color) continue;
     const stack = document.getElementById('stack' + i);
-    if (!stack) continue;
-    renderStack(stack, cell.color, cell.count);
+    if (stack) renderStack(stack, cell.color, cell.count);
   }
   renderBarUI();
   renderBearOff();
-  if (myTurn && gameStarted && dice.length > 0 && remainingDiceValues().length > 0) {
-    highlightMovable();
-  }
+  if (myTurn && gameStarted && dice.length > 0 && remainingDiceValues().length > 0) highlightMovable();
 }
 
 function renderBarUI() {
   const bbEl = document.getElementById('barBlackEl');
-  if (bbEl) {
-    bbEl.innerHTML = '';
-    const show = Math.min(blackBar, 4);
-    for (let i = 0; i < show; i++) {
-      const c = document.createElement('div');
-      c.className = 'bar-chip black';
-      if (blackBar > 4 && i === show - 1) c.textContent = blackBar;
-      bbEl.appendChild(c);
-    }
-  }
+  if (bbEl) { bbEl.innerHTML = ''; for (let i = 0; i < Math.min(blackBar, 6); i++) { const c = document.createElement('div'); c.className = 'bar-chip black'; if (blackBar > 6 && i === 5) c.textContent = blackBar; bbEl.appendChild(c); } }
   const wbEl = document.getElementById('barWhiteEl');
-  if (wbEl) {
-    wbEl.innerHTML = '';
-    const show = Math.min(whiteBar, 4);
-    for (let i = 0; i < show; i++) {
-      const c = document.createElement('div');
-      c.className = 'bar-chip white';
-      if (whiteBar > 4 && i === show - 1) c.textContent = whiteBar;
-      wbEl.appendChild(c);
-    }
-  }
+  if (wbEl) { wbEl.innerHTML = ''; for (let i = 0; i < Math.min(whiteBar, 6); i++) { const c = document.createElement('div'); c.className = 'bar-chip white'; if (whiteBar > 6 && i === 5) c.textContent = whiteBar; wbEl.appendChild(c); } }
 }
 
 function renderBearOff() {
@@ -888,36 +711,24 @@ function renderBearOffZone(checkerId, countId, count, color) {
   if (!box || !cnt) return;
   box.innerHTML = '';
   cnt.textContent = count || 0;
-  const show = Math.min(count, 8);
-  for (let i = 0; i < show; i++) {
+  for (let i = 0; i < Math.min(count, 8); i++) {
     const c = document.createElement('div');
     c.className = 'bearoff-checker ' + color;
-    const sz = Math.max(16, 32 - show * 2);
-    c.style.width = sz + 'px';
-    c.style.height = sz + 'px';
     box.appendChild(c);
   }
 }
 
-// ── HIGHLIGHT MOVABLE ──
 function highlightMovable() {
   clearHighlights();
   const rem = remainingDiceValues();
   if (!rem.length) return;
-  
   const myBar = myColor === 'white' ? whiteBar : blackBar;
   if (myBar > 0) {
-    rem.forEach(d => {
-      const to = myColor === 'white' ? (25 - d) : d;
-      if (to >= 1 && to <= 24 && canLand(to)) {
-        document.getElementById('pt' + to)?.classList.add('highlight');
-      }
-    });
+    rem.forEach(d => { const to = myColor === 'white' ? (25 - d) : d; if (to >= 1 && to <= 24 && canLand(to)) document.getElementById('pt' + to)?.classList.add('highlight'); });
     const barEl = document.getElementById(myColor === 'white' ? 'barWhiteEl' : 'barBlackEl');
     if (barEl) barEl.querySelectorAll('.bar-chip').forEach(c => c.classList.add('highlight-chip'));
     return;
   }
-  
   const canBO = canBearOff();
   for (let i = 1; i <= 24; i++) {
     const cell = board[i];
@@ -925,15 +736,10 @@ function highlightMovable() {
     const isMovable = rem.some(d => {
       const to = targetPoint(i, d);
       if (to >= 1 && to <= 24 && canLand(to)) return true;
-      if (canBO) {
-        if (myColor === 'white' && to < 1) return true;
-        if (myColor === 'black' && to > 24) return true;
-      }
+      if (canBO && ((myColor === 'white' && to < 1) || (myColor === 'black' && to > 24))) return true;
       return false;
     });
-    if (isMovable) {
-      document.getElementById('stack' + i)?.querySelectorAll('.checker').forEach(c => c.classList.add('movable'));
-    }
+    if (isMovable) document.getElementById('stack' + i)?.querySelectorAll('.checker').forEach(c => c.classList.add('movable'));
   }
 }
 
@@ -950,163 +756,26 @@ function showDestinations(fromPt) {
   if (fromPt !== 'bar') document.getElementById('pt' + fromPt)?.classList.add('selected-src');
   const rem = remainingDiceValues();
   const canBO = canBearOff();
-  
   if (fromPt === 'bar') {
-    rem.forEach(d => {
-      const to = myColor === 'white' ? (25 - d) : d;
-      if (to >= 1 && to <= 24 && canLand(to)) {
-        document.getElementById('pt' + to)?.classList.add('highlight');
-      }
-    });
+    rem.forEach(d => { const to = myColor === 'white' ? (25 - d) : d; if (to >= 1 && to <= 24 && canLand(to)) document.getElementById('pt' + to)?.classList.add('highlight'); });
   } else {
-    let anyDest = false;
     rem.forEach(d => {
       const to = targetPoint(fromPt, d);
-      if (to >= 1 && to <= 24 && canLand(to)) {
-        document.getElementById('pt' + to)?.classList.add('highlight');
-        anyDest = true;
-      }
-      if (canBO) {
-        if ((myColor === 'white' && to < 1) || (myColor === 'black' && to > 24)) {
-          document.getElementById('bearoffMe')?.classList.add('can-bear');
-          anyDest = true;
-        }
-      }
+      if (to >= 1 && to <= 24 && canLand(to)) document.getElementById('pt' + to)?.classList.add('highlight');
+      if (canBO && ((myColor === 'white' && to < 1) || (myColor === 'black' && to > 24))) document.getElementById('bearoffMe')?.classList.add('can-bear');
     });
-    if (!anyDest) toast('❌ ამ ქვით სვლა შეუძლებელია');
   }
 }
 
-// ── CLICK HANDLERS ──
-function onBarClick(color) {
-  if (!myTurn || !gameStarted) return;
-  if (color !== myColor) return;
-  const myBar = myColor === 'white' ? whiteBar : blackBar;
-  if (!myBar) return;
-  if (!dice.length || !remainingDiceValues().length) {
-    toast('🎲 ჯერ ზარი გააგორე');
-    return;
-  }
-  selectedPoint = 'bar';
-  showDestinations('bar');
-}
-
-function onPointClick(pt) {
-  if (!myTurn || !gameStarted) return;
-  if (!dice.length || !remainingDiceValues().length) {
-    toast('🎲 ჯერ ზარი გააგორე');
-    return;
-  }
-  
-  const myBar = myColor === 'white' ? whiteBar : blackBar;
-  
-  // Bar moves
-  if (myBar > 0) {
-    if (selectedPoint !== 'bar') {
-      selectedPoint = 'bar';
-      showDestinations('bar');
-      return;
-    }
-    const rem = remainingDiceValues();
-    const dieNeeded = myColor === 'white' ? (25 - pt) : pt;
-    if (!rem.includes(dieNeeded)) {
-      toast('❌ ამ წერტილზე ბარიდან ვერ შეხვალ');
-      return;
-    }
-    if (!canLand(pt)) {
-      toast('❌ ეს წერტილი დაბლოკილია');
-      return;
-    }
-    execMoveFromBar(pt, dieNeeded);
-    return;
-  }
-  
-  // No point selected yet
-  if (selectedPoint === null) {
-    const cell = board[pt];
-    if (!cell || cell.color !== myColor || !cell.count) {
-      toast('❌ შენი ქვა არ არის');
-      return;
-    }
-    selectedPoint = pt;
-    showDestinations(pt);
-    return;
-  }
-  
-  // Same point clicked - deselect
-  if (selectedPoint === pt) {
-    selectedPoint = null;
-    clearHighlights();
-    highlightMovable();
-    return;
-  }
-  
-  // Check if clicked on own checker (change selection)
-  const clickedCell = board[pt];
-  if (clickedCell && clickedCell.color === myColor && clickedCell.count > 0) {
-    selectedPoint = pt;
-    showDestinations(pt);
-    return;
-  }
-  
-  // Attempt move
-  const from = selectedPoint;
-  const dieNeeded = myColor === 'white' ? (from - pt) : (pt - from);
-  const rem = remainingDiceValues();
-  
-  if (dieNeeded <= 0 || !rem.includes(dieNeeded)) {
-    toast('❌ ამ სვლისთვის ზარი არ გამოდის');
-    selectedPoint = null;
-    clearHighlights();
-    highlightMovable();
-    return;
-  }
-  
-  if (!canLand(pt)) {
-    toast('❌ ეს წერტილი დაბლოკილია');
-    selectedPoint = null;
-    clearHighlights();
-    highlightMovable();
-    return;
-  }
-  
-  execMove(from, pt, dieNeeded);
-}
-
-function onBearOffClick() {
-  if (!myTurn || !gameStarted) return;
-  if (!dice.length || !remainingDiceValues().length) {
-    toast('🎲 ჯერ ზარი გააგორე');
-    return;
-  }
-  if (!canBearOff()) {
-    toast('❌ ყველა ქვა სახლის სექტორში უნდა იყოს');
-    return;
-  }
-  if (selectedPoint === null || selectedPoint === 'bar') {
-    toast('⬆ ჯერ ქვაზე დააჭირე, შემდეგ სახლზე');
-    return;
-  }
-  execBearOff(selectedPoint);
-}
-
-// ── EXECUTE MOVES ──
+// MOVE EXECUTION
 function applyCheckerMove(fromPt, toPt) {
-  if (fromPt >= 1 && fromPt <= 24) {
-    board[fromPt].count--;
-    if (board[fromPt].count <= 0) {
-      board[fromPt].count = 0;
-      board[fromPt].color = null;
-    }
-  }
+  if (fromPt >= 1 && fromPt <= 24) { board[fromPt].count--; if (board[fromPt].count <= 0) { board[fromPt].count = 0; board[fromPt].color = null; } }
   if (toPt < 1 || toPt > 24) return false;
   const cell = board[toPt];
   let hit = false;
   if (cell.color && cell.color !== myColor && cell.count === 1) {
-    if (cell.color === 'white') whiteBar++;
-    else blackBar++;
-    cell.count = 0;
-    cell.color = null;
+    if (cell.color === 'white') whiteBar++; else blackBar++;
+    cell.count = 0; cell.color = null;
     hit = true;
   }
   if (!cell.color) cell.color = myColor;
@@ -1114,204 +783,151 @@ function applyCheckerMove(fromPt, toPt) {
   return hit;
 }
 
-async function execMoveFromBar(toPt, dieValue) {
-  if (myColor === 'white') whiteBar--;
-  else blackBar--;
-  const hit = applyCheckerMove(0, toPt);
-  consumeDie(dieValue);
-  selectedPoint = null;
-  if (hit) playHit();
-  else playCheckerMove();
-  renderBoardUI();
-  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
-  await syncGameState('bar→' + toPt);
-}
-
 async function execMove(fromPt, toPt, dieValue) {
   const hit = applyCheckerMove(fromPt, toPt);
   consumeDie(dieValue);
   selectedPoint = null;
-  if (hit) playHit();
-  else playCheckerMove();
+  if (hit) playHit(); else playCheckerMove();
   renderBoardUI();
   if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
-  await syncGameState(fromPt + '→' + toPt);
+  await syncGameState();
+}
+
+async function execMoveFromBar(toPt, dieValue) {
+  if (myColor === 'white') whiteBar--; else blackBar--;
+  const hit = applyCheckerMove(0, toPt);
+  consumeDie(dieValue);
+  selectedPoint = null;
+  if (hit) playHit(); else playCheckerMove();
+  renderBoardUI();
+  if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
+  await syncGameState();
 }
 
 async function execBearOff(fromPt) {
   const rem = remainingDiceValues();
   let usedDieValue = null;
-  
   if (myColor === 'white') {
-    const exactDie = fromPt;
-    if (rem.includes(exactDie)) {
-      usedDieValue = exactDie;
-    } else {
-      const higherDies = rem.filter(d => d > exactDie);
-      if (higherDies.length) {
-        let hasHigherChecker = false;
-        for (let i = fromPt + 1; i <= 6; i++) {
-          if (board[i] && board[i].color === 'white' && board[i].count > 0) {
-            hasHigherChecker = true;
-            break;
-          }
-        }
-        if (!hasHigherChecker) usedDieValue = Math.min(...higherDies);
-      }
-    }
+    if (rem.includes(fromPt)) usedDieValue = fromPt;
+    else { const higher = rem.filter(d => d > fromPt); if (higher.length) { let hasHigher = false; for (let i = fromPt + 1; i <= 6; i++) { if (board[i] && board[i].color === 'white' && board[i].count > 0) { hasHigher = true; break; } } if (!hasHigher) usedDieValue = Math.min(...higher); } }
   } else {
-    const exactDie = 25 - fromPt;
-    if (rem.includes(exactDie)) {
-      usedDieValue = exactDie;
-    } else {
-      const higherDies = rem.filter(d => d > exactDie);
-      if (higherDies.length) {
-        let hasLowerChecker = false;
-        for (let i = fromPt - 1; i >= 19; i--) {
-          if (board[i] && board[i].color === 'black' && board[i].count > 0) {
-            hasLowerChecker = true;
-            break;
-          }
-        }
-        if (!hasLowerChecker) usedDieValue = Math.min(...higherDies);
-      }
-    }
+    const exact = 25 - fromPt;
+    if (rem.includes(exact)) usedDieValue = exact;
+    else { const higher = rem.filter(d => d > exact); if (higher.length) { let hasLower = false; for (let i = fromPt - 1; i >= 19; i--) { if (board[i] && board[i].color === 'black' && board[i].count > 0) { hasLower = true; break; } } if (!hasLower) usedDieValue = Math.min(...higher); } }
   }
-  
-  if (usedDieValue === null) {
-    toast('❌ ამ ქვის გამოსაყვანად ზარი არ გამოდის');
-    selectedPoint = null;
-    clearHighlights();
-    highlightMovable();
-    return;
-  }
-  
-  board[fromPt].count--;
-  if (board[fromPt].count <= 0) {
-    board[fromPt].count = 0;
-    board[fromPt].color = null;
-  }
-  if (myColor === 'white') whiteHome++;
-  else blackHome++;
+  if (usedDieValue === null) { toast('❌ ამ ქვის გამოსაყვანად ზარი არ გამოდის'); selectedPoint = null; clearHighlights(); highlightMovable(); return; }
+  board[fromPt].count--; if (board[fromPt].count <= 0) { board[fromPt].count = 0; board[fromPt].color = null; }
+  if (myColor === 'white') whiteHome++; else blackHome++;
   consumeDie(usedDieValue);
   selectedPoint = null;
   playCheckerMove();
   renderBoardUI();
   if (whiteHome >= 15 || blackHome >= 15) { await finishGame(); return; }
-  await syncGameState('bear-off:' + fromPt);
+  await syncGameState();
 }
 
-// ── ROLL / PASS ──
+// CLICK HANDLERS
+function onPointClick(pt) {
+  if (!myTurn || !gameStarted) return;
+  if (!dice.length || !remainingDiceValues().length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
+  const myBar = myColor === 'white' ? whiteBar : blackBar;
+  if (myBar > 0) {
+    if (selectedPoint !== 'bar') { selectedPoint = 'bar'; showDestinations('bar'); return; }
+    const dieNeeded = myColor === 'white' ? (25 - pt) : pt;
+    if (!remainingDiceValues().includes(dieNeeded)) { toast('❌ ამ წერტილზე ბარიდან ვერ შეხვალ'); return; }
+    if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); return; }
+    execMoveFromBar(pt, dieNeeded); return;
+  }
+  if (selectedPoint === null) {
+    const cell = board[pt];
+    if (!cell || cell.color !== myColor || !cell.count) { toast('❌ შენი ქვა არ არის'); return; }
+    selectedPoint = pt; showDestinations(pt); return;
+  }
+  if (selectedPoint === pt) { selectedPoint = null; clearHighlights(); highlightMovable(); return; }
+  const clickedCell = board[pt];
+  if (clickedCell && clickedCell.color === myColor && clickedCell.count > 0) { selectedPoint = pt; showDestinations(pt); return; }
+  const from = selectedPoint;
+  const dieNeeded = myColor === 'white' ? (from - pt) : (pt - from);
+  if (dieNeeded <= 0 || !remainingDiceValues().includes(dieNeeded)) { toast('❌ ამ სვლისთვის ზარი არ გამოდის'); selectedPoint = null; clearHighlights(); highlightMovable(); return; }
+  if (!canLand(pt)) { toast('❌ ეს წერტილი დაბლოკილია'); selectedPoint = null; clearHighlights(); highlightMovable(); return; }
+  execMove(from, pt, dieNeeded);
+}
+
+function onBarClick(color) {
+  if (!myTurn || !gameStarted || color !== myColor) return;
+  const myBar = myColor === 'white' ? whiteBar : blackBar;
+  if (!myBar) return;
+  if (!dice.length || !remainingDiceValues().length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
+  selectedPoint = 'bar'; showDestinations('bar');
+}
+
+function onBearOffClick() {
+  if (!myTurn || !gameStarted) return;
+  if (!dice.length || !remainingDiceValues().length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
+  if (!canBearOff()) { toast('❌ ყველა ქვა სახლის სექტორში უნდა იყოს'); return; }
+  if (selectedPoint === null || selectedPoint === 'bar') { toast('⬆ ჯერ ქვაზე დააჭირე'); return; }
+  execBearOff(selectedPoint);
+}
+
+// ROLL DICE
 async function rollDice() {
   if (!myTurn) { toast('❌ შენი ჯერი არ არის'); return; }
   if (dice.length > 0) { toast('❌ ზარი უკვე გააგდე'); return; }
-  
   const d1 = Math.ceil(Math.random() * 6);
   const d2 = Math.ceil(Math.random() * 6);
   const isDouble = d1 === d2;
   const newDice = isDouble ? [d1, d1, d1, d1] : [d1, d2];
-  
-  document.getElementById('rollBtn').disabled = true;
-  playDiceLand();
-  
   dice = [...newDice];
   diceUsed = dice.map(() => false);
-  
-  const { error } = await sb.from('nardi_games').update({
-    dice: dice,
-    dice_used: diceUsed,
-    last_move: JSON.stringify({ type: 'dice', msg: '🎲 ' + d1 + '+' + d2 })
-  }).eq('id', activeGameId);
-  
+  const { error } = await sb.from('nardi_games').update({ dice, dice_used: diceUsed }).eq('id', activeGameId);
   if (error) { toast('❌ ' + error.message); return; }
-  
   updateDiceUI();
   renderBoardUI();
-  addSysMsg(`🎲 ${d1}+${d2}${isDouble ? ' (ორმაგი! ×4)' : ''}`);
-  
-  if (!hasAnyLegalMove()) {
-    addSysMsg('😞 სვლა შეუძლებელია — გამოტოვება');
-    await syncGameState('no-moves');
-  }
+  addSysMsg(`🎲 ${d1}+${d2}${isDouble ? ' (ორმაგი!)' : ''}`);
+  if (!hasAnyLegalMove()) { addSysMsg('😞 სვლა შეუძლებელია — გამოტოვება'); await syncGameState(); }
 }
 
 async function passMove() {
   if (!myTurn) return;
   diceUsed = dice.map(() => true);
-  await syncGameState('გამოტოვება');
+  await syncGameState();
 }
 
-// ── SYNC ──
-async function syncGameState(moveDesc) {
+async function syncGameState() {
   const rem = remainingDiceValues();
   const turnDone = rem.length === 0 || !hasAnyLegalMove();
   let nextTurn = myColor;
   let nextDice = dice;
   let nextDiceUsed = diceUsed;
-  
-  if (turnDone) {
-    nextTurn = myColor === 'white' ? 'black' : 'white';
-    nextDice = [];
-    nextDiceUsed = [];
-  }
-  
+  if (turnDone) { nextTurn = myColor === 'white' ? 'black' : 'white'; nextDice = []; nextDiceUsed = []; }
   const { error } = await sb.from('nardi_games').update({
-    board_state: JSON.stringify(board),
-    turn: nextTurn,
-    dice: nextDice,
-    dice_used: nextDiceUsed,
-    white_home: whiteHome,
-    black_home: blackHome,
-    white_bar: whiteBar,
-    black_bar: blackBar,
-    last_move: JSON.stringify({ type: 'move', msg: moveDesc })
+    board_state: JSON.stringify(board), turn: nextTurn, dice: nextDice, dice_used: nextDiceUsed,
+    white_home: whiteHome, black_home: blackHome, white_bar: whiteBar, black_bar: blackBar
   }).eq('id', activeGameId);
-  
   if (error) { toast('❌ ' + error.message); return; }
-  
-  if (turnDone) {
-    myTurn = false;
-    dice = [];
-    diceUsed = [];
-    updateDiceUI();
-    updateTurnUI(false);
-    renderBoardUI();
-    addSysMsg('🔄 მოწინააღმდეგის ჯერი');
-  } else {
-    updateDiceUI();
-    renderBoardUI();
-  }
+  if (turnDone) { myTurn = false; dice = []; diceUsed = []; updateDiceUI(); updateTurnUI(); renderBoardUI(); addSysMsg('🔄 მოწინააღმდეგის ჯერი'); }
+  else { updateDiceUI(); renderBoardUI(); }
 }
 
-// ── UI UPDATES ──
 function updateDiceUI() {
-  const count = dice.length;
+  const faces = ['·', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
   for (let i = 0; i < 4; i++) {
     const el = document.getElementById('dice' + (i + 1));
-    if (i < count) {
-      el.style.display = 'flex';
-      const faces = ['·', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
-      el.textContent = dice[i] ? faces[dice[i]] : '·';
-      el.className = 'dice' + (diceUsed[i] ? ' used' : '');
-    } else {
-      el.style.display = 'none';
-    }
+    if (i < dice.length) { el.style.display = 'flex'; el.textContent = dice[i] ? faces[dice[i]] : '·'; el.className = 'dice' + (diceUsed[i] ? ' used' : ''); }
+    else el.style.display = 'none';
   }
   document.getElementById('rollBtn').disabled = !myTurn || dice.length > 0;
-  const rem = remainingDiceValues();
-  const showPass = myTurn && dice.length > 0 && rem.length > 0;
-  document.getElementById('passBtn').style.display = showPass ? 'inline-block' : 'none';
+  document.getElementById('passBtn').style.display = (myTurn && dice.length > 0 && remainingDiceValues().length > 0) ? 'inline-block' : 'none';
 }
 
-function updateTurnUI(isMyTurn) {
-  document.getElementById('turnBadge').textContent = isMyTurn ? '🎲 შენი ჯერია!' : '⏳ ველოდები...';
-  document.getElementById('myInfo').classList.toggle('pi-active', isMyTurn);
-  document.getElementById('oppInfo').classList.toggle('pi-active', !isMyTurn);
-  document.getElementById('statusBar').textContent = isMyTurn ? (dice.length ? '✋ ქვა გადადი' : '🎲 გააგორე ზარი!') : '⏳ ოპონენტის ჯერია...';
-  document.getElementById('rollBtn').disabled = !isMyTurn || dice.length > 0;
+function updateTurnUI() {
+  document.getElementById('turnBadge').textContent = myTurn ? '🎲 შენი ჯერია!' : '⏳ ველოდები...';
+  document.getElementById('myInfo').classList.toggle('pi-active', myTurn);
+  document.getElementById('oppInfo').classList.toggle('pi-active', !myTurn);
+  document.getElementById('statusBar').textContent = myTurn ? (dice.length ? '✋ ქვა გადადი' : '🎲 გააგორე ზარი!') : '⏳ ოპონენტის ჯერია...';
+  document.getElementById('rollBtn').disabled = !myTurn || dice.length > 0;
 }
 
-// ── FINISH GAME ──
 async function finishGame() {
   const winner = whiteHome >= 15 ? 'white' : 'black';
   const iWon = winner === myColor;
@@ -1320,8 +936,7 @@ async function finishGame() {
     const newScore = (MYPROF.nardi_score || 0) + 5;
     const newWins = (MYPROF.nardi_wins || 0) + 1;
     await sb.from('profiles').update({ nardi_score: newScore, nardi_wins: newWins }).eq('id', ME.id);
-    MYPROF.nardi_score = newScore;
-    MYPROF.nardi_wins = newWins;
+    MYPROF.nardi_score = newScore; MYPROF.nardi_wins = newWins;
     playWin();
   } else {
     const newLosses = (MYPROF.nardi_losses || 0) + 1;
@@ -1331,9 +946,7 @@ async function finishGame() {
   showWinModal(iWon);
 }
 
-function endGame(game) {
-  if (game.winner) showWinModal(game.winner === myColor);
-}
+function endGame(game) { if (game.winner) showWinModal(game.winner === myColor); }
 
 function showWinModal(iWon) {
   document.getElementById('winIcon').textContent = iWon ? '🏆' : '😢';
@@ -1344,18 +957,14 @@ function showWinModal(iWon) {
   document.getElementById('myScoreDisplay').textContent = '🏆 ' + (MYPROF.nardi_score || 0);
 }
 
-// ── CHAT ──
+// CHAT
 async function sendChatMsg() {
   const inp = document.getElementById('chatInput');
   const txt = inp.value.trim();
   if (!txt) return;
   inp.value = '';
   appendChatMsg(MYPROF?.username || '?', txt, true);
-  if (chatChannel) {
-    try {
-      chatChannel.send({ type: 'broadcast', event: 'chat', payload: { uid: ME.id, nick: MYPROF?.username || '?', content: txt } });
-    } catch(e) {}
-  }
+  if (chatChannel) chatChannel.send({ type: 'broadcast', event: 'chat', payload: { uid: ME.id, nick: MYPROF?.username || '?', content: txt } });
   if (activeGameId) await sb.from('nardi_chat').insert({ game_id: activeGameId, user_id: ME.id, content: txt });
 }
 
@@ -1363,7 +972,7 @@ function appendChatMsg(nick, content, isMe) {
   const box = document.getElementById('chatMsgs');
   const d = document.createElement('div');
   d.className = 'cmsg' + (isMe ? ' mine' : '');
-  d.innerHTML = (!isMe ? `<div class="cmsg-nick">${esc(nick)}</div>` : '') + `<div>${renderChatContent(content)}</div>`;
+  d.innerHTML = (!isMe ? `<div class="cmsg-nick">${esc(nick)}</div>` : '') + `<div>${esc(content)}</div>`;
   box.appendChild(d);
   box.scrollTop = box.scrollHeight;
 }
@@ -1377,7 +986,6 @@ function addSysMsg(msg) {
   box.scrollTop = box.scrollHeight;
 }
 
-// ── MISC ──
 function resetToLobby() {
   pendingInviteId = null;
   selectedOpponent = null;
@@ -1389,16 +997,11 @@ function resetToLobby() {
 
 async function resetGame() {
   document.getElementById('winOverlay').classList.remove('open');
-  if (gameChannel) { try { sb.removeChannel(gameChannel); } catch(e) {} gameChannel = null; }
-  if (chatChannel) { try { sb.removeChannel(chatChannel); } catch(e) {} chatChannel = null; }
-  activeGameId = null;
-  gameStarted = false;
-  myTurn = false;
-  board = getInitialBoard();
-  whiteHome = blackHome = whiteBar = blackBar = 0;
-  dice = [];
-  diceUsed = [];
-  selectedPoint = null;
+  if (gameChannel) try { sb.removeChannel(gameChannel); } catch(e) {}
+  if (chatChannel) try { sb.removeChannel(chatChannel); } catch(e) {}
+  activeGameId = null; gameStarted = false; myTurn = false;
+  board = getInitialBoard(); whiteHome = blackHome = whiteBar = blackBar = 0;
+  dice = []; diceUsed = []; selectedPoint = null;
   document.getElementById('boardWrap').style.display = 'none';
   document.getElementById('lobby').style.display = 'flex';
   document.getElementById('chatMsgs').innerHTML = '<div class="cmsg-sys">🎲 კეთილი იყოს!</div>';
@@ -1409,26 +1012,20 @@ async function resetGame() {
 }
 
 function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
-function toast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2600);
-}
+function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2600); }
 
-// Make functions global for onclick
-window.sendInvite = sendInvite;
-window.cancelInvite = cancelInvite;
-window.acceptInvite = acceptInvite;
-window.declineInvite = declineInvite;
-window.rollDice = rollDice;
-window.passMove = passMove;
-window.onBarClick = onBarClick;
-window.onBearOffClick = onBearOffClick;
-window.toggleChatEmoji = toggleChatEmoji;
-window.sendChatMsg = sendChatMsg;
-window.resetGame = resetGame;
+function attachEventListeners() {
+  document.getElementById('inviteBtn').onclick = () => sendInvite();
+  document.getElementById('cancelInviteBtn').onclick = () => cancelInvite();
+  document.getElementById('acceptInviteBtn').onclick = () => acceptInvite();
+  document.getElementById('declineInviteBtn').onclick = () => declineInvite();
+  document.getElementById('rollBtn').onclick = () => rollDice();
+  document.getElementById('passBtn').onclick = () => passMove();
+  document.getElementById('resetGameBtn').onclick = () => resetGame();
+  document.getElementById('barBlackEl').onclick = () => onBarClick('black');
+  document.getElementById('barWhiteEl').onclick = () => onBarClick('white');
+  document.getElementById('bearoffMe').onclick = () => onBearOffClick();
+}
 
 init();
 </script>
