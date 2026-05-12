@@ -228,709 +228,975 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 
 <script>
 'use strict';
+
 /*
   =====================================
-  ქართული ნარდი — სრული ლოგიკა
+  ქართული ნარდი — სრული ლოგიკა (გასწორებული)
   =====================================
 
-  საწყისი: WHITE=15 ქვა pt24-ზე, BLACK=15 ქვა pt12-ზე
+  LAYOUT (ორივე მხარეს ერთნაირი ხედი — სახლი ქვ-მარჯვენა):
+  ──────────────────────────────────────────────
+  TOP ROW:    dp13 dp14 dp15 dp16 dp17 dp18 | BAR | dp19 dp20 dp21 dp22 dp23 dp24
+  BOT ROW:    dp12 dp11 dp10  dp9  dp8  dp7 | BAR |  dp6  dp5  dp4  dp3  dp2  dp1
+  ──────────────────────────────────────────────
 
-  WHITE მოძრ.: pt24 → pt1  (from - die)   სახლი: pt1-6
-  BLACK მოძრ.: pt12 → pt1, pt24 → pt13    სახლი: pt19-24
-  (BLACK: from + die, ოღონდ pt12-დან pt24 გაივლის,
-   მარტივი ვარიანტი: from - die ანალოგიურად,
-   მაგრამ BLACK-ი pt1-დან მოძრ. pt24-კენ: from + die)
+  WHITE (⚪): თამაშობს pt24 → pt1 (მოძრ. -die)
+    - სახლი: real pt 1–6  = dp 1–6  (ქვ-მარჯ ✓)
+    - bar entry: 25 - die  (die=1 → pt24, die=6 → pt19)
+    - bear-off: exact = real pt ნომერი
 
-  კლავება: 1 ქვაზე → ბარი (bar[color])
-  WHITE ბარ-entry: pt(25-die)  [die1→pt24, die6→pt19]
-  BLACK ბარ-entry: pt(die)     [die1→pt1,  die6→pt6]
+  BLACK (⚫): თამაშობს pt1 → pt24 (მოძრ. +die)
+    - სახლი: real pt 19–24 = dp 1–6  (ქვ-მარჯ ✓, რადგან dp = 25-real)
+    - bar entry: die        (die=1 → pt1,  die=6 → pt6)
+    - bear-off: exact = 25 - real pt ნომერი
 
-  Bear-off:
-    WHITE: ყველა pt1-6-ში → გამოყვანა (die = pt-ის ნომერი)
-    BLACK: ყველა pt19-24-ში → გამოყვანა (die = 25-pt)
-
-  PERSPEKTIVA (display):
-    WHITE: dp = real (სახლი ქვ-მარჯ: dp1-6 ✓)
-    BLACK: dp = 25-real (სახლი ქვ-მარჯ: dp1-6 = real19-24 ✓)
-    → buildBoard ერთხელ იგება. render-ი აკეთებს toDisplay(real).
+  display↔real:
+    WHITE: dp = real,    real = dp
+    BLACK: dp = 25-real, real = 25-dp
 */
 
-const {createClient}=supabase;
-const sb=createClient(
+const {createClient} = supabase;
+const sb = createClient(
   'https://brggiyhfzfbmlirqfgpo.supabase.co',
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU'
 );
 
-let ME=null,PROF=null,allUsers=[];
-let gameId=null,gameCh=null,selOpp=null,pendingInv=null;
+let ME = null, PROF = null, allUsers = [];
+let gameId = null, gameCh = null, selOpp = null, pendingInv = null;
 
-// game state
-let board=[],bar={W:0,B:0},whiteOff=0,blackOff=0;
-let dice=[],diceUsed=[];
-let myCol='W',myTurn=false,started=false,selPt=null;
+// ── game state ──
+let board = [];         // index 0 unused; 1–24 = real points
+let bar = {W:0, B:0};
+let whiteOff = 0, blackOff = 0;
+let dice = [], diceUsed = [];
+let myCol = 'W', myTurn = false, started = false, selPt = null;
 
-/* ── board init ── */
-function initBoard(){
-  const b=[];
-  for(let i=0;i<=24;i++) b.push({color:null,count:0});
-  b[24]={color:'W',count:15};
-  b[12]={color:'B',count:15};
+// ── board init ──
+function initBoard() {
+  const b = [];
+  for (let i = 0; i <= 24; i++) b.push({color: null, count: 0});
+  // Georgian nardi: all 15 whites start on pt24, all 15 blacks on pt12
+  b[24] = {color: 'W', count: 15};
+  b[12] = {color: 'B', count: 15};
   return b;
 }
 
-/* ── perspective helpers ──
-   toDisplay(realPt): real → display (what the DOM point number shows)
-   toReal(dispPt):    display → real
-*/
-function toDisplay(r){ return myCol==='W'?r:25-r; }
-function toReal(d){    return myCol==='W'?d:25-d; }
+// ── perspective helpers ──
+// toDisplay: real point → display point number shown on board
+// toReal:    display point → real point used in logic
+function toDisplay(r) { return myCol === 'W' ? r : 25 - r; }
+function toReal(d)    { return myCol === 'W' ? d : 25 - d; }
 
-/* ── movement direction ──
-   WHITE moves from high to low: target = from - die
-   BLACK moves from low to high: target = from + die
-*/
-function realTarget(fromReal,die){
-  return myCol==='W' ? fromReal-die : fromReal+die;
+// ── movement: target real point after using a die ──
+// WHITE goes pt24→pt1 (decreasing), BLACK goes pt1→pt24 (increasing)
+function targetReal(fromReal, die) {
+  return myCol === 'W' ? fromReal - die : fromReal + die;
 }
 
-/* ── home/bar ranges ── */
-function homeMin(){ return myCol==='W'?1:19; }
-function homeMax(){ return myCol==='W'?6:24; }
-function barEntryReal(die){ return myCol==='W'?25-die:die; }
+// ── home range (real points) ──
+function homeMin() { return myCol === 'W' ? 1 : 19; }
+function homeMax() { return myCol === 'W' ? 6 : 24; }
 
-/* ── dice helpers ── */
-function remDice(){ return dice.filter((_,i)=>!diceUsed[i]); }
-function consumeDie(val){
-  for(let i=0;i<dice.length;i++){
-    if(!diceUsed[i]&&dice[i]===val){diceUsed[i]=true;return;}
+// ── bar re-entry real point for a given die value ──
+// WHITE: enters from pt25 side → 25-die  (die=1→pt24, die=6→pt19)
+// BLACK: enters from pt0 side  → die     (die=1→pt1,  die=6→pt6)
+function barEntryReal(die) {
+  return myCol === 'W' ? 25 - die : die;
+}
+
+// ── remaining (unused) dice ──
+function remDice() {
+  return dice.filter((_, i) => !diceUsed[i]);
+}
+
+// ── consume one die of a given value ──
+function consumeDie(val) {
+  for (let i = 0; i < dice.length; i++) {
+    if (!diceUsed[i] && dice[i] === val) {
+      diceUsed[i] = true;
+      return;
+    }
   }
 }
 
-/* ── landing check ── */
-function canLand(realPt,col){
-  if(realPt<1||realPt>24) return false;
-  const c=board[realPt];
-  if(!c||!c.color||!c.count) return true;
-  if(c.color===col) return true;
-  if(c.count===1) return true;
-  return false;
+// ── can a checker of 'col' land on real point 'rp'? ──
+function canLand(rp, col) {
+  if (rp < 1 || rp > 24) return false;
+  const c = board[rp];
+  if (!c || !c.color || !c.count) return true;   // empty
+  if (c.color === col) return true;               // own checker
+  if (c.count === 1) return true;                 // blot → can hit
+  return false;                                   // blocked
 }
 
-/* ── all in home? ── */
-function allInHome(){
-  const mn=homeMin(),mx=homeMax();
-  if(bar[myCol]>0) return false;
-  for(let i=1;i<=24;i++){
-    if(i<mn||i>mx){
-      if(board[i]&&board[i].color===myCol&&board[i].count>0) return false;
+// ── all my checkers in home board? ──
+function allInHome() {
+  if ((bar[myCol] || 0) > 0) return false;
+  const mn = homeMin(), mx = homeMax();
+  for (let i = 1; i <= 24; i++) {
+    if (i < mn || i > mx) {
+      if (board[i] && board[i].color === myCol && board[i].count > 0) return false;
     }
   }
   return true;
 }
 
-function hasBar(){ return (bar[myCol]||0)>0; }
+function hasBar() { return (bar[myCol] || 0) > 0; }
 
-/* ── bear-off: which die to use for this real point? ──
-   WHITE: exact die = realPt (pt1→d1, pt6→d6)
-   BLACK: exact die = 25-realPt (pt24→d1, pt19→d6)
-   "excess" die (bigger than needed): only if no piece
-   further from goal exists.
-*/
-function bearDie(realPt){
-  const exact=myCol==='W'?realPt:25-realPt;
-  const rem=remDice();
-  if(rem.includes(exact)) return exact;
-  // excess: die > exact, but no piece "further" from goal
-  const bigger=rem.filter(d=>d>exact);
-  if(!bigger.length) return null;
-  // WHITE "further from goal" = higher pt number (pt7 is further than pt6)
-  // BLACK "further from goal" = lower pt number (pt18 is further than pt19)
-  let hasFurther=false;
-  if(myCol==='W'){
-    // check pts realPt+1 .. 6
-    for(let p=realPt+1;p<=homeMax();p++){
-      if(board[p]&&board[p].color==='W'&&board[p].count>0){hasFurther=true;break;}
+// ── which die value is valid to bear off from real point rp? ──
+// Returns the die value to use, or null if none available.
+//
+// "Exact" rule: die value equals the pip distance to the edge.
+//   WHITE: exact = rp          (pt1 needs die=1, pt6 needs die=6)
+//   BLACK: exact = 25 - rp     (pt24 needs die=1, pt19 needs die=6)
+//
+// "Excess" rule: use a larger die only when no checker sits
+//   on a point *further* from the bearing-off edge.
+//   WHITE "further" = higher point number (pt6 further than pt1)
+//   BLACK "further" = lower point number  (pt19 further than pt24)
+function bearDie(realPt) {
+  const exact = myCol === 'W' ? realPt : 25 - realPt;
+  const rem = remDice();
+
+  // exact match
+  if (rem.includes(exact)) return exact;
+
+  // excess die (bigger than needed)
+  const bigger = rem.filter(d => d > exact);
+  if (!bigger.length) return null;
+
+  // check if any checker sits further from the goal
+  let hasFurther = false;
+  if (myCol === 'W') {
+    // points with higher index are further (pt6 > pt5 > ... > pt1)
+    for (let p = realPt + 1; p <= 6; p++) {
+      if (board[p] && board[p].color === 'W' && board[p].count > 0) { hasFurther = true; break; }
     }
   } else {
-    // check pts homeMin() .. realPt-1
-    for(let p=homeMin();p<realPt;p++){
-      if(board[p]&&board[p].color==='B'&&board[p].count>0){hasFurther=true;break;}
+    // BLACK home is pt19–24; lower index is further from goal (pt19 > pt20 > ... > pt24)
+    for (let p = 19; p < realPt; p++) {
+      if (board[p] && board[p].color === 'B' && board[p].count > 0) { hasFurther = true; break; }
     }
   }
-  if(hasFurther) return null;
+
+  if (hasFurther) return null;
   return Math.min(...bigger);
 }
 
-/* ── any legal move? ── */
-function hasAnyMove(){
-  const rem=remDice();
-  if(!rem.length) return false;
-  if(hasBar()) return rem.some(d=>canLand(barEntryReal(d),myCol));
-  if(allInHome()){
-    for(let p=homeMin();p<=homeMax();p++){
-      if(board[p]&&board[p].color===myCol&&board[p].count>0&&bearDie(p)!==null) return true;
+// ── does any legal move exist with current dice? ──
+function hasAnyMove() {
+  const rem = remDice();
+  if (!rem.length) return false;
+
+  // bar: must enter before any other move
+  if (hasBar()) {
+    return rem.some(d => {
+      const entry = barEntryReal(d);
+      return entry >= 1 && entry <= 24 && canLand(entry, myCol);
+    });
+  }
+
+  // bear-off mode
+  if (allInHome()) {
+    for (let p = homeMin(); p <= homeMax(); p++) {
+      if (board[p] && board[p].color === myCol && board[p].count > 0 && bearDie(p) !== null) return true;
     }
     return false;
   }
-  for(let p=1;p<=24;p++){
-    if(!board[p]||board[p].color!==myCol||!board[p].count) continue;
-    if(rem.some(d=>{const t=realTarget(p,d);return t>=1&&t<=24&&canLand(t,myCol);})) return true;
+
+  // normal move
+  for (let p = 1; p <= 24; p++) {
+    if (!board[p] || board[p].color !== myCol || !board[p].count) continue;
+    if (rem.some(d => {
+      const t = targetReal(p, d);
+      return t >= 1 && t <= 24 && canLand(t, myCol);
+    })) return true;
   }
   return false;
 }
 
-/* ── execute moves ── */
-function doMove(fromReal,toReal_){
+// ── execute a normal move (fromReal → toReal) ──
+function doMove(fromReal, toReal_) {
   board[fromReal].count--;
-  if(!board[fromReal].count) board[fromReal].color=null;
-  const cell=board[toReal_];
-  if(cell.color&&cell.color!==myCol&&cell.count===1){
-    bar[cell.color]=(bar[cell.color]||0)+1;
-    cell.count=0;cell.color=null;
+  if (!board[fromReal].count) board[fromReal].color = null;
+
+  const cell = board[toReal_];
+  // hit blot
+  if (cell.color && cell.color !== myCol && cell.count === 1) {
+    bar[cell.color] = (bar[cell.color] || 0) + 1;
+    cell.count = 0;
+    cell.color = null;
     toast('💥 Kill!');
   }
-  if(!cell.color) cell.color=myCol;
-  cell.count=(cell.count||0)+1;
+  if (!cell.color) cell.color = myCol;
+  cell.count = (cell.count || 0) + 1;
 }
 
-function doBarExit(toReal_){
-  bar[myCol]=Math.max(0,bar[myCol]-1);
-  const cell=board[toReal_];
-  if(cell.color&&cell.color!==myCol&&cell.count===1){
-    bar[cell.color]=(bar[cell.color]||0)+1;
-    cell.count=0;cell.color=null;
+// ── re-enter from bar ──
+function doBarExit(toReal_) {
+  bar[myCol] = Math.max(0, (bar[myCol] || 0) - 1);
+
+  const cell = board[toReal_];
+  if (cell.color && cell.color !== myCol && cell.count === 1) {
+    bar[cell.color] = (bar[cell.color] || 0) + 1;
+    cell.count = 0;
+    cell.color = null;
     toast('💥 Kill!');
   }
-  if(!cell.color) cell.color=myCol;
-  cell.count=(cell.count||0)+1;
+  if (!cell.color) cell.color = myCol;
+  cell.count = (cell.count || 0) + 1;
 }
 
-function doBearOff(realPt){
+// ── bear off a checker ──
+function doBearOff(realPt) {
   board[realPt].count--;
-  if(!board[realPt].count) board[realPt].color=null;
-  if(myCol==='W') whiteOff++; else blackOff++;
+  if (!board[realPt].count) board[realPt].color = null;
+  if (myCol === 'W') whiteOff++; else blackOff++;
 }
 
-/* ── click ── */
-function onPtClick(dispPt){
-  if(!myTurn||!started){toast('❌ შენი ჯერი არ არის');return;}
-  const rem=remDice();
-  if(!rem.length){toast('🎲 ჯერ ზარი გააგორე');return;}
-  const realPt=toReal(dispPt);
+// ── point click handler (dispPt = display point 1–24) ──
+function onPtClick(dispPt) {
+  if (!myTurn || !started) { toast('❌ შენი ჯერი არ არის'); return; }
+  if (!dice.length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
 
-  // BAR mode
-  if(hasBar()){
-    let matched=false;
-    for(const d of rem){
-      const entry=barEntryReal(d);
-      if(entry===realPt&&canLand(realPt,myCol)){
+  const rem = remDice();
+  if (!rem.length) { toast('🎲 ზარი ამოიწურა'); return; }
+
+  const realPt = toReal(dispPt);
+
+  // ── BAR mode: must enter first ──
+  if (hasBar()) {
+    let entered = false;
+    for (const d of rem) {
+      const entry = barEntryReal(d);
+      if (entry === realPt && canLand(realPt, myCol)) {
         doBarExit(realPt);
         consumeDie(d);
-        selPt=null;
+        selPt = null;
         afterMove();
-        matched=true;
+        entered = true;
         break;
       }
     }
-    if(!matched) toast('❌ ბარიდან ამ წერტილში ვერ');
+    if (!entered) toast('❌ ბარიდან ამ წერტილში ვერ');
     return;
   }
 
-  // BEAR-OFF mode
-  if(allInHome()){
-    if(selPt===null){
-      if(!board[realPt]||board[realPt].color!==myCol||!board[realPt].count){toast('❌ შენი ქვა არ არის');return;}
-      if(bearDie(realPt)===null){toast('❌ ამ ზარით გამოყვანა ვერ');return;}
-      selPt=realPt;showDests();return;
+  // ── BEAR-OFF mode ──
+  if (allInHome()) {
+    if (selPt === null) {
+      // select a piece
+      if (!board[realPt] || board[realPt].color !== myCol || !board[realPt].count) {
+        toast('❌ შენი ქვა არ არის');
+        return;
+      }
+      if (bearDie(realPt) === null) {
+        toast('❌ ამ ზარით გამოყვანა ვერ');
+        return;
+      }
+      selPt = realPt;
+      showDests();
+      return;
     }
-    if(selPt===realPt){selPt=null;clearHL();hlMovable();return;}
-    if(board[realPt]&&board[realPt].color===myCol&&board[realPt].count>0){
-      if(bearDie(realPt)!==null){selPt=realPt;showDests();}
+    // deselect
+    if (selPt === realPt) { selPt = null; clearHL(); hlMovable(); return; }
+    // switch selection to another own piece
+    if (board[realPt] && board[realPt].color === myCol && board[realPt].count > 0) {
+      if (bearDie(realPt) !== null) { selPt = realPt; showDests(); }
       else toast('❌ ამ ზარით გამოყვანა ვერ');
       return;
     }
-    toast('▲ bear-off ზონაზე დააჭირე');
+    // clicked somewhere else — deselect
+    selPt = null; clearHL(); hlMovable();
     return;
   }
 
-  // NORMAL mode
-  if(selPt===null){
-    if(!board[realPt]||board[realPt].color!==myCol||!board[realPt].count){toast('❌ შენი ქვა არ არის');return;}
-    const hasDest=rem.some(d=>{const t=realTarget(realPt,d);return t>=1&&t<=24&&canLand(t,myCol);});
-    if(!hasDest){toast('❌ ამ ქვით სვლა შეუძლებელია');return;}
-    selPt=realPt;showDests();return;
+  // ── NORMAL mode ──
+  if (selPt === null) {
+    if (!board[realPt] || board[realPt].color !== myCol || !board[realPt].count) {
+      toast('❌ შენი ქვა არ არის');
+      return;
+    }
+    const hasDest = rem.some(d => {
+      const t = targetReal(realPt, d);
+      return t >= 1 && t <= 24 && canLand(t, myCol);
+    });
+    if (!hasDest) { toast('❌ ამ ქვით სვლა შეუძლებელია'); return; }
+    selPt = realPt;
+    showDests();
+    return;
   }
-  if(selPt===realPt){selPt=null;clearHL();hlMovable();return;}
+
+  // deselect same
+  if (selPt === realPt) { selPt = null; clearHL(); hlMovable(); return; }
+
   // switch to another own piece
-  if(board[realPt]&&board[realPt].color===myCol&&board[realPt].count>0){
-    const hasDest=rem.some(d=>{const t=realTarget(realPt,d);return t>=1&&t<=24&&canLand(t,myCol);});
-    if(hasDest){selPt=realPt;showDests();}
+  if (board[realPt] && board[realPt].color === myCol && board[realPt].count > 0) {
+    const hasDest = rem.some(d => {
+      const t = targetReal(realPt, d);
+      return t >= 1 && t <= 24 && canLand(t, myCol);
+    });
+    if (hasDest) { selPt = realPt; showDests(); }
     else toast('❌ ამ ქვით სვლა შეუძლებელია');
     return;
   }
-  // try landing
-  let usedD=null;
-  for(const d of rem){if(realTarget(selPt,d)===realPt){usedD=d;break;}}
-  if(usedD===null){
+
+  // attempt to land
+  let usedD = null;
+  for (const d of rem) {
+    if (targetReal(selPt, d) === realPt) { usedD = d; break; }
+  }
+  if (usedD === null) {
     toast('❌ ამ სვლისთვის ზარი არ გამოდის');
-    selPt=null;clearHL();hlMovable();return;
+    selPt = null; clearHL(); hlMovable();
+    return;
   }
-  if(!canLand(realPt,myCol)){
+  if (!canLand(realPt, myCol)) {
     toast('❌ ეს წერტილი დაბლოკილია');
-    selPt=null;clearHL();hlMovable();return;
+    selPt = null; clearHL(); hlMovable();
+    return;
   }
-  doMove(selPt,realPt);
+  doMove(selPt, realPt);
   consumeDie(usedD);
-  selPt=null;
+  selPt = null;
   afterMove();
 }
 
-function onBearOffClick(){
-  if(!myTurn||!started) return;
-  if(!remDice().length){toast('🎲 ჯერ ზარი გააგორე');return;}
-  if(!allInHome()){toast('❌ ჯერ ყველა ქვა სახლში');return;}
-  if(selPt===null){toast('▲ ჯერ ქვაზე დააჭირე');return;}
-  const d=bearDie(selPt);
-  if(d===null){toast('❌ ამ ქვის გამოყვანა ვერ');return;}
+// ── bear-off zone click ──
+function onBearOffClick() {
+  if (!myTurn || !started) return;
+  if (!dice.length) { toast('🎲 ჯერ ზარი გააგორე'); return; }
+  if (!remDice().length) { toast('🎲 ზარი ამოიწურა'); return; }
+  if (!allInHome()) { toast('❌ ჯერ ყველა ქვა სახლში'); return; }
+  if (selPt === null) { toast('▲ ჯერ ქვაზე დააჭირე'); return; }
+  const d = bearDie(selPt);
+  if (d === null) { toast('❌ ამ ქვის გამოყვანა ვერ'); return; }
   doBearOff(selPt);
   consumeDie(d);
-  selPt=null;
+  selPt = null;
   renderBoard();
-  if(whiteOff>=15||blackOff>=15){finishGame();return;}
+  if (whiteOff >= 15 || blackOff >= 15) { finishGame(); return; }
   afterMove();
 }
 
-async function afterMove(){
+// ── post-move logic ──
+async function afterMove() {
   renderBoard();
-  if(whiteOff>=15||blackOff>=15){finishGame();return;}
-  const noMv=!hasAnyMove();
-  if(remDice().length===0||noMv){
-    if(noMv&&remDice().length>0) addSys('😞 სვლა შეუძლებელია');
+  if (whiteOff >= 15 || blackOff >= 15) { finishGame(); return; }
+
+  const noMov = !hasAnyMove();
+  if (remDice().length === 0 || noMov) {
+    if (noMov && remDice().length > 0) addSys('😞 სვლა შეუძლებელია — ჯერი გადაეცა');
     await endTurn();
   } else {
-    updateDiceUI();updateTurnUI();
-    // partial-turn board persist (opponent sees board update)
+    updateDiceUI();
+    updateTurnUI();
+    // sync partial board state so opponent can see
     await sb.from('nardi_games').update({
-      board_state:JSON.stringify(board),
-      bar_state:JSON.stringify(bar),
-      white_off:whiteOff,black_off:blackOff,
-      dice,dice_used:diceUsed
-    }).eq('id',gameId);
+      board_state: JSON.stringify(board),
+      bar_state:   JSON.stringify(bar),
+      white_off:   whiteOff,
+      black_off:   blackOff,
+      dice:        dice,
+      dice_used:   diceUsed
+    }).eq('id', gameId);
   }
 }
 
-async function endTurn(){
-  const next=myCol==='W'?'B':'W';
+// ── end turn ──
+async function endTurn() {
+  const next = myCol === 'W' ? 'B' : 'W';
   await sb.from('nardi_games').update({
-    board_state:JSON.stringify(board),
-    bar_state:JSON.stringify(bar),
-    white_off:whiteOff,black_off:blackOff,
-    turn:next,
-    dice:[],
-    dice_used:[]
-  }).eq('id',gameId);
-  myTurn=false;dice=[];diceUsed=[];
-  updateDiceUI();updateTurnUI();renderBoard();
+    board_state: JSON.stringify(board),
+    bar_state:   JSON.stringify(bar),
+    white_off:   whiteOff,
+    black_off:   blackOff,
+    turn:        next,
+    dice:        [],
+    dice_used:   []
+  }).eq('id', gameId);
+  myTurn = false;
+  dice = [];
+  diceUsed = [];
+  updateDiceUI();
+  updateTurnUI();
+  renderBoard();
   addSys('🔄 ოპონენტის ჯერი');
 }
 
-async function rollDice(){
-  if(!myTurn){toast('❌ შენი ჯერი არ არის');return;}
-  if(dice.length){toast('❌ ზარი უკვე გააგდე');return;}
-  const d1=Math.ceil(Math.random()*6),d2=Math.ceil(Math.random()*6);
-  dice=d1===d2?[d1,d1,d1,d1]:[d1,d2];
-  diceUsed=dice.map(()=>false);
-  addSys(d1===d2?`🎲🎲 დუბლი! ${d1}:${d2}`:`🎲 ${d1}+${d2}`);
-  await sb.from('nardi_games').update({dice,dice_used:diceUsed}).eq('id',gameId);
-  updateDiceUI();renderBoard();
-  if(!hasAnyMove()){addSys('😞 სვლა შეუძლებელია');await endTurn();}
+// ── roll dice ──
+async function rollDice() {
+  if (!myTurn)       { toast('❌ შენი ჯერი არ არის'); return; }
+  if (dice.length)   { toast('❌ ზარი უკვე გააგდე');  return; }
+
+  const d1 = Math.ceil(Math.random() * 6);
+  const d2 = Math.ceil(Math.random() * 6);
+  dice     = d1 === d2 ? [d1, d1, d1, d1] : [d1, d2];
+  diceUsed = dice.map(() => false);
+
+  addSys(d1 === d2 ? `🎲🎲 დუბლი! ${d1}:${d2}` : `🎲 ${d1}+${d2}`);
+
+  await sb.from('nardi_games').update({
+    dice:      dice,
+    dice_used: diceUsed
+  }).eq('id', gameId);
+
+  updateDiceUI();
+  renderBoard();
+
+  if (!hasAnyMove()) {
+    addSys('😞 სვლა შეუძლებელია — ჯერი გადაეცა');
+    await endTurn();
+  }
 }
 
-async function passMove(){
-  if(!myTurn) return;
+// ── pass move ──
+async function passMove() {
+  if (!myTurn) return;
   await endTurn();
 }
 
-/* ── highlights ── */
-function clearHL(){
-  document.querySelectorAll('.pt.hl,.pt.src').forEach(p=>p.classList.remove('hl','src'));
-  document.querySelectorAll('.ck.glow').forEach(c=>c.classList.remove('glow'));
+// ────────────────────────────────────────────
+// HIGHLIGHTS
+// ────────────────────────────────────────────
+
+function clearHL() {
+  document.querySelectorAll('.pt.hl, .pt.src').forEach(p => p.classList.remove('hl', 'src'));
+  document.querySelectorAll('.ck.glow').forEach(c => c.classList.remove('glow'));
   document.getElementById('bzMe').classList.remove('can');
 }
 
-function hlMovable(){
+function hlMovable() {
   clearHL();
-  if(!myTurn||!started||!dice.length) return;
-  const rem=remDice();
-  if(!rem.length) return;
-  if(hasBar()){
-    rem.forEach(d=>{
-      const e=barEntryReal(d);
-      if(e>=1&&e<=24&&canLand(e,myCol)){
-        document.getElementById('dp'+toDisplay(e))?.classList.add('hl');
+  if (!myTurn || !started || !dice.length) return;
+  const rem = remDice();
+  if (!rem.length) return;
+
+  if (hasBar()) {
+    rem.forEach(d => {
+      const e = barEntryReal(d);
+      if (e >= 1 && e <= 24 && canLand(e, myCol)) {
+        document.getElementById('dp' + toDisplay(e))?.classList.add('hl');
       }
     });
     return;
   }
-  if(allInHome()){
-    for(let p=homeMin();p<=homeMax();p++){
-      if(board[p]&&board[p].color===myCol&&board[p].count>0&&bearDie(p)!==null){
-        document.getElementById('dp'+toDisplay(p))?.classList.add('hl');
+
+  if (allInHome()) {
+    for (let p = homeMin(); p <= homeMax(); p++) {
+      if (board[p] && board[p].color === myCol && board[p].count > 0 && bearDie(p) !== null) {
+        document.getElementById('dp' + toDisplay(p))?.classList.add('hl');
       }
+    }
+    if (document.querySelectorAll('.pt.hl').length > 0) {
+      document.getElementById('bzMe').classList.add('can');
     }
     return;
   }
-  for(let p=1;p<=24;p++){
-    if(!board[p]||board[p].color!==myCol||!board[p].count) continue;
-    if(rem.some(d=>{const t=realTarget(p,d);return t>=1&&t<=24&&canLand(t,myCol);})){
-      document.querySelectorAll('#stk'+toDisplay(p)+' .ck').forEach(c=>c.classList.add('glow'));
+
+  for (let p = 1; p <= 24; p++) {
+    if (!board[p] || board[p].color !== myCol || !board[p].count) continue;
+    if (rem.some(d => {
+      const t = targetReal(p, d);
+      return t >= 1 && t <= 24 && canLand(t, myCol);
+    })) {
+      document.querySelectorAll('#stk' + toDisplay(p) + ' .ck').forEach(c => c.classList.add('glow'));
     }
   }
 }
 
-function showDests(){
+function showDests() {
   clearHL();
-  if(selPt===null) return;
-  document.getElementById('dp'+toDisplay(selPt))?.classList.add('src');
-  const rem=remDice();
-  if(allInHome()){
-    if(bearDie(selPt)!==null) document.getElementById('bzMe').classList.add('can');
+  if (selPt === null) return;
+
+  document.getElementById('dp' + toDisplay(selPt))?.classList.add('src');
+  const rem = remDice();
+
+  if (allInHome()) {
+    if (bearDie(selPt) !== null) document.getElementById('bzMe').classList.add('can');
     return;
   }
-  rem.forEach(d=>{
-    const t=realTarget(selPt,d);
-    if(t>=1&&t<=24&&canLand(t,myCol)){
-      document.getElementById('dp'+toDisplay(t))?.classList.add('hl');
+
+  rem.forEach(d => {
+    const t = targetReal(selPt, d);
+    if (t >= 1 && t <= 24 && canLand(t, myCol)) {
+      document.getElementById('dp' + toDisplay(t))?.classList.add('hl');
     }
   });
 }
 
-/* ── render ── */
-function renderBoard(){
-  for(let dp=1;dp<=24;dp++){
-    const s=document.getElementById('stk'+dp);
-    if(s) s.innerHTML='';
+// ────────────────────────────────────────────
+// RENDER
+// ────────────────────────────────────────────
+
+function renderBoard() {
+  // clear all stacks
+  for (let dp = 1; dp <= 24; dp++) {
+    const s = document.getElementById('stk' + dp);
+    if (s) s.innerHTML = '';
   }
-  for(let real=1;real<=24;real++){
-    const cell=board[real];
-    if(!cell||!cell.count||!cell.color) continue;
-    const dp=toDisplay(real);
-    const stk=document.getElementById('stk'+dp);
-    if(!stk) continue;
-    const show=Math.min(cell.count,6);
-    const sz=show<=2?'78%':show<=4?'72%':'66%';
-    for(let c=0;c<show;c++){
-      const el=document.createElement('div');
-      el.className='ck '+cell.color;
-      el.style.width=sz;
-      if(c===show-1&&cell.count>6){
-        const n=document.createElement('span');
-        n.className='ck-cnt';n.textContent=cell.count;
+
+  // place checkers
+  for (let real = 1; real <= 24; real++) {
+    const cell = board[real];
+    if (!cell || !cell.count || !cell.color) continue;
+    const dp  = toDisplay(real);
+    const stk = document.getElementById('stk' + dp);
+    if (!stk) continue;
+
+    const show = Math.min(cell.count, 6);
+    const sz   = show <= 2 ? '78%' : show <= 4 ? '72%' : '66%';
+
+    for (let c = 0; c < show; c++) {
+      const el = document.createElement('div');
+      el.className = 'ck ' + cell.color;
+      el.style.width = sz;
+      if (c === show - 1 && cell.count > 6) {
+        const n = document.createElement('span');
+        n.className = 'ck-cnt';
+        n.textContent = cell.count;
         el.appendChild(n);
       }
       stk.appendChild(el);
     }
   }
+
   // bar checkers
-  const bT=document.getElementById('barTop'),bB=document.getElementById('barBot');
-  bT.innerHTML='';bB.innerHTML='';
-  for(let i=0;i<(bar.W||0);i++){
-    const c=document.createElement('div');c.className='ck W';c.style.cssText='width:68%;margin:1px';bT.appendChild(c);
-  }
-  for(let i=0;i<(bar.B||0);i++){
-    const c=document.createElement('div');c.className='ck B';c.style.cssText='width:68%;margin:1px';bB.appendChild(c);
-  }
-  // bear-off
-  const myOff=myCol==='W'?whiteOff:blackOff;
-  const opOff=myCol==='W'?blackOff:whiteOff;
-  const opCol=myCol==='W'?'B':'W';
-  const me=document.getElementById('bzMeCks'),op=document.getElementById('bzOppCks');
-  me.innerHTML='';op.innerHTML='';
-  for(let i=0;i<Math.min(myOff,15);i++){
-    const c=document.createElement('div');c.className='bck '+myCol;me.appendChild(c);
-  }
-  for(let i=0;i<Math.min(opOff,15);i++){
-    const c=document.createElement('div');c.className='bck '+opCol;op.appendChild(c);
-  }
-  document.getElementById('bzMeN').textContent=myOff;
-  document.getElementById('bzOppN').textContent=opOff;
+  const bT = document.getElementById('barTop');
+  const bB = document.getElementById('barBot');
+  bT.innerHTML = '';
+  bB.innerHTML = '';
 
-  if(myTurn&&started&&dice.length&&remDice().length) hlMovable();
-  else clearHL();
+  // WHITE bar shown in top (opponent side), BLACK bar shown in bottom (own side)?
+  // Actually for the fixed visual, WHITE moves bottom→top visually so WHITE bar is
+  // shown at top bar-col, BLACK bar at bottom bar-col — this matches both perspectives.
+  for (let i = 0; i < (bar.W || 0); i++) {
+    const c = document.createElement('div');
+    c.className = 'ck W';
+    c.style.cssText = 'width:68%;margin:1px';
+    bT.appendChild(c);
+  }
+  for (let i = 0; i < (bar.B || 0); i++) {
+    const c = document.createElement('div');
+    c.className = 'ck B';
+    c.style.cssText = 'width:68%;margin:1px';
+    bB.appendChild(c);
+  }
+
+  // bear-off counts
+  const myOff  = myCol === 'W' ? whiteOff : blackOff;
+  const opOff  = myCol === 'W' ? blackOff : whiteOff;
+  const opCol  = myCol === 'W' ? 'B' : 'W';
+  const meCks  = document.getElementById('bzMeCks');
+  const opCks  = document.getElementById('bzOppCks');
+  meCks.innerHTML = '';
+  opCks.innerHTML = '';
+
+  for (let i = 0; i < Math.min(myOff, 15); i++) {
+    const c = document.createElement('div');
+    c.className = 'bck ' + myCol;
+    meCks.appendChild(c);
+  }
+  for (let i = 0; i < Math.min(opOff, 15); i++) {
+    const c = document.createElement('div');
+    c.className = 'bck ' + opCol;
+    opCks.appendChild(c);
+  }
+  document.getElementById('bzMeN').textContent  = myOff;
+  document.getElementById('bzOppN').textContent = opOff;
+
+  // highlights
+  if (myTurn && started && dice.length && remDice().length) {
+    hlMovable();
+  } else {
+    clearHL();
+  }
 }
 
-function updateDiceUI(){
-  const f=['·','⚀','⚁','⚂','⚃','⚄','⚅'];
-  for(let i=0;i<4;i++){
-    const el=document.getElementById('d'+(i+1));
-    if(i<dice.length){el.style.display='flex';el.textContent=f[dice[i]]||'?';el.className='die'+(diceUsed[i]?' used':'');}
-    else el.style.display='none';
+function updateDiceUI() {
+  const faces = ['·', '⚀', '⚁', '⚂', '⚃', '⚄', '⚅'];
+  for (let i = 0; i < 4; i++) {
+    const el = document.getElementById('d' + (i + 1));
+    if (i < dice.length) {
+      el.style.display  = 'flex';
+      el.textContent    = faces[dice[i]] || '?';
+      el.className      = 'die' + (diceUsed[i] ? ' used' : '');
+    } else {
+      el.style.display = 'none';
+    }
   }
-  document.getElementById('rollBtn').disabled=!myTurn||dice.length>0;
-  document.getElementById('passBtn').style.display=(myTurn&&remDice().length>0)?'inline-block':'none';
+  document.getElementById('rollBtn').disabled = !myTurn || dice.length > 0;
+  document.getElementById('passBtn').style.display =
+    (myTurn && dice.length > 0 && remDice().length > 0) ? 'inline-block' : 'none';
 }
 
-function updateTurnUI(){
-  document.getElementById('turnBadge').textContent=myTurn?'🎲 შენი ჯერია!':'⏳ ველოდები...';
-  document.getElementById('myInfo').classList.toggle('active',myTurn);
-  document.getElementById('oppInfo').classList.toggle('active',!myTurn);
-  let s='';
-  if(myTurn){
-    if(!dice.length) s='🎲 გААGORE ზARI!';
-    else if(hasBar()) s='⚡ ბARIDAN GAMODI!';
-    else if(allInHome()) s='🏁 გAMOIYVANE ქVA!';
-    else s='✋ AIRCHIE ქVA';
-    // Georgian text
-    if(!dice.length) s='🎲 გААGORE ზARი! → 🎲 გААGORE!';
+function updateTurnUI() {
+  document.getElementById('turnBadge').textContent = myTurn ? '🎲 შენი ჯერია!' : '⏳ ველოდები...';
+  document.getElementById('myInfo').classList.toggle('active', myTurn);
+  document.getElementById('oppInfo').classList.toggle('active', !myTurn);
+
+  let s;
+  if (!myTurn) {
+    s = '⏳ ოპონენტის ჯერი...';
+  } else if (!dice.length) {
+    s = '🎲 გააგორე ზარი!';
+  } else if (hasBar()) {
+    s = '⚡ ბარიდან გამოდი!';
+  } else if (allInHome()) {
+    s = '🏁 გამოიყვანე ქვა!';
+  } else {
+    s = '✋ აირჩიე ქვა';
   }
-  // just use simple Georgian
-  if(myTurn){
-    if(!dice.length) s='🎲 გААGORE!';
-    else if(hasBar()) s='⚡ ბARIDAN!';
-    else if(allInHome()) s='🏁 გAMOIYVANE!';
-    else s='✋ AIRCHIE ქVA';
-  } else s='⏳ oPONENTis JERi...';
-  // Use proper Georgian
-  const msgs={roll:'🎲 გААGORE ZARI!',bar:'⚡ ბARIDAN GAMODI!',bearoff:'🏁 გAMOIYVANE ქVA!',pick:'✋ AIRCHIE ქVA',wait:'⏳ oPONENTis JERi...'};
-  if(myTurn){
-    if(!dice.length) s='🎲 გААGORE!';
-    else if(hasBar()) s='⚡ ბარიდან გამოდი!';
-    else if(allInHome()) s='🏁 გამოიყვანე ქვა!';
-    else s='✋ აირჩიე ქვა';
-  } else s='⏳ ოპონენტის ჯერი...';
-  document.getElementById('statusBar').textContent=s;
+  document.getElementById('statusBar').textContent = s;
 }
 
-/* ── DOM board construction ──
-   The board always has this fixed visual layout:
-   Top:  [dp13,14,15,16,17,18 | bar | dp19,20,21,22,23,24]
-   Bot:  [dp12,11,10, 9, 8, 7 | bar | dp6,  5, 4, 3, 2, 1]
+// ────────────────────────────────────────────
+// DOM BOARD CONSTRUCTION
+// ────────────────────────────────────────────
+/*
+  Fixed visual layout (invariant for both colors):
+  TOP:  dp13 14 15 16 17 18 | BAR | dp19 20 21 22 23 24   ← triangles point down
+  BOT:  dp12 11 10  9  8  7 | BAR |  dp6  5  4  3  2  1   ← triangles point up
 
-   For WHITE: dp=real, home=dp1-6 (bottom-right) ✓
-   For BLACK: dp=25-real, so real19-24 → dp6-1 (bottom-right) ✓
-   Both players see their home in bottom-right.
+  WHITE: dp=real → home dp1-6 (bottom-right) ✓
+  BLACK: dp=25-real → home dp1-6 = real19-24 (bottom-right) ✓
 */
-function buildBoard(){
-  document.getElementById('topL').innerHTML='';
-  document.getElementById('topR').innerHTML='';
-  document.getElementById('botL').innerHTML='';
-  document.getElementById('botR').innerHTML='';
-  for(let dp=13;dp<=18;dp++) document.getElementById('topL').appendChild(makePt(dp,true));
-  for(let dp=19;dp<=24;dp++) document.getElementById('topR').appendChild(makePt(dp,true));
-  for(let dp=12;dp>=7;dp--)  document.getElementById('botL').appendChild(makePt(dp,false));
-  for(let dp=6;dp>=1;dp--)   document.getElementById('botR').appendChild(makePt(dp,false));
+function buildBoard() {
+  ['topL','topR','botL','botR'].forEach(id => {
+    document.getElementById(id).innerHTML = '';
+  });
+
+  // top row: left = dp13–18, right = dp19–24
+  for (let dp = 13; dp <= 18; dp++) document.getElementById('topL').appendChild(makePt(dp, true));
+  for (let dp = 19; dp <= 24; dp++) document.getElementById('topR').appendChild(makePt(dp, true));
+
+  // bottom row: left = dp12–7 (descending), right = dp6–1 (descending)
+  for (let dp = 12; dp >= 7;  dp--) document.getElementById('botL').appendChild(makePt(dp, false));
+  for (let dp = 6;  dp >= 1;  dp--) document.getElementById('botR').appendChild(makePt(dp, false));
 }
 
-function makePt(dp,isTop){
-  const p=document.createElement('div');
-  p.className='pt';p.id='dp'+dp;
-  const col=dp%2===0?'#c8951a':'#b83030';
-  p.innerHTML=isTop
-    ?`<div class="tri t"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,95 2,4 58,4" fill="${col}" opacity=".85"/></svg></div>`
-    :`<div class="tri b"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,5 2,96 58,96" fill="${col}" opacity=".85"/></svg></div>`;
-  const num=document.createElement('div');
-  num.className='ptnum '+(isTop?'tn':'bn');
-  num.textContent=dp;
+function makePt(dp, isTop) {
+  const p = document.createElement('div');
+  p.className = 'pt';
+  p.id = 'dp' + dp;
+
+  const col = dp % 2 === 0 ? '#c8951a' : '#b83030';
+  p.innerHTML = isTop
+    ? `<div class="tri t"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,95 2,4 58,4" fill="${col}" opacity=".85"/></svg></div>`
+    : `<div class="tri b"><svg viewBox="0 0 60 100" preserveAspectRatio="none"><polygon points="30,5 2,96 58,96" fill="${col}" opacity=".85"/></svg></div>`;
+
+  const num = document.createElement('div');
+  num.className = 'ptnum ' + (isTop ? 'tn' : 'bn');
+  num.textContent = dp;
   p.appendChild(num);
-  const stk=document.createElement('div');
-  stk.className='stk '+(isTop?'top':'bot');
-  stk.id='stk'+dp;
+
+  const stk = document.createElement('div');
+  stk.className = 'stk ' + (isTop ? 'top' : 'bot');
+  stk.id = 'stk' + dp;
   p.appendChild(stk);
-  p.addEventListener('click',()=>onPtClick(dp));
+
+  p.addEventListener('click', () => onPtClick(dp));
   return p;
 }
 
-/* ── finish ── */
-async function finishGame(){
-  const winner=whiteOff>=15?'W':'B';
-  const iWon=winner===myCol;
+// ────────────────────────────────────────────
+// FINISH GAME
+// ────────────────────────────────────────────
+async function finishGame() {
+  const winner = whiteOff >= 15 ? 'W' : 'B';
+  const iWon   = winner === myCol;
+
   await sb.from('nardi_games').update({
-    board_state:JSON.stringify(board),bar_state:JSON.stringify(bar),
-    white_off:whiteOff,black_off:blackOff,status:'finished',winner
-  }).eq('id',gameId);
-  if(iWon){
-    const ns=(PROF.nardi_score||0)+5,nw=(PROF.nardi_wins||0)+1;
-    await sb.from('profiles').update({nardi_score:ns,nardi_wins:nw}).eq('id',ME.id);
-    PROF.nardi_score=ns;PROF.nardi_wins=nw;
+    board_state: JSON.stringify(board),
+    bar_state:   JSON.stringify(bar),
+    white_off:   whiteOff,
+    black_off:   blackOff,
+    status:      'finished',
+    winner:      winner
+  }).eq('id', gameId);
+
+  if (iWon) {
+    const ns = (PROF.nardi_score  || 0) + 5;
+    const nw = (PROF.nardi_wins   || 0) + 1;
+    await sb.from('profiles').update({nardi_score: ns, nardi_wins: nw}).eq('id', ME.id);
+    PROF.nardi_score = ns;
+    PROF.nardi_wins  = nw;
   } else {
-    const nl=(PROF.nardi_losses||0)+1;
-    await sb.from('profiles').update({nardi_losses:nl}).eq('id',ME.id);
-    PROF.nardi_losses=nl;
+    const nl = (PROF.nardi_losses || 0) + 1;
+    await sb.from('profiles').update({nardi_losses: nl}).eq('id', ME.id);
+    PROF.nardi_losses = nl;
   }
-  document.getElementById('myScoreDisp').textContent='🏆 '+(PROF.nardi_score||0);
-  document.getElementById('winTitle').textContent=iWon?'🏆 გამარჯვება!':'😢 წაგება';
-  document.getElementById('winSub').textContent=iWon?'+5 ქულა':'მომდევნო თამაშში!';
+
+  document.getElementById('myScoreDisp').textContent = '🏆 ' + (PROF.nardi_score || 0);
+  document.getElementById('winTitle').textContent = iWon ? '🏆 გამარჯვება!' : '😢 წაგება';
+  document.getElementById('winSub').textContent   = iWon ? '+5 ქულა' : 'მომდევნო თამაშში!';
   document.getElementById('winOverlay').classList.add('open');
 }
 
-/* ── invites ── */
-async function sendInvite(){
-  if(!selOpp) return;
-  document.getElementById('invBtn').disabled=true;
-  const {data,error}=await sb.from('nardi_invites').insert({from_uid:ME.id,to_uid:selOpp.id,status:'pending'}).select('id').single();
-  if(error){toast('❌ '+error.message);document.getElementById('invBtn').disabled=false;return;}
-  document.getElementById('lobby').style.display='none';
-  document.getElementById('waitingScreen').style.display='flex';
-  sb.channel('inv_'+data.id)
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'nardi_invites',filter:`id=eq.${data.id}`},async p=>{
-      if(p.new.status==='accepted'){
-        myCol='W';gameId=p.new.game_id;
+// ────────────────────────────────────────────
+// INVITES
+// ────────────────────────────────────────────
+async function sendInvite() {
+  if (!selOpp) return;
+  document.getElementById('invBtn').disabled = true;
+
+  const {data, error} = await sb.from('nardi_invites')
+    .insert({from_uid: ME.id, to_uid: selOpp.id, status: 'pending'})
+    .select('id').single();
+
+  if (error) {
+    toast('❌ ' + error.message);
+    document.getElementById('invBtn').disabled = false;
+    return;
+  }
+
+  document.getElementById('lobby').style.display = 'none';
+  document.getElementById('waitingScreen').style.display = 'flex';
+
+  sb.channel('inv_' + data.id)
+    .on('postgres_changes', {
+      event:  'UPDATE',
+      schema: 'public',
+      table:  'nardi_invites',
+      filter: `id=eq.${data.id}`
+    }, async p => {
+      if (p.new.status === 'accepted') {
+        myCol  = 'W';
+        gameId = p.new.game_id;
         await joinGame(gameId);
-      } else if(p.new.status==='declined'){
+      } else if (p.new.status === 'declined') {
         toast('❌ მოწვევა უარყო');
-        document.getElementById('lobby').style.display='flex';
-        document.getElementById('waitingScreen').style.display='none';
-        document.getElementById('invBtn').disabled=false;
+        document.getElementById('lobby').style.display = 'flex';
+        document.getElementById('waitingScreen').style.display = 'none';
+        document.getElementById('invBtn').disabled = false;
       }
     }).subscribe();
 }
 
-function watchInvites(){
-  sb.channel('my_invs_'+ME.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'nardi_invites',filter:`to_uid=eq.${ME.id}`},p=>{
-      if(p.new.status!=='pending') return;
-      pendingInv=p.new;
-      const sender=allUsers.find(u=>u.id===p.new.from_uid);
-      document.getElementById('ibName').textContent=sender?.username||'?';
+function watchInvites() {
+  sb.channel('my_invs_' + ME.id)
+    .on('postgres_changes', {
+      event:  'INSERT',
+      schema: 'public',
+      table:  'nardi_invites',
+      filter: `to_uid=eq.${ME.id}`
+    }, p => {
+      if (p.new.status !== 'pending') return;
+      pendingInv = p.new;
+      const sender = allUsers.find(u => u.id === p.new.from_uid);
+      document.getElementById('ibName').textContent = sender?.username || '?';
       document.getElementById('invBanner').classList.add('show');
     }).subscribe();
 }
 
-async function acceptInvite(){
-  if(!pendingInv) return;
+async function acceptInvite() {
+  if (!pendingInv) return;
   document.getElementById('invBanner').classList.remove('show');
-  const initB=initBoard();
-  const {data:gr,error}=await sb.from('nardi_games').insert({
-    player_white:pendingInv.from_uid,
-    player_black:ME.id,
-    board_state:JSON.stringify(initB),
-    bar_state:JSON.stringify({W:0,B:0}),
-    turn:'W',dice:[],dice_used:[],
-    status:'active',white_off:0,black_off:0
+
+  const initB = initBoard();
+  const {data: gr, error} = await sb.from('nardi_games').insert({
+    player_white: pendingInv.from_uid,
+    player_black: ME.id,
+    board_state:  JSON.stringify(initB),
+    bar_state:    JSON.stringify({W: 0, B: 0}),
+    turn:         'W',
+    dice:         [],
+    dice_used:    [],
+    status:       'active',
+    white_off:    0,
+    black_off:    0
   }).select('id').single();
-  if(error){toast('❌ '+error.message);return;}
-  await sb.from('nardi_invites').update({status:'accepted',game_id:gr.id}).eq('id',pendingInv.id);
-  myCol='B';gameId=gr.id;pendingInv=null;
+
+  if (error) { toast('❌ ' + error.message); return; }
+
+  await sb.from('nardi_invites').update({
+    status:  'accepted',
+    game_id: gr.id
+  }).eq('id', pendingInv.id);
+
+  myCol      = 'B';
+  gameId     = gr.id;
+  pendingInv = null;
   await joinGame(gameId);
 }
 
-function declineInvite(){
-  if(pendingInv) sb.from('nardi_invites').update({status:'declined'}).eq('id',pendingInv.id);
+function declineInvite() {
+  if (pendingInv) {
+    sb.from('nardi_invites').update({status: 'declined'}).eq('id', pendingInv.id);
+  }
   document.getElementById('invBanner').classList.remove('show');
-  pendingInv=null;
+  pendingInv = null;
 }
 
-async function joinGame(gid){
-  document.getElementById('lobby').style.display='none';
-  document.getElementById('waitingScreen').style.display='none';
-  document.getElementById('boardWrap').style.display='flex';
+// ────────────────────────────────────────────
+// JOIN / SYNC GAME
+// ────────────────────────────────────────────
+async function joinGame(gid) {
+  document.getElementById('lobby').style.display        = 'none';
+  document.getElementById('waitingScreen').style.display = 'none';
+  document.getElementById('boardWrap').style.display    = 'flex';
 
-  const {data:g,error}=await sb.from('nardi_games').select('*').eq('id',gid).single();
-  if(error){toast('❌ '+error.message);return;}
-  board=JSON.parse(g.board_state);
-  bar=g.bar_state?JSON.parse(g.bar_state):{W:0,B:0};
-  whiteOff=g.white_off||0;blackOff=g.black_off||0;
-  dice=g.dice||[];diceUsed=g.dice_used||dice.map(()=>false);
-  myTurn=(g.turn===myCol);
-  started=true;
+  const {data: g, error} = await sb.from('nardi_games').select('*').eq('id', gid).single();
+  if (error) { toast('❌ ' + error.message); return; }
 
+  loadGameState(g);
   buildBoard();
 
-  const oppId=myCol==='W'?g.player_black:g.player_white;
-  const opp=allUsers.find(u=>u.id===oppId);
-  document.getElementById('oppName').textContent=opp?.username||'ოპ.';
-  document.getElementById('myInfoName').textContent=PROF?.username||'შენ';
-  document.getElementById('bzMeLbl').textContent=myCol==='W'?'⚪ შენ':'⚫ შენ';
-  document.getElementById('bzOppLbl').textContent=myCol==='W'?'⚫ ოპ.':'⚪ ოპ.';
+  const oppId = myCol === 'W' ? g.player_black : g.player_white;
+  const opp   = allUsers.find(u => u.id === oppId);
+  document.getElementById('oppName').textContent   = opp?.username || 'ოპ.';
+  document.getElementById('myInfoName').textContent = PROF?.username || 'შენ';
+  document.getElementById('bzMeLbl').textContent   = myCol === 'W' ? '⚪ შენ' : '⚫ შენ';
+  document.getElementById('bzOppLbl').textContent  = myCol === 'W' ? '⚫ ოპ.' : '⚪ ოპ.';
 
-  renderBoard();updateDiceUI();updateTurnUI();
-  addSys('🎲 თამაში! '+(myCol==='W'?'⚪ თეთრი':'⚫ შავი')+' ხარ');
+  renderBoard();
+  updateDiceUI();
+  updateTurnUI();
+  addSys('🎲 თამაში! ' + (myCol === 'W' ? '⚪ თეთრი' : '⚫ შავი') + ' ხარ');
 
-  gameCh=sb.channel('game_'+gid)
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'nardi_games',filter:`id=eq.${gid}`},p=>{
-      if(selPt!==null) return; // don't interrupt mid-move
-      board=JSON.parse(p.new.board_state);
-      bar=p.new.bar_state?JSON.parse(p.new.bar_state):{W:0,B:0};
-      whiteOff=p.new.white_off||0;blackOff=p.new.black_off||0;
-      dice=p.new.dice||[];diceUsed=p.new.dice_used||dice.map(()=>false);
-      const wasMyTurn=myTurn;
-      myTurn=(p.new.turn===myCol);
-      if(myTurn&&!wasMyTurn) addSys('🎲 შენი ჯერია!');
-      renderBoard();updateDiceUI();updateTurnUI();
-      if(p.new.status==='finished'){
-        document.getElementById('winTitle').textContent=p.new.winner===myCol?'🏆 გამარჯვება!':'😢 წაგება';
-        document.getElementById('winSub').textContent=p.new.winner===myCol?'+5 ქულა':'მომდევნო თამაშში!';
+  gameCh = sb.channel('game_' + gid)
+    .on('postgres_changes', {
+      event:  'UPDATE',
+      schema: 'public',
+      table:  'nardi_games',
+      filter: `id=eq.${gid}`
+    }, p => {
+      // don't clobber a mid-move local state
+      if (selPt !== null) return;
+
+      const wasMyTurn = myTurn;
+      loadGameState(p.new);
+
+      if (myTurn && !wasMyTurn) addSys('🎲 შენი ჯერია!');
+
+      renderBoard();
+      updateDiceUI();
+      updateTurnUI();
+
+      if (p.new.status === 'finished') {
+        document.getElementById('winTitle').textContent =
+          p.new.winner === myCol ? '🏆 გამარჯვება!' : '😢 წაგება';
+        document.getElementById('winSub').textContent =
+          p.new.winner === myCol ? '+5 ქულა' : 'მომდევნო თამაშში!';
         document.getElementById('winOverlay').classList.add('open');
       }
     })
-    .on('broadcast',{event:'chat'},p=>{
-      const b=document.getElementById('chatMsgs');
-      const d=document.createElement('div');d.className='cm';d.textContent=(p.payload.nick||'?')+': '+(p.payload.text||'');
-      b.appendChild(d);b.scrollTop=b.scrollHeight;
+    .on('broadcast', {event: 'chat'}, p => {
+      appendChat((p.payload.nick || '?') + ': ' + (p.payload.text || ''), false);
     })
     .subscribe();
 }
 
-/* ── chat ── */
-function sendChat(){
-  const txt=document.getElementById('chatIn').value.trim();
-  if(!txt) return;
-  document.getElementById('chatIn').value='';
-  const b=document.getElementById('chatMsgs');
-  const d=document.createElement('div');d.className='cm me';d.textContent=txt;
-  b.appendChild(d);b.scrollTop=b.scrollHeight;
-  gameCh?.send({type:'broadcast',event:'chat',payload:{nick:PROF?.username||'?',text:txt}});
+// ── load game state from DB row ──
+function loadGameState(g) {
+  board    = JSON.parse(g.board_state);
+  bar      = g.bar_state ? JSON.parse(g.bar_state) : {W: 0, B: 0};
+  whiteOff = g.white_off  || 0;
+  blackOff = g.black_off  || 0;
+  dice     = Array.isArray(g.dice) ? g.dice : [];
+  // dice_used can be stored as array of booleans or come back as strings
+  if (Array.isArray(g.dice_used) && g.dice_used.length === dice.length) {
+    diceUsed = g.dice_used.map(v => v === true || v === 'true');
+  } else {
+    diceUsed = dice.map(() => false);
+  }
+  myTurn  = (g.turn === myCol);
+  started = true;
 }
 
-function addSys(t){
-  const b=document.getElementById('chatMsgs');
-  const d=document.createElement('div');d.className='cm-sys';d.textContent=t;
-  b.appendChild(d);b.scrollTop=b.scrollHeight;
+// ────────────────────────────────────────────
+// CHAT
+// ────────────────────────────────────────────
+function sendChat() {
+  const txt = document.getElementById('chatIn').value.trim();
+  if (!txt) return;
+  document.getElementById('chatIn').value = '';
+  appendChat(txt, true);
+  gameCh?.send({
+    type:    'broadcast',
+    event:   'chat',
+    payload: {nick: PROF?.username || '?', text: txt}
+  });
 }
 
-function toast(msg){
-  const t=document.createElement('div');t.className='toast';t.textContent=msg;
-  document.body.appendChild(t);setTimeout(()=>t.remove(),2200);
+function appendChat(text, isMe) {
+  const b = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className = 'cm' + (isMe ? ' me' : '');
+  d.textContent = text;
+  b.appendChild(d);
+  b.scrollTop = b.scrollHeight;
 }
 
-/* ── init ── */
-async function loadUsers(){
-  const {data}=await sb.from('profiles').select('id,username,avatar_url,emotion,nardi_score').neq('id',ME.id);
-  allUsers=data||[];
-  const list=document.getElementById('userList');list.innerHTML='';
-  allUsers.forEach(u=>{
-    const d=document.createElement('div');d.className='uitem';
-    d.innerHTML=`<div class="uav">${u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊')}</div><div style="flex:1;font-size:13px">${u.username||'?'}</div>`;
-    d.onclick=()=>{
-      document.querySelectorAll('.uitem').forEach(i=>i.classList.remove('sel'));
-      d.classList.add('sel');selOpp=u;
-      document.getElementById('invBtn').disabled=false;
+function addSys(t) {
+  const b = document.getElementById('chatMsgs');
+  const d = document.createElement('div');
+  d.className   = 'cm-sys';
+  d.textContent = t;
+  b.appendChild(d);
+  b.scrollTop = b.scrollHeight;
+}
+
+function toast(msg) {
+  const t = document.createElement('div');
+  t.className   = 'toast';
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 2200);
+}
+
+// ────────────────────────────────────────────
+// INIT
+// ────────────────────────────────────────────
+async function loadUsers() {
+  const {data} = await sb.from('profiles')
+    .select('id,username,avatar_url,emotion,nardi_score')
+    .neq('id', ME.id);
+  allUsers = data || [];
+
+  const list = document.getElementById('userList');
+  list.innerHTML = '';
+  allUsers.forEach(u => {
+    const d = document.createElement('div');
+    d.className = 'uitem';
+    d.innerHTML = `<div class="uav">${
+      u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion || '😊')
+    }</div><div style="flex:1;font-size:13px">${u.username || '?'}</div>`;
+    d.onclick = () => {
+      document.querySelectorAll('.uitem').forEach(i => i.classList.remove('sel'));
+      d.classList.add('sel');
+      selOpp = u;
+      document.getElementById('invBtn').disabled = false;
     };
     list.appendChild(d);
   });
 }
 
-async function init(){
-  const {data:{user}}=await sb.auth.getUser();
-  if(!user){location.href='index.html';return;}
-  ME=user;
-  const {data:prof}=await sb.from('profiles').select('*').eq('id',ME.id).single();
-  PROF=prof;
-  document.getElementById('myTbName').textContent=PROF?.username||'?';
-  document.getElementById('myScoreDisp').textContent='🏆 '+(PROF?.nardi_score||0);
-  document.getElementById('stWins').textContent=PROF?.nardi_wins||0;
-  document.getElementById('stLoss').textContent=PROF?.nardi_losses||0;
-  document.getElementById('stScore').textContent=PROF?.nardi_score||0;
+async function init() {
+  const {data: {user}} = await sb.auth.getUser();
+  if (!user) { location.href = 'index.html'; return; }
+  ME = user;
+
+  const {data: prof} = await sb.from('profiles').select('*').eq('id', ME.id).single();
+  PROF = prof;
+
+  document.getElementById('myTbName').textContent   = PROF?.username || '?';
+  document.getElementById('myScoreDisp').textContent = '🏆 ' + (PROF?.nardi_score || 0);
+  document.getElementById('stWins').textContent      = PROF?.nardi_wins   || 0;
+  document.getElementById('stLoss').textContent      = PROF?.nardi_losses || 0;
+  document.getElementById('stScore').textContent     = PROF?.nardi_score  || 0;
+
   await loadUsers();
   watchInvites();
-  document.getElementById('invBtn').onclick=sendInvite;
-  document.getElementById('cancelBtn').onclick=()=>location.reload();
-  document.getElementById('ibYes').onclick=acceptInvite;
-  document.getElementById('ibNo').onclick=declineInvite;
-  document.getElementById('rollBtn').onclick=rollDice;
-  document.getElementById('passBtn').onclick=passMove;
-  document.getElementById('restartBtn').onclick=()=>location.reload();
-  document.getElementById('bzMe').onclick=onBearOffClick;
+
+  document.getElementById('invBtn').onclick     = sendInvite;
+  document.getElementById('cancelBtn').onclick  = () => location.reload();
+  document.getElementById('ibYes').onclick      = acceptInvite;
+  document.getElementById('ibNo').onclick       = declineInvite;
+  document.getElementById('rollBtn').onclick    = rollDice;
+  document.getElementById('passBtn').onclick    = passMove;
+  document.getElementById('restartBtn').onclick = () => location.reload();
+  document.getElementById('bzMe').onclick       = onBearOffClick;
 }
 
 init();
