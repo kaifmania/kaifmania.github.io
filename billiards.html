@@ -367,6 +367,7 @@ let customEmojis = [], emojiCache = {};
 let gameMode = null;
 let currentInviteId = null, opponentId = null, opponentProf = null;
 let inviteCh = null, gameCh = null, chatCh = null;
+let myInviteChannel = null, outgoingInviteCh = null;
 let gameActive = false, myTurn = false, myTeam = null;
 let GAME_KEY = null;
 let aiThinkTimer = null;
@@ -636,24 +637,126 @@ function filterInviteList(){
   renderInviteList(document.getElementById('inviteSearch').value);
 }
 
+// ─── BROADCAST-ზე დაფუძნებული INVITE სისტემა ───
+// postgres_changes INSERT filter არასანდოა — broadcast გამოვიყენოთ პირდაპირ
+
+let myInviteChannel = null;  // ჩვენი პირადი "საფოსტო ყუთი"
+let outgoingInviteCh = null; // გაგზავნილი მოწვევის response channel
+
+function watchInvites(){
+  // ყოველი user-ი უსმენს საკუთარ personal channel-ს
+  if(myInviteChannel) try{sb.removeChannel(myInviteChannel);}catch(e){}
+
+  myInviteChannel = sb.channel('user_invite_' + ME.id)
+    .on('broadcast', {event: 'invite'}, async ({payload}) => {
+      if(!payload) return;
+      if(gameActive) {
+        // თამაშში ვართ — auto-decline
+        const rejectCh = sb.channel('user_invite_' + payload.from_id);
+        await rejectCh.subscribe();
+        rejectCh.send({type:'broadcast', event:'invite_response', payload:{
+          invite_id: payload.invite_id,
+          status: 'declined',
+          from_id: ME.id,
+          from_name: MYPROF?.username || '?'
+        }});
+        setTimeout(() => sb.removeChannel(rejectCh), 2000);
+        return;
+      }
+
+      currentInviteId = payload.invite_id;
+      opponentId = payload.from_id;
+
+      // sender info — allUsers-იდან ან payload-იდან
+      if(!allUsers.length) await loadAllUsers();
+      const sender = allUsers.find(u => u.id === payload.from_id) || {
+        username: payload.from_name || '?',
+        emotion: payload.from_emotion || '😊',
+        billiard_score: payload.from_score || 0,
+        id: payload.from_id
+      };
+      opponentProf = sender;
+
+      document.getElementById('incomingFromName').textContent = sender.username || '?';
+      document.getElementById('incomingScoreInfo').textContent = '💜 ' + (sender.billiard_score || 0) + ' ქულა';
+      document.getElementById('incomingModal').classList.add('open');
+    })
+    .subscribe((status) => {
+      console.log('My invite channel status:', status);
+    });
+}
+
 async function sendInvite(uid, userObj){
   closeInviteModal();
 
-  const {data, error} = await sb.from('billiard_invites')
-    .insert({from_id: ME.id, to_id: uid, status: 'pending'})
-    .select('id')
-    .single();
-
-  if(error){
-    toast('❌ მოწვევა ვერ გაიგზავნა: ' + error.message);
-    return;
-  }
-
-  currentInviteId = data.id;
   opponentId = uid;
-  opponentProf = userObj || allUsers.find(u => u.id === uid) || {username: '?', emotion: '😊'};
+  opponentProf = userObj || allUsers.find(u => u.id === uid) || {username:'?', emotion:'😊'};
+
+  // უნიკალური invite ID
+  const inviteId = 'inv_' + ME.id + '_' + uid + '_' + Date.now();
+  currentInviteId = inviteId;
+
+  // DB-შიც ვინახოთ (optional — response tracking-ისთვის)
+  sb.from('billiard_invites').insert({
+    id: inviteId.length <= 36 ? inviteId : undefined,
+    from_id: ME.id,
+    to_id: uid,
+    status: 'pending'
+  }).then();
+
   showWaiting(opponentProf.username || '?');
-  watchInviteResponse(data.id);
+
+  // ─── recipient-ის personal channel-ზე broadcast ───
+  const targetCh = sb.channel('user_invite_' + uid);
+  await targetCh.subscribe();
+  
+  setTimeout(async () => {
+    await targetCh.send({
+      type: 'broadcast',
+      event: 'invite',
+      payload: {
+        invite_id: inviteId,
+        from_id: ME.id,
+        from_name: MYPROF?.username || '?',
+        from_emotion: MYPROF?.emotion || '😊',
+        from_score: MYPROF?.billiard_score || 0
+      }
+    });
+    // channel-ი ღია დავტოვოთ response-ის მისაღებად
+  }, 600);
+
+  // response-ს ვუსმენთ ჩვენს channel-ზე
+  watchOutgoingResponse(inviteId, targetCh);
+}
+
+function watchOutgoingResponse(inviteId, targetCh){
+  // ჩვენს personal channel-ს უკვე ვუსმენთ watchInvites()-ში
+  // response event-ს მივიღებთ იქ — ან ცალკე listener-ით:
+  if(outgoingInviteCh) try{sb.removeChannel(outgoingInviteCh);}catch(e){}
+
+  outgoingInviteCh = sb.channel('invite_resp_direct_' + inviteId)
+    .on('broadcast', {event: 'invite_response'}, async ({payload}) => {
+      if(!payload || payload.invite_id !== inviteId) return;
+      sb.removeChannel(outgoingInviteCh);
+      if(targetCh) try{sb.removeChannel(targetCh);}catch(e){}
+
+      if(payload.status === 'accepted'){
+        await startOnlineGame(inviteId, 'caller');
+      } else {
+        toast('❌ ' + (opponentProf?.username || '?') + ' — უარი თქვა');
+        showLobby();
+      }
+    }).subscribe();
+
+  // 60 წამის timeout
+  setTimeout(() => {
+    if(document.getElementById('waitingScreen').style.display !== 'none'){
+      try{sb.removeChannel(outgoingInviteCh);}catch(e){}
+      if(targetCh) try{sb.removeChannel(targetCh);}catch(e){}
+      toast('⏰ მოწვევის დრო ამოიწურა');
+      showLobby();
+    }
+  }, 60000);
 }
 
 function showWaiting(nick){
@@ -664,79 +767,74 @@ function showWaiting(nick){
 }
 
 async function cancelInvite(){
-  if(currentInviteId){
-    await sb.from('billiard_invites').update({status: 'cancelled'}).eq('id', currentInviteId);
-    currentInviteId = null;
+  // გავამცნოთ recipient-ს რომ გავაუქმეთ
+  if(opponentId && currentInviteId){
+    const cancelCh = sb.channel('user_invite_' + opponentId);
+    await cancelCh.subscribe();
+    setTimeout(() => {
+      cancelCh.send({type:'broadcast', event:'invite', payload:{
+        invite_id: currentInviteId,
+        from_id: ME.id,
+        cancelled: true
+      }});
+      setTimeout(() => sb.removeChannel(cancelCh), 1000);
+    }, 400);
   }
+  if(outgoingInviteCh) try{sb.removeChannel(outgoingInviteCh);}catch(e){}
+  currentInviteId = null;
   opponentId = null;
   opponentProf = null;
   showLobby();
 }
 
-function watchInviteResponse(invId){
-  const ch = sb.channel('invite_resp_' + invId)
-    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'billiard_invites', filter:`id=eq.${invId}`}, async p => {
-      if(p.new.status === 'accepted'){
-        sb.removeChannel(ch);
-        opponentProf = allUsers.find(u => u.id === p.new.to_id) || {username:'?', emotion:'😊'};
-        await startOnlineGame(invId, 'caller');
-      } else if(p.new.status === 'declined'){
-        sb.removeChannel(ch);
-        toast('❌ ' + (opponentProf?.username || '?') + ' — უარი თქვა');
-        showLobby();
-      } else if(p.new.status === 'cancelled'){
-        sb.removeChannel(ch);
-        toast('⚠️ მოწვევა გაუქმდა');
-        showLobby();
-      }
-    }).subscribe();
-}
-
-function watchInvites(){
-  sb.channel('invites_for_' + ME.id)
-    .on('postgres_changes', {event:'INSERT', schema:'public', table:'billiard_invites', filter:`to_id=eq.${ME.id}`}, async p => {
-      if(p.new.status !== 'pending') return;
-      if(gameActive) return; // თამაშში ვართ — არ ვაჩვენოთ
-
-      currentInviteId = p.new.id;
-      if(!allUsers.length) await loadAllUsers();
-
-      const sender = allUsers.find(u => u.id === p.new.from_id) || {username:'?', emotion:'😊', billiard_score:0};
-      opponentId = p.new.from_id;
-      opponentProf = sender;
-
-      // ─── FIX 4: incoming modal — სახელი და ქულა ───
-      document.getElementById('incomingFromName').textContent = sender.username || '?';
-      document.getElementById('incomingScoreInfo').textContent = '💜 ' + (sender.billiard_score || 0) + ' ქულა';
-      document.getElementById('incomingModal').classList.add('open');
-    }).subscribe();
-}
-
-// ─── FIX 4: ACCEPT / DECLINE ───
+// ─── ACCEPT / DECLINE ───
 async function acceptInvite(){
   document.getElementById('incomingModal').classList.remove('open');
-  if(!currentInviteId) return;
+  if(!currentInviteId || !opponentId) return;
 
-  const {error} = await sb.from('billiard_invites')
-    .update({status: 'accepted'})
-    .eq('id', currentInviteId);
-
-  if(error){
-    toast('❌ შეცდომა: ' + error.message);
-    return;
-  }
+  // caller-ის response channel-ზე გავაგზავნოთ პასუხი
+  const respCh = sb.channel('invite_resp_direct_' + currentInviteId);
+  await respCh.subscribe();
+  setTimeout(async () => {
+    await respCh.send({
+      type: 'broadcast',
+      event: 'invite_response',
+      payload: {
+        invite_id: currentInviteId,
+        status: 'accepted',
+        from_id: ME.id
+      }
+    });
+    setTimeout(() => sb.removeChannel(respCh), 2000);
+  }, 400);
 
   await startOnlineGame(currentInviteId, 'callee');
 }
 
 async function declineInvite(){
   document.getElementById('incomingModal').classList.remove('open');
-  if(currentInviteId){
-    await sb.from('billiard_invites')
-      .update({status: 'declined'})
-      .eq('id', currentInviteId);
-    currentInviteId = null;
+  if(!currentInviteId || !opponentId) {
+    currentInviteId = null; opponentId = null; opponentProf = null;
+    return;
   }
+
+  // caller-ს გავაცნობოთ
+  const respCh = sb.channel('invite_resp_direct_' + currentInviteId);
+  await respCh.subscribe();
+  setTimeout(async () => {
+    await respCh.send({
+      type: 'broadcast',
+      event: 'invite_response',
+      payload: {
+        invite_id: currentInviteId,
+        status: 'declined',
+        from_id: ME.id
+      }
+    });
+    setTimeout(() => sb.removeChannel(respCh), 2000);
+  }, 400);
+
+  currentInviteId = null;
   opponentId = null;
   opponentProf = null;
 }
@@ -809,6 +907,7 @@ function showLobby(){
   if(aiThinkTimer){clearTimeout(aiThinkTimer); aiThinkTimer = null;}
   if(gameCh){try{sb.removeChannel(gameCh);}catch(e){} gameCh = null;}
   if(chatCh){try{sb.removeChannel(chatCh);}catch(e){} chatCh = null;}
+  if(outgoingInviteCh){try{sb.removeChannel(outgoingInviteCh);}catch(e){} outgoingInviteCh = null;}
   opponentId = null; opponentProf = null; GAME_KEY = null;
   loadLeaderboard();
 }
