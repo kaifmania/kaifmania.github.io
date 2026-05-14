@@ -11,23 +11,22 @@
 :root{
   --bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);
   --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
-  --online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
+  --indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
   --glow:rgba(168,85,247,0.28);--accent:#f07aff;
-  --green:#4ade80;--green-f:rgba(74,222,128,0.15);
-  --felt:#1a4a2e;--felt2:#1f5c38;--rail:#2d1b00;--rail2:#4a2d00;--chalk:#d4a574;
+  --green:#4ade80;
 }
 body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
 
 #topnav{display:flex;align-items:center;gap:8px;background:var(--panel);border-bottom:1px solid var(--border);padding:8px 16px;flex-shrink:0;z-index:100}
 .nav-back{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;padding:6px 14px;cursor:pointer}
 .nav-back:hover{background:var(--border);color:var(--text)}
-.nav-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-left:4px}
+.nav-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--text)}
 .nav-spacer{flex:1}
 .nav-score{font-family:'Unbounded',sans-serif;font-size:12px;color:var(--accent);background:var(--indigo-f);border:1px solid var(--border);border-radius:12px;padding:5px 14px}
 
 #layout{display:flex;flex:1;min-height:0;gap:0}
 #gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:12px;gap:10px;position:relative}
-#rightPanel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+#rightPanel{width:300px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
 @media(max-width:768px){#rightPanel{display:none}}
 
 #lobbyScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;width:100%;max-width:520px;margin:0 auto}
@@ -41,83 +40,95 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .lobby-btn.green{background:linear-gradient(135deg,#16a34a,#4ade80);color:#052e16}
 .lobby-btn.secondary{background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)}
 
-#inviteModal{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:5000;display:none;align-items:center;justify-content:center;padding:16px}
+#inviteModal{position:fixed;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(8px);z-index:5000;display:none;align-items:center;justify-content:center;padding:16px}
 #inviteModal.open{display:flex}
-.invite-box{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:28px;width:100%;max-width:400px}
-.invite-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;color:var(--text);margin-bottom:16px}
-.invite-search{width:100%;padding:10px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:12px}
-#inviteUserList{max-height:220px;overflow-y:auto}
-.invite-user-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;transition:all .2s;border:1px solid transparent;margin-bottom:3px}
-.invite-user-item:hover{background:var(--indigo-f);border-color:var(--border)}
-.invite-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0}
+.invite-box{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:24px;width:100%;max-width:400px}
+.invite-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:16px}
+.invite-search{width:100%;padding:12px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;outline:none;margin-bottom:16px}
+#inviteUserList{max-height:300px;overflow-y:auto}
+.invite-user-item{display:flex;align-items:center;gap:12px;padding:10px;border-radius:12px;cursor:pointer;transition:all .2s;margin-bottom:4px}
+.invite-user-item:hover{background:var(--indigo-f)}
+.invite-av{width:40px;height:40px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
 .invite-av img{width:100%;height:100%;object-fit:cover}
-.invite-name{font-size:13px;font-weight:500;color:var(--text)}
-.invite-online{width:8px;height:8px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80;flex-shrink:0}
-.invite-cancel{margin-top:12px;width:100%;padding:10px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer}
-.invite-section-hdr{font-size:9px;font-family:'Unbounded',sans-serif;padding:4px 8px 6px;opacity:0.8}
+.invite-name{font-size:14px;font-weight:600;color:var(--text)}
+.invite-online{width:10px;height:10px;border-radius:50%;background:#4ade80;box-shadow:0 0 6px #4ade80}
+.invite-cancel{margin-top:16px;width:100%;padding:12px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer}
+.invite-section-hdr{font-size:10px;font-family:'Unbounded',sans-serif;padding:8px 4px 4px;color:var(--text3)}
 
-#incomingModal{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);z-index:6000;display:none;align-items:center;justify-content:center;padding:16px}
+#incomingModal{position:fixed;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);z-index:6000;display:none;align-items:center;justify-content:center;padding:16px}
 #incomingModal.open{display:flex}
 .incoming-box{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:28px;width:100%;max-width:340px;text-align:center}
 .incoming-icon{font-size:56px;margin-bottom:12px}
-.incoming-from{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
-.incoming-msg{font-size:13px;color:var(--text2);margin-bottom:20px}
-.incoming-btns{display:flex;gap:10px}
+.incoming-from{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;color:var(--text);margin-bottom:8px}
+.incoming-msg{font-size:13px;color:var(--text2);margin-bottom:24px}
+.incoming-btns{display:flex;gap:12px}
 .incoming-accept{flex:1;padding:12px;border-radius:14px;background:linear-gradient(135deg,#16a34a,#4ade80);border:none;color:#052e16;font-weight:700;cursor:pointer}
-.incoming-decline{flex:1;padding:12px;border-radius:14px;background:rgba(220,0,0,.1);border:1px solid rgba(220,0,0,.3);color:#ff7777;font-weight:700;cursor:pointer}
+.incoming-decline{flex:1;padding:12px;border-radius:14px;background:rgba(220,0,0,.15);border:1px solid rgba(220,0,0,.4);color:#ff8888;font-weight:700;cursor:pointer}
 
-#waitingScreen{display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
-.waiting-spinner{width:56px;height:56px;border:3px solid var(--border);border-top-color:#f07aff;border-radius:50%;animation:spin 1s linear infinite}
+#waitingScreen{display:none;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px;text-align:center}
+.waiting-spinner{width:60px;height:60px;border:3px solid var(--border);border-top-color:#f07aff;border-radius:50%;animation:spin 1s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.waiting-title{font-family:'Unbounded',sans-serif;font-size:16px;color:var(--text)}
-.waiting-cancel{padding:10px 24px;border-radius:12px;background:rgba(220,0,0,.1);border:1px solid rgba(220,0,0,.3);color:#ff7777;font-size:13px;cursor:pointer}
+.waiting-title{font-family:'Unbounded',sans-serif;font-size:18px;color:var(--text)}
+.waiting-cancel{padding:10px 28px;border-radius:12px;background:rgba(220,0,0,.15);border:1px solid rgba(220,0,0,.4);color:#ff8888;font-size:13px;cursor:pointer}
 
-#gameHUD{display:flex;align-items:center;gap:12px;width:100%;max-width:700px;flex-shrink:0}
-.hud-player{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:10px}
+#gameHUD{display:flex;align-items:center;gap:12px;width:100%;max-width:700px}
+.hud-player{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:12px;display:flex;align-items:center;gap:12px;position:relative}
 .hud-player.active{border-color:#f07aff;box-shadow:0 0 20px rgba(168,85,247,.3)}
-.hud-av{width:38px;height:38px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden}
+.hud-av{width:44px;height:44px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:22px;overflow:hidden}
 .hud-av img{width:100%;height:100%;object-fit:cover}
 .hud-info{flex:1}
-.hud-name{font-size:12px;font-weight:600;color:var(--text)}
-.hud-balls{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
-.hud-ball{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.2)}
-.hud-turn{font-size:9px;font-family:'Unbounded',sans-serif;color:#f07aff;position:absolute;top:6px;right:8px}
-.hud-vs{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;color:var(--text3)}
+.hud-name{font-size:13px;font-weight:600;color:var(--text)}
+.hud-balls{display:flex;flex-wrap:wrap;gap:3px;margin-top:4px}
+.hud-ball{width:16px;height:16px;border-radius:50%;border:1px solid rgba(255,255,255,.2)}
+.hud-turn{font-size:10px;font-family:'Unbounded',sans-serif;color:#f07aff;position:absolute;top:8px;right:12px}
+.hud-vs{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:900;color:var(--text3)}
 
-#tableWrap{position:relative;background:#2d1b00;border-radius:16px;padding:18px;box-shadow:0 0 60px rgba(0,0,0,.8);flex-shrink:0}
-canvas#billiards{display:block;border-radius:8px;touch-action:none}
+#tableWrap{position:relative;background:#2d1b00;border-radius:20px;padding:20px;box-shadow:0 0 60px rgba(0,0,0,.8)}
+canvas#billiards{display:block;border-radius:10px;touch-action:none}
 
-#powerBar{display:flex;align-items:center;gap:8px;width:100%;max-width:700px;flex-shrink:0}
-.power-label{font-size:10px;color:var(--text3)}
+#powerBar{display:flex;align-items:center;gap:10px;width:100%;max-width:700px}
+.power-label{font-size:11px;color:var(--text3);font-weight:600}
 .power-track{flex:1;height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}
-.power-fill{height:100%;background:linear-gradient(90deg,#4ade80,#fbbf24,#ef4444);transition:width .1s}
-#powerVal{font-size:10px;color:var(--text2);width:30px}
+.power-fill{height:100%;background:linear-gradient(90deg,#4ade80,#fbbf24,#ef4444);transition:width .05s}
+#powerVal{font-size:11px;color:var(--text2);width:35px;font-weight:600}
 
-#statusBar{font-size:12px;color:var(--text2);text-align:center;min-height:20px}
-#ballInHandHint{display:none;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);border-radius:10px;padding:6px 14px;font-size:11px;color:#4ade80;width:100%;max-width:700px}
+#statusBar{font-size:12px;color:var(--text2);text-align:center;padding:4px}
+#ballInHandHint{display:none;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);border-radius:12px;padding:8px 16px;font-size:12px;color:#4ade80}
 
-#resultOverlay{position:absolute;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border-radius:16px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:200}
+#resultOverlay{position:absolute;inset:0;background:rgba(0,0,0,.9);backdrop-filter:blur(10px);border-radius:20px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;z-index:200}
 #resultOverlay.open{display:flex}
-.result-icon{font-size:60px}
-.result-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--text)}
-.result-btn{padding:12px 32px;border-radius:14px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px}
+.result-icon{font-size:64px}
+.result-title{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--text)}
+.result-btn{padding:12px 36px;border-radius:16px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
 .result-btn.again{background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff}
 
+/* ჩატი */
 #chatPanel{flex:1;display:flex;flex-direction:column;min-height:0}
-#chatMsgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:4px}
-.chat-msg{display:flex;gap:7px;align-items:flex-start}
-.chat-msg-av{width:28px;height:28px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;overflow:hidden}
+#chatMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
+.chat-msg{display:flex;gap:8px;align-items:flex-start}
+.chat-msg-av{width:30px;height:30px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0}
 .chat-msg-av img{width:100%;height:100%;object-fit:cover}
-.chat-msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:7px 10px;font-size:12px;color:var(--text)}
-.chat-msg.mine .chat-msg-bubble{background:rgba(120,30,200,0.22)}
-.chat-msg.sys .chat-msg-bubble{background:rgba(74,222,128,.08);color:#4ade80;font-style:italic;font-size:11px}
-.chat-bar{display:flex;gap:6px;padding:8px;border-top:1px solid var(--border)}
-.chat-em-btn{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);font-size:16px;cursor:pointer}
-#chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:8px 12px;color:var(--text);font-size:12px;outline:none}
-.chat-send{background:linear-gradient(135deg,#7a1fc8,#a855f7);border:none;border-radius:10px;color:#fff;font-size:15px;cursor:pointer;padding:0 12px}
+.chat-msg-body{flex:1}
+.chat-msg-nick{font-size:10px;font-weight:600;color:var(--text2);margin-bottom:2px}
+.chat-msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:6px 14px 14px 14px;padding:8px 12px;font-size:12px;color:var(--text);word-break:break-word}
+.chat-msg.mine .chat-msg-bubble{background:rgba(120,30,200,0.25);border-color:rgba(168,85,247,.4)}
+.chat-msg.sys .chat-msg-bubble{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2);color:#4ade80;font-style:italic;font-size:11px;text-align:center}
 
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;z-index:99999;animation:popIn .3s ease}
-@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
+/* სმაილების პანელი */
+#chatEmoPanel{display:none;flex-wrap:wrap;gap:6px;padding:10px;border-top:1px solid var(--border);max-height:130px;overflow-y:auto}
+#chatEmoPanel.open{display:flex}
+.emoji-btn{width:44px;height:44px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:26px}
+.emoji-btn:hover{background:var(--border);transform:scale(1.05)}
+.emoji-img{width:34px;height:34px;object-fit:contain;border-radius:6px}
+
+.chat-bar{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border)}
+.chat-em-btn{width:38px;height:38px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.chat-em-btn:hover{background:var(--border)}
+#chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:10px 14px;color:var(--text);font-size:12px;outline:none}
+.chat-send{background:linear-gradient(135deg,#7a1fc8,#a855f7);border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer;padding:0 16px}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 24px;border-radius:30px;font-size:13px;z-index:99999;animation:popIn .3s ease}
+@keyframes popIn{from{opacity:0;transform:scale(.85) translateX(-50%)}to{opacity:1;transform:scale(1) translateX(-50%)}}
 </style>
 </head>
 <body>
@@ -131,20 +142,20 @@ canvas#billiards{display:block;border-radius:8px;touch-action:none}
 
 <div id="inviteModal">
   <div class="invite-box">
-    <div class="invite-title">👥 მოიწვიე მოთამაშე</div>
+    <div class="invite-title">👥 მოიწვიე მეგობარი</div>
     <input class="invite-search" id="inviteSearch" placeholder="🔍 ძებნა..." oninput="filterInviteList()">
     <div id="inviteUserList"><div style="text-align:center;padding:20px;color:var(--text3)">იტვირთება...</div></div>
-    <button class="invite-cancel" onclick="closeInviteModal()">✕ გაუქმება</button>
+    <button class="invite-cancel" onclick="closeInviteModal()">✕ დახურვა</button>
   </div>
 </div>
 
 <div id="incomingModal">
   <div class="incoming-box">
-    <div class="incoming-icon">🎱</div>
-    <div class="incoming-from" id="incomingFromName">?</div>
-    <div class="incoming-msg">გიწვევთ ბილიარდის თამაშში!</div>
+    <div class="incoming-icon">🎱✨</div>
+    <div class="incoming-from" id="incomingFromName">მოთამაშე</div>
+    <div class="incoming-msg">გიწვევთ ბილიარდის სათამაშოდ!</div>
     <div class="incoming-btns">
-      <button class="incoming-accept" onclick="acceptInvite()">✅ დასტური</button>
+      <button class="incoming-accept" onclick="acceptInvite()">✅ მიღება</button>
       <button class="incoming-decline" onclick="declineInvite()">❌ უარი</button>
     </div>
   </div>
@@ -154,22 +165,22 @@ canvas#billiards{display:block;border-radius:8px;touch-action:none}
   <div id="gameArea">
     <div id="lobbyScreen">
       <div class="lobby-icon">🎱</div>
-      <div class="lobby-title">ბილიარდი</div>
-      <div class="lobby-subtitle">8-ბურთი · კლასიკური ბილიარდი</div>
+      <div class="lobby-title">ბილიარდი 8-ball</div>
+      <div class="lobby-subtitle">ითამაშე მეგობრებთან ერთად</div>
       <div class="lobby-btns">
         <button class="lobby-btn primary" onclick="startVsAI()">🤖 AI-ს წინააღმდეგ</button>
         <button class="lobby-btn green" onclick="openInviteModal()">👥 მეგობრის მოწვევა</button>
-        <button class="lobby-btn secondary" onclick="goBack()">← მთავარ გვერდზე</button>
+        <button class="lobby-btn secondary" onclick="goBack()">← მთავარი</button>
       </div>
     </div>
 
     <div id="waitingScreen">
       <div class="waiting-spinner"></div>
-      <div class="waiting-title" id="waitingTitle">ველოდებით...</div>
+      <div class="waiting-title" id="waitingTitle">ველოდებით პასუხს...</div>
       <button class="waiting-cancel" onclick="cancelInvite()">✕ გაუქმება</button>
     </div>
 
-    <div id="hudWrap" style="display:none;flex-direction:column;align-items:center;gap:8px;width:100%">
+    <div id="hudWrap" style="display:none;flex-direction:column;align-items:center;gap:10px;width:100%">
       <div id="gameHUD">
         <div class="hud-player active" id="hudP1">
           <div class="hud-av" id="hudP1Av">😊</div>
@@ -177,6 +188,7 @@ canvas#billiards{display:block;border-radius:8px;touch-action:none}
             <div class="hud-name" id="hudP1Name">თქვენ</div>
             <div class="hud-balls" id="hudP1Balls"></div>
           </div>
+          <div class="hud-turn" id="hudP1Turn">🎯 ჯერი</div>
         </div>
         <div class="hud-vs">VS</div>
         <div class="hud-player" id="hudP2">
@@ -185,6 +197,7 @@ canvas#billiards{display:block;border-radius:8px;touch-action:none}
             <div class="hud-name" id="hudP2Name">AI</div>
             <div class="hud-balls" id="hudP2Balls"></div>
           </div>
+          <div class="hud-turn" id="hudP2Turn" style="display:none">🎯 ჯერი</div>
         </div>
       </div>
 
@@ -193,25 +206,29 @@ canvas#billiards{display:block;border-radius:8px;touch-action:none}
         <div id="resultOverlay">
           <div class="result-icon" id="resultIcon">🏆</div>
           <div class="result-title" id="resultTitle">გამარჯვება!</div>
-          <button class="result-btn again" onclick="restartGame()">🔄 კვლავ</button>
+          <button class="result-btn again" onclick="restartGame()">🔄 ახალი თამაში</button>
         </div>
       </div>
 
-      <div id="ballInHandHint">🎱 Ball-in-hand: დააჭირეთ მაგიდაზე</div>
+      <div id="ballInHandHint">🎯 Ball-in-hand: დააჭირე მაგიდაზე თეთრი ბურთის დასადებად</div>
       <div id="powerBar">
-        <div class="power-label">ძალა:</div>
+        <div class="power-label">⚡ ძალა</div>
         <div class="power-track"><div class="power-fill" id="powerFill" style="width:0%"></div></div>
         <div id="powerVal">0%</div>
       </div>
-      <div id="statusBar">თამაში იწყება...</div>
+      <div id="statusBar">მზად არის?</div>
     </div>
   </div>
 
   <div id="rightPanel">
     <div id="chatPanel">
-      <div id="chatMsgs"></div>
+      <div id="chatMsgs">
+        <div class="chat-msg sys"><div class="chat-msg-bubble">💬 მოგესალმებით! ისაუბრეთ, მოიწვიეთ მეგობრები</div></div>
+      </div>
+      <div id="chatEmoPanel"></div>
       <div class="chat-bar">
-        <input id="chatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChatMsg()">
+        <button class="chat-em-btn" onclick="toggleEmojiPanel()">😊</button>
+        <input id="chatInput" placeholder="დაწერე შეტყობინება..." onkeydown="if(event.key==='Enter')sendChatMsg()">
         <button class="chat-send" onclick="sendChatMsg()">✈️</button>
       </div>
     </div>
@@ -227,12 +244,12 @@ const sb = createClient(
 
 let ME = null, MYPROF = null;
 let allUsers = [];
+let customEmojis = [];
 let gameMode = null;
 let currentInviteId = null, opponentId = null, opponentProf = null;
 let gameActive = false, myTurn = false;
-let GAME_KEY = null;
-let aiThinkTimer = null;
 let myPlayerNum = 1;
+let aiThinkTimer = null;
 
 // თამაშის ცვლადები
 const W = 660, H = 360;
@@ -253,6 +270,7 @@ const POCKETS = [
   {x: RAIL_W, y: RAIL_W}, {x: W/2, y: RAIL_W-4}, {x: W-RAIL_W, y: RAIL_W},
   {x: RAIL_W, y: H-RAIL_W}, {x: W/2, y: H-RAIL_W+4}, {x: W-RAIL_W, y: H-RAIL_W}
 ];
+
 const BALL_COLORS = {
   1:'#fbbf24',2:'#2563eb',3:'#dc2626',4:'#7c3aed',5:'#ea580c',
   6:'#16a34a',7:'#be185d',8:'#111827',
@@ -264,6 +282,7 @@ function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').
 function toast(msg) { const t = document.createElement('div'); t.className = 'toast'; t.textContent = msg; document.body.appendChild(t); setTimeout(() => t.remove(), 2500); }
 function goBack() { window.close(); if (!window.closed) location.href = 'index.html'; }
 
+// ========== ავტორიზაცია და ინიციალიზაცია ==========
 async function init() {
   const { data: { user } } = await sb.auth.getUser();
   if (!user) { location.href = 'index.html'; return; }
@@ -278,9 +297,12 @@ async function init() {
   }, 30000);
   
   await loadAllUsers();
+  await loadEmojis();
+  buildEmojiPanel();
   watchInvites();
 }
 
+// ========== მომხმარებლები ==========
 async function loadAllUsers() {
   const { data, error } = await sb.from('profiles')
     .select('id, username, avatar_url, emotion, last_seen, billiard_score')
@@ -293,12 +315,60 @@ function isOnline(ts) {
   return Date.now() - new Date(ts).getTime() < 90000;
 }
 
+// ========== სმაილები ==========
+async function loadEmojis() {
+  const { data } = await sb.from('global_emojis').select('id, url').order('id');
+  customEmojis = data || [];
+}
+
+function buildEmojiPanel() {
+  const panel = document.getElementById('chatEmoPanel');
+  panel.innerHTML = '';
+  customEmojis.forEach(emoji => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-btn';
+    const isImg = emoji.url && (emoji.url.startsWith('http') || emoji.url.startsWith('data:'));
+    if (isImg) {
+      const img = document.createElement('img');
+      img.src = emoji.url;
+      img.className = 'emoji-img';
+      btn.appendChild(img);
+    } else {
+      btn.textContent = emoji.url || '😊';
+    }
+    btn.onclick = () => {
+      const inp = document.getElementById('chatInput');
+      inp.value += isImg ? `[e:${emoji.id}]` : (emoji.url || '😊');
+      inp.focus();
+    };
+    panel.appendChild(btn);
+  });
+}
+
+function renderChatContent(text) {
+  if (!text) return '';
+  let html = esc(text);
+  html = html.replace(/\[e:(\d+)\]/g, (match, id) => {
+    const emoji = customEmojis.find(e => e.id == id);
+    if (emoji && emoji.url && (emoji.url.startsWith('http') || emoji.url.startsWith('data:'))) {
+      return `<img src="${emoji.url}" style="width:22px;height:22px;vertical-align:middle;border-radius:4px">`;
+    }
+    return match;
+  });
+  return html;
+}
+
+function toggleEmojiPanel() {
+  document.getElementById('chatEmoPanel').classList.toggle('open');
+}
+
+// ========== მოწვევა ==========
 async function openInviteModal() {
   const modal = document.getElementById('inviteModal');
   modal.classList.add('open');
   document.getElementById('inviteSearch').value = '';
+  document.getElementById('inviteUserList').innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">იტვირთება...</div>';
   
-  // მომხმარებლების ჩატვირთვა
   await loadAllUsers();
   renderInviteList('');
 }
@@ -316,7 +386,7 @@ function renderInviteList(filter) {
   const filtered = q ? others.filter(u => (u.username || '').toLowerCase().includes(q)) : others;
   
   if (!filtered.length) {
-    el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">მომხმარებელი ვერ მოიძებნა</div>';
+    el.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text3)">👀 მომხმარებელი ვერ მოიძებნა</div>';
     return;
   }
   
@@ -326,33 +396,31 @@ function renderInviteList(filter) {
   if (online.length) {
     const hdr = document.createElement('div');
     hdr.className = 'invite-section-hdr';
-    hdr.style.color = '#4ade80';
-    hdr.textContent = '🟢 ონლაინი (' + online.length + ')';
+    hdr.innerHTML = '🟢 ონლაინი (' + online.length + ')';
     el.appendChild(hdr);
-    online.forEach(u => el.appendChild(makeInviteRow(u, true)));
+    online.forEach(u => el.appendChild(createInviteItem(u, true)));
   }
   
   if (offline.length) {
     const hdr = document.createElement('div');
     hdr.className = 'invite-section-hdr';
-    hdr.style.color = 'var(--text3)';
-    hdr.textContent = '⚫ ოფლაინი (' + offline.length + ')';
+    hdr.innerHTML = '⚫ ოფლაინი (' + offline.length + ')';
     el.appendChild(hdr);
-    offline.forEach(u => el.appendChild(makeInviteRow(u, false)));
+    offline.forEach(u => el.appendChild(createInviteItem(u, false)));
   }
 }
 
-function makeInviteRow(u, online) {
+function createInviteItem(u, isOnlineUser) {
   const div = document.createElement('div');
   div.className = 'invite-user-item';
-  const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion || '😊');
+  const avatar = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion || '😊');
   div.innerHTML = `
-    <div class="invite-av">${avHtml}</div>
+    <div class="invite-av">${avatar}</div>
     <div style="flex:1">
-      <div class="invite-name">${esc(u.username || '?')}</div>
-      <div style="font-size:10px;color:var(--text3)">💜 ${u.billiard_score || 0}</div>
+      <div class="invite-name">${esc(u.username || 'ანონიმი')}</div>
+      <div style="font-size:11px;color:var(--text3)">💜 ${u.billiard_score || 0}</div>
     </div>
-    ${online ? '<div class="invite-online"></div>' : ''}
+    ${isOnlineUser ? '<div class="invite-online"></div>' : ''}
   `;
   div.onclick = () => sendInvite(u.id);
   return div;
@@ -368,10 +436,7 @@ async function sendInvite(uid) {
     .insert({ from_id: ME.id, to_id: uid, status: 'pending' })
     .select('id').single();
   
-  if (error) {
-    toast('❌ მოწვევა ვერ გაიგზავნა');
-    return;
-  }
+  if (error) { toast('❌ მოწვევა ვერ გაიგზავნა'); return; }
   
   currentInviteId = data.id;
   opponentId = uid;
@@ -379,16 +444,15 @@ async function sendInvite(uid) {
   
   document.getElementById('lobbyScreen').style.display = 'none';
   document.getElementById('waitingScreen').style.display = 'flex';
-  document.getElementById('waitingTitle').textContent = 'ველოდებით ' + (opponentProf?.username || '?') + '-ს...';
+  document.getElementById('waitingTitle').textContent = '⏳ ველოდებით ' + (opponentProf?.username || 'მოთამაშეს') + '-ს...';
   
-  // მოწვევაზე პასუხის მოსმენა
-  const ch = sb.channel('invite_resp_' + data.id)
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'billiard_invites', filter: `id=eq.${data.id}` }, async (p) => {
-      if (p.new.status === 'accepted') {
-        sb.removeChannel(ch);
+  const channel = sb.channel('invite_' + data.id)
+    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'billiard_invites', filter: `id=eq.${data.id}` }, async (payload) => {
+      if (payload.new.status === 'accepted') {
+        sb.removeChannel(channel);
         await startOnlineGame(data.id, 'caller');
-      } else if (p.new.status === 'declined') {
-        sb.removeChannel(ch);
+      } else if (payload.new.status === 'declined') {
+        sb.removeChannel(channel);
         toast('❌ მოწვევაზე უარი თქვეს');
         showLobby();
       }
@@ -396,18 +460,19 @@ async function sendInvite(uid) {
 }
 
 function watchInvites() {
-  sb.channel('invites_for_' + ME.id)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'billiard_invites', filter: `to_id=eq.${ME.id}` }, async (p) => {
-      if (p.new.status !== 'pending') return;
+  sb.channel('my_invites_' + (ME?.id || 'loading'))
+    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'billiard_invites', filter: `to_id=eq.${ME?.id || ''}` }, async (payload) => {
+      if (!ME) return;
+      if (payload.new.status !== 'pending') return;
       if (gameActive) return;
       
-      currentInviteId = p.new.id;
+      currentInviteId = payload.new.id;
       await loadAllUsers();
-      const sender = allUsers.find(u => u.id === p.new.from_id) || { username: '?', emotion: '😊' };
-      opponentId = p.new.from_id;
+      const sender = allUsers.find(u => u.id === payload.new.from_id) || { username: '?', emotion: '😊' };
+      opponentId = payload.new.from_id;
       opponentProf = sender;
       
-      document.getElementById('incomingFromName').textContent = sender.username || '?';
+      document.getElementById('incomingFromName').textContent = sender.username || 'მოთამაშე';
       document.getElementById('incomingModal').classList.add('open');
     }).subscribe();
 }
@@ -423,18 +488,18 @@ async function declineInvite() {
   document.getElementById('incomingModal').classList.remove('open');
   if (currentInviteId) {
     await sb.from('billiard_invites').update({ status: 'declined' }).eq('id', currentInviteId);
-    currentInviteId = null;
   }
+  currentInviteId = null;
 }
 
 async function cancelInvite() {
   if (currentInviteId) {
     await sb.from('billiard_invites').update({ status: 'cancelled' }).eq('id', currentInviteId);
-    currentInviteId = null;
   }
   showLobby();
 }
 
+// ========== თამაშის რეჟიმები ==========
 function startVsAI() {
   gameMode = 'ai';
   myPlayerNum = 1;
@@ -444,12 +509,12 @@ function startVsAI() {
   gameActive = true;
   myTurn = true;
   currentPlayer = 1;
-  setStatus('შენი ჯერი!');
+  setStatus('🎯 შენი ჯერია! დაარტყი თეთრ ბურთს');
+  sendSystemMsg('🤖 დაიწყო AI-ს წინააღმდეგ თამაში');
 }
 
 async function startOnlineGame(invId, role) {
   gameMode = 'online';
-  GAME_KEY = 'billiard_' + invId;
   const isCaller = (role === 'caller');
   myPlayerNum = isCaller ? 1 : 2;
   currentPlayer = 1;
@@ -458,7 +523,8 @@ async function startOnlineGame(invId, role) {
   initGame();
   showGameUI();
   gameActive = true;
-  setStatus(myTurn ? 'შენი ჯერი!' : 'მოწინააღმდეგის ჯერი...');
+  setStatus(myTurn ? '🎯 შენი ჯერია!' : '⏳ მოწინააღმდეგის ჯერია...');
+  sendSystemMsg(`🎱 თამაში დაიწყო ${MYPROF?.username} VS ${opponentProf?.username}`);
 }
 
 function showGameUI() {
@@ -466,12 +532,13 @@ function showGameUI() {
   document.getElementById('waitingScreen').style.display = 'none';
   document.getElementById('hudWrap').style.display = 'flex';
   
-  const avHtml = (prof) => prof?.avatar_url ? `<img src="${prof.avatar_url}">` : (prof?.emotion || '😊');
-  document.getElementById('hudP1Av').innerHTML = avHtml(MYPROF);
-  document.getElementById('hudP2Av').innerHTML = avHtml(opponentProf);
+  const getAvatar = (p) => p?.avatar_url ? `<img src="${p.avatar_url}">` : (p?.emotion || '😊');
+  document.getElementById('hudP1Av').innerHTML = getAvatar(MYPROF);
+  document.getElementById('hudP2Av').innerHTML = getAvatar(opponentProf);
   document.getElementById('hudP1Name').textContent = MYPROF?.username || 'თქვენ';
   document.getElementById('hudP2Name').textContent = opponentProf?.username || 'AI';
-  
+  updateHUD();
+  updateTurnHUD();
   resizeCanvas();
 }
 
@@ -479,8 +546,10 @@ function showLobby() {
   document.getElementById('lobbyScreen').style.display = 'flex';
   document.getElementById('waitingScreen').style.display = 'none';
   document.getElementById('hudWrap').style.display = 'none';
+  document.getElementById('ballInHandHint').style.display = 'none';
   gameActive = false;
   myTurn = false;
+  ballInHand = false;
   if (raf) cancelAnimationFrame(raf);
   if (aiThinkTimer) clearTimeout(aiThinkTimer);
 }
@@ -495,6 +564,7 @@ function resizeCanvas() {
 }
 window.addEventListener('resize', resizeCanvas);
 
+// ========== თამაშის ლოგიკა ==========
 function initGame() {
   balls = [];
   breakShot = true;
@@ -545,14 +615,12 @@ function update() {
     if (Math.abs(b.vy) < 0.08) b.vy = 0;
     if (b.vx || b.vy) allStopped = false;
     
-    // კედლები
     if (b.x - b.r < RAIL_W) { b.x = RAIL_W + b.r; b.vx *= -0.75; }
     if (b.x + b.r > W - RAIL_W) { b.x = W - RAIL_W - b.r; b.vx *= -0.75; }
     if (b.y - b.r < RAIL_W) { b.y = RAIL_W + b.r; b.vy *= -0.75; }
     if (b.y + b.r > H - RAIL_W) { b.y = H - RAIL_W - b.r; b.vy *= -0.75; }
   });
   
-  // შეჯახებები
   for (let i = 0; i < balls.length; i++) {
     for (let j = i + 1; j < balls.length; j++) {
       const a = balls[i], b = balls[j];
@@ -580,7 +648,6 @@ function update() {
     }
   }
   
-  // ჯიბეები
   let pocketedThisTurn = [];
   let cuePocketed = false;
   balls.forEach(b => {
@@ -602,7 +669,6 @@ function update() {
 }
 
 function onTurnEnd(pocketed, cueFoul) {
-  // გუნდის მინიჭება
   if (breakShot && pocketed.length > 0) {
     breakShot = false;
     if (!p1Team) {
@@ -614,13 +680,13 @@ function onTurnEnd(pocketed, cueFoul) {
         p2Team = first.type === 'solid' ? 'solid' : 'stripe';
         p1Team = p2Team === 'solid' ? 'stripe' : 'solid';
       }
-      toast(`⚡ ${currentPlayer === 1 ? 'თქვენ' : opponentProf?.username} → ${currentPlayer === 1 ? p1Team : p2Team}`);
+      toast(`${currentPlayer === 1 ? 'თქვენ' : opponentProf?.username} → ${p1Team === 'solid' ? '🔴 მთლიანები' : '🔵 ზოლიანები'}`);
+      sendSystemMsg(`${currentPlayer === 1 ? 'თქვენ' : opponentProf?.username} აიღეთ ${p1Team === 'solid' ? '🔴 მთლიანები' : '🔵 ზოლიანები'}`);
     }
   } else if (breakShot && pocketed.length === 0) {
     breakShot = false;
   }
   
-  // ჩაგდებული ბურთების ჩაწერა
   pocketed.forEach(b => {
     if (currentPlayer === 1 && p1Team && b.type === p1Team) {
       if (!p1Pocketed.includes(b.id)) p1Pocketed.push(b.id);
@@ -629,12 +695,11 @@ function onTurnEnd(pocketed, cueFoul) {
     }
   });
   
-  // 8-ბურთის შემოწმება
   const eightPocketed = pocketed.find(b => b.id === 8);
   if (eightPocketed) {
     const curTeam = currentPlayer === 1 ? p1Team : p2Team;
     const myTeamLeft = balls.filter(b => b.active && b.type === curTeam).length;
-    const winner = (myTeamLeft === 0) ? currentPlayer : (currentPlayer === 1 ? 2 : 1);
+    const winner = myTeamLeft === 0 ? currentPlayer : (currentPlayer === 1 ? 2 : 1);
     endGame(winner === 1 ? 'p1' : 'p2');
     return;
   }
@@ -647,7 +712,7 @@ function onTurnEnd(pocketed, cueFoul) {
   if (cueFoul) {
     currentPlayer = currentPlayer === 1 ? 2 : 1;
     myTurn = (currentPlayer === myPlayerNum);
-    setStatus((myTurn ? 'შენ' : 'მოწინააღმდეგე') + ' ადებს თეთრ ბურთს');
+    setStatus((myTurn ? 'თქვენ' : 'მოწინააღმდეგე') + ' ათავსებთ თეთრ ბურთს');
     enterBallInHand();
   } else if (!scoredOwn) {
     currentPlayer = currentPlayer === 1 ? 2 : 1;
@@ -657,36 +722,45 @@ function onTurnEnd(pocketed, cueFoul) {
   updateTurnHUD();
   
   if (!ballInHand && !myTurn && gameMode === 'ai') {
-    aiThinkTimer = setTimeout(aiTakeTurn, 1000);
+    setStatus('🤖 AI ფიქრობს...');
+    aiThinkTimer = setTimeout(aiTakeTurn, 1200);
+  } else if (myTurn && !ballInHand) {
+    setStatus('🎯 შენი ჯერია! მიანიშნე და დაარტყი');
+  } else if (!myTurn && !ballInHand) {
+    setStatus('⏳ მოწინააღმდეგის ჯერია');
   }
 }
 
 function enterBallInHand() {
   ballInHand = true;
+  const hint = document.getElementById('ballInHandHint');
   if (myTurn) {
-    document.getElementById('ballInHandHint').style.display = 'block';
-    setStatus('Ball-in-hand - დააჭირე მაგიდაზე');
-  } else if (gameMode === 'ai') {
-    setTimeout(() => {
-      let cb = balls.find(b => b.id === 0);
-      if (cb) { cb.active = true; cb.x = W * 0.25 + Math.random() * 50; cb.y = H / 2; cb.vx = 0; cb.vy = 0; }
-      ballInHand = false;
-      aiTakeTurn();
-    }, 800);
+    hint.style.display = 'block';
+    setStatus('🎯 დააჭირე მაგიდაზე თეთრი ბურთის დასადებად');
+  } else {
+    hint.style.display = 'none';
+    if (gameMode === 'ai') {
+      setTimeout(() => {
+        let cb = balls.find(b => b.id === 0);
+        if (cb) { cb.active = true; cb.x = W * 0.3 + Math.random() * 50; cb.y = H/2 + (Math.random() - 0.5) * 60; }
+        ballInHand = false;
+        aiTakeTurn();
+      }, 1000);
+    }
   }
 }
 
 function placeCueBallAt(x, y) {
-  const minX = RAIL_W + 12, maxX = W - RAIL_W - 12;
-  const minY = RAIL_W + 12, maxY = H - RAIL_W - 12;
+  const minX = RAIL_W + 14, maxX = W - RAIL_W - 14;
+  const minY = RAIL_W + 14, maxY = H - RAIL_W - 14;
   x = Math.max(minX, Math.min(maxX, x));
   y = Math.max(minY, Math.min(maxY, y));
   
   for (const b of balls) {
     if (!b.active || b.id === 0) continue;
     const dx = b.x - x, dy = b.y - y;
-    if (Math.sqrt(dx * dx + dy * dy) < b.r + 12) {
-      toast('⚠️ აქ სხვა ბურთია!');
+    if (Math.sqrt(dx*dx + dy*dy) < b.r + 12) {
+      toast('⚠️ აქ სხვა ბურთი დევს!');
       return false;
     }
   }
@@ -704,11 +778,13 @@ function aiTakeTurn() {
   
   let targets = balls.filter(b => b.active && b.id !== 0 && b.id !== 8 && b.type === (p2Team || 'solid'));
   if (!targets.length) targets = balls.filter(b => b.active && b.id === 8);
+  if (!targets.length) targets = balls.filter(b => b.active && b.id !== 0);
   if (!targets.length) return;
   
   const target = targets[Math.floor(Math.random() * targets.length)];
   const angle = Math.atan2(target.y - cb.y, target.x - cb.x);
-  shoot(angle, 0.3 + Math.random() * 0.5);
+  const power = 0.35 + Math.random() * 0.55;
+  shoot(angle, power);
 }
 
 function shoot(angle, power) {
@@ -717,9 +793,11 @@ function shoot(angle, power) {
   cb.vx = Math.cos(angle) * power * 18;
   cb.vy = Math.sin(angle) * power * 18;
   animating = true;
+  if (gameMode === 'online') myTurn = false;
   setStatus('');
 }
 
+// ========== გრაფიკა ==========
 const canvas = document.getElementById('billiards');
 const ctx = canvas.getContext('2d');
 
@@ -732,53 +810,82 @@ function draw() {
 }
 
 function drawTable() {
-  ctx.fillStyle = '#1a4a2e';
-  ctx.fillRect(RAIL_W, RAIL_W, W - RAIL_W * 2, H - RAIL_W * 2);
-  ctx.fillStyle = '#2d1b00';
+  const grad = ctx.createLinearGradient(0, 0, 0, H);
+  grad.addColorStop(0, '#1a6a3a');
+  grad.addColorStop(1, '#0d3d1f');
+  ctx.fillStyle = grad;
+  ctx.fillRect(RAIL_W, RAIL_W, W - RAIL_W*2, H - RAIL_W*2);
+  ctx.fillStyle = '#3a2200';
   ctx.fillRect(0, 0, W, RAIL_W);
   ctx.fillRect(0, H - RAIL_W, W, RAIL_W);
   ctx.fillRect(0, 0, RAIL_W, H);
   ctx.fillRect(W - RAIL_W, 0, RAIL_W, H);
+  
+  ctx.fillStyle = 'rgba(255,255,255,0.05)';
+  [[W*0.25, H/2], [W/2, H/4], [W/2, H*3/4], [W*0.75, H/2]].forEach(([x,y]) => {
+    ctx.beginPath();
+    ctx.arc(x, y, 3, 0, Math.PI*2);
+    ctx.fill();
+  });
 }
 
 function drawPockets() {
   POCKETS.forEach(p => {
     ctx.beginPath();
-    ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI * 2);
-    ctx.fillStyle = '#000';
+    ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2);
+    ctx.fillStyle = '#000000';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(p.x, p.y, POCKET_R-2, 0, Math.PI*2);
+    ctx.fillStyle = '#1a1a1a';
     ctx.fill();
   });
 }
 
 function drawBall(b) {
+  ctx.save();
+  ctx.shadowColor = 'rgba(0,0,0,0.4)';
+  ctx.shadowBlur = 5;
   ctx.beginPath();
-  ctx.arc(b.x, b.y, b.r, 0, Math.PI * 2);
+  ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
   ctx.fillStyle = b.color;
   ctx.fill();
+  ctx.beginPath();
+  ctx.arc(b.x-2, b.y-2, 3, 0, Math.PI*2);
+  ctx.fillStyle = 'rgba(255,255,255,0.35)';
+  ctx.fill();
   if (b.id > 0) {
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 14px sans-serif';
+    ctx.fillStyle = b.id === 8 ? '#ffffff' : 'rgba(0,0,0,0.7)';
+    ctx.font = `bold ${b.r-3}px "Noto Sans Georgian"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
+    ctx.shadowBlur = 2;
     ctx.fillText(b.id, b.x, b.y);
   }
+  ctx.restore();
 }
 
 function drawCue() {
   const cb = balls.find(b => b.id === 0 && b.active);
   if (!cb) return;
   const angle = Math.atan2(mouseY - cb.y, mouseX - cb.x);
-  const len = isAiming ? cuePower * 200 + 40 : 80;
-  const tipX = cb.x - Math.cos(angle) * (cb.r + 4);
-  const tipY = cb.y - Math.sin(angle) * (cb.r + 4);
-  const endX = tipX - Math.cos(angle) * len;
-  const endY = tipY - Math.sin(angle) * len;
+  const len = isAiming ? 60 + cuePower * 180 : 70;
+  const tipX = cb.x + Math.cos(angle) * (cb.r + 3);
+  const tipY = cb.y + Math.sin(angle) * (cb.r + 3);
+  const endX = tipX + Math.cos(angle) * len;
+  const endY = tipY + Math.sin(angle) * len;
   
   ctx.beginPath();
   ctx.moveTo(tipX, tipY);
   ctx.lineTo(endX, endY);
-  ctx.strokeStyle = '#8b4513';
-  ctx.lineWidth = 6;
+  ctx.strokeStyle = '#c9a87b';
+  ctx.lineWidth = 7;
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(tipX, tipY);
+  ctx.lineTo(endX, endY);
+  ctx.strokeStyle = '#8b5a2b';
+  ctx.lineWidth = 3;
   ctx.stroke();
 }
 
@@ -799,7 +906,7 @@ function handleCanvasDown(e) {
     if (placeCueBallAt(p.x, p.y)) {
       ballInHand = false;
       document.getElementById('ballInHandHint').style.display = 'none';
-      setStatus('შენი ჯერი!');
+      setStatus('🎯 მზადაა! მიანიშნე და დაარტყი');
     }
     return;
   }
@@ -815,14 +922,13 @@ function handleCanvasMove(e) {
   const p = getCanvasPos(e);
   mouseX = p.x;
   mouseY = p.y;
-  
   if (ballInHand && myTurn) return;
   
   if (isDragging && isAiming) {
     const cb = balls.find(b => b.id === 0 && b.active);
     if (!cb) return;
     const dx = p.x - cb.x, dy = p.y - cb.y;
-    cuePower = Math.min(1, Math.sqrt(dx * dx + dy * dy) / 120);
+    cuePower = Math.min(1, Math.sqrt(dx*dx + dy*dy) / 130);
     document.getElementById('powerFill').style.width = (cuePower * 100) + '%';
     document.getElementById('powerVal').textContent = Math.round(cuePower * 100) + '%';
   }
@@ -838,7 +944,7 @@ function handleCanvasUp(e) {
   
   const p = getCanvasPos(e);
   const angle = Math.atan2(p.y - cb.y, p.x - cb.x);
-  if (cuePower > 0.01) shoot(angle, cuePower);
+  if (cuePower > 0.05) shoot(angle, cuePower);
   
   cuePower = 0;
   document.getElementById('powerFill').style.width = '0%';
@@ -852,6 +958,7 @@ canvas.addEventListener('touchstart', e => { e.preventDefault(); handleCanvasDow
 canvas.addEventListener('touchmove', e => { e.preventDefault(); handleCanvasMove(e); }, { passive: false });
 canvas.addEventListener('touchend', e => { e.preventDefault(); handleCanvasUp(e); }, { passive: false });
 
+// ========== HUD ==========
 function updateHUD() {
   const b1 = document.getElementById('hudP1Balls');
   const b2 = document.getElementById('hudP2Balls');
@@ -878,10 +985,10 @@ function updateHUD() {
 }
 
 function updateTurnHUD() {
-  const p1 = document.getElementById('hudP1');
-  const p2 = document.getElementById('hudP2');
-  p1.classList.toggle('active', currentPlayer === 1);
-  p2.classList.toggle('active', currentPlayer === 2);
+  document.getElementById('hudP1').classList.toggle('active', currentPlayer === 1);
+  document.getElementById('hudP2').classList.toggle('active', currentPlayer === 2);
+  document.getElementById('hudP1Turn').style.display = currentPlayer === 1 ? 'block' : 'none';
+  document.getElementById('hudP2Turn').style.display = currentPlayer === 2 ? 'block' : 'none';
 }
 
 function setStatus(msg) {
@@ -892,15 +999,16 @@ function endGame(winner) {
   gameActive = false;
   if (raf) cancelAnimationFrame(raf);
   ballInHand = false;
+  document.getElementById('ballInHandHint').style.display = 'none';
   
   const myWon = (winner === 'p1' && myPlayerNum === 1) || (winner === 'p2' && myPlayerNum === 2);
   
-  document.getElementById('resultIcon').textContent = myWon ? '🏆' : '😢';
+  document.getElementById('resultIcon').textContent = myWon ? '🏆✨' : '😢💔';
   document.getElementById('resultTitle').textContent = myWon ? 'გამარჯვება!' : 'წაგება';
   document.getElementById('resultOverlay').classList.add('open');
   
   updateScore(myWon, gameMode === 'ai' ? 5 : 10);
-  sendSystemMsg((myWon ? '🏆 ' + (MYPROF?.username || 'თქვენ') : '😢 ' + (opponentProf?.username || 'AI')) + ' გაიმარჯვა!');
+  sendSystemMsg(myWon ? `🏆 გილოცავთ! თქვენ გაიმარჯვეთ` : `😢 სამწუხაროდ წააგეთ`);
 }
 
 async function updateScore(won, pts) {
@@ -917,7 +1025,7 @@ async function updateScore(won, pts) {
   
   MYPROF.billiard_score = newScore;
   document.getElementById('myScoreDisplay').textContent = '💜 ' + newScore;
-  toast((won ? '✅ +' + pts : '❌ +0') + ' ქულა');
+  toast(won ? `✅ +${pts} ქულა!` : '😢 0 ქულა');
 }
 
 function restartGame() {
@@ -926,12 +1034,13 @@ function restartGame() {
   else showLobby();
 }
 
+// ========== ჩატი ==========
 function sendChatMsg() {
   const inp = document.getElementById('chatInput');
-  const t = inp.value.trim();
-  if (!t) return;
+  const text = inp.value.trim();
+  if (!text) return;
   inp.value = '';
-  appendChatMsg({ nick: MYPROF?.username || 'თქვენ', content: t, mine: true });
+  appendChatMsg({ nick: MYPROF?.username || 'თქვენ', content: text, mine: true });
 }
 
 function sendSystemMsg(msg) {
@@ -943,16 +1052,20 @@ function appendChatMsg({ nick, content, mine, sys }) {
   wrap.className = 'chat-msg' + (mine ? ' mine' : '') + (sys ? ' sys' : '');
   
   if (sys) {
-    wrap.innerHTML = `<div class="chat-msg-bubble">${esc(content)}</div>`;
+    wrap.innerHTML = `<div class="chat-msg-body"><div class="chat-msg-bubble">${esc(content)}</div></div>`;
   } else {
     wrap.innerHTML = `
       <div class="chat-msg-av">😊</div>
-      <div class="chat-msg-bubble"><b>${esc(nick || '?')}:</b> ${esc(content)}</div>
+      <div class="chat-msg-body">
+        <div class="chat-msg-nick">${esc(nick)}</div>
+        <div class="chat-msg-bubble">${renderChatContent(content)}</div>
+      </div>
     `;
   }
   
-  document.getElementById('chatMsgs').appendChild(wrap);
-  wrap.scrollIntoView({ behavior: 'smooth' });
+  const container = document.getElementById('chatMsgs');
+  container.appendChild(wrap);
+  container.scrollTop = container.scrollHeight;
 }
 
 init();
