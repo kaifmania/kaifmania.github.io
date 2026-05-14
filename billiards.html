@@ -102,32 +102,27 @@ canvas#billiards{display:block;border-radius:10px;touch-action:none}
 .result-btn{padding:12px 36px;border-radius:16px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;margin-top:8px}
 .result-btn.again{background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff}
 
-/* ჩატი */
 #chatPanel{flex:1;display:flex;flex-direction:column;min-height:0}
 #chatMsgs{flex:1;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px}
 .chat-msg{display:flex;gap:8px;align-items:flex-start}
 .chat-msg-av{width:30px;height:30px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0}
-.chat-msg-av img{width:100%;height:100%;object-fit:cover}
 .chat-msg-body{flex:1}
 .chat-msg-nick{font-size:10px;font-weight:600;color:var(--text2);margin-bottom:2px}
 .chat-msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:6px 14px 14px 14px;padding:8px 12px;font-size:12px;color:var(--text);word-break:break-word}
 .chat-msg.mine .chat-msg-bubble{background:rgba(120,30,200,0.25);border-color:rgba(168,85,247,.4)}
 .chat-msg.sys .chat-msg-bubble{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2);color:#4ade80;font-style:italic;font-size:11px;text-align:center}
 
-/* სმაილების პანელი */
 #chatEmoPanel{display:none;flex-wrap:wrap;gap:6px;padding:10px;border-top:1px solid var(--border);max-height:130px;overflow-y:auto}
 #chatEmoPanel.open{display:flex}
 .emoji-btn{width:44px;height:44px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:26px}
 .emoji-btn:hover{background:var(--border);transform:scale(1.05)}
-.emoji-img{width:34px;height:34px;object-fit:contain;border-radius:6px}
 
 .chat-bar{display:flex;gap:8px;padding:10px;border-top:1px solid var(--border)}
 .chat-em-btn{width:38px;height:38px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.chat-em-btn:hover{background:var(--border)}
 #chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:14px;padding:10px 14px;color:var(--text);font-size:12px;outline:none}
 .chat-send{background:linear-gradient(135deg,#7a1fc8,#a855f7);border:none;border-radius:12px;color:#fff;font-size:16px;cursor:pointer;padding:0 16px}
 
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 24px;border-radius:30px;font-size:13px;z-index:99999;animation:popIn .3s ease}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 24px;border-radius:30px;font-size:13px;z-index:99999;animation:popIn .3s ease;white-space:nowrap}
 @keyframes popIn{from{opacity:0;transform:scale(.85) translateX(-50%)}to{opacity:1;transform:scale(1) translateX(-50%)}}
 </style>
 </head>
@@ -250,6 +245,7 @@ let currentInviteId = null, opponentId = null, opponentProf = null;
 let gameActive = false, myTurn = false;
 let myPlayerNum = 1;
 let aiThinkTimer = null;
+let activeInviteChannel = null;
 
 // თამაშის ცვლადები
 const W = 660, H = 360;
@@ -324,24 +320,35 @@ async function loadEmojis() {
 function buildEmojiPanel() {
   const panel = document.getElementById('chatEmoPanel');
   panel.innerHTML = '';
-  customEmojis.forEach(emoji => {
+  const defaultEmojis = ['😊', '😂', '❤️', '🎱', '🏆', '👍', '👏', '🔥', '💪', '🎯'];
+  defaultEmojis.forEach(emoji => {
     const btn = document.createElement('button');
     btn.className = 'emoji-btn';
-    const isImg = emoji.url && (emoji.url.startsWith('http') || emoji.url.startsWith('data:'));
-    if (isImg) {
-      const img = document.createElement('img');
-      img.src = emoji.url;
-      img.className = 'emoji-img';
-      btn.appendChild(img);
-    } else {
-      btn.textContent = emoji.url || '😊';
-    }
+    btn.textContent = emoji;
     btn.onclick = () => {
       const inp = document.getElementById('chatInput');
-      inp.value += isImg ? `[e:${emoji.id}]` : (emoji.url || '😊');
+      inp.value += emoji;
       inp.focus();
     };
     panel.appendChild(btn);
+  });
+  customEmojis.forEach(emoji => {
+    if (emoji.url && (emoji.url.startsWith('http') || emoji.url.startsWith('data:'))) {
+      const btn = document.createElement('button');
+      btn.className = 'emoji-btn';
+      const img = document.createElement('img');
+      img.src = emoji.url;
+      img.style.width = '28px';
+      img.style.height = '28px';
+      img.style.objectFit = 'contain';
+      btn.appendChild(img);
+      btn.onclick = () => {
+        const inp = document.getElementById('chatInput');
+        inp.value += `[e:${emoji.id}]`;
+        inp.focus();
+      };
+      panel.appendChild(btn);
+    }
   });
 }
 
@@ -350,7 +357,7 @@ function renderChatContent(text) {
   let html = esc(text);
   html = html.replace(/\[e:(\d+)\]/g, (match, id) => {
     const emoji = customEmojis.find(e => e.id == id);
-    if (emoji && emoji.url && (emoji.url.startsWith('http') || emoji.url.startsWith('data:'))) {
+    if (emoji && emoji.url) {
       return `<img src="${emoji.url}" style="width:22px;height:22px;vertical-align:middle;border-radius:4px">`;
     }
     return match;
@@ -432,37 +439,65 @@ function filterInviteList() {
 
 async function sendInvite(uid) {
   closeInviteModal();
-  const { data, error } = await sb.from('billiard_invites')
-    .insert({ from_id: ME.id, to_id: uid, status: 'pending' })
-    .select('id').single();
   
-  if (error) { toast('❌ მოწვევა ვერ გაიგზავნა'); return; }
-  
-  currentInviteId = data.id;
-  opponentId = uid;
-  opponentProf = allUsers.find(u => u.id === uid);
-  
-  document.getElementById('lobbyScreen').style.display = 'none';
-  document.getElementById('waitingScreen').style.display = 'flex';
-  document.getElementById('waitingTitle').textContent = '⏳ ველოდებით ' + (opponentProf?.username || 'მოთამაშეს') + '-ს...';
-  
-  const channel = sb.channel('invite_' + data.id)
-    .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'billiard_invites', filter: `id=eq.${data.id}` }, async (payload) => {
-      if (payload.new.status === 'accepted') {
-        sb.removeChannel(channel);
-        await startOnlineGame(data.id, 'caller');
-      } else if (payload.new.status === 'declined') {
-        sb.removeChannel(channel);
-        toast('❌ მოწვევაზე უარი თქვეს');
-        showLobby();
-      }
-    }).subscribe();
+  try {
+    const { data, error } = await sb.from('billiard_invites')
+      .insert({ from_id: ME.id, to_id: uid, status: 'pending' })
+      .select('id').single();
+    
+    if (error) {
+      console.error('Invite error:', error);
+      toast('❌ მოწვევა ვერ გაიგზავნა: ' + (error.message || 'უცნობი შეცდომა'));
+      return;
+    }
+    
+    currentInviteId = data.id;
+    opponentId = uid;
+    opponentProf = allUsers.find(u => u.id === uid);
+    
+    document.getElementById('lobbyScreen').style.display = 'none';
+    document.getElementById('waitingScreen').style.display = 'flex';
+    document.getElementById('waitingTitle').textContent = '⏳ ველოდებით ' + (opponentProf?.username || 'მოთამაშეს') + '-ს...';
+    
+    // არხის გაწმენდა
+    if (activeInviteChannel) {
+      try { sb.removeChannel(activeInviteChannel); } catch(e) {}
+    }
+    
+    activeInviteChannel = sb.channel('invite_' + data.id)
+      .on('postgres_changes', { 
+        event: 'UPDATE', 
+        schema: 'public', 
+        table: 'billiard_invites', 
+        filter: `id=eq.${data.id}` 
+      }, async (payload) => {
+        if (payload.new.status === 'accepted') {
+          toast('✅ მოწვევა მიღებულია! თამაში იწყება...');
+          if (activeInviteChannel) sb.removeChannel(activeInviteChannel);
+          await startOnlineGame(data.id, 'caller');
+        } else if (payload.new.status === 'declined') {
+          toast('❌ მოწვევაზე უარი თქვეს');
+          if (activeInviteChannel) sb.removeChannel(activeInviteChannel);
+          showLobby();
+        }
+      }).subscribe();
+      
+  } catch (err) {
+    console.error('Send invite error:', err);
+    toast('❌ მოწვევა ვერ გაიგზავნა');
+  }
 }
 
 function watchInvites() {
-  sb.channel('my_invites_' + (ME?.id || 'loading'))
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'billiard_invites', filter: `to_id=eq.${ME?.id || ''}` }, async (payload) => {
-      if (!ME) return;
+  if (!ME) return;
+  
+  sb.channel('my_invites_' + ME.id)
+    .on('postgres_changes', { 
+      event: 'INSERT', 
+      schema: 'public', 
+      table: 'billiard_invites', 
+      filter: `to_id=eq.${ME.id}` 
+    }, async (payload) => {
       if (payload.new.status !== 'pending') return;
       if (gameActive) return;
       
@@ -480,21 +515,35 @@ function watchInvites() {
 async function acceptInvite() {
   document.getElementById('incomingModal').classList.remove('open');
   if (!currentInviteId) return;
-  await sb.from('billiard_invites').update({ status: 'accepted' }).eq('id', currentInviteId);
+  
+  const { error } = await sb.from('billiard_invites')
+    .update({ status: 'accepted' })
+    .eq('id', currentInviteId);
+  
+  if (error) {
+    toast('❌ შეცდომა მოწვევის მიღებისას');
+    return;
+  }
+  
   await startOnlineGame(currentInviteId, 'callee');
 }
 
 async function declineInvite() {
   document.getElementById('incomingModal').classList.remove('open');
   if (currentInviteId) {
-    await sb.from('billiard_invites').update({ status: 'declined' }).eq('id', currentInviteId);
+    await sb.from('billiard_invites')
+      .update({ status: 'declined' })
+      .eq('id', currentInviteId);
   }
   currentInviteId = null;
+  opponentId = null;
 }
 
 async function cancelInvite() {
   if (currentInviteId) {
-    await sb.from('billiard_invites').update({ status: 'cancelled' }).eq('id', currentInviteId);
+    await sb.from('billiard_invites')
+      .update({ status: 'cancelled' })
+      .eq('id', currentInviteId);
   }
   showLobby();
 }
@@ -550,6 +599,7 @@ function showLobby() {
   gameActive = false;
   myTurn = false;
   ballInHand = false;
+  currentInviteId = null;
   if (raf) cancelAnimationFrame(raf);
   if (aiThinkTimer) clearTimeout(aiThinkTimer);
 }
@@ -820,13 +870,6 @@ function drawTable() {
   ctx.fillRect(0, H - RAIL_W, W, RAIL_W);
   ctx.fillRect(0, 0, RAIL_W, H);
   ctx.fillRect(W - RAIL_W, 0, RAIL_W, H);
-  
-  ctx.fillStyle = 'rgba(255,255,255,0.05)';
-  [[W*0.25, H/2], [W/2, H/4], [W/2, H*3/4], [W*0.75, H/2]].forEach(([x,y]) => {
-    ctx.beginPath();
-    ctx.arc(x, y, 3, 0, Math.PI*2);
-    ctx.fill();
-  });
 }
 
 function drawPockets() {
@@ -834,10 +877,6 @@ function drawPockets() {
     ctx.beginPath();
     ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2);
     ctx.fillStyle = '#000000';
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(p.x, p.y, POCKET_R-2, 0, Math.PI*2);
-    ctx.fillStyle = '#1a1a1a';
     ctx.fill();
   });
 }
@@ -859,7 +898,6 @@ function drawBall(b) {
     ctx.font = `bold ${b.r-3}px "Noto Sans Georgian"`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
-    ctx.shadowBlur = 2;
     ctx.fillText(b.id, b.x, b.y);
   }
   ctx.restore();
