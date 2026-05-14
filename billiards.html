@@ -4,249 +4,226 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ბილიარდი — კაიფმანია</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{
   --bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);
   --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;
-  --online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
+  --indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
   --glow:rgba(168,85,247,0.28);--accent:#f07aff;
   --green:#4ade80;--green-f:rgba(74,222,128,0.15);
-  --felt:#1a4a2e;--felt2:#1f5c38;--rail:#2d1b00;--rail2:#4a2d00;--chalk:#d4a574;
 }
-body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);height:100dvh;display:flex;flex-direction:column;overflow:hidden}
+html,body{height:100%;margin:0}
+body{font-family:'Segoe UI',sans-serif;background:var(--bg);color:var(--text);display:flex;flex-direction:column;height:100dvh;overflow:hidden}
 
-/* ─── TOPNAV ─── */
-#topnav{display:flex;align-items:center;gap:8px;background:var(--panel);border-bottom:1px solid var(--border);padding:8px 16px;flex-shrink:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.3)}
-.nav-logo{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:900;color:var(--accent);letter-spacing:1px;cursor:pointer;white-space:nowrap}
-.nav-logo span{color:var(--text3);font-weight:400}
-.nav-back{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;padding:6px 14px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;transition:all .2s}
+/* NAV */
+#topnav{display:flex;align-items:center;gap:8px;background:var(--panel);border-bottom:1px solid var(--border);padding:8px 16px;flex-shrink:0;z-index:10}
+.nav-back{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);font-size:12px;padding:6px 14px;cursor:pointer;transition:all .2s}
 .nav-back:hover{background:var(--border);color:var(--text)}
-.nav-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-left:4px}
-.nav-spacer{flex:1}
-.nav-score{font-family:'Unbounded',sans-serif;font-size:12px;color:var(--accent);background:var(--indigo-f);border:1px solid var(--border);border-radius:12px;padding:5px 14px}
+.nav-title{font-size:15px;font-weight:700;color:var(--text);margin-left:4px;flex:1}
+.nav-score{font-size:12px;color:var(--accent);background:var(--indigo-f);border:1px solid var(--border);border-radius:12px;padding:5px 14px}
 
-/* ─── LAYOUT ─── */
-#layout{display:flex;flex:1;min-height:0;gap:0}
-#gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:12px;gap:10px;position:relative}
-#rightPanel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
-@media(max-width:768px){#rightPanel{display:none}#layout{flex-direction:column}#gameArea{padding:6px}}
+/* LAYOUT */
+#layout{display:flex;flex:1;min-height:0}
+#gameArea{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;min-width:0;padding:12px;gap:8px;position:relative;overflow:hidden}
+#rightPanel{width:270px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
+@media(max-width:700px){#rightPanel{display:none}}
 
-/* ─── LOBBY ─── */
-#lobbyScreen{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:24px;width:100%;max-width:520px;margin:0 auto}
-.lobby-icon{font-size:72px;filter:drop-shadow(0 0 30px var(--glow));animation:float 3s ease-in-out infinite}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-.lobby-title{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--text);text-align:center}
-.lobby-subtitle{font-size:13px;color:var(--text3);text-align:center}
-.lobby-btns{display:flex;flex-direction:column;gap:10px;width:100%;max-width:320px}
-.lobby-btn{padding:14px 24px;border-radius:16px;font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;letter-spacing:.5px}
-.lobby-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 6px 24px rgba(120,30,200,.5)}
-.lobby-btn.primary:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(120,30,200,.65)}
-.lobby-btn.secondary{background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)}
-.lobby-btn.secondary:hover{background:var(--border);color:var(--text)}
-.lobby-btn.green{background:linear-gradient(135deg,#16a34a,#4ade80);color:#052e16;box-shadow:0 6px 24px rgba(74,222,128,.4)}
-.lobby-btn.green:hover{transform:translateY(-2px);box-shadow:0 10px 32px rgba(74,222,128,.55)}
+/* LOBBY */
+#lobbyScreen{display:flex;flex-direction:column;align-items:center;gap:18px;padding:20px;width:100%;max-width:400px}
+.lobby-icon{font-size:64px;animation:floatAnim 3s ease-in-out infinite}
+@keyframes floatAnim{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.lobby-title{font-size:22px;font-weight:900;color:var(--text);text-align:center;letter-spacing:1px}
+.lobby-sub{font-size:12px;color:var(--text3)}
+.lobby-btns{display:flex;flex-direction:column;gap:10px;width:100%;max-width:280px}
+.lbtn{padding:13px 20px;border-radius:14px;font-size:13px;font-weight:700;cursor:pointer;border:none;transition:all .2s;width:100%;letter-spacing:.3px}
+.lbtn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 6px 20px rgba(120,30,200,.5)}
+.lbtn.primary:hover{transform:translateY(-2px)}
+.lbtn.green{background:linear-gradient(135deg,#16a34a,#4ade80);color:#052e16;box-shadow:0 6px 20px rgba(74,222,128,.4)}
+.lbtn.green:hover{transform:translateY(-2px)}
+.lbtn.sec{background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)}
+.lbtn.sec:hover{background:var(--border)}
 
-/* ─── INVITE ─── */
-#inviteModal{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:5000;display:none;align-items:center;justify-content:center;padding:16px}
-#inviteModal.open{display:flex}
-.invite-box{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:28px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow)}
-.invite-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;color:var(--text);margin-bottom:16px;letter-spacing:1px;text-transform:uppercase}
-.invite-search{width:100%;padding:10px 14px;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none;margin-bottom:12px}
-.invite-search:focus{border-color:var(--indigo2)}
-.invite-search::placeholder{color:var(--text3)}
-#inviteUserList{max-height:260px;overflow-y:auto}
-#inviteUserList::-webkit-scrollbar{width:3px}
-#inviteUserList::-webkit-scrollbar-thumb{background:var(--border)}
-.invite-user-item{display:flex;align-items:center;gap:10px;padding:9px 10px;border-radius:12px;cursor:pointer;transition:all .2s;border:1px solid transparent;margin-bottom:3px}
-.invite-user-item:hover{background:var(--indigo-f);border-color:var(--border)}
-.invite-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0}
-.invite-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.invite-name{font-size:13px;font-weight:500;color:var(--text)}
-.invite-online{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);flex-shrink:0}
-.invite-cancel{margin-top:12px;width:100%;padding:10px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif}
-.invite-cancel:hover{background:var(--border)}
-.invite-loading{text-align:center;padding:20px;color:var(--text3);font-size:13px}
-.invite-spinner{display:inline-block;width:24px;height:24px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite;margin-bottom:8px}
-.invite-section-hdr{font-size:9px;font-family:'Unbounded',sans-serif;letter-spacing:1px;text-transform:uppercase;padding:4px 8px 6px;opacity:0.8}
+/* MODAL BASE */
+.modal-bg{position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
+.modal-bg.open{display:flex}
+.modal-box{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:24px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow)}
+.modal-title{font-size:11px;font-weight:700;color:var(--text);margin-bottom:14px;letter-spacing:1px;text-transform:uppercase}
+.modal-cancel{margin-top:12px;width:100%;padding:10px;border-radius:12px;background:rgba(200,0,0,.1);border:1px solid rgba(200,0,0,.3);color:#ff8888;font-size:13px;cursor:pointer}
+.modal-cancel:hover{background:rgba(200,0,0,.2)}
 
-/* ─── INCOMING INVITE ─── */
-#incomingModal{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(10px);z-index:6000;display:none;align-items:center;justify-content:center;padding:16px}
-#incomingModal.open{display:flex}
-.incoming-box{background:var(--panel);border:1px solid rgba(74,222,128,0.5);border-radius:24px;padding:28px;width:100%;max-width:340px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 50px rgba(74,222,128,.3),0 0 100px rgba(74,222,128,.1);animation:popIn .4s cubic-bezier(.22,1,.36,1)}
-@keyframes popIn{from{opacity:0;transform:scale(.85)}to{opacity:1;transform:scale(1)}}
-.incoming-icon{font-size:56px;margin-bottom:12px;animation:float 2s ease-in-out infinite}
-.incoming-from{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
-.incoming-sub{font-size:13px;color:var(--text2);margin-bottom:4px}
-.incoming-msg{font-size:12px;color:var(--text3);margin-bottom:20px}
-.incoming-btns{display:flex;gap:10px}
-.incoming-accept{flex:1;padding:14px;border-radius:14px;background:linear-gradient(135deg,#16a34a,#4ade80);border:none;color:#052e16;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
-.incoming-accept:hover{transform:scale(1.04);box-shadow:0 6px 20px rgba(74,222,128,.5)}
-.incoming-decline{flex:1;padding:14px;border-radius:14px;background:rgba(220,0,0,.1);border:1px solid rgba(220,0,0,.3);color:#ff7777;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
-.incoming-decline:hover{background:rgba(220,0,0,.2)}
-
-/* ─── WAITING ─── */
-#waitingScreen{display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:32px;text-align:center}
-.waiting-spinner{width:56px;height:56px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+/* INVITE */
+#inviteSearch{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:13px;outline:none;margin-bottom:10px}
+#inviteSearch:focus{border-color:var(--indigo2)}
+#inviteSearch::placeholder{color:var(--text3)}
+#inviteList{max-height:260px;overflow-y:auto}
+#inviteList::-webkit-scrollbar{width:3px}
+#inviteList::-webkit-scrollbar-thumb{background:var(--border)}
+.inv-section{font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;padding:5px 6px 3px;opacity:.8}
+.inv-row{display:flex;align-items:center;gap:10px;padding:8px 8px;border-radius:10px;cursor:pointer;transition:all .15s;margin-bottom:2px;border:1px solid transparent}
+.inv-row:hover{background:var(--indigo-f);border-color:var(--border)}
+.inv-av{width:34px;height:34px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:17px;overflow:hidden;flex-shrink:0}
+.inv-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.inv-dot{width:8px;height:8px;border-radius:50%;background:var(--green);box-shadow:0 0 5px var(--green);flex-shrink:0}
+.inv-spin{display:inline-block;width:22px;height:22px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 0.8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
-.waiting-title{font-family:'Unbounded',sans-serif;font-size:16px;color:var(--text)}
-.waiting-sub{font-size:13px;color:var(--text3)}
-.waiting-cancel{padding:10px 24px;border-radius:12px;background:rgba(220,0,0,.1);border:1px solid rgba(220,0,0,.3);color:#ff7777;font-size:13px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;transition:all .2s}
-.waiting-cancel:hover{background:rgba(220,0,0,.2)}
 
-/* ─── GAME HUD ─── */
-#gameHUD{display:flex;align-items:center;gap:12px;width:100%;max-width:700px;flex-shrink:0}
-.hud-player{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:10px 14px;display:flex;align-items:center;gap:10px;transition:all .3s;position:relative;overflow:hidden}
-.hud-player.active{border-color:var(--accent);box-shadow:0 0 20px rgba(168,85,247,.3)}
-.hud-player.active::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(168,85,247,.08),transparent);animation:shimmer 2s ease infinite}
-.hud-player.p2active{border-color:var(--green);box-shadow:0 0 20px rgba(74,222,128,.3)}
-.hud-player.p2active::before{background:linear-gradient(90deg,transparent,rgba(74,222,128,.08),transparent);animation:shimmer 2s ease infinite}
-@keyframes shimmer{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
-.hud-av{width:38px;height:38px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:20px;overflow:hidden;flex-shrink:0}
+/* INCOMING */
+#incomingModal .modal-box{border-color:rgba(74,222,128,.5);text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 50px rgba(74,222,128,.2)}
+.inc-icon{font-size:52px;margin-bottom:10px;display:block;animation:floatAnim 2s ease-in-out infinite}
+.inc-name{font-size:16px;font-weight:700;color:var(--text);margin-bottom:4px}
+.inc-sub{font-size:12px;color:var(--text2);margin-bottom:12px}
+.inc-timer{font-size:11px;color:var(--green);font-weight:700;margin-bottom:16px}
+.inc-btns{display:flex;gap:10px}
+.inc-accept{flex:1;padding:13px;border-radius:12px;background:linear-gradient(135deg,#16a34a,#4ade80);border:none;color:#052e16;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.inc-accept:hover{transform:scale(1.03)}
+.inc-decline{flex:1;padding:13px;border-radius:12px;background:rgba(200,0,0,.1);border:1px solid rgba(200,0,0,.3);color:#ff8888;font-size:13px;font-weight:700;cursor:pointer;transition:all .2s}
+.inc-decline:hover{background:rgba(200,0,0,.2)}
+
+/* WAITING */
+#waitingScreen{display:none;flex-direction:column;align-items:center;gap:14px;padding:28px;text-align:center}
+.wait-spin{width:52px;height:52px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+.wait-title{font-size:15px;font-weight:700;color:var(--text)}
+.wait-sub{font-size:12px;color:var(--text3)}
+.wait-cancel{padding:9px 22px;border-radius:10px;background:rgba(200,0,0,.1);border:1px solid rgba(200,0,0,.3);color:#ff8888;font-size:12px;cursor:pointer;transition:all .2s}
+.wait-cancel:hover{background:rgba(200,0,0,.2)}
+
+/* HUD */
+#hudWrap{display:none;flex-direction:column;align-items:center;gap:7px;width:100%}
+#gameHUD{display:flex;align-items:center;gap:10px;width:100%;max-width:680px}
+.hud-p{flex:1;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:9px 12px;display:flex;align-items:center;gap:9px;transition:all .25s;position:relative;overflow:hidden}
+.hud-p.active{border-color:var(--accent);box-shadow:0 0 18px rgba(168,85,247,.3)}
+.hud-p.active::before{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(168,85,247,.07),transparent);animation:shim 2s ease infinite}
+.hud-p.p2on{border-color:var(--green);box-shadow:0 0 18px rgba(74,222,128,.3)}
+.hud-p.p2on::before{background:linear-gradient(90deg,transparent,rgba(74,222,128,.07),transparent);animation:shim 2s ease infinite}
+@keyframes shim{0%,100%{transform:translateX(-100%)}50%{transform:translateX(100%)}}
+.hud-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:19px;overflow:hidden;flex-shrink:0}
 .hud-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .hud-info{flex:1;min-width:0}
 .hud-name{font-size:12px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hud-balls{display:flex;flex-wrap:wrap;gap:2px;margin-top:3px}
-.hud-ball{width:14px;height:14px;border-radius:50%;border:1px solid rgba(255,255,255,.2);flex-shrink:0}
-.hud-turn{font-size:9px;font-family:'Unbounded',sans-serif;color:var(--accent);letter-spacing:.5px;position:absolute;top:6px;right:8px}
-.hud-vs{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:900;color:var(--text3);flex-shrink:0}
+.hud-ball{width:13px;height:13px;border-radius:50%;border:1px solid rgba(255,255,255,.15)}
+.hud-turn{font-size:9px;font-weight:700;color:var(--accent);letter-spacing:.5px;position:absolute;top:5px;right:7px}
+.hud-vs{font-size:13px;font-weight:900;color:var(--text3);flex-shrink:0}
 
-/* ─── TABLE ─── */
-#tableWrap{position:relative;background:var(--rail);border-radius:16px;padding:18px;box-shadow:0 0 60px rgba(0,0,0,.8),inset 0 0 20px rgba(0,0,0,.5);flex-shrink:0}
-#tableWrap::before{content:'';position:absolute;inset:0;border-radius:16px;background:linear-gradient(135deg,rgba(255,255,255,.05),transparent);pointer-events:none}
-canvas#billiards{display:block;border-radius:8px;touch-action:none;cursor:crosshair}
+/* TABLE */
+#tableWrap{position:relative;background:#3a2200;border-radius:14px;padding:16px;box-shadow:0 0 50px rgba(0,0,0,.8),inset 0 0 18px rgba(0,0,0,.4);flex-shrink:0}
+canvas#gc{display:block;border-radius:7px;touch-action:none;cursor:crosshair}
 
-/* ─── CUE POWER ─── */
-#powerBar{display:flex;align-items:center;gap:8px;width:100%;max-width:700px;flex-shrink:0}
-.power-label{font-size:10px;font-family:'Unbounded',sans-serif;color:var(--text3);white-space:nowrap}
-.power-track{flex:1;height:8px;background:var(--panel2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
-.power-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#4ade80,#fbbf24,#ef4444);transition:width .1s}
-#powerVal{font-size:10px;font-family:'Unbounded',sans-serif;color:var(--text2);width:30px;text-align:right}
+/* POWER */
+#powerBar{display:flex;align-items:center;gap:8px;width:100%;max-width:680px}
+.pwr-lbl{font-size:10px;color:var(--text3);white-space:nowrap}
+.pwr-track{flex:1;height:7px;background:var(--panel2);border-radius:4px;overflow:hidden;border:1px solid var(--border)}
+.pwr-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,#4ade80,#fbbf24,#ef4444);transition:width .08s}
+#pwr-val{font-size:10px;color:var(--text2);width:28px;text-align:right}
 
-/* ─── STATUS ─── */
-#statusBar{font-size:12px;color:var(--text2);text-align:center;min-height:20px;font-style:italic}
+/* STATUS */
+#statusBar{font-size:12px;color:var(--text2);text-align:center;min-height:18px;font-style:italic}
 
-/* ─── BALL-IN-HAND HINT ─── */
-#ballInHandHint{display:none;background:rgba(74,222,128,0.15);border:1px solid rgba(74,222,128,0.4);border-radius:10px;padding:6px 14px;font-size:11px;color:var(--green);text-align:center;font-family:'Unbounded',sans-serif;letter-spacing:.5px;width:100%;max-width:700px}
+/* BALL-IN-HAND */
+#bihHint{display:none;background:rgba(74,222,128,.12);border:1px solid rgba(74,222,128,.35);border-radius:9px;padding:6px 12px;font-size:11px;color:var(--green);text-align:center;font-weight:700;width:100%;max-width:680px}
 
-/* ─── RESULT OVERLAY ─── */
-#resultOverlay{position:absolute;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);border-radius:16px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:28px;text-align:center;z-index:200}
+/* RESULT */
+#resultOverlay{position:absolute;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(10px);border-radius:14px;display:none;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;z-index:50}
 #resultOverlay.open{display:flex}
-.result-icon{font-size:60px;animation:float 2s ease-in-out infinite}
-.result-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--text)}
-.result-sub{font-size:13px;color:var(--text2)}
-.result-btn{padding:12px 32px;border-radius:14px;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;margin-top:4px}
-.result-btn.again{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 6px 24px rgba(120,30,200,.5)}
-.result-btn.again:hover{transform:translateY(-2px)}
-.result-btn.back{background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)}
-.result-btn.back:hover{background:var(--border)}
+.res-icon{font-size:56px;animation:floatAnim 2s ease-in-out infinite}
+.res-title{font-size:20px;font-weight:900;color:var(--text)}
+.res-sub{font-size:12px;color:var(--text2)}
+.res-btn{padding:11px 28px;border-radius:12px;font-size:12px;font-weight:700;cursor:pointer;border:none;transition:all .2s;margin-top:4px}
+.res-btn.again{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff}
+.res-btn.again:hover{transform:translateY(-2px)}
+.res-btn.back{background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)}
 
-/* ─── RIGHT PANEL ─── */
+/* RIGHT PANEL */
 #rpTabs{display:flex;border-bottom:1px solid var(--border);flex-shrink:0}
-.rp-tab{flex:1;padding:12px;text-align:center;font-size:11px;font-family:'Unbounded',sans-serif;letter-spacing:.5px;color:var(--text3);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent}
-.rp-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
-.rp-tab:hover{color:var(--text)}
-
-/* ─── LEADERBOARD ─── */
+.rp-tab{flex:1;padding:11px;text-align:center;font-size:11px;font-weight:700;letter-spacing:.5px;color:var(--text3);cursor:pointer;transition:all .2s;border-bottom:2px solid transparent}
+.rp-tab.on{color:var(--accent);border-bottom-color:var(--accent)}
 #lbPanel{flex:1;overflow-y:auto;padding:10px;display:none}
-#lbPanel.active{display:block}
+#lbPanel.on{display:block}
 #lbPanel::-webkit-scrollbar{width:3px}
 #lbPanel::-webkit-scrollbar-thumb{background:var(--border)}
-.lb-title{font-size:9px;font-family:'Unbounded',sans-serif;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:6px 6px 4px}
-.lb-row{display:flex;align-items:center;gap:10px;padding:9px 8px;border-radius:12px;transition:background .15s;margin-bottom:2px}
+.lb-row{display:flex;align-items:center;gap:9px;padding:8px 7px;border-radius:10px;transition:background .15s;margin-bottom:2px;cursor:default}
 .lb-row:hover{background:var(--indigo-f)}
-.lb-rank{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;width:26px;text-align:center;flex-shrink:0}
-.lb-rank.gold{color:#ffd040;text-shadow:0 0 8px rgba(255,208,64,.5)}
+.lb-rank{font-size:13px;font-weight:700;width:24px;text-align:center;flex-shrink:0}
+.lb-rank.gold{color:#ffd040}
 .lb-rank.silver{color:#c8c8c8}
 .lb-rank.bronze{color:#c88040}
-.lb-av{width:30px;height:30px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
+.lb-av{width:28px;height:28px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:15px;overflow:hidden;flex-shrink:0}
 .lb-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .lb-name{flex:1;font-size:12px;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.lb-score{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--accent)}
-.lb-wl{font-size:10px;color:var(--text3)}
+.lb-pts{font-size:13px;font-weight:700;color:var(--accent)}
+.lb-wl{font-size:9px;color:var(--text3)}
 
-/* ─── CHAT ─── */
+/* CHAT */
 #chatPanel{flex:1;display:none;flex-direction:column;min-height:0}
-#chatPanel.active{display:flex}
-#chatMsgs{flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:4px}
+#chatPanel.on{display:flex}
+#chatMsgs{flex:1;overflow-y:auto;padding:9px;display:flex;flex-direction:column;gap:4px}
 #chatMsgs::-webkit-scrollbar{width:3px}
 #chatMsgs::-webkit-scrollbar-thumb{background:var(--border)}
-.chat-msg{display:flex;gap:7px;align-items:flex-start;animation:slideIn .2s ease}
-@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
-.chat-msg-av{width:28px;height:28px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;overflow:hidden}
-.chat-msg-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.chat-msg-body{flex:1;min-width:0}
-.chat-msg-nick{font-size:10px;font-weight:600;color:var(--indigo2);margin-bottom:2px}
-.chat-msg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 12px 12px 12px;padding:7px 10px;font-size:12px;color:var(--text);word-break:break-word;line-height:1.5}
-.chat-msg.mine .chat-msg-bubble{background:rgba(120,30,200,0.22);border-color:rgba(168,85,247,.4)}
-.chat-msg.sys .chat-msg-bubble{background:rgba(74,222,128,.08);border-color:rgba(74,222,128,.2);color:var(--green);font-style:italic;font-size:11px;text-align:center}
-.chat-msg-bubble img.em{width:28px!important;height:28px!important;object-fit:contain;vertical-align:middle;border-radius:4px}
-.chat-msg-bubble img.em-gif{width:34px!important;height:34px!important;object-fit:contain;vertical-align:middle;border-radius:5px}
-.chat-msg-bubble .em-text{font-size:20px;vertical-align:middle;line-height:1}
-#chatEmoPanel{border-top:1px solid var(--border);padding:8px;display:none;flex-wrap:wrap;gap:5px;max-height:140px;overflow-y:auto}
-#chatEmoPanel.open{display:flex}
-#chatEmoPanel::-webkit-scrollbar{width:3px}
-#chatEmoPanel::-webkit-scrollbar-thumb{background:var(--border)}
-.cem-btn{width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.cem-btn:hover{background:var(--border);transform:scale(1.1)}
-.cem-btn img{width:30px!important;height:30px!important;border-radius:5px;object-fit:contain;display:block}
-.cem-btn .cem-text{font-size:22px;line-height:1}
-.chat-bar{display:flex;gap:6px;padding:8px;border-top:1px solid var(--border);flex-shrink:0}
-.chat-em-btn{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.cmsg{display:flex;gap:6px;align-items:flex-start;animation:slideUp .2s ease}
+@keyframes slideUp{from{opacity:0;transform:translateY(5px)}to{opacity:1;transform:translateY(0)}}
+.cmsg-av{width:26px;height:26px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
+.cmsg-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.cmsg-body{flex:1;min-width:0}
+.cmsg-nick{font-size:10px;font-weight:600;color:var(--indigo2);margin-bottom:2px}
+.cmsg-bubble{background:var(--bubble);border:1px solid var(--border);border-radius:4px 10px 10px 10px;padding:6px 9px;font-size:12px;color:var(--text);word-break:break-word;line-height:1.4}
+.cmsg.mine .cmsg-bubble{background:rgba(120,30,200,.2);border-color:rgba(168,85,247,.35)}
+.cmsg.sys .cmsg-bubble{background:rgba(74,222,128,.07);border-color:rgba(74,222,128,.2);color:var(--green);font-style:italic;font-size:11px;text-align:center}
+.chat-bar{display:flex;gap:5px;padding:7px;border-top:1px solid var(--border);flex-shrink:0}
+.chat-em-btn{width:32px;height:32px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
 .chat-em-btn:hover{background:var(--border)}
-#chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:8px 12px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none;min-width:0}
+#chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:7px 11px;color:var(--text);font-size:12px;outline:none;min-width:0}
 #chatInput:focus{border-color:var(--indigo2)}
 #chatInput::placeholder{color:var(--text3)}
-.chat-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:15px;cursor:pointer;padding:0 12px;height:34px;flex-shrink:0;transition:all .2s}
+.chat-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:9px;color:#fff;font-size:14px;cursor:pointer;padding:0 11px;height:32px;flex-shrink:0;transition:all .15s}
 .chat-send:hover{transform:scale(1.05)}
+#emoPanel{border-top:1px solid var(--border);padding:7px;display:none;flex-wrap:wrap;gap:4px;max-height:120px;overflow-y:auto}
+#emoPanel.open{display:flex}
+.emo-btn{width:40px;height:40px;border-radius:9px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .12s}
+.emo-btn:hover{background:var(--border);transform:scale(1.08)}
+.emo-btn img{width:28px;height:28px;border-radius:4px;object-fit:contain}
+.emo-btn span{font-size:20px;line-height:1}
 
-/* ─── TOAST ─── */
-.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:popIn .3s ease;white-space:nowrap}
+/* MOBILE CHAT */
+#mobChatBtn{display:none;position:fixed;bottom:14px;right:14px;z-index:200;width:48px;height:48px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;font-size:20px;cursor:pointer;box-shadow:0 6px 18px rgba(120,30,200,.6);color:#fff;align-items:center;justify-content:center}
+@media(max-width:700px){#mobChatBtn{display:flex}}
+#mobChatOvl{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:300;display:none;flex-direction:column}
+#mobChatOvl.open{display:flex}
+#mobChatInner{background:var(--panel);border-radius:18px 18px 0 0;margin-top:auto;height:58vh;display:flex;flex-direction:column;border-top:1px solid var(--border)}
+#mobChatMsgs{flex:1;overflow-y:auto;padding:9px;display:flex;flex-direction:column;gap:4px}
 
-/* ─── MOBILE CHAT ─── */
-#mobileChatBtn{display:none;position:fixed;bottom:16px;right:16px;z-index:300;width:50px;height:50px;border-radius:50%;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;font-size:22px;cursor:pointer;box-shadow:0 6px 20px rgba(120,30,200,.6);color:#fff}
-@media(max-width:768px){#mobileChatBtn{display:flex;align-items:center;justify-content:center}}
-#mobileChatOverlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:400;display:none;flex-direction:column}
-#mobileChatOverlay.open{display:flex}
-#mobileChatInner{background:var(--panel);border-radius:20px 20px 0 0;margin-top:auto;height:60vh;display:flex;flex-direction:column;border-top:1px solid var(--border)}
+/* TOAST */
+.toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:9px 20px;border-radius:18px;font-size:13px;z-index:9999;box-shadow:0 6px 20px rgba(0,0,0,.4);pointer-events:none;white-space:nowrap;animation:slideUp .3s ease}
 </style>
 </head>
 <body>
 
 <nav id="topnav">
-  <button class="nav-back" onclick="goBack()">← უკან</button>
+  <button class="nav-back" id="btnBack">← უკან</button>
   <div class="nav-title">🎱 ბილიარდი</div>
-  <div class="nav-spacer"></div>
-  <div class="nav-score" id="myScoreDisplay">💜 0</div>
+  <div class="nav-score" id="myScore">💜 0</div>
 </nav>
 
-<!-- ─── INVITE MODAL ─── -->
-<div id="inviteModal">
-  <div class="invite-box">
-    <div class="invite-title">👥 მოიწვიე მოთამაშე</div>
-    <input class="invite-search" id="inviteSearch" placeholder="🔍 ძებნა სახელით..." oninput="filterInviteList()">
-    <div id="inviteUserList">
-      <div class="invite-loading">
-        <div class="invite-spinner"></div>
-        <div>იტვირთება...</div>
-      </div>
-    </div>
-    <button class="invite-cancel" onclick="closeInviteModal()">✕ გაუქმება</button>
+<!-- INVITE MODAL -->
+<div class="modal-bg" id="inviteModal">
+  <div class="modal-box">
+    <div class="modal-title">👥 მოთამაშის მოწვევა</div>
+    <input id="inviteSearch" placeholder="🔍 ძებნა სახელით...">
+    <div id="inviteList"><div style="text-align:center;padding:20px;color:var(--text3)"><div class="inv-spin"></div><div style="margin-top:8px;font-size:12px">იტვირთება...</div></div></div>
+    <button class="modal-cancel" id="btnInviteCancel">✕ გაუქმება</button>
   </div>
 </div>
 
-<!-- ─── INCOMING INVITE MODAL (FIX 4: დასტური/უარი) ─── -->
-<div id="incomingModal">
-  <div class="incoming-box">
-    <div class="incoming-icon">🎱</div>
-    <div class="incoming-from" id="incomingFromName">?</div>
-    <div class="incoming-sub">გიწვევს ბილიარდის თამაშში!</div>
-    <div class="incoming-msg" id="incomingScoreInfo">💜 0 ქულა</div>
-    <div class="incoming-btns">
-      <button class="incoming-accept" onclick="acceptInvite()">✅ დასტური</button>
-      <button class="incoming-decline" onclick="declineInvite()">❌ უარი</button>
+<!-- INCOMING MODAL -->
+<div class="modal-bg" id="incomingModal">
+  <div class="modal-box">
+    <span class="inc-icon">🎱</span>
+    <div class="inc-name" id="incName">?</div>
+    <div class="inc-sub">გიწვევს ბილიარდის თამაშში!</div>
+    <div class="inc-timer" id="incTimer">⏱ 30</div>
+    <div class="inc-btns">
+      <button class="inc-accept" id="btnAccept">✅ დასტური</button>
+      <button class="inc-decline" id="btnDecline">❌ უარი</button>
     </div>
   </div>
 </div>
@@ -254,36 +231,39 @@ canvas#billiards{display:block;border-radius:8px;touch-action:none;cursor:crossh
 <div id="layout">
   <div id="gameArea">
 
+    <!-- LOBBY -->
     <div id="lobbyScreen">
       <div class="lobby-icon">🎱</div>
       <div class="lobby-title">ბილიარდი</div>
-      <div class="lobby-subtitle">8-ბურთი · კლასიკური ბილიარდი</div>
+      <div class="lobby-sub">8-ბურთი · კლასიკური</div>
       <div class="lobby-btns">
-        <button class="lobby-btn primary" onclick="startVsAI()">🤖 AI-ს წინააღმდეგ</button>
-        <button class="lobby-btn green" onclick="openInviteModal()">👥 მეგობრის მოწვევა</button>
-        <button class="lobby-btn secondary" onclick="goBack()">← მთავარ გვერდზე</button>
+        <button class="lbtn primary" id="btnVsAI">🤖 AI-ს წინააღმდეგ</button>
+        <button class="lbtn green" id="btnInvite">👥 მეგობრის მოწვევა</button>
+        <button class="lbtn sec" id="btnHome">← მთავარ გვერდზე</button>
       </div>
     </div>
 
+    <!-- WAITING -->
     <div id="waitingScreen">
-      <div class="waiting-spinner"></div>
-      <div class="waiting-title" id="waitingTitle">ველოდებით...</div>
-      <div class="waiting-sub" id="waitingSub">მოწვევა გაიგზავნა</div>
-      <button class="waiting-cancel" onclick="cancelInvite()">✕ გაუქმება</button>
+      <div class="wait-spin"></div>
+      <div class="wait-title" id="waitTitle">ველოდებით...</div>
+      <div class="wait-sub" id="waitSub">მოწვევა გაიგზავნა</div>
+      <button class="wait-cancel" id="btnCancelWait">✕ გაუქმება</button>
     </div>
 
-    <div id="hudWrap" style="display:none;flex-direction:column;align-items:center;gap:8px;width:100%">
+    <!-- GAME -->
+    <div id="hudWrap">
       <div id="gameHUD">
-        <div class="hud-player active" id="hudP1">
+        <div class="hud-p active" id="hudP1">
           <div class="hud-av" id="hudP1Av">😊</div>
           <div class="hud-info">
             <div class="hud-name" id="hudP1Name">მოთამაშე 1</div>
             <div class="hud-balls" id="hudP1Balls"></div>
           </div>
-          <div class="hud-turn" id="hudP1Turn">🎯 შენი ჯერი</div>
+          <div class="hud-turn" id="hudP1Turn">🎯 ჯერი</div>
         </div>
         <div class="hud-vs">VS</div>
-        <div class="hud-player" id="hudP2">
+        <div class="hud-p" id="hudP2">
           <div class="hud-av" id="hudP2Av">🤖</div>
           <div class="hud-info">
             <div class="hud-name" id="hudP2Name">AI</div>
@@ -293,282 +273,322 @@ canvas#billiards{display:block;border-radius:8px;touch-action:none;cursor:crossh
         </div>
       </div>
 
-      <div id="tableWrap" style="position:relative">
-        <canvas id="billiards" width="660" height="360"></canvas>
+      <div id="tableWrap">
+        <canvas id="gc" width="660" height="360"></canvas>
         <div id="resultOverlay">
-          <div class="result-icon" id="resultIcon">🏆</div>
-          <div class="result-title" id="resultTitle">გამარჯვება!</div>
-          <div class="result-sub" id="resultSub"></div>
-          <button class="result-btn again" onclick="restartGame()">🔄 კვლავ</button>
-          <button class="result-btn back" onclick="showLobby()">🏠 ლობი</button>
+          <div class="res-icon" id="resIcon">🏆</div>
+          <div class="res-title" id="resTitle">გამარჯვება!</div>
+          <div class="res-sub" id="resSub"></div>
+          <button class="res-btn again" id="btnAgain">🔄 კვლავ</button>
+          <button class="res-btn back" id="btnToLobby">🏠 ლობი</button>
         </div>
       </div>
 
-      <div id="ballInHandHint">🎱 Ball-in-hand: დააჭირეთ სადაც გსურთ თეთრი ბურთის დადება</div>
-
+      <div id="bihHint">🎱 Ball-in-hand — დააჭირე სადაც გსურს თეთრი ბურთის დადება</div>
       <div id="powerBar">
-        <div class="power-label">ძალა:</div>
-        <div class="power-track"><div class="power-fill" id="powerFill" style="width:0%"></div></div>
-        <div id="powerVal">0%</div>
+        <span class="pwr-lbl">ძალა:</span>
+        <div class="pwr-track"><div class="pwr-fill" id="pwrFill" style="width:0%"></div></div>
+        <span id="pwr-val">0%</span>
       </div>
-      <div id="statusBar">თამაში იწყება...</div>
+      <div id="statusBar">...</div>
     </div>
 
   </div>
 
+  <!-- RIGHT PANEL -->
   <div id="rightPanel">
     <div id="rpTabs">
-      <div class="rp-tab" id="tabLbBtn" onclick="switchRPTab('lb')">🏆 TOP</div>
-      <div class="rp-tab active" id="tabChatBtn" onclick="switchRPTab('chat')">💬 ჩატი</div>
+      <div class="rp-tab" id="tabLb">🏆 TOP</div>
+      <div class="rp-tab on" id="tabChat">💬 ჩატი</div>
     </div>
     <div id="lbPanel">
-      <div class="lb-title">🏆 ლიდერბორდი</div>
+      <div style="font-size:9px;font-weight:700;color:var(--text3);letter-spacing:1.5px;text-transform:uppercase;padding:8px 6px 4px">🏆 ლიდერბორდი</div>
       <div id="lbRows"></div>
     </div>
-    <div id="chatPanel" class="active">
+    <div id="chatPanel" class="on">
       <div id="chatMsgs"></div>
-      <div id="chatEmoPanel"></div>
+      <div id="emoPanel"></div>
       <div class="chat-bar">
-        <button class="chat-em-btn" onclick="toggleChatEmo()">😊</button>
-        <input id="chatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChatMsg()">
-        <button class="chat-send" onclick="sendChatMsg()">✈️</button>
+        <button class="chat-em-btn" id="btnEmo">😊</button>
+        <input id="chatInput" placeholder="შეტყობინება...">
+        <button class="chat-send" id="btnSend">✈️</button>
       </div>
     </div>
   </div>
 </div>
 
-<button id="mobileChatBtn" onclick="openMobileChat()">💬</button>
-<div id="mobileChatOverlay" onclick="if(event.target.id==='mobileChatOverlay')closeMobileChat()">
-  <div id="mobileChatInner">
-    <div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-bottom:1px solid var(--border)">
-      <span style="font-family:'Unbounded',sans-serif;font-size:11px;color:var(--text2);flex:1">💬 ჩატი</span>
-      <button onclick="closeMobileChat()" style="background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text2);width:28px;height:28px;cursor:pointer;font-size:13px">✕</button>
+<!-- MOBILE CHAT -->
+<button id="mobChatBtn">💬</button>
+<div id="mobChatOvl">
+  <div id="mobChatInner">
+    <div style="display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:1px solid var(--border)">
+      <span style="font-size:11px;color:var(--text2);flex:1;font-weight:700">💬 ჩატი</span>
+      <button id="btnCloseMobChat" style="background:var(--indigo-f);border:1px solid var(--border);border-radius:7px;color:var(--text2);width:26px;height:26px;cursor:pointer;font-size:12px">✕</button>
     </div>
-    <div id="mobChatMsgs" style="flex:1;overflow-y:auto;padding:10px;display:flex;flex-direction:column;gap:4px"></div>
-    <div id="mobChatEmo" style="border-top:1px solid var(--border);padding:8px;display:none;flex-wrap:wrap;gap:5px;max-height:120px;overflow-y:auto"></div>
+    <div id="mobChatMsgs"></div>
     <div class="chat-bar" style="padding:8px">
-      <button class="chat-em-btn" onclick="toggleMobEmo()">😊</button>
-      <input id="mobChatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendMobChat()" style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:8px 12px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none">
-      <button class="chat-send" onclick="sendMobChat()">✈️</button>
+      <button class="chat-em-btn" id="btnMobEmo">😊</button>
+      <input id="mobInput" placeholder="შეტყობინება..." style="flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:7px 11px;color:var(--text);font-size:12px;outline:none">
+      <button class="chat-send" id="btnMobSend">✈️</button>
     </div>
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-const {createClient} = supabase;
-const sb = createClient(
-  "https://brggiyhfzfbmlirqfgpo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
-);
+'use strict';
 
+// ─────────────────────────────────────────────
+// SUPABASE
+// ─────────────────────────────────────────────
+const SB_URL = "https://brggiyhfzfbmlirqfgpo.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU";
+let sb = null;
+try {
+  sb = supabase.createClient(SB_URL, SB_KEY);
+} catch(e) {
+  console.warn('Supabase init failed', e);
+}
+
+// ─────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────
 let ME = null, MYPROF = null;
 let allUsers = [];
 let customEmojis = [], emojiCache = {};
-let gameMode = null;
-let currentInviteId = null, opponentId = null, opponentProf = null;
-let inviteCh = null, gameCh = null, chatCh = null;
-let myInviteChannel = null, outgoingInviteCh = null;
-let gameActive = false, myTurn = false, myTeam = null;
-let GAME_KEY = null;
-let aiThinkTimer = null;
+let gameMode = null;          // 'ai' | 'online' | null
 let myPlayerNum = 1;
-let scoreUpdated = false; // ─── FIX 3: ერთხელ ანგარიშს
+let scoreUpdated = false;
+let gameActive = false, myTurn = false;
+let GAME_KEY = null;
+let currentInviteId = null, opponentId = null, opponentProf = null;
 
-// ─── PHYSICS ───
-const W = 660, H = 360;
-const RAIL_W = 22;
-const POCKET_R = 16;
-let balls = [];
-let cueAngle = 0, cuePower = 0, isAiming = false, isDragging = false;
-let mouseX = 0, mouseY = 0;
-let animating = false;
-let ballInHand = false;
-let cueBallPreviewX = 0, cueBallPreviewY = 0;
-let currentPlayer = 1;
-let p1Team = null, p2Team = null;
-let p1Pocketed = [], p2Pocketed = [];
-let breakShot = true;
-let raf = null;
+// channels
+let myInboxCh = null;
+let pendingRespCh = null;
+let gameCh = null, chatCh = null;
+let inviteTimeoutId = null;
+let incTimerInterval = null;
 
-const canvas = document.getElementById('billiards');
+// ─────────────────────────────────────────────
+// PHYSICS
+// ─────────────────────────────────────────────
+const CW = 660, CH = 360, RAIL = 22, PRAIL = 16;
+const canvas = document.getElementById('gc');
 const ctx = canvas.getContext('2d');
 
 const POCKETS = [
-  {x:RAIL_W, y:RAIL_W}, {x:W/2, y:RAIL_W-4}, {x:W-RAIL_W, y:RAIL_W},
-  {x:RAIL_W, y:H-RAIL_W}, {x:W/2, y:H-RAIL_W+4}, {x:W-RAIL_W, y:H-RAIL_W},
+  {x:RAIL,y:RAIL},{x:CW/2,y:RAIL-4},{x:CW-RAIL,y:RAIL},
+  {x:RAIL,y:CH-RAIL},{x:CW/2,y:CH-RAIL+4},{x:CW-RAIL,y:CH-RAIL}
 ];
-const BALL_COLORS = {
-  1:'#fbbf24', 2:'#2563eb', 3:'#dc2626', 4:'#7c3aed', 5:'#ea580c',
-  6:'#16a34a', 7:'#be185d', 8:'#111827',
-  9:'#fbbf24', 10:'#2563eb', 11:'#dc2626', 12:'#7c3aed',
-  13:'#ea580c', 14:'#16a34a', 15:'#be185d',
+const BCOLORS = {
+  1:'#fbbf24',2:'#2563eb',3:'#dc2626',4:'#7c3aed',5:'#ea580c',
+  6:'#16a34a',7:'#be185d',8:'#111827',
+  9:'#fbbf24',10:'#2563eb',11:'#dc2626',12:'#7c3aed',
+  13:'#ea580c',14:'#16a34a',15:'#be185d'
 };
 
+let balls=[], animating=false, raf=null;
+let isDragging=false, isAiming=false, cuePower=0;
+let mouseX=0, mouseY=0;
+let ballInHand=false, bihX=0, bihY=0;
+let currentPlayer=1, p1Team=null, p2Team=null;
+let p1Pot=[], p2Pot=[], breakShot=true;
+let aiTimer=null;
+
+// ─────────────────────────────────────────────
+// UTILS
+// ─────────────────────────────────────────────
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function toast(msg){
-  const t = document.createElement('div');
-  t.className = 'toast';
-  t.textContent = msg;
+function toast(m){
+  const t=document.createElement('div');
+  t.className='toast'; t.textContent=m;
   document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2800);
+  setTimeout(()=>t.remove(),2600);
 }
-function goBack(){window.close(); if(!window.closed) location.href='index.html';}
+function isOnline(ts){if(!ts) return false; return Date.now()-new Date(ts).getTime()<90000;}
+function setStatus(m){document.getElementById('statusBar').textContent=m;}
+function setPwr(v){
+  document.getElementById('pwrFill').style.width=(v*100)+'%';
+  document.getElementById('pwr-val').textContent=Math.round(v*100)+'%';
+}
 
-// ─── INIT ───
+// ─────────────────────────────────────────────
+// DOM EVENTS — wire up all buttons here, never inline onclick
+// ─────────────────────────────────────────────
+document.getElementById('btnBack').onclick = ()=>{ window.close(); if(!window.closed) location.href='index.html'; };
+document.getElementById('btnHome').onclick = ()=>{ window.close(); if(!window.closed) location.href='index.html'; };
+document.getElementById('btnVsAI').onclick = startVsAI;
+document.getElementById('btnInvite').onclick = openInviteModal;
+document.getElementById('btnInviteCancel').onclick = closeInviteModal;
+document.getElementById('inviteSearch').oninput = ()=>renderInviteList(document.getElementById('inviteSearch').value);
+document.getElementById('btnAccept').onclick = acceptInvite;
+document.getElementById('btnDecline').onclick = declineInvite;
+document.getElementById('btnCancelWait').onclick = cancelInvite;
+document.getElementById('btnAgain').onclick = restartGame;
+document.getElementById('btnToLobby').onclick = showLobby;
+document.getElementById('tabLb').onclick = ()=>switchTab('lb');
+document.getElementById('tabChat').onclick = ()=>switchTab('chat');
+document.getElementById('btnSend').onclick = sendChat;
+document.getElementById('chatInput').onkeydown = e=>{ if(e.key==='Enter') sendChat(); };
+document.getElementById('btnEmo').onclick = ()=>document.getElementById('emoPanel').classList.toggle('open');
+document.getElementById('mobChatBtn').onclick = ()=>document.getElementById('mobChatOvl').classList.add('open');
+document.getElementById('btnCloseMobChat').onclick = ()=>document.getElementById('mobChatOvl').classList.remove('open');
+document.getElementById('mobChatOvl').onclick = e=>{ if(e.target.id==='mobChatOvl') e.target.classList.remove('open'); };
+document.getElementById('btnMobSend').onclick = sendMobChat;
+document.getElementById('mobInput').onkeydown = e=>{ if(e.key==='Enter') sendMobChat(); };
+document.getElementById('btnMobEmo').onclick = ()=>{
+  const el=document.getElementById('mobEmoPanel');
+  if(el) el.style.display=el.style.display==='flex'?'none':'flex';
+};
+
+// ─────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────
 async function init(){
-  const {data:{user}} = await sb.auth.getUser();
-  if(!user){location.href='index.html'; return;}
-  ME = user;
-
-  const {data} = await sb.from('profiles').select('*').eq('id', ME.id).single();
-  MYPROF = data;
-  document.getElementById('myScoreDisplay').textContent = '💜 ' + (MYPROF?.billiard_score || 0);
-
-  // last_seen განახლება
-  await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
-  setInterval(async () => {
-    await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
-  }, 45000);
-
-  await loadAllUsers();
+  // Load leaderboard/chat UI regardless of auth
   await loadEmojis();
-  buildChatEmo();
-  buildMobChatEmo();
+  buildEmoPanel();
   await loadLeaderboard();
-  watchInvites();
+
+  if(!sb){ toast('⚠️ ქსელის შეცდომა'); return; }
+
+  try {
+    const {data:{user}} = await sb.auth.getUser();
+    if(user){
+      ME = user;
+      const {data:prof} = await sb.from('profiles').select('*').eq('id',ME.id).single();
+      MYPROF = prof || {id:ME.id,username:'?',billiard_score:0,billiard_wins:0,billiard_losses:0};
+      document.getElementById('myScore').textContent='💜 '+(MYPROF.billiard_score||0);
+      await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);
+      setInterval(()=>sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id),40000);
+      await loadAllUsers();
+      startInboxListener();
+      // ask notification permission
+      if('Notification' in window && Notification.permission==='default') Notification.requestPermission();
+    }
+  } catch(e){ console.warn('auth check failed',e); }
 }
 
-// ─── FIX 1: USERS — სრული ჩამონათვალი ───
+// ─────────────────────────────────────────────
+// USERS
+// ─────────────────────────────────────────────
 async function loadAllUsers(){
-  // last_seen-ის გარეშეც რომ ჩამოვიტვირთოთ ყველა
-  const {data, error} = await sb.from('profiles')
+  if(!sb||!ME) return;
+  const {data,error} = await sb.from('profiles')
     .select('id,username,avatar_url,emotion,last_seen,billiard_score,billiard_wins,billiard_losses')
-    .neq('id', ME?.id || '')  // საკუთარი თავის გარდა
-    .order('username', {ascending: true});
-
-  if(error){
-    console.error('loadAllUsers error:', error);
-    allUsers = [];
-    return;
-  }
-  allUsers = data || [];
-  console.log('Loaded users:', allUsers.length);
+    .neq('id',ME.id).order('username',{ascending:true});
+  if(!error) allUsers = data||[];
 }
 
-function isOnline(ts){
-  if(!ts) return false;
-  return Date.now() - new Date(ts).getTime() < 90000; // 90 წამი
-}
-
-// ─── EMOJIS ───
+// ─────────────────────────────────────────────
+// EMOJIS
+// ─────────────────────────────────────────────
 async function loadEmojis(){
-  const {data} = await sb.from('global_emojis').select('id,url').order('id');
-  customEmojis = data || [];
-  emojiCache = {};
-  customEmojis.forEach(e => {emojiCache[e.id] = e.url;});
+  if(!sb) return;
+  try{
+    const {data} = await sb.from('global_emojis').select('id,url').order('id');
+    customEmojis=data||[]; emojiCache={};
+    customEmojis.forEach(e=>{ emojiCache[e.id]=e.url; });
+  }catch(e){}
 }
 
-function buildChatEmo(){
-  const g = document.getElementById('chatEmoPanel');
-  g.innerHTML = '';
-  customEmojis.forEach(em => g.appendChild(makeEmoBtn(em, 'chatInput')));
-}
-function buildMobChatEmo(){
-  const g = document.getElementById('mobChatEmo');
-  g.innerHTML = '';
-  customEmojis.forEach(em => g.appendChild(makeEmoBtn(em, 'mobChatInput')));
-}
-function makeEmoBtn(em, inputId){
-  const btn = document.createElement('button');
-  btn.className = 'cem-btn';
-  const isImg = em.url && (em.url.startsWith('http') || em.url.startsWith('data:'));
-  if(isImg){
-    const img = document.createElement('img');
-    img.src = em.url;
-    img.loading = 'eager';
-    btn.appendChild(img);
-  } else {
-    const span = document.createElement('span');
-    span.className = 'cem-text';
-    span.textContent = em.url || '?';
-    btn.appendChild(span);
-  }
-  btn.addEventListener('click', () => {
-    const inp = document.getElementById(inputId);
-    if(inp){inp.value += (isImg ? `[e:${em.id}]` : em.url); inp.focus();}
+function buildEmoPanel(){
+  const panel = document.getElementById('emoPanel');
+  panel.innerHTML='';
+  customEmojis.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.className='emo-btn';
+    const isImg=em.url&&em.url.startsWith('http');
+    if(isImg){
+      const img=document.createElement('img'); img.src=em.url; btn.appendChild(img);
+    } else {
+      const sp=document.createElement('span'); sp.textContent=em.url||'?'; btn.appendChild(sp);
+    }
+    btn.onclick=()=>{
+      const inp=document.getElementById('chatInput');
+      inp.value+=(isImg?`[e:${em.id}]`:em.url); inp.focus();
+    };
+    panel.appendChild(btn);
   });
-  return btn;
+  // also mob panel
+  const mob=document.getElementById('mobChatInner');
+  if(!mob) return;
+  let mobEmo=document.getElementById('mobEmoPanel');
+  if(!mobEmo){
+    mobEmo=document.createElement('div');
+    mobEmo.id='mobEmoPanel';
+    mobEmo.style.cssText='border-top:1px solid var(--border);padding:7px;display:none;flex-wrap:wrap;gap:4px;max-height:110px;overflow-y:auto';
+    const chatBar=mob.querySelector('.chat-bar');
+    mob.insertBefore(mobEmo,chatBar);
+  }
+  mobEmo.innerHTML='';
+  customEmojis.forEach(em=>{
+    const btn=document.createElement('button');
+    btn.className='emo-btn';
+    const isImg=em.url&&em.url.startsWith('http');
+    if(isImg){const img=document.createElement('img'); img.src=em.url; btn.appendChild(img);}
+    else{const sp=document.createElement('span'); sp.textContent=em.url||'?'; btn.appendChild(sp);}
+    btn.onclick=()=>{
+      const inp=document.getElementById('mobInput');
+      inp.value+=(isImg?`[e:${em.id}]`:em.url); inp.focus();
+    };
+    mobEmo.appendChild(btn);
+  });
 }
 
 function renderChatContent(s){
   if(!s) return '';
-  let h = s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-  h = h.replace(/\[e:(\d+)\]/g, (m, id) => {
-    const url = emojiCache[parseInt(id)];
-    if(!url) return m;
-    if(url.startsWith('http') || url.startsWith('data:')){
-      const isGif = url.toLowerCase().includes('.gif') || url.startsWith('data:image/gif');
-      return `<img src="${url}" class="${isGif ? 'em-gif' : 'em'}" loading="eager">`;
+  let h=esc(s);
+  h=h.replace(/\[e:(\d+)\]/g,(m,id)=>{
+    const url=emojiCache[parseInt(id)]; if(!url) return m;
+    if(url.startsWith('http')){
+      const isGif=url.toLowerCase().includes('.gif');
+      return `<img src="${url}" style="width:${isGif?34:28}px;height:${isGif?34:28}px;object-fit:contain;vertical-align:middle;border-radius:4px">`;
     }
-    return `<span class="em-text">${url}</span>`;
+    return `<span style="font-size:20px;vertical-align:middle">${url}</span>`;
   });
   return h;
 }
-function toggleChatEmo(){document.getElementById('chatEmoPanel').classList.toggle('open');}
-function toggleMobEmo(){
-  const el = document.getElementById('mobChatEmo');
-  el.style.display = el.style.display === 'flex' ? 'none' : 'flex';
-}
 
-// ─── LEADERBOARD ───
+// ─────────────────────────────────────────────
+// LEADERBOARD
+// ─────────────────────────────────────────────
 async function loadLeaderboard(){
-  const {data} = await sb.from('profiles')
-    .select('id,username,avatar_url,emotion,billiard_score,billiard_wins,billiard_losses')
-    .order('billiard_score', {ascending: false})
-    .limit(10);
-  const el = document.getElementById('lbRows');
-  el.innerHTML = '';
-  (data || []).forEach((u, i) => {
-    const rankClass = ['gold','silver','bronze'][i] || '';
-    const medal = ['🥇','🥈','🥉'][i] || (i+1);
-    const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion || '😊');
-    const d = document.createElement('div');
-    d.className = 'lb-row';
-    d.innerHTML = `<span class="lb-rank ${rankClass}">${medal}</span><div class="lb-av">${avHtml}</div><span class="lb-name">${esc(u.username||'?')}</span><div style="text-align:right"><div class="lb-score">${u.billiard_score||0}</div><div class="lb-wl">${u.billiard_wins||0}W/${u.billiard_losses||0}L</div></div>`;
-    el.appendChild(d);
-  });
+  if(!sb) return;
+  try{
+    const {data}=await sb.from('profiles')
+      .select('id,username,avatar_url,emotion,billiard_score,billiard_wins,billiard_losses')
+      .order('billiard_score',{ascending:false}).limit(10);
+    const el=document.getElementById('lbRows'); el.innerHTML='';
+    (data||[]).forEach((u,i)=>{
+      const rClass=['gold','silver','bronze'][i]||'';
+      const medal=['🥇','🥈','🥉'][i]||(i+1);
+      const av=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');
+      const d=document.createElement('div'); d.className='lb-row';
+      d.innerHTML=`<span class="lb-rank ${rClass}">${medal}</span><div class="lb-av">${av}</div><span class="lb-name">${esc(u.username||'?')}</span><div style="text-align:right"><div class="lb-pts">${u.billiard_score||0}</div><div class="lb-wl">${u.billiard_wins||0}W/${u.billiard_losses||0}L</div></div>`;
+      el.appendChild(d);
+    });
+  }catch(e){}
 }
 
-function switchRPTab(tab){
-  document.getElementById('lbPanel').classList.toggle('active', tab==='lb');
-  document.getElementById('chatPanel').classList.toggle('active', tab==='chat');
-  document.getElementById('tabLbBtn').classList.toggle('active', tab==='lb');
-  document.getElementById('tabChatBtn').classList.toggle('active', tab==='chat');
+function switchTab(tab){
+  document.getElementById('lbPanel').classList.toggle('on',tab==='lb');
+  document.getElementById('chatPanel').classList.toggle('on',tab==='chat');
+  document.getElementById('tabLb').classList.toggle('on',tab==='lb');
+  document.getElementById('tabChat').classList.toggle('on',tab==='chat');
 }
 
-function openMobileChat(){document.getElementById('mobileChatOverlay').classList.add('open');}
-function closeMobileChat(){document.getElementById('mobileChatOverlay').classList.remove('open');}
-function sendMobChat(){
-  const inp = document.getElementById('mobChatInput');
-  const t = inp.value.trim();
-  if(!t) return;
-  inp.value = '';
-  sendChatMsgText(t);
-}
-
-// ─── FIX 1: INVITE — ყველა user ჩანს ───
+// ─────────────────────────────────────────────
+// INVITE MODAL
+// ─────────────────────────────────────────────
 async function openInviteModal(){
+  if(!ME){ toast('⚠️ შესვლა საჭიროა ონლაინ თამაშისთვის'); return; }
   document.getElementById('inviteModal').classList.add('open');
-  document.getElementById('inviteSearch').value = '';
-  document.getElementById('inviteUserList').innerHTML = '<div class="invite-loading"><div class="invite-spinner"></div><div>იტვირთება...</div></div>';
-
-  // განვაახლოთ ჩვენი last_seen
-  await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
-
-  // ყოველ გახსნაზე ახლიდან ჩამოვიტვირთოთ
+  document.getElementById('inviteSearch').value='';
+  document.getElementById('inviteList').innerHTML='<div style="text-align:center;padding:20px;color:var(--text3)"><div class="inv-spin"></div><div style="margin-top:8px;font-size:12px">იტვირთება...</div></div>';
+  await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);
   await loadAllUsers();
-
-  // render — ყველა user გამოჩნდეს
   renderInviteList('');
 }
 
@@ -576,998 +596,714 @@ function closeInviteModal(){
   document.getElementById('inviteModal').classList.remove('open');
 }
 
-function renderInviteList(filter){
-  const el = document.getElementById('inviteUserList');
-  el.innerHTML = '';
-
-  if(!allUsers || allUsers.length === 0){
-    el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:20px">მომხმარებლები ვერ მოიძებნა.<br><small style="opacity:.6">დარწმუნდი რომ profiles ცხრილი სწორია</small></div>';
+function renderInviteList(q){
+  const el=document.getElementById('inviteList');
+  el.innerHTML='';
+  if(!allUsers.length){
+    el.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:18px">მომხმარებლები ვერ მოიძებნა</div>';
     return;
   }
-
-  const q = (filter || '').toLowerCase().trim();
-  const filtered = q
-    ? allUsers.filter(u => (u.username || '').toLowerCase().includes(q))
-    : allUsers;
-
+  const filter=(q||'').toLowerCase().trim();
+  const filtered=filter?allUsers.filter(u=>(u.username||'').toLowerCase().includes(filter)):allUsers;
   if(!filtered.length){
-    el.innerHTML = '<div style="color:var(--text3);font-size:12px;text-align:center;padding:16px">ვერ მოიძებნა: "' + esc(filter) + '"</div>';
+    el.innerHTML=`<div style="color:var(--text3);font-size:12px;text-align:center;padding:18px">ვერ მოიძებნა</div>`;
     return;
   }
-
-  // ონლაინი და ოფლაინი
-  const online = filtered.filter(u => isOnline(u.last_seen));
-  const offline = filtered.filter(u => !isOnline(u.last_seen));
-
+  const online=filtered.filter(u=>isOnline(u.last_seen));
+  const offline=filtered.filter(u=>!isOnline(u.last_seen));
   if(online.length){
-    const hdr = document.createElement('div');
-    hdr.className = 'invite-section-hdr';
-    hdr.style.color = 'var(--green)';
-    hdr.textContent = `🟢 ონლაინი (${online.length})`;
-    el.appendChild(hdr);
-    online.forEach(u => el.appendChild(makeInviteRow(u, true)));
+    const h=document.createElement('div'); h.className='inv-section'; h.style.color='var(--green)';
+    h.textContent=`🟢 ონლაინი (${online.length})`; el.appendChild(h);
+    online.forEach(u=>el.appendChild(makeInvRow(u,true)));
   }
-
   if(offline.length){
-    const hdr = document.createElement('div');
-    hdr.className = 'invite-section-hdr';
-    hdr.style.color = 'var(--text3)';
-    hdr.textContent = `⚫ ოფლაინი (${offline.length})`;
-    el.appendChild(hdr);
-    offline.forEach(u => el.appendChild(makeInviteRow(u, false)));
+    const h=document.createElement('div'); h.className='inv-section'; h.style.color='var(--text3)';
+    h.textContent=`⚫ ოფლაინი (${offline.length})`; el.appendChild(h);
+    offline.forEach(u=>el.appendChild(makeInvRow(u,false)));
   }
 }
 
-function makeInviteRow(u, online){
-  const div = document.createElement('div');
-  div.className = 'invite-user-item';
-  const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion || '😊');
-  div.innerHTML = `
-    <div class="invite-av">${avHtml}</div>
-    <div style="flex:1;min-width:0">
-      <div class="invite-name">${esc(u.username || '?')}</div>
-      <div style="font-size:10px;color:var(--text3)">${online ? '🟢 ონლაინი' : '⚫ ოფლაინი'} · 💜${u.billiard_score || 0}</div>
-    </div>
-    ${online ? '<div class="invite-online"></div>' : ''}`;
-  div.onclick = () => sendInvite(u.id, u);
+function makeInvRow(u,online){
+  const div=document.createElement('div'); div.className='inv-row';
+  const av=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');
+  div.innerHTML=`<div class="inv-av">${av}</div><div style="flex:1;min-width:0"><div style="font-size:13px;font-weight:500;color:var(--text)">${esc(u.username||'?')}</div><div style="font-size:10px;color:var(--text3)">${online?'🟢 ონლაინი':'⚫ ოფლაინი'} · 💜${u.billiard_score||0}</div></div>${online?'<div class="inv-dot"></div>':''}`;
+  div.onclick=()=>sendInvite(u.id,u);
   return div;
 }
 
-function filterInviteList(){
-  renderInviteList(document.getElementById('inviteSearch').value);
-}
+// ─────────────────────────────────────────────
+// INBOX LISTENER — persistent per-user channel
+// ─────────────────────────────────────────────
+function startInboxListener(){
+  if(!sb||!ME) return;
+  if(myInboxCh){ try{sb.removeChannel(myInboxCh);}catch(e){} }
 
-// ─── BROADCAST-ზე დაფუძნებული INVITE სისტემა ───
-// postgres_changes INSERT filter არასანდოა — broadcast გამოვიყენოთ პირდაპირ
-
-let myInviteChannel = null;  // ჩვენი პირადი "საფოსტო ყუთი"
-let outgoingInviteCh = null; // გაგზავნილი მოწვევის response channel
-
-function watchInvites(){
-  // ყოველი user-ი უსმენს საკუთარ personal channel-ს
-  if(myInviteChannel) try{sb.removeChannel(myInviteChannel);}catch(e){}
-
-  myInviteChannel = sb.channel('user_invite_' + ME.id)
-    .on('broadcast', {event: 'invite'}, async ({payload}) => {
+  myInboxCh = sb.channel('inbox_'+ME.id, {config:{broadcast:{ack:false,self:false}}})
+    .on('broadcast',{event:'invite'},({payload})=>{
       if(!payload) return;
-      if(gameActive) {
-        // თამაშში ვართ — auto-decline
-        const rejectCh = sb.channel('user_invite_' + payload.from_id);
-        await rejectCh.subscribe();
-        rejectCh.send({type:'broadcast', event:'invite_response', payload:{
-          invite_id: payload.invite_id,
-          status: 'declined',
-          from_id: ME.id,
-          from_name: MYPROF?.username || '?'
-        }});
-        setTimeout(() => sb.removeChannel(rejectCh), 2000);
+
+      // cancelled
+      if(payload.cancelled){
+        if(payload.invite_id===currentInviteId){
+          document.getElementById('incomingModal').classList.remove('open');
+          clearIncTimer();
+          toast('❌ მოწვევა გაუქმდა');
+          currentInviteId=null; opponentId=null; opponentProf=null;
+        }
         return;
       }
 
-      currentInviteId = payload.invite_id;
-      opponentId = payload.from_id;
+      // busy
+      if(gameActive){ replyInvite(payload.from_id,payload.invite_id,'declined'); return; }
 
-      // sender info — allUsers-იდან ან payload-იდან
-      if(!allUsers.length) await loadAllUsers();
-      const sender = allUsers.find(u => u.id === payload.from_id) || {
-        username: payload.from_name || '?',
-        emotion: payload.from_emotion || '😊',
-        billiard_score: payload.from_score || 0,
-        id: payload.from_id
+      currentInviteId=payload.invite_id;
+      opponentId=payload.from_id;
+      opponentProf=allUsers.find(u=>u.id===payload.from_id)||{
+        username:payload.from_name||'?', emotion:payload.from_emotion||'😊',
+        billiard_score:payload.from_score||0, id:payload.from_id
       };
-      opponentProf = sender;
 
-      document.getElementById('incomingFromName').textContent = sender.username || '?';
-      document.getElementById('incomingScoreInfo').textContent = '💜 ' + (sender.billiard_score || 0) + ' ქულა';
+      document.getElementById('incName').textContent=opponentProf.username||'?';
       document.getElementById('incomingModal').classList.add('open');
+      startIncTimer(30);
+
+      if('Notification' in window && Notification.permission==='granted'){
+        new Notification('🎱 ბილიარდი',(opponentProf.username||'?')+' გიწვევს!');
+      }
     })
-    .subscribe((status) => {
-      console.log('My invite channel status:', status);
+    .subscribe((status,err)=>{
+      console.log('inbox status:',status, err||'');
     });
+}
+
+function startIncTimer(secs){
+  clearIncTimer();
+  let left=secs;
+  document.getElementById('incTimer').textContent='⏱ '+left;
+  incTimerInterval=setInterval(()=>{
+    left--;
+    document.getElementById('incTimer').textContent='⏱ '+left;
+    if(left<=0){ clearIncTimer(); declineInvite(); }
+  },1000);
+}
+function clearIncTimer(){
+  if(incTimerInterval){clearInterval(incTimerInterval); incTimerInterval=null;}
+  document.getElementById('incTimer').textContent='';
+}
+
+// ─────────────────────────────────────────────
+// SEND / REPLY INVITE
+// ─────────────────────────────────────────────
+async function replyInvite(toId, inviteId, status){
+  if(!sb) return;
+  const ch=sb.channel('resp_'+inviteId,{config:{broadcast:{ack:false}}});
+  await new Promise(res=>{
+    ch.subscribe(s=>{ if(s==='SUBSCRIBED') res(); });
+    setTimeout(res,2000);
+  });
+  await ch.send({type:'broadcast',event:'invite_response',payload:{invite_id:inviteId,status,from_id:ME.id}});
+  setTimeout(()=>{try{sb.removeChannel(ch);}catch(e){}},3000);
 }
 
 async function sendInvite(uid, userObj){
   closeInviteModal();
+  if(!sb||!ME){ toast('⚠️ შესვლა საჭიროა'); return; }
 
-  opponentId = uid;
-  opponentProf = userObj || allUsers.find(u => u.id === uid) || {username:'?', emotion:'😊'};
+  opponentId=uid;
+  opponentProf=userObj||allUsers.find(u=>u.id===uid)||{username:'?',emotion:'😊'};
+  const invId='inv_'+ME.id.slice(0,8)+'_'+uid.slice(0,8)+'_'+Date.now();
+  currentInviteId=invId;
 
-  // უნიკალური invite ID
-  const inviteId = 'inv_' + ME.id + '_' + uid + '_' + Date.now();
-  currentInviteId = inviteId;
+  // show waiting
+  document.getElementById('lobbyScreen').style.display='none';
+  document.getElementById('waitingScreen').style.display='flex';
+  document.getElementById('waitTitle').textContent='ველოდებით '+(opponentProf.username||'?')+'-ს...';
+  document.getElementById('waitSub').textContent='მოწვევა გაიგზავნა 🎱';
 
-  // DB-შიც ვინახოთ (optional — response tracking-ისთვის)
-  sb.from('billiard_invites').insert({
-    id: inviteId.length <= 36 ? inviteId : undefined,
-    from_id: ME.id,
-    to_id: uid,
-    status: 'pending'
-  }).then();
-
-  showWaiting(opponentProf.username || '?');
-
-  // ─── recipient-ის personal channel-ზე broadcast ───
-  const targetCh = sb.channel('user_invite_' + uid);
-  await targetCh.subscribe();
-  
-  setTimeout(async () => {
-    await targetCh.send({
-      type: 'broadcast',
-      event: 'invite',
-      payload: {
-        invite_id: inviteId,
-        from_id: ME.id,
-        from_name: MYPROF?.username || '?',
-        from_emotion: MYPROF?.emotion || '😊',
-        from_score: MYPROF?.billiard_score || 0
-      }
-    });
-    // channel-ი ღია დავტოვოთ response-ის მისაღებად
-  }, 600);
-
-  // response-ს ვუსმენთ ჩვენს channel-ზე
-  watchOutgoingResponse(inviteId, targetCh);
-}
-
-function watchOutgoingResponse(inviteId, targetCh){
-  // ჩვენს personal channel-ს უკვე ვუსმენთ watchInvites()-ში
-  // response event-ს მივიღებთ იქ — ან ცალკე listener-ით:
-  if(outgoingInviteCh) try{sb.removeChannel(outgoingInviteCh);}catch(e){}
-
-  outgoingInviteCh = sb.channel('invite_resp_direct_' + inviteId)
-    .on('broadcast', {event: 'invite_response'}, async ({payload}) => {
-      if(!payload || payload.invite_id !== inviteId) return;
-      sb.removeChannel(outgoingInviteCh);
-      if(targetCh) try{sb.removeChannel(targetCh);}catch(e){}
-
-      if(payload.status === 'accepted'){
-        await startOnlineGame(inviteId, 'caller');
+  // listen for response FIRST
+  if(pendingRespCh){ try{sb.removeChannel(pendingRespCh);}catch(e){} }
+  let responded=false;
+  pendingRespCh=sb.channel('resp_'+invId,{config:{broadcast:{ack:false}}})
+    .on('broadcast',{event:'invite_response'},async({payload})=>{
+      if(!payload||payload.invite_id!==invId) return;
+      responded=true;
+      clearTimeout(inviteTimeoutId);
+      try{sb.removeChannel(pendingRespCh);}catch(e){} pendingRespCh=null;
+      if(payload.status==='accepted'){
+        await startOnlineGame(invId,'caller');
       } else {
-        toast('❌ ' + (opponentProf?.username || '?') + ' — უარი თქვა');
+        toast('❌ '+(opponentProf?.username||'?')+' — უარი თქვა');
         showLobby();
       }
-    }).subscribe();
+    })
+    .subscribe(async(status)=>{
+      if(status==='SUBSCRIBED'){
+        // now send invite to recipient's inbox
+        const targetCh=sb.channel('inbox_'+uid,{config:{broadcast:{ack:false}}});
+        await new Promise(res=>{ targetCh.subscribe(s=>{ if(s==='SUBSCRIBED') res(); }); setTimeout(res,2000); });
+        await targetCh.send({
+          type:'broadcast', event:'invite',
+          payload:{
+            invite_id:invId, from_id:ME.id,
+            from_name:MYPROF?.username||'?',
+            from_emotion:MYPROF?.emotion||'😊',
+            from_score:MYPROF?.billiard_score||0
+          }
+        });
+        setTimeout(()=>{try{sb.removeChannel(targetCh);}catch(e){}},4000);
+      }
+    });
 
-  // 60 წამის timeout
-  setTimeout(() => {
-    if(document.getElementById('waitingScreen').style.display !== 'none'){
-      try{sb.removeChannel(outgoingInviteCh);}catch(e){}
-      if(targetCh) try{sb.removeChannel(targetCh);}catch(e){}
+  inviteTimeoutId=setTimeout(()=>{
+    if(!responded){
+      if(pendingRespCh){try{sb.removeChannel(pendingRespCh);}catch(e){} pendingRespCh=null;}
       toast('⏰ მოწვევის დრო ამოიწურა');
       showLobby();
     }
-  }, 60000);
-}
-
-function showWaiting(nick){
-  document.getElementById('lobbyScreen').style.display = 'none';
-  document.getElementById('waitingScreen').style.display = 'flex';
-  document.getElementById('waitingTitle').textContent = 'ველოდებით ' + nick + '-ს...';
-  document.getElementById('waitingSub').textContent = 'მოწვევა გაიგზავნა 🎱';
+  },60000);
 }
 
 async function cancelInvite(){
-  // გავამცნოთ recipient-ს რომ გავაუქმეთ
-  if(opponentId && currentInviteId){
-    const cancelCh = sb.channel('user_invite_' + opponentId);
-    await cancelCh.subscribe();
-    setTimeout(() => {
-      cancelCh.send({type:'broadcast', event:'invite', payload:{
-        invite_id: currentInviteId,
-        from_id: ME.id,
-        cancelled: true
-      }});
-      setTimeout(() => sb.removeChannel(cancelCh), 1000);
-    }, 400);
+  clearTimeout(inviteTimeoutId);
+  if(pendingRespCh){try{sb.removeChannel(pendingRespCh);}catch(e){} pendingRespCh=null;}
+  if(sb&&opponentId&&currentInviteId){
+    const ch=sb.channel('inbox_'+opponentId,{config:{broadcast:{ack:false}}});
+    await new Promise(res=>{ ch.subscribe(s=>{ if(s==='SUBSCRIBED') res(); }); setTimeout(res,1500); });
+    await ch.send({type:'broadcast',event:'invite',payload:{invite_id:currentInviteId,from_id:ME.id,cancelled:true}});
+    setTimeout(()=>{try{sb.removeChannel(ch);}catch(e){}},2000);
   }
-  if(outgoingInviteCh) try{sb.removeChannel(outgoingInviteCh);}catch(e){}
-  currentInviteId = null;
-  opponentId = null;
-  opponentProf = null;
+  currentInviteId=null; opponentId=null; opponentProf=null;
   showLobby();
 }
 
-// ─── ACCEPT / DECLINE ───
 async function acceptInvite(){
   document.getElementById('incomingModal').classList.remove('open');
-  if(!currentInviteId || !opponentId) return;
-
-  // caller-ის response channel-ზე გავაგზავნოთ პასუხი
-  const respCh = sb.channel('invite_resp_direct_' + currentInviteId);
-  await respCh.subscribe();
-  setTimeout(async () => {
-    await respCh.send({
-      type: 'broadcast',
-      event: 'invite_response',
-      payload: {
-        invite_id: currentInviteId,
-        status: 'accepted',
-        from_id: ME.id
-      }
-    });
-    setTimeout(() => sb.removeChannel(respCh), 2000);
-  }, 400);
-
-  await startOnlineGame(currentInviteId, 'callee');
+  clearIncTimer();
+  if(!currentInviteId||!opponentId) return;
+  const invId=currentInviteId, oppId=opponentId;
+  await replyInvite(oppId,invId,'accepted');
+  await startOnlineGame(invId,'callee');
 }
 
 async function declineInvite(){
   document.getElementById('incomingModal').classList.remove('open');
-  if(!currentInviteId || !opponentId) {
-    currentInviteId = null; opponentId = null; opponentProf = null;
-    return;
-  }
-
-  // caller-ს გავაცნობოთ
-  const respCh = sb.channel('invite_resp_direct_' + currentInviteId);
-  await respCh.subscribe();
-  setTimeout(async () => {
-    await respCh.send({
-      type: 'broadcast',
-      event: 'invite_response',
-      payload: {
-        invite_id: currentInviteId,
-        status: 'declined',
-        from_id: ME.id
-      }
-    });
-    setTimeout(() => sb.removeChannel(respCh), 2000);
-  }, 400);
-
-  currentInviteId = null;
-  opponentId = null;
-  opponentProf = null;
+  clearIncTimer();
+  if(!currentInviteId||!opponentId){ currentInviteId=null; opponentId=null; opponentProf=null; return; }
+  await replyInvite(opponentId,currentInviteId,'declined');
+  currentInviteId=null; opponentId=null; opponentProf=null;
 }
 
-// ─── GAME MODES ───
+// ─────────────────────────────────────────────
+// GAME START
+// ─────────────────────────────────────────────
 function startVsAI(){
-  gameMode = 'ai';
-  myPlayerNum = 1;
-  scoreUpdated = false;
-  opponentProf = {username:'🤖 AI', emotion:'🤖', id:'ai', billiard_score:0};
-  initGame();
-  showGameUI();
-  sendSystemMsg('🎱 AI-ს წინაAAGდეგ თამაში დაიწყო!');
-  gameActive = true;
-  myTurn = true;
-  currentPlayer = 1;
+  gameMode='ai'; myPlayerNum=1; scoreUpdated=false;
+  opponentProf={username:'🤖 AI',emotion:'🤖',id:'ai',billiard_score:0,billiard_wins:0,billiard_losses:0};
+  initGame(); showGameUI();
+  gameActive=true; myTurn=true; currentPlayer=1;
+  sysMsg('🎱 AI-ს წინააGდეგ თამაში დაიწყო!');
   setStatus('შენი ჯერი — ბრეიქ ბურთი!');
 }
 
-async function startOnlineGame(invId, role){
-  gameMode = 'online';
-  GAME_KEY = 'billiard_' + invId;
-  scoreUpdated = false;
-  const isCaller = (role === 'caller');
-  myPlayerNum = isCaller ? 1 : 2;
-  currentPlayer = 1;
-  myTurn = isCaller;
-
-  initGame();
-  showGameUI();
-  gameActive = true;
-
-  setStatus(myTurn ? 'შენი ჯერი — ბრეიქ ბურთი!' : 'მოწინААGდეგე ითამაშებს...');
-
-  if(isCaller){
-    await sb.from('billiard_games').upsert({
-      game_key: GAME_KEY,
-      state: JSON.stringify(getBallState()),
-      current_player: 1
-    });
+async function startOnlineGame(invId,role){
+  gameMode='online'; GAME_KEY='billiard_'+invId; scoreUpdated=false;
+  myPlayerNum=(role==='caller')?1:2;
+  currentPlayer=1; myTurn=(role==='caller');
+  initGame(); showGameUI();
+  gameActive=true;
+  setStatus(myTurn?'შენი ჯერი — ბრეიქ ბურთი!':'მოწინAAGდეგე ითამაშებს...');
+  if(role==='caller'){
+    await sb.from('billiard_games').upsert({game_key:GAME_KEY,state:JSON.stringify(getBallState()),current_player:1});
   }
-
-  watchGameChannel();
-  watchChatChannelForGame();
-  sendSystemMsg(`🎱 ${MYPROF?.username} VS ${opponentProf?.username||'?'} — თამაში დაიწყო!`);
+  watchGameCh(); watchChatCh();
+  sysMsg(`🎱 ${MYPROF?.username} VS ${opponentProf?.username||'?'} — დაიწყო!`);
 }
 
 function showGameUI(){
-  document.getElementById('lobbyScreen').style.display = 'none';
-  document.getElementById('waitingScreen').style.display = 'none';
-  document.getElementById('hudWrap').style.display = 'flex';
-
-  const avHtml = (prof) => prof?.avatar_url ? `<img src="${prof.avatar_url}">` : (prof?.emotion || '😊');
-  document.getElementById('hudP1Av').innerHTML = avHtml(MYPROF);
-  document.getElementById('hudP2Av').innerHTML = avHtml(opponentProf);
-  document.getElementById('hudP1Name').textContent = MYPROF?.username || '?';
-  document.getElementById('hudP2Name').textContent = opponentProf?.username || '?';
-  updateHUD();
-  resizeCanvas();
+  document.getElementById('lobbyScreen').style.display='none';
+  document.getElementById('waitingScreen').style.display='none';
+  const hw=document.getElementById('hudWrap');
+  hw.style.display='flex';
+  const av=p=>p?.avatar_url?`<img src="${p.avatar_url}">`:(p?.emotion||'😊');
+  document.getElementById('hudP1Av').innerHTML=av(MYPROF);
+  document.getElementById('hudP2Av').innerHTML=av(opponentProf);
+  document.getElementById('hudP1Name').textContent=MYPROF?.username||'?';
+  document.getElementById('hudP2Name').textContent=opponentProf?.username||'?';
+  updateHUD(); resizeCanvas();
 }
 
 function showLobby(){
-  document.getElementById('lobbyScreen').style.display = 'flex';
-  document.getElementById('waitingScreen').style.display = 'none';
-  document.getElementById('hudWrap').style.display = 'none';
-  document.getElementById('ballInHandHint').style.display = 'none';
+  document.getElementById('lobbyScreen').style.display='flex';
+  document.getElementById('waitingScreen').style.display='none';
+  document.getElementById('hudWrap').style.display='none';
+  document.getElementById('bihHint').style.display='none';
   document.getElementById('resultOverlay').classList.remove('open');
-  gameActive = false; gameMode = null; myTurn = false; ballInHand = false;
-  if(raf){cancelAnimationFrame(raf); raf = null;}
-  if(aiThinkTimer){clearTimeout(aiThinkTimer); aiThinkTimer = null;}
-  if(gameCh){try{sb.removeChannel(gameCh);}catch(e){} gameCh = null;}
-  if(chatCh){try{sb.removeChannel(chatCh);}catch(e){} chatCh = null;}
-  if(outgoingInviteCh){try{sb.removeChannel(outgoingInviteCh);}catch(e){} outgoingInviteCh = null;}
-  opponentId = null; opponentProf = null; GAME_KEY = null;
+  gameActive=false; gameMode=null; myTurn=false; ballInHand=false;
+  if(raf){cancelAnimationFrame(raf); raf=null;}
+  if(aiTimer){clearTimeout(aiTimer); aiTimer=null;}
+  if(gameCh){try{sb&&sb.removeChannel(gameCh);}catch(e){} gameCh=null;}
+  if(chatCh){try{sb&&sb.removeChannel(chatCh);}catch(e){} chatCh=null;}
+  if(pendingRespCh){try{sb&&sb.removeChannel(pendingRespCh);}catch(e){} pendingRespCh=null;}
+  clearTimeout(inviteTimeoutId);
+  opponentId=null; opponentProf=null; GAME_KEY=null;
   loadLeaderboard();
 }
 
 function resizeCanvas(){
-  const wrap = document.getElementById('tableWrap');
-  const maxW = Math.min(660, wrap.parentElement.clientWidth - 40);
-  const scale = maxW / 660;
-  canvas.style.width = (660 * scale) + 'px';
-  canvas.style.height = (360 * scale) + 'px';
+  const wrap=document.getElementById('tableWrap');
+  const maxW=Math.min(660,wrap.parentElement.clientWidth-32);
+  const scale=maxW/660;
+  canvas.style.width=(660*scale)+'px';
+  canvas.style.height=(360*scale)+'px';
 }
-window.addEventListener('resize', resizeCanvas);
+window.addEventListener('resize',resizeCanvas);
 
-// ─── INIT GAME ───
+// ─────────────────────────────────────────────
+// GAME INIT
+// ─────────────────────────────────────────────
 function initGame(){
-  balls = [];
-  breakShot = true; p1Team = null; p2Team = null; myTeam = null;
-  p1Pocketed = []; p2Pocketed = [];
-  animating = false; ballInHand = false;
-
-  balls.push({id:0, x:W*0.25, y:H/2, vx:0, vy:0, r:11, color:'#ffffff', active:true, type:'cue'});
-
-  const rx = W*0.65, ry = H/2, rs = 23;
-  const rack = [
-    {row:0,col:0,n:1},{row:1,col:0,n:2},{row:1,col:1,n:9},
-    {row:2,col:0,n:3},{row:2,col:1,n:8},{row:2,col:2,n:10},
-    {row:3,col:0,n:4},{row:3,col:1,n:14},{row:3,col:2,n:7},{row:3,col:3,n:11},
-    {row:4,col:0,n:12},{row:4,col:1,n:6},{row:4,col:2,n:15},{row:4,col:3,n:13},{row:4,col:4,n:5},
+  balls=[]; breakShot=true; p1Team=null; p2Team=null;
+  p1Pot=[]; p2Pot=[]; animating=false; ballInHand=false;
+  balls.push({id:0,x:CW*0.25,y:CH/2,vx:0,vy:0,r:11,color:'#fff',active:true,type:'cue'});
+  const rx=CW*0.65,ry=CH/2,rs=23;
+  const rack=[
+    {r:0,c:0,n:1},{r:1,c:0,n:2},{r:1,c:1,n:9},
+    {r:2,c:0,n:3},{r:2,c:1,n:8},{r:2,c:2,n:10},
+    {r:3,c:0,n:4},{r:3,c:1,n:14},{r:3,c:2,n:7},{r:3,c:3,n:11},
+    {r:4,c:0,n:12},{r:4,c:1,n:6},{r:4,c:2,n:15},{r:4,c:3,n:13},{r:4,c:4,n:5}
   ];
-  rack.forEach(({row, col, n}) => {
-    const x = rx + row * rs * Math.cos(Math.PI/6);
-    const y = ry + (col - (row/2)) * rs;
-    const isSolid = n >= 1 && n <= 7;
-    balls.push({id:n, x, y, vx:0, vy:0, r:11, color:BALL_COLORS[n], active:true, type:isSolid?'solid':'stripe', n});
+  rack.forEach(({r,c,n})=>{
+    const x=rx+r*rs*Math.cos(Math.PI/6);
+    const y=ry+(c-(r/2))*rs;
+    balls.push({id:n,x,y,vx:0,vy:0,r:11,color:BCOLORS[n],active:true,type:n<=7?'solid':'stripe',n});
   });
-
-  startRenderLoop();
-}
-
-function getBallState(){return balls.map(b => ({id:b.id, x:b.x, y:b.y, vx:b.vx, vy:b.vy, active:b.active}));}
-function applyBallState(state){state.forEach(s => {const b = balls.find(x => x.id===s.id); if(b) Object.assign(b, s);});}
-
-// ─── RENDER LOOP ───
-function startRenderLoop(){
   if(raf) cancelAnimationFrame(raf);
-  function loop(){update(); draw(); raf = requestAnimationFrame(loop);}
-  loop();
+  (function loop(){update(); draw(); raf=requestAnimationFrame(loop);})();
 }
 
+function getBallState(){return balls.map(b=>({id:b.id,x:b.x,y:b.y,vx:b.vx,vy:b.vy,active:b.active}));}
+function applyBallState(st){st.forEach(s=>{const b=balls.find(x=>x.id===s.id); if(b) Object.assign(b,s);});}
+
+// ─────────────────────────────────────────────
+// PHYSICS UPDATE
+// ─────────────────────────────────────────────
 function update(){
   if(!animating) return;
-  let allStopped = true;
-
-  balls.forEach(b => {
+  let allStop=true;
+  balls.forEach(b=>{
     if(!b.active) return;
-    b.x += b.vx; b.y += b.vy;
-    b.vx *= 0.985; b.vy *= 0.985;
-    if(Math.abs(b.vx) < 0.08) b.vx = 0;
-    if(Math.abs(b.vy) < 0.08) b.vy = 0;
-    if(b.vx || b.vy) allStopped = false;
-    if(b.x - b.r < RAIL_W){b.x = RAIL_W + b.r; b.vx *= -0.75;}
-    if(b.x + b.r > W - RAIL_W){b.x = W - RAIL_W - b.r; b.vx *= -0.75;}
-    if(b.y - b.r < RAIL_W){b.y = RAIL_W + b.r; b.vy *= -0.75;}
-    if(b.y + b.r > H - RAIL_W){b.y = H - RAIL_W - b.r; b.vy *= -0.75;}
+    b.x+=b.vx; b.y+=b.vy;
+    b.vx*=0.985; b.vy*=0.985;
+    if(Math.abs(b.vx)<0.08) b.vx=0;
+    if(Math.abs(b.vy)<0.08) b.vy=0;
+    if(b.vx||b.vy) allStop=false;
+    if(b.x-b.r<RAIL){b.x=RAIL+b.r; b.vx*=-0.75;}
+    if(b.x+b.r>CW-RAIL){b.x=CW-RAIL-b.r; b.vx*=-0.75;}
+    if(b.y-b.r<RAIL){b.y=RAIL+b.r; b.vy*=-0.75;}
+    if(b.y+b.r>CH-RAIL){b.y=CH-RAIL-b.r; b.vy*=-0.75;}
   });
-
-  for(let i = 0; i < balls.length; i++){
-    for(let j = i+1; j < balls.length; j++){
-      const a = balls[i], b = balls[j];
-      if(!a.active || !b.active) continue;
-      const dx = b.x-a.x, dy = b.y-a.y;
-      const dist = Math.sqrt(dx*dx+dy*dy);
-      const minD = a.r + b.r;
-      if(dist < minD && dist > 0){
-        const nx = dx/dist, ny = dy/dist;
-        const overlap = (minD-dist)/2;
-        a.x -= nx*overlap; a.y -= ny*overlap;
-        b.x += nx*overlap; b.y += ny*overlap;
-        const dvx = b.vx-a.vx, dvy = b.vy-a.vy;
-        const dot = dvx*nx + dvy*ny;
-        if(dot < 0){
-          const imp = dot * 0.95;
-          a.vx += imp*nx; a.vy += imp*ny;
-          b.vx -= imp*nx; b.vy -= imp*ny;
-        }
+  for(let i=0;i<balls.length;i++){
+    for(let j=i+1;j<balls.length;j++){
+      const a=balls[i],b=balls[j];
+      if(!a.active||!b.active) continue;
+      const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy),mn=a.r+b.r;
+      if(d<mn&&d>0){
+        const nx=dx/d,ny=dy/d,ov=(mn-d)/2;
+        a.x-=nx*ov; a.y-=ny*ov; b.x+=nx*ov; b.y+=ny*ov;
+        const dvx=b.vx-a.vx,dvy=b.vy-a.vy,dot=dvx*nx+dvy*ny;
+        if(dot<0){const imp=dot*0.95; a.vx+=imp*nx; a.vy+=imp*ny; b.vx-=imp*nx; b.vy-=imp*ny;}
       }
     }
   }
-
-  let pocketedThisTurn = [];
-  let cuePocketed = false;
-  balls.forEach(b => {
+  let potted=[],cueFoul=false;
+  balls.forEach(b=>{
     if(!b.active) return;
-    POCKETS.forEach(p => {
-      const dx = b.x - p.x, dy = b.y - p.y;
-      if(Math.sqrt(dx*dx+dy*dy) < POCKET_R+2){
-        b.active = false; b.vx = 0; b.vy = 0;
-        if(b.type === 'cue') cuePocketed = true;
-        else pocketedThisTurn.push(b);
+    POCKETS.forEach(p=>{
+      if(Math.hypot(b.x-p.x,b.y-p.y)<PRAIL+2){
+        b.active=false; b.vx=0; b.vy=0;
+        if(b.type==='cue') cueFoul=true; else potted.push(b);
       }
     });
   });
-
-  if(allStopped){
-    animating = false;
-    onTurnEnd(pocketedThisTurn, cuePocketed);
-  }
+  if(allStop){animating=false; onTurnEnd(potted,cueFoul);}
 }
 
-// ─── FIX 2: TURN END + BALL-IN-HAND ───
-function onTurnEnd(pocketed, cueFoul){
-  // გუნდის მინიჭება პირველ pocket-ზე
-  if(breakShot && pocketed.length > 0){
-    breakShot = false;
+function onTurnEnd(potted,cueFoul){
+  // assign teams
+  if(breakShot&&potted.length>0){
+    breakShot=false;
     if(!p1Team){
-      const first = pocketed[0];
-      if(currentPlayer === 1){
-        p1Team = first.type === 'solid' ? 'solid' : 'stripe';
-        p2Team = p1Team === 'solid' ? 'stripe' : 'solid';
-      } else {
-        p2Team = first.type === 'solid' ? 'solid' : 'stripe';
-        p1Team = p2Team === 'solid' ? 'stripe' : 'solid';
-      }
-      myTeam = (myPlayerNum === 1) ? p1Team : p2Team;
-      updateHUD();
-      const teamName = (currentPlayer === myPlayerNum) ? myTeam : (myTeam === 'solid' ? 'stripe' : 'solid');
-      toast(`⚡ შენი გუნდი: ${myTeam === 'solid' ? '🟡 ერთფეროვანი' : '⚪ ზოლიანი'}`);
+      const ft=potted[0];
+      if(currentPlayer===1){p1Team=ft.type; p2Team=ft.type==='solid'?'stripe':'solid';}
+      else{p2Team=ft.type; p1Team=ft.type==='solid'?'stripe':'solid';}
+      const mt=(myPlayerNum===1)?p1Team:p2Team;
+      toast(`⚡ შენი გუნდი: ${mt==='solid'?'🟡 ერთფეროვანი':'⚪ ზოლიანი'}`);
     }
-  } else if(breakShot && pocketed.length === 0){
-    breakShot = false;
-  }
+  } else if(breakShot) breakShot=false;
 
-  // ჩაჩენილი ბურთები player-ების სიაში
-  pocketed.forEach(b => {
-    if(currentPlayer === 1 && p1Team && b.type === p1Team){
-      if(!p1Pocketed.includes(b.id)) p1Pocketed.push(b.id);
-    } else if(currentPlayer === 2 && p2Team && b.type === p2Team){
-      if(!p2Pocketed.includes(b.id)) p2Pocketed.push(b.id);
-    }
+  potted.forEach(b=>{
+    if(currentPlayer===1&&p1Team&&b.type===p1Team&&!p1Pot.includes(b.id)) p1Pot.push(b.id);
+    else if(currentPlayer===2&&p2Team&&b.type===p2Team&&!p2Pot.includes(b.id)) p2Pot.push(b.id);
   });
+  updateHUD();
 
-  // 8-ბურთის შემოწმება
-  const eightPocketed = pocketed.find(b => b.id === 8);
-  if(eightPocketed){
-    const curTeam = currentPlayer === 1 ? p1Team : p2Team;
-    const remaining = balls.filter(b => b.active && b.type === curTeam).length;
-    endGame(remaining === 0 ? (currentPlayer === 1 ? 'p1' : 'p2') : (currentPlayer === 1 ? 'p2' : 'p1'));
+  const eight=potted.find(b=>b.id===8);
+  if(eight){
+    const ct=currentPlayer===1?p1Team:p2Team;
+    const rem=balls.filter(b=>b.active&&b.type===ct).length;
+    endGame(rem===0?(currentPlayer===1?'p1':'p2'):(currentPlayer===1?'p2':'p1'));
     return;
   }
 
-  updateHUD();
-
-  const scoredOwn = pocketed.length > 0 && p1Team &&
-    pocketed.every(b => b.type === (currentPlayer === 1 ? p1Team : p2Team));
+  const scoredOwn=potted.length>0&&p1Team&&potted.every(b=>b.type===(currentPlayer===1?p1Team:p2Team));
 
   if(cueFoul){
-    // ─── FIX 2: ფაული — player იცვლება, ball-in-hand ახალ player-ს ───
-    currentPlayer = currentPlayer === 1 ? 2 : 1;
-    myTurn = (currentPlayer === myPlayerNum);
+    currentPlayer=currentPlayer===1?2:1;
+    myTurn=(currentPlayer===myPlayerNum);
     updateTurnHUD();
-
-    if(myTurn){
-      setStatus('⚡ ფაული! შენ ადებ თეთრ ბურთს სადაც გსურს');
-      enterBallInHand();
-    } else {
-      setStatus('⚡ ფაული! მოწინAAGდეგე ადებს ბურთს...');
-      if(gameMode === 'ai'){
-        // AI-ს ball-in-hand
-        setTimeout(() => {
-          let cb = balls.find(b => b.id === 0);
-          if(!cb){
-            balls.push({id:0, x:W*0.25, y:H/2, vx:0, vy:0, r:11, color:'#ffffff', active:true, type:'cue'});
-          } else {
-            cb.active = true;
-            cb.x = W*0.25 + Math.random()*50;
-            cb.y = H/2 + (Math.random()-0.5)*80;
-            cb.vx = 0; cb.vy = 0;
-          }
-          ballInHand = false;
-          document.getElementById('ballInHandHint').style.display = 'none';
-          setStatus('🤖 AI ფიქრობს...');
-          aiThinkTimer = setTimeout(aiTakeTurn, 1000 + Math.random()*800);
-        }, 800);
-      }
+    if(myTurn){ setStatus('⚡ ფაული! ადე ბურთი სადაც გსურს'); enterBIH(); }
+    else{
+      setStatus('⚡ ფაული! მოწინAAGდეგე ადებს...');
+      if(gameMode==='ai') setTimeout(()=>{aiBIH(); setTimeout(aiTurn,1000);},700);
     }
   } else if(!scoredOwn){
-    currentPlayer = currentPlayer === 1 ? 2 : 1;
-    myTurn = (currentPlayer === myPlayerNum);
+    currentPlayer=currentPlayer===1?2:1;
+    myTurn=(currentPlayer===myPlayerNum);
     updateTurnHUD();
-
-    if(!myTurn && gameMode === 'ai'){
-      setStatus('🤖 AI ფიქრობს...');
-      aiThinkTimer = setTimeout(aiTakeTurn, 1200 + Math.random()*800);
-    } else if(myTurn){
-      setStatus('🎯 შენი ჯერი!');
-    } else {
-      setStatus('⏳ მოწინAAGდეგე ითამაშებს...');
-    }
+    if(!myTurn&&gameMode==='ai'){setStatus('🤖 AI ფიქრობს...'); aiTimer=setTimeout(aiTurn,1200+Math.random()*800);}
+    else if(myTurn) setStatus('🎯 შენი ჯერი!');
+    else setStatus('⏳ მოწინAAGდეგე ითამაშებს...');
   } else {
-    // საკუთარი pocket — turn რჩება
     updateTurnHUD();
-    if(myTurn){
-      setStatus('🎯 კარგი! კვლავ შენი ჯერია');
-    } else if(gameMode === 'ai'){
-      setStatus('🤖 AI ფიქრობს...');
-      aiThinkTimer = setTimeout(aiTakeTurn, 1000 + Math.random()*600);
-    }
+    if(myTurn) setStatus('🎯 კარგი! კვლავ შენი ჯერია');
+    else if(gameMode==='ai'){setStatus('🤖 AI ფიქრობს...'); aiTimer=setTimeout(aiTurn,1000+Math.random()*600);}
   }
-
-  if(gameMode === 'online') syncGameState();
+  if(gameMode==='online') syncState();
 }
 
-// ─── FIX 2: BALL-IN-HAND — სწორი ლოგიკა ───
-function enterBallInHand(){
-  ballInHand = true;
-  const hint = document.getElementById('ballInHandHint');
-  hint.style.display = 'block';
-  hint.textContent = '🎱 Ball-in-hand: დააჭირეთ სადაც გსურთ თეთრი ბურთის დადება';
-  canvas.style.cursor = 'cell';
+function enterBIH(){
+  ballInHand=true;
+  const h=document.getElementById('bihHint');
+  h.style.display='block'; canvas.style.cursor='cell';
 }
-
-function placeCueBallAt(x, y){
-  const minX = RAIL_W+12, maxX = W-RAIL_W-12;
-  const minY = RAIL_W+12, maxY = H-RAIL_W-12;
-  x = Math.max(minX, Math.min(maxX, x));
-  y = Math.max(minY, Math.min(maxY, y));
-
-  // შეამოწმე სხვა ბურთებთან ახლოს ხომ არ არის
+function aiBIH(){
+  let cb=balls.find(b=>b.id===0);
+  if(!cb){balls.push({id:0,x:CW*0.25,y:CH/2,vx:0,vy:0,r:11,color:'#fff',active:true,type:'cue'});}
+  else{cb.active=true; cb.x=CW*0.25+Math.random()*50; cb.y=CH/2+(Math.random()-.5)*80; cb.vx=0; cb.vy=0;}
+  ballInHand=false; document.getElementById('bihHint').style.display='none';
+}
+function placeBIH(x,y){
+  const mn=RAIL+12,mxX=CW-RAIL-12,mxY=CH-RAIL-12;
+  x=Math.max(mn,Math.min(mxX,x)); y=Math.max(mn,Math.min(mxY,y));
   for(const b of balls){
-    if(!b.active || b.id === 0) continue;
-    const dx = b.x - x, dy = b.y - y;
-    if(Math.sqrt(dx*dx+dy*dy) < b.r + 12){
-      toast('⚠️ ამ ადგილას სხვა ბურთია!');
-      return false;
-    }
+    if(!b.active||b.id===0) continue;
+    if(Math.hypot(b.x-x,b.y-y)<b.r+12){toast('⚠️ ამ ადგილას სხვა ბურთია!'); return false;}
   }
-
-  let cb = balls.find(b => b.id === 0);
-  if(!cb){
-    balls.push({id:0, x, y, vx:0, vy:0, r:11, color:'#ffffff', active:true, type:'cue'});
-  } else {
-    cb.active = true; cb.x = x; cb.y = y; cb.vx = 0; cb.vy = 0;
-  }
+  let cb=balls.find(b=>b.id===0);
+  if(!cb){balls.push({id:0,x,y,vx:0,vy:0,r:11,color:'#fff',active:true,type:'cue'});}
+  else{cb.active=true; cb.x=x; cb.y=y; cb.vx=0; cb.vy=0;}
   return true;
 }
 
-// ─── AI ───
-function aiTakeTurn(){
-  if(!gameActive || myTurn || gameMode !== 'ai' || ballInHand) return;
-  const cb = balls.find(b => b.id === 0 && b.active);
-  if(!cb) return;
-
-  let targets = balls.filter(b => b.active && b.id !== 0 && b.id !== 8 && b.type === (p2Team || 'solid'));
-  if(!targets.length) targets = balls.filter(b => b.active && b.id === 8);
+function aiTurn(){
+  if(!gameActive||myTurn||gameMode!=='ai') return;
+  const cb=balls.find(b=>b.id===0&&b.active); if(!cb) return;
+  let targets=balls.filter(b=>b.active&&b.id!==0&&b.id!==8&&b.type===(p2Team||'solid'));
+  if(!targets.length) targets=balls.filter(b=>b.active&&b.id===8);
   if(!targets.length) return;
-
-  const target = targets[Math.floor(Math.random() * targets.length)];
-  const angle = Math.atan2(target.y - cb.y, target.x - cb.x);
-  shoot(angle, 0.3 + Math.random() * 0.5);
+  const t=targets[Math.floor(Math.random()*targets.length)];
+  shoot(Math.atan2(t.y-cb.y,t.x-cb.x),0.3+Math.random()*0.5);
 }
 
-// ─── DRAW ───
+// ─────────────────────────────────────────────
+// DRAW
+// ─────────────────────────────────────────────
 function draw(){
-  ctx.clearRect(0, 0, W, H);
-  drawTable();
-  drawPockets();
-  balls.forEach(b => {if(b.active) drawBall(b);});
-  if(ballInHand && myTurn) drawGhostBall(cueBallPreviewX, cueBallPreviewY);
-  if(!animating && myTurn && gameActive && !ballInHand) drawCue();
-}
-
-function drawGhostBall(x, y){
-  if(!x && !y) return;
-  const minX = RAIL_W+12, maxX = W-RAIL_W-12;
-  const minY = RAIL_W+12, maxY = H-RAIL_W-12;
-  if(x < minX || x > maxX || y < minY || y > maxY) return;
-
-  let overlaps = false;
-  for(const b of balls){
-    if(!b.active || b.id === 0) continue;
-    const dx = b.x-x, dy = b.y-y;
-    if(Math.sqrt(dx*dx+dy*dy) < b.r+12){overlaps = true; break;}
-  }
-
-  ctx.save();
-  ctx.globalAlpha = 0.6;
-  ctx.beginPath();
-  ctx.arc(x, y, 11, 0, Math.PI*2);
-  ctx.fillStyle = overlaps ? 'rgba(255,80,80,0.7)' : 'rgba(255,255,255,0.85)';
-  ctx.fill();
-  ctx.strokeStyle = overlaps ? '#ff4444' : 'rgba(255,255,255,0.4)';
-  ctx.lineWidth = 2;
-  ctx.stroke();
-  ctx.restore();
-}
-
-function drawTable(){
-  const g = ctx.createRadialGradient(W/2, H/2, 20, W/2, H/2, W/2);
-  g.addColorStop(0, '#22643a');
-  g.addColorStop(1, '#163d24');
-  ctx.fillStyle = g;
-  ctx.fillRect(RAIL_W, RAIL_W, W-RAIL_W*2, H-RAIL_W*2);
-  ctx.fillStyle = '#3a2200';
-  ctx.fillRect(0, 0, W, RAIL_W);
-  ctx.fillRect(0, H-RAIL_W, W, RAIL_W);
-  ctx.fillRect(0, 0, RAIL_W, H);
-  ctx.fillRect(W-RAIL_W, 0, RAIL_W, H);
-  ctx.fillStyle = 'rgba(255,255,255,0.08)';
-  [[W*0.25,H/2],[W/2,H/4],[W/2,H*3/4],[W*0.75,H/2]].forEach(([x,y]) => {
+  ctx.clearRect(0,0,CW,CH);
+  // table felt
+  const g=ctx.createRadialGradient(CW/2,CH/2,20,CW/2,CH/2,CW/2);
+  g.addColorStop(0,'#22643a'); g.addColorStop(1,'#163d24');
+  ctx.fillStyle=g; ctx.fillRect(RAIL,RAIL,CW-RAIL*2,CH-RAIL*2);
+  // rails
+  ctx.fillStyle='#3a2200';
+  ctx.fillRect(0,0,CW,RAIL); ctx.fillRect(0,CH-RAIL,CW,RAIL);
+  ctx.fillRect(0,0,RAIL,CH); ctx.fillRect(CW-RAIL,0,RAIL,CH);
+  // spots
+  ctx.fillStyle='rgba(255,255,255,.07)';
+  [[CW*.25,CH/2],[CW/2,CH/4],[CW/2,CH*.75],[CW*.75,CH/2]].forEach(([x,y])=>{
     ctx.beginPath(); ctx.arc(x,y,3,0,Math.PI*2); ctx.fill();
   });
-}
-
-function drawPockets(){
-  POCKETS.forEach(p => {
-    ctx.beginPath(); ctx.arc(p.x, p.y, POCKET_R, 0, Math.PI*2);
-    ctx.fillStyle = '#000'; ctx.fill();
-    ctx.strokeStyle = 'rgba(255,255,255,0.1)'; ctx.lineWidth = 1; ctx.stroke();
+  // pockets
+  POCKETS.forEach(p=>{
+    ctx.beginPath(); ctx.arc(p.x,p.y,PRAIL,0,Math.PI*2);
+    ctx.fillStyle='#000'; ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,.1)'; ctx.lineWidth=1; ctx.stroke();
   });
+  // balls
+  balls.forEach(b=>{ if(b.active) drawBall(b); });
+  // bih preview
+  if(ballInHand&&myTurn){
+    const inBounds=bihX>=RAIL+12&&bihX<=CW-RAIL-12&&bihY>=RAIL+12&&bihY<=CH-RAIL-12;
+    if(inBounds){
+      let ov=false;
+      for(const b of balls){ if(!b.active||b.id===0) continue; if(Math.hypot(b.x-bihX,b.y-bihY)<b.r+12){ov=true; break;} }
+      ctx.save(); ctx.globalAlpha=.6;
+      ctx.beginPath(); ctx.arc(bihX,bihY,11,0,Math.PI*2);
+      ctx.fillStyle=ov?'rgba(255,80,80,.7)':'rgba(255,255,255,.85)'; ctx.fill();
+      ctx.strokeStyle=ov?'#f44':'rgba(255,255,255,.4)'; ctx.lineWidth=2; ctx.stroke();
+      ctx.restore();
+    }
+  }
+  // cue
+  if(!animating&&myTurn&&gameActive&&!ballInHand) drawCue();
 }
 
 function drawBall(b){
   ctx.save();
-  ctx.beginPath(); ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
-  ctx.shadowColor = 'rgba(0,0,0,0.5)'; ctx.shadowBlur = 6; ctx.shadowOffsetY = 3;
-  if(b.type === 'stripe'){
-    ctx.fillStyle = '#fff'; ctx.fill();
-    ctx.beginPath(); ctx.arc(b.x, b.y, b.r, Math.PI*0.2, Math.PI*0.8); ctx.fillStyle = b.color; ctx.fill();
-    ctx.beginPath(); ctx.arc(b.x, b.y, b.r, Math.PI*1.2, Math.PI*1.8); ctx.fillStyle = b.color; ctx.fill();
-  } else {
-    ctx.fillStyle = b.color; ctx.fill();
-  }
-  ctx.shadowColor = 'transparent';
-  ctx.beginPath(); ctx.arc(b.x - b.r*0.28, b.y - b.r*0.3, b.r*0.38, 0, Math.PI*2);
-  ctx.fillStyle = 'rgba(255,255,255,0.35)'; ctx.fill();
-  if(b.id > 0){
-    ctx.fillStyle = b.type === 'stripe' ? b.color : 'rgba(255,255,255,0.9)';
-    if(b.id === 8) ctx.fillStyle = '#fff';
-    ctx.font = `bold ${b.r*0.85}px sans-serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.shadowColor = 'rgba(0,0,0,0.8)'; ctx.shadowBlur = 2;
-    ctx.fillText(b.id, b.x, b.y);
+  ctx.beginPath(); ctx.arc(b.x,b.y,b.r,0,Math.PI*2);
+  ctx.shadowColor='rgba(0,0,0,.5)'; ctx.shadowBlur=6; ctx.shadowOffsetY=3;
+  if(b.type==='stripe'){
+    ctx.fillStyle='#fff'; ctx.fill();
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,Math.PI*.2,Math.PI*.8); ctx.fillStyle=b.color; ctx.fill();
+    ctx.beginPath(); ctx.arc(b.x,b.y,b.r,Math.PI*1.2,Math.PI*1.8); ctx.fillStyle=b.color; ctx.fill();
+  } else { ctx.fillStyle=b.color; ctx.fill(); }
+  ctx.shadowColor='transparent';
+  ctx.beginPath(); ctx.arc(b.x-b.r*.28,b.y-b.r*.3,b.r*.38,0,Math.PI*2);
+  ctx.fillStyle='rgba(255,255,255,.35)'; ctx.fill();
+  if(b.id>0){
+    ctx.fillStyle=b.type==='stripe'?b.color:'rgba(255,255,255,.9)';
+    if(b.id===8) ctx.fillStyle='#fff';
+    ctx.font=`bold ${b.r*.85}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(0,0,0,.8)'; ctx.shadowBlur=2;
+    ctx.fillText(b.id,b.x,b.y);
   }
   ctx.restore();
 }
 
 function drawCue(){
-  const cb = balls.find(b => b.id === 0 && b.active);
-  if(!cb) return;
-  const angle = Math.atan2(mouseY - cb.y, mouseX - cb.x);
-  const len = isAiming ? cuePower * 200 + 40 : 80;
-  const tipX = cb.x - Math.cos(angle)*(cb.r+4);
-  const tipY = cb.y - Math.sin(angle)*(cb.r+4);
-  const endX = tipX - Math.cos(angle)*len;
-  const endY = tipY - Math.sin(angle)*len;
+  const cb=balls.find(b=>b.id===0&&b.active); if(!cb) return;
+  const angle=Math.atan2(mouseY-cb.y,mouseX-cb.x);
+  const len=isAiming?cuePower*200+40:80;
+  const tx=cb.x-Math.cos(angle)*(cb.r+4), ty=cb.y-Math.sin(angle)*(cb.r+4);
+  const ex=tx-Math.cos(angle)*len, ey=ty-Math.sin(angle)*len;
   ctx.save();
-  const g = ctx.createLinearGradient(tipX, tipY, endX, endY);
-  g.addColorStop(0, '#f0d080');
-  g.addColorStop(1, '#8b4513');
-  ctx.strokeStyle = g; ctx.lineWidth = 7; ctx.lineCap = 'round';
-  ctx.beginPath(); ctx.moveTo(tipX, tipY); ctx.lineTo(endX, endY); ctx.stroke();
-  ctx.lineWidth = 2; ctx.strokeStyle = 'rgba(255,255,255,0.3)';
-  ctx.beginPath(); ctx.moveTo(tipX, tipY); ctx.lineTo(endX, endY); ctx.stroke();
+  const grd=ctx.createLinearGradient(tx,ty,ex,ey);
+  grd.addColorStop(0,'#f0d080'); grd.addColorStop(1,'#8b4513');
+  ctx.strokeStyle=grd; ctx.lineWidth=7; ctx.lineCap='round';
+  ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(ex,ey); ctx.stroke();
+  ctx.lineWidth=2; ctx.strokeStyle='rgba(255,255,255,.25)';
+  ctx.beginPath(); ctx.moveTo(tx,ty); ctx.lineTo(ex,ey); ctx.stroke();
   if(isAiming){
-    ctx.setLineDash([6, 6]); ctx.lineWidth = 1; ctx.strokeStyle = 'rgba(255,255,255,0.2)';
-    ctx.beginPath(); ctx.moveTo(cb.x, cb.y); ctx.lineTo(cb.x + Math.cos(angle)*150, cb.y + Math.sin(angle)*150); ctx.stroke();
+    ctx.setLineDash([6,6]); ctx.lineWidth=1; ctx.strokeStyle='rgba(255,255,255,.18)';
+    ctx.beginPath(); ctx.moveTo(cb.x,cb.y); ctx.lineTo(cb.x+Math.cos(angle)*160,cb.y+Math.sin(angle)*160); ctx.stroke();
     ctx.setLineDash([]);
   }
   ctx.restore();
 }
 
-// ─── INPUT ───
-function getCanvasPos(e){
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = W/rect.width, scaleY = H/rect.height;
-  let cx, cy;
-  if(e.touches && e.touches.length > 0){
-    cx = e.touches[0].clientX;
-    cy = e.touches[0].clientY;
-  } else if(e.changedTouches && e.changedTouches.length > 0){
-    cx = e.changedTouches[0].clientX;
-    cy = e.changedTouches[0].clientY;
-  } else {
-    cx = e.clientX;
-    cy = e.clientY;
-  }
-  return {x:(cx-rect.left)*scaleX, y:(cy-rect.top)*scaleY};
+// ─────────────────────────────────────────────
+// INPUT
+// ─────────────────────────────────────────────
+function canvasPos(e){
+  const r=canvas.getBoundingClientRect();
+  const sx=CW/r.width, sy=CH/r.height;
+  let cx,cy;
+  if(e.touches?.length>0){cx=e.touches[0].clientX; cy=e.touches[0].clientY;}
+  else if(e.changedTouches?.length>0){cx=e.changedTouches[0].clientX; cy=e.changedTouches[0].clientY;}
+  else{cx=e.clientX; cy=e.clientY;}
+  return{x:(cx-r.left)*sx, y:(cy-r.top)*sy};
 }
 
-function handleCanvasDown(e){
-  if(!myTurn || animating || !gameActive) return;
-  const p = getCanvasPos(e);
+canvas.addEventListener('mousedown',onDown);
+canvas.addEventListener('mousemove',onMove);
+canvas.addEventListener('mouseup',onUp);
+canvas.addEventListener('touchstart',e=>{e.preventDefault(); onDown(e);},{passive:false});
+canvas.addEventListener('touchmove',e=>{e.preventDefault(); onMove(e);},{passive:false});
+canvas.addEventListener('touchend',e=>{e.preventDefault(); onUp(e);},{passive:false});
 
-  // ─── FIX 2: Ball-in-hand click ───
+function onDown(e){
+  if(!myTurn||animating||!gameActive) return;
+  const p=canvasPos(e);
   if(ballInHand){
-    const placed = placeCueBallAt(p.x, p.y);
-    if(placed){
-      ballInHand = false;
-      document.getElementById('ballInHandHint').style.display = 'none';
-      canvas.style.cursor = 'crosshair';
+    if(placeBIH(p.x,p.y)){
+      ballInHand=false;
+      document.getElementById('bihHint').style.display='none';
+      canvas.style.cursor='crosshair';
       setStatus('🎯 შენი ჯერი!');
-      if(gameMode === 'online') syncGameState();
+      if(gameMode==='online') syncState();
     }
     return;
   }
-
-  mouseX = p.x; mouseY = p.y;
-  isDragging = true; isAiming = true; cuePower = 0;
+  mouseX=p.x; mouseY=p.y; isDragging=true; isAiming=true; cuePower=0;
 }
-
-function handleCanvasMove(e){
-  const p = getCanvasPos(e);
-  mouseX = p.x; mouseY = p.y;
-
-  if(ballInHand && myTurn){
-    cueBallPreviewX = p.x;
-    cueBallPreviewY = p.y;
-    return;
-  }
-
-  if(isDragging && isAiming){
-    const cb = balls.find(b => b.id === 0 && b.active);
-    if(!cb) return;
-    const dx = p.x - cb.x, dy = p.y - cb.y;
-    cuePower = Math.min(1, Math.sqrt(dx*dx+dy*dy)/120);
-    document.getElementById('powerFill').style.width = (cuePower*100) + '%';
-    document.getElementById('powerVal').textContent = Math.round(cuePower*100) + '%';
+function onMove(e){
+  const p=canvasPos(e);
+  mouseX=p.x; mouseY=p.y;
+  if(ballInHand&&myTurn){bihX=p.x; bihY=p.y; return;}
+  if(isDragging&&isAiming){
+    const cb=balls.find(b=>b.id===0&&b.active); if(!cb) return;
+    cuePower=Math.min(1,Math.hypot(p.x-cb.x,p.y-cb.y)/120);
+    setPwr(cuePower);
   }
 }
-
-function handleCanvasUp(e){
-  if(!isDragging || !isAiming || !myTurn || animating || !gameActive || ballInHand) return;
-  isDragging = false; isAiming = false;
-  const cb = balls.find(b => b.id === 0 && b.active);
-  if(!cb){
-    cuePower = 0;
-    document.getElementById('powerFill').style.width = '0%';
-    document.getElementById('powerVal').textContent = '0%';
-    return;
-  }
-  // ─── FIX: touchend-ზე e.changedTouches გამოვიყენოთ ───
-  const p = getCanvasPos(e);
-  const angle = Math.atan2(p.y - cb.y, p.x - cb.x);
-  if(cuePower > 0.01) shoot(angle, cuePower);
-  cuePower = 0;
-  document.getElementById('powerFill').style.width = '0%';
-  document.getElementById('powerVal').textContent = '0%';
+function onUp(e){
+  if(!isDragging||!isAiming||!myTurn||animating||!gameActive||ballInHand) return;
+  isDragging=false; isAiming=false;
+  const cb=balls.find(b=>b.id===0&&b.active);
+  if(!cb){setPwr(0); return;}
+  const p=canvasPos(e);
+  if(cuePower>0.01) shoot(Math.atan2(p.y-cb.y,p.x-cb.x),cuePower);
+  setPwr(0);
 }
 
-canvas.addEventListener('mousedown', handleCanvasDown);
-canvas.addEventListener('mousemove', handleCanvasMove);
-canvas.addEventListener('mouseup', handleCanvasUp);
-canvas.addEventListener('touchstart', e => {e.preventDefault(); handleCanvasDown(e);}, {passive:false});
-canvas.addEventListener('touchmove', e => {e.preventDefault(); handleCanvasMove(e);}, {passive:false});
-canvas.addEventListener('touchend', e => {e.preventDefault(); handleCanvasUp(e);}, {passive:false});
-
-function shoot(angle, power){
-  const cb = balls.find(b => b.id === 0 && b.active);
-  if(!cb) return;
-  cb.vx = Math.cos(angle) * power * 18;
-  cb.vy = Math.sin(angle) * power * 18;
-  animating = true;
-  if(gameMode === 'online') myTurn = false;
+function shoot(angle,power){
+  const cb=balls.find(b=>b.id===0&&b.active); if(!cb) return;
+  cb.vx=Math.cos(angle)*power*18;
+  cb.vy=Math.sin(angle)*power*18;
+  animating=true;
+  if(gameMode==='online') myTurn=false;
   setStatus('🎱');
 }
 
-// ─── ONLINE SYNC ───
-async function syncGameState(){
-  if(!GAME_KEY) return;
-  await sb.from('billiard_games').upsert({
-    game_key: GAME_KEY,
-    state: JSON.stringify(getBallState()),
-    current_player: currentPlayer
-  });
+// ─────────────────────────────────────────────
+// ONLINE SYNC
+// ─────────────────────────────────────────────
+async function syncState(){
+  if(!sb||!GAME_KEY) return;
+  await sb.from('billiard_games').upsert({game_key:GAME_KEY,state:JSON.stringify(getBallState()),current_player:currentPlayer});
 }
-
-function watchGameChannel(){
+function watchGameCh(){
+  if(!sb||!GAME_KEY) return;
   if(gameCh){try{sb.removeChannel(gameCh);}catch(e){}}
-  gameCh = sb.channel('billiard_game_' + GAME_KEY)
-    .on('postgres_changes', {event:'UPDATE', schema:'public', table:'billiard_games', filter:`game_key=eq.${GAME_KEY}`}, p => {
-      if(!p.new.state) return;
+  gameCh=sb.channel('bg_'+GAME_KEY)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`game_key=eq.${GAME_KEY}`},p=>{
+      if(!p.new?.state) return;
       try{
-        const st = JSON.parse(p.new.state);
-        applyBallState(st);
-        currentPlayer = p.new.current_player || currentPlayer;
-        myTurn = (currentPlayer === myPlayerNum);
+        applyBallState(JSON.parse(p.new.state));
+        currentPlayer=p.new.current_player||currentPlayer;
+        myTurn=(currentPlayer===myPlayerNum);
         updateTurnHUD();
-        setStatus(myTurn ? '🎯 შენი ჯერი!' : '⏳ მოწინAAGდეგე ითამაშებს...');
-      } catch(e){}
+        setStatus(myTurn?'🎯 შენი ჯერი!':'⏳ მოწინAAGდეგე...');
+      }catch(e){}
+    }).subscribe();
+}
+function watchChatCh(){
+  if(!sb||!GAME_KEY) return;
+  if(chatCh){try{sb.removeChannel(chatCh);}catch(e){}}
+  chatCh=sb.channel('bc_'+GAME_KEY)
+    .on('broadcast',{event:'msg'},({payload})=>{
+      if(!payload||payload.uid===ME?.id) return;
+      appendMsg({nick:payload.nick,content:payload.content,uid:payload.uid});
     }).subscribe();
 }
 
-// ─── HUD ───
+// ─────────────────────────────────────────────
+// HUD
+// ─────────────────────────────────────────────
 function updateHUD(){
-  const b1 = document.getElementById('hudP1Balls');
-  const b2 = document.getElementById('hudP2Balls');
-  b1.innerHTML = ''; b2.innerHTML = '';
-  if(p1Team){
-    for(let i = 0; i < 7; i++){
-      const d = document.createElement('div');
-      d.className = 'hud-ball';
-      d.style.background = i < p1Pocketed.length ? (p1Team==='solid' ? '#fbbf24' : '#93c5fd') : 'rgba(255,255,255,0.15)';
-      b1.appendChild(d);
-    }
-  }
-  if(p2Team){
-    for(let i = 0; i < 7; i++){
-      const d = document.createElement('div');
-      d.className = 'hud-ball';
-      d.style.background = i < p2Pocketed.length ? (p2Team==='solid' ? '#fbbf24' : '#93c5fd') : 'rgba(255,255,255,0.15)';
-      b2.appendChild(d);
-    }
-  }
-}
-
-function updateTurnHUD(){
-  const isP1 = currentPlayer === 1;
-  document.getElementById('hudP1').classList.toggle('active', isP1);
-  document.getElementById('hudP1').classList.remove('p2active');
-  document.getElementById('hudP2').classList.toggle('active', !isP1);
-  document.getElementById('hudP2').classList.toggle('p2active', !isP1);
-  document.getElementById('hudP1Turn').style.display = isP1 ? '' : 'none';
-  document.getElementById('hudP2Turn').style.display = !isP1 ? '' : 'none';
-}
-
-function setStatus(msg){
-  document.getElementById('statusBar').textContent = msg;
-}
-
-// ─── FIX 3: RESULT + SCORE ───
-function endGame(winner){
-  if(!gameActive) return;
-  gameActive = false;
-  if(raf){cancelAnimationFrame(raf); raf = null;}
-  ballInHand = false;
-  document.getElementById('ballInHandHint').style.display = 'none';
-
-  // winner='p1' ან 'p2' — game-ის player number
-  const myWon = (winner === 'p1' && myPlayerNum === 1) || (winner === 'p2' && myPlayerNum === 2);
-
-  document.getElementById('resultIcon').textContent = myWon ? '🏆' : '😢';
-  document.getElementById('resultTitle').textContent = myWon ? 'გამარჯვება! 🎉' : 'წაგება 😔';
-  document.getElementById('resultSub').textContent = myWon
-    ? `+${gameMode==='ai'?5:10} ქულა დაემატა!`
-    : 'სცადე ისევ!';
-  document.getElementById('resultOverlay').classList.add('open');
-
-  // ─── FIX 3: ქულის სწორი განახლება — მხოლოდ ერთხელ ───
-  if(!scoreUpdated){
-    scoreUpdated = true;
-    updateScore(myWon, gameMode === 'ai' ? 5 : 10);
-
-    // online-ში opponent-ის ქულაც
-    if(gameMode === 'online' && opponentId && opponentId !== 'ai'){
-      const oppWon = !myWon;
-      const pts = 10;
-      if(oppWon){
-        sb.from('profiles').update({
-          billiard_wins: (opponentProf?.billiard_wins || 0) + 1,
-          billiard_score: (opponentProf?.billiard_score || 0) + pts
-        }).eq('id', opponentId);
-      } else {
-        sb.from('profiles').update({
-          billiard_losses: (opponentProf?.billiard_losses || 0) + 1
-        }).eq('id', opponentId);
+  ['1','2'].forEach(n=>{
+    const el=document.getElementById('hudP'+n+'Balls'); el.innerHTML='';
+    const team=n==='1'?p1Team:p2Team;
+    const pot=n==='1'?p1Pot:p2Pot;
+    if(team){
+      for(let i=0;i<7;i++){
+        const d=document.createElement('div'); d.className='hud-ball';
+        d.style.background=i<pot.length?(team==='solid'?'#fbbf24':'#93c5fd'):'rgba(255,255,255,.15)';
+        el.appendChild(d);
       }
     }
-  }
-
-  const winnerName = myWon ? (MYPROF?.username || '?') : (opponentProf?.username || 'AI');
-  sendSystemMsg(`🏆 ${winnerName} გაიმარჯვა!`);
+  });
+  updateTurnHUD();
+}
+function updateTurnHUD(){
+  const p1=currentPlayer===1;
+  document.getElementById('hudP1').className='hud-p'+(p1?' active':'');
+  document.getElementById('hudP2').className='hud-p'+(!p1?' p2on':'');
+  document.getElementById('hudP1Turn').style.display=p1?'':'none';
+  document.getElementById('hudP2Turn').style.display=!p1?'':'none';
 }
 
-async function updateScore(won, pts){
-  if(!MYPROF || !ME) return;
-
-  const newScore = (MYPROF.billiard_score || 0) + (won ? pts : 0);
-  const newWins = (MYPROF.billiard_wins || 0) + (won ? 1 : 0);
-  const newLosses = (MYPROF.billiard_losses || 0) + (won ? 0 : 1);
-
-  const {error} = await sb.from('profiles').update({
-    billiard_score: newScore,
-    billiard_wins: newWins,
-    billiard_losses: newLosses
-  }).eq('id', ME.id);
-
-  if(error){
-    console.error('Score update error:', error);
-    toast('❌ ქულის განახლება ვერ მოხდა');
-    return;
+// ─────────────────────────────────────────────
+// RESULT
+// ─────────────────────────────────────────────
+function endGame(winner){
+  if(!gameActive) return;
+  gameActive=false;
+  if(raf){cancelAnimationFrame(raf); raf=null;}
+  ballInHand=false; document.getElementById('bihHint').style.display='none';
+  const won=(winner==='p1'&&myPlayerNum===1)||(winner==='p2'&&myPlayerNum===2);
+  document.getElementById('resIcon').textContent=won?'🏆':'😢';
+  document.getElementById('resTitle').textContent=won?'გამარჯვება! 🎉':'წაგება 😔';
+  document.getElementById('resSub').textContent=won?`+${gameMode==='ai'?5:10} ქულა!`:'სცადე ისევ!';
+  document.getElementById('resultOverlay').classList.add('open');
+  if(!scoreUpdated){
+    scoreUpdated=true;
+    updateScore(won,gameMode==='ai'?5:10);
   }
+  sysMsg(`🏆 ${won?(MYPROF?.username||'?'):(opponentProf?.username||'AI')} გაიმარჯვა!`);
+}
 
-  MYPROF.billiard_score = newScore;
-  MYPROF.billiard_wins = newWins;
-  MYPROF.billiard_losses = newLosses;
-  document.getElementById('myScoreDisplay').textContent = '💜 ' + newScore;
-  await loadLeaderboard();
+async function updateScore(won,pts){
+  if(!sb||!MYPROF||!ME) return;
+  const ns=(MYPROF.billiard_score||0)+(won?pts:0);
+  const nw=(MYPROF.billiard_wins||0)+(won?1:0);
+  const nl=(MYPROF.billiard_losses||0)+(won?0:1);
+  const {error}=await sb.from('profiles').update({billiard_score:ns,billiard_wins:nw,billiard_losses:nl}).eq('id',ME.id);
+  if(!error){
+    MYPROF.billiard_score=ns; MYPROF.billiard_wins=nw; MYPROF.billiard_losses=nl;
+    document.getElementById('myScore').textContent='💜 '+ns;
+    loadLeaderboard();
+  }
 }
 
 function restartGame(){
   document.getElementById('resultOverlay').classList.remove('open');
-  scoreUpdated = false;
-  if(gameMode === 'ai') startVsAI();
-  else showLobby();
+  scoreUpdated=false;
+  if(gameMode==='ai') startVsAI(); else showLobby();
 }
 
-// ─── CHAT ───
-function watchChatChannelForGame(){
-  if(!GAME_KEY) return;
-  if(chatCh){try{sb.removeChannel(chatCh);}catch(e){}}
-  chatCh = sb.channel('billiard_chat_' + GAME_KEY)
-    .on('broadcast', {event:'msg'}, ({payload}) => {
-      if(!payload || payload.uid === ME.id) return;
-      appendChatMsg({nick:payload.nick, content:payload.content, uid:payload.uid});
-    }).subscribe();
-}
-
-async function sendChatMsg(){
-  const inp = document.getElementById('chatInput');
-  const t = inp.value.trim();
-  if(!t) return;
-  inp.value = '';
-  sendChatMsgText(t);
-}
-
-function sendChatMsgText(t){
-  appendChatMsg({nick:MYPROF?.username||'?', content:t, uid:ME.id, mine:true});
-  if(gameMode === 'online' && GAME_KEY && chatCh){
-    try{
-      chatCh.send({type:'broadcast', event:'msg', payload:{uid:ME.id, nick:MYPROF?.username, content:t}});
-    } catch(e){}
+// ─────────────────────────────────────────────
+// CHAT
+// ─────────────────────────────────────────────
+function sendChat(){
+  const inp=document.getElementById('chatInput');
+  const t=inp.value.trim(); if(!t) return; inp.value='';
+  appendMsg({nick:MYPROF?.username||'?',content:t,uid:ME?.id,mine:true});
+  if(gameMode==='online'&&chatCh){
+    try{chatCh.send({type:'broadcast',event:'msg',payload:{uid:ME.id,nick:MYPROF?.username,content:t}});}catch(e){}
   }
 }
-
-function sendSystemMsg(msg){
-  appendChatMsg({content:msg, sys:true});
+function sendMobChat(){
+  const inp=document.getElementById('mobInput');
+  const t=inp.value.trim(); if(!t) return; inp.value='';
+  appendMsg({nick:MYPROF?.username||'?',content:t,uid:ME?.id,mine:true});
+  if(gameMode==='online'&&chatCh){
+    try{chatCh.send({type:'broadcast',event:'msg',payload:{uid:ME.id,nick:MYPROF?.username,content:t}});}catch(e){}
+  }
 }
+function sysMsg(m){appendMsg({content:m,sys:true});}
 
-function appendChatMsg({nick, content, uid, mine, sys}){
-  const isMe = mine || (uid && uid === ME?.id);
-  const wrap = document.createElement('div');
-  wrap.className = 'chat-msg' + (isMe?' mine':'') + (sys?' sys':'');
-
+function appendMsg({nick,content,uid,mine,sys}){
+  const isMe=mine||(uid&&uid===ME?.id);
+  const w=document.createElement('div');
+  w.className='cmsg'+(isMe?' mine':'')+(sys?' sys':'');
   if(!sys){
-    const u = uid ? allUsers.find(x => x.id === uid) : null;
-    const avHtml = u?.avatar_url ? `<img src="${u.avatar_url}">` : (u?.emotion || '😊');
-    wrap.innerHTML = `<div class="chat-msg-av">${avHtml}</div><div class="chat-msg-body"><div class="chat-msg-nick">${esc(nick||'?')}</div><div class="chat-msg-bubble">${renderChatContent(content)}</div></div>`;
+    const u=uid?allUsers.find(x=>x.id===uid):null;
+    const av=u?.avatar_url?`<img src="${u.avatar_url}">`:(u?.emotion||'😊');
+    w.innerHTML=`<div class="cmsg-av">${av}</div><div class="cmsg-body"><div class="cmsg-nick">${esc(nick||'?')}</div><div class="cmsg-bubble">${renderChatContent(content)}</div></div>`;
   } else {
-    wrap.innerHTML = `<div class="chat-msg-body" style="width:100%"><div class="chat-msg-bubble">${esc(content)}</div></div>`;
+    w.innerHTML=`<div class="cmsg-body" style="width:100%"><div class="cmsg-bubble">${esc(content)}</div></div>`;
   }
-
-  const chatMsgs = document.getElementById('chatMsgs');
-  chatMsgs.appendChild(wrap);
-  chatMsgs.scrollTop = chatMsgs.scrollHeight;
-
-  const mobMsgs = document.getElementById('mobChatMsgs');
-  mobMsgs.appendChild(wrap.cloneNode(true));
-  mobMsgs.scrollTop = mobMsgs.scrollHeight;
+  const cm=document.getElementById('chatMsgs');
+  cm.appendChild(w); cm.scrollTop=cm.scrollHeight;
+  const mm=document.getElementById('mobChatMsgs');
+  mm.appendChild(w.cloneNode(true)); mm.scrollTop=mm.scrollHeight;
 }
 
+// ─────────────────────────────────────────────
+// START
+// ─────────────────────────────────────────────
 init();
 </script>
 </body>
