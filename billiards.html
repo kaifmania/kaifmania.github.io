@@ -577,14 +577,45 @@ function startVsAI() {
 }
 
 function aiMakeMove() {
-  if (gameOver || myTurn) return;
-  setTimeout(() => {
+  if (gameOver || myTurn || shootingLocked) return;
+  
+  const cueBall = balls.find(b => b.num === 0);
+  if (!cueBall) return;
+
+  // AI picks a target ball smartly
+  const aiGroup = isP1 ? p2Group : p1Group;
+  const aiPocketed = isP1 ? p2Pocketed : p1Pocketed;
+  
+  let targets = balls.filter(b => !b.pocketed && b.num !== 0 && b.num !== 8);
+  if (aiGroup === 'solid') targets = targets.filter(b => SOLID_NUMS.has(b.num));
+  else if (aiGroup === 'stripe') targets = targets.filter(b => STRIPE_NUMS.has(b.num));
+  
+  // Check if AI can shoot 8-ball
+  if (aiPocketed.length >= 7 && targets.length === 0) {
+    const ball8 = balls.find(b => b.num === 8 && !b.pocketed);
+    if (ball8) targets = [ball8];
+  }
+  
+  if (targets.length === 0) targets = balls.filter(b => !b.pocketed && b.num !== 0);
+  
+  if (targets.length > 0) {
+    // Aim at closest target ball
+    const target = targets.reduce((closest, b) => {
+      const d1 = Math.hypot(b.x - cueBall.x, b.y - cueBall.y);
+      const d2 = Math.hypot(closest.x - cueBall.x, closest.y - cueBall.y);
+      return d1 < d2 ? b : closest;
+    }, targets[0]);
+    
+    // Aim angle toward target with slight random offset
+    aimAngle = Math.atan2(target.y - cueBall.y, target.x - cueBall.x) + (Math.random() - 0.5) * 0.3;
+  } else {
     aimAngle = Math.random() * Math.PI * 2;
-    const power = 30 + Math.random() * 50;
-    document.getElementById('powerSlider').value = power;
-    updatePowerFill(power);
-    executeShotPhysics(power);
-  }, 1200);
+  }
+  
+  const power = 40 + Math.random() * 45;
+  document.getElementById('powerSlider').value = power;
+  updatePowerFill(power);
+  executeShotPhysics(power);
 }
 
 // ============================================================
@@ -1148,98 +1179,131 @@ function simulatePhysics() {
 function onShotComplete(pocketedIds) {
   const pocketedBalls = pocketedIds.map(id => balls.find(b => b.id === id)).filter(Boolean);
   const cueBallPocketed = pocketedBalls.find(b => b.num === 0);
-  const regularPocketed = pocketedBalls.filter(b => b.num !== 0);
+  const regularPocketed = pocketedBalls.filter(b => b.num !== 0 && b.num !== 8);
   const ball8Pocketed = pocketedBalls.find(b => b.num === 8);
+
+  // Who just shot? myTurn=true means I (the local player) just shot
+  const iJustShot = myTurn;
 
   // Determine groups if not yet assigned
   if ((p1Group === null || p2Group === null) && regularPocketed.length > 0) {
     const firstNum = regularPocketed[0].num;
-    if (firstNum !== 8) {
-      const isStripe = STRIPE_NUMS.has(firstNum);
-      if (myTurn === isP1) {
-        // "I" shot this
-        if (isP1) { p1Group = isStripe ? 'stripe' : 'solid'; p2Group = isStripe ? 'solid' : 'stripe'; }
-        else { p2Group = isStripe ? 'stripe' : 'solid'; p1Group = isStripe ? 'solid' : 'stripe'; }
+    const isStripe = STRIPE_NUMS.has(firstNum);
+    if (iJustShot) {
+      // I just scored first ball - assign my group
+      if (isP1) {
+        p1Group = isStripe ? 'stripe' : 'solid';
+        p2Group = isStripe ? 'solid' : 'stripe';
       } else {
-        if (isP1) { p2Group = isStripe ? 'stripe' : 'solid'; p1Group = isStripe ? 'solid' : 'stripe'; }
-        else { p1Group = isStripe ? 'stripe' : 'solid'; p2Group = isStripe ? 'solid' : 'stripe'; }
+        p2Group = isStripe ? 'stripe' : 'solid';
+        p1Group = isStripe ? 'solid' : 'stripe';
+      }
+    } else {
+      // Opponent scored first - assign their group
+      if (isP1) {
+        p2Group = isStripe ? 'stripe' : 'solid';
+        p1Group = isStripe ? 'solid' : 'stripe';
+      } else {
+        p1Group = isStripe ? 'stripe' : 'solid';
+        p2Group = isStripe ? 'solid' : 'stripe';
       }
     }
   }
 
-  // 8-ball logic
+  // 8-ball pocketed
   if (ball8Pocketed) {
-    const myGrp = isP1 ? p1Group : p2Group;
-    const myPoolDone = (isP1 ? p1Pocketed : p2Pocketed).length >= 7;
-    if (cueBallPocketed || !myPoolDone) {
-      // I lose
-      endGame(false, '8-ბურთი ნაადრევად ჩავარდა');
+    if (iJustShot) {
+      const myPocketed = isP1 ? p1Pocketed : p2Pocketed;
+      if (!cueBallPocketed && myPocketed.length >= 7) {
+        endGame(true, '🏆 8-ბურთი სწორად ჩავარდა!');
+      } else {
+        endGame(false, '😔 8-ბურთი ნაადრევად ჩავარდა');
+      }
     } else {
-      // I win
-      endGame(true, '8-ბურთი ჩავარდა!');
+      // Opponent pocketed 8
+      const theirPocketed = isP1 ? p2Pocketed : p1Pocketed;
+      if (!cueBallPocketed && theirPocketed.length >= 7) {
+        endGame(false, '😔 მოწინააღმდეგემ 8-ბურთი ჩააგდო');
+      } else {
+        endGame(true, '🏆 მოწინააღმდეგემ 8-ბურთი ნაადრევად ჩააგდო!');
+      }
     }
     return;
   }
 
-  // Cue ball pocketed
+  // Cue ball pocketed - give placement to opponent
   if (cueBallPocketed) {
-    chatSystem('⚪ ბელა ჩავარდა! მოწინააღმდეგეს ეძლევა განლაგება.');
+    chatSystem('⚪ ბელა ჩავარდა! ' + (iJustShot ? 'მოწინააღმდეგეს' : 'შენ') + ' ეძლევა განლაგება.');
     const cb = balls.find(b => b.num === 0);
-    if (cb) { cb.pocketed = false; cb.x = TW*0.2; cb.y = TH/2; }
+    if (cb) { cb.pocketed = false; cb.x = TW * 0.2; cb.y = TH / 2; }
 
-    // Switch turn to opponent for placement
-    switchTurn(false);
-    if (!isP1 && myTurn) {
-      // opponent gets placement
-      startCueBallPlacement();
-    } else if (isP1 && myTurn) {
+    if (iJustShot) {
+      // opponent (not me) gets placement
+      switchTurn(true);
+      // if vsAI and now AI's turn, AI auto-places
+      if (vsAI && !myTurn) {
+        const cbb = balls.find(b => b.num === 0);
+        if (cbb) { cbb.x = TW * 0.2 + Math.random() * 60; cbb.y = 40 + Math.random() * (TH - 80); }
+        setTimeout(() => { syncAndFinish(); }, 800);
+      }
+    } else {
+      // I get placement
+      switchTurn(false);
       startCueBallPlacement();
     }
     syncAndFinish();
     return;
   }
 
-  // Add valid pocketed balls to scorer
-  let scoredForMe = false;
+  // Count valid pocketed balls for shooter
+  let scoredValid = false;
   regularPocketed.forEach(b => {
-    const currentIsMe = myTurn === false; // myTurn was true when shot, now checking who shot
-    const iShot = true; // I always fire from my turn perspective
-    if (isP1) {
-      const myGrp = p1Group;
-      if (!myGrp || (myGrp === 'solid' && SOLID_NUMS.has(b.num)) || (myGrp === 'stripe' && STRIPE_NUMS.has(b.num))) {
-        if (!p1Pocketed.includes(b.num)) { p1Pocketed.push(b.num); scoredForMe = true; }
+    if (iJustShot) {
+      const myGrp = isP1 ? p1Group : p2Group;
+      const isMyBall = !myGrp
+        || (myGrp === 'solid' && SOLID_NUMS.has(b.num))
+        || (myGrp === 'stripe' && STRIPE_NUMS.has(b.num));
+      if (isMyBall) {
+        const arr = isP1 ? p1Pocketed : p2Pocketed;
+        if (!arr.includes(b.num)) { arr.push(b.num); scoredValid = true; }
       } else {
-        if (!p2Pocketed.includes(b.num)) p2Pocketed.push(b.num);
+        const arr = isP1 ? p2Pocketed : p1Pocketed;
+        if (!arr.includes(b.num)) arr.push(b.num);
       }
     } else {
-      const myGrp = p2Group;
-      if (!myGrp || (myGrp === 'solid' && SOLID_NUMS.has(b.num)) || (myGrp === 'stripe' && STRIPE_NUMS.has(b.num))) {
-        if (!p2Pocketed.includes(b.num)) { p2Pocketed.push(b.num); scoredForMe = true; }
+      const theirGrp = isP1 ? p2Group : p1Group;
+      const isTheirBall = !theirGrp
+        || (theirGrp === 'solid' && SOLID_NUMS.has(b.num))
+        || (theirGrp === 'stripe' && STRIPE_NUMS.has(b.num));
+      if (isTheirBall) {
+        const arr = isP1 ? p2Pocketed : p1Pocketed;
+        if (!arr.includes(b.num)) arr.push(b.num);
       } else {
-        if (!p1Pocketed.includes(b.num)) p1Pocketed.push(b.num);
+        const arr = isP1 ? p1Pocketed : p2Pocketed;
+        if (!arr.includes(b.num)) arr.push(b.num);
       }
     }
   });
 
   updateGraphUI();
 
-  // Switch turn if no valid balls pocketed
-  if (!scoredForMe || regularPocketed.length === 0) {
-    switchTurn(true);
+  // Keep turn if scored valid ball, else switch
+  if (iJustShot) {
+    if (!scoredValid) switchTurn(true);
+    // else keep myTurn = true (already is)
+  } else {
+    if (!scoredValid) switchTurn(false); // switch back to me
+    // else keep opponent's turn
   }
 
   syncAndFinish();
 }
 
 function switchTurn(toOpponent) {
-  if (toOpponent) {
-    myTurn = false;
-  } else {
-    myTurn = true;
-  }
+  myTurn = !toOpponent;
   updateTurnUI();
-  if (vsAI && !myTurn) {
-    setTimeout(aiMakeMove, 1000);
+  if (vsAI && !myTurn && !gameOver) {
+    setTimeout(aiMakeMove, 1200);
   }
 }
 
