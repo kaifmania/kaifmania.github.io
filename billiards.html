@@ -173,7 +173,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
 </head>
 <body>
 
-<!-- LOBBY -->
 <div id="lobby">
   <div class="logo">🎱 ბილიარდი</div>
   <div style="font-size:11px;color:var(--text3)">კლასიკური 8-ბურთი · კაიფმანია</div>
@@ -201,7 +200,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
   </div>
 </div>
 
-<!-- GAME -->
 <div id="game">
   <div id="gh">
     <button class="ghb" onclick="confirmLeave()">← გასვლა</button>
@@ -267,7 +265,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
   </div>
 </div>
 
-<!-- WIN -->
 <div id="win">
   <div class="wc">
     <div class="we" id="we">🏆</div>
@@ -282,7 +279,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
 const TW=700, TH=350, BR=9, FR=0.9965, MV=0.08;
 const PKS=[{x:18,y:16},{x:350,y:9},{x:682,y:16},{x:18,y:334},{x:350,y:341},{x:682,y:334}];
 const PR_POCKET=15;
-const BC={1:'#FFD700',2:'#0044CC',3:'#CC0000',4:'#8800AA',5:'#FF6600',6:'#006620',7:'#880000',8:'#1a1a2e',9:'#FFD700',10:'#0044CC',11:'#CC0000',12:'#8800AA',13:'#FF6600',14:'#006620',15:'#880000'};
+const BALL_COLORS={1:'#FFD700',2:'#0044CC',3:'#CC0000',4:'#8800AA',5:'#FF6600',6:'#006620',7:'#880000',8:'#1a1a2e',9:'#FFD700',10:'#0044CC',11:'#CC0000',12:'#8800AA',13:'#FF6600',14:'#006620',15:'#880000'};
 const STRIPES=new Set([9,10,11,12,13,14,15]);
 const SOLIDS=new Set([1,2,3,4,5,6,7]);
 
@@ -295,33 +292,14 @@ let p1poc=[],p2poc=[],p1grp=null,p2grp=null;
 let p1w=0,p2w=0;
 let ang=0,drag=false;
 let canvas,ctx,aimC,actx,W,H,SC=1;
-
-// ========== SYNC THROTTLE ==========
-// Physics sync: გზავნის ბურთების პოზიციებს ფიზიკის დროს
 let _syncTimer=null;
 let _lastSyncState='';
 
-function throttledPhysicsSync(){
-  if(vsAI||!GID)return;
-  if(_syncTimer)return;
-  _syncTimer=setTimeout(async()=>{
-    _syncTimer=null;
-    if(!locked||over)return;
-    // მხოლოდ მოძრავი ბურთების სინქრონიზაცია
-    const snapshot=JSON.stringify(balls.map(b=>({
-      id:b.id,n:b.n,x:Math.round(b.x*10)/10,y:Math.round(b.y*10)/10,
-      vx:Math.round(b.vx*100)/100,vy:Math.round(b.vy*100)/100,p:b.p
-    })));
-    if(snapshot===_lastSyncState)return;
-    _lastSyncState=snapshot;
-    // physics_state — ცალკე სვეტი სწრაფი სინქრონიზაციისთვის
-    await sb.from('billiard_games')
-      .update({physics_state:snapshot})
-      .eq('id',GID);
-  },80); // 80ms throttle — ~12fps sync
-}
+const sb=supabase.createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
 
-// ========== INIT ==========
 async function init(){
   const{data:{user}}=await sb.auth.getUser();
   if(!user){alert('ავტორიზაცია საჭიროა');return;}
@@ -350,7 +328,6 @@ function sAv(id,prof,sz=30){
 }
 function toast(m){const t=document.createElement('div');t.className='toast';t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2400);}
 
-// ========== LOBBY ==========
 function showMain(){document.getElementById('lm').style.display='flex';document.getElementById('li').style.display='none';}
 function showInv(){document.getElementById('lm').style.display='none';document.getElementById('li').style.display='flex';}
 function renderUL(us){
@@ -423,46 +400,12 @@ async function accInv(gid,fromUid,el){
 }
 async function decInv(gid,el){el&&el.remove();await sb.from('billiard_games').update({status:'declined'}).eq('id',gid);toast('❌ უარი');}
 
-// ========== AI ==========
 function startAI(){
   vsAI=true;GID='ai_'+Date.now();isP1=true;
   opp={id:'ai',username:'🤖 AI',emotion:'🤖',avatar_url:null};
   startGame(GID,true,true);
 }
-function aiGo(){
-  if(over||myTurn||locked)return;
-  const cb=balls.find(b=>b.n===0);if(!cb)return;
-  if(placing){
-    cb.x=TW*.18+Math.random()*100;cb.y=30+Math.random()*(TH-60);
-    balls.filter(b=>b.n!==0&&!b.p).forEach(b=>{if(Math.hypot(cb.x-b.x,cb.y-b.y)<BR*2.5){cb.x=TW*.15;cb.y=TH/2;}});
-    placing=false;placingReady=false;
-    document.getElementById('plm').style.display='none';
-    render();
-    setTimeout(()=>doAIShoot(),600);
-    return;
-  }
-  doAIShoot();
-}
-function doAIShoot(){
-  if(over||myTurn||locked)return;
-  const cb=balls.find(b=>b.n===0);if(!cb)return;
-  const myGrp=isP1?p1grp:p2grp;
-  let targets=balls.filter(b=>!b.p&&b.n!==0&&b.n!==8);
-  if(myGrp==='solid') targets=targets.filter(b=>SOLIDS.has(b.n));
-  else if(myGrp==='stripe') targets=targets.filter(b=>STRIPES.has(b.n));
-  const myPoc=isP1?p1poc:p2poc;
-  if(myPoc.length>=7) targets=balls.filter(b=>!b.p&&b.n===8);
-  if(!targets.length) targets=balls.filter(b=>!b.p&&b.n!==0);
-  if(targets.length){
-    const t=targets.reduce((a,b)=>Math.hypot(b.x-cb.x,b.y-cb.y)<Math.hypot(a.x-cb.x,a.y-cb.y)?b:a,targets[0]);
-    ang=Math.atan2(t.y-cb.y,t.x-cb.x)+(Math.random()-.5)*.3;
-  } else { ang=Math.random()*Math.PI*2; }
-  const pw=45+Math.random()*45;
-  document.getElementById('ps').value=pw;updP(pw);
-  execShot(pw);
-}
 
-// ========== GAME START ==========
 async function startGame(gameId,p1,ai){
   vsAI=ai;GID=gameId;isP1=p1;over=false;locked=false;placing=false;placingReady=false;
   document.getElementById('lobby').style.display='none';
@@ -488,7 +431,6 @@ function setAvRow(avId,nmId,prof){
   document.getElementById(nmId).textContent=prof?.username||'?';
 }
 
-// ========== RESIZE ==========
 function resize(){
   const cw=document.getElementById('cw');
   SC=Math.min((cw.clientWidth-8)/TW,(cw.clientHeight-8)/TH);
@@ -498,7 +440,6 @@ function resize(){
   render();
 }
 
-// ========== BALLS ==========
 function mkSt(){return{balls:mkBalls(),p1poc:[],p2poc:[],p1grp:null,p2grp:null};}
 function mkBalls(){
   const d=[];
@@ -526,20 +467,19 @@ function ldSt(row){
   }catch(e){initB();myTurn=isP1;}
 }
 
-// ========== SYNC — გასწორებული ==========
 function subGame(){
   if(vsAI)return;
+  if(gCh) sb.removeChannel(gCh);
   gCh=sb.channel('bg_'+GID)
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`id=eq.${GID}`},p=>{
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`id=eq.${GID}`},async p=>{
       const row=p.new;
-
-      // ✅ FIX 1: physics_state — რეალ-თაიმ ბურთების პოზიციები ფიზიკის დროს
-      // მხოლოდ მაშინ ვიღებთ physics_state-ს, თუ ეს ჩვენი სვლა არ არის
+      if(row.status==='finished'){remWin(row);return;}
+      
+      // 🔥 მობილური ბურთების სინქრონიზაცია (მოძრაობის დროს)
       if(row.physics_state && row.turn!==ME.id){
         try{
           const ps=JSON.parse(row.physics_state);
           if(Array.isArray(ps)){
-            // განვაახლოთ ბურთების პოზიციები
             ps.forEach(pb=>{
               const b=balls.find(bb=>bb.id===pb.id);
               if(b){b.x=pb.x;b.y=pb.y;b.vx=pb.vx;b.vy=pb.vy;b.p=pb.p;}
@@ -548,56 +488,48 @@ function subGame(){
           }
         }catch(e){}
       }
-
-      // ✅ FIX 2: სვლა დასრულდა — სრული state სინქრონიზაცია
-      if(row.status==='finished'){remWin(row);return;}
-
-      // სრული state ვიღოთ მხოლოდ physics_state=null-ზე (სვლის შემდეგ)
-      if(!row.physics_state){
-        let st={};try{st=JSON.parse(row.state||'{}');}catch(e){}
-        if(st.balls) balls=st.balls;
-        if(st.p1poc!==undefined) p1poc=st.p1poc||[];
-        if(st.p2poc!==undefined) p2poc=st.p2poc||[];
-        if(st.p1grp!==undefined) p1grp=st.p1grp||null;
-        if(st.p2grp!==undefined) p2grp=st.p2grp||null;
-        p1w=row.p1_wins||0;p2w=row.p2_wins||0;
-
-        // ✅ FIX 3: myTurn სწორად ანახლდება
-        if(row.turn===ME.id && !myTurn){
-          myTurn=true;locked=false;
-          placing=st.placing||false;placingReady=false;
-          document.getElementById('wm').style.display='none';
-          if(placing){
-            document.getElementById('plm').style.display='block';
+      
+      // 🔥 სრული მდგომარეობის სინქრონიზაცია (სვლის დასრულების შემდეგ)
+      if(!row.physics_state && row.state){
+        try{
+          const st=JSON.parse(row.state);
+          if(st.balls) balls=st.balls;
+          if(st.p1poc!==undefined) p1poc=st.p1poc||[];
+          if(st.p2poc!==undefined) p2poc=st.p2poc||[];
+          if(st.p1grp!==undefined) p1grp=st.p1grp;
+          if(st.p2grp!==undefined) p2grp=st.p2grp;
+          p1w=row.p1_wins||0;p2w=row.p2_wins||0;
+          
+          if(row.turn===ME.id && !myTurn){
+            myTurn=true;locked=false;
+            placing=st.placing||false;placingReady=false;
+            document.getElementById('wm').style.display='none';
+            if(placing){
+              document.getElementById('plm').style.display='block';
+              document.getElementById('cup').classList.add('h');
+            } else {
+              document.getElementById('plm').style.display='none';
+              document.getElementById('cup').classList.remove('h');
+            }
+            document.getElementById('sb').disabled=false;
+            sysM('🎯 შენი სვლაა!');
+          } else if(row.turn!==ME.id && myTurn){
+            myTurn=false;
+            placing=st.placing||false;
+            document.getElementById('wm').style.display='block';
             document.getElementById('cup').classList.add('h');
-            document.getElementById('sb').disabled=false;
-          } else{
-            document.getElementById('plm').style.display='none';
-            document.getElementById('cup').classList.remove('h');
-            document.getElementById('sb').disabled=false;
+            document.getElementById('sb').disabled=true;
           }
-          sysM('🎯 შენი სვლაა!');
-        } else if(row.turn!==ME.id){
-          // ✅ FIX 4: მოწინააღმდეგის სვლა — ვაჩვენოთ "ელოდება" და დავმალოთ ჯოხი
-          myTurn=false;
-          placing=st.placing||false;
-          if(placing){
-            // ✅ FIX 5: ბელა — მოწინააღმდეგეს ვაჩვენოთ სპეციალური შეტყობინება
-            document.getElementById('wm').textContent='📍 მოწინააღმდეგე ბელას აყენებს...';
-          } else{
-            document.getElementById('wm').textContent='⏳ მოწინααღმდეგის სვლა...';
-          }
-          document.getElementById('wm').style.display='block';
-          document.getElementById('cup').classList.add('h');
-        }
-
-        updUI();updGr();render();
+          
+          updUI();updGr();render();
+        }catch(e){console.error(e);}
       }
     }).subscribe();
 }
 
 function subChat(){
   if(vsAI)return;
+  if(cCh) sb.removeChannel(cCh);
   cCh=sb.channel('bc_'+GID)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`id=eq.${GID}`},p=>{
       try{renderChat(JSON.parse(p.new.chat||'[]'));}catch(e){}
@@ -608,20 +540,27 @@ async function ldChat(gid){
   if(data?.chat) try{renderChat(JSON.parse(data.chat));}catch(e){}
 }
 
-// ✅ FIX 6: pushSt — physics_state=null ვუყენოთ სვლის შემდეგ (სრული sync)
 async function pushSt(ex={}){
   if(vsAI)return;
-  const st={balls:balls.map(b=>({...b})),p1poc:[...p1poc],p2poc:[...p2poc],p1grp,p2grp,placing};
+  const st={balls:balls.map(b=>({id:b.id,n:b.n,x:Math.round(b.x*10)/10,y:Math.round(b.y*10)/10,vx:0,vy:0,p:b.p})),p1poc:[...p1poc],p2poc:[...p2poc],p1grp,p2grp,placing};
   const nxtId=myTurn?ME.id:(opp?.id||ME.id);
-  await sb.from('billiard_games').update({
-    state:JSON.stringify(st),
-    physics_state:null, // ← მნიშვნელოვანი! გაასუფთავებს physics stream-ს
-    turn:nxtId,
-    ...ex
-  }).eq('id',GID);
+  await sb.from('billiard_games').update({state:JSON.stringify(st),physics_state:null,turn:nxtId,...ex}).eq('id',GID);
 }
 
-// ========== INPUT ==========
+function throttledPhysicsSync(){
+  if(vsAI||!GID)return;
+  if(_syncTimer)return;
+  _syncTimer=setTimeout(async()=>{
+    _syncTimer=null;
+    const moving=balls.some(b=>Math.abs(b.vx)>0.05||Math.abs(b.vy)>0.05);
+    if(!moving)return;
+    const snapshot=JSON.stringify(balls.map(b=>({id:b.id,n:b.n,x:Math.round(b.x*10)/10,y:Math.round(b.y*10)/10,vx:Math.round(b.vx*100)/100,vy:Math.round(b.vy*100)/100,p:b.p})));
+    if(snapshot===_lastSyncState)return;
+    _lastSyncState=snapshot;
+    await sb.from('billiard_games').update({physics_state:snapshot}).eq('id',GID);
+  },50);
+}
+
 function setupIn(){
   canvas.addEventListener('mousedown',e=>{if(!myTurn||locked)return;if(placing){plCB(gPos(e));return;}drag=true;updA(gPos(e));});
   canvas.addEventListener('mousemove',e=>{if(!myTurn||locked||placing)return;if(drag)updA(gPos(e));});
@@ -643,11 +582,7 @@ function plCB(pos){
   render();
   document.getElementById('cup').classList.remove('h');
   document.getElementById('sb').disabled=false;
-
-  // ✅ FIX 7: ბელის დადება — მოწინааღმდეგეს ვაჩვენოთ სად დაიდო
-  if(!vsAI){
-    throttledPhysicsSync();
-  }
+  throttledPhysicsSync();
 }
 function updP(v){document.getElementById('pf').style.width=v+'%';}
 function shoot(){
@@ -668,7 +603,6 @@ function execShot(pw){
   physics();
 }
 
-// ========== PHYSICS — ✅ გასწორებული სინქრონიზაციით ==========
 let raf=null;
 function physics(){
   const pd=[];const SUBSTEPS=6;
@@ -712,10 +646,7 @@ function physics(){
       }
     }
     render();
-
-    // ✅ FIX 8: ფიზიკის დროს ყოველ frame-ზე ვგზავნით პოზიციებს
     throttledPhysicsSync();
-
     if(mv){raf=requestAnimationFrame(step);}
     else{balls.forEach(b=>{b.vx=0;b.vy=0;});shotDone(pd);}
   }
@@ -738,7 +669,7 @@ function shotDone(pids){
     const shooterClear=shooterPoc.length>=7;
     const foulWithCue=!!cbP;
     if(iAm){if(shooterClear&&!foulWithCue) endGame(true,'🏆 8-ბურთი სწორად!');else endGame(false,'😔 8-ბ ნაადრევად / ბელა');}
-    else{if(shooterClear&&!foulWithCue) endGame(false,'😔 მოწინααღმდეგემ 8-ბ გაიტანა');else endGame(true,'🏆 მოწ. 8-ბ ნაადრ./ბელა — შენ გაიმ.!');}
+    else{if(shooterClear&&!foulWithCue) endGame(false,'😔 მოწინააღმდეგემ 8-ბ გაიტანა');else endGame(true,'🏆 მოწ. 8-ბ ნაადრ./ბელა — შენ გაიმ.!');}
     return;
   }
   let scoredOwn=false;
@@ -759,7 +690,7 @@ function shotDone(pids){
   if(cbP){
     const cb=balls.find(b=>b.n===0);
     if(cb){cb.p=false;cb.x=-999;cb.y=-999;cb.vx=0;cb.vy=0;}
-    sysM('⚪ ბელა ჩავარდა! '+(iAm?'მოწინααღმდეგეს':'შენ')+' შეუძლია ბელა ნებისმიერ ადგილას დადოს');
+    sysM('⚪ ბელა ჩავარდა! '+(iAm?'მოწინააღმდეგეს':'შენ')+' შეუძლია ბელა ნებისმიერ ადგილას დადოს');
     myTurn=!myTurn;
     placing=true;placingReady=false;
     if(myTurn){
@@ -768,7 +699,6 @@ function shotDone(pids){
       document.getElementById('sb').disabled=false;
     } else{
       document.getElementById('plm').style.display='none';
-      document.getElementById('wm').textContent='📍 მოწინααღმდეგე ბელას აყენებს...';
       document.getElementById('wm').style.display='block';
       document.getElementById('cup').classList.add('h');
     }
@@ -789,7 +719,6 @@ async function finishTurn(){
   if(!myTurn){
     document.getElementById('cup').classList.add('h');
     if(!vsAI){
-      document.getElementById('wm').textContent='⏳ მოწინααღმდეგის სვლა...';
       document.getElementById('wm').style.display='block';
       setTimeout(()=>{if(!myTurn)document.getElementById('wm').style.display='none';},3000);
     }
@@ -802,7 +731,39 @@ async function finishTurn(){
   if(vsAI&&!myTurn&&!over) setTimeout(()=>aiGo(),1100);
 }
 
-// ========== TURN UI ==========
+function aiGo(){
+  if(over||myTurn||locked)return;
+  const cb=balls.find(b=>b.n===0);if(!cb)return;
+  if(placing){
+    cb.x=TW*.18+Math.random()*100;cb.y=30+Math.random()*(TH-60);
+    balls.filter(b=>b.n!==0&&!b.p).forEach(b=>{if(Math.hypot(cb.x-b.x,cb.y-b.y)<BR*2.5){cb.x=TW*.15;cb.y=TH/2;}});
+    placing=false;placingReady=false;
+    document.getElementById('plm').style.display='none';
+    render();
+    setTimeout(()=>doAIShoot(),600);
+    return;
+  }
+  doAIShoot();
+}
+function doAIShoot(){
+  if(over||myTurn||locked)return;
+  const cb=balls.find(b=>b.n===0);if(!cb)return;
+  const myGrp=isP1?p1grp:p2grp;
+  let targets=balls.filter(b=>!b.p&&b.n!==0&&b.n!==8);
+  if(myGrp==='solid') targets=targets.filter(b=>SOLIDS.has(b.n));
+  else if(myGrp==='stripe') targets=targets.filter(b=>STRIPES.has(b.n));
+  const myPoc=isP1?p1poc:p2poc;
+  if(myPoc.length>=7) targets=balls.filter(b=>!b.p&&b.n===8);
+  if(!targets.length) targets=balls.filter(b=>!b.p&&b.n!==0);
+  if(targets.length){
+    const t=targets.reduce((a,b)=>Math.hypot(b.x-cb.x,b.y-cb.y)<Math.hypot(a.x-cb.x,a.y-cb.y)?b:a,targets[0]);
+    ang=Math.atan2(t.y-cb.y,t.x-cb.x)+(Math.random()-.5)*.3;
+  } else { ang=Math.random()*Math.PI*2; }
+  const pw=45+Math.random()*45;
+  document.getElementById('ps').value=pw;updP(pw);
+  execShot(pw);
+}
+
 function updUI(){
   const active=myTurn&&!over;
   document.getElementById('av1').classList.toggle('ac',active);
@@ -810,12 +771,10 @@ function updUI(){
   document.getElementById('ti1').classList.toggle('on',active);
   document.getElementById('ti2').classList.toggle('on',!active&&!over);
   document.getElementById('sb').disabled=!myTurn||locked;
-  const st=over?'დასრულდა':myTurn?(placing?'📍 ბელა განათავსე':'🎯 შენი სვლაა'):'⏳ მოწინααღმდეგე...';
+  const st=over?'დასრულდა':myTurn?(placing?'📍 ბელა განათავსე':'🎯 შენი სვლაა'):'⏳ მოწინააღმდეგე...';
   document.getElementById('gst').textContent=st;
 }
 
-// ========== BALL STRIPS ==========
-const BALL_COLORS={1:'#FFD700',2:'#0044CC',3:'#CC0000',4:'#8800AA',5:'#FF6600',6:'#006620',7:'#880000',8:'#1a1a2e',9:'#FFD700',10:'#0044CC',11:'#CC0000',12:'#8800AA',13:'#FF6600',14:'#006620',15:'#880000'};
 function updGr(){
   const myPoc=isP1?p1poc:p2poc;
   const thPoc=isP1?p2poc:p1poc;
@@ -865,7 +824,6 @@ function makeBallChip(n,empty){
   const num=document.createElement('span');num.className='bn';num.textContent=n;d.appendChild(num);return d;
 }
 
-// ========== RENDER ==========
 function render(){
   if(!ctx)return;
   ctx.clearRect(0,0,W,H);
@@ -936,7 +894,6 @@ function drawStick(){
   actx.restore();
 }
 
-// ========== END GAME ==========
 async function endGame(won,reason){
   if(over)return;over=true;locked=true;
   if(isP1){if(won)p1w++;else p2w++;}else{if(won)p2w++;else p1w++;}
@@ -979,7 +936,6 @@ function toLobby(){
 }
 function confirmLeave(){if(confirm('გასვლა?')){if(!over)endGame(false,'გასვლა');setTimeout(toLobby,500);}}
 
-// ========== CHAT ==========
 async function sendC(){
   const inp=document.getElementById('ci');const txt=inp.value.trim();if(!txt)return;inp.value='';
   const m={uid:ME.id,nick:PROF.username||'?',text:txt,t:Date.now()};
@@ -1017,7 +973,6 @@ function rEmo(s){
   });return h;
 }
 
-// ========== EMOJI ==========
 function buildEp(){
   const g=document.getElementById('epg');if(!g)return;g.innerHTML='';
   emojis.forEach(em=>{
@@ -1035,11 +990,6 @@ document.addEventListener('click',e=>{
   if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.ceb')) p.classList.remove('open');
 });
 
-// ========== START ==========
-const sb=supabase.createClient(
-  "https://brggiyhfzfbmlirqfgpo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
-);
 init();
 </script>
 </body>
