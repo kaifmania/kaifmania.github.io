@@ -317,7 +317,7 @@ const sb = createClient(
 );
 
 // ── CONSTANTS ──────────────────────────────────────────────────
-const TW=700, TH=350, BR=9, FR=0.983, MV=0.05;
+const TW=700, TH=350, BR=9, FR=0.9965, MV=0.08;
 // Pocket positions (6 pockets)
 const PKS=[{x:18,y:16},{x:350,y:9},{x:682,y:16},{x:18,y:334},{x:350,y:341},{x:682,y:334}];
 const PR_POCKET=15;
@@ -490,7 +490,7 @@ function doAIShoot(){
     const t=targets.reduce((a,b)=>Math.hypot(b.x-cb.x,b.y-cb.y)<Math.hypot(a.x-cb.x,a.y-cb.y)?b:a,targets[0]);
     ang=Math.atan2(t.y-cb.y,t.x-cb.x)+(Math.random()-.5)*.3;
   } else { ang=Math.random()*Math.PI*2; }
-  const pw=35+Math.random()*50;
+  const pw=45+Math.random()*45;
   document.getElementById('ps').value=pw; updP(pw);
   execShot(pw);
 }
@@ -575,15 +575,37 @@ function subGame(){
   gCh=sb.channel('bg_'+GID)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`id=eq.${GID}`},p=>{
       if(p.new.status==='finished'){remWin(p.new);return;}
-      if(p.new.turn===ME.id&&!myTurn&&!locked){
-        ldSt(p.new); myTurn=true; locked=false;
+
+      // Always parse the new state so BOTH players see ball positions
+      let st={};
+      try{st=JSON.parse(p.new.state||'{}');}catch(e){}
+
+      // Update shared data visible to both players regardless of whose turn
+      if(st.balls) balls=st.balls;
+      if(st.p1poc !== undefined) p1poc=st.p1poc||[];
+      if(st.p2poc !== undefined) p2poc=st.p2poc||[];
+      if(st.p1grp !== undefined) p1grp=st.p1grp||null;
+      if(st.p2grp !== undefined) p2grp=st.p2grp||null;
+      p1w=p.new.p1_wins||0; p2w=p.new.p2_wins||0;
+
+      // It's now our turn
+      if(p.new.turn===ME.id && !myTurn && !locked){
+        myTurn=true; locked=false;
+        placing=st.placing||false; placingReady=false;
         document.getElementById('wm').style.display='none';
-        if(!placing){
+        if(placing){
+          document.getElementById('plm').style.display='block';
+          document.getElementById('cup').classList.add('h');
+        } else {
+          document.getElementById('plm').style.display='none';
           document.getElementById('cup').classList.remove('h');
         }
-        updUI(); updGr(); render();
         sysM('🎯 შენი სვლაა!');
+      } else if(p.new.turn!==ME.id && myTurn===false){
+        // Still opponent's turn — just refresh visuals
       }
+
+      updUI(); updGr(); render();
     }).subscribe();
 }
 function subChat(){
@@ -599,14 +621,16 @@ async function ldChat(gid){
 }
 
 // Push state to Supabase
+// Call AFTER myTurn has already been flipped to who shoots NEXT
 async function pushSt(ex={}){
   if(vsAI)return;
   const st={
     balls:balls.map(b=>({...b})),
-    p1poc, p2poc, p1grp, p2grp,
-    placing: placing  // so opponent knows to place cue ball if it's their turn
+    p1poc:[...p1poc], p2poc:[...p2poc], p1grp, p2grp,
+    placing
   };
-  const nxtId=myTurn?ME.id:(opp?.id||ME.id);
+  // myTurn now = who shoots next; that player's id goes in `turn`
+  const nxtId = myTurn ? ME.id : (opp?.id||ME.id);
   await sb.from('billiard_games').update({
     state:JSON.stringify(st), turn:nxtId, ...ex
   }).eq('id',GID);
@@ -681,7 +705,8 @@ function shoot(){
 function execShot(pw){
   if(locked)return; locked=true;
   const cb=balls.find(b=>b.n===0); if(!cb){locked=false;return;}
-  const sp=pw*.22;
+  // pw=1..100 → speed 4..28 (full power crosses table end-to-end)
+  const sp=4+pw*.24;
   cb.vx=Math.cos(ang)*sp; cb.vy=Math.sin(ang)*sp;
   document.getElementById('cup').classList.add('h');
   actx.clearRect(0,0,aimC.width,aimC.height);
