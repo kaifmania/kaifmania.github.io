@@ -442,7 +442,7 @@ function renderInviteList(users) {
         <div class="sub">🎱 ${u.billiard_score || 0}</div>
       </div>
       ${on ? '<div class="online-dot-sm"></div>' : ''}
-      <button class="invite-send-btn" id="invBtn_${u.id}" ${!on ? 'disabled title="Offline"' : ''} onclick="sendInvite('${u.id}')">📨 მოწვევა</button>
+      <button class="invite-send-btn" id="invBtn_${u.id}" onclick="sendInvite('${u.id}')">📨 ${on ? 'მოწვევა' : '📨 გაგზავნა'}</button>
     `;
     el.appendChild(d);
   });
@@ -472,14 +472,7 @@ async function sendInvite(toUid) {
   gameId = g.id;
   isP1 = true;
 
-  // Send notification
-  await sb.from('notifications').insert({
-    user_id: toUid,
-    from_uid: ME.id,
-    type: 'billiard_invite',
-    data: { nick: MYPROF.username, game_id: g.id },
-    is_read: false
-  });
+  // No separate notification needed - listenForInvites watches billiard_games INSERT directly
 
   pendingInviteId = g.id;
   opponent = allUsers.find(u => u.id === toUid);
@@ -523,14 +516,21 @@ async function cancelInvite() {
 }
 
 function listenForInvites() {
+  // Listen directly on billiard_games for new rows where I am player2
   inviteChannel = sb.channel('billiard_invites_' + ME.id)
-    .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${ME.id}` }, async payload => {
-      if (payload.new.type === 'billiard_invite') {
-        const d = payload.new.data || {};
-        showInviteNotif(d.nick || '?', d.game_id, payload.new.from_uid);
-      }
+    .on('postgres_changes', {
+      event: 'INSERT',
+      schema: 'public',
+      table: 'billiard_games'
+    }, async payload => {
+      const row = payload.new;
+      if (!row || row.player2_id !== ME.id || row.status !== 'waiting') return;
+      let inviter = allUsers.find(u => u.id === row.player1_id);
+      if (!inviter) inviter = await loadProf(row.player1_id);
+      const nick = inviter?.username || '?';
+      showInviteNotif(nick, row.id, row.player1_id);
     })
-    .subscribe();
+    .subscribe(status => console.log('invite ch:', status));
 }
 
 function showInviteNotif(nick, gid, fromUid) {
