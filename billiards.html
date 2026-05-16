@@ -3,8 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🎱 ბილიარდი - სრული ვერსია</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <title>🎱 ბილიარდი</title>
     <style>
         * {
             margin: 0;
@@ -18,7 +17,6 @@
             min-height: 100vh;
             font-family: 'Segoe UI', 'Noto Sans Georgian', system-ui, sans-serif;
             color: #ede0ff;
-            overflow: hidden;
         }
 
         /* ========== მთავარი მენიუ ========== */
@@ -34,32 +32,32 @@
 
         .menu-card {
             background: #1a1530;
-            border-radius: 30px;
-            padding: 30px;
+            border-radius: 40px;
+            padding: 40px;
             text-align: center;
             border: 1px solid rgba(168,85,247,0.3);
-            min-width: 350px;
+            min-width: 320px;
         }
 
         .menu-title {
-            font-size: 32px;
+            font-size: 38px;
             font-weight: bold;
             background: linear-gradient(135deg, #f07aff, #a855f7);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            margin-bottom: 25px;
+            margin-bottom: 30px;
         }
 
         .menu-btn {
             background: linear-gradient(135deg, #7a1fc8, #a855f7);
             border: none;
-            padding: 12px 25px;
+            padding: 14px 30px;
             border-radius: 50px;
             color: white;
-            font-size: 16px;
+            font-size: 18px;
             font-weight: bold;
             cursor: pointer;
-            margin: 8px 0;
+            margin: 10px 0;
             width: 100%;
             transition: all 0.2s;
         }
@@ -69,99 +67,122 @@
             background: linear-gradient(135deg, #a855f7, #c084fc);
         }
 
-        /* ========== წევრების სია ========== */
-        .members-panel {
-            margin-top: 20px;
-            padding-top: 15px;
-            border-top: 1px solid rgba(168,85,247,0.2);
+        /* ========== წევრების სია (მეგობართან თამაში) ========== */
+        .members-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #0a0612, #110d22);
+            z-index: 200;
+            display: none;
+            padding: 20px;
+        }
+
+        .members-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 10px;
+        }
+
+        .back-arrow {
+            background: #1a1530;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 20px;
+            border: 1px solid rgba(168,85,247,0.3);
         }
 
         .members-title {
-            font-size: 14px;
-            color: #b580e0;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            color: #f07aff;
         }
 
         .members-list {
-            max-height: 250px;
+            max-height: calc(100vh - 100px);
             overflow-y: auto;
-            border-radius: 15px;
+            padding: 10px;
         }
 
-        .member-item {
-            background: #0a0612;
-            border-radius: 12px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
+        .member-card {
+            background: #1a1530;
+            border-radius: 20px;
+            padding: 15px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             border: 1px solid rgba(168,85,247,0.2);
-            transition: all 0.2s;
-        }
-
-        .member-item:hover {
-            border-color: #a855f7;
-            background: #1a1530;
         }
 
         .member-info {
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .member-avatar {
-            width: 36px;
-            height: 36px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: linear-gradient(135deg, #7a1fc8, #a855f7);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
+            font-size: 24px;
         }
 
-        .member-name {
-            font-weight: 600;
-            font-size: 14px;
+        .member-details {
+            text-align: left;
+        }
+
+        .member-nick {
+            font-size: 16px;
+            font-weight: bold;
         }
 
         .member-status {
-            font-size: 10px;
+            font-size: 11px;
             color: #4ade80;
+            margin-top: 4px;
         }
 
-        .invite-member-btn {
+        .invite-button {
             background: linear-gradient(135deg, #7a1fc8, #a855f7);
             border: none;
-            padding: 5px 12px;
-            border-radius: 15px;
+            padding: 8px 20px;
+            border-radius: 25px;
             color: white;
             cursor: pointer;
-            font-size: 11px;
+            font-size: 13px;
         }
 
-        .loading {
+        .invite-button:disabled {
+            opacity: 0.5;
+        }
+
+        .empty-members {
             text-align: center;
-            padding: 20px;
+            padding: 40px;
             color: #b580e0;
-            font-size: 12px;
         }
 
-        /* ========== მოწვევის შეტყობინება ========== */
-        .invite-notification {
+        /* ========== მოწვევის პოპაპი ========== */
+        .invite-popup {
             position: fixed;
             bottom: 30px;
             right: 30px;
             background: #1a1530;
             border-radius: 20px;
-            padding: 18px;
-            border: 2px solid #a855f7;
-            z-index: 200;
+            padding: 20px;
+            border: 2px solid #f07aff;
+            z-index: 300;
             min-width: 280px;
             animation: slideIn 0.3s ease;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -172,39 +193,49 @@
             to { transform: translateX(0); opacity: 1; }
         }
 
-        .invite-buttons {
+        .popup-title {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .popup-title strong {
+            color: #f07aff;
+        }
+
+        .popup-buttons {
             display: flex;
             gap: 10px;
-            margin-top: 12px;
         }
 
         .accept-btn {
             background: linear-gradient(135deg, #22c55e, #16a34a);
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
             color: white;
             cursor: pointer;
+            font-weight: bold;
         }
 
         .decline-btn {
             background: linear-gradient(135deg, #f87171, #dc2626);
             flex: 1;
-            padding: 8px;
+            padding: 10px;
             border: none;
-            border-radius: 12px;
+            border-radius: 15px;
             color: white;
             cursor: pointer;
+            font-weight: bold;
         }
 
-        /* ========== თამაშის არე ========== */
-        .game-area {
+        /* ========== თამაშის ეკრანი ========== */
+        .game-screen {
             display: none;
             width: 100vw;
             height: 100vh;
-            background: #0a0612;
             position: relative;
+            background: #0a0612;
         }
 
         .game-header {
@@ -214,11 +245,11 @@
             right: 0;
             display: flex;
             justify-content: space-between;
-            padding: 0 20px;
+            padding: 0 15px;
             z-index: 10;
         }
 
-        .back-btn {
+        .exit-btn {
             background: #1a1530;
             padding: 8px 16px;
             border-radius: 20px;
@@ -227,7 +258,7 @@
             border: 1px solid rgba(168,85,247,0.3);
         }
 
-        .turn-indicator {
+        .turn-text {
             background: #1a1530;
             padding: 8px 16px;
             border-radius: 20px;
@@ -235,7 +266,6 @@
             border-left: 3px solid #f07aff;
         }
 
-        /* ქულების დაფა */
         .score-panel {
             position: absolute;
             top: 60px;
@@ -247,26 +277,26 @@
             z-index: 10;
         }
 
-        .score-card {
+        .score-item {
             background: #1a1530;
             border-radius: 20px;
-            padding: 12px 20px;
+            padding: 10px 20px;
             text-align: center;
-            min-width: 160px;
+            min-width: 150px;
             border: 1px solid rgba(168,85,247,0.3);
         }
 
-        .score-card.active {
+        .score-item.active {
             border: 2px solid #f07aff;
             box-shadow: 0 0 15px rgba(240,122,255,0.3);
         }
 
         .score-name {
-            font-size: 14px;
+            font-size: 13px;
             color: #b580e0;
         }
 
-        .score-value {
+        .score-number {
             font-size: 28px;
             font-weight: bold;
             color: #f07aff;
@@ -281,8 +311,8 @@
         }
 
         .mini-ball {
-            width: 22px;
-            height: 22px;
+            width: 24px;
+            height: 24px;
             border-radius: 50%;
             font-size: 10px;
             display: flex;
@@ -291,17 +321,17 @@
             font-weight: bold;
             color: white;
             text-shadow: 0 0 2px black;
+            box-shadow: inset -1px -1px 3px rgba(0,0,0,0.3), inset 1px 1px 2px rgba(255,255,255,0.2);
         }
 
-        /* მაგიდა */
-        .table-container {
+        .table-area {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background: #0a2a1a;
             border-radius: 15px;
-            padding: 10px;
+            padding: 8px;
             box-shadow: 0 10px 30px rgba(0,0,0,0.5);
         }
 
@@ -312,15 +342,14 @@
             box-shadow: 0 0 0 4px #8B4513, 0 0 0 8px #5a2a0a;
         }
 
-        /* კონტროლები */
-        .controls-panel {
+        .control-panel {
             position: absolute;
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
             background: #1a1530;
             border-radius: 40px;
-            padding: 12px 20px;
+            padding: 10px 20px;
             display: flex;
             gap: 15px;
             align-items: center;
@@ -328,7 +357,7 @@
             z-index: 10;
         }
 
-        .power-bar {
+        .power-container {
             width: 180px;
             height: 6px;
             background: #0a0612;
@@ -336,7 +365,7 @@
             overflow: hidden;
         }
 
-        .power-fill {
+        .power-level {
             height: 100%;
             width: 50%;
             background: linear-gradient(90deg, #4ade80, #fbbf24, #f87171);
@@ -347,33 +376,51 @@
             accent-color: #a855f7;
         }
 
-        .shoot-btn {
+        .shoot-button {
             background: linear-gradient(135deg, #7a1fc8, #a855f7);
             border: none;
-            padding: 8px 20px;
-            border-radius: 25px;
+            padding: 8px 25px;
+            border-radius: 30px;
             color: white;
             font-weight: bold;
             cursor: pointer;
         }
 
-        /* მოგების ეკრანი */
-        .win-overlay {
+        .win-screen {
             position: fixed;
             inset: 0;
             background: rgba(10,6,18,0.95);
             display: none;
             justify-content: center;
             align-items: center;
-            z-index: 300;
+            z-index: 400;
         }
 
-        .win-card {
+        .win-box {
             background: #1a1530;
             border-radius: 30px;
             padding: 40px;
             text-align: center;
             border: 2px solid #a855f7;
+        }
+
+        .win-box button {
+            margin-top: 20px;
+            background: linear-gradient(135deg, #7a1fc8, #a855f7);
+            border: none;
+            padding: 10px 30px;
+            border-radius: 25px;
+            color: white;
+            cursor: pointer;
+        }
+
+        @media (max-width: 900px) {
+            .score-item { padding: 8px 12px; min-width: 120px; }
+            .score-number { font-size: 22px; }
+            .control-panel { padding: 8px 15px; gap: 10px; }
+            .power-container { width: 120px; }
+            .member-card { padding: 12px; }
+            .member-avatar { width: 40px; height: 40px; font-size: 20px; }
         }
     </style>
 </head>
@@ -383,239 +430,241 @@
 <div id="mainMenu" class="main-menu">
     <div class="menu-card">
         <div class="menu-title">🎱 ბილიარდი</div>
-        <button class="menu-btn" onclick="startLocalGame()">👥 ადგილობრივი თამაში (2 მოთამაშე)</button>
         <button class="menu-btn" onclick="startAIGame()">🤖 AI-ს წინააღმდეგ</button>
-        
-        <div class="members-panel">
-            <div class="members-title">
-                <span>🌟</span> ონლაინ წევრები
-                <span id="onlineCount" style="font-size: 11px;"></span>
-            </div>
-            <div id="membersList" class="members-list">
-                <div class="loading">🚀 იტვირთება წევრები...</div>
-            </div>
-        </div>
+        <button class="menu-btn" onclick="showMembers()">👥 მეგობართან თამაში</button>
     </div>
 </div>
 
-<!-- თამაშის არე -->
-<div id="gameArea" class="game-area">
+<!-- წევრების სია -->
+<div id="membersScreen" class="members-screen">
+    <div class="members-header">
+        <div class="back-arrow" onclick="hideMembers()">←</div>
+        <div class="members-title">📨 ონლაინ მოთამაშეები</div>
+    </div>
+    <div id="membersList" class="members-list">
+        <div class="empty-members">🚀 იტვირთება...</div>
+    </div>
+</div>
+
+<!-- თამაშის ეკრანი -->
+<div id="gameScreen" class="game-screen">
     <div class="game-header">
-        <div class="back-btn" onclick="backToMenu()">← მთავარი</div>
-        <div class="turn-indicator" id="turnText">🎯 მოთამაშე 1-ის ჯერი</div>
+        <div class="exit-btn" onclick="exitToMenu()">← გასვლა</div>
+        <div class="turn-text" id="turnDisplay">🎯 მოთამაშის ჯერი</div>
     </div>
 
     <div class="score-panel">
-        <div class="score-card" id="scoreCard1">
-            <div class="score-name" id="player1Name">👤 მოთამაშე 1</div>
-            <div class="score-value" id="player1Score">0</div>
-            <div class="pocketed-balls" id="player1Balls"></div>
+        <div class="score-item" id="player1ScoreCard">
+            <div class="score-name" id="p1Name">👤 მოთამაშე 1</div>
+            <div class="score-number" id="p1Score">0</div>
+            <div class="pocketed-balls" id="p1Pocketed"></div>
         </div>
-        <div class="score-card" id="scoreCard2">
-            <div class="score-name" id="player2Name">👤 მოთამაშე 2</div>
-            <div class="score-value" id="player2Score">0</div>
-            <div class="pocketed-balls" id="player2Balls"></div>
+        <div class="score-item" id="player2ScoreCard">
+            <div class="score-name" id="p2Name">👤 მოთამაშე 2</div>
+            <div class="score-number" id="p2Score">0</div>
+            <div class="pocketed-balls" id="p2Pocketed"></div>
         </div>
     </div>
 
-    <div class="table-container">
+    <div class="table-area">
         <canvas id="gameCanvas" width="950" height="530"></canvas>
     </div>
 
-    <div class="controls-panel">
-        <span style="font-size: 12px;">⚡ ძალა</span>
-        <div class="power-bar">
-            <div class="power-fill" id="powerFill"></div>
+    <div class="control-panel">
+        <span>⚡ ძალა</span>
+        <div class="power-container">
+            <div class="power-level" id="powerFill"></div>
         </div>
         <input type="range" id="powerSlider" min="0" max="100" value="50">
-        <button class="shoot-btn" id="shootBtn">🎯 სროლა</button>
+        <button class="shoot-button" id="shootBtn">🎯 დარტყმა</button>
     </div>
 </div>
 
-<div id="winOverlay" class="win-overlay">
-    <div class="win-card">
+<div id="winScreen" class="win-screen">
+    <div class="win-box">
         <div style="font-size: 48px;" id="winEmoji">🏆</div>
-        <h2 id="winText">გამარჯვება!</h2>
-        <button class="menu-btn" style="margin-top: 20px;" onclick="resetGame()">🔄 ახალი თამაში</button>
+        <h2 id="winMessage">გამარჯვება!</h2>
+        <button onclick="resetGame()">🔄 ახალი თამაში</button>
     </div>
 </div>
 
 <script>
-    // ========== Supabase ინიციალიზაცია ==========
-    const supabase = createClient(
-        "https://brggiyhfzfbmlirqfgpo.supabase.co",
-        "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
-    );
-
-    let currentUser = null;
-    let onlineMembers = [];
+    // ========== localStorage მოთამაშეებისთვის ==========
+    let myId = 'player_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4);
+    let myName = 'მოთამაშე_' + Math.floor(Math.random() * 1000);
+    let onlinePlayers = [];
+    let gameInProgress = false;
+    let currentGameMode = null;
     let pendingInvite = null;
 
-    // ========== წევრების ჩატვირთვა ==========
-    async function loadMembers() {
-        try {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
-                // ანონიმური შესვლა
-                const { data: signUp } = await supabase.auth.signUp({
-                    email: `guest_${Date.now()}@temp.com`,
-                    password: Math.random().toString(36)
-                });
-                currentUser = signUp?.user;
-            } else {
-                currentUser = user;
-            }
-
-            // პროფილის შექმნა/განახლება
-            const name = localStorage.getItem('playerName') || `მოთამაშე_${Math.floor(Math.random()*1000)}`;
-            await supabase.from('profiles').upsert({
-                id: currentUser.id,
-                username: name,
-                last_seen: new Date().toISOString(),
-                emotion: '🎱'
-            });
-
-            // წევრების წამოღება
-            const { data: profiles } = await supabase
-                .from('profiles')
-                .select('id, username, last_seen, emotion')
-                .neq('id', currentUser.id)
-                .order('last_seen', { ascending: false });
-
-            onlineMembers = (profiles || []).filter(p => {
-                if (!p.last_seen) return false;
-                const diff = Date.now() - new Date(p.last_seen).getTime();
-                return diff < 60000; // ბოლო 1 წუთში აქტიური
-            });
-
-            renderMembers();
-
-        } catch(e) {
-            console.error(e);
-            document.getElementById('membersList').innerHTML = '<div class="loading">⚠️ ვერ ვიტვირთავ წევრებს</div>';
-        }
-    }
-
-    function renderMembers() {
-        const container = document.getElementById('membersList');
-        const countSpan = document.getElementById('onlineCount');
+    // ========== წევრების სინქრონიზაცია ==========
+    function updatePresence() {
+        const players = getAllPlayers();
+        const myIndex = players.findIndex(p => p.id === myId);
+        const myData = {
+            id: myId,
+            name: myName,
+            lastSeen: Date.now(),
+            inGame: gameInProgress
+        };
         
-        if (onlineMembers.length === 0) {
-            container.innerHTML = '<div class="loading">😴 აქტიური წევრები არ არიან</div>';
-            countSpan.textContent = '(0)';
+        if(myIndex === -1) players.push(myData);
+        else players[myIndex] = myData;
+        
+        localStorage.setItem('billiard_players', JSON.stringify(players));
+    }
+    
+    function getAllPlayers() {
+        const data = localStorage.getItem('billiard_players');
+        if(!data) return [];
+        try { return JSON.parse(data); }
+        catch(e) { return []; }
+    }
+    
+    function loadMembers() {
+        let players = getAllPlayers();
+        const now = Date.now();
+        
+        // ბოლო 10 წამში აქტიურები, საკუთარი თავის გამოკლებით
+        players = players.filter(p => p.id !== myId && (now - p.lastSeen) < 10000);
+        onlinePlayers = players;
+        
+        const container = document.getElementById('membersList');
+        
+        if(players.length === 0) {
+            container.innerHTML = '<div class="empty-members">😴 აქტიური მოთამაშეები არ არიან<br><span style="font-size: 12px;">გახსენით თამაში სხვა ფანჯარაში</span></div>';
             return;
         }
-
-        countSpan.textContent = `(${onlineMembers.length})`;
-        container.innerHTML = onlineMembers.map(m => `
-            <div class="member-item">
+        
+        container.innerHTML = players.map(p => `
+            <div class="member-card">
                 <div class="member-info">
-                    <div class="member-avatar">${m.emotion || '🎱'}</div>
-                    <div>
-                        <div class="member-name">${escapeHtml(m.username || 'მოთამაშე')}</div>
+                    <div class="member-avatar">${getAvatarEmoji(p.name)}</div>
+                    <div class="member-details">
+                        <div class="member-nick">${escapeHtml(p.name)}</div>
                         <div class="member-status">● ონლაინში</div>
                     </div>
                 </div>
-                <button class="invite-member-btn" onclick="sendGameInvite('${m.id}', '${escapeHtml(m.username)}')">📨 მოწვევა</button>
+                <button class="invite-button" onclick="sendInvite('${p.id}', '${escapeHtml(p.name)}')">📨 მოწვევა</button>
             </div>
         `).join('');
     }
-
+    
+    function getAvatarEmoji(name) {
+        const emojis = ['🎱', '🎯', '🏆', '⭐', '🎮', '🎲'];
+        let hash = 0;
+        for(let i = 0; i < name.length; i++) {
+            hash = ((hash << 5) - hash) + name.charCodeAt(i);
+            hash |= 0;
+        }
+        return emojis[Math.abs(hash) % emojis.length];
+    }
+    
     function escapeHtml(str) {
-        if (!str) return '';
+        if(!str) return '';
         return str.replace(/[&<>]/g, function(m) {
-            if (m === '&') return '&amp;';
-            if (m === '<') return '&lt;';
-            if (m === '>') return '&gt;';
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
             return m;
         });
     }
-
+    
     // ========== მოწვევის გაგზავნა ==========
-    async function sendGameInvite(toId, toName) {
-        if (!currentUser) {
-            alert('გთხოვთ, დაელოდეთ...');
+    function sendInvite(toId, toName) {
+        if(gameInProgress) {
+            alert('თამაში უკვე მიმდინარეობს!');
             return;
         }
-
-        const { data: myProfile } = await supabase
-            .from('profiles')
-            .select('username')
-            .eq('id', currentUser.id)
-            .single();
-
-        const myName = myProfile?.username || 'მოთამაშე';
-
-        // მოწვევის შენახვა
-        await supabase.from('game_invites').insert({
-            from_id: currentUser.id,
-            to_id: toId,
-            from_name: myName,
-            to_name: toName,
-            status: 'pending',
-            created_at: new Date().toISOString()
-        });
-
+        
+        const invite = {
+            from: myId,
+            fromName: myName,
+            to: toId,
+            toName: toName,
+            timestamp: Date.now()
+        };
+        
+        localStorage.setItem('billiard_invite_' + toId, JSON.stringify(invite));
+        
+        setTimeout(() => {
+            const current = localStorage.getItem('billiard_invite_' + toId);
+            if(current) {
+                const parsed = JSON.parse(current);
+                if(parsed && parsed.timestamp === invite.timestamp) {
+                    localStorage.removeItem('billiard_invite_' + toId);
+                }
+            }
+        }, 30000);
+        
         alert(`📨 მოწვევა გაეგზავნა ${toName}-ს`);
     }
-
+    
     // ========== მოწვევების მოსმენა ==========
     function listenForInvites() {
-        if (!currentUser) return;
-
-        const channel = supabase
-            .channel('invites')
-            .on('postgres_changes', {
-                event: 'INSERT',
-                schema: 'public',
-                table: 'game_invites',
-                filter: `to_id=eq.${currentUser.id}`
-            }, (payload) => {
-                const invite = payload.new;
-                if (invite.status === 'pending') {
+        window.addEventListener('storage', (e) => {
+            if(e.key === 'billiard_invite_' + myId) {
+                const invite = JSON.parse(e.newValue);
+                if(invite && invite.to === myId && !gameInProgress) {
                     showInvitePopup(invite);
                 }
-            })
-            .subscribe();
+            }
+        });
     }
-
+    
     function showInvitePopup(invite) {
-        // წაშალე ძველი
-        const old = document.querySelector('.invite-notification');
-        if (old) old.remove();
-
+        const old = document.querySelector('.invite-popup');
+        if(old) old.remove();
+        
         const div = document.createElement('div');
-        div.className = 'invite-notification';
+        div.className = 'invite-popup';
         div.innerHTML = `
-            <div style="margin-bottom: 10px;">
-                <strong>${escapeHtml(invite.from_name)}</strong> გიწვევს სათამაშოდ!
+            <div class="popup-title">
+                <strong>${escapeHtml(invite.fromName)}</strong> გიწვევს სათამაშოდ!
             </div>
-            <div class="invite-buttons">
-                <button class="accept-btn" onclick="acceptInvite('${invite.id}', '${invite.from_id}', '${escapeHtml(invite.from_name)}')">✅ მიღება</button>
-                <button class="decline-btn" onclick="declineInvite('${invite.id}')">❌ უარი</button>
+            <div class="popup-buttons">
+                <button class="accept-btn" onclick="acceptInvite('${invite.from}', '${escapeHtml(invite.fromName)}')">✅ მიღება</button>
+                <button class="decline-btn" onclick="declineInvite(this)">❌ უარი</button>
             </div>
         `;
         document.body.appendChild(div);
     }
-
-    async function acceptInvite(inviteId, fromId, fromName) {
-        await supabase.from('game_invites').update({ status: 'accepted' }).eq('id', inviteId);
+    
+    function acceptInvite(fromId, fromName) {
+        const popup = document.querySelector('.invite-popup');
+        if(popup) popup.remove();
         
-        const notif = document.querySelector('.invite-notification');
-        if (notif) notif.remove();
-        
-        alert(`✅ თამაში იწყება ${fromName}-სთან`);
-        startOnlineGame(fromId, fromName);
+        startOnlineGame(fromName);
     }
-
-    async function declineInvite(inviteId) {
-        await supabase.from('game_invites').update({ status: 'declined' }).eq('id', inviteId);
-        const notif = document.querySelector('.invite-notification');
-        if (notif) notif.remove();
-        alert('❌ მოწვევა უარყოფილია');
+    
+    function declineInvite(btn) {
+        const popup = btn.closest('.invite-popup');
+        if(popup) popup.remove();
     }
-
-    // ========== თამაშის ლოგიკა (გამარტივებული, მუშა) ==========
+    
+    // ========== ბილიარდის ფიზიკა ==========
+    const canvas = document.getElementById('gameCanvas');
+    const ctx = canvas.getContext('2d');
+    
+    const W = 950, H = 530;
+    const BALL_R = 7;
+    const FRICTION = 0.985;
+    const WALL_BOUNCE = 0.92;
+    
+    const POCKETS = [
+        { x: 20, y: 20 }, { x: W/2, y: 15 }, { x: W-20, y: 20 },
+        { x: 20, y: H-20 }, { x: W/2, y: H-15 }, { x: W-20, y: H-20 }
+    ];
+    
+    const BALL_COLORS = {
+        1: '#FFD700', 2: '#0000CD', 3: '#DC143C', 4: '#8B008B', 5: '#FF8C00',
+        6: '#228B22', 7: '#B22222', 8: '#1a1a2e', 9: '#FFD700', 10: '#0000CD',
+        11: '#DC143C', 12: '#8B008B', 13: '#FF8C00', 14: '#228B22', 15: '#B22222', 0: '#FFFFFF'
+    };
+    
+    const SOLIDS = [1,2,3,4,5,6,7];
+    const STRIPES = [9,10,11,12,13,14,15];
+    
     let balls = [];
     let currentPlayer = 1;
     let gameActive = true;
@@ -623,40 +672,14 @@
     let power = 50;
     let angle = 0;
     let isDragging = false;
-    let placingCueBall = false;
-    let gameMode = 'local';
+    let placingWhiteBall = false;
     let animationId = null;
-
-    const W = 950, H = 530;
-    const BALL_R = 7;
-    const FRICTION = 0.985;
-    const WALL_BOUNCE = 0.92;
-
-    const canvas = document.getElementById('gameCanvas');
-    const ctx = canvas.getContext('2d');
-
-    canvas.width = W;
-    canvas.height = H;
-
-    const POCKETS = [
-        { x: 20, y: 20 }, { x: W/2, y: 15 }, { x: W-20, y: 20 },
-        { x: 20, y: H-20 }, { x: W/2, y: H-15 }, { x: W-20, y: H-20 }
-    ];
-
-    const COLORS = {
-        1: '#FFD700', 2: '#0000CD', 3: '#DC143C', 4: '#8B008B', 5: '#FF8C00',
-        6: '#228B22', 7: '#B22222', 8: '#1a1a2e', 9: '#FFD700', 10: '#0000CD',
-        11: '#DC143C', 12: '#8B008B', 13: '#FF8C00', 14: '#228B22', 15: '#B22222', 0: '#FFFFFF'
-    };
-
-    const SOLIDS = [1,2,3,4,5,6,7];
-    const STRIPES = [9,10,11,12,13,14,15];
-
-    let playersStats = {
+    
+    let gamePlayers = {
         1: { name: '👤 მოთამაშე 1', score: 0, pocketed: [], group: null },
         2: { name: '👤 მოთამაშე 2', score: 0, pocketed: [], group: null }
     };
-
+    
     function initBalls() {
         balls = [];
         const startX = W - 130;
@@ -687,38 +710,38 @@
             isStripe: false
         });
     }
-
-    function updateUI() {
-        document.getElementById('player1Score').textContent = playersStats[1].score;
-        document.getElementById('player2Score').textContent = playersStats[2].score;
-        document.getElementById('player1Name').textContent = playersStats[1].name;
-        document.getElementById('player2Name').textContent = playersStats[2].name;
-
-        const card1 = document.getElementById('scoreCard1');
-        const card2 = document.getElementById('scoreCard2');
+    
+    function updateGameUI() {
+        document.getElementById('p1Score').textContent = gamePlayers[1].score;
+        document.getElementById('p2Score').textContent = gamePlayers[2].score;
+        document.getElementById('p1Name').textContent = gamePlayers[1].name;
+        document.getElementById('p2Name').textContent = gamePlayers[2].name;
         
-        if (currentPlayer === 1) {
+        const card1 = document.getElementById('player1ScoreCard');
+        const card2 = document.getElementById('player2ScoreCard');
+        
+        if(currentPlayer === 1) {
             card1.classList.add('active');
             card2.classList.remove('active');
-            document.getElementById('turnText').innerHTML = `🎯 ${playersStats[1].name}-ის ჯერი`;
+            document.getElementById('turnDisplay').innerHTML = `🎯 ${gamePlayers[1].name}-ის ჯერი`;
         } else {
             card1.classList.remove('active');
             card2.classList.add('active');
-            document.getElementById('turnText').innerHTML = `🎯 ${playersStats[2].name}-ის ჯერი`;
+            document.getElementById('turnDisplay').innerHTML = `🎯 ${gamePlayers[2].name}-ის ჯერი`;
         }
-
-        const p1Balls = document.getElementById('player1Balls');
-        const p2Balls = document.getElementById('player2Balls');
         
-        p1Balls.innerHTML = playersStats[1].pocketed.map(n => 
-            `<div class="mini-ball" style="background: ${COLORS[n]}">${n}</div>`
+        const p1Div = document.getElementById('p1Pocketed');
+        const p2Div = document.getElementById('p2Pocketed');
+        
+        p1Div.innerHTML = gamePlayers[1].pocketed.map(n => 
+            `<div class="mini-ball" style="background: ${BALL_COLORS[n]}">${n}</div>`
         ).join('');
         
-        p2Balls.innerHTML = playersStats[2].pocketed.map(n => 
-            `<div class="mini-ball" style="background: ${COLORS[n]}">${n}</div>`
+        p2Div.innerHTML = gamePlayers[2].pocketed.map(n => 
+            `<div class="mini-ball" style="background: ${BALL_COLORS[n]}">${n}</div>`
         ).join('');
     }
-
+    
     function updatePhysics() {
         let moving = false;
         
@@ -743,30 +766,30 @@
                     b.vx = b.vy = 0;
                     
                     if(b.num === 0) {
-                        placingCueBall = true;
-                        document.getElementById('turnText').innerHTML = '⚠️ დადე თეთრი ბურთი!';
+                        placingWhiteBall = true;
+                        document.getElementById('turnDisplay').innerHTML = '⚠️ დადე თეთრი ბურთი!';
                     } 
                     else if(b.num === 8) {
                         const remaining = balls.filter(bb => 
                             !bb.pocketed && bb.num !== 0 && bb.num !== 8 && 
-                            (playersStats[currentPlayer].group === 'solid' ? SOLIDS.includes(bb.num) : STRIPES.includes(bb.num))
+                            (gamePlayers[currentPlayer].group === 'solid' ? SOLIDS.includes(bb.num) : STRIPES.includes(bb.num))
                         ).length;
                         if(remaining === 0) endGame(currentPlayer);
                         else endGame(3 - currentPlayer);
                     }
                     else {
                         const group = SOLIDS.includes(b.num) ? 'solid' : 'stripe';
-                        if(playersStats[1].group === null && playersStats[2].group === null) {
-                            playersStats[currentPlayer].group = group;
-                            playersStats[3-currentPlayer].group = group === 'solid' ? 'stripe' : 'solid';
+                        if(gamePlayers[1].group === null && gamePlayers[2].group === null) {
+                            gamePlayers[currentPlayer].group = group;
+                            gamePlayers[3-currentPlayer].group = group === 'solid' ? 'stripe' : 'solid';
                         }
-                        if(playersStats[currentPlayer].group === group) {
-                            playersStats[currentPlayer].pocketed.push(b.num);
-                            playersStats[currentPlayer].score++;
-                            updateUI();
+                        if(gamePlayers[currentPlayer].group === group) {
+                            gamePlayers[currentPlayer].pocketed.push(b.num);
+                            gamePlayers[currentPlayer].score++;
+                            updateGameUI();
                         } else {
                             currentPlayer = 3 - currentPlayer;
-                            updateUI();
+                            updateGameUI();
                         }
                     }
                     break;
@@ -806,24 +829,24 @@
         
         if(!moving && isMoving) {
             isMoving = false;
-            if(!placingCueBall) {
+            if(!placingWhiteBall) {
                 currentPlayer = 3 - currentPlayer;
-                updateUI();
+                updateGameUI();
             }
-            if(gameActive && !placingCueBall && currentPlayer === 2 && gameMode === 'ai') {
+            if(gameActive && !placingWhiteBall && currentPlayer === 2 && currentGameMode === 'ai') {
                 setTimeout(() => aiShoot(), 500);
             }
         }
         
         isMoving = moving;
-        draw();
+        drawGame();
         if(isMoving) animationId = requestAnimationFrame(updatePhysics);
         else if(animationId) { cancelAnimationFrame(animationId); animationId = null; }
     }
-
+    
     function shoot() {
-        if(isMoving || placingCueBall || !gameActive) return;
-        if(gameMode === 'ai' && currentPlayer !== 1) return;
+        if(isMoving || placingWhiteBall || !gameActive) return;
+        if(currentGameMode === 'ai' && currentPlayer !== 1) return;
         
         const cue = balls.find(b => b.num === 0 && !b.pocketed);
         if(!cue) return;
@@ -834,20 +857,20 @@
         isMoving = true;
         updatePhysics();
     }
-
+    
     function aiShoot() {
-        if(isMoving || !gameActive || currentPlayer !== 2 || placingCueBall) return;
+        if(isMoving || !gameActive || currentPlayer !== 2 || placingWhiteBall) return;
         
         const cue = balls.find(b => b.num === 0 && !b.pocketed);
         if(!cue) return;
         
         let targets = balls.filter(b => !b.pocketed && b.num !== 0);
-        if(playersStats[2].group) {
+        if(gamePlayers[2].group) {
             targets = targets.filter(b => 
-                playersStats[2].group === 'solid' ? SOLIDS.includes(b.num) : STRIPES.includes(b.num)
+                gamePlayers[2].group === 'solid' ? SOLIDS.includes(b.num) : STRIPES.includes(b.num)
             );
         }
-        if(targets.length === 0 && playersStats[2].pocketed.length >= 7) {
+        if(targets.length === 0 && gamePlayers[2].pocketed.length >= 7) {
             targets = balls.filter(b => !b.pocketed && b.num === 8);
         }
         if(targets.length === 0) {
@@ -857,7 +880,7 @@
         if(targets.length > 0) {
             const target = targets[0];
             angle = Math.atan2(target.y - cue.y, target.x - cue.x);
-            angle += (Math.random() - 0.5) * 0.25;
+            angle += (Math.random() - 0.5) * 0.2;
             const dist = Math.hypot(target.x - cue.x, target.y - cue.y);
             power = Math.min(90, Math.max(35, dist / 4.5));
         } else {
@@ -874,9 +897,10 @@
         isMoving = true;
         updatePhysics();
     }
-
-    function placeCueBall(x, y) {
+    
+    function placeWhiteBall(x, y) {
         if(x < BALL_R + 15 || x > W - BALL_R - 15 || y < BALL_R + 15 || y > H - BALL_R - 15) return;
+        
         for(let b of balls) {
             if(b.pocketed) continue;
             if(b.num === 0) continue;
@@ -886,28 +910,24 @@
         const cue = balls.find(b => b.num === 0);
         if(cue) { cue.x = x; cue.y = y; cue.pocketed = false; }
         
-        placingCueBall = false;
-        updateUI();
-        draw();
+        placingWhiteBall = false;
+        updateGameUI();
+        drawGame();
         
-        if(gameActive && currentPlayer === 2 && gameMode === 'ai') {
+        if(gameActive && currentPlayer === 2 && currentGameMode === 'ai') {
             setTimeout(() => aiShoot(), 500);
         }
     }
-
-    function draw() {
+    
+    function drawGame() {
         ctx.clearRect(0, 0, W, H);
-        
-        // მაგიდა
         ctx.fillStyle = '#1a6b2f';
         ctx.fillRect(0, 0, W, H);
         
-        // კიდეები
         ctx.strokeStyle = '#8B4513';
         ctx.lineWidth = 8;
         ctx.strokeRect(8, 8, W-16, H-16);
         
-        // ჯიბეები
         for(let p of POCKETS) {
             ctx.beginPath();
             ctx.arc(p.x, p.y, 12, 0, Math.PI*2);
@@ -919,7 +939,6 @@
             ctx.fill();
         }
         
-        // ბურთები
         for(let b of balls) {
             if(b.pocketed) continue;
             
@@ -931,11 +950,11 @@
             if(b.isStripe && b.num !== 0) {
                 ctx.fillStyle = '#FFFFFF';
                 ctx.fill();
-                ctx.fillStyle = COLORS[b.num];
+                ctx.fillStyle = BALL_COLORS[b.num];
                 ctx.fillRect(b.x - BALL_R, b.y - 3, BALL_R*2, 6);
             } else {
                 const grad = ctx.createRadialGradient(b.x-3, b.y-3, 2, b.x, b.y, BALL_R);
-                grad.addColorStop(0, COLORS[b.num] || '#888');
+                grad.addColorStop(0, BALL_COLORS[b.num] || '#888');
                 grad.addColorStop(1, '#444');
                 ctx.fillStyle = grad;
                 ctx.fill();
@@ -955,27 +974,24 @@
             ctx.shadowBlur = 0;
         }
         
-        // ========== ბილიარდის კიი (ჯოხი) ==========
-        if(!isMoving && !placingCueBall && gameActive) {
-            if(gameMode === 'local' || (gameMode === 'ai' && currentPlayer === 1)) {
+        if(!isMoving && !placingWhiteBall && gameActive) {
+            if(currentGameMode === '2player' || (currentGameMode === 'ai' && currentPlayer === 1)) {
                 const cue = balls.find(b => b.num === 0 && !b.pocketed);
                 if(cue) {
-                    // სამიზნე ხაზი
-                    const endX = cue.x + Math.cos(angle) * 200;
-                    const endY = cue.y + Math.sin(angle) * 200;
+                    const lineEndX = cue.x + Math.cos(angle) * 200;
+                    const lineEndY = cue.y + Math.sin(angle) * 200;
                     ctx.beginPath();
                     ctx.setLineDash([6, 8]);
                     ctx.strokeStyle = '#f07aff';
                     ctx.lineWidth = 1.5;
                     ctx.moveTo(cue.x, cue.y);
-                    ctx.lineTo(endX, endY);
+                    ctx.lineTo(lineEndX, lineEndY);
                     ctx.stroke();
                     
-                    // ჯოხი (cue stick) - ბურთის უკან
-                    const stickX = cue.x - Math.cos(angle) * (BALL_R + 20 + (power / 100) * 35);
-                    const stickY = cue.y - Math.sin(angle) * (BALL_R + 20 + (power / 100) * 35);
-                    const stickEndX = stickX - Math.cos(angle) * 70;
-                    const stickEndY = stickY - Math.sin(angle) * 70;
+                    const stickX = cue.x - Math.cos(angle) * (BALL_R + 18 + (power / 100) * 35);
+                    const stickY = cue.y - Math.sin(angle) * (BALL_R + 18 + (power / 100) * 35);
+                    const stickEndX = stickX - Math.cos(angle) * 65;
+                    const stickEndY = stickY - Math.sin(angle) * 65;
                     
                     ctx.beginPath();
                     ctx.setLineDash([]);
@@ -991,7 +1007,6 @@
                     ctx.lineTo(stickEndX, stickEndY);
                     ctx.stroke();
                     
-                    // ჯოხის წვერი
                     ctx.beginPath();
                     ctx.arc(stickX, stickY, 3, 0, Math.PI*2);
                     ctx.fillStyle = '#DAA520';
@@ -1000,7 +1015,7 @@
             }
         }
     }
-
+    
     function getCoords(e) {
         const rect = canvas.getBoundingClientRect();
         const scaleX = canvas.width / rect.width;
@@ -1010,87 +1025,104 @@
         else { cx = e.clientX; cy = e.clientY; }
         return { x: (cx - rect.left) * scaleX, y: (cy - rect.top) * scaleY };
     }
-
+    
     function onMouseDown(e) {
         e.preventDefault();
         if(isMoving) return;
         const coords = getCoords(e);
-        if(placingCueBall) {
-            placeCueBall(coords.x, coords.y);
+        if(placingWhiteBall) {
+            placeWhiteBall(coords.x, coords.y);
         } else {
-            if(gameMode === 'ai' && currentPlayer !== 1) return;
+            if(currentGameMode === 'ai' && currentPlayer !== 1) return;
             isDragging = true;
             const cue = balls.find(b => b.num === 0 && !b.pocketed);
-            if(cue) { angle = Math.atan2(coords.y - cue.y, coords.x - cue.x); draw(); }
+            if(cue) { angle = Math.atan2(coords.y - cue.y, coords.x - cue.x); drawGame(); }
         }
     }
-
+    
     function onMouseMove(e) {
-        if(!isDragging || isMoving || placingCueBall) return;
-        if(gameMode === 'ai' && currentPlayer !== 1) return;
+        if(!isDragging || isMoving || placingWhiteBall) return;
+        if(currentGameMode === 'ai' && currentPlayer !== 1) return;
         const coords = getCoords(e);
         const cue = balls.find(b => b.num === 0 && !b.pocketed);
-        if(cue) { angle = Math.atan2(coords.y - cue.y, coords.x - cue.x); draw(); }
+        if(cue) { angle = Math.atan2(coords.y - cue.y, coords.x - cue.x); drawGame(); }
     }
-
+    
     function onMouseUp() { isDragging = false; }
-
+    
     function endGame(winner) {
         gameActive = false;
-        document.getElementById('winText').innerHTML = `${playersStats[winner].name} გაიმარჯვა! 🎉`;
+        gameInProgress = false;
+        document.getElementById('winMessage').innerHTML = `${gamePlayers[winner].name} გაიმარჯვა! 🎉`;
         document.getElementById('winEmoji').innerHTML = winner === 1 ? '🏆' : '🎯';
-        document.getElementById('winOverlay').style.display = 'flex';
+        document.getElementById('winScreen').style.display = 'flex';
+        updatePresence();
     }
-
+    
     function resetGame() {
-        if(animationId) cancelAnimationFrame(animationId);
+        if(animationId) { cancelAnimationFrame(animationId); animationId = null; }
         gameActive = true;
         currentPlayer = 1;
         isMoving = false;
-        placingCueBall = false;
-        playersStats[1].score = 0; playersStats[2].score = 0;
-        playersStats[1].pocketed = []; playersStats[2].pocketed = [];
-        playersStats[1].group = null; playersStats[2].group = null;
+        placingWhiteBall = false;
+        
+        gamePlayers[1].score = 0; gamePlayers[2].score = 0;
+        gamePlayers[1].pocketed = []; gamePlayers[2].pocketed = [];
+        gamePlayers[1].group = null; gamePlayers[2].group = null;
+        
         initBalls();
-        updateUI();
-        draw();
-        document.getElementById('winOverlay').style.display = 'none';
+        updateGameUI();
+        drawGame();
+        document.getElementById('winScreen').style.display = 'none';
     }
-
-    function startLocalGame() {
-        gameMode = 'local';
-        playersStats[1].name = '👤 მოთამაშე 1';
-        playersStats[2].name = '👤 მოთამაშე 2';
-        document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('gameArea').style.display = 'block';
-        resetGame();
-    }
-
+    
+    // ========== თამაშის დაწყების ფუნქციები ==========
     function startAIGame() {
-        gameMode = 'ai';
-        playersStats[1].name = '👤 მოთამაშე';
-        playersStats[2].name = '🤖 AI';
+        currentGameMode = 'ai';
+        gameInProgress = true;
+        gamePlayers[1].name = '👤 მოთამაშე';
+        gamePlayers[2].name = '🤖 AI';
         document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('gameArea').style.display = 'block';
+        document.getElementById('membersScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
         resetGame();
+        updatePresence();
     }
-
-    function startOnlineGame(opponentId, opponentName) {
-        gameMode = 'online';
-        playersStats[1].name = currentUser?.email?.split('@')[0] || '👤 მე';
-        playersStats[2].name = opponentName;
+    
+    function startOnlineGame(opponentName) {
+        currentGameMode = '2player';
+        gameInProgress = true;
+        gamePlayers[1].name = '👤 ' + myName;
+        gamePlayers[2].name = '👤 ' + opponentName;
         document.getElementById('mainMenu').style.display = 'none';
-        document.getElementById('gameArea').style.display = 'block';
+        document.getElementById('membersScreen').style.display = 'none';
+        document.getElementById('gameScreen').style.display = 'block';
         resetGame();
+        updatePresence();
     }
-
-    function backToMenu() {
-        if(animationId) cancelAnimationFrame(animationId);
+    
+    function showMembers() {
+        document.getElementById('mainMenu').style.display = 'none';
+        document.getElementById('membersScreen').style.display = 'block';
+        loadMembers();
+    }
+    
+    function hideMembers() {
         document.getElementById('mainMenu').style.display = 'flex';
-        document.getElementById('gameArea').style.display = 'none';
-        resetGame();
+        document.getElementById('membersScreen').style.display = 'none';
     }
-
+    
+    function exitToMenu() {
+        if(animationId) { cancelAnimationFrame(animationId); animationId = null; }
+        gameInProgress = false;
+        document.getElementById('mainMenu').style.display = 'flex';
+        document.getElementById('gameScreen').style.display = 'none';
+        document.getElementById('winScreen').style.display = 'none';
+        resetGame();
+        updatePresence();
+        loadMembers();
+    }
+    
     // ========== ინიციალიზაცია ==========
     const powerSlider = document.getElementById('powerSlider');
     const powerFill = document.getElementById('powerFill');
@@ -1098,7 +1130,7 @@
     powerSlider.addEventListener('input', (e) => {
         power = parseInt(e.target.value);
         powerFill.style.width = power + '%';
-        draw();
+        drawGame();
     });
     
     canvas.addEventListener('mousedown', onMouseDown);
@@ -1110,15 +1142,21 @@
     
     document.getElementById('shootBtn').addEventListener('click', shoot);
     
+    // ინიციალიზაცია
+    myName = 'მოთამაშე_' + Math.floor(Math.random() * 1000);
     initBalls();
-    updateUI();
-    draw();
-    
-    loadMembers();
+    updateGameUI();
+    drawGame();
+    updatePresence();
     listenForInvites();
     
-    // ყოველ 30 წამში განახლება
-    setInterval(() => loadMembers(), 30000);
+    // ყოველ 3 წამში განახლება
+    setInterval(() => {
+        updatePresence();
+        if(document.getElementById('membersScreen').style.display === 'block') {
+            loadMembers();
+        }
+    }, 3000);
 </script>
 </body>
 </html>
