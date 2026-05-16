@@ -127,9 +127,23 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 /* ====== CHAT ====== */
 #chatPanel{width:280px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;z-index:5}
 @media(max-width:700px){
-  #chatPanel{position:fixed;bottom:0;left:0;right:0;width:100%;height:200px;border-left:none;border-top:1px solid var(--border);z-index:20}
-  #canvasWrap{padding-bottom:200px}
+  #gameScreen{overflow:hidden}
+  #appWrapper{flex-direction:column}
+  #chatPanel{width:100%;height:160px;border-left:none;border-top:1px solid var(--border);z-index:20;flex-shrink:0}
+  #canvasWrap{flex:1;min-height:0}
   #gameHeader .gh-title{font-size:11px}
+  #cuePanel{bottom:170px;min-width:160px;padding:6px 12px}
+  #cuePanel .cp-label{font-size:8px}
+  #powerTrack{width:120px}
+  #powerSlider{width:120px}
+  .shoot-btn{font-size:12px;padding:6px 14px}
+  #ballGraph{padding:5px 8px;gap:8px}
+  .bg-ball{width:18px;height:18px;font-size:8px}
+  .player-bar{padding:5px 10px}
+  .pb-av{width:28px;height:28px;font-size:14px}
+  .pb-name{font-size:11px}
+  .pb-score-val{font-size:13px}
+  .turn-indicator{font-size:9px;padding:1px 6px}
 }
 .chat-head{padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .ch-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
@@ -627,6 +641,8 @@ async function startGame(gid, iAmP1) {
 
   gameId = gid;
   isP1 = iAmP1;
+  // Reset vsAI if this is a real multiplayer game
+  if (gid && !gid.startsWith('ai_')) vsAI = false;
 
   // Setup canvas
   canvas = document.getElementById('tableCanvas');
@@ -776,7 +792,8 @@ function loadStateFromDB(gRow) {
     p2Pocketed = st.p2Pocketed || [];
     p1Group = st.p1Group || null;
     p2Group = st.p2Group || null;
-    myTurn = (isP1 && gRow.turn === gRow.player1_id) || (!isP1 && gRow.turn === gRow.player2_id);
+    // myTurn = true if the stored turn UUID matches MY user id
+    myTurn = (gRow.turn === ME.id);
     p1Wins = gRow.p1_wins || 0;
     p2Wins = gRow.p2_wins || 0;
     document.getElementById('p1Score').textContent = isP1 ? p1Wins : p2Wins;
@@ -793,11 +810,19 @@ function subscribeGame() {
   gameCh = sb.channel('billiard_game_' + gameId)
     .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'billiard_games', filter: `id=eq.${gameId}` }, async p => {
       if (p.new.status === 'finished') { handleRemoteWin(p.new); return; }
-      if (!myTurn) {
+      // Only update if it's now my turn (opponent just moved)
+      const newTurn = p.new.turn;
+      const nowMyTurn = (newTurn === ME.id);
+      if (nowMyTurn && !myTurn && !shootingLocked) {
         loadStateFromDB(p.new);
+        myTurn = true;
+        shootingLocked = false;
+        placingCueBall = false;
+        document.getElementById('cuePanel').classList.remove('hidden');
+        document.getElementById('spectateMsg').style.display = 'none';
         updateTurnUI();
         renderAll();
-        if (vsAI && !myTurn) aiMakeMove();
+        chatSystem('🎯 შენი სვლაა!');
       }
     })
     .subscribe();
@@ -809,13 +834,14 @@ async function pushStateToServer(extraUpdates = {}) {
     balls: balls.map(b => ({ ...b })),
     p1Pocketed, p2Pocketed, p1Group, p2Group
   };
-  const turnId = myTurn
-    ? ME.id  // after shot it's their turn
-    : ME.id; // we just swapped
+  // turnId = who should play NEXT
+  // myTurn=true means it's NOW my turn (after switch), so server should store MY id
+  // myTurn=false means opponent should play, store opponent id
+  const turnId = myTurn ? ME.id : (opponent?.id || ME.id);
 
   await sb.from('billiard_games').update({
     state: JSON.stringify(st),
-    turn: myTurn ? (isP1 ? opponent?.id : ME.id) : ME.id,
+    turn: turnId,
     ...extraUpdates
   }).eq('id', gameId);
 }
