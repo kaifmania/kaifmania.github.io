@@ -363,8 +363,8 @@ async function sendInv(toUid){
   ws1.classList.add('f');
   const wc=sb.channel('w_'+g.id)
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`id=eq.${g.id}`},async p=>{
-      if(p.new.status==='active'){sb.removeChannel(wc);opp=users.find(u=>u.id===toUid)||await lProf(toUid);startGame(g.id,true,false);}
-      else if(p.new.status==='declined'){sb.removeChannel(wc);toast('❌ უარყოფილია');resetW();}
+      if(p.new.status=='active'){sb.removeChannel(wc);opp=users.find(u=>u.id===toUid)||await lProf(toUid);startGame(g.id,true,false);}
+      else if(p.new.status=='declined'){sb.removeChannel(wc);toast('❌ უარყოფილია');resetW();}
     }).subscribe();
 }
 function resetW(){
@@ -426,7 +426,6 @@ async function startGame(gameId,p1,ai){
   updUI();updGr();render();setupIn();
 }
 
-// ===== ang reset helper =====
 function resetAng(){
   const cb=balls.find(b=>b.n===0);
   const ts=balls.filter(b=>!b.p&&b.n!==0);
@@ -484,7 +483,6 @@ function subGame(){
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`id=eq.${GID}`},async p=>{
       const row=p.new;
       if(row.status==='finished'){remWin(row);return;}
-
       if(row.physics_state){
         if(row.turn!==ME.id){
           try{
@@ -500,7 +498,6 @@ function subGame(){
         }
         return;
       }
-
       if(row.state){
         try{
           const st=JSON.parse(row.state);
@@ -512,9 +509,7 @@ function subGame(){
           p1w=row.p1_wins||0;p2w=row.p2_wins||0;
           document.getElementById('w1').textContent=isP1?p1w:p2w;
           document.getElementById('w2').textContent=isP1?p2w:p1w;
-
           const nowMyTurn=(row.turn===ME.id);
-
           if(nowMyTurn&&!myTurn){
             myTurn=true;locked=false;
             placing=st.placing||false;placingReady=false;
@@ -543,7 +538,6 @@ function subGame(){
             document.getElementById('cup').classList.add('h');
             document.getElementById('sb').disabled=true;
           }
-
           updUI();updGr();render();
         }catch(e){console.error('subGame state parse error:',e);}
       }
@@ -593,7 +587,6 @@ function throttledPhysicsSync(){
 
 function setupIn(){
   canvas.addEventListener('mousedown',e=>{if(!myTurn||locked)return;if(placing){plCB(gPos(e));return;}drag=true;updA(gPos(e));});
-  // mousemove — drag გარეშეც მუშაობს (კიის ჯოხი ყოველთვის მიყვება კურსორს)
   canvas.addEventListener('mousemove',e=>{if(!myTurn||locked||placing)return;updA(gPos(e));});
   canvas.addEventListener('mouseup',()=>drag=false);
   canvas.addEventListener('touchstart',e=>{e.preventDefault();if(!myTurn||locked)return;const p=gtPos(e);if(placing){plCB(p);return;}drag=true;updA(p);},{passive:false});
@@ -607,7 +600,6 @@ function updA(pos){
   const cb=balls.find(b=>b.n===0);
   if(!cb)return;
   ang=Math.atan2(pos.y-cb.y,pos.x-cb.x);
-  // ===== FIX: render() იძახებს drawStickOnTC-ს — tc canvas-ზე =====
   render();
 }
 
@@ -621,7 +613,6 @@ function plCB(pos){
   render();
   document.getElementById('cup').classList.remove('h');
   document.getElementById('sb').disabled=false;
-  // ===== FIX: placing-ის შემდეგ ang განახლება =====
   resetAng();
   render();
   throttledPhysicsSync();
@@ -701,14 +692,12 @@ function shotDone(pids){
   const reg=pb.filter(b=>b.n!==0&&b.n!==8);
   const b8=pb.find(b=>b.n===8);
 
-  // ჯგუფის დადგენა პირველი ჩაგდებული ბურთით
   if(reg.length>0&&(p1grp===null||p2grp===null)&&!cbP){
     const fn=reg[0].n;const isStr=STRIPES.has(fn);
     if(isP1){p1grp=isStr?'stripe':'solid';p2grp=isStr?'solid':'stripe';}
     else{p2grp=isStr?'stripe':'solid';p1grp=isStr?'solid':'stripe';}
   }
 
-  // 8-ბურთი
   if(b8){
     const myPoc=isP1?p1poc:p2poc;
     const shooterClear=myPoc.length>=7;
@@ -718,7 +707,6 @@ function shotDone(pids){
     return;
   }
 
-  // ბურთების განაწილება ჯიბეებში
   let scoredOwn=false;
   reg.forEach(b=>{
     const isStr=STRIPES.has(b.n);
@@ -733,57 +721,41 @@ function shotDone(pids){
     }
   });
 
-  // ===== FIX: ბელა — სვლა მოწინAAღმდეგეზე გადადის =====
   if(cbP){
     const cb=balls.find(b=>b.n===0);
     if(cb){cb.p=false;cb.x=-999;cb.y=-999;cb.vx=0;cb.vy=0;}
-    sysM('⚪ ბელა ჩავარდა! მოწინAAღმდეგე ბელას ნებისმიერ ადგილზე დადებს');
-
-    // ===== FIX: nextId = opp, placing=true, myTurn=false =====
+    sysM('⚪ ბელა ჩავარდა! მოწინააღმდეგე ბელას ნებისმიერ ადგილზე დადებს');
     const nextId = vsAI ? 'ai' : (opp?.id || ME.id);
     placing = true;
     placingReady = false;
     myTurn = false;
     locked = false;
-
     document.getElementById('plm').style.display='none';
     document.getElementById('wm').style.display='block';
     document.getElementById('cup').classList.add('h');
     document.getElementById('sb').disabled=true;
-
     updUI();updGr();render();
     pushSt(nextId);
-
-    // AI ბელა
     if(vsAI && !myTurn && !over) setTimeout(()=>aiGo(),1100);
     return;
   }
 
-  // ===== FIX: სვლის გადაცემა =====
-  // scoredOwn=true → ჩვენ გვრჩება სვლა
-  // scoredOwn=false → გადადის მოწინAAღმდეგეზე
   const keepTurn = scoredOwn && !cbP;
-
   let nextId;
   if(vsAI){
-    // AI-ს წინааღმდეგ
     nextId = keepTurn ? ME.id : 'ai';
     myTurn = keepTurn;
   } else {
     nextId = keepTurn ? ME.id : (opp?.id || ME.id);
     myTurn = keepTurn;
   }
-
   updGr();
   finishTurn(nextId);
 }
 
-// ===== FIX: finishTurn — locked ბოლოს იხსნება, UI სწორად განახლება =====
 async function finishTurn(nextId){
   updUI();render();
-
   if(myTurn){
-    // ჩვენი სვლაა
     locked=false;
     document.getElementById('cup').classList.remove('h');
     document.getElementById('sb').disabled=false;
@@ -791,35 +763,28 @@ async function finishTurn(nextId){
     resetAng();
     render();
   } else {
-    // მოწინAAღმდეგის სვლაა
     locked=false;
     document.getElementById('cup').classList.add('h');
     document.getElementById('sb').disabled=true;
     if(!vsAI) document.getElementById('wm').style.display='block';
   }
-
   await pushSt(nextId||ME.id);
-
-  // ===== FIX: AI გამოძახება =====
   if(vsAI&&!myTurn&&!over) setTimeout(()=>aiGo(),1100);
 }
 
 function aiGo(){
   if(over||myTurn||locked)return;
   const cb=balls.find(b=>b.n===0);if(!cb)return;
-
   if(placing){
-    // AI ბელას დებს
     locked=true;
     cb.p=false;
     cb.x=TW*.18+Math.random()*100;
     cb.y=30+Math.random()*(TH-60);
-    // შეჭახება შეამოწმე
     balls.filter(b=>b.n!==0&&!b.p).forEach(b=>{
       if(Math.hypot(cb.x-b.x,cb.y-b.y)<BR*2.5){cb.x=TW*.15;cb.y=TH/2;}
     });
     placing=false;placingReady=false;
-    myTurn=false; // AI-ს სვლა გრძელდება
+    myTurn=false;
     document.getElementById('plm').style.display='none';
     render();
     setTimeout(()=>{locked=false;doAIShoot();},600);
@@ -831,7 +796,7 @@ function aiGo(){
 function doAIShoot(){
   if(over||myTurn||locked)return;
   const cb=balls.find(b=>b.n===0);if(!cb)return;
-  const myGrp=isP1?p2grp:p1grp; // AI მეორე მოთამაშეა
+  const myGrp=isP1?p2grp:p1grp;
   let targets=balls.filter(b=>!b.p&&b.n!==0&&b.n!==8);
   if(myGrp==='solid') targets=targets.filter(b=>SOLIDS.has(b.n));
   else if(myGrp==='stripe') targets=targets.filter(b=>STRIPES.has(b.n));
@@ -854,7 +819,7 @@ function updUI(){
   document.getElementById('ti1').classList.toggle('on',active);
   document.getElementById('ti2').classList.toggle('on',!active&&!over);
   document.getElementById('sb').disabled=!myTurn||locked||over;
-  const st=over?'დასრულდა':myTurn?(placing?'📍 ბელა განათავსე':'🎯 შენი სვლაა'):'⏳ მოწინAAღმდეგე...';
+  const st=over?'დასრულდა':myTurn?(placing?'📍 ბელა განათავსე':'🎯 შენი სვლაა'):'⏳ მოწინააღმდეგე...';
   document.getElementById('gst').textContent=st;
 }
 
@@ -961,21 +926,15 @@ function drawBall(b){
   ctx.restore();
 }
 
-// ===== FIX: კიის ჯოხი პირდაპირ tc canvas-ზე — offset 0 =====
 function drawStickOnTC(){
   if(!ctx)return;
   if(!myTurn||over)return;
   if(placing&&!placingReady)return;
   const cb=balls.find(b=>b.n===0);
   if(!cb||cb.x<0)return;
-
-  // tc canvas კოორდინატები — პირდაპირი, offset არ სჭირდება
   const cx=cb.x*SC;
   const cy=cb.y*SC;
-
   ctx.save();
-
-  // სამიზნე ხაზი
   const farX=cx+Math.cos(ang)*W*3;
   const farY=cy+Math.sin(ang)*H*3;
   ctx.setLineDash([5,7]);
@@ -983,27 +942,20 @@ function drawStickOnTC(){
   ctx.lineWidth=1.2;
   ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(farX,farY);ctx.stroke();
   ctx.setLineDash([]);
-
-  // კიის ჯოხი
   const off=14*SC, len=150*SC;
   const bx=-Math.cos(ang), by=-Math.sin(ang);
   const rx1=cx+bx*off, ry1=cy+by*off;
   const rx2=cx+bx*(off+len), ry2=cy+by*(off+len);
-
   const sg=ctx.createLinearGradient(rx1,ry1,rx2,ry2);
   sg.addColorStop(0,'#f0d070');
   sg.addColorStop(0.15,'#c89030');
   sg.addColorStop(0.7,'#7a4510');
   sg.addColorStop(1,'#3a1806');
-
   ctx.beginPath();
   ctx.moveTo(rx1,ry1);ctx.lineTo(rx2,ry2);
   ctx.lineWidth=6*SC;ctx.strokeStyle=sg;ctx.lineCap='round';ctx.stroke();
-
-  // წვერი
   ctx.beginPath();ctx.arc(rx1,ry1,2.5*SC,0,Math.PI*2);
   ctx.fillStyle='#b0d0f0';ctx.fill();
-
   ctx.restore();
 }
 
