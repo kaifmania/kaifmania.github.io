@@ -426,6 +426,8 @@ async function startGame(gameId,p1,ai){
   } else{
     initB();myTurn=true;p1w=0;p2w=0;
   }
+  // ang საწყისი — ბურთების ჯგუფისკენ
+  {const _cb=balls.find(b=>b.n===0);const _ts=balls.filter(b=>!b.p&&b.n!==0);if(_cb&&_ts.length){const _t=_ts.reduce((a,b)=>Math.hypot(b.x-_cb.x,b.y-_cb.y)<Math.hypot(a.x-_cb.x,a.y-_cb.y)?b:a,_ts[0]);ang=Math.atan2(_t.y-_cb.y,_t.x-_cb.x);}}
   updUI();updGr();render();setupIn();
 }
 function setAvRow(avId,nmId,prof){
@@ -518,6 +520,8 @@ function subGame(){
             locked=false;
             placing=st.placing||false;
             placingReady=false;
+            // ang reset so stick is immediately visible
+            {const _cb=balls.find(b=>b.n===0);const _ts=balls.filter(b=>!b.p&&b.n!==0);if(_cb&&_ts.length){const _t=_ts.reduce((a,b)=>Math.hypot(b.x-_cb.x,b.y-_cb.y)<Math.hypot(a.x-_cb.x,a.y-_cb.y)?b:a,_ts[0]);ang=Math.atan2(_t.y-_cb.y,_t.x-_cb.x);}}
             document.getElementById('wm').style.display='none';
             if(placing){
               document.getElementById('plm').style.display='block';
@@ -920,23 +924,62 @@ function drawBall(b){
 }
 function drawStick(){
   actx.clearRect(0,0,aimC.width,aimC.height);
-  if(!myTurn||over||locked)return;
+  // ფიქსი: locked-ს აქ არ ვამოწმებთ — სვლის მიღების შემდეგ locked=false ხდება
+  // მაგრამ drawStick render()-დან და updA()-დან გამოიძახება
+  if(!myTurn||over)return;
   if(placing&&!placingReady)return;
   const cb=balls.find(b=>b.n===0);
   if(!cb||cb.x<0)return;
-  const wr=aimC.getBoundingClientRect(),cr=canvas.getBoundingClientRect();
-  const ox=cr.left-wr.left,oy=cr.top-wr.top;
-  const cx=cb.x*SC+ox,cy=cb.y*SC+oy;
+
+  // ფიქსი: canvas კოორდინატები სწორად — aimC და tc პოზიციების სხვაობა
+  const cr=canvas.getBoundingClientRect();
+  const ar=aimC.getBoundingClientRect();
+  const ox=cr.left-ar.left;
+  const oy=cr.top-ar.top;
+  const cx=cb.x*SC+ox;
+  const cy=cb.y*SC+oy;
+
   actx.save();
-  actx.setLineDash([5,7]);actx.strokeStyle='rgba(255,255,255,.18)';actx.lineWidth=1.1;
-  actx.beginPath();actx.moveTo(cx,cy);actx.lineTo(cx+Math.cos(ang)*TW*SC,cy+Math.sin(ang)*TH*SC);actx.stroke();
+
+  // სამიზნე ხაზი — ბურთის მიმართულებით
+  const farX=cx+Math.cos(ang)*Math.max(TW,TH)*SC*2;
+  const farY=cy+Math.sin(ang)*Math.max(TW,TH)*SC*2;
+  actx.setLineDash([5,7]);
+  actx.strokeStyle='rgba(255,255,255,.22)';
+  actx.lineWidth=1.2;
+  actx.beginPath();actx.moveTo(cx,cy);actx.lineTo(farX,farY);actx.stroke();
   actx.setLineDash([]);
-  const off=13*SC,len=135*SC;
-  const dx=-Math.cos(ang),dy=-Math.sin(ang);
-  const x1=cx+dx*off,y1=cy+dy*off,x2=cx+dx*(off+len),y2=cy+dy*(off+len);
-  const sg=actx.createLinearGradient(x1,y1,x2,y2);
-  sg.addColorStop(0,'#e8c060');sg.addColorStop(.3,'#c08830');sg.addColorStop(1,'#4a2808');
-  actx.beginPath();actx.moveTo(x1,y1);actx.lineTo(x2,y2);actx.lineWidth=5*SC;actx.strokeStyle=sg;actx.lineCap='round';actx.stroke();
+
+  // კიის ჯოხი — ბურთის უკან
+  const off=14*SC, len=150*SC;
+  const bx=-Math.cos(ang), by=-Math.sin(ang);
+  const x1=cx+bx*off, y1=cy+by*off;
+  // (unused intermediates cleaned up below)
+
+  // კორექტული პოზიცია
+  const rx1=cx+bx*off, ry1=cy+by*off;
+  const rx2=cx+bx*(off+len), ry2=cy+by*(off+len);
+
+  const sg=actx.createLinearGradient(rx1,ry1,rx2,ry2);
+  sg.addColorStop(0,'#f0d070');
+  sg.addColorStop(0.15,'#c89030');
+  sg.addColorStop(0.7,'#7a4510');
+  sg.addColorStop(1,'#3a1806');
+
+  actx.beginPath();
+  actx.moveTo(rx1,ry1);
+  actx.lineTo(rx2,ry2);
+  actx.lineWidth=6*SC;
+  actx.strokeStyle=sg;
+  actx.lineCap='round';
+  actx.stroke();
+
+  // ჯოხის წვერი (თეთრი/ცისფერი)
+  actx.beginPath();
+  actx.arc(rx1,ry1,2.5*SC,0,Math.PI*2);
+  actx.fillStyle='#b0d0f0';
+  actx.fill();
+
   actx.restore();
 }
 
