@@ -92,7 +92,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
 
 #cw{flex:1;display:flex;align-items:center;justify-content:center;position:relative;background:radial-gradient(ellipse,#0d1a10,#060e08);overflow:hidden}
 #tc{display:block;touch-action:none}
-#aim{position:absolute;inset:0;pointer-events:none}
+#aim{position:absolute;inset:0;pointer-events:none;width:100%;height:100%}
 
 #cup{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(10,6,18,.93);border:1px solid var(--border);border-radius:13px;padding:7px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:10;backdrop-filter:blur(8px);min-width:170px}
 #cup.h{display:none}
@@ -103,8 +103,8 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
 #sb{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:9px;color:#fff;font-size:12px;padding:6px 0;cursor:pointer;width:100%;font-family:'Noto Sans Georgian',sans-serif;font-weight:600}
 #sb:disabled{opacity:.4;cursor:not-allowed}
 
-#plm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,6,18,.95);border:1px solid var(--yellow);border-radius:11px;padding:11px 20px;color:var(--yellow);font-size:12px;text-align:center;display:none;z-index:20;pointer-events:none;animation:placeGlow 1.5s infinite}
-#wm{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(10,6,18,.85);border:1px solid var(--border);border-radius:11px;padding:9px 18px;color:var(--text3);font-size:12px;text-align:center;display:none;z-index:8;pointer-events:none}
+#plm{position:absolute;top:12px;left:50%;transform:translateX(-50%);background:rgba(10,6,18,.95);border:1px solid var(--yellow);border-radius:11px;padding:9px 18px;color:var(--yellow);font-size:12px;text-align:center;display:none;z-index:20;pointer-events:none;animation:placeGlow 1.5s infinite;white-space:nowrap}
+#wm{position:absolute;top:12px;right:12px;left:auto;transform:none;background:rgba(10,6,18,.88);border:1px solid var(--border);border-radius:11px;padding:7px 14px;color:var(--text3);font-size:11px;text-align:center;display:none;z-index:8;pointer-events:none;white-space:nowrap}
 
 #cht{width:240px;background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;flex-shrink:0}
 .chh{padding:7px 11px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:8px;letter-spacing:2px;color:var(--text2);display:flex;align-items:center;gap:5px;flex-shrink:0}
@@ -152,6 +152,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
   #cht{position:absolute;bottom:0;left:0;right:0;width:100%;height:120px;border-left:none;border-top:1px solid var(--border);z-index:5}
   #cw{padding-bottom:120px}
   #cup{bottom:128px;min-width:145px;padding:5px 9px;gap:3px}
+  #wm{top:8px;right:8px;font-size:10px;padding:5px 10px}
   #pt,#ps{width:110px}
   #sb{font-size:11px;padding:5px 0}
   .chh{display:none}
@@ -626,8 +627,8 @@ function updA(pos){
   const cb=balls.find(b=>b.n===0);
   if(!cb)return;
   ang=Math.atan2(pos.y-cb.y,pos.x-cb.x);
-  // ===== FIX: drawStick ყოველ mousemove-ზე =====
-  drawStick();
+  // ===== FIX: render() იძახებს drawStickOnTC-ს — tc canvas-ზე =====
+  render();
 }
 
 function plCB(pos){
@@ -642,7 +643,7 @@ function plCB(pos){
   document.getElementById('sb').disabled=false;
   // ===== FIX: placing-ის შემდეგ ang განახლება =====
   resetAng();
-  drawStick();
+  render();
   throttledPhysicsSync();
 }
 function updP(v){document.getElementById('pf').style.width=v+'%';}
@@ -810,7 +811,7 @@ async function finishTurn(nextId){
     document.getElementById('sb').disabled=false;
     document.getElementById('wm').style.display='none';
     resetAng();
-    drawStick();
+    render();
   } else {
     // მოწინAAღმდეგის სვლაა
     locked=false;
@@ -933,8 +934,10 @@ function render(){
   ctx.clearRect(0,0,W,H);
   drawTable();
   balls.forEach(b=>{if(!b.p) drawBall(b);});
-  // ===== FIX: render-ში drawStick-ს ვიძახებთ ყოველთვის =====
-  drawStick();
+  // ===== FIX: კიის ჯოხი tc canvas-ზე — offset პრობლემა არ არის =====
+  drawStickOnTC();
+  // aim canvas-ი გავასუფთაოთ (სამიზნე ხაზი tc-ზე გადავიტანეთ)
+  if(actx) actx.clearRect(0,0,aimC.width,aimC.height);
 }
 
 function drawTable(){
@@ -983,7 +986,53 @@ function drawBall(b){
   ctx.restore();
 }
 
-// ===== FIX: drawStick — locked-ს აღარ ამოწმებს, offset cache-დან =====
+// ===== FIX: კიის ჯოხი პირდაპირ tc canvas-ზე — offset 0 =====
+function drawStickOnTC(){
+  if(!ctx)return;
+  if(!myTurn||over)return;
+  if(placing&&!placingReady)return;
+  const cb=balls.find(b=>b.n===0);
+  if(!cb||cb.x<0)return;
+
+  // tc canvas კოორდინატები — პირდაპირი, offset არ სჭირდება
+  const cx=cb.x*SC;
+  const cy=cb.y*SC;
+
+  ctx.save();
+
+  // სამიზნე ხაზი
+  const farX=cx+Math.cos(ang)*W*3;
+  const farY=cy+Math.sin(ang)*H*3;
+  ctx.setLineDash([5,7]);
+  ctx.strokeStyle='rgba(255,255,255,.28)';
+  ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(farX,farY);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // კიის ჯოხი
+  const off=14*SC, len=150*SC;
+  const bx=-Math.cos(ang), by=-Math.sin(ang);
+  const rx1=cx+bx*off, ry1=cy+by*off;
+  const rx2=cx+bx*(off+len), ry2=cy+by*(off+len);
+
+  const sg=ctx.createLinearGradient(rx1,ry1,rx2,ry2);
+  sg.addColorStop(0,'#f0d070');
+  sg.addColorStop(0.15,'#c89030');
+  sg.addColorStop(0.7,'#7a4510');
+  sg.addColorStop(1,'#3a1806');
+
+  ctx.beginPath();
+  ctx.moveTo(rx1,ry1);ctx.lineTo(rx2,ry2);
+  ctx.lineWidth=6*SC;ctx.strokeStyle=sg;ctx.lineCap='round';ctx.stroke();
+
+  // წვერი
+  ctx.beginPath();ctx.arc(rx1,ry1,2.5*SC,0,Math.PI*2);
+  ctx.fillStyle='#b0d0f0';ctx.fill();
+
+  ctx.restore();
+}
+
+// ===== ძველი drawStick — aim canvas-ისთვის (mousemove-ზე) =====
 function drawStick(){
   if(!actx)return;
   actx.clearRect(0,0,aimC.width,aimC.height);
@@ -994,9 +1043,13 @@ function drawStick(){
   const cb=balls.find(b=>b.n===0);
   if(!cb||cb.x<0)return;
 
-  // კოორდინატები cache-დან — არ ვიძახებთ getBoundingClientRect-ს ყოველ frame-ზე
-  const cx=cb.x*SC+_canvasOffX;
-  const cy=cb.y*SC+_canvasOffY;
+  // ===== FIX: offset პირდაპირ — getBoundingClientRect სწრაფია static layout-ზე =====
+  const cr=canvas.getBoundingClientRect();
+  const ar=aimC.getBoundingClientRect();
+  const ox=cr.left-ar.left;
+  const oy=cr.top-ar.top;
+  const cx=cb.x*SC+ox;
+  const cy=cb.y*SC+oy;
 
   actx.save();
 
