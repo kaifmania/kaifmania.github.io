@@ -91,8 +91,7 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
 #main{flex:1;display:flex;min-height:0;overflow:hidden}
 
 #cw{flex:1;display:flex;align-items:center;justify-content:center;position:relative;background:radial-gradient(ellipse,#0d1a10,#060e08);overflow:hidden}
-#tc{display:block;touch-action:none}
-#aim{position:absolute;inset:0;pointer-events:none;width:100%;height:100%}
+#tc{display:block;touch-action:none;cursor:crosshair;position:relative;z-index:1}
 
 #cup{position:absolute;bottom:8px;left:50%;transform:translateX(-50%);background:rgba(10,6,18,.93);border:1px solid var(--border);border-radius:13px;padding:7px 12px;display:flex;flex-direction:column;align-items:center;gap:4px;z-index:10;backdrop-filter:blur(8px);min-width:170px}
 #cup.h{display:none}
@@ -227,7 +226,6 @@ html,body{width:100%;height:100%;overflow:hidden;font-family:'Noto Sans Georgian
   <div id="main">
     <div id="cw">
       <canvas id="tc"></canvas>
-      <canvas id="aim"></canvas>
       <div id="cup">
         <div class="clb">ძალა</div>
         <div id="pt"><div id="pf"></div></div>
@@ -292,12 +290,9 @@ let placingReady=false;
 let p1poc=[],p2poc=[],p1grp=null,p2grp=null;
 let p1w=0,p2w=0;
 let ang=0,drag=false;
-let canvas,ctx,aimC,actx,W,H,SC=1;
+let canvas,ctx,W,H,SC=1;
 let _syncTimer=null;
 let _lastSyncState='';
-
-// ===== FIX: cache canvas offsets — გამოვთვლით resize-ზე =====
-let _canvasOffX=0, _canvasOffY=0;
 
 const sb=supabase.createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
@@ -416,7 +411,6 @@ async function startGame(gameId,p1,ai){
   document.getElementById('lobby').style.display='none';
   document.getElementById('game').classList.add('on');
   canvas=document.getElementById('tc');ctx=canvas.getContext('2d');
-  aimC=document.getElementById('aim');actx=aimC.getContext('2d');
   resize();window.addEventListener('resize',resize);
   setAvRow('av1','nm1',PROF);setAvRow('av2','nm2',opp);
   document.getElementById('w1').textContent=0;
@@ -428,12 +422,11 @@ async function startGame(gameId,p1,ai){
   } else{
     initB();myTurn=true;
   }
-  // ang საწყისი — ბურთების ჯგუფისკენ
   resetAng();
   updUI();updGr();render();setupIn();
 }
 
-// ===== FIX: ang reset helper =====
+// ===== ang reset helper =====
 function resetAng(){
   const cb=balls.find(b=>b.n===0);
   const ts=balls.filter(b=>!b.p&&b.n!==0);
@@ -454,21 +447,7 @@ function resize(){
   SC=Math.min((cw.clientWidth-8)/TW,(cw.clientHeight-8)/TH);
   W=Math.round(TW*SC);H=Math.round(TH*SC);
   canvas.width=W;canvas.height=H;
-  aimC.width=cw.clientWidth;aimC.height=cw.clientHeight;
-  // ===== FIX: cache canvas offsets after resize =====
-  cacheOffsets();
   render();
-}
-
-// ===== FIX: offset cache — getBoundingClientRect ერთხელ resize-ზე =====
-function cacheOffsets(){
-  requestAnimationFrame(()=>{
-    if(!canvas||!aimC)return;
-    const cr=canvas.getBoundingClientRect();
-    const ar=aimC.getBoundingClientRect();
-    _canvasOffX=cr.left-ar.left;
-    _canvasOffY=cr.top-ar.top;
-  });
 }
 
 function mkSt(){return{balls:mkBalls(),p1poc:[],p2poc:[],p1grp:null,p2grp:null};}
@@ -614,7 +593,8 @@ function throttledPhysicsSync(){
 
 function setupIn(){
   canvas.addEventListener('mousedown',e=>{if(!myTurn||locked)return;if(placing){plCB(gPos(e));return;}drag=true;updA(gPos(e));});
-  canvas.addEventListener('mousemove',e=>{if(!myTurn||locked||placing)return;if(drag)updA(gPos(e));});
+  // mousemove — drag გარეშეც მუშაობს (კიის ჯოხი ყოველთვის მიყვება კურსორს)
+  canvas.addEventListener('mousemove',e=>{if(!myTurn||locked||placing)return;updA(gPos(e));});
   canvas.addEventListener('mouseup',()=>drag=false);
   canvas.addEventListener('touchstart',e=>{e.preventDefault();if(!myTurn||locked)return;const p=gtPos(e);if(placing){plCB(p);return;}drag=true;updA(p);},{passive:false});
   canvas.addEventListener('touchmove',e=>{e.preventDefault();if(!myTurn||locked||placing)return;if(drag)updA(gtPos(e));},{passive:false});
@@ -666,8 +646,6 @@ function execShot(pw){
   cb.vx=Math.cos(ang)*sp;
   cb.vy=Math.sin(ang)*sp;
   document.getElementById('cup').classList.add('h');
-  // ===== FIX: aim canvas გავასუფთაოთ სროლის დროს =====
-  if(actx) actx.clearRect(0,0,aimC.width,aimC.height);
   physics();
 }
 
@@ -934,10 +912,7 @@ function render(){
   ctx.clearRect(0,0,W,H);
   drawTable();
   balls.forEach(b=>{if(!b.p) drawBall(b);});
-  // ===== FIX: კიის ჯოხი tc canvas-ზე — offset პრობლემა არ არის =====
   drawStickOnTC();
-  // aim canvas-ი გავასუფთაოთ (სამიზნე ხაზი tc-ზე გადავიტანეთ)
-  if(actx) actx.clearRect(0,0,aimC.width,aimC.height);
 }
 
 function drawTable(){
@@ -1030,65 +1005,6 @@ function drawStickOnTC(){
   ctx.fillStyle='#b0d0f0';ctx.fill();
 
   ctx.restore();
-}
-
-// ===== ძველი drawStick — aim canvas-ისთვის (mousemove-ზე) =====
-function drawStick(){
-  if(!actx)return;
-  actx.clearRect(0,0,aimC.width,aimC.height);
-
-  if(!myTurn||over)return;
-  if(placing&&!placingReady)return;
-
-  const cb=balls.find(b=>b.n===0);
-  if(!cb||cb.x<0)return;
-
-  // ===== FIX: offset პირდაპირ — getBoundingClientRect სწრაფია static layout-ზე =====
-  const cr=canvas.getBoundingClientRect();
-  const ar=aimC.getBoundingClientRect();
-  const ox=cr.left-ar.left;
-  const oy=cr.top-ar.top;
-  const cx=cb.x*SC+ox;
-  const cy=cb.y*SC+oy;
-
-  actx.save();
-
-  // სამიზნე ხაზი
-  const farX=cx+Math.cos(ang)*Math.max(TW,TH)*SC*2;
-  const farY=cy+Math.sin(ang)*Math.max(TW,TH)*SC*2;
-  actx.setLineDash([5,7]);
-  actx.strokeStyle='rgba(255,255,255,.22)';
-  actx.lineWidth=1.2;
-  actx.beginPath();actx.moveTo(cx,cy);actx.lineTo(farX,farY);actx.stroke();
-  actx.setLineDash([]);
-
-  // კიის ჯოხი — ბურთის უკან
-  const off=14*SC, len=150*SC;
-  const bx=-Math.cos(ang), by=-Math.sin(ang);
-  const rx1=cx+bx*off, ry1=cy+by*off;
-  const rx2=cx+bx*(off+len), ry2=cy+by*(off+len);
-
-  const sg=actx.createLinearGradient(rx1,ry1,rx2,ry2);
-  sg.addColorStop(0,'#f0d070');
-  sg.addColorStop(0.15,'#c89030');
-  sg.addColorStop(0.7,'#7a4510');
-  sg.addColorStop(1,'#3a1806');
-
-  actx.beginPath();
-  actx.moveTo(rx1,ry1);
-  actx.lineTo(rx2,ry2);
-  actx.lineWidth=6*SC;
-  actx.strokeStyle=sg;
-  actx.lineCap='round';
-  actx.stroke();
-
-  // ჯოხის წვერი
-  actx.beginPath();
-  actx.arc(rx1,ry1,2.5*SC,0,Math.PI*2);
-  actx.fillStyle='#b0d0f0';
-  actx.fill();
-
-  actx.restore();
 }
 
 async function endGame(won,reason){
