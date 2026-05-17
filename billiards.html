@@ -2,579 +2,1253 @@
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>ბილიარდი · კაიფმანია</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-*{box-sizing:border-box;margin:0;padding:0;user-select:none}
-body{background:#0a0612;color:#ede0ff;font-family:sans-serif;overflow:hidden}
-#lobby{position:fixed;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;background:#0a0612;z-index:100}
-.lcard{background:#110d22;border:1px solid #a850ff55;border-radius:20px;padding:20px;width:320px}
-button{padding:10px;margin:5px;border-radius:10px;border:none;cursor:pointer;background:#7a1fc8;color:white}
-#game{position:fixed;inset:0;display:none;flex-direction:column}
-#game.on{display:flex}
-#top-bar{background:#110d22;padding:8px;display:flex;justify-content:space-between}
-canvas{display:block;margin:auto;background:#0e2d16;cursor:crosshair}
-#controls{position:absolute;bottom:20px;left:50%;transform:translateX(-50%);background:#0a0612dd;padding:10px 20px;border-radius:20px;display:flex;gap:15px}
-#power-slider{width:200px}
-#shoot-btn{background:#a855f7;padding:8px 20px}
-.status{position:absolute;top:60px;right:20px;background:#110d22;padding:8px 15px;border-radius:20px;font-size:14px}
-.turn-indicator{position:absolute;top:60px;left:20px;background:#110d22;padding:8px 15px;border-radius:20px}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0a0814;--panel:#120f24;--border:rgba(160,80,255,0.3);
+  --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;
+  --indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
+  --accent:#f07aff;--glow:rgba(168,85,247,0.35);
+  --green:#4ade80;--red:#ff5555;--yellow:#fbbf24;
+}
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;display:flex;flex-direction:column;
+  overflow:hidden;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--glow)}50%{box-shadow:0 0 24px 8px var(--glow)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes pop{0%{transform:scale(0.7);opacity:0}60%{transform:scale(1.12)}100%{transform:scale(1);opacity:1}}
+@keyframes slideDown{from{opacity:0;transform:translateY(-20px)}to{opacity:1;transform:translateY(0)}}
+
+/* ======= TOP NAV ======= */
+#topbar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--panel);border-bottom:1px solid var(--border);
+  padding:8px 16px;flex-shrink:0;z-index:10;
+}
+.top-logo{font-size:22px;cursor:pointer;text-decoration:none}
+.top-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
+.top-spacer{flex:1}
+.top-btn{
+  padding:7px 16px;border-radius:12px;border:1px solid var(--border);
+  background:var(--indigo-f);color:var(--text2);font-size:12px;
+  cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif;
+}
+.top-btn:hover{background:var(--border);color:var(--text)}
+.top-score{
+  font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;
+  color:var(--accent);background:rgba(240,122,255,0.1);
+  border:1px solid rgba(240,122,255,0.3);border-radius:20px;padding:5px 14px;
+}
+
+/* ======= LOBBY ======= */
+#lobby{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:20px;padding:24px;animation:fadeIn .4s ease;
+}
+.lobby-icon{font-size:80px;filter:drop-shadow(0 0 30px var(--glow))}
+.lobby-title{
+  font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;
+  background:linear-gradient(135deg,var(--accent),var(--indigo2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+}
+.lobby-cards{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;max-width:560px}
+.lobby-card{
+  flex:1;min-width:220px;background:var(--panel);border:1px solid var(--border);
+  border-radius:20px;padding:22px 20px;cursor:pointer;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.lobby-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--indigo-f),transparent);
+  pointer-events:none;
+}
+.lobby-card:hover{border-color:var(--indigo2);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.4)}
+.lc-icon{font-size:42px;margin-bottom:10px}
+.lc-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.lc-desc{font-size:11px;color:var(--text3);line-height:1.5}
+.lc-btn{
+  margin-top:14px;width:100%;padding:10px;border-radius:12px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;color:#fff;font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;cursor:pointer;transition:all .2s;
+}
+.lc-btn:hover{transform:scale(1.03);box-shadow:0 6px 20px rgba(120,30,200,.5)}
+
+/* invite list */
+#inviteModal{
+  position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);
+  z-index:1000;display:none;align-items:center;justify-content:center;padding:16px;
+}
+#inviteModal.open{display:flex;animation:fadeIn .3s ease}
+.inv-box{
+  background:var(--panel);border:1px solid var(--border);border-radius:22px;
+  width:100%;max-width:380px;padding:24px;
+  box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);
+  animation:pop .35s cubic-bezier(.34,1.3,.64,1);
+}
+.inv-title{font-family:'Unbounded',sans-serif;font-size:12px;letter-spacing:1px;color:var(--text);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.inv-close{background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;width:26px;height:26px;color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center}
+.inv-list{max-height:320px;overflow-y:auto}
+.inv-list::-webkit-scrollbar{width:3px}
+.inv-list::-webkit-scrollbar-thumb{background:var(--border)}
+.inv-item{
+  display:flex;align-items:center;gap:10px;padding:10px;
+  border-radius:12px;cursor:pointer;transition:all .2s;
+  border:1px solid transparent;margin-bottom:4px;
+}
+.inv-item:hover{background:var(--indigo-f);border-color:var(--border)}
+.inv-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;overflow:hidden;flex-shrink:0}
+.inv-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.inv-name{flex:1;font-size:13px;font-weight:500;color:var(--text)}
+.inv-status{font-size:10px;color:var(--text3);margin-top:2px}
+.inv-send-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:6px 14px;cursor:pointer;white-space:nowrap}
+.inv-send-btn:disabled{opacity:.4;cursor:not-allowed}
+.inv-empty{color:var(--text3);font-size:12px;text-align:center;padding:24px}
+
+/* incoming invite */
+#incomingInvite{
+  position:fixed;bottom:80px;right:20px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:1px solid var(--border);border-radius:18px;padding:14px 18px;
+  z-index:9999;box-shadow:0 8px 30px rgba(0,0,0,.5);
+  display:none;flex-direction:column;gap:10px;max-width:280px;
+  animation:slideDown .3s ease;
+}
+#incomingInvite.open{display:flex}
+.inv-notif-title{font-size:13px;font-weight:600;color:#fff}
+.inv-notif-text{font-size:11px;color:rgba(255,255,255,.8)}
+.inv-notif-btns{display:flex;gap:8px}
+.inv-accept{background:rgba(74,222,128,.9);border:none;border-radius:10px;color:#052e16;font-size:12px;font-weight:700;padding:7px 18px;cursor:pointer}
+.inv-decline{background:rgba(255,255,255,.15);border:none;border-radius:10px;color:#fff;font-size:12px;padding:7px 14px;cursor:pointer}
+
+/* waiting room */
+#waitingRoom{
+  flex:1;display:none;flex-direction:column;align-items:center;justify-content:center;
+  gap:16px;padding:24px;animation:fadeIn .4s ease;
+}
+.wait-spinner{width:52px;height:52px;border:4px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin 1s linear infinite}
+.wait-title{font-family:'Unbounded',sans-serif;font-size:16px;color:var(--text)}
+.wait-sub{font-size:12px;color:var(--text3)}
+.wait-cancel{margin-top:10px;padding:9px 22px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text2);font-size:12px;cursor:pointer}
+
+/* ======= GAME AREA ======= */
+#gameArea{
+  flex:1;display:none;flex-direction:column;
+  animation:fadeIn .35s ease;overflow:hidden;
+}
+#gameHeader{
+  display:flex;align-items:center;gap:10px;
+  background:var(--panel);border-bottom:1px solid var(--border);
+  padding:8px 16px;flex-shrink:0;
+}
+.gh-player{
+  display:flex;align-items:center;gap:8px;padding:6px 12px;
+  border-radius:12px;border:2px solid transparent;transition:all .3s;
+}
+.gh-player.active{border-color:var(--accent);background:rgba(240,122,255,0.1);box-shadow:0 0 12px var(--glow)}
+.gh-av{width:32px;height:32px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0}
+.gh-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.gh-name{font-size:12px;font-weight:600;color:var(--text);max-width:90px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gh-type{font-size:10px;color:var(--text3);margin-top:1px}
+.gh-balls{display:flex;gap:3px;flex-wrap:wrap;max-width:100px}
+.ball-mini{width:13px;height:13px;border-radius:50%;display:inline-block;box-shadow:0 1px 3px rgba(0,0,0,.5)}
+.gh-sep{flex:1;text-align:center;font-family:'Unbounded',sans-serif;font-size:18px;font-weight:700;color:var(--text3)}
+.gh-turn-label{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--accent);text-align:center;margin-bottom:2px}
+.gh-foul{font-size:10px;color:var(--red);text-align:center;margin-top:2px;min-height:14px}
+
+#canvasWrap{
+  flex:1;display:flex;align-items:center;justify-content:center;
+  position:relative;overflow:hidden;background:var(--bg);
+  padding:8px;
+}
+#tableCanvas{border-radius:10px;cursor:crosshair;display:block;max-width:100%;max-height:100%}
+
+/* place cue ball */
+#placeCueBall{
+  position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);
+  background:rgba(10,8,20,.9);border:1px solid var(--border);border-radius:16px;
+  padding:16px 24px;text-align:center;display:none;pointer-events:none;
+  font-size:13px;color:var(--text2);
+}
+#placeCueBall.show{display:block}
+
+/* power bar */
+#powerBar{
+  display:flex;align-items:center;gap:10px;
+  background:var(--panel);border-top:1px solid var(--border);
+  padding:8px 16px;flex-shrink:0;
+}
+.pb-label{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);flex-shrink:0}
+.pb-track{flex:1;height:10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:5px;position:relative;cursor:pointer}
+.pb-fill{height:100%;border-radius:5px;background:linear-gradient(90deg,var(--green),var(--yellow),var(--red));transition:width .08s}
+.pb-val{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--accent);flex-shrink:0;width:36px;text-align:right}
+.shoot-btn{
+  padding:9px 22px;border-radius:12px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;color:#fff;font-size:13px;font-weight:600;cursor:pointer;
+  font-family:'Noto Sans Georgian',sans-serif;transition:all .2s;flex-shrink:0;
+}
+.shoot-btn:hover:not(:disabled){transform:scale(1.05);box-shadow:0 4px 16px rgba(120,30,200,.5)}
+.shoot-btn:disabled{opacity:.4;cursor:not-allowed}
+.ai-thinking{font-size:11px;color:var(--text3);font-style:italic;flex-shrink:0}
+
+/* ======= RESULT MODAL ======= */
+#resultModal{
+  position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);
+  z-index:2000;display:none;align-items:center;justify-content:center;padding:16px;
+}
+#resultModal.open{display:flex;animation:fadeIn .3s ease}
+.result-box{
+  background:var(--panel);border:1px solid var(--border);border-radius:24px;
+  padding:32px 28px;text-align:center;max-width:360px;width:100%;
+  box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 50px var(--glow);
+  animation:pop .5s cubic-bezier(.34,1.3,.64,1);
+}
+.result-icon{font-size:72px;margin-bottom:8px}
+.result-title{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;margin-bottom:6px}
+.result-title.win{background:linear-gradient(135deg,var(--green),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.result-title.lose{color:var(--red)}
+.result-title.draw{color:var(--yellow)}
+.result-sub{font-size:13px;color:var(--text2);margin-bottom:20px}
+.result-score{
+  font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;
+  color:var(--accent);margin-bottom:20px;
+  text-shadow:0 0 20px var(--glow);
+}
+.result-btns{display:flex;gap:10px;justify-content:center}
+.result-btn{
+  padding:11px 24px;border-radius:14px;
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;color:#fff;font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;cursor:pointer;transition:all .2s;
+}
+.result-btn:hover{transform:scale(1.05);box-shadow:0 6px 20px rgba(120,30,200,.5)}
+.result-btn.sec{background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)}
+
+/* toast */
+.toast{
+  position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;
+  z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.4);
+  pointer-events:none;animation:fadeIn .3s ease;white-space:nowrap;
+}
 </style>
 </head>
 <body>
 
+<div id="topbar">
+  <a class="top-logo" href="javascript:void(0)" onclick="goBack()">🎱</a>
+  <div class="top-title">ბილიარდი</div>
+  <div class="top-spacer"></div>
+  <div class="top-score" id="myScoreDisp">🎱 0 ქულა</div>
+  <button class="top-btn" onclick="goBack()">← გასვლა</button>
+</div>
+
+<!-- LOBBY -->
 <div id="lobby">
-  <div class="lcard">
-    <h2>🎱 ბილიარდი</h2>
-    <button onclick="startMultiplayer()">👥 მრავალმოთამაშიანი</button>
-    <button onclick="startAI()">🤖 AI-ს წინააღმდეგ</button>
+  <div class="lobby-icon">🎱</div>
+  <div class="lobby-title">ბილიარდი · 8-ball</div>
+  <div class="lobby-cards">
+    <div class="lobby-card" onclick="startAI()">
+      <div class="lc-icon">🤖</div>
+      <div class="lc-title">AI-სთან თამაში</div>
+      <div class="lc-desc">მოთამაშე vs კომპიუტერი · 3 სირთულის დონე · მოგება = 5 ქულა</div>
+      <button class="lc-btn">▶ დაწყება</button>
+    </div>
+    <div class="lobby-card" onclick="openInviteModal()">
+      <div class="lc-icon">👥</div>
+      <div class="lc-title">მოწვევა</div>
+      <div class="lc-desc">მოიწვიე ონლაინ წევრი · real-time სინქრ. Supabase-ით</div>
+      <button class="lc-btn" style="background:linear-gradient(135deg,var(--green),#22d3ee);color:#052e16">✉️ მოწვევა</button>
+    </div>
   </div>
 </div>
 
-<div id="game">
-  <div id="top-bar">
-    <button onclick="leaveGame()">← გასვლა</button>
-    <span id="game-id"></span>
-    <span id="score">0 : 0</span>
+<!-- INVITE MODAL -->
+<div id="inviteModal" onclick="if(event.target.id==='inviteModal')closeInviteModal()">
+  <div class="inv-box">
+    <div class="inv-title">
+      <span>👥 ონლაინ მოთამაშეები</span>
+      <button class="inv-close" onclick="closeInviteModal()">✕</button>
+    </div>
+    <div class="inv-list" id="inviteList"></div>
   </div>
-  <canvas id="gameCanvas" width="700" height="350"></canvas>
-  <div id="controls">
-    <span>💪 ძალა</span>
-    <input type="range" id="power-slider" min="1" max="100" value="50">
-    <button id="shoot-btn" onclick="shoot()">🎯 სროლა</button>
-  </div>
-  <div class="status" id="statusMsg">ლოდინი...</div>
-  <div class="turn-indicator" id="turnIndicator">⚡ თქვენი ჯერი</div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<!-- INCOMING INVITE -->
+<div id="incomingInvite">
+  <div class="inv-notif-title">🎱 ბილიარდის მოწვევა</div>
+  <div class="inv-notif-text" id="inviteFromText">მოგიწვია ბილიარდში</div>
+  <div class="inv-notif-btns">
+    <button class="inv-accept" onclick="acceptInvite()">✅ დასტური</button>
+    <button class="inv-decline" onclick="declineInvite()">❌ უარი</button>
+  </div>
+</div>
+
+<!-- WAITING ROOM -->
+<div id="waitingRoom">
+  <div class="wait-spinner"></div>
+  <div class="wait-title">ველოდები...</div>
+  <div class="wait-sub" id="waitText">მოწვევა გაიგზავნა — ველოდები დასტურს</div>
+  <button class="wait-cancel" onclick="cancelWait()">გაუქმება</button>
+</div>
+
+<!-- GAME AREA -->
+<div id="gameArea">
+  <div id="gameHeader">
+    <!-- player 1 -->
+    <div class="gh-player" id="p1panel">
+      <div class="gh-av" id="p1av">😊</div>
+      <div>
+        <div class="gh-name" id="p1name">მოთამაშე</div>
+        <div class="gh-type" id="p1type">-</div>
+        <div class="gh-balls" id="p1balls"></div>
+      </div>
+    </div>
+    <!-- center -->
+    <div style="flex:1;text-align:center">
+      <div class="gh-turn-label" id="turnLabel">შენი მოძრაობა</div>
+      <div class="gh-sep">VS</div>
+      <div class="gh-foul" id="foulLabel"></div>
+    </div>
+    <!-- player 2 -->
+    <div class="gh-player" id="p2panel">
+      <div>
+        <div class="gh-name" id="p2name">AI</div>
+        <div class="gh-type" id="p2type">-</div>
+        <div class="gh-balls" id="p2balls"></div>
+      </div>
+      <div class="gh-av" id="p2av">🤖</div>
+    </div>
+  </div>
+
+  <div id="canvasWrap">
+    <canvas id="tableCanvas"></canvas>
+    <div id="placeCueBall">☝️ დააწკაპე სადმე მარჯვენა ნახევარზე</div>
+  </div>
+
+  <div id="powerBar">
+    <div class="pb-label">ძალა</div>
+    <div class="pb-track" id="pbTrack" onmousedown="startPowerDrag(event)" ontouchstart="startPowerDrag(event)">
+      <div class="pb-fill" id="pbFill" style="width:50%"></div>
+    </div>
+    <div class="pb-val" id="pbVal">50</div>
+    <div class="ai-thinking hidden" id="aiThinking">AI ფიქრობს...</div>
+    <button class="shoot-btn" id="shootBtn" onclick="shoot()">🎱 სროლა</button>
+  </div>
+</div>
+
+<!-- RESULT MODAL -->
+<div id="resultModal">
+  <div class="result-box">
+    <div class="result-icon" id="resIcon">🎉</div>
+    <div class="result-title" id="resTitle">გაიმარჯვე!</div>
+    <div class="result-sub" id="resSub">შესანიშნავი თამაში</div>
+    <div class="result-score" id="resScore">+5 ქულა</div>
+    <div class="result-btns">
+      <button class="result-btn" onclick="playAgain()">🔄 ხელახლა</button>
+      <button class="result-btn sec" onclick="goLobby()">🏠 ლობი</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ==================== KONFIGURACIA ====================
-const TW = 700, TH = 350, BR = 8;
-const POCKETS = [[18,16],[350,9],[682,16],[18,334],[350,341],[682,334]];
-const BALL_COLORS = {1:'#FFD700',2:'#0044CC',3:'#CC0000',4:'#8800AA',5:'#FF6600',6:'#006620',7:'#880000',8:'#1a1a2e',9:'#FFD700',10:'#0044CC',11:'#CC0000',12:'#8800AA',13:'#FF6600',14:'#006620',15:'#880000'};
-const STRIPES = new Set([9,10,11,12,13,14,15]);
-
-const supabase = supabase.createClient(
+// ======= SUPABASE =======
+const {createClient}=supabase;
+const sb=createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
 );
 
-// ==================== GLOBALURI ====================
-let currentUser = null;
-let gameId = null;
-let isPlayer1 = true;
-let vsAI = false;
-let opponent = null;
+// ======= GLOBALS =======
+let ME=null, MYPROF=null, allUsers=[];
+let gameMode=null; // 'ai' | 'online'
+let gameSession=null; // supabase realtime channel
+let sessionId=null;
+let isPlayer1=true; // am I player1 in this session
+let pendingInviteId=null; // incoming invite row id
+let opponentId=null;
+let pendingInviteTimer=null;
 
-let balls = [];
-let myTurn = false;
-let isShooting = false;
-let power = 50;
-let angle = 0;
-let mouseX = 0, mouseY = 0;
-let animationId = null;
-let channel = null;
+// ======= CANVAS / PHYSICS =======
+const canvas=document.getElementById('tableCanvas');
+const ctx=canvas.getContext('2d');
+const TABLE_W=800, TABLE_H=400;
+const POCKET_R=18, BALL_R=12, FRICTION=0.988, MIN_V=0.15;
+const POCKET_POSITIONS=[
+  {x:POCKET_R,y:POCKET_R},{x:TABLE_W/2,y:POCKET_R/2},{x:TABLE_W-POCKET_R,y:POCKET_R},
+  {x:POCKET_R,y:TABLE_H-POCKET_R},{x:TABLE_W/2,y:TABLE_H-POCKET_R/2},{x:TABLE_W-POCKET_R,y:TABLE_H-POCKET_R}
+];
 
-let p1Score = 0, p2Score = 0;
-let p1Pocketed = [], p2Pocketed = [];
-let p1Group = null, p2Group = null;
+// Ball colors for 8-ball pool
+const BALL_COLORS=[
+  null,           // 0 = cue ball (white)
+  '#FFFF00',      // 1 solid yellow
+  '#0000CC',      // 2 solid blue
+  '#CC0000',      // 3 solid red
+  '#7B0099',      // 4 solid purple
+  '#FF6600',      // 5 solid orange
+  '#007700',      // 6 solid green
+  '#AA0033',      // 7 solid maroon
+  '#111111',      // 8 = BLACK (eight ball)
+  '#FFFF66',      // 9 stripe yellow
+  '#6699FF',      // 10 stripe blue
+  '#FF6666',      // 11 stripe red
+  '#CC66FF',      // 12 stripe purple
+  '#FFAA55',      // 13 stripe orange
+  '#66CC66',      // 14 stripe green
+  '#CC6688',      // 15 stripe maroon
+];
+const IS_STRIPE=n=>n>=9; // 9-15 are stripes
 
-const canvas = document.getElementById('gameCanvas');
-const ctx = canvas.getContext('2d');
+let balls=[];
+let isAnimating=false;
+let myTurn=false;
+let mouseX=TABLE_W/2, mouseY=TABLE_H/2;
+let power=50;
+let placingCueBall=false;
+let playerType=null; // 'solid'|'stripe' for p1
+let aiType=null;     // 'solid'|'stripe' for p2
+let typeAssigned=false;
+let p1Pocketed=[]; // ball numbers pocketed by p1
+let p2Pocketed=[];
+let foulActive=false; // after cue ball scratch
 
-// ==================== ბურთების ინიციალიზაცია ====================
-function initBalls() {
-  const ballsArr = [];
-  const cx = TW * 0.72, cy = TH / 2, gap = BR * 2.2;
-  const positions = [[0,0],[-1,-1],[1,-1],[-2,-2],[0,-2],[2,-2],[-3,-3],[-1,-3],[1,-3],[3,-3],[-4,-4],[-2,-4],[0,-4],[2,-4],[4,-4]];
-  const numbers = [1,9,2,10,8,3,11,4,12,5,13,6,14,7,15];
-  
-  for(let i = 0; i < 15; i++) {
-    ballsArr.push({
-      id: i+1,
-      num: numbers[i],
-      x: cx + positions[i][0] * gap * 0.5,
-      y: cy + positions[i][1] * gap * 0.866,
-      vx: 0, vy: 0,
-      pocketed: false
-    });
-  }
-  // cue ball
-  ballsArr.push({ id: 0, num: 0, x: TW * 0.27, y: TH/2, vx: 0, vy: 0, pocketed: false });
-  return ballsArr;
+// ======= INIT =======
+async function init(){
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user){window.close();return;}
+  ME=user;
+  MYPROF=await loadProf(ME.id);
+  document.getElementById('myScoreDisp').textContent=`🎱 ${MYPROF?.billiard_score||0} ქულა`;
+  await loadAllUsers();
+  watchIncomingInvites();
+  document.getElementById('lobby').style.display='flex';
 }
 
-function resetGame() {
-  balls = initBalls();
-  p1Pocketed = [];
-  p2Pocketed = [];
-  p1Group = null;
-  p2Group = null;
-  myTurn = (vsAI ? true : isPlayer1);
-  isShooting = false;
-  if(animationId) cancelAnimationFrame(animationId);
-  draw();
-  updateUI();
+async function loadProf(uid){
+  const {data}=await sb.from('profiles').select('*').eq('id',uid).single();
+  return data;
+}
+async function loadAllUsers(){
+  const {data}=await sb.from('profiles').select('id,username,avatar_url,emotion,last_seen,billiard_score').order('username');
+  allUsers=data||[];
+}
+function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<90000;}
+function goBack(){window.close();}
+
+// ======= LOBBY =======
+function showLobby(){
+  document.getElementById('lobby').style.display='flex';
+  document.getElementById('waitingRoom').style.display='none';
+  document.getElementById('gameArea').style.display='none';
+}
+function goLobby(){
+  document.getElementById('resultModal').classList.remove('open');
+  cleanupSession();
+  showLobby();
 }
 
-// ==================== ფიზიკა ====================
-function updatePhysics() {
-  let moving = false;
-  const FRICTION = 0.985;
-  
-  for(let b of balls) {
-    if(b.pocketed) continue;
-    b.x += b.vx;
-    b.y += b.vy;
-    b.vx *= FRICTION;
-    b.vy *= FRICTION;
-    
-    // კედლები
-    if(b.x - BR < 5) { b.x = 5 + BR; b.vx = -b.vx * 0.8; }
-    if(b.x + BR > TW - 5) { b.x = TW - 5 - BR; b.vx = -b.vx * 0.8; }
-    if(b.y - BR < 5) { b.y = 5 + BR; b.vy = -b.vy * 0.8; }
-    if(b.y + BR > TH - 5) { b.y = TH - 5 - BR; b.vy = -b.vy * 0.8; }
-    
-    // ჯიბეები
-    for(let pocket of POCKETS) {
-      const dx = b.x - pocket[0], dy = b.y - pocket[1];
-      if(Math.hypot(dx, dy) < 14 && !b.pocketed && b.num !== 0) {
-        b.pocketed = true;
-        b.vx = b.vy = 0;
-        // ჩაგდებული ბურთის დამუშავება
-        if(myTurn && !vsAI) {
-          if(p1Group === null && p2Group === null && b.num !== 8) {
-            if(STRIPES.has(b.num)) { p1Group = 'stripe'; p2Group = 'solid'; }
-            else { p1Group = 'solid'; p2Group = 'stripe'; }
-          }
-          const myGroup = isPlayer1 ? p1Group : p2Group;
-          const isMine = (myGroup === 'stripe' && STRIPES.has(b.num)) || (myGroup === 'solid' && !STRIPES.has(b.num));
-          if(isMine && b.num !== 8) {
-            if(isPlayer1) p1Pocketed.push(b.num);
-            else p2Pocketed.push(b.num);
-          } else if(b.num !== 8) {
-            if(isPlayer1) p2Pocketed.push(b.num);
-            else p1Pocketed.push(b.num);
-          }
-        }
-        break;
+// ======= AI GAME =======
+function startAI(){
+  gameMode='ai';
+  isPlayer1=true;
+  myTurn=true;
+  document.getElementById('p1name').textContent=MYPROF?.username||'შენ';
+  document.getElementById('p2name').textContent='🤖 AI';
+  document.getElementById('p2type').textContent='';
+  setAvatar('p1av', MYPROF);
+  document.getElementById('p2av').innerHTML='🤖';
+  showGameArea();
+  initBalls();
+  renderFrame();
+  updateHeader();
+  toast('🎱 AI-სთან თამაში დაიწყო! შენ იწყებ.');
+}
+function playAgain(){
+  document.getElementById('resultModal').classList.remove('open');
+  if(gameMode==='ai') startAI();
+  else goLobby();
+}
+
+// ======= INVITE FLOW =======
+async function openInviteModal(){
+  await loadAllUsers();
+  const list=document.getElementById('inviteList');
+  list.innerHTML='';
+  const online=allUsers.filter(u=>u.id!==ME.id&&isOnline(u.last_seen));
+  if(!online.length){list.innerHTML='<div class="inv-empty">😔 ახლა ონლაინ წევრი არ არის</div>';document.getElementById('inviteModal').classList.add('open');return;}
+  online.forEach(u=>{
+    const d=document.createElement('div');d.className='inv-item';
+    const avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');
+    d.innerHTML=`<div class="inv-av">${avHtml}</div><div style="flex:1"><div class="inv-name">${esc(u.username||'?')}</div><div class="inv-status">🟣 ონლაინი · 🎱 ${u.billiard_score||0} ქულა</div></div><button class="inv-send-btn" id="invbtn_${u.id}">მოწვევა ✉️</button>`;
+    d.querySelector('.inv-send-btn').addEventListener('click',()=>sendInvite(u));
+    list.appendChild(d);
+  });
+  document.getElementById('inviteModal').classList.add('open');
+}
+function closeInviteModal(){document.getElementById('inviteModal').classList.remove('open');}
+
+async function sendInvite(user){
+  const btn=document.getElementById('invbtn_'+user.id);
+  if(btn){btn.disabled=true;btn.textContent='⏳ გაიგზავნა...';}
+  // insert invite row
+  const {data,error}=await sb.from('billiard_invites').insert({
+    from_uid:ME.id, to_uid:user.id,
+    from_nick:MYPROF?.username||'?', status:'pending'
+  }).select('id').single();
+  if(error){toast('❌ ვერ გაიგზავნა: '+error.message);if(btn){btn.disabled=false;btn.textContent='მოწვევა ✉️';}return;}
+  sessionId=data.id;
+  opponentId=user.id;
+  isPlayer1=true;
+  closeInviteModal();
+  showWaiting('⏳ '+esc(user.username||'?')+' — ველოდები...');
+  // watch for accept/decline
+  watchInviteResponse(data.id);
+}
+
+function showWaiting(text){
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('waitingRoom').style.display='flex';
+  document.getElementById('waitText').textContent=text;
+}
+
+function watchInviteResponse(inviteId){
+  if(pendingInviteTimer)clearTimeout(pendingInviteTimer);
+  const ch=sb.channel('invite_resp_'+inviteId)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_invites',filter:`id=eq.${inviteId}`},async p=>{
+      const s=p.new.status;
+      sb.removeChannel(ch);
+      if(s==='accepted'){
+        toast('✅ '+(p.new.to_nick||'?')+' დაეთანხმა!');
+        opponentId=p.new.to_uid;
+        // find opponent profile
+        const op=allUsers.find(u=>u.id===opponentId)||await loadProf(opponentId);
+        startOnlineGame(inviteId, op, true);
+      } else if(s==='declined'){
+        toast('❌ უარი — სხვა მოთამაშე სცადე');
+        showLobby();
       }
-    }
-    
-    // ჯიბეში ჩავარდნილი ბურთები გვერდზე გადაიტანე
-    if(b.pocketed) {
-      b.x = -100;
-      b.y = -100;
-    }
-    
-    if(Math.abs(b.vx) > 0.1 || Math.abs(b.vy) > 0.1) moving = true;
-  }
-  
-  // შეჯახებები
-  for(let i = 0; i < balls.length; i++) {
-    for(let j = i+1; j < balls.length; j++) {
-      const a = balls[i], b = balls[j];
-      if(a.pocketed || b.pocketed) continue;
-      const dx = b.x - a.x, dy = b.y - a.y;
-      const dist = Math.hypot(dx, dy);
-      if(dist < BR * 2) {
-        const angle = Math.atan2(dy, dx);
-        const overlap = BR * 2 - dist;
-        const moveX = Math.cos(angle) * overlap * 0.5;
-        const moveY = Math.sin(angle) * overlap * 0.5;
-        a.x -= moveX; a.y -= moveY;
-        b.x += moveX; b.y += moveY;
-        
-        const nx = dx / dist, ny = dy / dist;
-        const vrelx = b.vx - a.vx, vrely = b.vy - a.vy;
-        const dot = vrelx * nx + vrely * ny;
-        if(dot < 0) {
-          const imp = (1.0 * dot) / 2;
-          a.vx += imp * nx; a.vy += imp * ny;
-          b.vx -= imp * nx; b.vy -= imp * ny;
-        }
-      }
-    }
-  }
-  
-  draw();
-  
-  if(!moving && animationId) {
-    cancelAnimationFrame(animationId);
-    animationId = null;
-    endTurn();
-  } else if(moving && !animationId) {
-    animationId = requestAnimationFrame(function animate() {
-      updatePhysics();
-      if(!balls.some(b => Math.abs(b.vx) > 0.1 || Math.abs(b.vy) > 0.1)) {
-        cancelAnimationFrame(animationId);
-        animationId = null;
-        endTurn();
-      } else {
-        animationId = requestAnimationFrame(animate);
-      }
-    });
-  }
+    }).subscribe();
+  // 60s timeout
+  pendingInviteTimer=setTimeout(async()=>{
+    sb.removeChannel(ch);
+    await sb.from('billiard_invites').update({status:'expired'}).eq('id',inviteId);
+    toast('⏰ მოპასუხება არ მოვიდა');
+    showLobby();
+  },60000);
 }
 
-function shoot() {
-  if(!myTurn || isShooting) return;
-  const cue = balls.find(b => b.num === 0);
-  if(!cue || cue.pocketed) return;
-  
-  const powerVal = parseInt(document.getElementById('power-slider').value);
-  const speed = 3 + powerVal * 0.25;
-  cue.vx = Math.cos(angle) * speed;
-  cue.vy = Math.sin(angle) * speed;
-  isShooting = true;
-  myTurn = false;
-  updateUI();
-  updatePhysics();
-}
-
-function endTurn() {
-  isShooting = false;
-  
-  // 8-ბურთის შემოწმება
-  const eightBall = balls.find(b => b.num === 8);
-  if(eightBall && eightBall.pocketed) {
-    const myPocketedCount = (isPlayer1 ? p1Pocketed : p2Pocketed).length;
-    if(myPocketedCount >= 7) {
-      if(isPlayer1) p1Score++; else p2Score++;
-      alert((isPlayer1 ? "თქვენ" : "მოწინააღმდეგემ") + " მოიგო!");
-      updateScoreDisplay();
-      resetGame();
-      return;
-    } else {
-      if(isPlayer1) p2Score++; else p1Score++;
-      alert("8-ბურთი ნაადრევად! მოწინააღმდეგემ მოიგო");
-      updateScoreDisplay();
-      resetGame();
-      return;
-    }
-  }
-  
-  // სვლის გადაცემა
-  if(vsAI) {
-    myTurn = true;
-    updateUI();
-    if(!myTurn) setTimeout(() => aiShoot(), 500);
-  } else {
-    // multiplayer - გადაცემა მოწინააღმდეგეს
-    myTurn = false;
-    updateUI();
-    saveGameState();
-  }
-  
-  draw();
-}
-
-// ==================== AI ====================
-function aiShoot() {
-  if(myTurn || vsAI === false) return;
-  const cue = balls.find(b => b.num === 0);
-  if(!cue || cue.pocketed) return;
-  
-  // აირჩიე სამიზნე
-  const myGroup = isPlayer1 ? p1Group : p2Group;
-  let targets = balls.filter(b => !b.pocketed && b.num !== 0 && b.num !== 8);
-  if(myGroup === 'solid') targets = targets.filter(b => !STRIPES.has(b.num));
-  else if(myGroup === 'stripe') targets = targets.filter(b => STRIPES.has(b.num));
-  if(targets.length === 0) targets = balls.filter(b => !b.pocketed && b.num !== 0);
-  
-  if(targets.length > 0) {
-    const target = targets.reduce((a,b) => 
-      Math.hypot(b.x - cue.x, b.y - cue.y) < Math.hypot(a.x - cue.x, a.y - cue.y) ? b : a
-    );
-    angle = Math.atan2(target.y - cue.y, target.x - cue.x);
-    angle += (Math.random() - 0.5) * 0.3;
-  } else {
-    angle = Math.random() * Math.PI * 2;
-  }
-  
-  const powerVal = 40 + Math.random() * 50;
-  document.getElementById('power-slider').value = powerVal;
-  const speed = 3 + powerVal * 0.25;
-  cue.vx = Math.cos(angle) * speed;
-  cue.vy = Math.sin(angle) * speed;
-  isShooting = true;
-  updateUI();
-  updatePhysics();
-}
-
-// ==================== ხატვა ====================
-function draw() {
-  ctx.clearRect(0, 0, TW, TH);
-  
-  // მაგიდა
-  ctx.fillStyle = '#1a6b2f';
-  ctx.fillRect(0, 0, TW, TH);
-  ctx.strokeStyle = '#8B4513';
-  ctx.lineWidth = 8;
-  ctx.strokeRect(4, 4, TW-8, TH-8);
-  
-  // ჯიბეები
-  for(let p of POCKETS) {
-    ctx.beginPath();
-    ctx.arc(p[0], p[1], 12, 0, Math.PI*2);
-    ctx.fillStyle = '#000000';
-    ctx.fill();
-    ctx.fillStyle = '#333';
-    ctx.arc(p[0], p[1], 8, 0, Math.PI*2);
-    ctx.fill();
-  }
-  
-  // ბურთები
-  for(let b of balls) {
-    if(b.pocketed) continue;
-    const x = b.x, y = b.y;
-    ctx.beginPath();
-    ctx.arc(x, y, BR, 0, Math.PI*2);
-    
-    if(b.num === 0) {
-      ctx.fillStyle = '#fff';
-      ctx.fill();
-      ctx.fillStyle = '#ccc';
-      ctx.arc(x-2, y-2, 2, 0, Math.PI*2);
-      ctx.fill();
-    } else {
-      const isStripe = STRIPES.has(b.num);
-      if(isStripe) {
-        ctx.fillStyle = '#fff';
-        ctx.fill();
-        ctx.fillStyle = BALL_COLORS[b.num];
-        ctx.fillRect(x - BR, y - 3, BR*2, 6);
-      } else {
-        ctx.fillStyle = BALL_COLORS[b.num];
-        ctx.fill();
-      }
-      ctx.fillStyle = '#fff';
-      ctx.font = `bold ${BR}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(b.num, x, y);
-    }
-    ctx.strokeStyle = '#000';
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-  
-  // სამიზნე ხაზი + ჯოხი (მხოლოდ ჩემი სვლისას)
-  if(myTurn && !isShooting) {
-    const cue = balls.find(b => b.num === 0);
-    if(cue && !cue.pocketed) {
-      const endX = cue.x + Math.cos(angle) * 200;
-      const endY = cue.y + Math.sin(angle) * 200;
-      ctx.beginPath();
-      ctx.moveTo(cue.x, cue.y);
-      ctx.lineTo(endX, endY);
-      ctx.strokeStyle = '#ffff0088';
-      ctx.setLineDash([5, 5]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      
-      // ჯოხი
-      const stickX = cue.x - Math.cos(angle) * 25;
-      const stickY = cue.y - Math.sin(angle) * 25;
-      ctx.beginPath();
-      ctx.moveTo(stickX, stickY);
-      ctx.lineTo(stickX - Math.cos(angle) * 80, stickY - Math.sin(angle) * 80);
-      ctx.lineWidth = 6;
-      ctx.strokeStyle = '#c8a86b';
-      ctx.stroke();
-      ctx.lineWidth = 3;
-      ctx.strokeStyle = '#8b5a2b';
-      ctx.stroke();
-    }
-  }
-}
-
-// ==================== მაუსის მართვა ====================
-function updateAngleFromMouse(e) {
-  if(!myTurn || isShooting) return;
-  const rect = canvas.getBoundingClientRect();
-  const scaleX = TW / rect.width;
-  const scaleY = TH / rect.height;
-  let mouseCanvasX = (e.clientX - rect.left) * scaleX;
-  let mouseCanvasY = (e.clientY - rect.top) * scaleY;
-  mouseCanvasX = Math.min(Math.max(mouseCanvasX, 0), TW);
-  mouseCanvasY = Math.min(Math.max(mouseCanvasY, 0), TH);
-  
-  const cue = balls.find(b => b.num === 0);
-  if(cue && !cue.pocketed) {
-    angle = Math.atan2(mouseCanvasY - cue.y, mouseCanvasX - cue.x);
-    draw();
-  }
-}
-
-canvas.addEventListener('mousemove', updateAngleFromMouse);
-canvas.addEventListener('touchmove', (e) => {
-  e.preventDefault();
-  const rect = canvas.getBoundingClientRect();
-  const touch = e.touches[0];
-  const fakeEvent = { clientX: touch.clientX, clientY: touch.clientY };
-  updateAngleFromMouse(fakeEvent);
-});
-
-// ==================== UI ====================
-function updateUI() {
-  const turnEl = document.getElementById('turnIndicator');
-  if(myTurn && !isShooting) {
-    turnEl.innerHTML = '🎯 თქვენი ჯერი!';
-    turnEl.style.color = '#4ade80';
-  } else {
-    turnEl.innerHTML = vsAI ? '🤖 AI-ს ჯერი...' : '⏳ მოწინააღმდეგის ჯერი...';
-    turnEl.style.color = '#fbbf24';
-  }
-  document.getElementById('shoot-btn').disabled = !myTurn || isShooting;
-}
-
-function updateScoreDisplay() {
-  document.getElementById('score').innerHTML = `${p1Score} : ${p2Score}`;
-}
-
-// ==================== MULTIPLAYER SUPABASE ====================
-async function startMultiplayer() {
-  const { data: { user } } = await supabase.auth.getUser();
-  if(!user) {
-    alert('ჯერ უნდა გაიაროთ ავტორიზაცია');
-    return;
-  }
-  currentUser = user;
-  
-  // შექმენი ახალი თამაში
-  const initialState = { balls: initBalls(), p1Pocketed: [], p2Pocketed: [], p1Group: null, p2Group: null };
-  const { data: game, error } = await supabase.from('billiard_games').insert({
-    player1_id: user.id,
-    player2_id: null,
-    status: 'waiting',
-    game_state: JSON.stringify(initialState),
-    current_turn: user.id,
-    p1_score: 0,
-    p2_score: 0
-  }).select().single();
-  
-  if(error) { alert('თამაშის შექმნა ვერ მოხერხდა'); return; }
-  
-  gameId = game.id;
-  isPlayer1 = true;
-  vsAI = false;
-  document.getElementById('game-id').innerHTML = `თამაშის ID: ${gameId}`;
-  document.getElementById('lobby').style.display = 'none';
-  document.getElementById('game').classList.add('on');
-  
-  // მოუსმინე შემოერთებას
-  const inviteLink = prompt('გაუგზავნეთ ეს ბმული მეგობარს:\n' + window.location.href + '?join=' + gameId);
-  
-  subscribeToGame();
-  resetGame();
-}
-
-async function joinGame(gameIdFromUrl) {
-  const { data: { user } } = await supabase.auth.getUser();
-  if(!user) return;
-  currentUser = user;
-  
-  const { data: game } = await supabase.from('billiard_games').select('*').eq('id', gameIdFromUrl).single();
-  if(!game || game.status !== 'waiting') { alert('თამაში არ მოიძებნა'); return; }
-  
-  await supabase.from('billiard_games').update({
-    player2_id: user.id,
-    status: 'active'
-  }).eq('id', gameIdFromUrl);
-  
-  gameId = gameIdFromUrl;
-  isPlayer1 = false;
-  vsAI = false;
-  document.getElementById('lobby').style.display = 'none';
-  document.getElementById('game').classList.add('on');
-  subscribeToGame();
-  resetGame();
-}
-
-function subscribeToGame() {
-  if(channel) supabase.removeChannel(channel);
-  channel = supabase.channel(`game:${gameId}`)
-    .on('postgres_changes', {
-      schema: 'public',
-      table: 'billiard_games',
-      filter: `id=eq.${gameId}`,
-      event: 'UPDATE'
-    }, (payload) => {
-      const newState = payload.new;
-      if(newState.current_turn === currentUser.id) {
-        myTurn = true;
-        updateUI();
-      } else {
-        myTurn = false;
-        updateUI();
-      }
-      // სტეიტის ჩატვირთვა
-      if(newState.game_state) {
-        const state = JSON.parse(newState.game_state);
-        balls = state.balls;
-        p1Pocketed = state.p1Pocketed;
-        p2Pocketed = state.p2Pocketed;
-        p1Group = state.p1Group;
-        p2Group = state.p2Group;
-        p1Score = newState.p1_score;
-        p2Score = newState.p2_score;
-        updateScoreDisplay();
-        draw();
-      }
+// watch for incoming invites
+function watchIncomingInvites(){
+  sb.channel('billiard-incoming-'+ME.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'billiard_invites',filter:`to_uid=eq.${ME.id}`},async p=>{
+      const inv=p.new;
+      if(inv.status!=='pending')return;
+      pendingInviteId=inv.id;
+      const fromUser=allUsers.find(u=>u.id===inv.from_uid)||{username:inv.from_nick||'?'};
+      document.getElementById('inviteFromText').textContent=`🎱 ${esc(fromUser.username||inv.from_nick||'?')} გიწვევს ბილიარდში!`;
+      document.getElementById('incomingInvite').classList.add('open');
+      // auto-dismiss after 30s
+      setTimeout(()=>{
+        document.getElementById('incomingInvite').classList.remove('open');
+        pendingInviteId=null;
+      },30000);
     }).subscribe();
 }
 
-async function saveGameState() {
-  if(vsAI) return;
-  const gameState = {
-    balls: balls,
-    p1Pocketed: p1Pocketed,
-    p2Pocketed: p2Pocketed,
-    p1Group: p1Group,
-    p2Group: p2Group
-  };
-  const nextTurn = myTurn ? currentUser.id : (isPlayer1 ? balls[0]?.id : currentUser.id);
-  await supabase.from('billiard_games').update({
-    game_state: JSON.stringify(gameState),
-    current_turn: (myTurn ? currentUser.id : (isPlayer1 ? 'p2_will_be' : currentUser.id)),
-    p1_score: p1Score,
-    p2_score: p2Score
-  }).eq('id', gameId);
+async function acceptInvite(){
+  if(!pendingInviteId)return;
+  document.getElementById('incomingInvite').classList.remove('open');
+  const {data,error}=await sb.from('billiard_invites').update({status:'accepted',to_nick:MYPROF?.username||'?'}).eq('id',pendingInviteId).select().single();
+  if(error||!data){toast('❌ შეცდომა');return;}
+  opponentId=data.from_uid;
+  isPlayer1=false;
+  sessionId=pendingInviteId;
+  const op=allUsers.find(u=>u.id===opponentId)||await loadProf(opponentId);
+  startOnlineGame(pendingInviteId, op, false);
 }
 
-function leaveGame() {
-  if(channel) supabase.removeChannel(channel);
-  document.getElementById('game').classList.remove('on');
-  document.getElementById('lobby').style.display = 'flex';
-  vsAI = false;
+async function declineInvite(){
+  if(!pendingInviteId)return;
+  document.getElementById('incomingInvite').classList.remove('open');
+  await sb.from('billiard_invites').update({status:'declined'}).eq('id',pendingInviteId);
+  pendingInviteId=null;
 }
 
-// ==================== AI დაწყება ====================
-function startAI() {
-  vsAI = true;
-  isPlayer1 = true;
-  myTurn = true;
-  document.getElementById('lobby').style.display = 'none';
-  document.getElementById('game').classList.add('on');
-  resetGame();
+async function cancelWait(){
+  if(sessionId) await sb.from('billiard_invites').update({status:'cancelled'}).eq('id',sessionId);
+  sessionId=null;
+  showLobby();
 }
 
-// ==================== URL-დან შემოერთება ====================
-window.onload = () => {
-  const urlParams = new URLSearchParams(window.location.search);
-  const joinId = urlParams.get('join');
-  if(joinId) {
-    joinGame(joinId);
+// ======= ONLINE GAME START =======
+async function startOnlineGame(invId, opponent, iAmP1){
+  gameMode='online';
+  isPlayer1=iAmP1;
+  myTurn=iAmP1; // p1 goes first
+  document.getElementById('waitingRoom').style.display='none';
+
+  const p1prof=iAmP1?MYPROF:opponent;
+  const p2prof=iAmP1?opponent:MYPROF;
+
+  document.getElementById('p1name').textContent=p1prof?.username||'P1';
+  document.getElementById('p2name').textContent=p2prof?.username||'P2';
+  setAvatar('p1av',p1prof);
+  setAvatar('p2av',p2prof);
+
+  showGameArea();
+  initBalls();
+  renderFrame();
+  updateHeader();
+
+  // Supabase realtime channel for game state
+  gameSession=sb.channel('billiard_game_'+invId)
+    .on('broadcast',{event:'move'},({payload})=>{
+      handleOnlineMove(payload);
+    })
+    .on('broadcast',{event:'cue_place'},({payload})=>{
+      if(!myTurn){
+        balls[0].x=payload.x;
+        balls[0].y=payload.y;
+        balls[0].active=true;
+        placingCueBall=false;
+        foulActive=false;
+        renderFrame();
+      }
+    })
+    .on('broadcast',{event:'game_over'},({payload})=>{
+      handleOnlineGameOver(payload);
+    })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED'){
+        toast(iAmP1?'🎱 შენ იწყებ!':'🎱 პირველი სვლა მოწინააღმდეგისაა');
+      }
+    });
+}
+
+function handleOnlineMove(payload){
+  if((isPlayer1&&payload.from==='p1')||(!isPlayer1&&payload.from==='p2'))return;
+  // apply balls state from opponent
+  payload.balls.forEach((b,i)=>{
+    if(balls[i]){balls[i].vx=b.vx;balls[i].vy=b.vy;balls[i].x=b.x;balls[i].y=b.y;balls[i].active=b.active;}
+  });
+  // type assignment
+  if(payload.playerType){playerType=isPlayer1?payload.opponentType:payload.playerType;aiType=isPlayer1?payload.playerType:payload.opponentType;typeAssigned=payload.typeAssigned;updateTypeLabels();}
+  startAnimation();
+}
+
+function handleOnlineGameOver(payload){
+  const iWon=(isPlayer1&&payload.winner==='p1')||(!isPlayer1&&payload.winner==='p2');
+  endGame(iWon, payload.reason||'');
+}
+
+function broadcastMove(){
+  if(!gameSession||gameMode!=='online')return;
+  gameSession.send({type:'broadcast',event:'move',payload:{
+    from:isPlayer1?'p1':'p2',
+    balls:balls.map(b=>({x:b.x,y:b.y,vx:b.vx,vy:b.vy,active:b.active})),
+    playerType,opponentType:aiType,typeAssigned
+  }});
+}
+
+function cleanupSession(){
+  if(gameSession){try{sb.removeChannel(gameSession);}catch(e){}gameSession=null;}
+  if(pendingInviteTimer)clearTimeout(pendingInviteTimer);
+  gameMode=null;sessionId=null;opponentId=null;
+}
+
+// ======= GAME SETUP =======
+function showGameArea(){
+  document.getElementById('lobby').style.display='none';
+  document.getElementById('waitingRoom').style.display='none';
+  document.getElementById('gameArea').style.display='flex';
+  resizeCanvas();
+}
+
+function resizeCanvas(){
+  const wrap=document.getElementById('canvasWrap');
+  const ratio=TABLE_W/TABLE_H;
+  let w=wrap.clientWidth-16, h=wrap.clientHeight-16;
+  if(w/h>ratio)w=h*ratio; else h=w/ratio;
+  canvas.width=TABLE_W; canvas.height=TABLE_H;
+  canvas.style.width=Math.floor(w)+'px';
+  canvas.style.height=Math.floor(h)+'px';
+}
+window.addEventListener('resize',resizeCanvas);
+
+function initBalls(){
+  balls=[];
+  playerType=null;aiType=null;typeAssigned=false;
+  p1Pocketed=[];p2Pocketed=[];
+  foulActive=false;placingCueBall=false;
+
+  // cue ball
+  balls.push({num:0,x:TABLE_W*0.25,y:TABLE_H/2,vx:0,vy:0,active:true});
+
+  // rack: triangle at 3/4 right
+  const cx=TABLE_W*0.72, cy=TABLE_H/2, sp=BALL_R*2+1;
+  const order=[1,2,3,4,5,6,7,8,9,10,11,12,13,14,15];
+  // standard 8-ball rack rows
+  const rack=[
+    [order[0]],
+    [order[1],order[2]],
+    [order[3],order[4],order[5]],
+    [order[6],order[7],order[8],order[9]],
+    [order[10],order[11],order[12],order[13],order[14]]
+  ];
+  // ensure 8 in center, stripes/solids distributed
+  rack[2][1]=8;
+  let rackIdx=0;
+  rack.forEach((row,ri)=>{
+    row.forEach((num,ci)=>{
+      const rx=cx+ri*sp*Math.cos(Math.PI/6);
+      const ry=cy+(ci-row.length/2+0.5)*sp+(ri%2===0?0:0);
+      balls.push({num,x:rx,y:ry+(ci*(sp))-(row.length-1)*sp/2,vx:0,vy:0,active:true});
+    });
+  });
+}
+
+// ======= RENDERING =======
+function renderFrame(){
+  drawTable();
+  balls.filter(b=>b.active).forEach(b=>drawBall(b));
+  if(!isAnimating) drawCueAim();
+  requestAnimationFrame(()=>{if(!isAnimating)renderFrame;});
+}
+
+let animFrame=null;
+function startAnimation(){
+  if(isAnimating)return;
+  isAnimating=true;
+  document.getElementById('shootBtn').disabled=true;
+  function step(){
+    physicsStep();
+    drawTable();
+    balls.filter(b=>b.active).forEach(b=>drawBall(b));
+    const moving=balls.some(b=>b.active&&(Math.abs(b.vx)>MIN_V||Math.abs(b.vy)>MIN_V));
+    if(moving){animFrame=requestAnimationFrame(step);}
+    else{
+      isAnimating=false;
+      balls.forEach(b=>{b.vx=0;b.vy=0;});
+      afterShot();
+    }
   }
-};
+  animFrame=requestAnimationFrame(step);
+}
 
-// power slider
-document.getElementById('power-slider').addEventListener('input', (e) => {
-  power = e.target.value;
+function drawTable(){
+  // felt
+  ctx.fillStyle='#1a5c1a';
+  ctx.fillRect(0,0,TABLE_W,TABLE_H);
+  // cushion border
+  ctx.strokeStyle='#3d2b1f';
+  ctx.lineWidth=18;
+  ctx.strokeRect(9,9,TABLE_W-18,TABLE_H-18);
+  // center line
+  ctx.strokeStyle='rgba(255,255,255,0.07)';
+  ctx.lineWidth=1;
+  ctx.beginPath();ctx.moveTo(TABLE_W/2,0);ctx.lineTo(TABLE_W/2,TABLE_H);ctx.stroke();
+  // head string (cue ball placement zone)
+  ctx.strokeStyle='rgba(255,255,255,0.12)';
+  ctx.beginPath();ctx.arc(TABLE_W/4,TABLE_H/2,TABLE_H/3,0,Math.PI*2);ctx.stroke();
+  // pockets
+  POCKET_POSITIONS.forEach(p=>{
+    ctx.fillStyle='#000';
+    ctx.beginPath();ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='rgba(255,255,255,0.15)';ctx.lineWidth=1.5;ctx.stroke();
+  });
+}
+
+function drawBall(b){
+  const x=b.x,y=b.y,r=BALL_R;
+  const color=BALL_COLORS[b.num]||'#fff';
+  const stripe=IS_STRIPE(b.num);
+
+  ctx.save();
+  ctx.shadowBlur=6;ctx.shadowColor='rgba(0,0,0,0.6)';
+
+  if(b.num===0){
+    // cue ball
+    const g=ctx.createRadialGradient(x-4,y-4,2,x,y,r);
+    g.addColorStop(0,'#fff');g.addColorStop(1,'#ddd');
+    ctx.fillStyle=g;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  } else if(stripe){
+    // stripe: white base, color band
+    const g=ctx.createRadialGradient(x-3,y-3,2,x,y,r);
+    g.addColorStop(0,'#fff');g.addColorStop(1,'#ddd');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+    // stripe band
+    ctx.fillStyle=color;
+    ctx.save();ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.clip();
+    ctx.fillRect(x-r,y-r*0.5,r*2,r);ctx.restore();
+  } else {
+    // solid
+    const g=ctx.createRadialGradient(x-4,y-4,1,x,y,r);
+    g.addColorStop(0,lighten(color,50));g.addColorStop(1,color);
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fill();
+  }
+
+  // white number circle
+  if(b.num!==0){
+    ctx.fillStyle='rgba(255,255,255,0.92)';
+    ctx.beginPath();ctx.arc(x,y,r*0.42,0,Math.PI*2);ctx.fill();
+    ctx.fillStyle='#111';ctx.font=`bold ${r*0.58}px monospace`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText(b.num,x,y+0.5);
+  }
+
+  // shine
+  ctx.fillStyle='rgba(255,255,255,0.25)';
+  ctx.beginPath();ctx.ellipse(x-r*0.3,y-r*0.35,r*0.25,r*0.15,Math.PI/4,0,Math.PI*2);ctx.fill();
+  ctx.restore();
+}
+
+function drawCueAim(){
+  if(!myTurn||isAnimating||placingCueBall)return;
+  const cue=balls[0];if(!cue||!cue.active)return;
+  const dx=mouseX-cue.x,dy=mouseY-cue.y;
+  const dist=Math.sqrt(dx*dx+dy*dy)||1;
+  const nx=dx/dist,ny=dy/dist;
+
+  // aim line
+  ctx.save();
+  ctx.strokeStyle='rgba(255,255,255,0.35)';
+  ctx.lineWidth=1;ctx.setLineDash([8,8]);
+  ctx.beginPath();ctx.moveTo(cue.x,cue.y);ctx.lineTo(cue.x+nx*200,cue.y+ny*200);ctx.stroke();
+  ctx.setLineDash([]);
+
+  // cue stick
+  const cueStart=40;
+  ctx.strokeStyle='#c8a46e';ctx.lineWidth=5;ctx.lineCap='round';
+  ctx.beginPath();
+  ctx.moveTo(cue.x-nx*cueStart,cue.y-ny*cueStart);
+  ctx.lineTo(cue.x-nx*(cueStart+90),cue.y-ny*(cueStart+90));
+  ctx.stroke();
+  ctx.strokeStyle='#8a6030';ctx.lineWidth=3;
+  ctx.beginPath();
+  ctx.moveTo(cue.x-nx*(cueStart+90),cue.y-ny*(cueStart+90));
+  ctx.lineTo(cue.x-nx*(cueStart+170),cue.y-ny*(cueStart+170));
+  ctx.stroke();
+  ctx.restore();
+
+  drawTable();
+  balls.filter(b=>b.active).forEach(b=>drawBall(b));
+}
+
+// ======= PHYSICS =======
+function physicsStep(){
+  // move
+  balls.forEach(b=>{
+    if(!b.active)return;
+    b.x+=b.vx;b.y+=b.vy;
+    b.vx*=FRICTION;b.vy*=FRICTION;
+    if(Math.abs(b.vx)<MIN_V)b.vx=0;
+    if(Math.abs(b.vy)<MIN_V)b.vy=0;
+    // wall bounce
+    if(b.x<BALL_R+9){b.x=BALL_R+9;b.vx*=-0.75;}
+    if(b.x>TABLE_W-BALL_R-9){b.x=TABLE_W-BALL_R-9;b.vx*=-0.75;}
+    if(b.y<BALL_R+9){b.y=BALL_R+9;b.vy*=-0.75;}
+    if(b.y>TABLE_H-BALL_R-9){b.y=TABLE_H-BALL_R-9;b.vy*=-0.75;}
+  });
+  // ball-ball collisions
+  for(let i=0;i<balls.length;i++){
+    for(let j=i+1;j<balls.length;j++){
+      const a=balls[i],b=balls[j];
+      if(!a.active||!b.active)continue;
+      const dx=b.x-a.x,dy=b.y-a.y,d=Math.sqrt(dx*dx+dy*dy);
+      if(d<BALL_R*2&&d>0){
+        const nx=dx/d,ny=dy/d;
+        const overlap=(BALL_R*2-d)/2;
+        a.x-=nx*overlap;a.y-=ny*overlap;
+        b.x+=nx*overlap;b.y+=ny*overlap;
+        const dvx=a.vx-b.vx,dvy=a.vy-b.vy;
+        const dot=dvx*nx+dvy*ny;
+        a.vx-=dot*nx;a.vy-=dot*ny;
+        b.vx+=dot*nx;b.vy+=dot*ny;
+      }
+    }
+  }
+  // pockets
+  checkPockets();
+}
+
+let cueBallScratch=false;
+let ballsPocketedThisShot=[];
+
+function checkPockets(){
+  balls.forEach(b=>{
+    if(!b.active)return;
+    POCKET_POSITIONS.forEach(p=>{
+      const dx=b.x-p.x,dy=b.y-p.y;
+      if(Math.sqrt(dx*dx+dy*dy)<POCKET_R-2){
+        b.active=false;b.vx=0;b.vy=0;
+        ballsPocketedThisShot.push(b.num);
+        if(b.num===0)cueBallScratch=true;
+      }
+    });
+  });
+}
+
+// ======= AFTER SHOT =======
+function afterShot(){
+  const pocketed=[...ballsPocketedThisShot];
+  ballsPocketedThisShot=[];
+
+  // check 8-ball
+  if(pocketed.includes(8)){
+    const allMyBallsDone=checkAllGroupDone(true);
+    if(allMyBallsDone&&!cueBallScratch){
+      cueBallScratch=false;
+      endGame(myTurn,'⚫ შავი ბურთი ჩავარდა — გამარჯვება!');
+    } else {
+      cueBallScratch=false;
+      endGame(!myTurn,'⚫ შავი ბურთი ნაადრევად — მოპასუხე გაიმარჯვა!');
+    }
+    return;
+  }
+
+  let foul=false;
+  let keepTurn=false;
+
+  if(cueBallScratch){
+    // cue ball scratched = foul
+    foul=true;
+    cueBallScratch=false;
+    balls[0].active=true;
+    balls[0].x=TABLE_W*0.25;
+    balls[0].y=TABLE_H/2;
+    // opponent gets free placement
+    if(gameMode==='online'){
+      // signal foul
+      if(gameSession) gameSession.send({type:'broadcast',event:'move',payload:{from:isPlayer1?'p1':'p2',foul:true,balls:balls.map(b=>({x:b.x,y:b.y,vx:b.vx,vy:b.vy,active:b.active}))}});
+    }
+    showFoul('⚠️ ფოულ — მოწინააღმდეგე ათავსებს თეთრს');
+  }
+
+  // type assignment on first pocket
+  if(!typeAssigned&&pocketed.some(n=>n!==0)){
+    const firstNonCue=pocketed.find(n=>n!==0);
+    if(firstNonCue!==undefined){
+      typeAssigned=true;
+      if(myTurn){
+        playerType=IS_STRIPE(firstNonCue)?'stripe':'solid';
+        aiType=playerType==='solid'?'stripe':'solid';
+      } else {
+        aiType=IS_STRIPE(firstNonCue)?'stripe':'solid';
+        playerType=aiType==='solid'?'stripe':'solid';
+      }
+      updateTypeLabels();
+      toast('🎱 '+(myTurn?'შენი':'მოწინ.')+(playerType?(' ← '+(myTurn?playerType:aiType)):''));
+    }
+  }
+
+  // was cue first hit correct?
+  // track pocketed
+  pocketed.forEach(n=>{
+    if(n===0)return;
+    if(myTurn){
+      if(!foul&&typeAssigned){
+        const isMyBall=(playerType==='solid'&&!IS_STRIPE(n))||(playerType==='stripe'&&IS_STRIPE(n));
+        if(isMyBall){p1Pocketed.push(n);keepTurn=true;}
+        else{p2Pocketed.push(n);keepTurn=false;}
+      } else if(!typeAssigned){
+        p1Pocketed.push(n);keepTurn=true;
+      }
+    } else {
+      if(!foul&&typeAssigned){
+        const isAiBall=(aiType==='solid'&&!IS_STRIPE(n))||(aiType==='stripe'&&IS_STRIPE(n));
+        if(isAiBall){p2Pocketed.push(n);keepTurn=true;}
+        else{p1Pocketed.push(n);keepTurn=false;}
+      } else if(!typeAssigned){
+        p2Pocketed.push(n);keepTurn=true;
+      }
+    }
+  });
+
+  updateBallCounts();
+
+  if(foul){
+    myTurn=!myTurn;
+    // opponent places cue ball
+    if((myTurn&&gameMode==='ai')||(!myTurn&&gameMode==='ai')){
+      if(!myTurn){setTimeout(aiTurn,1000);return;}
+    }
+    if(gameMode==='online'){
+      if(!myTurn){
+        // tell opponent to place
+        if(gameSession) gameSession.send({type:'broadcast',event:'move',payload:{from:isPlayer1?'p1':'p2',foul:true,balls:balls.map(b=>({x:b.x,y:b.y,vx:b.vx,vy:b.vy,active:b.active}))}});
+      } else {
+        // I place cue ball
+        foulActive=true;
+        startCueBallPlacement();
+        return;
+      }
+    } else {
+      foulActive=false;
+    }
+  } else if(!keepTurn||pocketed.length===0){
+    myTurn=!myTurn;
+    clearFoul();
+  } else {
+    clearFoul();
+  }
+
+  updateHeader();
+  renderFrame();
+
+  if(gameMode==='ai'&&!myTurn){
+    setTimeout(aiTurn,1200);
+  }
+  document.getElementById('shootBtn').disabled=false;
+}
+
+function checkAllGroupDone(forPlayer1){
+  if(!typeAssigned)return false;
+  const myType=forPlayer1?playerType:aiType;
+  const myBalls=myType==='solid'?[1,2,3,4,5,6,7]:[9,10,11,12,13,14,15];
+  const pocketed=forPlayer1?p1Pocketed:p2Pocketed;
+  return myBalls.every(n=>pocketed.includes(n));
+}
+
+function startCueBallPlacement(){
+  placingCueBall=true;
+  document.getElementById('placeCueBall').classList.add('show');
+  document.getElementById('shootBtn').disabled=true;
+}
+function endCueBallPlacement(x,y){
+  placingCueBall=false;
+  document.getElementById('placeCueBall').classList.remove('show');
+  balls[0].x=Math.max(BALL_R+20,Math.min(TABLE_W-BALL_R-20,x));
+  balls[0].y=Math.max(BALL_R+20,Math.min(TABLE_H-BALL_R-20,y));
+  balls[0].active=true;balls[0].vx=0;balls[0].vy=0;
+  foulActive=false;
+  if(gameMode==='online'&&gameSession){
+    gameSession.send({type:'broadcast',event:'cue_place',payload:{x:balls[0].x,y:balls[0].y}});
+  }
+  document.getElementById('shootBtn').disabled=false;
+  renderFrame();
+}
+
+// ======= AI =======
+function aiTurn(){
+  if(myTurn||gameMode!=='ai')return;
+  document.getElementById('aiThinking').classList.remove('hidden');
+  document.getElementById('shootBtn').disabled=true;
+
+  setTimeout(()=>{
+    document.getElementById('aiThinking').classList.add('hidden');
+    const cue=balls[0];if(!cue||!cue.active)return;
+
+    // find AI target balls
+    let targets=balls.filter(b=>{
+      if(!b.active||b.num===0)return false;
+      if(!typeAssigned)return b.num!==8;
+      const isAi=(aiType==='solid'&&!IS_STRIPE(b.num))||(aiType==='stripe'&&IS_STRIPE(b.num));
+      return isAi&&b.num!==8;
+    });
+    if(!targets.length){
+      // go for 8
+      targets=balls.filter(b=>b.active&&b.num===8);
+    }
+    if(!targets.length){targets=balls.filter(b=>b.active&&b.num!==0);}
+    if(!targets.length){myTurn=true;document.getElementById('shootBtn').disabled=false;updateHeader();return;}
+
+    // pick closest to pocket
+    let best=null,bestScore=Infinity;
+    targets.forEach(b=>{
+      POCKET_POSITIONS.forEach(p=>{
+        const dx=b.x-p.x,dy=b.y-p.y;
+        const d=Math.sqrt(dx*dx+dy*dy);
+        if(d<bestScore){bestScore=d;best=b;}
+      });
+    });
+
+    const target=best||targets[0];
+    // aim: cue→target direction
+    const dx=target.x-cue.x,dy=target.y-cue.y;
+    const dist=Math.sqrt(dx*dx+dy*dy)||1;
+    const aiPower=12+Math.random()*10;
+    const spread=(Math.random()-0.5)*0.15; // slight inaccuracy
+    cue.vx=(dx/dist)*aiPower*Math.cos(spread);
+    cue.vy=(dy/dist)*aiPower*Math.sin(spread)+(Math.random()-0.5)*2;
+
+    startAnimation();
+  },600+Math.random()*600);
+}
+
+// ======= SHOOT =======
+function shoot(){
+  if(!myTurn||isAnimating||placingCueBall)return;
+  const cue=balls[0];if(!cue||!cue.active)return;
+  const dx=mouseX-cue.x,dy=mouseY-cue.y;
+  const dist=Math.sqrt(dx*dx+dy*dy)||1;
+  const pwr=(power/100)*22;
+  cue.vx=(dx/dist)*pwr;
+  cue.vy=(dy/dist)*pwr;
+  animateSendBtn();
+  if(gameMode==='online')broadcastMove();
+  startAnimation();
+}
+
+function animateSendBtn(){
+  const btn=document.getElementById('shootBtn');
+  btn.style.transform='scale(0.9)';
+  setTimeout(()=>btn.style.transform='',200);
+}
+
+// ======= POWER BAR =======
+let draggingPower=false;
+function startPowerDrag(e){
+  draggingPower=true;
+  updatePowerFromEvent(e);
+  e.preventDefault();
+}
+document.addEventListener('mousemove',e=>{if(draggingPower)updatePowerFromEvent(e);});
+document.addEventListener('touchmove',e=>{if(draggingPower)updatePowerFromEvent(e.touches[0]);},{passive:false});
+document.addEventListener('mouseup',()=>draggingPower=false);
+document.addEventListener('touchend',()=>draggingPower=false);
+function updatePowerFromEvent(e){
+  const track=document.getElementById('pbTrack');
+  const rect=track.getBoundingClientRect();
+  const pct=Math.max(0,Math.min(1,(e.clientX-rect.left)/rect.width));
+  power=Math.round(pct*100);
+  document.getElementById('pbFill').style.width=power+'%';
+  document.getElementById('pbVal').textContent=power;
+}
+
+// ======= MOUSE/TOUCH ON CANVAS =======
+canvas.addEventListener('mousemove',e=>{
+  const r=canvas.getBoundingClientRect();
+  const sx=TABLE_W/r.width,sy=TABLE_H/r.height;
+  mouseX=(e.clientX-r.left)*sx;
+  mouseY=(e.clientY-r.top)*sy;
+  if(!isAnimating)renderFrame();
+  drawCueAim();
 });
+canvas.addEventListener('click',e=>{
+  if(placingCueBall&&myTurn){
+    const r=canvas.getBoundingClientRect();
+    const sx=TABLE_W/r.width,sy=TABLE_H/r.height;
+    const cx=(e.clientX-r.left)*sx;
+    const cy=(e.clientY-r.top)*sy;
+    endCueBallPlacement(cx,cy);
+  }
+});
+canvas.addEventListener('touchmove',e=>{
+  const t=e.touches[0];
+  const r=canvas.getBoundingClientRect();
+  const sx=TABLE_W/r.width,sy=TABLE_H/r.height;
+  mouseX=(t.clientX-r.left)*sx;
+  mouseY=(t.clientY-r.top)*sy;
+  if(!isAnimating)renderFrame();
+  drawCueAim();
+  e.preventDefault();
+},{passive:false});
+canvas.addEventListener('touchend',e=>{
+  if(placingCueBall&&myTurn){
+    const t=e.changedTouches[0];
+    const r=canvas.getBoundingClientRect();
+    const sx=TABLE_W/r.width,sy=TABLE_H/r.height;
+    endCueBallPlacement((t.clientX-r.left)*sx,(t.clientY-r.top)*sy);
+  }
+},{passive:true});
+
+// ======= HEADER UPDATE =======
+function updateHeader(){
+  const p1=document.getElementById('p1panel'),p2=document.getElementById('p2panel');
+  const isMyTurnAsP1=(isPlayer1&&myTurn)||(!isPlayer1&&!myTurn);
+  const p1Active=gameMode==='ai'?myTurn:isMyTurnAsP1;
+  p1.classList.toggle('active',p1Active);
+  p2.classList.toggle('active',!p1Active);
+
+  let label='';
+  if(gameMode==='ai'){label=myTurn?'შენი სვლა':'AI-ს სვლა';}
+  else{label=myTurn?'შენი სვლა':'მოწინ. სვლა';}
+  document.getElementById('turnLabel').textContent=label;
+  document.getElementById('shootBtn').disabled=!myTurn;
+}
+
+function updateTypeLabels(){
+  const p1label=playerType?'🎱 '+(playerType==='solid'?'solid':'stripe'):'-';
+  const p2label=aiType?'🎱 '+(aiType==='solid'?'solid':'stripe'):'-';
+  document.getElementById('p1type').textContent=p1label;
+  document.getElementById('p2type').textContent=p2label;
+}
+
+function updateBallCounts(){
+  const solids=balls.filter(b=>b.active&&b.num>=1&&b.num<=7).map(b=>b.num);
+  const stripes=balls.filter(b=>b.active&&b.num>=9&&b.num<=15).map(b=>b.num);
+  const p1Balls=playerType==='solid'?solids:playerType==='stripe'?stripes:[];
+  const p2Balls=aiType==='solid'?solids:aiType==='stripe'?stripes:[];
+
+  const makeDots=(nums)=>nums.map(n=>`<span class="ball-mini" style="background:${BALL_COLORS[n]}"></span>`).join('');
+  document.getElementById('p1balls').innerHTML=makeDots(p1Balls);
+  document.getElementById('p2balls').innerHTML=makeDots(p2Balls);
+}
+
+function showFoul(msg){document.getElementById('foulLabel').textContent=msg;setTimeout(clearFoul,2500);}
+function clearFoul(){document.getElementById('foulLabel').textContent='';}
+
+// ======= GAME OVER =======
+async function endGame(iWon, reason){
+  const icon=iWon?'🏆':'😞';
+  const titleClass=iWon?'win':'lose';
+  const title=iWon?'გაიმარჯვე! 🎉':'წააგე 😔';
+  const sub=reason||(iWon?'შესანიშნავი თამაში!':'სცადე ხელახლა!');
+  const scoreAdd=iWon?'+5':'';
+
+  document.getElementById('resIcon').textContent=icon;
+  document.getElementById('resTitle').textContent=title;
+  document.getElementById('resTitle').className='result-title '+titleClass;
+  document.getElementById('resSub').textContent=sub;
+  document.getElementById('resScore').textContent=iWon?'+5 ქულა':'0 ქულა';
+  document.getElementById('resultModal').classList.add('open');
+
+  if(iWon&&MYPROF){
+    const newScore=(MYPROF.billiard_score||0)+5;
+    await sb.from('profiles').update({billiard_score:newScore}).eq('id',ME.id);
+    MYPROF.billiard_score=newScore;
+    document.getElementById('myScoreDisp').textContent=`🎱 ${newScore} ქულა`;
+  }
+
+  if(gameMode==='online'&&gameSession&&iWon){
+    gameSession.send({type:'broadcast',event:'game_over',payload:{winner:isPlayer1?'p1':'p2',reason:sub}});
+  }
+  cleanupSession();
+}
+
+// ======= HELPERS =======
+function setAvatar(elId, prof){
+  const el=document.getElementById(elId);
+  if(!el)return;
+  if(prof?.avatar_url){el.innerHTML=`<img src="${prof.avatar_url}">`;}
+  else{el.innerHTML=prof?.emotion||'😊';}
+}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function lighten(hex,amt){
+  let r=parseInt(hex.slice(1,3),16)+amt,g=parseInt(hex.slice(3,5),16)+amt,b=parseInt(hex.slice(5,7),16)+amt;
+  r=Math.max(0,Math.min(255,r));g=Math.max(0,Math.min(255,g));b=Math.max(0,Math.min(255,b));
+  return'#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
+}
+function toast(msg){
+  document.querySelectorAll('.toast').forEach(t=>t.remove());
+  const t=document.createElement('div');t.className='toast';t.textContent=msg;
+  document.body.appendChild(t);setTimeout(()=>t.remove(),3000);
+}
+
+// ======= START =======
+init();
 </script>
 </body>
 </html>
