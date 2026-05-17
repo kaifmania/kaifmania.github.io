@@ -295,6 +295,9 @@ let canvas,ctx,aimC,actx,W,H,SC=1;
 let _syncTimer=null;
 let _lastSyncState='';
 
+// ფიქსი: სვლის გადაცემის თვალყური — ვინ უნდა იყოს შემდეგი
+let _nextTurnId=null;
+
 const sb=supabase.createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
@@ -474,23 +477,27 @@ function subGame(){
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'billiard_games',filter:`id=eq.${GID}`},async p=>{
       const row=p.new;
       if(row.status==='finished'){remWin(row);return;}
-      
-      // 🔥 მობილური ბურთების სინქრონიზაცია (მოძრაობის დროს)
-      if(row.physics_state && row.turn!==ME.id){
-        try{
-          const ps=JSON.parse(row.physics_state);
-          if(Array.isArray(ps)){
-            ps.forEach(pb=>{
-              const b=balls.find(bb=>bb.id===pb.id);
-              if(b){b.x=pb.x;b.y=pb.y;b.vx=pb.vx;b.vy=pb.vy;b.p=pb.p;}
-            });
-            render();
-          }
-        }catch(e){}
+
+      // ფიქსი 1: physics_state სინქრონიზაცია მხოლოდ მოწინააღმდეგის სვლის დროს
+      if(row.physics_state){
+        // physics ანიმაცია მიდის — ვაჩვენოთ მოძრაობა
+        if(row.turn!==ME.id){
+          try{
+            const ps=JSON.parse(row.physics_state);
+            if(Array.isArray(ps)){
+              ps.forEach(pb=>{
+                const b=balls.find(bb=>bb.id===pb.id);
+                if(b){b.x=pb.x;b.y=pb.y;b.vx=pb.vx;b.vy=pb.vy;b.p=pb.p;}
+              });
+              render();
+            }
+          }catch(e){}
+        }
+        return; // physics_state არსებობს — სრული state ჯერ არ დამუშავდეს
       }
-      
-      // 🔥 სრული მდგომარეობის სინქრონიზაცია (სვლის დასრულების შემდეგ)
-      if(!row.physics_state && row.state){
+
+      // ფიქსი 2: physics_state=null — სვლა დასრულდა, სრული state მივიღეთ
+      if(row.state){
         try{
           const st=JSON.parse(row.state);
           if(st.balls) balls=st.balls;
@@ -499,30 +506,49 @@ function subGame(){
           if(st.p1grp!==undefined) p1grp=st.p1grp;
           if(st.p2grp!==undefined) p2grp=st.p2grp;
           p1w=row.p1_wins||0;p2w=row.p2_wins||0;
-          
-          if(row.turn===ME.id && !myTurn){
-            myTurn=true;locked=false;
-            placing=st.placing||false;placingReady=false;
+          document.getElementById('w1').textContent=isP1?p1w:p2w;
+          document.getElementById('w2').textContent=isP1?p2w:p1w;
+
+          // ფიქსი 3: სვლის გადაცემა — turn ველი არის წყარო სიმართლისა
+          const nowMyTurn=(row.turn===ME.id);
+
+          if(nowMyTurn && !myTurn){
+            // ჩემი სვლაა ახლა
+            myTurn=true;
+            locked=false;
+            placing=st.placing||false;
+            placingReady=false;
             document.getElementById('wm').style.display='none';
             if(placing){
               document.getElementById('plm').style.display='block';
               document.getElementById('cup').classList.add('h');
+              document.getElementById('sb').disabled=false;
             } else {
               document.getElementById('plm').style.display='none';
               document.getElementById('cup').classList.remove('h');
+              document.getElementById('sb').disabled=false;
             }
-            document.getElementById('sb').disabled=false;
             sysM('🎯 შენი სვლაა!');
-          } else if(row.turn!==ME.id && myTurn){
+          } else if(!nowMyTurn && myTurn){
+            // მოწინааღმდეგის სვლაა
             myTurn=false;
+            locked=false; // ფიქსი 4: locked-ს ვასუფთავებთ — ლოკალური locked არ უნდა ბლოკავდეს UI-ს
+            placing=st.placing||false;
+            placingReady=false;
+            document.getElementById('plm').style.display='none';
+            document.getElementById('wm').style.display='block';
+            document.getElementById('cup').classList.add('h');
+            document.getElementById('sb').disabled=true;
+          } else if(!nowMyTurn && !myTurn){
+            // უცვლელია — მოწინааღმდეგე ისევ თამაშობს (ბურთი ჩასვა)
             placing=st.placing||false;
             document.getElementById('wm').style.display='block';
             document.getElementById('cup').classList.add('h');
             document.getElementById('sb').disabled=true;
           }
-          
+
           updUI();updGr();render();
-        }catch(e){console.error(e);}
+        }catch(e){console.error('subGame state parse error:',e);}
       }
     }).subscribe();
 }
@@ -540,11 +566,19 @@ async function ldChat(gid){
   if(data?.chat) try{renderChat(JSON.parse(data.chat));}catch(e){}
 }
 
-async function pushSt(ex={}){
+// ფიქსი 5: pushSt — nextTurnId პარამეტრი ცალსახად გადაეცემა
+async function pushSt(nextTurnId, ex={}){
   if(vsAI)return;
-  const st={balls:balls.map(b=>({id:b.id,n:b.n,x:Math.round(b.x*10)/10,y:Math.round(b.y*10)/10,vx:0,vy:0,p:b.p})),p1poc:[...p1poc],p2poc:[...p2poc],p1grp,p2grp,placing};
-  const nxtId=myTurn?ME.id:(opp?.id||ME.id);
-  await sb.from('billiard_games').update({state:JSON.stringify(st),physics_state:null,turn:nxtId,...ex}).eq('id',GID);
+  const st={
+    balls:balls.map(b=>({id:b.id,n:b.n,x:Math.round(b.x*10)/10,y:Math.round(b.y*10)/10,vx:0,vy:0,p:b.p})),
+    p1poc:[...p1poc],p2poc:[...p2poc],p1grp,p2grp,placing
+  };
+  await sb.from('billiard_games').update({
+    state:JSON.stringify(st),
+    physics_state:null,
+    turn:nextTurnId,
+    ...ex
+  }).eq('id',GID);
 }
 
 function throttledPhysicsSync(){
@@ -658,76 +692,88 @@ function shotDone(pids){
   const cbP=pb.find(b=>b.n===0);
   const reg=pb.filter(b=>b.n!==0&&b.n!==8);
   const b8=pb.find(b=>b.n===8);
-  const iAm=myTurn;
+  const iAm=true; // ეს ფუნქცია ყოველთვის სვლის გამკეთებელს ეძახება
+
   if(reg.length>0&&(p1grp===null||p2grp===null)&&!cbP){
     const fn=reg[0].n;const isStr=STRIPES.has(fn);
-    if(iAm){if(isP1){p1grp='stripe';p2grp='solid';}else{p2grp='stripe';p1grp='solid';}}
-    else{if(isP1){p2grp='stripe';p1grp='solid';}else{p1grp='stripe';p2grp='solid';}}
+    if(isP1){p1grp=isStr?'stripe':'solid';p2grp=isStr?'solid':'stripe';}
+    else{p2grp=isStr?'stripe':'solid';p1grp=isStr?'solid':'stripe';}
   }
   if(b8){
-    const shooterPoc=iAm?(isP1?p1poc:p2poc):(isP1?p2poc:p1poc);
-    const shooterClear=shooterPoc.length>=7;
+    const myPoc=isP1?p1poc:p2poc;
+    const shooterClear=myPoc.length>=7;
     const foulWithCue=!!cbP;
-    if(iAm){if(shooterClear&&!foulWithCue) endGame(true,'🏆 8-ბურთი სწორად!');else endGame(false,'😔 8-ბ ნაადრევად / ბელა');}
-    else{if(shooterClear&&!foulWithCue) endGame(false,'😔 მოწინააღმდეგემ 8-ბ გაიტანა');else endGame(true,'🏆 მოწ. 8-ბ ნაადრ./ბელა — შენ გაიმ.!');}
+    if(shooterClear&&!foulWithCue) endGame(true,'🏆 8-ბურთი სწორად!');
+    else endGame(false,'😔 8-ბ ნაადრევად / ბელა');
     return;
   }
   let scoredOwn=false;
   reg.forEach(b=>{
     const isStr=STRIPES.has(b.n);
-    const p1own=p1grp==='stripe'?isStr:(p1grp==='solid'?!isStr:true);
-    const p2own=p2grp==='stripe'?isStr:(p2grp==='solid'?!isStr:true);
-    if(iAm){
-      const mine=isP1?p1own:p2own;
-      if(mine){const arr=isP1?p1poc:p2poc;if(!arr.includes(b.n)){arr.push(b.n);scoredOwn=true;}}
-      else{const arr=isP1?p2poc:p1poc;if(!arr.includes(b.n)) arr.push(b.n);}
-    } else{
-      const theirs=isP1?p2own:p1own;
-      if(theirs){const arr=isP1?p2poc:p1poc;if(!arr.includes(b.n)){arr.push(b.n);}}
-      else{const arr=isP1?p1poc:p2poc;if(!arr.includes(b.n)) arr.push(b.n);}
+    const myGrp=isP1?p1grp:p2grp;
+    const mine=myGrp==='stripe'?isStr:(myGrp==='solid'?!isStr:true);
+    if(mine){
+      const arr=isP1?p1poc:p2poc;
+      if(!arr.includes(b.n)){arr.push(b.n);scoredOwn=true;}
+    } else {
+      const arr=isP1?p2poc:p1poc;
+      if(!arr.includes(b.n)) arr.push(b.n);
     }
   });
+
   if(cbP){
+    // ბელა ჩავარდა
     const cb=balls.find(b=>b.n===0);
     if(cb){cb.p=false;cb.x=-999;cb.y=-999;cb.vx=0;cb.vy=0;}
-    sysM('⚪ ბელა ჩავარდა! '+(iAm?'მოწინააღმდეგეს':'შენ')+' შეუძლია ბელა ნებისმიერ ადგილას დადოს');
-    myTurn=!myTurn;
+    // ფიქსი 6: ბელის შემდეგ სვლა გადადის მოწინააღმდეგეზე
+    myTurn=false;
     placing=true;placingReady=false;
-    if(myTurn){
-      document.getElementById('plm').style.display='block';
-      document.getElementById('cup').classList.add('h');
-      document.getElementById('sb').disabled=false;
-    } else{
-      document.getElementById('plm').style.display='none';
-      document.getElementById('wm').style.display='block';
-      document.getElementById('cup').classList.add('h');
-    }
-    updUI();updGr();render();pushSt();
-    if(vsAI&&!myTurn) setTimeout(()=>aiGo(),900);
+    sysM('⚪ ბელა ჩავარდა! მოწინAAღმდეგეს შეუძლია ბელა ნებისმიერ ადგილზე დადოს');
+    document.getElementById('plm').style.display='none';
+    document.getElementById('wm').style.display='block';
+    document.getElementById('cup').classList.add('h');
+    document.getElementById('sb').disabled=true;
+    updUI();updGr();render();
+    // nextTurnId = მოწინააღმდეგე
+    const nextId=opp?.id||ME.id;
+    pushSt(nextId);
     locked=false;
     return;
   }
-  const keepTurn=iAm&&scoredOwn;
-  if(keepTurn) myTurn=true;
-  else myTurn=!iAm;
+
+  // ფიქსი 7: სვლის გადაცემა — scoredOwn=true მაინც ჩვენ გვრჩება
+  const keepTurn=scoredOwn;
+  // nextTurnId: თუ ჩვენ გვრჩება — ME.id, თუ გადადის — opp.id
+  const nextId=keepTurn?ME.id:(opp?.id||ME.id);
+
+  if(keepTurn){
+    myTurn=true;
+  } else {
+    myTurn=false;
+  }
+
   updGr();
-  finishTurn();
+  finishTurn(nextId);
 }
 
-async function finishTurn(){
-  locked=false;updUI();render();
+// ფიქსი 8: finishTurn იღებს nextId პარამეტრს
+async function finishTurn(nextId){
+  locked=false;
+  updUI();render();
+
   if(!myTurn){
     document.getElementById('cup').classList.add('h');
+    document.getElementById('sb').disabled=true;
     if(!vsAI){
       document.getElementById('wm').style.display='block';
-      setTimeout(()=>{if(!myTurn)document.getElementById('wm').style.display='none';},3000);
     }
-  } else{
+  } else {
     document.getElementById('cup').classList.remove('h');
     document.getElementById('sb').disabled=false;
     document.getElementById('wm').style.display='none';
   }
-  await pushSt();
+
+  await pushSt(nextId||ME.id);
   if(vsAI&&!myTurn&&!over) setTimeout(()=>aiGo(),1100);
 }
 
@@ -770,8 +816,8 @@ function updUI(){
   document.getElementById('av2').classList.toggle('ac',!active&&!over);
   document.getElementById('ti1').classList.toggle('on',active);
   document.getElementById('ti2').classList.toggle('on',!active&&!over);
-  document.getElementById('sb').disabled=!myTurn||locked;
-  const st=over?'დასრულდა':myTurn?(placing?'📍 ბელა განათავსე':'🎯 შენი სვლაა'):'⏳ მოწინააღმდეგე...';
+  document.getElementById('sb').disabled=!myTurn||locked||over;
+  const st=over?'დასრულდა':myTurn?(placing?'📍 ბელა განათავსე':'🎯 შენი სვლაა'):'⏳ მოწინAAღმდეგე...';
   document.getElementById('gst').textContent=st;
 }
 
@@ -903,7 +949,7 @@ async function endGame(won,reason){
   document.getElementById('wt').textContent=won?'გამარჯვება!':'წაგება';
   document.getElementById('wss').textContent=reason||'';
   document.getElementById('win').classList.add('on');
-  sysM(won?('🏆 '+(PROF.username||'შენ')+' გაიმარჯვა!'):('😔 '+(opp?.username||'?')+' გაიმარჯვა!'));
+  sysM(won?('🏆 '+(PROF.username||'შენ')+' გაიმARJVა!'):('😔 '+(opp?.username||'?')+' გაიმARJVა!'));
   if(won){
     const ns=(PROF.billiard_score||0)+5;
     await sb.from('profiles').update({billiard_score:ns}).eq('id',ME.id);
@@ -922,7 +968,7 @@ async function again(){
   document.getElementById('plm').style.display='none';
   document.getElementById('wm').style.display='none';
   updUI();updGr();render();
-  if(!vsAI) await pushSt({status:'active'});
+  if(!vsAI) await pushSt(isP1?ME.id:(opp?.id||ME.id),{status:'active'});
   if(vsAI&&!myTurn) setTimeout(()=>aiGo(),1000);
 }
 function toLobby(){
