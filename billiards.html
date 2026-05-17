@@ -422,16 +422,20 @@ async function startGame(gameId,p1,ai){
   } else{
     initB();myTurn=true;
   }
-  resetAng();
+  updateStickAngleFromTarget(); // set initial angle
   updUI();updGr();render();setupIn();
 }
 
-function resetAng(){
+// FIX: update angle based on nearest target (for any player's turn, just for visual)
+function updateStickAngleFromTarget(){
   const cb=balls.find(b=>b.n===0);
-  const ts=balls.filter(b=>!b.p&&b.n!==0);
-  if(cb&&ts.length){
-    const t=ts.reduce((a,b)=>Math.hypot(b.x-cb.x,b.y-cb.y)<Math.hypot(a.x-cb.x,a.y-cb.y)?b:a,ts[0]);
+  if(!cb||cb.p) return;
+  const targets=balls.filter(b=>!b.p&&b.n!==0);
+  if(targets.length){
+    const t=targets.reduce((a,b)=>Math.hypot(b.x-cb.x,b.y-cb.y)<Math.hypot(a.x-cb.x,a.y-cb.y)?b:a,targets[0]);
     ang=Math.atan2(t.y-cb.y,t.x-cb.x);
+  } else {
+    ang=0;
   }
 }
 
@@ -473,6 +477,8 @@ function ldSt(row){
     document.getElementById('w2').textContent=isP1?p2w:p1w;
     updGr();
     if(placing&&myTurn){document.getElementById('plm').style.display='block';document.getElementById('cup').classList.add('h');}
+    // update angle after loading state
+    updateStickAngleFromTarget();
   }catch(e){initB();myTurn=isP1;}
 }
 
@@ -513,7 +519,7 @@ function subGame(){
           if(nowMyTurn&&!myTurn){
             myTurn=true;locked=false;
             placing=st.placing||false;placingReady=false;
-            resetAng();
+            updateStickAngleFromTarget();
             document.getElementById('wm').style.display='none';
             if(placing){
               document.getElementById('plm').style.display='block';
@@ -539,6 +545,11 @@ function subGame(){
             document.getElementById('sb').disabled=true;
           }
           updUI();updGr();render();
+          // ensure angle is refreshed when opponent turn (visual only)
+          if(!myTurn && !placing){
+            updateStickAngleFromTarget();
+            render();
+          }
         }catch(e){console.error('subGame state parse error:',e);}
       }
     }).subscribe();
@@ -598,7 +609,7 @@ function gtPos(e){const t=e.touches[0];return gPos({clientX:t.clientX,clientY:t.
 
 function updA(pos){
   const cb=balls.find(b=>b.n===0);
-  if(!cb)return;
+  if(!cb||cb.p)return;
   ang=Math.atan2(pos.y-cb.y,pos.x-cb.x);
   render();
 }
@@ -613,7 +624,7 @@ function plCB(pos){
   render();
   document.getElementById('cup').classList.remove('h');
   document.getElementById('sb').disabled=false;
-  resetAng();
+  updateStickAngleFromTarget();
   render();
   throttledPhysicsSync();
 }
@@ -760,13 +771,16 @@ async function finishTurn(nextId){
     document.getElementById('cup').classList.remove('h');
     document.getElementById('sb').disabled=false;
     document.getElementById('wm').style.display='none';
-    resetAng();
+    updateStickAngleFromTarget();
     render();
   } else {
     locked=false;
     document.getElementById('cup').classList.add('h');
     document.getElementById('sb').disabled=true;
     if(!vsAI) document.getElementById('wm').style.display='block';
+    // still update angle for visual when observing opponent
+    updateStickAngleFromTarget();
+    render();
   }
   await pushSt(nextId||ME.id);
   if(vsAI&&!myTurn&&!over) setTimeout(()=>aiGo(),1100);
@@ -928,13 +942,15 @@ function drawBall(b){
 
 function drawStickOnTC(){
   if(!ctx)return;
-  if(!myTurn||over)return;
-  if(placing&&!placingReady)return;
+  if(over)return;
   const cb=balls.find(b=>b.n===0);
-  if(!cb||cb.x<0)return;
+  if(!cb||cb.p||cb.x<0)return;
+
   const cx=cb.x*SC;
   const cy=cb.y*SC;
   ctx.save();
+
+  // draw aiming line (always visible even if not our turn, but only if cue ball on table)
   const farX=cx+Math.cos(ang)*W*3;
   const farY=cy+Math.sin(ang)*H*3;
   ctx.setLineDash([5,7]);
@@ -942,20 +958,31 @@ function drawStickOnTC(){
   ctx.lineWidth=1.2;
   ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(farX,farY);ctx.stroke();
   ctx.setLineDash([]);
+
+  // Only draw cue stick when it's my turn (player can shoot)
+  if(!myTurn){
+    ctx.restore();
+    return;
+  }
+
   const off=14*SC, len=150*SC;
   const bx=-Math.cos(ang), by=-Math.sin(ang);
   const rx1=cx+bx*off, ry1=cy+by*off;
   const rx2=cx+bx*(off+len), ry2=cy+by*(off+len);
+
   const sg=ctx.createLinearGradient(rx1,ry1,rx2,ry2);
   sg.addColorStop(0,'#f0d070');
   sg.addColorStop(0.15,'#c89030');
   sg.addColorStop(0.7,'#7a4510');
   sg.addColorStop(1,'#3a1806');
+
   ctx.beginPath();
   ctx.moveTo(rx1,ry1);ctx.lineTo(rx2,ry2);
   ctx.lineWidth=6*SC;ctx.strokeStyle=sg;ctx.lineCap='round';ctx.stroke();
+
   ctx.beginPath();ctx.arc(rx1,ry1,2.5*SC,0,Math.PI*2);
   ctx.fillStyle='#b0d0f0';ctx.fill();
+
   ctx.restore();
 }
 
@@ -987,7 +1014,7 @@ async function again(){
   document.getElementById('sb').disabled=false;
   document.getElementById('plm').style.display='none';
   document.getElementById('wm').style.display='none';
-  resetAng();
+  updateStickAngleFromTarget();
   updUI();updGr();render();
   if(!vsAI) await pushSt(isP1?ME.id:(opp?.id||ME.id),{status:'active'});
   if(vsAI&&!myTurn) setTimeout(()=>aiGo(),1000);
