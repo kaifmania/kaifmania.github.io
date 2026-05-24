@@ -418,21 +418,22 @@ function addSysChat(msg) {
 }
 
 // ====== INVITE ======
+// Single shared channel — all invite traffic goes through one channel,
+// filtered by to/from IDs. This avoids subscribe race conditions.
 function setupInviteChannel() {
   if (inviteCh) { try { sb.removeChannel(inviteCh); } catch (e) { } }
-  inviteCh = sb.channel('billiards_invites_' + ME.id)
+  inviteCh = sb.channel('billiards_invites_global')
     .on('broadcast', { event: 'invite' }, ({ payload }) => {
+      // Only handle invites addressed to me
       if (payload.to !== ME.id) return;
       showInvite(payload);
     })
-    .subscribe();
-
-  // Listen for responses to MY invites
-  sb.channel('billiards_resp_' + ME.id)
     .on('broadcast', { event: 'invite_response' }, ({ payload }) => {
+      // Only handle responses to MY invites
+      if (payload.to !== ME.id) return;
       if (payload.accepted) {
         toast('✅ ' + payload.nick + ' დაეთანხმა!');
-        startMultiGame(payload.uid, payload.nick, payload.avatar, true);
+        startMultiGame(payload.from, payload.nick, payload.avatar, true);
       } else {
         toast('❌ ' + payload.nick + ' უარი თქვა');
       }
@@ -479,19 +480,16 @@ function closeUserPick() { document.getElementById('userPickOverlay').classList.
 async function sendInvite(user) {
   toast('📨 ' + user.username + '-ს ვიწვევთ...');
   addSysChat('📨 ' + user.username + '-ს გამოწვევა გაიგზავნა');
-  // Send invite to target user's personal channel
-  const ch = sb.channel('billiards_invites_' + user.id);
-  ch.subscribe(async status => {
-    if (status === 'SUBSCRIBED') {
-      await ch.send({
-        type: 'broadcast', event: 'invite', payload: {
-          from: ME.id, to: user.id,
-          nick: MYPROF?.username || '?',
-          avatar: MYPROF?.avatar_url || null
-        }
-      });
-    }
-  });
+  // Use the already-subscribed global channel — no new subscribe needed
+  if (inviteCh) {
+    inviteCh.send({
+      type: 'broadcast', event: 'invite', payload: {
+        from: ME.id, to: user.id,
+        nick: MYPROF?.username || '?',
+        avatar: MYPROF?.avatar_url || null
+      }
+    });
+  }
 }
 
 function showInvite(payload) {
@@ -512,22 +510,24 @@ async function acceptInvite() {
 
   toast('✅ დასტური გაიგზავნა!');
 
-  // Send response to the inviter's personal response channel
-  const ch = sb.channel('billiards_resp_' + inv.from);
-  ch.subscribe(async status => {
-    if (status === 'SUBSCRIBED') {
-      await ch.send({
-        type: 'broadcast', event: 'invite_response', payload: {
-          uid: ME.id,
-          nick: MYPROF?.username || '?',
-          avatar: MYPROF?.avatar_url || null,
-          accepted: true
-        }
-      });
-      // Small delay to ensure inviter receives the response first
-      setTimeout(() => {
-        // Invitee is player2 (isInviter=false)
-        startMultiGame(inv.from, inv.nick, inv.avatar, false);
+  // Send response on the same global channel — inviter filters by payload.to
+  if (inviteCh) {
+    await inviteCh.send({
+      type: 'broadcast', event: 'invite_response', payload: {
+        to: inv.from,      // inviter's ID — they filter on this
+        from: ME.id,
+        nick: MYPROF?.username || '?',
+        avatar: MYPROF?.avatar_url || null,
+        accepted: true
+      }
+    });
+  }
+
+  // Start game for invitee (player2) after sending response
+  setTimeout(() => {
+    startMultiGame(inv.from, inv.nick, inv.avatar, false);
+  }, 400);
+}
       }, 600);
     }
   });
@@ -539,19 +539,17 @@ async function declineInvite() {
   currentInviteFrom = null;
   if (!inv) return;
 
-  const ch = sb.channel('billiards_resp_' + inv.from);
-  ch.subscribe(async status => {
-    if (status === 'SUBSCRIBED') {
-      await ch.send({
-        type: 'broadcast', event: 'invite_response', payload: {
-          uid: ME.id,
-          nick: MYPROF?.username || '?',
-          avatar: MYPROF?.avatar_url || null,
-          accepted: false
-        }
-      });
-    }
-  });
+  if (inviteCh) {
+    inviteCh.send({
+      type: 'broadcast', event: 'invite_response', payload: {
+        to: inv.from,
+        from: ME.id,
+        nick: MYPROF?.username || '?',
+        avatar: MYPROF?.avatar_url || null,
+        accepted: false
+      }
+    });
+  }
   toast('❌ უარი გაიგზავნა');
 }
 
