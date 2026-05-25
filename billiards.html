@@ -46,7 +46,25 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 @media(max-width:860px){#mobileChatBtn{display:flex}}
 #mobileChatOverlay{position:fixed;inset:0;background:rgba(0,0,0,.7);backdrop-filter:blur(6px);z-index:5500;display:none;flex-direction:column;justify-content:flex-end}
 #mobileChatOverlay.open{display:flex}
-#mobileChatSheet{background:var(--panel);border-top:1px solid var(--border);border-radius:22px 22px 0 0;height:65vh;display:flex;flex-direction:column;animation:slideUp .3s ease}
+#mobileChatSheet{
+  background:var(--panel);
+  border-top:1px solid var(--border);
+  border-radius:22px 22px 0 0;
+  /* Use dvh so keyboard resize is respected */
+  height:55dvh;
+  min-height:320px;
+  display:flex;
+  flex-direction:column;
+  animation:slideUp .3s ease;
+  /* Push above home indicator / keyboard on iOS */
+  padding-bottom:env(safe-area-inset-bottom, 8px);
+}
+/* When soft keyboard is open, browser shrinks viewport — sheet adjusts automatically with dvh.
+   Extra rule: keep chat-bar always visible */
+#mobileChatSheet .chat-bar{
+  flex-shrink:0;
+  padding-bottom:max(8px, env(safe-area-inset-bottom));
+}
 
 /* ====== LOBBY ====== */
 #lobby{display:none;flex-direction:column;align-items:center;justify-content:center;flex:1;gap:24px;padding:24px;animation:fadeIn .4s ease;width:100%}
@@ -933,14 +951,32 @@ function afterShotSettle() {
   updateBallUI();
 
   const nowMyTurn = isMyShot();
+  const wasSimulating = isSimulatingOpponent;
+  isSimulatingOpponent = false; // reset after every settle
+
   if(gameMode==='ai'&&currentTurn===2){
     setGameMsg('🤖 AI ფიქრობს...');
     updateShootBtn(false);
     scheduleAI();
-  } else if(gameMode==='multi'&&!nowMyTurn){
-    setGameMsg('⌛ '+opponentNick+'-ს ჯერი...');
-    updateShootBtn(false);
-    broadcastTurnChange();
+  } else if(gameMode==='multi'){
+    if(nowMyTurn){
+      // My turn now — whether I just scored or opponent missed
+      updateShootBtn(true);
+      const myType=iAmPlayer1?player1Type:player2Type;
+      const myRemaining=typeAssigned&&myType?balls.filter(b=>!b.pocketed&&(myType==='solid'?b.solid:b.stripe)).length:null;
+      if(typeAssigned&&myRemaining===0){
+        setGameMsg('🎱 ყველა ბურთი ჩაყარე — ჩაყარე შავი და მოიგე!');
+      } else {
+        setGameMsg('🎯 შენი ჯერია!');
+      }
+      // If WE were the shooter (not simulating), broadcast state to opponent
+      if(!wasSimulating) broadcastTurnChange();
+    } else {
+      // Opponent's turn — broadcast only if WE were the shooter
+      setGameMsg('⌛ '+opponentNick+'-ს ჯერი...');
+      updateShootBtn(false);
+      if(!wasSimulating) broadcastTurnChange();
+    }
   } else if(nowMyTurn){
     updateShootBtn(true);
     const myType=iAmPlayer1?player1Type:player2Type;
@@ -1135,6 +1171,10 @@ function aiShoot(){
 }
 
 // ====== MULTIPLAYER ======
+// When true: we are running physics for the opponent's shot (received via 'shot' broadcast).
+// afterShotSettle must NOT re-broadcast in this case — shooter side handles it.
+let isSimulatingOpponent = false;
+
 function broadcastTurnChange(){
   if(gameMode==='multi'&&multiCh){
     multiCh.send({type:'broadcast',event:'turn_change',payload:{
@@ -1158,6 +1198,8 @@ function setupMultiChannel(opponentId){
         });
       }
       if(cueBall){cueBall.vx=payload.vx||0;cueBall.vy=payload.vy||0;}
+      // Mark opponent simulation — afterShotSettle won't broadcast
+      isSimulatingOpponent=true;
       startPhysics();
     })
     .on('broadcast',{event:'turn_change'},({payload})=>{
@@ -1174,7 +1216,13 @@ function setupMultiChannel(opponentId){
       }
       currentTurn=payload.currentTurn;
       updateBallUI(); updateTurnUI();
-      if(isMyShot()){updateShootBtn(true);setGameMsg('🎯 შენი ჯერია!');}
+      if(isMyShot()){
+        updateShootBtn(true);
+        setGameMsg('🎯 შენი ჯერია!');
+      } else {
+        updateShootBtn(false);
+        setGameMsg('⌛ '+opponentNick+'-ს ჯერი...');
+      }
     })
     .subscribe();
 }
@@ -1220,6 +1268,7 @@ function beginGame(){
   player1Type=null; player2Type=null;
   typeAssigned=false; foulFlag=false;
   pocketedThisShot=[];
+  isSimulatingOpponent=false;
   initBalls(); render();
   updateTurnUI(); updateBallUI();
   document.getElementById('foulNotice').style.display='none';
