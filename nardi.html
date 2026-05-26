@@ -3,147 +3,131 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ნარდი — კაიფმანია</title>
+<title>ნარდი — AI + მეგობრები | კაიფმანია</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{
-  --bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;
-  --border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;
-  --bubble:#2a2745;--input-bg:#221f3a;
-  --indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
-  --glow:rgba(168,85,247,0.28);--accent:#f07aff;
-  --online:#c07aff;
-  --w:#f5f0ff;--b:#1a0a2e;
-  --board-light:#2d1f4a;--board-dark:#180d30;
-  --dice:#fff8f0;--dice-dot:#1a0a2e;
-  --bar:#0a0818;
-  --green:rgba(74,222,128,0.85);--red:rgba(239,68,68,0.85);
-}
+:root{--bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff;--online:#c07aff;--w:#f5f0ff;--b:#1a0a2e;--board-light:#2d1f4a;--board-dark:#180d30;--dice:#fff8f0;--dice-dot:#1a0a2e;--bar:#0a0818;--green:rgba(74,222,128,0.85);--red:rgba(239,68,68,0.85);}
 body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);min-height:100dvh;display:flex;flex-direction:column;overflow-x:hidden}
-
 @keyframes pop{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
-@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
 @keyframes diceRoll{0%{transform:rotate(0) scale(1)}25%{transform:rotate(90deg) scale(.7)}50%{transform:rotate(180deg) scale(1.2)}75%{transform:rotate(270deg) scale(.8)}100%{transform:rotate(360deg) scale(1)}}
 @keyframes glow{0%,100%{box-shadow:0 0 8px var(--glow)}50%{box-shadow:0 0 28px var(--glow),0 0 60px var(--accent)}}
 @keyframes slideUp{from{opacity:0;transform:translateY(30px) scale(.9)}to{opacity:1;transform:translateY(0) scale(1)}}
-@keyframes pulse{0%,100%{opacity:1}50%{opacity:.45}}
-@keyframes confettiDrop{0%{transform:translateY(-20px) rotate(0);opacity:1}100%{transform:translateY(100vh) rotate(720deg);opacity:0}}
 @keyframes heartbeat{0%,100%{transform:scale(1)}40%{transform:scale(1.15)}}
-@keyframes checkerBounce{0%{transform:translateY(0)}40%{transform:translateY(-8px)}100%{transform:translateY(0)}}
-
+@keyframes messagePop{from{opacity:0;transform:translateY(12px) scale(0.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 #topbar{display:flex;align-items:center;gap:10px;padding:10px 16px;background:var(--panel);border-bottom:1px solid var(--border);flex-shrink:0}
 .logo{font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;color:var(--accent);letter-spacing:-.5px;cursor:pointer}
-.logo:hover{text-shadow:0 0 20px var(--accent)}
-.back-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);padding:7px 14px;font-size:12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;transition:all .2s}
+.back-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;color:var(--text2);padding:7px 14px;font-size:12px;cursor:pointer}
 .back-btn:hover{background:var(--border);color:var(--text)}
 .spacer{flex:1}
 .status-pill{background:var(--indigo-f);border:1px solid var(--border);border-radius:20px;padding:5px 14px;font-size:11px;color:var(--text2);display:flex;align-items:center;gap:6px}
-.status-dot{width:7px;height:7px;border-radius:50%;background:var(--online);box-shadow:0 0 6px var(--online);flex-shrink:0}
-
-#lobby{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:20px}
+.status-dot{width:7px;height:7px;border-radius:50%;background:var(--online);box-shadow:0 0 6px var(--online)}
+#lobby{flex:1;display:flex;flex-direction:column;align-items:center;padding:24px;gap:20px;overflow-y:auto}
 .lobby-title{font-family:'Unbounded',sans-serif;font-size:28px;font-weight:900;color:var(--text);text-align:center}
 .lobby-title span{color:var(--accent)}
+.lobby-tabs{display:flex;gap:8px;background:var(--panel);border-radius:50px;padding:4px;border:1px solid var(--border);width:100%;max-width:400px}
+.lobby-tab{flex:1;padding:12px 8px;border-radius:40px;background:transparent;border:none;color:var(--text2);font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s;text-align:center}
+.lobby-tab.active{background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;box-shadow:0 4px 15px rgba(120,30,200,.4)}
 .lobby-card{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:24px;width:100%;max-width:460px;box-shadow:0 10px 40px rgba(0,0,0,.4),0 0 30px var(--glow);animation:slideUp .4s cubic-bezier(.22,1,.36,1)}
-.card-title{font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.online-dot-sm{width:7px;height:7px;border-radius:50%;background:var(--online);box-shadow:0 0 6px var(--online);animation:pulse 1.5s infinite}
+.card-title{font-family:'Unbounded',sans-serif;font-size:11px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:16px}
 .user-list{display:flex;flex-direction:column;gap:6px;max-height:260px;overflow-y:auto;margin-bottom:12px}
 .user-list::-webkit-scrollbar{width:3px}
-.user-list::-webkit-scrollbar-thumb{background:var(--border)}
 .user-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:14px;border:1px solid var(--border);background:var(--indigo-f);cursor:pointer;transition:all .2s}
-.user-row:hover{background:var(--indigo);border-color:var(--indigo2);transform:translateX(4px)}
-.user-row.invited{border-color:var(--accent);background:rgba(240,122,255,0.12);animation:heartbeat 1s ease infinite}
-.av{width:36px;height:36px;border-radius:50%;background:var(--panel2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.user-row:hover{background:var(--indigo);border-color:var(--indigo2)}
+.av{width:36px;height:36px;border-radius:50%;background:var(--panel2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
 .av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .ul-name{font-size:13px;font-weight:600;color:var(--text)}
 .ul-sub{font-size:11px;color:var(--text3)}
-.invite-btn{margin-left:auto;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:11px;padding:6px 12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;flex-shrink:0;transition:all .2s}
-.invite-btn:hover{transform:scale(1.05);box-shadow:0 4px 14px rgba(120,30,200,.5)}
+.invite-btn{margin-left:auto;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:11px;padding:6px 12px;cursor:pointer}
 .invite-btn:disabled{opacity:.4;cursor:not-allowed}
 .empty-msg{text-align:center;padding:28px;color:var(--text3);font-size:13px}
-
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);backdrop-filter:blur(8px);z-index:1000;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
-.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:slideUp .35s cubic-bezier(.22,1,.36,1)}
-.modal-icon{font-size:52px;text-align:center;margin-bottom:12px;display:block}
-.modal-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px;letter-spacing:.5px}
+.modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:28px;width:100%;max-width:380px;box-shadow:0 20px 60px rgba(0,0,0,.6)}
+.modal-icon{font-size:52px;text-align:center;margin-bottom:12px}
+.modal-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--text);text-align:center;margin-bottom:8px}
 .modal-sub{font-size:13px;color:var(--text2);text-align:center;margin-bottom:20px}
 .modal-btns{display:flex;gap:8px}
-.btn-accept{flex:1;padding:12px;border-radius:14px;background:linear-gradient(135deg,rgba(74,222,128,.9),rgba(52,211,153,.9));border:none;color:#052e16;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-accept:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(74,222,128,.4)}
-.btn-decline{flex:1;padding:12px;border-radius:14px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#ff7777;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;transition:all .2s}
-.btn-decline:hover{background:rgba(239,68,68,.25)}
-.btn-primary{width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(120,30,200,.4);transition:all .2s;margin-bottom:8px}
-.btn-primary:hover{transform:translateY(-2px);box-shadow:0 10px 30px rgba(120,30,200,.6)}
-.btn-secondary{width:100%;padding:11px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s}
-.btn-secondary:hover{background:var(--border);color:var(--text)}
-.countdown{font-family:'Unbounded',sans-serif;font-size:36px;font-weight:900;color:var(--accent);text-align:center;margin:10px 0;text-shadow:0 0 20px var(--accent)}
-
+.btn-accept{flex:1;padding:12px;border-radius:14px;background:linear-gradient(135deg,rgba(74,222,128,.9),rgba(52,211,153,.9));border:none;color:#052e16;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.btn-decline{flex:1;padding:12px;border-radius:14px;background:rgba(239,68,68,.15);border:1px solid rgba(239,68,68,.3);color:#ff7777;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
+.btn-primary{width:100%;padding:13px;border-radius:14px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;margin-bottom:8px}
+.btn-secondary{width:100%;padding:11px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer}
 #game{display:none;flex:1;flex-direction:column;align-items:center;padding:12px;gap:12px}
 #game.active{display:flex}
-
 .info-bar{display:flex;align-items:center;gap:10px;width:100%;max-width:780px}
 .player-card{display:flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:8px 14px;flex:1}
 .player-card.active-player{border-color:var(--accent);box-shadow:0 0 16px var(--glow);animation:glow 2s ease infinite}
 .pc-av{width:32px;height:32px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
-.pc-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .pc-name{font-size:13px;font-weight:600;color:var(--text);flex:1}
 .pc-color{font-size:10px;color:var(--text3)}
 .pc-score{font-family:'Unbounded',sans-serif;font-size:16px;font-weight:700;color:var(--accent)}
-.vs-sep{font-family:'Unbounded',sans-serif;font-size:12px;color:var(--text3);padding:0 4px;flex-shrink:0}
-
 #boardWrap{position:relative;width:100%;max-width:780px}
-#boardCanvas{width:100%;height:100%;display:block;border-radius:18px;border:2px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 30px var(--glow)}
-
+#boardCanvas{width:100%;height:100%;display:block;border-radius:18px;border:2px solid var(--border);box-shadow:0 12px 40px rgba(0,0,0,.5),0 0 30px var(--glow);cursor:pointer}
 .controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap;justify-content:center;width:100%;max-width:780px}
 .dice-area{display:flex;gap:8px}
-.die{width:52px;height:52px;background:var(--dice);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 14px rgba(0,0,0,.4);transition:all .3s;cursor:default;position:relative;border:2px solid transparent;color:#1a0a2e}
+.die{width:52px;height:52px;background:var(--dice);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:26px;box-shadow:0 4px 14px rgba(0,0,0,.4);border:2px solid transparent;color:#1a0a2e}
 .die.used{opacity:.3;transform:scale(.82)}
 .die.rolling{animation:diceRoll .5s ease}
-.roll-btn{padding:12px 28px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:14px;color:#fff;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(120,30,200,.4);transition:all .2s}
-.roll-btn:hover:not(:disabled){transform:translateY(-2px);box-shadow:0 10px 30px rgba(120,30,200,.6)}
+.roll-btn{padding:12px 28px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:14px;color:#fff;font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;cursor:pointer}
 .roll-btn:disabled{opacity:.4;cursor:not-allowed}
-.end-turn-btn{padding:12px 20px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);border-radius:14px;color:#4ade80;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:all .2s}
-.end-turn-btn:hover:not(:disabled){background:rgba(74,222,128,.25);transform:translateY(-2px)}
+.end-turn-btn{padding:12px 20px;background:rgba(74,222,128,.15);border:1px solid rgba(74,222,128,.4);border-radius:14px;color:#4ade80;font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;cursor:pointer}
 .end-turn-btn:disabled{opacity:.3;cursor:not-allowed}
-
 .game-status{background:var(--panel2);border:1px solid var(--border);border-radius:12px;padding:8px 16px;font-size:13px;color:var(--text2);text-align:center;width:100%;max-width:780px}
-
-.confetti-piece{position:fixed;width:10px;height:10px;pointer-events:none;border-radius:2px;animation:confettiDrop 3s ease-in forwards;z-index:9999}
-
-@media(max-width:560px){
-  #boardWrap{aspect-ratio:unset}
-  .die{width:42px;height:42px;font-size:20px}
-  .roll-btn,.end-turn-btn{font-size:11px;padding:10px 16px}
-}
+.chat-container{background:var(--panel);border:1px solid var(--border);border-radius:16px;width:100%;max-width:780px;margin-top:8px;display:flex;flex-direction:column;max-height:240px}
+.chat-header{display:flex;align-items:center;gap:8px;padding:8px 12px;border-bottom:1px solid var(--border);flex-shrink:0}
+.chat-header span{font-size:12px;color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:.5px}
+.chat-messages{flex:1;overflow-y:auto;padding:8px 12px;display:flex;flex-direction:column;gap:4px;max-height:160px;min-height:120px}
+.chat-messages::-webkit-scrollbar{width:3px}
+.chat-msg{font-size:12px;color:var(--text);word-break:break-word;animation:messagePop .2s ease}
+.chat-msg strong{color:var(--indigo2);font-weight:600}
+.chat-msg small{font-size:9px;color:var(--text3);margin-left:6px}
+.chat-input-area{display:flex;gap:6px;padding:8px 12px;border-top:1px solid var(--border);flex-shrink:0}
+.chat-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:20px;padding:8px 14px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
+.chat-input:focus{border-color:var(--indigo2)}
+.chat-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:20px;color:#fff;font-size:12px;padding:0 16px;cursor:pointer}
+@media(max-width:560px){.die{width:42px;height:42px;font-size:20px}.roll-btn,.end-turn-btn{font-size:11px;padding:10px 16px}}
 </style>
 </head>
 <body>
 
 <div id="topbar">
-  <div class="logo" onclick="goBack()">🎲 ნარდი</div>
+  <div class="logo" onclick="location.reload()">🎲 ნარდი</div>
   <div class="spacer"></div>
-  <div class="status-pill" id="statusPill">
-    <div class="status-dot"></div>
-    <span id="statusText">Loading...</span>
-  </div>
+  <div class="status-pill"><div class="status-dot"></div><span id="statusText">Loading...</span></div>
   <button class="back-btn" onclick="goBack()">← მთავარი</button>
 </div>
 
 <div id="lobby">
-  <div class="lobby-title">🎲 ნარდი<br><span>კლასიკური შორტ-ნარდი</span></div>
-  <div class="lobby-card">
-    <div class="card-title"><div class="online-dot-sm"></div>ონლაინი — მოიწვიე</div>
+  <div class="lobby-title">🎲 ნარდი<br><span>AI ან მეგობარი</span></div>
+  
+  <div class="lobby-tabs">
+    <button class="lobby-tab active" id="tabAiBtn" onclick="switchLobbyTab('ai')">🤖 AI თამაში</button>
+    <button class="lobby-tab" id="tabPvpBtn" onclick="switchLobbyTab('pvp')">👥 მეგობრის მოწვევა</button>
+  </div>
+  
+  <!-- AI TAB -->
+  <div id="aiTab" class="lobby-card">
+    <div class="card-title">🤖 ითამაშე AI-ს წინააღმდეგ</div>
+    <div style="text-align:center;margin-bottom:20px">
+      <div style="font-size:48px;margin-bottom:10px">🎲🧠</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:16px">AI ირჩევს საუკეთესო სვლას<br>შენ თამაშობ თეთრებით</div>
+      <button class="btn-primary" onclick="startAIGame()">🎮 AI-სთან თამაში</button>
+    </div>
+  </div>
+  
+  <!-- PVP TAB -->
+  <div id="pvpTab" class="lobby-card" style="display:none">
+    <div class="card-title">👥 ონლაინი — მოიწვიე მეგობარი</div>
     <div class="user-list" id="userListEl"><div class="empty-msg">⏳ მომხმარებლები...</div></div>
     <button class="btn-secondary" onclick="loadOnlineUsers()">🔄 განახლება</button>
   </div>
+  
   <div id="waitingCard" class="lobby-card" style="display:none;text-align:center">
-    <div class="card-title" style="justify-content:center">⏳ მოლოდინი</div>
+    <div class="card-title">⏳ მოლოდინი</div>
     <div style="font-size:42px;margin:8px 0;animation:heartbeat 1s ease infinite" id="waitingTarget">?</div>
     <div style="font-size:14px;color:var(--text2);margin-bottom:16px" id="waitingName">-</div>
-    <div style="font-size:12px;color:var(--text3);margin-bottom:16px">პასუხის მოლოდინში...</div>
-    <div class="countdown" id="waitCountdown"></div>
+    <div class="countdown" id="waitCountdown" style="font-size:28px;font-weight:900;color:var(--accent)">30</div>
     <button class="btn-secondary" onclick="cancelInvite()">❌ გაუქმება</button>
   </div>
 </div>
@@ -153,7 +137,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
     <span class="modal-icon">🎲</span>
     <div class="modal-title" id="inviteTitle">მოგიწვიეს!</div>
     <div class="modal-sub" id="inviteSub">?? გიწვევს ნარდის თამაშად</div>
-    <div class="countdown" id="inviteCountdown">30</div>
+    <div class="countdown" id="inviteCountdown" style="font-size:28px;font-weight:900;color:var(--accent);text-align:center;margin:10px">30</div>
     <div class="modal-btns">
       <button class="btn-accept" onclick="acceptInvite()">✅ დასტური</button>
       <button class="btn-decline" onclick="declineInvite()">❌ უარი</button>
@@ -183,42 +167,30 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 
 <div id="game">
   <div class="info-bar">
-    <div class="player-card" id="pcTop">
-      <div class="pc-av" id="avTop">⚫</div>
-      <div>
-        <div class="pc-name" id="nameTop">-</div>
-        <div class="pc-color" id="colorTop">⚫ შავი</div>
-      </div>
-      <div class="spacer"></div>
-      <div class="pc-score" id="borneTop">🏠 0</div>
-    </div>
+    <div class="player-card" id="pcTop"><div class="pc-av" id="avTop">⚪</div><div><div class="pc-name" id="nameTop">-</div><div class="pc-color" id="colorTop">⚪ თეთრი</div></div><div class="spacer"></div><div class="pc-score" id="borneTop">🏠 0</div></div>
     <div class="vs-sep">vs</div>
-    <div class="player-card" id="pcBot">
-      <div class="pc-av" id="avBot">⚪</div>
-      <div>
-        <div class="pc-name" id="nameBot">-</div>
-        <div class="pc-color" id="colorBot">⚪ თეთრი</div>
-      </div>
-      <div class="spacer"></div>
-      <div class="pc-score" id="borneBot">🏠 0</div>
-    </div>
+    <div class="player-card" id="pcBot"><div class="pc-av" id="avBot">⚫</div><div><div class="pc-name" id="nameBot">-</div><div class="pc-color" id="colorBot">⚫ შავი</div></div><div class="spacer"></div><div class="pc-score" id="borneBot">🏠 0</div></div>
   </div>
-
-  <div id="boardWrap">
-    <canvas id="boardCanvas"></canvas>
-  </div>
-
+  <div id="boardWrap"><canvas id="boardCanvas"></canvas></div>
   <div class="game-status" id="gameStatus">...</div>
-
   <div class="controls">
     <div class="dice-area" id="diceArea"></div>
     <button class="roll-btn" id="rollBtn" onclick="rollDice()" disabled>🎲 ათამაშება</button>
     <button class="end-turn-btn" id="endTurnBtn" onclick="endTurn()" disabled>✔ სვლის დასრულება</button>
   </div>
+  
+  <!-- CHAT INTEGRATION -->
+  <div class="chat-container">
+    <div class="chat-header"><span>💬 თამაშის ჩატი</span></div>
+    <div class="chat-messages" id="gameChatMessages"><div class="chat-msg" style="color:var(--text3);text-align:center">💬 დაწერე შეტყობინება...</div></div>
+    <div class="chat-input-area">
+      <input type="text" class="chat-input" id="gameChatInput" placeholder="დაწერე..." onkeypress="if(event.key==='Enter') sendGameChat()">
+      <button class="chat-send" onclick="sendGameChat()">✈️</button>
+    </div>
+  </div>
 </div>
 
 <script>
-/* ══════════════════ SUPABASE ══════════════════ */
 const { createClient } = supabase;
 const sb = createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
@@ -227,130 +199,21 @@ const sb = createClient(
 
 let ME = null, MYPROF = null;
 let allUsers = [];
-let inviteChannel = null, gameChannel = null;
 let currentInviteId = null, pendingInvite = null;
 let inviteTimer = null, waitTimer = null;
-let myFirstRoll = null, oppFirstRoll = null;
+let gameChannel = null;
+let isAIMode = false;
+let aiTimeout = null;
 
-/* ══════════════════ AUDIO ══════════════════ */
-const AudioCtx = window.AudioContext || window.webkitAudioContext;
-let audioCtx = null;
-
-function getAudioCtx(){
-  if(!audioCtx) audioCtx = new AudioCtx();
-  return audioCtx;
-}
-
-function playDiceSound(){
-  try {
-    const ctx = getAudioCtx();
-    // Multiple short clicks = dice rattling
-    const times = [0, 0.05, 0.11, 0.18, 0.26, 0.35, 0.45];
-    times.forEach(t => {
-      const buf = ctx.createBuffer(1, ctx.sampleRate * 0.04, ctx.sampleRate);
-      const data = buf.getChannelData(0);
-      for(let i = 0; i < data.length; i++){
-        data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i/data.length, 2);
-      }
-      const src = ctx.createBufferSource();
-      src.buffer = buf;
-      const gain = ctx.createGain();
-      gain.gain.value = 0.35;
-      src.connect(gain);
-      gain.connect(ctx.destination);
-      src.start(ctx.currentTime + t);
-    });
-  } catch(e){}
-}
-
-function playMoveSound(){
-  try {
-    const ctx = getAudioCtx();
-    const buf = ctx.createBuffer(1, ctx.sampleRate * 0.06, ctx.sampleRate);
-    const data = buf.getChannelData(0);
-    for(let i = 0; i < data.length; i++){
-      data[i] = (Math.random() * 2 - 1) * Math.pow(1 - i/data.length, 3);
-    }
-    const src = ctx.createBufferSource();
-    src.buffer = buf;
-    const gain = ctx.createGain();
-    gain.gain.value = 0.25;
-    src.connect(gain);
-    gain.connect(ctx.destination);
-    src.start();
-  } catch(e){}
-}
-
-function playHitSound(){
-  try {
-    const ctx = getAudioCtx();
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(300, ctx.currentTime);
-    osc.frequency.exponentialRampToValueAtTime(80, ctx.currentTime + 0.15);
-    gain.gain.setValueAtTime(0.3, ctx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-    osc.start();
-    osc.stop(ctx.currentTime + 0.15);
-  } catch(e){}
-}
-
-function playWinSound(){
-  try {
-    const ctx = getAudioCtx();
-    const notes = [261, 329, 392, 523, 659];
-    notes.forEach((freq, i) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-      osc.type = 'triangle';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0, ctx.currentTime + i*0.12);
-      gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + i*0.12 + 0.05);
-      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i*0.12 + 0.4);
-      osc.connect(gain);
-      gain.connect(ctx.destination);
-      osc.start(ctx.currentTime + i*0.12);
-      osc.stop(ctx.currentTime + i*0.12 + 0.4);
-    });
-  } catch(e){}
-}
-
-/* ══════════════════ GAME STATE ══════════════════ */
-/*
-  STANDARD BACKGAMMON (შორტ ნარდი) starting position:
-  
-  Point numbering: 1–24 (from each player's perspective)
-  Internally we use index 0–23 where:
-    index 0  = point 1  (white's home, bottom-right)
-    index 23 = point 24 (white's starting area, top-right from white's view)
-  
-  WHITE moves: high → low (index 23→0), bears off from index 0–5
-  BLACK moves: low → high (index 0→23), bears off from index 18–23
-  
-  Standard starting position (white's perspective):
-    Point 24 (idx 23): 2 white
-    Point 13 (idx 12): 5 white
-    Point  8 (idx  7): 3 white
-    Point  6 (idx  5): 5 white
-    
-    Point  1 (idx  0): 2 black
-    Point 12 (idx 11): 5 black
-    Point 17 (idx 16): 3 black
-    Point 19 (idx 18): 5 black
-*/
-
+// Game state
 const GS = {
-  // board[i] = {w: count, b: count}
   board: Array.from({length:24}, ()=>({w:0,b:0})),
-  bar: {w:0, b:0},
-  borne: {w:0, b:0},
+  bar: {w:0,b:0},
+  borne: {w:0,b:0},
   dice: [],
   usedDice: [],
   turn: 'w',
-  selected: null,   // null | point_index | 'bar'
+  selected: null,
   validMoves: [],
   phase: 'idle',
   myColor: null,
@@ -358,1155 +221,602 @@ const GS = {
   gameId: null,
   opponentId: null,
   opponentName: '-',
-  opponentAvatar: null,
+  isAIMode: false
 };
 
-function initBoard(){
-  GS.board = Array.from({length:24}, ()=>({w:0,b:0}));
-  // White checkers (moves 23→0)
+// CHAT LOGIC
+let gameChatChannel = null;
+let gameChatMessages = [];
+
+function sendGameChat() {
+  const input = document.getElementById('gameChatInput');
+  const txt = input.value.trim();
+  if(!txt || !GS.gameId) return;
+  input.value = '';
+  if(gameChatChannel) {
+    gameChatChannel.send({
+      type: 'broadcast',
+      event: 'chat',
+      payload: { from: ME?.id, fromName: MYPROF?.username || '?', text: txt, time: new Date().toISOString() }
+    });
+  }
+  addChatMessage(MYPROF?.username || 'თქვენ', txt, true);
+}
+
+function addChatMessage(nick, text, isMe = false) {
+  const container = document.getElementById('gameChatMessages');
+  if(!container) return;
+  const empty = container.querySelector('.chat-msg[style*="text-align:center"]');
+  if(empty && gameChatMessages.length === 0 && !isMe) empty.remove();
+  const div = document.createElement('div');
+  div.className = 'chat-msg';
+  div.innerHTML = `<strong>${escapeHtml(nick)}</strong>: ${escapeHtml(text)} <small>${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}</small>`;
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  gameChatMessages.push({nick,text});
+  while(container.children.length > 100) container.removeChild(container.firstChild);
+}
+
+function setupGameChat(gameId) {
+  if(gameChatChannel) try { sb.removeChannel(gameChatChannel); } catch(e) {}
+  gameChatChannel = sb.channel(`game_chat_${gameId}`);
+  gameChatChannel.on('broadcast', {event:'chat'}, ({payload}) => {
+    if(payload.from === ME?.id) return;
+    addChatMessage(payload.fromName || '?', payload.text);
+  }).subscribe();
+}
+
+// BOARD VISUALIZATION — CORRECTED POSITIONS
+// Point indices: 0 = point 1 (bottom-right, white's home), 23 = point 24 (top-right)
+// Starting position (standard backgammon):
+// White (w): point24(idx23):2, point13(idx12):5, point8(idx7):3, point6(idx5):5
+// Black (b): point1(idx0):2, point12(idx11):5, point17(idx16):3, point19(idx18):5
+function initBoard() {
+  for(let i=0;i<24;i++) GS.board[i] = {w:0,b:0};
   GS.board[23].w = 2;
   GS.board[12].w = 5;
   GS.board[7].w  = 3;
   GS.board[5].w  = 5;
-  // Black checkers (moves 0→23)
   GS.board[0].b  = 2;
   GS.board[11].b = 5;
   GS.board[16].b = 3;
   GS.board[18].b = 5;
-  GS.bar   = {w:0, b:0};
-  GS.borne = {w:0, b:0};
+  GS.bar = {w:0,b:0};
+  GS.borne = {w:0,b:0};
 }
 
-/* ══════════════════ CANVAS / DRAWING ══════════════════ */
-const canvas = document.getElementById('boardCanvas');
-const ctx    = canvas.getContext('2d');
-let CW = 0, CH = 0;
-let POINT_W = 0, POINT_H = 0, BAR_W = 0;
-let CHECKER_R = 0;
+// Visual mapping: bottom row left->right, top row left->right
+const BOTTOM_IDX = [11,10,9,8,7,6, 5,4,3,2,1,0];
+const TOP_IDX = [12,13,14,15,16,17, 18,19,20,21,22,23];
 
-function resizeCanvas(){
+const canvas = document.getElementById('boardCanvas');
+const ctx = canvas.getContext('2d');
+let CW = 0, CH = 0, POINT_W = 0, POINT_H = 0, BAR_W = 0, CHECKER_R = 0;
+
+function resizeCanvas() {
   const wrap = document.getElementById('boardWrap');
+  if(!wrap) return;
   CW = wrap.clientWidth;
-  CH = Math.round(CW * 0.52);   // ~2:1 aspect
-  canvas.width  = Math.round(CW * devicePixelRatio);
+  CH = Math.round(CW * 0.52);
+  canvas.width = Math.round(CW * devicePixelRatio);
   canvas.height = Math.round(CH * devicePixelRatio);
-  canvas.style.width  = CW + 'px';
+  canvas.style.width = CW + 'px';
   canvas.style.height = CH + 'px';
   ctx.setTransform(devicePixelRatio, 0, 0, devicePixelRatio, 0, 0);
   wrap.style.height = CH + 'px';
-
-  BAR_W   = CW * 0.055;
-  POINT_W = (CW - BAR_W * 3) / 12;   // 12 points per side, 3 gaps (left edge, bar, right edge)
+  BAR_W = CW * 0.055;
+  POINT_W = (CW - BAR_W * 3) / 12;
   POINT_H = CH * 0.41;
   CHECKER_R = Math.min(POINT_W * 0.41, CH * 0.066);
   drawBoard();
 }
 
-/*
-  Visual layout (bottom row, left→right):
-    points 12,11,10,9,8,7  |BAR|  6,5,4,3,2,1   (white's home = right side, pts 1-6)
-  Top row (left→right, mirrored):
-    points 13,14,15,16,17,18 |BAR| 19,20,21,22,23,24
-
-  Point visual index → board array index:
-  Bottom-left  (vis 0..5 ) → board 12,11,10,9,8,7   (idx = 12-vis)
-  Bottom-right (vis 6..11) → board  6, 5, 4,3,2,1   (idx = 6-(vis-6)-1 = 11-vis)
-    Actually: vis6→idx6, vis7→idx5, vis8→idx4, vis9→idx3, vis10→idx2, vis11→idx1  → idx = 12-vis-1+6 ... let me just map explicitly.
-
-  Simpler explicit mapping:
-  Bottom points left→right:  indices [12,11,10,9,8,7,  6,5,4,3,2,1]   (vis col 0..11)
-  Top points left→right:     indices [13,14,15,16,17,18,  19,20,21,22,23,0_shifted→24? no]
-
-  Standard backgammon board from white's perspective:
-  Bottom-right = points 1-6  (white home board)
-  Bottom-left  = points 7-12
-  Top-left     = points 13-18
-  Top-right    = points 19-24
-
-  We want column 0 = leftmost bottom point (pt 13 from top), ...
-  Let me use a clean visual column array:
-*/
-
-// visColBottom[col] = board array index for bottom row, col 0..11 left→right
-const visColBottom = [12, 11, 10, 9, 8, 7,   6, 5, 4, 3, 2, 1];
-// visColTop[col]    = board array index for top row, col 0..11 left→right
-const visColTop    = [13, 14, 15, 16, 17, 18,  19, 20, 21, 22, 23, 0];
-// Note: index 0 wraps to top-right corner (point 24 for black, but visually board[0])
-
-// Actually standard: top-right last point should be idx 0 mirrored.
-// Let's reclarify: board indices 0..23
-// White: 23→0 (bears off when all in 0..5)
-// Black: 0→23 (bears off when all in 18..23)
-// Starting: white at 23,12,7,5 / black at 0,11,16,18
-// Board visual:
-//   top-right = high indices for white's back, = black's home
-//   bottom-right = white's home (low indices)
-
-// Final clean mapping:
-// Bottom row col 0..11 (left to right):  board index = [12,11,10,9,8,7, 6,5,4,3,2,1]
-// Top row    col 0..11 (left to right):  board index = [13,14,15,16,17,18, 19,20,21,22,23,0]
-// The last one (top-right corner) = board[0] — but wait, board[0] has black's 2 checkers initially
-// Hmm that's a conflict. Let me re-examine.
-// Actually in standard backgammon:
-//   point 1 = white's home corner (bottom right) = board[0]? No...
-//   Conventional: point 1 is bottom-right for white.
-// I'll redefine: board index = point number - 1
-//   point 1..6   = white home, bottom-right,  board[0..5]
-//   point 7..12  = bottom-left,               board[6..11]
-//   point 13..18 = top-left,                  board[12..17]
-//   point 19..24 = top-right (white's far),   board[18..23]
-// White moves from high index → low index (23→0), bears off from board[0..5]
-// Black moves from low → high (0→23), bears off from board[18..23]
-// Starting (re-corrected):
-//   board[23](pt24): 2 white
-//   board[12](pt13): 5 white
-//   board[7] (pt 8): 3 white
-//   board[5] (pt 6): 5 white
-//   board[0] (pt 1): 2 black
-//   board[11](pt12): 5 black
-//   board[16](pt17): 3 black
-//   board[18](pt19): 5 black
-
-// Visual columns:
-// Bottom row left→right (col 0..11): points 13..1 reversed? No.
-// Standard board seen from white (sitting at bottom):
-//   Bottom-LEFT  = points 7-12  (col 0=pt12, col1=pt11 ... col5=pt7)
-//   Bottom-RIGHT = points 1-6   (col 6=pt6, col7=pt5 ... col11=pt1)
-//   Top-LEFT     = points 13-18 (col 0=pt13, col1=pt14 ... col5=pt18)
-//   Top-RIGHT    = points 19-24 (col 6=pt19, col7=pt20 ... col11=pt24)
-
-// So bottom col 0..11 → board indices:
-//   col0=pt12=idx11, col1=pt11=idx10, col2=pt10=idx9, col3=pt9=idx8, col4=pt8=idx7, col5=pt7=idx6
-//   col6=pt6=idx5,   col7=pt5=idx4,   col8=pt4=idx3,  col9=pt3=idx2, col10=pt2=idx1, col11=pt1=idx0
-
-const BOT_IDX = [11,10,9,8,7,6,  5,4,3,2,1,0];   // bottom row, col 0..11
-const TOP_IDX = [12,13,14,15,16,17,  18,19,20,21,22,23]; // top row, col 0..11
-
-function colX(col){
-  // col 0..5 = left half, col 6..11 = right half (bar in between)
-  if(col < 6) return BAR_W + (col + 0.5) * POINT_W;
-  return BAR_W * 2 + (col + 0.5) * POINT_W;
-}
-
-function boardIdxToColRow(idx){
-  const bc = BOT_IDX.indexOf(idx);
+function colX(col) { return col < 6 ? BAR_W + (col + 0.5) * POINT_W : BAR_W * 2 + (col + 0.5) * POINT_W; }
+function idxToColRow(idx) {
+  const bc = BOTTOM_IDX.indexOf(idx);
   if(bc >= 0) return {col: bc, row: 'bottom'};
   const tc = TOP_IDX.indexOf(idx);
   if(tc >= 0) return {col: tc, row: 'top'};
   return null;
 }
 
-function colRowToXY(col, row){
-  const x = colX(col);
-  const y = row === 'bottom' ? CH : 0;
-  return {x, y};
-}
-
-function drawBoard(){
+function drawBoard() {
   if(!CW || !CH) return;
   ctx.clearRect(0, 0, CW, CH);
-
-  // Background
   ctx.fillStyle = '#120a28';
-  ctx.beginPath();
-  ctx.roundRect(0, 0, CW, CH, 16);
-  ctx.fill();
-
-  // Board surface
+  ctx.fillRect(0, 0, CW, CH);
   ctx.fillStyle = '#1a0f35';
   ctx.fillRect(0, 0, CW, CH);
-
-  // Border glow
-  ctx.save();
   ctx.strokeStyle = 'rgba(168,85,247,0.5)';
   ctx.lineWidth = 1.5;
-  ctx.beginPath();
-  ctx.roundRect(0.75, 0.75, CW-1.5, CH-1.5, 16);
-  ctx.stroke();
-  ctx.restore();
-
-  // Draw bar areas
-  // Left bar (between col5 and col6 → at x = BAR_W + 6*POINT_W)
-  const barMidX = BAR_W + 6 * POINT_W;
+  ctx.strokeRect(0.75, 0.75, CW-1.5, CH-1.5);
+  const barX = BAR_W + 6 * POINT_W;
   ctx.fillStyle = 'rgba(8,4,20,0.85)';
-  ctx.fillRect(barMidX, 0, BAR_W, CH);
-  ctx.strokeStyle = 'rgba(168,85,247,0.2)';
-  ctx.lineWidth = 1;
-  ctx.strokeRect(barMidX, 0, BAR_W, CH);
-
-  // Draw 24 triangles
-  for(let col = 0; col < 12; col++){
-    const bidx = BOT_IDX[col];
-    const tidx = TOP_IDX[col];
-    // Colour: alternate dark/light starting from right for white's home
-    // col 11=pt1=darkColor, col10=pt2=lightColor, etc.
-    const darkBottom = (col % 2 === 1);  // odd cols dark
-    const darkTop    = (col % 2 === 0);
-    drawTriangle(col, 'bottom', darkBottom);
-    drawTriangle(col, 'top',    darkTop);
-  }
-
-  // Centre line
-  ctx.strokeStyle = 'rgba(168,85,247,0.15)';
-  ctx.lineWidth = 1;
+  ctx.fillRect(barX, 0, BAR_W, CH);
+  for(let col=0;col<12;col++) { drawTriangle(col, 'bottom', col%2===1); drawTriangle(col, 'top', col%2===0); }
   ctx.setLineDash([4,6]);
-  ctx.beginPath();
-  ctx.moveTo(0, CH/2);
-  ctx.lineTo(CW, CH/2);
-  ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, CH/2); ctx.lineTo(CW, CH/2); ctx.stroke();
   ctx.setLineDash([]);
-
-  // Highlight valid destinations
-  GS.validMoves.forEach(m => {
-    if(m.to === 'off') return;
-    const cr = boardIdxToColRow(m.to);
-    if(cr) drawHighlight(cr.col, cr.row, 'rgba(74,222,128,0.32)');
-  });
-  // Highlight selected source
-  if(GS.selected !== null && GS.selected !== 'bar'){
-    const cr = boardIdxToColRow(GS.selected);
-    if(cr) drawHighlight(cr.col, cr.row, 'rgba(240,122,255,0.38)');
-  }
-
-  // Draw checkers on board
-  for(let i = 0; i < 24; i++){
-    const pt = GS.board[i];
-    const cr = boardIdxToColRow(i);
+  for(let i=0;i<24;i++) {
+    const cr = idxToColRow(i);
     if(!cr) continue;
     const x = colX(cr.col);
-    if(pt.w > 0) drawCheckerStack(x, cr.row, pt.w, 'w', i === GS.selected);
-    if(pt.b > 0) drawCheckerStack(x, cr.row, pt.b, 'b', false);
+    if(GS.board[i].w > 0) drawStack(x, cr.row, GS.board[i].w, 'w', GS.selected === i);
+    if(GS.board[i].b > 0) drawStack(x, cr.row, GS.board[i].b, 'b', false);
   }
-
-  // Bar checkers
-  drawBarArea();
-
-  // Borne-off display
-  drawBorneDisplay();
-
-  // Point numbers (small labels)
-  drawPointNumbers();
+  drawBar();
+  drawBorne();
 }
 
-function drawTriangle(col, row, dark){
-  const x   = colX(col);
+function drawTriangle(col, row, dark) {
+  const x = colX(col);
   const tip = row === 'bottom' ? CH - POINT_H : POINT_H;
   const base = row === 'bottom' ? CH : 0;
-  const hw  = POINT_W * 0.46;
-
-  ctx.save();
+  const hw = POINT_W * 0.46;
   ctx.beginPath();
   ctx.moveTo(x - hw, base);
   ctx.lineTo(x + hw, base);
   ctx.lineTo(x, tip);
   ctx.closePath();
-
-  if(dark){
-    ctx.fillStyle = '#6b21a8';
-    ctx.globalAlpha = 0.75;
-  } else {
-    ctx.fillStyle = '#c4b5fd';
-    ctx.globalAlpha = 0.22;
-  }
+  ctx.fillStyle = dark ? '#6b21a8' : '#c4b5fd';
+  ctx.globalAlpha = dark ? 0.75 : 0.22;
   ctx.fill();
-  ctx.restore();
+  ctx.globalAlpha = 1;
 }
 
-function drawHighlight(col, row, color){
-  const x   = colX(col);
-  const tip  = row === 'bottom' ? CH - POINT_H : POINT_H;
-  const base = row === 'bottom' ? CH : 0;
-  const hw  = POINT_W * 0.46;
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(x - hw, base);
-  ctx.lineTo(x + hw, base);
-  ctx.lineTo(x, tip);
-  ctx.closePath();
-  ctx.fillStyle = color;
-  ctx.fill();
-  // Ring at tip
-  ctx.beginPath();
-  ctx.arc(x, tip + (row==='bottom'?-8:8), CHECKER_R * 0.7, 0, Math.PI*2);
-  ctx.fillStyle = color;
-  ctx.fill();
-  ctx.restore();
-}
-
-function drawCheckerStack(x, row, count, color, isSelected){
+function drawStack(x, row, count, color, selected) {
   const R = CHECKER_R;
   const step = Math.min(R * 1.85, (POINT_H - R) / Math.max(count - 1, 1));
-  for(let k = 0; k < count; k++){
-    const y = row === 'bottom'
-      ? CH - R - 2 - k * step
-      : R + 2 + k * step;
-    const sel = isSelected && k === count - 1;
-    drawChecker(x, y, R, color, sel);
-    // If too many, show number and break after 1
-    if(count > 5 && k === 0){
-      ctx.save();
-      ctx.fillStyle = color === 'w' ? '#1a0a2e' : '#f0e8ff';
-      ctx.font = `bold ${Math.round(R * 0.85)}px Unbounded,sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(count, x, y);
-      ctx.restore();
-      break;
-    }
+  for(let k=0;k<Math.min(count,5);k++) {
+    const y = row === 'bottom' ? CH - R - 2 - k * step : R + 2 + k * step;
+    drawChecker(x, y, R, color, selected && k===count-1);
+  }
+  if(count > 5) {
+    ctx.fillStyle = color === 'w' ? '#1a0a2e' : '#f0e8ff';
+    ctx.font = `bold ${Math.round(R * 0.85)}px Unbounded`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(count, x, row === 'bottom' ? CH - R - 8 : R + 8);
   }
 }
 
-function drawChecker(x, y, R, color, selected){
+function drawChecker(x, y, R, color, selected) {
   ctx.save();
-  if(selected){
-    ctx.shadowColor = '#f07aff';
-    ctx.shadowBlur = 20;
-  }
-  // Main body
-  const g = ctx.createRadialGradient(x - R*0.28, y - R*0.28, R*0.04, x, y, R);
-  if(color === 'w'){
-    g.addColorStop(0,   '#ffffff');
-    g.addColorStop(0.55,'#ddd0f8');
-    g.addColorStop(1,   '#9070c0');
-  } else {
-    g.addColorStop(0,   '#6030a0');
-    g.addColorStop(0.55,'#28104a');
-    g.addColorStop(1,   '#0c0420');
-  }
-  ctx.beginPath();
-  ctx.arc(x, y, R, 0, Math.PI * 2);
-  ctx.fillStyle = g;
-  ctx.fill();
-  // Border
+  if(selected) ctx.shadowBlur = 20;
+  const grad = ctx.createRadialGradient(x-R*0.28, y-R*0.28, R*0.04, x, y, R);
+  if(color === 'w') { grad.addColorStop(0, '#fff'); grad.addColorStop(0.55,'#ddd0f8'); grad.addColorStop(1,'#9070c0'); }
+  else { grad.addColorStop(0,'#6030a0'); grad.addColorStop(0.55,'#28104a'); grad.addColorStop(1,'#0c0420'); }
+  ctx.beginPath(); ctx.arc(x, y, R, 0, Math.PI*2); ctx.fillStyle = grad; ctx.fill();
   ctx.strokeStyle = color === 'w' ? 'rgba(190,160,255,0.7)' : 'rgba(150,70,255,0.55)';
-  ctx.lineWidth = 1.4;
-  ctx.stroke();
-  // Inner ring
-  ctx.beginPath();
-  ctx.arc(x, y, R * 0.68, 0, Math.PI * 2);
-  ctx.strokeStyle = color === 'w' ? 'rgba(200,180,255,0.35)' : 'rgba(120,50,220,0.3)';
-  ctx.lineWidth = 0.8;
-  ctx.stroke();
-  // Shine
-  ctx.beginPath();
-  ctx.arc(x - R*0.28, y - R*0.3, R * 0.28, 0, Math.PI * 2);
+  ctx.lineWidth = 1.4; ctx.stroke();
+  ctx.beginPath(); ctx.arc(x - R*0.28, y - R*0.3, R * 0.28, 0, Math.PI*2);
   ctx.fillStyle = color === 'w' ? 'rgba(255,255,255,0.55)' : 'rgba(130,70,230,0.38)';
   ctx.fill();
   ctx.restore();
 }
 
-function drawBarArea(){
-  const bx = BAR_W + 6 * POINT_W + BAR_W * 0.5; // centre of bar
+function drawBar() {
+  const bx = BAR_W + 6 * POINT_W + BAR_W * 0.5;
   const R = CHECKER_R;
-
-  // White on bar (needs to enter into black's home: top-right = idx 18..23)
-  if(GS.bar.w > 0){
-    const isBarSel = GS.selected === 'bar' && GS.myColor === 'w';
-    for(let k = 0; k < GS.bar.w; k++){
-      const y = CH/2 - (GS.bar.w - 1) * R + k * R * 2;
-      drawChecker(bx, y, R, 'w', isBarSel);
-    }
-    // Label
-    if(GS.bar.w > 1){
-      ctx.save();
-      ctx.fillStyle = '#1a0a2e';
-      ctx.font = `bold ${Math.round(R*0.85)}px Unbounded,sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(GS.bar.w, bx, CH/2);
-      ctx.restore();
-    }
-  }
-  // Black on bar (needs to enter into white's home: bottom-right = idx 0..5)
-  if(GS.bar.b > 0){
-    const isBarSel = GS.selected === 'bar' && GS.myColor === 'b';
-    for(let k = 0; k < GS.bar.b; k++){
-      const y = CH/2 - (GS.bar.b - 1) * R + k * R * 2;
-      drawChecker(bx, y, R, 'b', isBarSel);
-    }
-    if(GS.bar.b > 1){
-      ctx.save();
-      ctx.fillStyle = '#f0e8ff';
-      ctx.font = `bold ${Math.round(R*0.85)}px Unbounded,sans-serif`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.fillText(GS.bar.b, bx, CH/2);
-      ctx.restore();
-    }
-  }
-
-  // Bar label
-  ctx.save();
-  ctx.fillStyle = 'rgba(168,85,247,0.4)';
-  ctx.font = `${Math.round(CW * 0.012)}px Noto Sans Georgian,sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  ctx.fillText('BAR', bx, CH * 0.5);
-  ctx.restore();
+  if(GS.bar.w > 0) for(let k=0;k<GS.bar.w;k++) drawChecker(bx, CH/2 - (GS.bar.w-1)*R + k*R*2, R, 'w', GS.selected === 'bar' && GS.myColor === 'w');
+  if(GS.bar.b > 0) for(let k=0;k<GS.bar.b;k++) drawChecker(bx, CH/2 - (GS.bar.b-1)*R + k*R*2, R, 'b', GS.selected === 'bar' && GS.myColor === 'b');
 }
 
-function drawBorneDisplay(){
-  const R = CHECKER_R;
-  // Right edge = white borne off
-  const wx = CW - BAR_W * 0.4;
-  // Left edge = black borne off (not needed visually, shown in UI)
-  ctx.save();
-  ctx.font = `bold ${Math.round(R * 1.1)}px Unbounded,sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.textBaseline = 'middle';
-  if(GS.borne.w > 0){
-    ctx.fillStyle = 'rgba(220,200,255,0.85)';
-    ctx.fillText(GS.borne.w, wx, CH * 0.5);
-  }
-  ctx.restore();
-}
+function drawBorne() { /* simple */ }
 
-function drawPointNumbers(){
-  const fs = Math.max(9, Math.round(POINT_W * 0.28));
-  ctx.save();
-  ctx.font = `${fs}px Noto Sans Georgian,sans-serif`;
-  ctx.textAlign = 'center';
-  ctx.fillStyle = 'rgba(180,160,220,0.4)';
-  for(let col = 0; col < 12; col++){
-    const x = colX(col);
-    const botPt = BOT_IDX[col] + 1;  // point number 1-24
-    const topPt = TOP_IDX[col] + 1;
-    ctx.fillText(botPt, x, CH - 2);
-    ctx.fillText(topPt, x, 10);
-  }
-  ctx.restore();
-}
-
-/* ══════════════════ GAME LOGIC ══════════════════ */
-
-// White moves: high→low (direction = -1), bears off from idx 0..5
-// Black moves: low→high (direction = +1), bears off from idx 18..23
-const DIR  = {w: -1, b: +1};
+// GAME LOGIC
+const DIR = {w: -1, b: 1};
 const HOME = {w: [0,1,2,3,4,5], b: [18,19,20,21,22,23]};
 
-function canBearOff(color){
-  // All 15 checkers in home board + already borne off
+function canBearOff(color) {
   let outside = GS.bar[color];
-  for(let i = 0; i < 24; i++){
-    if(!HOME[color].includes(i)) outside += GS.board[i][color];
-  }
+  for(let i=0;i<24;i++) if(!HOME[color].includes(i)) outside += GS.board[i][color];
   return outside === 0;
 }
 
-function getValidMovesFrom(fromIdx, color){
-  // fromIdx: board index 0-23, or 'bar'
-  const opp = color === 'w' ? 'b' : 'w';
+function getValidMoves(color) {
+  if(GS.bar[color] > 0) return getMovesFromBar(color);
+  const moves = [];
+  for(let i=0;i<24;i++) if(GS.board[i][color] > 0) moves.push(...getMovesFromPoint(i, color));
+  return moves;
+}
+
+function getMovesFromBar(color) {
+  const moves = [], opp = color === 'w' ? 'b' : 'w';
+  for(let di=0;di<GS.dice.length;di++) {
+    if(GS.usedDice[di]) continue;
+    const die = GS.dice[di];
+    const targetIdx = color === 'w' ? 24 - die : die - 1;
+    if(targetIdx >=0 && targetIdx < 24 && GS.board[targetIdx][opp] <= 1)
+      moves.push({from:'bar', to:targetIdx, diceIdx:di});
+  }
+  return moves;
+}
+
+function getMovesFromPoint(fromIdx, color) {
+  const moves = [], opp = color === 'w' ? 'b' : 'w';
   const dir = DIR[color];
-  const moves = [];
-  const availDice = GS.dice.filter((_, i) => !GS.usedDice[i]);
-  const uniqueDice = [...new Set(availDice)];
-
-  uniqueDice.forEach(dieVal => {
-    // Find first unused die with this value
-    const di = GS.dice.findIndex((d, i) => d === dieVal && !GS.usedDice[i]);
-    if(di < 0) return;
-
-    if(fromIdx === 'bar'){
-      // Enter from bar: land on opponent's home board outer points
-      // White enters at: 18..23 (white's back = black's home)
-      // Black enters at: 0..5  (black's back = white's home)
-      const enterIdx = color === 'w'
-        ? 24 - dieVal          // e.g. die=1 → idx23, die=6 → idx18
-        : dieVal - 1;          // e.g. die=1 → idx0,  die=6 → idx5
-      if(enterIdx >= 0 && enterIdx < 24){
-        const pt = GS.board[enterIdx];
-        if(pt[opp] <= 1){      // empty or only 1 opponent (can hit)
-          moves.push({from:'bar', to:enterIdx, diceIdx:di, val:dieVal});
-        }
+  for(let di=0;di<GS.dice.length;di++) {
+    if(GS.usedDice[di]) continue;
+    const die = GS.dice[di];
+    const toIdx = fromIdx + dir * die;
+    if(toIdx < 0 || toIdx > 23) {
+      if(!canBearOff(color)) continue;
+      const home = HOME[color];
+      if((color === 'w' && toIdx < 0) || (color === 'b' && toIdx > 23)) {
+        moves.push({from:fromIdx, to:'off', diceIdx:di});
+      } else {
+        const higher = color === 'w' ? home.filter(p => p > fromIdx) : home.filter(p => p < fromIdx);
+        if(!higher.some(p => GS.board[p][color] > 0)) moves.push({from:fromIdx, to:'off', diceIdx:di});
       }
-      return;
+      continue;
     }
-
-    // Normal move
-    const toIdx = fromIdx + dir * dieVal;
-
-    if(toIdx < 0 || toIdx > 23){
-      // Potential bear-off
-      if(!canBearOff(color)) return;
-      const homeArr = HOME[color];
-      const exact = (color === 'w' && toIdx < 0) || (color === 'b' && toIdx > 23);
-      if(exact){
-        moves.push({from:fromIdx, to:'off', diceIdx:di, val:dieVal});
-        return;
-      }
-      // Over-shoot: only allowed if no checker on higher home point
-      // For white: fromIdx=3, die=6 → toIdx=-3. Allowed only if no white on pts 4,5
-      // For black: fromIdx=20, die=6 → toIdx=26. Allowed only if no black on pts 19,18
-      const higherPoints = color === 'w'
-        ? homeArr.filter(p => p > fromIdx)
-        : homeArr.filter(p => p < fromIdx);
-      const hasHigher = higherPoints.some(p => GS.board[p][color] > 0);
-      if(!hasHigher){
-        moves.push({from:fromIdx, to:'off', diceIdx:di, val:dieVal});
-      }
-      return;
-    }
-
-    const pt = GS.board[toIdx];
-    if(pt[opp] <= 1){    // can land: empty, own, or hit 1 opponent
-      moves.push({from:fromIdx, to:toIdx, diceIdx:di, val:dieVal});
-    }
-  });
-
-  return moves;
-}
-
-function getAllValidMoves(color){
-  // If on bar, MUST enter first
-  if(GS.bar[color] > 0){
-    return getValidMovesFrom('bar', color);
-  }
-  const moves = [];
-  for(let i = 0; i < 24; i++){
-    if(GS.board[i][color] > 0){
-      moves.push(...getValidMovesFrom(i, color));
-    }
+    if(GS.board[toIdx][opp] <= 1) moves.push({from:fromIdx, to:toIdx, diceIdx:di});
   }
   return moves;
 }
 
-function applyMove(move){
-  const {from, to, diceIdx} = move;
-  const color = GS.turn;
-  const opp   = color === 'w' ? 'b' : 'w';
-
-  // Remove checker from source
-  if(from === 'bar'){
-    GS.bar[color] = Math.max(0, GS.bar[color] - 1);
-  } else {
-    GS.board[from][color] = Math.max(0, GS.board[from][color] - 1);
-  }
-
-  // Mark die as used
-  GS.usedDice[diceIdx] = true;
-
-  if(to === 'off'){
-    GS.borne[color]++;
-    return;
-  }
-
-  // Hit opponent blot?
-  if(GS.board[to][opp] === 1){
-    GS.board[to][opp] = 0;
-    GS.bar[opp]++;
-    playHitSound();
-  }
-
-  GS.board[to][color]++;
+function applyMove(move) {
+  const color = GS.turn, opp = color === 'w' ? 'b' : 'w';
+  if(move.from === 'bar') GS.bar[color]--;
+  else GS.board[move.from][color]--;
+  GS.usedDice[move.diceIdx] = true;
+  if(move.to === 'off') { GS.borne[color]++; return; }
+  if(GS.board[move.to][opp] === 1) { GS.board[move.to][opp] = 0; GS.bar[opp]++; }
+  GS.board[move.to][color]++;
 }
 
-function checkWin(){
+function diceAllUsed() { return GS.usedDice.every(u => u); }
+
+function checkWin() {
   if(GS.borne.w >= 15) return 'w';
   if(GS.borne.b >= 15) return 'b';
   return null;
 }
 
-function diceAllUsed(){
-  return GS.usedDice.every(u => u);
-}
-
-/* ══════════════════ DICE ══════════════════ */
-const DICE_FACE = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
-
-function renderDice(){
+function renderDice() {
   const area = document.getElementById('diceArea');
+  if(!area) return;
   area.innerHTML = '';
-  GS.dice.forEach((d, i) => {
-    const el = document.createElement('div');
-    el.className = 'die' + (GS.usedDice[i] ? ' used' : '');
-    el.textContent = DICE_FACE[d];
-    area.appendChild(el);
+  const faces = ['','⚀','⚁','⚂','⚃','⚄','⚅'];
+  GS.dice.forEach((d,i) => {
+    const die = document.createElement('div');
+    die.className = 'die' + (GS.usedDice[i] ? ' used' : '');
+    die.textContent = faces[d];
+    area.appendChild(die);
   });
 }
 
-function rollDice(){
-  if(GS.phase !== 'rolling') return;
-  if(GS.turn !== GS.myColor) return;
+function updateUI() {
+  renderDice();
+  drawBoard();
+  const isMyTurn = (GS.turn === GS.myColor);
+  document.getElementById('rollBtn').disabled = !(GS.phase === 'rolling' && isMyTurn);
+  document.getElementById('endTurnBtn').disabled = !(GS.phase === 'moving' && isMyTurn);
+  document.getElementById('borneTop').textContent = '🏠 ' + GS.borne[GS.oppColor];
+  document.getElementById('borneBot').textContent = '🏠 ' + GS.borne[GS.myColor];
+  document.getElementById('pcBot').classList.toggle('active-player', isMyTurn);
+  document.getElementById('pcTop').classList.toggle('active-player', !isMyTurn);
+  let status = '';
+  if(GS.phase === 'rolling') status = isMyTurn ? '🎲 შენი სვლა — ათამაშე კამათელი' : '⏳ მოწინააღმდეგის სვლა...';
+  else status = isMyTurn ? '👆 აირჩიე ქვა' : '⏳ მოწინააღმდეგე სვლავს...';
+  document.getElementById('gameStatus').textContent = status;
+}
 
-  const d1 = Math.ceil(Math.random() * 6);
-  const d2 = Math.ceil(Math.random() * 6);
-  GS.dice     = (d1 === d2) ? [d1, d1, d1, d1] : [d1, d2];
+function setStatus(msg) { document.getElementById('gameStatus').textContent = msg; }
+
+async function rollDice() {
+  if(GS.phase !== 'rolling' || GS.turn !== GS.myColor) return;
+  const d1 = Math.ceil(Math.random()*6), d2 = Math.ceil(Math.random()*6);
+  GS.dice = (d1 === d2) ? [d1,d1,d1,d1] : [d1,d2];
   GS.usedDice = new Array(GS.dice.length).fill(false);
-
-  playDiceSound();
-
-  // Animate
-  const area = document.getElementById('diceArea');
-  area.innerHTML = '';
-  GS.dice.forEach(d => {
-    const el = document.createElement('div');
-    el.className = 'die rolling';
-    el.textContent = DICE_FACE[d];
-    area.appendChild(el);
-    setTimeout(() => el.classList.remove('rolling'), 550);
-  });
-
-  broadcastGameAction({type:'rolled', dice:GS.dice, player:GS.myColor});
-
   GS.phase = 'moving';
   GS.selected = null;
   GS.validMoves = [];
-
-  document.getElementById('rollBtn').disabled = true;
-  updateStatus();
-  updateButtons();
-  drawBoard();
-
-  if(getAllValidMoves(GS.turn).length === 0){
-    setStatus('🚫 სვლა შეუძლებელია — სვლა გადადის');
-    setTimeout(() => endTurn(), 1600);
-  }
-}
-
-/* ══════════════════ FIRST ROLL ══════════════════ */
-function doFirstRoll(){
-  const r = Math.ceil(Math.random() * 6);
-  myFirstRoll = r;
-  document.getElementById('firstRollBtn').disabled = true;
-
-  const area = document.getElementById('firstRollDice');
-  const myDiv = document.createElement('div');
-  myDiv.className = 'die rolling';
-  myDiv.style.cssText = 'background:#f0e8ff';
-  myDiv.textContent = DICE_FACE[r];
-  area.appendChild(myDiv);
-  setTimeout(() => myDiv.classList.remove('rolling'), 550);
-
-  playDiceSound();
-  broadcastGameAction({type:'first_roll', value:r, player:GS.myColor});
-
-  if(oppFirstRoll !== null) resolveFirstRolls();
-  else setStatus('⏳ მოწინააღმდეგის კამათელი...');
-}
-
-function resolveFirstRolls(){
-  if(myFirstRoll === null || oppFirstRoll === null) return;
-
-  const area = document.getElementById('firstRollDice');
-  if(area.children.length < 2){
-    const oppDiv = document.createElement('div');
-    oppDiv.className = 'die';
-    oppDiv.style.cssText = 'background:#2a1050;color:#f0e8ff';
-    oppDiv.textContent = DICE_FACE[oppFirstRoll];
-    area.appendChild(oppDiv);
-  }
-
-  setTimeout(() => {
-    if(myFirstRoll > oppFirstRoll){
-      GS.turn = GS.myColor;
-    } else if(oppFirstRoll > myFirstRoll){
-      GS.turn = GS.oppColor;
-    } else {
-      // Tie — re-roll
-      myFirstRoll = null;
-      oppFirstRoll = null;
-      area.innerHTML = '';
-      document.getElementById('firstRollBtn').disabled = false;
-      document.getElementById('firstRollBtn').textContent = '🎲 კამათელი';
-      setStatus('🔄 გათანასწოება — კვლავ...');
-      return;
-    }
-    document.getElementById('firstRollModal').classList.remove('open');
-    GS.phase = 'rolling';
-    updateButtons();
-    updatePlayerCards();
-    updateStatus();
-  }, 700);
-}
-
-/* ══════════════════ TURN / MOVE HANDLING ══════════════════ */
-function endTurn(){
-  GS.selected  = null;
-  GS.validMoves = [];
-  GS.dice      = [];
-  GS.usedDice  = [];
-  GS.turn      = GS.turn === 'w' ? 'b' : 'w';
-  GS.phase     = 'rolling';
-
-  broadcastGameAction({type:'end_turn'});
   renderDice();
+  updateUI();
   drawBoard();
-  updateStatus();
-  updateButtons();
-  updatePlayerCards();
+  if(GS.isAIMode && GS.turn !== GS.myColor) scheduleAIMove();
+  if(!GS.isAIMode && gameChannel) gameChannel.send({type:'broadcast', event:'game_action', payload:{type:'rolled', dice:GS.dice, from:ME.id}});
 }
 
-function handleCanvasClick(e){
-  if(GS.phase !== 'moving') return;
-  if(GS.turn !== GS.myColor) return;
+function endTurn() {
+  GS.selected = null;
+  GS.validMoves = [];
+  GS.dice = [];
+  GS.usedDice = [];
+  GS.turn = GS.turn === 'w' ? 'b' : 'w';
+  GS.phase = 'rolling';
+  renderDice();
+  updateUI();
+  drawBoard();
+  if(!GS.isAIMode && gameChannel) gameChannel.send({type:'broadcast', event:'game_action', payload:{type:'end_turn', from:ME.id}});
+  if(GS.isAIMode && GS.turn !== GS.myColor) scheduleAIMove();
+}
 
-  const rect  = canvas.getBoundingClientRect();
-  const scaleX = CW / rect.width;
-  const scaleY = CH / rect.height;
-  const cx    = (e.clientX - rect.left) * scaleX;
-  const cy    = (e.clientY - rect.top)  * scaleY;
-
-  // Check bar tap
-  const barMidX  = BAR_W + 6 * POINT_W + BAR_W * 0.5;
-  const barHalfW = BAR_W * 0.55;
-  const myColor  = GS.myColor;
-
-  if(GS.bar[myColor] > 0 && Math.abs(cx - barMidX) < barHalfW + CHECKER_R){
-    // Select bar
-    GS.selected   = 'bar';
-    GS.validMoves = getValidMovesFrom('bar', myColor);
-    if(GS.validMoves.length === 0) setStatus('⛔ ვერ შედიხარ — ყველა შესასვლელი დაბლოკილია');
+async function handleCanvasClick(e) {
+  if(GS.phase !== 'moving' || GS.turn !== GS.myColor) return;
+  const rect = canvas.getBoundingClientRect();
+  const scaleX = CW / rect.width, scaleY = CH / rect.height;
+  const cx = (e.clientX - rect.left) * scaleX;
+  const cy = (e.clientY - rect.top) * scaleY;
+  const barX = BAR_W + 6 * POINT_W + BAR_W * 0.5;
+  if(GS.bar[GS.myColor] > 0 && Math.abs(cx - barX) < CHECKER_R + 10) {
+    GS.selected = 'bar';
+    GS.validMoves = getValidMoves(GS.myColor);
     drawBoard();
     return;
   }
-
-  // Determine which point was clicked
-  const clickedIdx = getClickedPointIndex(cx, cy);
-
-  if(GS.selected === null || (GS.selected !== 'bar' && clickedIdx === GS.selected)){
-    // Select a checker
-    if(clickedIdx !== null && GS.board[clickedIdx][myColor] > 0){
-      GS.selected   = clickedIdx;
-      GS.validMoves = getValidMovesFrom(clickedIdx, myColor);
-      if(GS.validMoves.length === 0){
-        GS.selected = null;
-        GS.validMoves = [];
-        setStatus('⛔ ამ ქვიდან სვლა შეუძლებელია');
-      }
+  const clickedIdx = getClickedPoint(cx, cy);
+  if(GS.selected === null) {
+    if(clickedIdx !== null && GS.board[clickedIdx][GS.myColor] > 0) {
+      GS.selected = clickedIdx;
+      GS.validMoves = getValidMoves(GS.myColor).filter(m => m.from === clickedIdx);
+      drawBoard();
     }
   } else {
-    // Try to move
-    const mv = GS.validMoves.find(m => m.to === clickedIdx || (clickedIdx === null && m.to === 'off'));
-
-    // Also check "off" area click (right edge for white, left edge for black)
-    const offClick = isBearOffClick(cx, cy);
-
-    const finalMv = mv || (offClick ? GS.validMoves.find(m => m.to === 'off') : null);
-
-    if(finalMv){
-      applyMove(finalMv);
-      broadcastGameAction({type:'move', move:finalMv});
-      playMoveSound();
-      GS.selected   = null;
-      GS.validMoves = [];
-      renderDice();
-      updateBorneUI();
-      const win = checkWin();
-      if(win){ handleWin(win); return; }
-      drawBoard();
-
-      if(diceAllUsed() || getAllValidMoves(GS.turn).length === 0){
-        setTimeout(() => endTurn(), 350);
-      }
-      updateButtons();
-    } else if(clickedIdx !== null && GS.board[clickedIdx][myColor] > 0){
-      // Re-select different checker
-      GS.selected   = clickedIdx;
-      GS.validMoves = getValidMovesFrom(clickedIdx, myColor);
-    } else {
-      GS.selected   = null;
-      GS.validMoves = [];
-    }
-  }
-  drawBoard();
-}
-
-function getClickedPointIndex(cx, cy){
-  for(let col = 0; col < 12; col++){
-    const x = colX(col);
-    if(Math.abs(cx - x) > POINT_W * 0.5) continue;
-    if(cy >= CH - POINT_H - 4) return BOT_IDX[col];
-    if(cy <= POINT_H + 4)      return TOP_IDX[col];
-  }
-  return null;
-}
-
-function isBearOffClick(cx, cy){
-  // Clicking right-side edge area when bearing off
-  return cx > CW - BAR_W;
-}
-
-/* ══════════════════ UI HELPERS ══════════════════ */
-function setStatus(msg){
-  document.getElementById('gameStatus').textContent = msg;
-}
-
-function updateStatus(){
-  if(GS.phase === 'rolling'){
-    if(GS.turn === GS.myColor) setStatus('🎲 შენი სვლა — ათამაშე კამათელი');
-    else setStatus('⏳ ' + GS.opponentName + ' ათამაშებს კამათელს...');
-  } else if(GS.phase === 'moving'){
-    if(GS.turn === GS.myColor){
-      if(GS.bar[GS.myColor] > 0) setStatus('⚠️ ჯერ გამოიყვანე ბარიდან ქვა!');
-      else setStatus('👆 შეარჩიე ქვა და გადაადგილდი');
-    } else {
-      setStatus('⏳ ' + GS.opponentName + ' სვლავს...');
-    }
-  }
-}
-
-function updateButtons(){
-  const isMyTurn = GS.turn === GS.myColor;
-  document.getElementById('rollBtn').disabled    = !(isMyTurn && GS.phase === 'rolling');
-  document.getElementById('endTurnBtn').disabled = !(isMyTurn && GS.phase === 'moving');
-}
-
-function updateBorneUI(){
-  document.getElementById('borneBot').textContent = '🏠 ' + GS.borne[GS.myColor];
-  document.getElementById('borneTop').textContent = '🏠 ' + GS.borne[GS.oppColor];
-}
-
-function updatePlayerCards(){
-  const isMyTurn = GS.turn === GS.myColor;
-  document.getElementById('pcBot').classList.toggle('active-player', isMyTurn);
-  document.getElementById('pcTop').classList.toggle('active-player', !isMyTurn);
-}
-
-/* ══════════════════ WIN ══════════════════ */
-function handleWin(winner){
-  GS.phase = 'game_over';
-  playWinSound();
-  spawnConfetti();
-  const iWon = winner === GS.myColor;
-  document.getElementById('goIcon').textContent  = iWon ? '🏆' : '💜';
-  document.getElementById('goTitle').textContent = iWon ? 'გაიმარჯვე!' : 'წაიგე...';
-  document.getElementById('goSub').textContent   = iWon
-    ? '🎉 ყველა ქვა წარმატებით გამოიყვანე!'
-    : '💪 ' + GS.opponentName + ' გაიმარჯვა! სცადე კიდევ!';
-  document.getElementById('gameOverModal').classList.add('open');
-  broadcastGameAction({type:'game_over', winner});
-}
-
-function spawnConfetti(){
-  const cols = ['#f07aff','#a855f7','#4ade80','#ffd040','#60b8e8','#ff5090'];
-  for(let i = 0; i < 60; i++){
-    setTimeout(() => {
-      const el = document.createElement('div');
-      el.className = 'confetti-piece';
-      el.style.left = Math.random()*100 + 'vw';
-      el.style.top  = '-20px';
-      el.style.background = cols[Math.floor(Math.random()*cols.length)];
-      el.style.transform  = 'rotate(' + Math.random()*360 + 'deg)';
-      el.style.animationDuration = (2 + Math.random()*2) + 's';
-      document.body.appendChild(el);
-      setTimeout(() => el.remove(), 4500);
-    }, i * 50);
-  }
-}
-
-/* ══════════════════ REALTIME ══════════════════ */
-function broadcastGameAction(payload){
-  if(!gameChannel) return;
-  try { gameChannel.send({type:'broadcast', event:'game_action', payload:{...payload, from:ME.id}}); } catch(e){}
-}
-
-function handleOpponentAction(payload){
-  if(payload.from === ME.id) return;
-  switch(payload.type){
-    case 'first_roll':
-      oppFirstRoll = payload.value;
-      if(myFirstRoll !== null) resolveFirstRolls();
-      break;
-    case 'rolled':
-      GS.dice     = payload.dice;
-      GS.usedDice = new Array(payload.dice.length).fill(false);
-      GS.phase    = 'moving';
-      renderDice();
-      updateStatus();
-      updateButtons();
-      drawBoard();
-      break;
-    case 'move':
-      applyMove(payload.move);
-      GS.selected   = null;
-      GS.validMoves = [];
-      playMoveSound();
-      renderDice();
-      updateBorneUI();
-      drawBoard();
-      const w = checkWin();
-      if(w) handleWin(w);
-      break;
-    case 'end_turn':
-      GS.dice  = [];
-      GS.usedDice = [];
-      GS.turn  = GS.turn === 'w' ? 'b' : 'w';
-      GS.phase = 'rolling';
+    const move = GS.validMoves.find(m => m.to === clickedIdx || (clickedIdx === null && m.to === 'off'));
+    if(move) {
+      applyMove(move);
       GS.selected = null;
       GS.validMoves = [];
       renderDice();
       drawBoard();
-      updateStatus();
-      updateButtons();
-      updatePlayerCards();
-      break;
-    case 'game_over':
-      handleWin(payload.winner);
-      break;
-    case 'rematch':
-      if(confirm(GS.opponentName + ' სთავაზობს ხელახლა — დათანხმება?')){
-        startNewGame();
-        broadcastGameAction({type:'rematch_ok'});
-      }
-      break;
-    case 'rematch_ok':
-      startNewGame();
-      break;
+      updateUI();
+      const winner = checkWin();
+      if(winner) { handleWin(winner); return; }
+      if(diceAllUsed() || getValidMoves(GS.turn).length === 0) setTimeout(() => endTurn(), 300);
+      if(!GS.isAIMode && gameChannel) gameChannel.send({type:'broadcast', event:'game_action', payload:{type:'move', move, from:ME.id}});
+      if(GS.isAIMode && GS.turn !== GS.myColor) scheduleAIMove();
+    } else {
+      GS.selected = null;
+      GS.validMoves = [];
+      drawBoard();
+    }
   }
 }
 
-function setupGameChannel(gameId){
-  if(gameChannel){ try{ sb.removeChannel(gameChannel); }catch(e){} gameChannel = null; }
-  gameChannel = sb.channel('nardi_game_' + gameId)
-    .on('broadcast', {event:'game_action'}, ({payload}) => handleOpponentAction(payload))
-    .subscribe();
+function getClickedPoint(cx, cy) {
+  for(let col=0;col<12;col++) {
+    const x = colX(col);
+    if(Math.abs(cx - x) > POINT_W * 0.5) continue;
+    if(cy >= CH - POINT_H - 4) return BOTTOM_IDX[col];
+    if(cy <= POINT_H + 4) return TOP_IDX[col];
+  }
+  return null;
 }
 
-/* ══════════════════ INVITE SYSTEM ══════════════════ */
-function setupInviteChannel(){
-  if(inviteChannel){ try{ sb.removeChannel(inviteChannel); }catch(e){} inviteChannel = null; }
-  inviteChannel = sb.channel('nardi_invites_' + ME.id)
-    .on('broadcast', {event:'invite'},          ({payload}) => handleIncomingInvite(payload))
-    .on('broadcast', {event:'invite_response'}, ({payload}) => handleInviteResponse(payload))
-    .subscribe();
+// AI LOGIC
+function scheduleAIMove() {
+  if(aiTimeout) clearTimeout(aiTimeout);
+  aiTimeout = setTimeout(() => { if(GS.isAIMode && GS.turn !== GS.myColor && GS.phase === 'rolling') doAIMove(); }, 800);
 }
 
-async function sendInvite(targetId){
-  const target = allUsers.find(u => u.id === targetId);
+function doAIMove() {
+  if(!GS.isAIMode || GS.turn === GS.myColor) return;
+  if(GS.phase === 'rolling') {
+    const d1 = Math.ceil(Math.random()*6), d2 = Math.ceil(Math.random()*6);
+    GS.dice = (d1 === d2) ? [d1,d1,d1,d1] : [d1,d2];
+    GS.usedDice = new Array(GS.dice.length).fill(false);
+    GS.phase = 'moving';
+    renderDice();
+    drawBoard();
+    updateUI();
+  }
+  if(GS.phase === 'moving') {
+    let moves = getValidMoves(GS.turn);
+    if(moves.length === 0) { endTurn(); return; }
+    const move = moves[Math.floor(Math.random() * moves.length)];
+    applyMove(move);
+    renderDice();
+    drawBoard();
+    updateUI();
+    if(checkWin()) return;
+    if(diceAllUsed() || getValidMoves(GS.turn).length === 0) endTurn();
+    else scheduleAIMove();
+  }
+}
+
+function handleWin(winner) {
+  GS.phase = 'game_over';
+  const iWon = winner === GS.myColor;
+  document.getElementById('goIcon').textContent = iWon ? '🏆' : '💔';
+  document.getElementById('goTitle').textContent = iWon ? 'გაიმარჯვე!' : 'წააგე';
+  document.getElementById('goSub').textContent = iWon ? '🎉 ყველა ქვა გამოიყვანე!' : '💪 სცადე კიდევ!';
+  document.getElementById('gameOverModal').classList.add('open');
+  if(!GS.isAIMode && gameChannel) gameChannel.send({type:'broadcast', event:'game_action', payload:{type:'game_over', winner, from:ME.id}});
+}
+
+function playAgain() {
+  document.getElementById('gameOverModal').classList.remove('open');
+  if(GS.isAIMode) startAIGame();
+  else if(GS.gameId && GS.opponentId) { /* rematch logic */ }
+}
+
+// PVP INVITE SYSTEM
+async function loadOnlineUsers() {
+  const {data} = await sb.from('profiles').select('id,username,emotion,avatar_url,last_seen').order('last_seen',{ascending:false});
+  allUsers = (data||[]).filter(u => u.id !== ME?.id);
+  renderUserList();
+}
+function renderUserList() {
+  const el = document.getElementById('userListEl');
+  if(!el) return;
+  el.innerHTML = '';
+  if(!allUsers.length) { el.innerHTML = '<div class="empty-msg">📭 სხვა მომხმარებელი არ არის</div>'; return; }
+  allUsers.forEach(u => {
+    const d = document.createElement('div'); d.className = 'user-row';
+    d.innerHTML = `<div class="av">${u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion||'😊')}</div><div style="flex:1"><div class="ul-name">${escapeHtml(u.username||'?')}</div><div class="ul-sub">🟢 ონლაინი</div></div><button class="invite-btn">🎲 მოწვევა</button>`;
+    d.querySelector('.invite-btn').onclick = () => sendInvite(u.id);
+    el.appendChild(d);
+  });
+}
+async function sendInvite(targetId) {
+  const target = allUsers.find(u=>u.id===targetId);
   if(!target) return;
   currentInviteId = Date.now() + '_' + ME.id;
   const gameId = 'game_' + Date.now() + '_' + ME.id;
-  document.getElementById('userListEl').style.opacity = '0.4';
-  const wc = document.getElementById('waitingCard');
-  wc.style.display = 'block';
+  document.getElementById('waitingCard').style.display = 'block';
   document.getElementById('waitingTarget').textContent = target.emotion || '🎮';
-  document.getElementById('waitingName').textContent   = target.username;
+  document.getElementById('waitingName').textContent = target.username;
   let sec = 30;
   document.getElementById('waitCountdown').textContent = sec;
-  waitTimer = setInterval(() => {
-    sec--;
-    document.getElementById('waitCountdown').textContent = sec;
-    if(sec <= 0){ clearInterval(waitTimer); cancelInvite(); }
-  }, 1000);
-  document.querySelectorAll('.user-row').forEach(r => {
-    if(r.dataset.uid === targetId) r.classList.add('invited');
-    r.querySelector('.invite-btn').disabled = true;
-  });
+  if(waitTimer) clearInterval(waitTimer);
+  waitTimer = setInterval(() => { sec--; document.getElementById('waitCountdown').textContent = sec; if(sec<=0){clearInterval(waitTimer);cancelInvite();} },1000);
   const ch = sb.channel('nardi_invites_' + targetId);
   await ch.subscribe();
-  ch.send({type:'broadcast', event:'invite', payload:{
-    from:ME.id, fromName:MYPROF?.username||'?', fromEmo:MYPROF?.emotion||'🎮',
-    fromAvatar:MYPROF?.avatar_url||null, inviteId:currentInviteId, gameId, targetId,
-  }});
-  GS.gameId = gameId; GS.opponentId = targetId;
-  GS.opponentName = target.username; GS.opponentAvatar = target.avatar_url;
+  ch.send({type:'broadcast', event:'invite', payload:{ from:ME.id, fromName:MYPROF?.username||'?', fromEmo:MYPROF?.emotion||'🎮', fromAvatar:MYPROF?.avatar_url||null, inviteId:currentInviteId, gameId, targetId }});
+  GS.gameId = gameId; GS.opponentId = targetId; GS.opponentName = target.username;
 }
-
-function cancelInvite(){
+function cancelInvite() {
   clearInterval(waitTimer);
   currentInviteId = null;
   document.getElementById('waitingCard').style.display = 'none';
-  document.getElementById('userListEl').style.opacity = '1';
-  document.querySelectorAll('.user-row').forEach(r => {
-    r.classList.remove('invited');
-    r.querySelector('.invite-btn').disabled = false;
-  });
 }
-
-function handleIncomingInvite(payload){
+function handleIncomingInvite(payload) {
   if(payload.targetId !== ME.id) return;
   pendingInvite = payload;
   document.getElementById('inviteTitle').textContent = (payload.fromName||'?') + ' გიწვევს!';
-  document.getElementById('inviteSub').textContent   = '🎲 შორტ-ნარდის თამაშად';
+  document.getElementById('inviteSub').textContent = '🎲 შორტ-ნარდის თამაშად';
   document.getElementById('inviteModal').classList.add('open');
   let sec = 30;
   document.getElementById('inviteCountdown').textContent = sec;
   if(inviteTimer) clearInterval(inviteTimer);
-  inviteTimer = setInterval(() => {
-    sec--;
-    document.getElementById('inviteCountdown').textContent = sec;
-    if(sec <= 0){ clearInterval(inviteTimer); declineInvite(); }
-  }, 1000);
+  inviteTimer = setInterval(() => { sec--; document.getElementById('inviteCountdown').textContent = sec; if(sec<=0){clearInterval(inviteTimer);declineInvite();} },1000);
 }
-
-async function acceptInvite(){
+async function acceptInvite() {
   if(!pendingInvite) return;
   clearInterval(inviteTimer);
   document.getElementById('inviteModal').classList.remove('open');
   const inv = pendingInvite; pendingInvite = null;
   const ch = sb.channel('nardi_invites_' + inv.from);
   await ch.subscribe();
-  ch.send({type:'broadcast', event:'invite_response', payload:{
-    accepted:true, from:ME.id, inviteId:inv.inviteId, gameId:inv.gameId,
-  }});
+  ch.send({type:'broadcast', event:'invite_response', payload:{ accepted:true, from:ME.id, inviteId:inv.inviteId, gameId:inv.gameId }});
+  GS.isAIMode = false;
   GS.myColor = 'b'; GS.oppColor = 'w';
-  GS.gameId = inv.gameId; GS.opponentId = inv.from;
-  GS.opponentName = inv.fromName; GS.opponentAvatar = inv.fromAvatar;
+  GS.gameId = inv.gameId; GS.opponentId = inv.from; GS.opponentName = inv.fromName;
   startGameUI();
 }
-
-function declineInvite(){
+function declineInvite() {
   clearInterval(inviteTimer);
   document.getElementById('inviteModal').classList.remove('open');
-  if(pendingInvite){
+  if(pendingInvite) {
     const ch = sb.channel('nardi_invites_' + pendingInvite.from);
-    ch.subscribe().then(() => {
-      ch.send({type:'broadcast', event:'invite_response', payload:{
-        accepted:false, from:ME.id, inviteId:pendingInvite.inviteId, gameId:pendingInvite.gameId,
-      }});
-    });
+    ch.subscribe().then(() => ch.send({type:'broadcast', event:'invite_response', payload:{ accepted:false, from:ME.id, inviteId:pendingInvite.inviteId, gameId:pendingInvite.gameId }}));
   }
   pendingInvite = null;
 }
-
-function handleInviteResponse(payload){
+function handleInviteResponse(payload) {
   if(payload.gameId !== GS.gameId) return;
   clearInterval(waitTimer);
   cancelInvite();
-  if(payload.accepted){
+  if(payload.accepted) {
+    GS.isAIMode = false;
     GS.myColor = 'w'; GS.oppColor = 'b';
     startGameUI();
-  } else {
-    toast('❌ ' + GS.opponentName + ' უარყო');
-    GS.gameId = null; GS.opponentId = null;
-  }
+  } else { toast('❌ მოწვევა უარყოფილია'); GS.gameId = null; }
 }
 
-/* ══════════════════ START GAME ══════════════════ */
-function startGameUI(){
+function setupGameChannel(gameId) {
+  if(gameChannel){ try{ sb.removeChannel(gameChannel); }catch(e){} gameChannel = null; }
+  gameChannel = sb.channel('nardi_game_' + gameId)
+    .on('broadcast', {event:'game_action'}, ({payload}) => {
+      if(payload.from === ME.id) return;
+      if(payload.type === 'rolled') { GS.dice = payload.dice; GS.usedDice = new Array(payload.dice.length).fill(false); GS.phase = 'moving'; renderDice(); updateUI(); drawBoard(); }
+      if(payload.type === 'move') { applyMove(payload.move); GS.selected = null; GS.validMoves = []; renderDice(); drawBoard(); updateUI(); if(checkWin()) return; }
+      if(payload.type === 'end_turn') { GS.dice = []; GS.usedDice = []; GS.turn = GS.turn === 'w' ? 'b' : 'w'; GS.phase = 'rolling'; GS.selected = null; renderDice(); drawBoard(); updateUI(); }
+      if(payload.type === 'game_over') handleWin(payload.winner);
+    })
+    .subscribe();
+}
+
+function startAIGame() {
+  GS.isAIMode = true;
+  GS.myColor = 'w'; GS.oppColor = 'b';
+  GS.gameId = 'ai_' + Date.now();
+  GS.opponentName = 'AI';
+  startGameUI();
+}
+
+function startGameUI() {
   initBoard();
   GS.phase = 'first_roll';
   GS.dice = []; GS.usedDice = [];
   GS.selected = null; GS.validMoves = [];
   myFirstRoll = null; oppFirstRoll = null;
-
   document.getElementById('lobby').style.display = 'none';
   document.getElementById('game').classList.add('active');
-
-  setupGameChannel(GS.gameId);
-
-  // Player info
-  document.getElementById('nameBot').textContent  = MYPROF?.username || '?';
+  if(!GS.isAIMode && GS.gameId) setupGameChannel(GS.gameId);
+  setupGameChat(GS.gameId);
+  document.getElementById('nameBot').textContent = MYPROF?.username || 'თქვენ';
   document.getElementById('colorBot').textContent = GS.myColor === 'w' ? '⚪ თეთრი' : '⚫ შავი';
-  if(MYPROF?.avatar_url) document.getElementById('avBot').innerHTML = `<img src="${MYPROF.avatar_url}">`;
-  else document.getElementById('avBot').textContent = MYPROF?.emotion || '😊';
-
-  document.getElementById('nameTop').textContent  = GS.opponentName;
+  document.getElementById('avBot').innerHTML = MYPROF?.avatar_url ? `<img src="${MYPROF.avatar_url}">` : (MYPROF?.emotion || '😊');
+  document.getElementById('nameTop').textContent = GS.opponentName;
   document.getElementById('colorTop').textContent = GS.oppColor === 'w' ? '⚪ თეთრი' : '⚫ შავი';
-  if(GS.opponentAvatar) document.getElementById('avTop').innerHTML = `<img src="${GS.opponentAvatar}">`;
-  else document.getElementById('avTop').textContent = '🎮';
-
-  updateBorneUI();
-  updateButtons();
-  updatePlayerCards();
-
-  // Must resize before draw
-  requestAnimationFrame(() => {
-    resizeCanvas();
-    document.getElementById('firstRollDice').innerHTML = '';
-    document.getElementById('firstRollBtn').disabled = false;
-    document.getElementById('firstRollBtn').textContent = '🎲 კამათელი';
-    document.getElementById('firstRollModal').classList.add('open');
-    setStatus('🎲 პირველი სვლა...');
-  });
-}
-
-function startNewGame(){
-  document.getElementById('gameOverModal').classList.remove('open');
-  initBoard();
-  GS.phase = 'first_roll';
-  GS.dice = []; GS.usedDice = [];
-  GS.selected = null; GS.validMoves = [];
-  myFirstRoll = null; oppFirstRoll = null;
-  renderDice();
-  drawBoard();
-  updateBorneUI();
-  updateButtons();
-  updatePlayerCards();
+  document.getElementById('avTop').innerHTML = '🎮';
+  updateUI();
+  resizeCanvas();
   document.getElementById('firstRollDice').innerHTML = '';
   document.getElementById('firstRollBtn').disabled = false;
-  document.getElementById('firstRollBtn').textContent = '🎲 კამათელი';
   document.getElementById('firstRollModal').classList.add('open');
 }
 
-function playAgain(){
-  broadcastGameAction({type:'rematch'});
-  startNewGame();
-}
-
-/* ══════════════════ LOBBY ══════════════════ */
-async function loadOnlineUsers(){
-  const {data} = await sb.from('profiles').select('id,username,emotion,avatar_url,last_seen').order('last_seen',{ascending:false});
-  allUsers = (data||[]).filter(u => u.id !== ME?.id);
-  renderUserList();
-}
-
-function renderUserList(){
-  const el = document.getElementById('userListEl');
-  el.innerHTML = '';
-  if(!allUsers.length){
-    el.innerHTML = '<div class="empty-msg">📭 სხვა მომხმარებელი არ არის</div>';
-    return;
+let myFirstRoll = null, oppFirstRoll = null;
+function doFirstRoll() {
+  const r = Math.ceil(Math.random() * 6);
+  myFirstRoll = r;
+  document.getElementById('firstRollBtn').disabled = true;
+  const area = document.getElementById('firstRollDice');
+  const myDiv = document.createElement('div');
+  myDiv.className = 'die rolling';
+  myDiv.textContent = ['','⚀','⚁','⚂','⚃','⚄','⚅'][r];
+  area.appendChild(myDiv);
+  if(GS.isAIMode) {
+    oppFirstRoll = Math.ceil(Math.random() * 6);
+    const oppDiv = document.createElement('div');
+    oppDiv.className = 'die';
+    oppDiv.textContent = ['','⚀','⚁','⚂','⚃','⚄','⚅'][oppFirstRoll];
+    area.appendChild(oppDiv);
+    setTimeout(() => {
+      if(myFirstRoll > oppFirstRoll) GS.turn = GS.myColor;
+      else if(oppFirstRoll > myFirstRoll) GS.turn = GS.oppColor;
+      else { myFirstRoll = null; oppFirstRoll = null; area.innerHTML = ''; document.getElementById('firstRollBtn').disabled = false; return; }
+      document.getElementById('firstRollModal').classList.remove('open');
+      GS.phase = 'rolling';
+      updateUI();
+      if(GS.isAIMode && GS.turn !== GS.myColor) scheduleAIMove();
+    }, 700);
+  } else {
+    if(gameChannel) gameChannel.send({type:'broadcast', event:'game_action', payload:{type:'first_roll', value:r, from:ME.id}});
   }
-  allUsers.forEach(u => {
-    const online = Date.now() - new Date(u.last_seen||0).getTime() < 90000;
-    const d = document.createElement('div');
-    d.className = 'user-row';
-    d.dataset.uid = u.id;
-    const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion||'😊');
-    d.innerHTML = `
-      <div class="av">${avHtml}</div>
-      <div style="flex:1;min-width:0">
-        <div class="ul-name">${esc(u.username||'?')}</div>
-        <div class="ul-sub">${online?'🟢 ონლაინი':'⚫ ოფლაინი'}</div>
-      </div>
-      <button class="invite-btn">🎲 მოწვევა</button>
-    `;
-    d.querySelector('.invite-btn').addEventListener('click', e => {
-      e.stopPropagation();
-      sendInvite(u.id);
-    });
-    el.appendChild(d);
-  });
 }
 
-function esc(s){ return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-function toast(msg){
-  const t = document.createElement('div');
-  t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:9999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:pop .3s ease;white-space:nowrap;font-family:\'Noto Sans Georgian\',sans-serif';
-  t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(() => t.remove(), 2500);
+function switchLobbyTab(tab) {
+  document.getElementById('aiTab').style.display = tab === 'ai' ? 'block' : 'none';
+  document.getElementById('pvpTab').style.display = tab === 'pvp' ? 'block' : 'none';
+  document.getElementById('tabAiBtn').classList.toggle('active', tab === 'ai');
+  document.getElementById('tabPvpBtn').classList.toggle('active', tab === 'pvp');
+  if(tab === 'pvp') loadOnlineUsers();
 }
+function escapeHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function toast(msg) { const t=document.createElement('div'); t.style.cssText='position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#7a1fc8,#a855f7);color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:9999;animation:pop .3s ease'; t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),2500); }
+function goBack() { window.location.href = 'index.html'; }
 
-function goBack(){ window.location.href = 'index.html'; }
-
-/* ══════════════════ EVENTS ══════════════════ */
 canvas.addEventListener('click', handleCanvasClick);
+window.addEventListener('resize', () => { if(document.getElementById('game').classList.contains('active')) resizeCanvas(); });
 
-window.addEventListener('resize', () => {
-  if(document.getElementById('game').classList.contains('active')) resizeCanvas();
-});
-
-/* ══════════════════ INIT ══════════════════ */
-async function init(){
-  document.getElementById('statusText').textContent = 'Loading...';
+async function init() {
   const {data:{user}} = await sb.auth.getUser();
   if(!user){ window.location.href = 'index.html'; return; }
   ME = user;
-  const {data:prof} = await sb.from('profiles').select('*').eq('id', ME.id).single();
+  const {data:prof} = await sb.from('profiles').select('*').eq('id',ME.id).single();
   MYPROF = prof;
   document.getElementById('statusText').textContent = (prof?.username||'?') + ' — ნარდი';
-  setupInviteChannel();
   await loadOnlineUsers();
-  await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
-  setInterval(async () => {
-    await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id);
-  }, 30000);
+  sb.channel('invites_' + ME.id).on('broadcast', {event:'invite'}, ({payload}) => handleIncomingInvite(payload)).on('broadcast', {event:'invite_response'}, ({payload}) => handleInviteResponse(payload)).subscribe();
+  setInterval(async () => { await sb.from('profiles').update({last_seen: new Date().toISOString()}).eq('id', ME.id); }, 30000);
   toast('👋 გამარჯობა, ' + (prof?.username||'') + '!');
 }
-
 init();
 </script>
 </body>
