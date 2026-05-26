@@ -2,7 +2,7 @@
 <html lang="ka">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>ბილიარდი · კაიფმანია</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
@@ -50,20 +50,12 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   background:var(--panel);
   border-top:1px solid var(--border);
   border-radius:22px 22px 0 0;
-  /* Use dvh so keyboard resize is respected */
   height:55dvh;
   min-height:320px;
   display:flex;
   flex-direction:column;
   animation:slideUp .3s ease;
-  /* Push above home indicator / keyboard on iOS */
   padding-bottom:env(safe-area-inset-bottom, 8px);
-}
-/* When soft keyboard is open, browser shrinks viewport — sheet adjusts automatically with dvh.
-   Extra rule: keep chat-bar always visible */
-#mobileChatSheet .chat-bar{
-  flex-shrink:0;
-  padding-bottom:max(8px, env(safe-area-inset-bottom));
 }
 
 /* ====== LOBBY ====== */
@@ -154,8 +146,8 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .upm-invite-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:6px 14px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;white-space:nowrap}
 .upm-empty{color:var(--text3);font-size:12px;text-align:center;padding:24px 0}
 
-/* ====== CHAT PANEL (shared between desktop sidebar and mobile sheet) ====== */
-.chat-panel{display:flex;flex-direction:column;flex:1;min-height:0}
+/* ====== CHAT PANEL (desktop + mobile) ====== */
+.chat-panel{display:flex;flex-direction:column;flex:1;min-height:0;position:relative}
 .chat-head{padding:12px 14px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;display:flex;align-items:center;justify-content:space-between;gap:6px;background:linear-gradient(135deg,var(--indigo-f),transparent);flex-shrink:0}
 .chat-head-left{display:flex;align-items:center;gap:6px}
 .chat-dot{width:6px;height:6px;border-radius:50%;background:var(--accent)}
@@ -168,7 +160,7 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .chat-text{font-size:13px;color:var(--text);word-break:break-word;line-height:1.5}
 .chat-time{font-size:10px;color:var(--text3);margin-left:4px}
 .chat-sys{font-size:11px;color:var(--text3);font-style:italic;text-align:center;padding:3px 0}
-.chat-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;position:relative}
+.chat-bar{display:flex;gap:6px;padding:8px 10px;border-top:1px solid var(--border);flex-shrink:0;position:relative;background:var(--panel);}
 .chat-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:8px 12px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
 .chat-input:focus{border-color:var(--indigo2)}
 .chat-input::placeholder{color:var(--text3)}
@@ -176,20 +168,31 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .chat-em-btn:hover{background:var(--border)}
 .chat-send-btn{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
 .chat-send-btn:hover{transform:scale(1.08)}
-.chat-emoji-panel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:12px;width:270px;z-index:100;box-shadow:0 8px 30px rgba(0,0,0,.5);display:none}
+/* FIXED: Emoji panel anchored to chat-bar - left side on desktop and mobile */
+.chat-emoji-panel{
+  position:absolute;
+  bottom:58px;
+  left:8px;
+  background:var(--panel2);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:12px;
+  width:280px;
+  z-index:100;
+  box-shadow:0 8px 30px rgba(0,0,0,.5);
+  display:none;
+  max-height:240px;
+  overflow-y:auto;
+}
 .chat-emoji-panel.open{display:block}
-.emoji-grid{display:flex;flex-wrap:wrap;gap:5px;max-height:180px;overflow-y:auto}
-.emoji-grid::-webkit-scrollbar{width:3px}
-.emoji-grid::-webkit-scrollbar-thumb{background:var(--border)}
-.em-btn{width:48px;height:48px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:22px}
-.em-btn:hover{background:var(--border);transform:scale(1.1)}
-.em-btn img{width:32px!important;height:32px!important;border-radius:6px;object-fit:contain;display:block}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:6px}
+.em-btn{width:52px;height:52px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;font-size:24px}
+.em-btn:hover{background:var(--border);transform:scale(1.05)}
+.em-btn img{width:36px!important;height:36px!important;border-radius:8px;object-fit:contain;display:block}
 
-/* misc */
 .hidden{display:none!important}
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:pop .3s ease;white-space:nowrap}
 
-/* Mobile touch controls */
 .touch-controls{display:none;gap:8px;flex-wrap:wrap;justify-content:center;width:100%;max-width:720px}
 @media(max-width:600px){
   .touch-controls{display:flex}
@@ -211,8 +214,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 
 <div id="app">
   <div id="gameArea">
-
-    <!-- LOBBY -->
     <div id="lobby" class="visible">
       <div class="lobby-icon">🎱</div>
       <div class="lobby-title">ბილიარდი</div>
@@ -223,42 +224,19 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
       </div>
       <div class="rules-card">
         <h3>წესები</h3>
-        <ul>
-          <li>შავი ბურთის (8) ნაადრევად ჩაგდება = წაგება</li>
-          <li>ბრტყელი (1–7) და ზოლიანი (9–15) · ტიპი პირველი ჩაგდებით განისაზღვრება</li>
-          <li>ფოლ: სასტარტო ბურთი ჩაგდება — მოწინააღმდეგე ათავსებს</li>
-          <li>ყველა ბურთი + შავი = გამარჯვება</li>
-          <li>გამარჯვება = +5 ქულა</li>
-        </ul>
+        <ul><li>შავი ბურთის (8) ნაადრევად ჩაგდება = წაგება</li><li>ბრტყელი (1–7) და ზოლიანი (9–15) · ტიპი პირველი ჩაგდებით განისაზღვრება</li><li>ფოლ: სასტარტო ბურთი ჩაგდება — მოწინააღმდეგე ათავსებს</li><li>ყველა ბურთი + შავი = გამარჯვება</li><li>გამარჯვება = +5 ქულა</li></ul>
       </div>
     </div>
 
-    <!-- GAME WRAPPER -->
     <div id="gameWrapper">
       <div class="game-info-bar">
-        <div class="player-card my-card" id="p1Card">
-          <div class="pc-av" id="p1Av">👤</div>
-          <div class="pc-info">
-            <div class="pc-name" id="p1Name">შენ</div>
-            <div class="pc-balls" id="p1Balls"></div>
-          </div>
-        </div>
+        <div class="player-card my-card" id="p1Card"><div class="pc-av" id="p1Av">👤</div><div class="pc-info"><div class="pc-name" id="p1Name">შენ</div><div class="pc-balls" id="p1Balls"></div></div></div>
         <div class="vs-divider">VS</div>
-        <div class="player-card" id="p2Card">
-          <div class="pc-av" id="p2Av">🤖</div>
-          <div class="pc-info">
-            <div class="pc-name" id="p2Name">AI</div>
-            <div class="pc-balls" id="p2Balls"></div>
-          </div>
-        </div>
+        <div class="player-card" id="p2Card"><div class="pc-av" id="p2Av">🤖</div><div class="pc-info"><div class="pc-name" id="p2Name">AI</div><div class="pc-balls" id="p2Balls"></div></div></div>
       </div>
       <div class="foul-notice" id="foulNotice">⚠️ ფოლი! მოწინააღმდეგე სასტარტო ბურთს განათავსებს</div>
       <canvas id="tableCanvas" width="720" height="420"></canvas>
-      <div class="power-bar-wrap">
-        <span class="power-label">💪</span>
-        <div class="power-bar"><div class="power-fill" id="powerFill" style="width:60%"></div></div>
-        <span class="power-label" id="powerPct">60%</span>
-      </div>
+      <div class="power-bar-wrap"><span class="power-label">💪</span><div class="power-bar"><div class="power-fill" id="powerFill" style="width:60%"></div></div><span class="power-label" id="powerPct">60%</span></div>
       <div class="game-msg" id="gameMsg">🎱 მიმართე და ისროლე</div>
       <div class="ctrl-btns">
         <button class="ctrl-btn no-mobile" onclick="decreasePower()">🔽 ნაკლები</button>
@@ -268,1062 +246,110 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
         <button class="ctrl-btn" id="shootBtn" onclick="shoot()">🎯 სროლა</button>
         <button class="ctrl-btn danger" onclick="leaveGame()">🏳️ დანებება</button>
       </div>
-      <!-- Mobile touch controls -->
-      <div class="touch-controls">
-        <button class="ctrl-btn" onclick="decreasePower()">🔽</button>
-        <button class="ctrl-btn" onclick="aimLeft()">⬅️</button>
-        <button class="ctrl-btn" onclick="aimRight()">➡️</button>
-        <button class="ctrl-btn" onclick="increasePower()">🔼</button>
-      </div>
+      <div class="touch-controls"><button class="ctrl-btn" onclick="decreasePower()">🔽</button><button class="ctrl-btn" onclick="aimLeft()">⬅️</button><button class="ctrl-btn" onclick="aimRight()">➡️</button><button class="ctrl-btn" onclick="increasePower()">🔼</button></div>
     </div>
-
   </div>
 
-  <!-- DESKTOP SIDEBAR CHAT -->
   <div id="sidebar">
     <div class="chat-panel">
-      <div class="chat-head">
-        <div class="chat-head-left"><div class="chat-dot"></div>ჩატი</div>
-      </div>
+      <div class="chat-head"><div class="chat-head-left"><div class="chat-dot"></div>ჩატი</div></div>
       <div class="chat-messages-box" id="desktopChatMessages"></div>
-      <div class="chat-emoji-panel" id="desktopEmojiPanel">
-        <div class="emoji-grid" id="desktopEmojiGrid"></div>
-      </div>
-      <div class="chat-bar">
-        <button class="chat-em-btn" onclick="toggleEmoji('desktop')">😊</button>
-        <input class="chat-input" id="desktopChatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChat()">
-        <button class="chat-send-btn" onclick="sendChat()">✈️</button>
-      </div>
+      <div class="chat-emoji-panel" id="desktopEmojiPanel"><div class="emoji-grid" id="desktopEmojiGrid"></div></div>
+      <div class="chat-bar"><button class="chat-em-btn" onclick="toggleEmoji('desktop')">😊</button><input class="chat-input" id="desktopChatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChat()"><button class="chat-send-btn" onclick="sendChat()">✈️</button></div>
     </div>
   </div>
 </div>
 
-<!-- MOBILE CHAT BUTTON -->
 <button id="mobileChatBtn" onclick="openMobileChat()">💬</button>
-
-<!-- MOBILE CHAT OVERLAY -->
 <div id="mobileChatOverlay" onclick="if(event.target===this)closeMobileChat()">
   <div id="mobileChatSheet">
     <div class="chat-panel">
-      <div class="chat-head">
-        <div class="chat-head-left"><div class="chat-dot"></div>ჩატი</div>
-        <button class="chat-close-btn" onclick="closeMobileChat()">✕</button>
-      </div>
+      <div class="chat-head"><div class="chat-head-left"><div class="chat-dot"></div>ჩატი</div><button class="chat-close-btn" onclick="closeMobileChat()">✕</button></div>
       <div class="chat-messages-box" id="mobileChatMessages"></div>
-      <div class="chat-emoji-panel" id="mobileEmojiPanel">
-        <div class="emoji-grid" id="mobileEmojiGrid"></div>
-      </div>
-      <div class="chat-bar">
-        <button class="chat-em-btn" onclick="toggleEmoji('mobile')">😊</button>
-        <input class="chat-input" id="mobileChatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChat()">
-        <button class="chat-send-btn" onclick="sendChat()">✈️</button>
-      </div>
+      <div class="chat-emoji-panel" id="mobileEmojiPanel"><div class="emoji-grid" id="mobileEmojiGrid"></div></div>
+      <div class="chat-bar"><button class="chat-em-btn" onclick="toggleEmoji('mobile')">😊</button><input class="chat-input" id="mobileChatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChat()"><button class="chat-send-btn" onclick="sendChat()">✈️</button></div>
     </div>
   </div>
 </div>
 
-<!-- WIN SCREEN -->
-<div id="winScreen">
-  <div class="win-card">
-    <span class="win-trophy" id="winTrophy">🏆</span>
-    <div class="win-title" id="winTitle">გაიმარჯვე!</div>
-    <div class="win-sub" id="winSub"></div>
-    <div class="win-score-badge" id="winScore">+5 ⭐</div>
-    <button class="win-btn" onclick="startAIGame()">🤖 AI-სთან ხელახლა</button>
-    <button class="win-btn sec" onclick="backToLobby()">🏠 ლობი</button>
-  </div>
-</div>
+<div id="winScreen"><div class="win-card"><span class="win-trophy" id="winTrophy">🏆</span><div class="win-title" id="winTitle">გაიმარჯვე!</div><div class="win-sub" id="winSub"></div><div class="win-score-badge" id="winScore">+5 ⭐</div><button class="win-btn" onclick="startAIGame()">🤖 AI-სთან ხელახლა</button><button class="win-btn sec" onclick="backToLobby()">🏠 ლობი</button></div></div>
 
-<!-- INVITE NOTIFICATION -->
-<div id="inviteNotif">
-  <div class="inv-title">🎱 გამოწვევა</div>
-  <div class="inv-from" id="invFromName">-</div>
-  <div class="inv-sub">გიწვევს ბილიარდის პარტიაში</div>
-  <div class="inv-btns">
-    <button class="inv-btn accept" onclick="acceptInvite()">✅ დასტური</button>
-    <button class="inv-btn decline" onclick="declineInvite()">❌ უარი</button>
-  </div>
-</div>
+<div id="inviteNotif"><div class="inv-title">🎱 გამოწვევა</div><div class="inv-from" id="invFromName">-</div><div class="inv-sub">გიწვევს ბილიარდის პარტიაში</div><div class="inv-btns"><button class="inv-btn accept" onclick="acceptInvite()">✅ დასტური</button><button class="inv-btn decline" onclick="declineInvite()">❌ უარი</button></div></div>
 
-<!-- USER PICK MODAL -->
-<div id="userPickOverlay" onclick="if(event.target===this)closeUserPick()">
-  <div class="user-pick-modal">
-    <div class="upm-title">📨 მოთამაშის მოწვევა
-      <button class="upm-close" onclick="closeUserPick()">✕</button>
-    </div>
-    <div class="upm-list" id="upmList"></div>
-  </div>
-</div>
+<div id="userPickOverlay" onclick="if(event.target===this)closeUserPick()"><div class="user-pick-modal"><div class="upm-title">📨 მოთამაშის მოწვევა<button class="upm-close" onclick="closeUserPick()">✕</button></div><div class="upm-list" id="upmList"></div></div></div>
 
 <script>
 const {createClient} = supabase;
-const sb = createClient(
-  "https://brggiyhfzfbmlirqfgpo.supabase.co",
-  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
-);
-
-let ME = null, MYPROF = null;
-let allUsers = [], customEmojis = [], emojiCache = {};
-let gameMode = null; // 'ai' | 'multi'
-let currentInviteFrom = null;
-let inviteCh = null, chatCh = null;
-let myScore = 0;
-
-// ====== INIT ======
-async function init() {
-  const { data: { user } } = await sb.auth.getUser();
-  if (!user) { location.href = 'index.html'; return; }
-  ME = user;
-  const { data: p } = await sb.from('profiles').select('*').eq('id', ME.id).single();
-  MYPROF = p;
-  myScore = p?.billiard_score || 0;
-  document.getElementById('myScoreNav').textContent = myScore;
-  await loadUsers();
-  await loadEmojis();
-  buildChatEmojis();
-  setupInviteChannel();
-  setupChatChannel();
-  addSysMsg('🎱 ბილიარდის ოთახში შეხვედით!');
-}
-
-async function loadUsers() {
-  const { data } = await sb.from('profiles').select('*').order('username');
-  allUsers = data || [];
-}
-
-async function loadEmojis() {
-  const { data } = await sb.from('global_emojis').select('id,url').order('id');
-  customEmojis = data || [];
-  emojiCache = {};
-  customEmojis.forEach(e => { emojiCache[e.id] = e.url; });
-}
-
-function esc(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-function toast(msg) {
-  const t = document.createElement('div');
-  t.className = 'toast'; t.textContent = msg;
-  document.body.appendChild(t);
-  setTimeout(()=>t.remove(), 2500);
-}
-function isOnline(ts) { if(!ts) return false; return Date.now()-new Date(ts).getTime()<90000; }
-
-// ====== EMOJI ======
-function buildChatEmojis() {
-  ['desktop','mobile'].forEach(prefix => {
-    const grid = document.getElementById(prefix+'EmojiGrid');
-    if (!grid) return;
-    grid.innerHTML = '';
-    customEmojis.forEach(em => {
-      const btn = document.createElement('button');
-      btn.className = 'em-btn';
-      const isImg = em.url && (em.url.startsWith('http')||em.url.startsWith('data:'));
-      if (isImg) { const img = document.createElement('img'); img.src = em.url; btn.appendChild(img); }
-      else { btn.textContent = em.url||'?'; }
-      btn.addEventListener('click', () => {
-        const inp = document.getElementById(prefix==='desktop'?'desktopChatInput':'mobileChatInput');
-        if (!inp) return;
-        if (isImg) inp.value += `[e:${em.id}]`;
-        else inp.value += em.url;
-        inp.focus();
-        closeAllEmojiPanels();
-      });
-      grid.appendChild(btn);
-    });
-  });
-}
-
-function toggleEmoji(prefix) {
-  const panel = document.getElementById(prefix+'EmojiPanel');
-  if (!panel) return;
-  const wasOpen = panel.classList.contains('open');
-  closeAllEmojiPanels();
-  if (!wasOpen) panel.classList.add('open');
-}
-
-function closeAllEmojiPanels() {
-  document.querySelectorAll('.chat-emoji-panel').forEach(p=>p.classList.remove('open'));
-}
-
-document.addEventListener('click', e => {
-  if (!e.target.closest('.chat-emoji-panel') && !e.target.closest('.chat-em-btn'))
-    closeAllEmojiPanels();
-});
-
-function renderChatContent(s) {
-  if (!s) return '';
-  let h = esc(s);
-  h = h.replace(/\[e:(\d+)\]/g, (m, id) => {
-    const url = emojiCache[parseInt(id)];
-    if (!url) return m;
-    if (url.startsWith('http')||url.startsWith('data:'))
-      return `<img src="${url}" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;border-radius:5px">`;
-    return `<span style="font-size:22px;vertical-align:middle">${url}</span>`;
-  });
-  return h;
-}
-
-// ====== MOBILE CHAT ======
-function openMobileChat() { document.getElementById('mobileChatOverlay').classList.add('open'); }
-function closeMobileChat() { document.getElementById('mobileChatOverlay').classList.remove('open'); }
-
-// ====== CHAT ======
-function setupChatChannel() {
-  if (chatCh) { try { sb.removeChannel(chatCh); } catch(e){} }
-  chatCh = sb.channel('billiards_chat')
-    .on('broadcast', {event:'chat'}, ({payload}) => {
-      if (payload.uid === ME?.id) return;
-      appendChatMsg(payload.nick, payload.text, payload.time, false);
-    })
-    .subscribe();
-}
-
-function getActiveInput() {
-  const mob = document.getElementById('mobileChatInput');
-  const desk = document.getElementById('desktopChatInput');
-  if (mob && document.getElementById('mobileChatOverlay').classList.contains('open')) return mob;
-  return desk;
-}
-
-async function sendChat() {
-  const inp = getActiveInput();
-  if (!inp) return;
-  const txt = inp.value.trim();
-  if (!txt) return;
-  inp.value = '';
-  const t = new Date().toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
-  appendChatMsg(MYPROF?.username||'?', txt, t, true);
-  if (chatCh) chatCh.send({type:'broadcast',event:'chat',payload:{uid:ME.id,nick:MYPROF?.username||'?',text:txt,time:t}});
-}
-
-function appendChatMsg(nick, text, time, isMe) {
-  const html = `<span class="chat-nick" style="color:${isMe?'var(--accent)':'var(--indigo2)'}">${esc(nick)}</span><span class="chat-time">${time}</span><br><span class="chat-text">${renderChatContent(text)}</span>`;
-  ['desktopChatMessages','mobileChatMessages'].forEach(id => {
-    const box = document.getElementById(id);
-    if (!box) return;
-    const div = document.createElement('div');
-    div.className = 'chat-msg';
-    div.innerHTML = html;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  });
-}
-
-function addSysMsg(msg) {
-  ['desktopChatMessages','mobileChatMessages'].forEach(id => {
-    const box = document.getElementById(id);
-    if (!box) return;
-    const div = document.createElement('div');
-    div.className = 'chat-sys';
-    div.textContent = msg;
-    box.appendChild(div);
-    box.scrollTop = box.scrollHeight;
-  });
-}
-
-// ====== INVITE ======
-function setupInviteChannel() {
-  if (inviteCh) { try { sb.removeChannel(inviteCh); } catch(e){} }
-  inviteCh = sb.channel('billiards_invites_global')
-    .on('broadcast', {event:'invite'}, ({payload}) => {
-      if (payload.to !== ME.id) return;
-      showInvite(payload);
-    })
-    .on('broadcast', {event:'invite_response'}, ({payload}) => {
-      if (payload.to !== ME.id) return;
-      if (payload.accepted) {
-        toast('✅ '+payload.nick+' დაეთანხმა!');
-        // FIX: Inviter starts multiplayer game — inviter is player1 (iAmPlayer1=true)
-        startMultiGame(payload.from, payload.nick, payload.avatar, true);
-      } else {
-        toast('❌ '+payload.nick+' უარი თქვა');
-      }
-    })
-    .subscribe();
-}
-
-function openUserPick() {
-  const list = document.getElementById('upmList');
-  list.innerHTML = '';
-  const others = allUsers.filter(u=>u.id!==ME?.id);
-  const online = others.filter(u=>isOnline(u.last_seen));
-  const offline = others.filter(u=>!isOnline(u.last_seen));
-  const sorted = [...online,...offline];
-  if (!sorted.length) {
-    list.innerHTML = '<div class="upm-empty">👤 სხვა მომხმარებელი არ არის</div>';
-    document.getElementById('userPickOverlay').classList.add('open');
-    return;
-  }
-  sorted.forEach(u => {
-    const on = isOnline(u.last_seen);
-    const avHtml = u.avatar_url ? `<img src="${u.avatar_url}">` : (u.emotion||'😊');
-    const d = document.createElement('div');
-    d.className = 'upm-item';
-    d.innerHTML = `
-      <div class="upm-av">${avHtml}${on?'<div class="online-dot"></div>':''}</div>
-      <div class="upm-info">
-        <div class="upm-name">${esc(u.username||'?')}</div>
-        <div class="upm-status">${on?'🟢 ონლაინი':'⚫ ოფლაინი'}</div>
-      </div>
-      <button class="upm-invite-btn" ${on?'':'disabled style="opacity:.4"'}>📨 მოწვევა</button>`;
-    d.querySelector('.upm-invite-btn').addEventListener('click', () => { sendInvite(u); closeUserPick(); });
-    list.appendChild(d);
-  });
-  document.getElementById('userPickOverlay').classList.add('open');
-}
-
-function closeUserPick() { document.getElementById('userPickOverlay').classList.remove('open'); }
-
-async function sendInvite(user) {
-  toast('📨 '+user.username+'-ს ვიწვევთ...');
-  addSysMsg('📨 '+user.username+'-ს გამოწვევა გაიგზავნა');
-  if (inviteCh) inviteCh.send({type:'broadcast',event:'invite',payload:{from:ME.id,to:user.id,nick:MYPROF?.username||'?',avatar:MYPROF?.avatar_url||null}});
-}
-
-function showInvite(payload) {
-  currentInviteFrom = payload;
-  document.getElementById('invFromName').textContent = payload.nick||'?';
-  document.getElementById('inviteNotif').classList.add('visible');
-  setTimeout(()=>{ if(currentInviteFrom===payload) declineInvite(); }, 30000);
-}
-
-async function acceptInvite() {
-  const inv = currentInviteFrom;
-  document.getElementById('inviteNotif').classList.remove('visible');
-  currentInviteFrom = null;
-  if (!inv) return;
-  toast('✅ დასტური გაიგზავნა!');
-  if (inviteCh) {
-    await inviteCh.send({type:'broadcast',event:'invite_response',payload:{
-      to: inv.from,
-      from: ME.id,
-      nick: MYPROF?.username||'?',
-      avatar: MYPROF?.avatar_url||null,
-      accepted: true
-    }});
-  }
-  // FIX: Invitee is player2 (iAmPlayer1=false), starts AFTER sending response
-  setTimeout(()=>{ startMultiGame(inv.from, inv.nick, inv.avatar, false); }, 400);
-}
-
-async function declineInvite() {
-  const inv = currentInviteFrom;
-  document.getElementById('inviteNotif').classList.remove('visible');
-  currentInviteFrom = null;
-  if (!inv) return;
-  if (inviteCh) inviteCh.send({type:'broadcast',event:'invite_response',payload:{to:inv.from,from:ME.id,nick:MYPROF?.username||'?',avatar:MYPROF?.avatar_url||null,accepted:false}});
-  toast('❌ უარი გაიგზავნა');
-}
-
-// ====== BILLIARDS ENGINE ======
-const canvas = document.getElementById('tableCanvas');
-const ctx = canvas.getContext('2d');
-const W = 720, H = 420;
-const POCKET_R = 18, BALL_R = 11;
-const TABLE_X = 40, TABLE_Y = 30, TABLE_W = W-80, TABLE_H = H-60;
-
-const pockets = [
-  {x:TABLE_X,        y:TABLE_Y},
-  {x:TABLE_X+TABLE_W/2, y:TABLE_Y-4},
-  {x:TABLE_X+TABLE_W,   y:TABLE_Y},
-  {x:TABLE_X,        y:TABLE_Y+TABLE_H},
-  {x:TABLE_X+TABLE_W/2, y:TABLE_Y+TABLE_H+4},
-  {x:TABLE_X+TABLE_W,   y:TABLE_Y+TABLE_H}
-];
-
-let balls = [], cueBall = null;
-let aimAngle = Math.PI;
-let shootPower = 0.6;
-let isAnimating = false;
-// currentTurn: 1 = player1, 2 = player2
-// iAmPlayer1: true if I am player1 (inviter or AI game)
-let currentTurn = 1;
-let player1Type = null, player2Type = null; // 'solid'|'stripe'
-let typeAssigned = false;
-let foulFlag = false;
-// FIX: track who caused the foul — turn switches to OTHER player after foul
-let opponentNick = 'AI', opponentAvatar = null;
-let aiThinkTimer = null;
-let multiCh = null;
-let gameActive = false;
-let iAmPlayer1 = true;
-// Track what was pocketed this shot
-let pocketedThisShot = [];
-// Track first ball hit this shot (for foul detection on cue ball)
-let firstHitType = null; // 'own'|'other'|'eight'|null — for advanced foul rules (optional)
-
-const BALL_COLORS = {
-  1:'#fbbf24',2:'#3b82f6',3:'#ef4444',4:'#8b5cf6',
-  5:'#f97316',6:'#22c55e',7:'#dc2626',8:'#1f2937',
-  9:'#fbbf24',10:'#3b82f6',11:'#ef4444',12:'#8b5cf6',
-  13:'#f97316',14:'#22c55e',15:'#dc2626'
-};
-
-function makeBall(id, x, y) {
-  return {
-    id, x, y, vx:0, vy:0, pocketed:false,
-    solid: id>=1 && id<=7,
-    stripe: id>=9 && id<=15,
-    eight: id===8
-  };
-}
-
-function initBalls() {
-  balls = [];
-  // Cue ball — starts at 1/4 from left
-  cueBall = {id:0, x:TABLE_X+TABLE_W*0.25, y:TABLE_Y+TABLE_H/2, vx:0, vy:0, pocketed:false};
-  balls.push(cueBall);
-  // Rack
-  const rx = TABLE_X+TABLE_W*0.72, ry = TABLE_Y+TABLE_H/2;
-  const gap = BALL_R*2+1;
-  // Standard 8-ball rack order
-  const order = [1,9,2,10,8,3,11,4,12,5,13,6,14,7,15];
-  let idx = 0;
-  for (let row=0; row<5; row++) {
-    for (let col=0; col<=row; col++) {
-      const bx = rx + row*gap*Math.cos(Math.PI/6);
-      const by = ry + (col-(row/2))*gap;
-      if (idx < order.length) balls.push(makeBall(order[idx++], bx, by));
-    }
-  }
-}
-
-function drawTable() {
-  // Felt
-  const feltGrad = ctx.createLinearGradient(TABLE_X,TABLE_Y,TABLE_X+TABLE_W,TABLE_Y+TABLE_H);
-  feltGrad.addColorStop(0,'#0f4c2a'); feltGrad.addColorStop(0.5,'#1a6b3c'); feltGrad.addColorStop(1,'#0f4c2a');
-  ctx.fillStyle = feltGrad;
-  ctx.beginPath(); ctx.roundRect(TABLE_X,TABLE_Y,TABLE_W,TABLE_H,8); ctx.fill();
-  // Rail outer
-  ctx.strokeStyle='#5c3317'; ctx.lineWidth=30;
-  ctx.beginPath(); ctx.roundRect(TABLE_X-15,TABLE_Y-15,TABLE_W+30,TABLE_H+30,17); ctx.stroke();
-  // Rail inner highlight
-  ctx.strokeStyle='#7a4420'; ctx.lineWidth=28;
-  ctx.beginPath(); ctx.roundRect(TABLE_X-14,TABLE_Y-14,TABLE_W+28,TABLE_H+28,16); ctx.stroke();
-  // Center spot
-  ctx.fillStyle='rgba(255,255,255,0.08)';
-  ctx.beginPath(); ctx.arc(TABLE_X+TABLE_W/2,TABLE_Y+TABLE_H/2,5,0,Math.PI*2); ctx.fill();
-  // Head string line
-  ctx.strokeStyle='rgba(255,255,255,0.06)'; ctx.lineWidth=1;
-  ctx.beginPath(); ctx.moveTo(TABLE_X+TABLE_W*0.25,TABLE_Y+8); ctx.lineTo(TABLE_X+TABLE_W*0.25,TABLE_Y+TABLE_H-8); ctx.stroke();
-  // Pockets
-  pockets.forEach(p=>{
-    ctx.fillStyle='#050505';
-    ctx.beginPath(); ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='rgba(80,40,10,0.9)'; ctx.lineWidth=2;
-    ctx.stroke();
-  });
-}
-
-function shadeColor(color, percent) {
-  let r=parseInt(color.slice(1,3),16), g=parseInt(color.slice(3,5),16), b=parseInt(color.slice(5,7),16);
-  r=Math.max(0,Math.min(255,r+percent)); g=Math.max(0,Math.min(255,g+percent)); b=Math.max(0,Math.min(255,b+percent));
-  return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');
-}
-
-function drawBall(b) {
-  if (b.pocketed) return;
-  const x=b.x, y=b.y;
-  // Shadow
-  ctx.fillStyle='rgba(0,0,0,0.35)';
-  ctx.beginPath(); ctx.ellipse(x+3,y+4,BALL_R*0.9,BALL_R*0.5,0,0,Math.PI*2); ctx.fill();
-
-  if (b.id===0) {
-    // Cue ball — white
-    const g = ctx.createRadialGradient(x-3,y-3,1,x,y,BALL_R);
-    g.addColorStop(0,'#ffffff'); g.addColorStop(0.5,'#eeeeee'); g.addColorStop(1,'#cccccc');
-    ctx.fillStyle=g;
-    ctx.beginPath(); ctx.arc(x,y,BALL_R,0,Math.PI*2); ctx.fill();
-    ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=0.5; ctx.stroke();
-  } else {
-    const color = BALL_COLORS[b.id]||'#888';
-    const g = ctx.createRadialGradient(x-4,y-4,1,x,y,BALL_R);
-    g.addColorStop(0,'white'); g.addColorStop(0.15,color); g.addColorStop(1,shadeColor(color,-50));
-    ctx.fillStyle=g;
-    ctx.beginPath(); ctx.arc(x,y,BALL_R,0,Math.PI*2); ctx.fill();
-    // Stripe band
-    if (b.stripe) {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(x,y,BALL_R,0,Math.PI*2); ctx.clip();
-      ctx.fillStyle='white';
-      ctx.fillRect(x-BALL_R, y-BALL_R*0.4, BALL_R*2, BALL_R*0.8);
-      ctx.restore();
-    }
-    // Number circle
-    ctx.beginPath(); ctx.arc(x,y,BALL_R*0.4,0,Math.PI*2);
-    ctx.fillStyle='rgba(255,255,255,0.85)'; ctx.fill();
-    ctx.fillStyle = b.eight ? '#fff' : shadeColor(color,-80);
-    ctx.font=`bold ${BALL_R*0.75}px Arial`;
-    ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(b.id, x, y);
-  }
-}
-
-// ====== MY TURN LOGIC ======
-function isMyShot() {
-  return (iAmPlayer1 && currentTurn===1) || (!iAmPlayer1 && currentTurn===2);
-}
-
-function drawAimLine() {
-  if (!cueBall||cueBall.pocketed||isAnimating||!isMyShot()) return;
-  const cx=cueBall.x, cy=cueBall.y;
-  const len=200;
-  const ex=cx+Math.cos(aimAngle)*len, ey=cy+Math.sin(aimAngle)*len;
-  ctx.setLineDash([8,6]);
-  ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=1.5;
-  ctx.beginPath(); ctx.moveTo(cx,cy); ctx.lineTo(ex,ey); ctx.stroke();
-  ctx.setLineDash([]);
-  ctx.fillStyle='rgba(240,122,255,0.7)';
-  ctx.beginPath(); ctx.arc(ex,ey,4,0,Math.PI*2); ctx.fill();
-}
-
-function drawCue() {
-  if (!cueBall||cueBall.pocketed||isAnimating||!isMyShot()) return;
-  const cx=cueBall.x, cy=cueBall.y;
-  const offset=BALL_R+4, cueLen=120;
-  const sx=cx-Math.cos(aimAngle)*offset, sy=cy-Math.sin(aimAngle)*offset;
-  const ex=cx-Math.cos(aimAngle)*(offset+cueLen), ey=cy-Math.sin(aimAngle)*(offset+cueLen);
-  const g = ctx.createLinearGradient(sx,sy,ex,ey);
-  g.addColorStop(0,'#f5e6c8'); g.addColorStop(0.3,'#c8a56a'); g.addColorStop(1,'#5c3317');
-  ctx.strokeStyle=g; ctx.lineWidth=8; ctx.lineCap='round';
-  ctx.beginPath(); ctx.moveTo(sx,sy); ctx.lineTo(ex,ey); ctx.stroke();
-  ctx.lineCap='butt';
-}
-
-function render() {
-  ctx.clearRect(0,0,W,H);
-  drawTable();
-  drawAimLine();
-  // Draw numbered balls first, eight ball on top
-  const sorted = [...balls].sort((a,b)=>a.eight?1:b.eight?-1:0);
-  sorted.forEach(b=>{ if(!b.pocketed) drawBall(b); });
-  drawCue();
-}
-
-// ====== PHYSICS ======
-const FRICTION=0.985, MIN_SPEED=0.08;
+const sb = createClient("https://brggiyhfzfbmlirqfgpo.supabase.co","eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU");
+let ME=null,MYPROF=null,allUsers=[],customEmojis=[],emojiCache={},gameMode=null,currentInviteFrom=null,inviteCh=null,chatCh=null,myScore=0;
+let gameActive=false,iAmPlayer1=true,opponentNick='AI',opponentAvatar=null,multiCh=null,aiThinkTimer=null;
+let balls=[],cueBall=null,aimAngle=Math.PI,shootPower=0.6,isAnimating=false,currentTurn=1,player1Type=null,player2Type=null,typeAssigned=false,foulFlag=false,pocketedThisShot=[],isSimulatingOpponent=false;
+const W=720,H=420,POCKET_R=18,BALL_R=11,TABLE_X=40,TABLE_Y=30,TABLE_W=W-80,TABLE_H=H-60,pockets=[{x:TABLE_X,y:TABLE_Y},{x:TABLE_X+TABLE_W/2,y:TABLE_Y-4},{x:TABLE_X+TABLE_W,y:TABLE_Y},{x:TABLE_X,y:TABLE_Y+TABLE_H},{x:TABLE_X+TABLE_W/2,y:TABLE_Y+TABLE_H+4},{x:TABLE_X+TABLE_W,y:TABLE_Y+TABLE_H}];
+const BALL_COLORS={1:'#fbbf24',2:'#3b82f6',3:'#ef4444',4:'#8b5cf6',5:'#f97316',6:'#22c55e',7:'#dc2626',8:'#1f2937',9:'#fbbf24',10:'#3b82f6',11:'#ef4444',12:'#8b5cf6',13:'#f97316',14:'#22c55e',15:'#dc2626'};
+async function init(){const{data:{user}}=await sb.auth.getUser();if(!user){location.href='index.html';return;}ME=user;const{data:p}=await sb.from('profiles').select('*').eq('id',ME.id).single();MYPROF=p;myScore=p?.billiard_score||0;document.getElementById('myScoreNav').textContent=myScore;await loadUsers();await loadEmojis();buildChatEmojis();setupInviteChannel();setupChatChannel();addSysMsg('🎱 ბილიარდის ოთახში შეხვედით!');}
+async function loadUsers(){const{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];}
+async function loadEmojis(){const{data}=await sb.from('global_emojis').select('id,url').order('id');customEmojis=data||[];emojiCache={};customEmojis.forEach(e=>{emojiCache[e.id]=e.url;});}
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){const t=document.createElement('div');t.className='toast';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
+function buildChatEmojis(){['desktop','mobile'].forEach(prefix=>{const grid=document.getElementById(prefix+'EmojiGrid');if(!grid)return;grid.innerHTML='';customEmojis.forEach(em=>{const btn=document.createElement('button');btn.className='em-btn';const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));if(isImg){const img=document.createElement('img');img.src=em.url;btn.appendChild(img);}else{btn.textContent=em.url||'?';}btn.addEventListener('click',()=>{const inp=document.getElementById(prefix==='desktop'?'desktopChatInput':'mobileChatInput');if(inp){if(isImg)inp.value+=`[e:${em.id}]`;else inp.value+=em.url;inp.focus();closeAllEmojiPanels();}});grid.appendChild(btn);});});}
+function toggleEmoji(prefix){const panel=document.getElementById(prefix+'EmojiPanel');if(!panel)return;const wasOpen=panel.classList.contains('open');closeAllEmojiPanels();if(!wasOpen)panel.classList.add('open');}
+function closeAllEmojiPanels(){document.querySelectorAll('.chat-emoji-panel').forEach(p=>p.classList.remove('open'));}
+document.addEventListener('click',e=>{if(!e.target.closest('.chat-emoji-panel')&&!e.target.closest('.chat-em-btn'))closeAllEmojiPanels();});
+function renderChatContent(s){if(!s)return '';let h=esc(s);h=h.replace(/\[e:(\d+)\]/g,(m,id)=>{const url=emojiCache[parseInt(id)];if(!url)return m;if(url.startsWith('http')||url.startsWith('data:'))return `<img src="${url}" style="width:28px;height:28px;object-fit:contain;vertical-align:middle;border-radius:5px">`;return `<span style="font-size:22px;vertical-align:middle">${url}</span>`;});return h;}
+function openMobileChat(){document.getElementById('mobileChatOverlay').classList.add('open');}
+function closeMobileChat(){document.getElementById('mobileChatOverlay').classList.remove('open');}
+function setupChatChannel(){if(chatCh)try{sb.removeChannel(chatCh);}catch(e){}chatCh=sb.channel('billiards_chat').on('broadcast',{event:'chat'},({payload})=>{if(payload.uid===ME?.id)return;appendChatMsg(payload.nick,payload.text,payload.time,false);}).subscribe();}
+function getActiveInput(){const mob=document.getElementById('mobileChatInput'),desk=document.getElementById('desktopChatInput');if(mob&&document.getElementById('mobileChatOverlay').classList.contains('open'))return mob;return desk;}
+async function sendChat(){const inp=getActiveInput();if(!inp)return;const txt=inp.value.trim();if(!txt)return;inp.value='';const t=new Date().toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});appendChatMsg(MYPROF?.username||'?',txt,t,true);if(chatCh)chatCh.send({type:'broadcast',event:'chat',payload:{uid:ME.id,nick:MYPROF?.username||'?',text:txt,time:t}});}
+function appendChatMsg(nick,text,time,isMe){const html=`<span class="chat-nick" style="color:${isMe?'var(--accent)':'var(--indigo2)'}">${esc(nick)}</span><span class="chat-time">${time}</span><br><span class="chat-text">${renderChatContent(text)}</span>`;['desktopChatMessages','mobileChatMessages'].forEach(id=>{const box=document.getElementById(id);if(!box)return;const div=document.createElement('div');div.className='chat-msg';div.innerHTML=html;box.appendChild(div);box.scrollTop=box.scrollHeight;});}
+function addSysMsg(msg){['desktopChatMessages','mobileChatMessages'].forEach(id=>{const box=document.getElementById(id);if(!box)return;const div=document.createElement('div');div.className='chat-sys';div.textContent=msg;box.appendChild(div);box.scrollTop=box.scrollHeight;});}
+function setupInviteChannel(){if(inviteCh)try{sb.removeChannel(inviteCh);}catch(e){}inviteCh=sb.channel('billiards_invites_global').on('broadcast',{event:'invite'},({payload})=>{if(payload.to!==ME.id)return;showInvite(payload);}).on('broadcast',{event:'invite_response'},({payload})=>{if(payload.to!==ME.id)return;if(payload.accepted){toast('✅ '+payload.nick+' დაეთანხმა!');startMultiGame(payload.from,payload.nick,payload.avatar,true);}else{toast('❌ '+payload.nick+' უარი თქვა');}}).subscribe();}
+function openUserPick(){const list=document.getElementById('upmList');list.innerHTML='';const others=allUsers.filter(u=>u.id!==ME?.id);if(!others.length){list.innerHTML='<div class="upm-empty">👤 სხვა მომხმარებელი არ არის</div>';document.getElementById('userPickOverlay').classList.add('open');return;}others.forEach(u=>{const isOnline=Date.now()-new Date(u.last_seen).getTime()<90000;const avHtml=u.avatar_url?`<img src="${u.avatar_url}">`:(u.emotion||'😊');const d=document.createElement('div');d.className='upm-item';d.innerHTML=`<div class="upm-av">${avHtml}${isOnline?'<div class="online-dot"></div>':''}</div><div class="upm-info"><div class="upm-name">${esc(u.username||'?')}</div><div class="upm-status">${isOnline?'🟢 ონლაინი':'⚫ ოფლაინი'}</div></div><button class="upm-invite-btn" ${isOnline?'':'disabled style="opacity:.4"'}>📨 მოწვევა</button>`;d.querySelector('.upm-invite-btn').addEventListener('click',()=>{sendInvite(u);closeUserPick();});list.appendChild(d);});document.getElementById('userPickOverlay').classList.add('open');}
+function closeUserPick(){document.getElementById('userPickOverlay').classList.remove('open');}
+async function sendInvite(user){toast('📨 '+user.username+'-ს ვიწვევთ...');addSysMsg('📨 '+user.username+'-ს გამოწვევა გაიგზავნა');if(inviteCh)inviteCh.send({type:'broadcast',event:'invite',payload:{from:ME.id,to:user.id,nick:MYPROF?.username||'?',avatar:MYPROF?.avatar_url||null}});}
+function showInvite(payload){currentInviteFrom=payload;document.getElementById('invFromName').textContent=payload.nick||'?';document.getElementById('inviteNotif').classList.add('visible');setTimeout(()=>{if(currentInviteFrom===payload)declineInvite();},30000);}
+async function acceptInvite(){const inv=currentInviteFrom;document.getElementById('inviteNotif').classList.remove('visible');currentInviteFrom=null;if(!inv)return;toast('✅ დასტური გაიგზავნა!');if(inviteCh){await inviteCh.send({type:'broadcast',event:'invite_response',payload:{to:inv.from,from:ME.id,nick:MYPROF?.username||'?',avatar:MYPROF?.avatar_url||null,accepted:true}});}setTimeout(()=>{startMultiGame(inv.from,inv.nick,inv.avatar,false);},400);}
+async function declineInvite(){const inv=currentInviteFrom;document.getElementById('inviteNotif').classList.remove('visible');currentInviteFrom=null;if(!inv)return;if(inviteCh)inviteCh.send({type:'broadcast',event:'invite_response',payload:{to:inv.from,from:ME.id,nick:MYPROF?.username||'?',avatar:MYPROF?.avatar_url||null,accepted:false}});toast('❌ უარი გაიგზავნა');}
+function makeBall(id,x,y){return{id,x,y,vx:0,vy:0,pocketed:false,solid:id>=1&&id<=7,stripe:id>=9&&id<=15,eight:id===8};}
+function initBalls(){balls=[];cueBall={id:0,x:TABLE_X+TABLE_W*0.25,y:TABLE_Y+TABLE_H/2,vx:0,vy:0,pocketed:false};balls.push(cueBall);const rx=TABLE_X+TABLE_W*0.72,ry=TABLE_Y+TABLE_H/2,gap=BALL_R*2+1,order=[1,9,2,10,8,3,11,4,12,5,13,6,14,7,15];let idx=0;for(let row=0;row<5;row++)for(let col=0;col<=row;col++){const bx=rx+row*gap*Math.cos(Math.PI/6),by=ry+(col-(row/2))*gap;if(idx<order.length)balls.push(makeBall(order[idx++],bx,by));}}
+function drawTable(){const feltGrad=ctx.createLinearGradient(TABLE_X,TABLE_Y,TABLE_X+TABLE_W,TABLE_Y+TABLE_H);feltGrad.addColorStop(0,'#0f4c2a');feltGrad.addColorStop(0.5,'#1a6b3c');feltGrad.addColorStop(1,'#0f4c2a');ctx.fillStyle=feltGrad;ctx.beginPath();ctx.roundRect(TABLE_X,TABLE_Y,TABLE_W,TABLE_H,8);ctx.fill();ctx.strokeStyle='#5c3317';ctx.lineWidth=30;ctx.beginPath();ctx.roundRect(TABLE_X-15,TABLE_Y-15,TABLE_W+30,TABLE_H+30,17);ctx.stroke();ctx.strokeStyle='#7a4420';ctx.lineWidth=28;ctx.beginPath();ctx.roundRect(TABLE_X-14,TABLE_Y-14,TABLE_W+28,TABLE_H+28,16);ctx.stroke();pockets.forEach(p=>{ctx.fillStyle='#050505';ctx.beginPath();ctx.arc(p.x,p.y,POCKET_R,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(80,40,10,0.9)';ctx.lineWidth=2;ctx.stroke();});}
+function shadeColor(color,percent){let r=parseInt(color.slice(1,3),16),g=parseInt(color.slice(3,5),16),b=parseInt(color.slice(5,7),16);r=Math.max(0,Math.min(255,r+percent));g=Math.max(0,Math.min(255,g+percent));b=Math.max(0,Math.min(255,b+percent));return '#'+[r,g,b].map(v=>v.toString(16).padStart(2,'0')).join('');}
+function drawBall(b){if(b.pocketed)return;const x=b.x,y=b.y;ctx.fillStyle='rgba(0,0,0,0.35)';ctx.beginPath();ctx.ellipse(x+3,y+4,BALL_R*0.9,BALL_R*0.5,0,0,Math.PI*2);ctx.fill();if(b.id===0){const g=ctx.createRadialGradient(x-3,y-3,1,x,y,BALL_R);g.addColorStop(0,'#ffffff');g.addColorStop(0.5,'#eeeeee');g.addColorStop(1,'#cccccc');ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,BALL_R,0,Math.PI*2);ctx.fill();ctx.strokeStyle='rgba(0,0,0,0.15)';ctx.lineWidth=0.5;ctx.stroke();}else{const color=BALL_COLORS[b.id]||'#888',g=ctx.createRadialGradient(x-4,y-4,1,x,y,BALL_R);g.addColorStop(0,'white');g.addColorStop(0.15,color);g.addColorStop(1,shadeColor(color,-50));ctx.fillStyle=g;ctx.beginPath();ctx.arc(x,y,BALL_R,0,Math.PI*2);ctx.fill();if(b.stripe){ctx.save();ctx.beginPath();ctx.arc(x,y,BALL_R,0,Math.PI*2);ctx.clip();ctx.fillStyle='white';ctx.fillRect(x-BALL_R,y-BALL_R*0.4,BALL_R*2,BALL_R*0.8);ctx.restore();}ctx.beginPath();ctx.arc(x,y,BALL_R*0.4,0,Math.PI*2);ctx.fillStyle='rgba(255,255,255,0.85)';ctx.fill();ctx.fillStyle=b.eight?'#fff':shadeColor(color,-80);ctx.font=`bold ${BALL_R*0.75}px Arial`;ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText(b.id,x,y);}}
+function isMyShot(){return (iAmPlayer1 && currentTurn===1) || (!iAmPlayer1 && currentTurn===2);}
+function render(){ctx.clearRect(0,0,W,H);drawTable();if(!isAnimating&&isMyShot()&&cueBall&&!cueBall.pocketed){const cx=cueBall.x,cy=cueBall.y,len=200,ex=cx+Math.cos(aimAngle)*len,ey=cy+Math.sin(aimAngle)*len;ctx.setLineDash([8,6]);ctx.strokeStyle='rgba(255,255,255,0.35)';ctx.lineWidth=1.5;ctx.beginPath();ctx.moveTo(cx,cy);ctx.lineTo(ex,ey);ctx.stroke();ctx.setLineDash([]);ctx.fillStyle='rgba(240,122,255,0.7)';ctx.beginPath();ctx.arc(ex,ey,4,0,Math.PI*2);ctx.fill();}balls.forEach(b=>{if(!b.pocketed)drawBall(b);});if(!isAnimating&&isMyShot()&&cueBall&&!cueBall.pocketed){const cx=cueBall.x,cy=cueBall.y,offset=BALL_R+4,cueLen=120,sx=cx-Math.cos(aimAngle)*offset,sy=cy-Math.sin(aimAngle)*offset,ex=cx-Math.cos(aimAngle)*(offset+cueLen),ey=cy-Math.sin(aimAngle)*(offset+cueLen),g=ctx.createLinearGradient(sx,sy,ex,ey);g.addColorStop(0,'#f5e6c8');g.addColorStop(0.3,'#c8a56a');g.addColorStop(1,'#5c3317');ctx.strokeStyle=g;ctx.lineWidth=8;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(sx,sy);ctx.lineTo(ex,ey);ctx.stroke();ctx.lineCap='butt';}}
 let physLoop=null;
-
-function startPhysics() {
-  if (physLoop) return;
-  isAnimating=true;
-  updateShootBtn(false);
-  pocketedThisShot=[];
-  physLoop=setInterval(physicsStep,1000/60);
-}
-
-function physicsStep() {
-  let moving=false;
-  balls.forEach(b=>{
-    if (b.pocketed||(Math.abs(b.vx)<MIN_SPEED&&Math.abs(b.vy)<MIN_SPEED)) {
-      b.vx=0; b.vy=0; return;
-    }
-    moving=true;
-    b.x+=b.vx; b.y+=b.vy;
-    b.vx*=FRICTION; b.vy*=FRICTION;
-    if(Math.abs(b.vx)<MIN_SPEED) b.vx=0;
-    if(Math.abs(b.vy)<MIN_SPEED) b.vy=0;
-    // Wall bouncing
-    if(b.x-BALL_R<TABLE_X){b.x=TABLE_X+BALL_R;b.vx=Math.abs(b.vx)*0.75;}
-    if(b.x+BALL_R>TABLE_X+TABLE_W){b.x=TABLE_X+TABLE_W-BALL_R;b.vx=-Math.abs(b.vx)*0.75;}
-    if(b.y-BALL_R<TABLE_Y){b.y=TABLE_Y+BALL_R;b.vy=Math.abs(b.vy)*0.75;}
-    if(b.y+BALL_R>TABLE_Y+TABLE_H){b.y=TABLE_Y+TABLE_H-BALL_R;b.vy=-Math.abs(b.vy)*0.75;}
-    // Pocket check
-    pockets.forEach(p=>{
-      const dx=b.x-p.x, dy=b.y-p.y;
-      if(Math.sqrt(dx*dx+dy*dy)<POCKET_R&&!b.pocketed){
-        b.pocketed=true; b.vx=0; b.vy=0;
-        onBallPocketed(b);
-      }
-    });
-  });
-  // Ball-ball collisions
-  for(let i=0;i<balls.length;i++){
-    for(let j=i+1;j<balls.length;j++){
-      const a=balls[i],b=balls[j];
-      if(a.pocketed||b.pocketed) continue;
-      const dx=b.x-a.x,dy=b.y-a.y;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      if(dist<BALL_R*2&&dist>0){
-        const nx=dx/dist, ny=dy/dist;
-        const p=2*(a.vx*nx+a.vy*ny-b.vx*nx-b.vy*ny)/2;
-        a.vx-=p*nx*0.9; a.vy-=p*ny*0.9;
-        b.vx+=p*nx*0.9; b.vy+=p*ny*0.9;
-        const ov=(BALL_R*2-dist)/2+0.5;
-        a.x-=ov*nx; a.y-=ov*ny; b.x+=ov*nx; b.y+=ov*ny;
-      }
-    }
-  }
-  render();
-  if(!moving){
-    clearInterval(physLoop); physLoop=null;
-    isAnimating=false;
-    afterShotSettle();
-  }
-}
-
-// ====== BALL POCKETED ======
-function onBallPocketed(b) {
-  if (b.id===0) {
-    // Cue ball foul
-    foulFlag=true;
-    document.getElementById('foulNotice').style.display='block';
-    toast('⚠️ ფოლი! სასტარტო ბურთი!');
-    addSysMsg('⚠️ ფოლი!');
-    // Respawn cue ball
-    setTimeout(()=>{
-      b.pocketed=false;
-      b.x=TABLE_X+TABLE_W*0.2; b.y=TABLE_Y+TABLE_H/2;
-      b.vx=0; b.vy=0;
-      render();
-    },600);
-    return;
-  }
-  pocketedThisShot.push(b);
-  if(b.eight){ return; } // handled in afterShotSettle
-  if(!typeAssigned) tryAssignTypes();
-  toast(b.solid?`🟡 #${b.id}`:`〽️ #${b.id}`);
-  updateBallUI();
-}
-
-// ====== TYPE ASSIGNMENT (first non-cue, non-8 pocketed ball) ======
-function tryAssignTypes() {
-  if(typeAssigned) return;
-  const firstBall = pocketedThisShot.find(b=>!b.eight);
-  if(!firstBall) return;
-  typeAssigned=true;
-  if(currentTurn===1){
-    player1Type = firstBall.solid?'solid':'stripe';
-    player2Type = firstBall.solid?'stripe':'solid';
-  } else {
-    player2Type = firstBall.solid?'solid':'stripe';
-    player1Type = firstBall.solid?'stripe':'solid';
-  }
-  const myType = iAmPlayer1?player1Type:player2Type;
-  toast(`შენი: ${myType==='solid'?'🟡 ბრტყელი':'〽️ ზოლიანი'}`);
-  addSysMsg(`ტიპები განისაზღვრა · შენ=${myType==='solid'?'ბრტყელი':'ზოლიანი'}`);
-  updateBallUI();
-}
-
-// ====== AFTER PHYSICS SETTLE ======
-function afterShotSettle() {
-  if(!gameActive) return;
-  tryAssignTypes();
-
-  // Check if 8-ball was pocketed this shot
-  const eightPocketed = pocketedThisShot.find(b=>b.eight);
-  if(eightPocketed){
-    handleEightPocketed();
-    return;
-  }
-
-  // Count correct balls pocketed by current shooter
-  const shooterType = currentTurn===1?player1Type:player2Type;
-  let correctPocketed=0;
-  if(typeAssigned && shooterType){
-    correctPocketed = pocketedThisShot.filter(b=>{
-      if(b.eight) return false;
-      return shooterType==='solid'?b.solid:b.stripe;
-    }).length;
-  } else if(!typeAssigned){
-    // Before types assigned — any non-8 pocket keeps turn
-    correctPocketed = pocketedThisShot.filter(b=>!b.eight).length;
-  }
-
-  pocketedThisShot=[];
-  checkWinCondition(); // in case all balls cleared (without 8)
-  if(!gameActive) return;
-
-  // Determine if turn switches
-  // Turn switches if: foul occurred OR no correct balls pocketed
-  const hadFoul = foulFlag;
-  if(hadFoul){
-    foulFlag=false;
-    document.getElementById('foulNotice').style.display='none';
-    // Turn passes to OTHER player
-    currentTurn = currentTurn===1?2:1;
-  } else if(correctPocketed===0){
-    // No correct balls, switch turn
-    currentTurn = currentTurn===1?2:1;
-  }
-  // else: correct balls pocketed → same player continues
-
-  updateTurnUI();
-  updateBallUI();
-
-  const nowMyTurn = isMyShot();
-  const wasSimulating = isSimulatingOpponent;
-  isSimulatingOpponent = false; // reset after every settle
-
-  if(gameMode==='ai'&&currentTurn===2){
-    setGameMsg('🤖 AI ფიქრობს...');
-    updateShootBtn(false);
-    scheduleAI();
-  } else if(gameMode==='multi'){
-    if(nowMyTurn){
-      // My turn now — whether I just scored or opponent missed
-      updateShootBtn(true);
-      const myType=iAmPlayer1?player1Type:player2Type;
-      const myRemaining=typeAssigned&&myType?balls.filter(b=>!b.pocketed&&(myType==='solid'?b.solid:b.stripe)).length:null;
-      if(typeAssigned&&myRemaining===0){
-        setGameMsg('🎱 ყველა ბურთი ჩაყარე — ჩაყარე შავი და მოიგე!');
-      } else {
-        setGameMsg('🎯 შენი ჯერია!');
-      }
-      // If WE were the shooter (not simulating), broadcast state to opponent
-      if(!wasSimulating) broadcastTurnChange();
-    } else {
-      // Opponent's turn — broadcast only if WE were the shooter
-      setGameMsg('⌛ '+opponentNick+'-ს ჯერი...');
-      updateShootBtn(false);
-      if(!wasSimulating) broadcastTurnChange();
-    }
-  } else if(nowMyTurn){
-    updateShootBtn(true);
-    const myType=iAmPlayer1?player1Type:player2Type;
-    const myRemaining=typeAssigned&&myType?balls.filter(b=>!b.pocketed&&(myType==='solid'?b.solid:b.stripe)).length:null;
-    if(typeAssigned&&myRemaining===0){
-      setGameMsg('🎱 ყველა ბურთი ჩაყარე — ჩაყარე შავი და მოიგე!');
-    } else {
-      setGameMsg('🎯 შენი ჯერია!');
-    }
-  }
-}
-
-function handleEightPocketed(){
-  const shooterIsMe=(iAmPlayer1&&currentTurn===1)||(!iAmPlayer1&&currentTurn===2);
-  const shooterType=currentTurn===1?player1Type:player2Type;
-  const shooterRemaining=typeAssigned&&shooterType
-    ?balls.filter(b=>!b.pocketed&&(shooterType==='solid'?b.solid:b.stripe)).length
-    :999;
-
-  if(typeAssigned&&shooterRemaining===0){
-    // Legal 8 pocket — shooter wins!
-    endGame(shooterIsMe);
-    toast(shooterIsMe?'🏆 გაიმარჯვე!':'😢 '+opponentNick+' გაიმარჯვა');
-  } else {
-    // Premature 8 pocket — shooter LOSES
-    endGame(!shooterIsMe);
-    toast(shooterIsMe?'❌ 8 ნაადრევად — წააგე!':'🏆 '+opponentNick+' 8 ჩაყარა ნაადრევად — გაიმარჯვე!');
-  }
-}
-
-// ====== WIN CONDITION ======
-function checkWinCondition(){
-  if(!typeAssigned||!gameActive) return;
-  // Already handled by handleEightPocketed; this is just a safety check
-}
-
-// ====== SHOOT ======
-function shoot(){
-  if(!gameActive||isAnimating||!isMyShot()) return;
-  if(!cueBall||cueBall.pocketed) return;
-  const speed=shootPower*22+6;
-  cueBall.vx=Math.cos(aimAngle)*speed;
-  cueBall.vy=Math.sin(aimAngle)*speed;
-  if(gameMode==='multi'&&multiCh){
-    multiCh.send({type:'broadcast',event:'shot',payload:{
-      vx:cueBall.vx,vy:cueBall.vy,
-      ballStates:balls.map(b=>({id:b.id,x:b.x,y:b.y,pocketed:b.pocketed}))
-    }});
-  }
-  startPhysics();
-}
-
-function aimLeft(){aimAngle-=0.08;render();}
-function aimRight(){aimAngle+=0.08;render();}
-function increasePower(){shootPower=Math.min(1,shootPower+0.05);updatePowerUI();}
-function decreasePower(){shootPower=Math.max(0.05,shootPower-0.05);updatePowerUI();}
-
-function updatePowerUI(){
-  document.getElementById('powerFill').style.width=(shootPower*100)+'%';
-  document.getElementById('powerPct').textContent=Math.round(shootPower*100)+'%';
-}
-
-function updateShootBtn(enabled){
-  const btn=document.getElementById('shootBtn');
-  btn.disabled=!enabled;
-  btn.style.opacity=enabled?'1':'0.4';
-}
-
+function startPhysics(){if(physLoop)return;isAnimating=true;updateShootBtn(false);pocketedThisShot=[];physLoop=setInterval(physicsStep,1000/60);}
+function physicsStep(){let moving=false;balls.forEach(b=>{if(b.pocketed||(Math.abs(b.vx)<0.08&&Math.abs(b.vy)<0.08)){b.vx=0;b.vy=0;return;}moving=true;b.x+=b.vx;b.y+=b.vy;b.vx*=0.985;b.vy*=0.985;if(b.x-BALL_R<TABLE_X){b.x=TABLE_X+BALL_R;b.vx=Math.abs(b.vx)*0.75;}if(b.x+BALL_R>TABLE_X+TABLE_W){b.x=TABLE_X+TABLE_W-BALL_R;b.vx=-Math.abs(b.vx)*0.75;}if(b.y-BALL_R<TABLE_Y){b.y=TABLE_Y+BALL_R;b.vy=Math.abs(b.vy)*0.75;}if(b.y+BALL_R>TABLE_Y+TABLE_H){b.y=TABLE_Y+TABLE_H-BALL_R;b.vy=-Math.abs(b.vy)*0.75;}pockets.forEach(p=>{const dx=b.x-p.x,dy=b.y-p.y;if(Math.sqrt(dx*dx+dy*dy)<POCKET_R&&!b.pocketed){b.pocketed=true;b.vx=0;b.vy=0;onBallPocketed(b);}});});for(let i=0;i<balls.length;i++){for(let j=i+1;j<balls.length;j++){const a=balls[i],b=balls[j];if(a.pocketed||b.pocketed)continue;const dx=b.x-a.x,dy=b.y-a.y,dist=Math.sqrt(dx*dx+dy*dy);if(dist<BALL_R*2&&dist>0){const nx=dx/dist,ny=dy/dist,p=2*(a.vx*nx+a.vy*ny-b.vx*nx-b.vy*ny)/2;a.vx-=p*nx*0.9;a.vy-=p*ny*0.9;b.vx+=p*nx*0.9;b.vy+=p*ny*0.9;const ov=(BALL_R*2-dist)/2+0.5;a.x-=ov*nx;a.y-=ov*ny;b.x+=ov*nx;b.y+=ov*ny;}}}render();if(!moving){clearInterval(physLoop);physLoop=null;isAnimating=false;afterShotSettle();}}
+function onBallPocketed(b){if(b.id===0){foulFlag=true;document.getElementById('foulNotice').style.display='block';toast('⚠️ ფოლი! სასტარტო ბურთი!');addSysMsg('⚠️ ფოლი!');setTimeout(()=>{b.pocketed=false;b.x=TABLE_X+TABLE_W*0.2;b.y=TABLE_Y+TABLE_H/2;b.vx=0;b.vy=0;render();},600);return;}pocketedThisShot.push(b);if(b.eight)return;if(!typeAssigned)tryAssignTypes();updateBallUI();}
+function tryAssignTypes(){if(typeAssigned||pocketedThisShot.length===0)return;const firstBall=pocketedThisShot.find(b=>!b.eight);if(!firstBall)return;typeAssigned=true;if(currentTurn===1){player1Type=firstBall.solid?'solid':'stripe';player2Type=firstBall.solid?'stripe':'solid';}else{player2Type=firstBall.solid?'solid':'stripe';player1Type=firstBall.solid?'stripe':'solid';}const myType=iAmPlayer1?player1Type:player2Type;toast(`შენი: ${myType==='solid'?'🟡 ბრტყელი':'〽️ ზოლიანი'}`);addSysMsg(`ტიპები განისაზღვრა · შენ=${myType==='solid'?'ბრტყელი':'ზოლიანი'}`);updateBallUI();}
+function afterShotSettle(){if(!gameActive)return;tryAssignTypes();const eightPocketed=pocketedThisShot.find(b=>b.eight);if(eightPocketed){const shooterIsMe=(iAmPlayer1&&currentTurn===1)||(!iAmPlayer1&&currentTurn===2);const shooterType=currentTurn===1?player1Type:player2Type;const shooterRemaining=typeAssigned&&shooterType?balls.filter(b=>!b.pocketed&&(shooterType==='solid'?b.solid:b.stripe)).length:999;if(typeAssigned&&shooterRemaining===0){endGame(shooterIsMe);toast(shooterIsMe?'🏆 გაიმარჯვე!':'😢 '+opponentNick+' გაიმარჯვა');}else{endGame(!shooterIsMe);toast(shooterIsMe?'❌ 8 ნაადრევად — წააგე!':'🏆 '+opponentNick+' 8 ჩაყარა ნაადრევად — გაიმარჯვე!');}pocketedThisShot=[];return;}const shooterType=currentTurn===1?player1Type:player2Type;let correctPocketed=0;if(typeAssigned&&shooterType){correctPocketed=pocketedThisShot.filter(b=>{if(b.eight)return false;return shooterType==='solid'?b.solid:b.stripe;}).length;}else if(!typeAssigned){correctPocketed=pocketedThisShot.filter(b=>!b.eight).length;}const hadFoul=foulFlag;pocketedThisShot=[];if(hadFoul){foulFlag=false;document.getElementById('foulNotice').style.display='none';currentTurn=currentTurn===1?2:1;}else if(correctPocketed===0){currentTurn=currentTurn===1?2:1;}updateTurnUI();updateBallUI();const nowMyTurn=isMyShot();const wasSimulating=isSimulatingOpponent;isSimulatingOpponent=false;if(gameMode==='ai'&&currentTurn===2&&!nowMyTurn){setGameMsg('🤖 AI ფიქრობს...');updateShootBtn(false);if(aiThinkTimer)clearTimeout(aiThinkTimer);aiThinkTimer=setTimeout(aiShoot,800+Math.random()*800);}else if(gameMode==='multi'){if(nowMyTurn){updateShootBtn(true);setGameMsg('🎯 შენი ჯერია!');if(!wasSimulating)broadcastTurnChange();}else{updateShootBtn(false);setGameMsg('⌛ '+opponentNick+'-ს ჯერი...');if(!wasSimulating)broadcastTurnChange();}}else if(nowMyTurn){updateShootBtn(true);const myType=iAmPlayer1?player1Type:player2Type;const myRemaining=typeAssigned&&myType?balls.filter(b=>!b.pocketed&&(myType==='solid'?b.solid:b.stripe)).length:null;setGameMsg(myRemaining===0?'🎱 ჩაყარე შავი და მოიგე!':'🎯 შენი ჯერია!');}}
+function updateTurnUI(){const myTurn=isMyShot();document.getElementById('p1Card').classList.toggle('active',myTurn);document.getElementById('p2Card').classList.toggle('active',!myTurn);document.querySelectorAll('.pc-turn').forEach(e=>e.remove());const badge=document.createElement('div');badge.className='pc-turn';badge.textContent='ჯერი';(myTurn?document.getElementById('p1Card'):document.getElementById('p2Card')).appendChild(badge);}
+function updateBallUI(){const p1el=document.getElementById('p1Balls'),p2el=document.getElementById('p2Balls');p1el.innerHTML='';p2el.innerHTML='';if(!typeAssigned)return;const myType=iAmPlayer1?player1Type:player2Type,opType=iAmPlayer1?player2Type:player1Type;const myBalls=balls.filter(b=>myType==='solid'?b.solid:b.stripe),opBalls=balls.filter(b=>opType==='solid'?b.solid:b.stripe);[myBalls,opBalls].forEach((blist,idx)=>{const el=idx===0?p1el:p2el;blist.forEach(b=>{const d=document.createElement('div');d.className='pc-ball';d.style.background=b.pocketed?'rgba(255,255,255,.15)':BALL_COLORS[b.id];d.style.opacity=b.pocketed?'.4':'1';el.appendChild(d);});});}
+function aimLeft(){aimAngle-=0.08;render();}function aimRight(){aimAngle+=0.08;render();}function increasePower(){shootPower=Math.min(1,shootPower+0.05);updatePowerUI();}function decreasePower(){shootPower=Math.max(0.05,shootPower-0.05);updatePowerUI();}
+function updatePowerUI(){document.getElementById('powerFill').style.width=(shootPower*100)+'%';document.getElementById('powerPct').textContent=Math.round(shootPower*100)+'%';}
+function updateShootBtn(enabled){const btn=document.getElementById('shootBtn');btn.disabled=!enabled;btn.style.opacity=enabled?'1':'0.4';}
 function setGameMsg(msg){document.getElementById('gameMsg').textContent=msg;}
-
-function updateTurnUI(){
-  const myTurn=isMyShot();
-  document.getElementById('p1Card').classList.toggle('active',myTurn);
-  document.getElementById('p2Card').classList.toggle('active',!myTurn);
-  document.querySelectorAll('.pc-turn').forEach(e=>e.remove());
-  const badge=document.createElement('div');
-  badge.className='pc-turn'; badge.textContent='ჯერი';
-  (myTurn?document.getElementById('p1Card'):document.getElementById('p2Card')).appendChild(badge);
-}
-
-function updateBallUI(){
-  const p1el=document.getElementById('p1Balls');
-  const p2el=document.getElementById('p2Balls');
-  p1el.innerHTML=''; p2el.innerHTML='';
-  if(!typeAssigned) return;
-  const myType=iAmPlayer1?player1Type:player2Type;
-  const opType=iAmPlayer1?player2Type:player1Type;
-  const myBalls=balls.filter(b=>myType==='solid'?b.solid:b.stripe);
-  const opBalls=balls.filter(b=>opType==='solid'?b.solid:b.stripe);
-  [myBalls,opBalls].forEach((blist,idx)=>{
-    const el=idx===0?p1el:p2el;
-    blist.forEach(b=>{
-      const d=document.createElement('div');
-      d.className='pc-ball';
-      d.style.background=b.pocketed?'rgba(255,255,255,.15)':BALL_COLORS[b.id];
-      d.style.opacity=b.pocketed?'.4':'1';
-      el.appendChild(d);
-    });
-  });
-}
-
-// ====== MOUSE / TOUCH AIM ======
-function getCanvasPos(e){
-  const rect=canvas.getBoundingClientRect();
-  const scaleX=W/rect.width, scaleY=H/rect.height;
-  let cx,cy;
-  if(e.touches){cx=(e.touches[0].clientX-rect.left)*scaleX;cy=(e.touches[0].clientY-rect.top)*scaleY;}
-  else{cx=(e.clientX-rect.left)*scaleX;cy=(e.clientY-rect.top)*scaleY;}
-  return {x:cx,y:cy};
-}
-
-canvas.addEventListener('mousemove',e=>{
-  if(isAnimating||!isMyShot()||!gameActive) return;
-  const {x,y}=getCanvasPos(e);
-  if(cueBall&&!cueBall.pocketed){aimAngle=Math.atan2(y-cueBall.y,x-cueBall.x);render();}
-});
-
-canvas.addEventListener('touchmove',e=>{
-  e.preventDefault();
-  if(isAnimating||!isMyShot()||!gameActive) return;
-  const {x,y}=getCanvasPos(e);
-  if(cueBall&&!cueBall.pocketed){aimAngle=Math.atan2(y-cueBall.y,x-cueBall.x);render();}
-},{passive:false});
-
-canvas.addEventListener('click',e=>{
-  if(isAnimating||!isMyShot()||!gameActive) return;
-  shoot();
-});
-
-canvas.addEventListener('touchend',e=>{
-  e.preventDefault();
-  if(isAnimating||!isMyShot()||!gameActive) return;
-  shoot();
-},{passive:false});
-
-document.addEventListener('keydown',e=>{
-  if(!gameActive) return;
-  if(e.key==='ArrowLeft'||e.key==='a') aimLeft();
-  if(e.key==='ArrowRight'||e.key==='d') aimRight();
-  if(e.key==='ArrowUp'||e.key==='w') increasePower();
-  if(e.key==='ArrowDown'||e.key==='s') decreasePower();
-  if((e.key===' '||e.key==='Enter')&&isMyShot()&&!isAnimating){e.preventDefault();shoot();}
-});
-
-// ====== AI ======
-function scheduleAI(){
-  if(aiThinkTimer) clearTimeout(aiThinkTimer);
-  aiThinkTimer=setTimeout(aiShoot, 900+Math.random()*1000);
-}
-
-function aiShoot(){
-  if(!gameActive||currentTurn!==2) return;
-  // Decide which balls AI targets
-  const targets=balls.filter(b=>{
-    if(b.pocketed||b.id===0||b.eight) return false;
-    if(!typeAssigned) return true;
-    return player2Type==='solid'?b.solid:b.stripe;
-  });
-  // If AI has no balls left (all pocketed), try to pocket 8
-  const aiType=player2Type;
-  const aiRemaining=typeAssigned&&aiType?balls.filter(b=>!b.pocketed&&(aiType==='solid'?b.solid:b.stripe)).length:1;
-  const targetEight=typeAssigned&&aiRemaining===0;
-  const finalTargets=targetEight?balls.filter(b=>!b.pocketed&&b.eight):targets;
-
-  const cue=cueBall;
-  if(!cue||cue.pocketed) return;
-  let bestTarget=null,bestPocket=null,bestScore=-1;
-  finalTargets.forEach(t=>{
-    pockets.forEach(p=>{
-      const dx=p.x-t.x,dy=p.y-t.y;
-      const dist=Math.sqrt(dx*dx+dy*dy);
-      const score=1/dist+Math.random()*0.25;
-      if(score>bestScore){bestScore=score;bestTarget=t;bestPocket=p;}
-    });
-  });
-  if(bestTarget){
-    const tpx=bestPocket.x-bestTarget.x,tpy=bestPocket.y-bestTarget.y;
-    const tplen=Math.sqrt(tpx*tpx+tpy*tpy)||1;
-    const nx=tpx/tplen,ny=tpy/tplen;
-    const aimX=bestTarget.x-nx*BALL_R*2.2,aimY=bestTarget.y-ny*BALL_R*2.2;
-    const dirX=aimX-cue.x,dirY=aimY-cue.y;
-    const dirLen=Math.sqrt(dirX*dirX+dirY*dirY)||1;
-    const aiPow=0.5+Math.random()*0.4;
-    const spd=aiPow*20+5;
-    const noise=(Math.random()-0.5)*0.12;
-    cue.vx=(dirX/dirLen)*spd+noise; cue.vy=(dirY/dirLen)*spd+noise;
-  } else {
-    const ang=Math.random()*Math.PI*2;
-    cue.vx=Math.cos(ang)*14; cue.vy=Math.sin(ang)*14;
-  }
-  startPhysics();
-}
-
-// ====== MULTIPLAYER ======
-// When true: we are running physics for the opponent's shot (received via 'shot' broadcast).
-// afterShotSettle must NOT re-broadcast in this case — shooter side handles it.
-let isSimulatingOpponent = false;
-
-function broadcastTurnChange(){
-  if(gameMode==='multi'&&multiCh){
-    multiCh.send({type:'broadcast',event:'turn_change',payload:{
-      currentTurn,
-      ballStates:balls.map(b=>({id:b.id,x:b.x,y:b.y,pocketed:b.pocketed})),
-      player1Type,player2Type,typeAssigned
-    }});
-  }
-}
-
-function setupMultiChannel(opponentId){
-  const rk=[ME.id,opponentId].sort().join('_');
-  if(multiCh){try{sb.removeChannel(multiCh);}catch(e){}}
-  multiCh=sb.channel('billiards_game_'+rk)
-    .on('broadcast',{event:'shot'},({payload})=>{
-      if(isMyShot()) return;
-      if(payload.ballStates){
-        payload.ballStates.forEach(bs=>{
-          const b=balls.find(b=>b.id===bs.id);
-          if(b){b.x=bs.x;b.y=bs.y;b.pocketed=bs.pocketed;}
-        });
-      }
-      if(cueBall){cueBall.vx=payload.vx||0;cueBall.vy=payload.vy||0;}
-      // Mark opponent simulation — afterShotSettle won't broadcast
-      isSimulatingOpponent=true;
-      startPhysics();
-    })
-    .on('broadcast',{event:'turn_change'},({payload})=>{
-      if(payload.ballStates){
-        payload.ballStates.forEach(bs=>{
-          const b=balls.find(b=>b.id===bs.id);
-          if(b){b.x=bs.x;b.y=bs.y;b.pocketed=bs.pocketed;}
-        });
-      }
-      if(payload.typeAssigned!==undefined){
-        typeAssigned=payload.typeAssigned;
-        player1Type=payload.player1Type;
-        player2Type=payload.player2Type;
-      }
-      currentTurn=payload.currentTurn;
-      updateBallUI(); updateTurnUI();
-      if(isMyShot()){
-        updateShootBtn(true);
-        setGameMsg('🎯 შენი ჯერია!');
-      } else {
-        updateShootBtn(false);
-        setGameMsg('⌛ '+opponentNick+'-ს ჯერი...');
-      }
-    })
-    .subscribe();
-}
-
-// ====== GAME FLOW ======
-function showScreen(screen){
-  document.getElementById('lobby').classList.toggle('visible', screen==='lobby');
-  document.getElementById('gameWrapper').style.display = screen==='game'?'flex':'none';
-  document.getElementById('winScreen').classList.toggle('visible', screen==='win');
-}
-
-function startAIGame(){
-  gameMode='ai'; opponentNick='AI'; opponentAvatar=null; iAmPlayer1=true;
-  setupGameUI('AI',null);
-  showScreen('game');
-  beginGame();
-  addSysMsg('🤖 AI-სთან ახალი პარტია!');
-}
-
-// isInviter=true → I am player1 (first shot)
-// isInviter=false → I am player2 (second shot)
-function startMultiGame(opponentId, nick, avatar, isInviter){
-  gameMode='multi'; opponentNick=nick; opponentAvatar=avatar; iAmPlayer1=isInviter;
-  setupGameUI(nick,avatar);
-  setupMultiChannel(opponentId);
-  showScreen('game');
-  beginGame();
-  addSysMsg(`👥 ${nick}-სთან პარტია! შენ ${isInviter?'პირველი':'მეორე'} მოთამაშე ხარ`);
-}
-
-function setupGameUI(opName, opAvatar){
-  document.getElementById('p1Name').textContent=MYPROF?.username||'შენ';
-  document.getElementById('p2Name').textContent=opName;
-  if(MYPROF?.avatar_url) document.getElementById('p1Av').innerHTML=`<img src="${MYPROF.avatar_url}">`;
-  else document.getElementById('p1Av').textContent=MYPROF?.emotion||'👤';
-  if(opAvatar) document.getElementById('p2Av').innerHTML=`<img src="${opAvatar}">`;
-  else document.getElementById('p2Av').textContent=gameMode==='ai'?'🤖':'👤';
-}
-
-function beginGame(){
-  gameActive=true;
-  currentTurn=1;
-  player1Type=null; player2Type=null;
-  typeAssigned=false; foulFlag=false;
-  pocketedThisShot=[];
-  isSimulatingOpponent=false;
-  initBalls(); render();
-  updateTurnUI(); updateBallUI();
-  document.getElementById('foulNotice').style.display='none';
-  const myFirst=isMyShot();
-  updateShootBtn(myFirst);
-  setGameMsg(myFirst?'🎯 შენი ჯერია! პირველი ჩაგდება ტიპებს განაწილებს':'⌛ '+opponentNick+'-ს ჯერია!');
-  if(gameMode==='ai'&&!myFirst) scheduleAI(); // should not happen (AI is p2)
-}
-
-function endGame(iWon){
-  if(!gameActive) return;
-  gameActive=false;
-  if(aiThinkTimer){clearTimeout(aiThinkTimer);aiThinkTimer=null;}
-  document.getElementById('winTrophy').textContent=iWon?'🏆':'😢';
-  document.getElementById('winTitle').textContent=iWon?'გაიმარჯვე!':'წააგე!';
-  document.getElementById('winSub').textContent=iWon?`მოგება ${opponentNick}-ზე`:'სცადე ახლიდან!';
-  document.getElementById('winScore').textContent=iWon?'+5 ⭐':'0 ⭐';
-  showScreen('win');
-  if(iWon){awardScore();addSysMsg('🏆 '+(MYPROF?.username||'შენ')+' გაიმარჯვა!');}
-  else addSysMsg('😢 '+opponentNick+' გაიმარჯვა!');
-}
-
-async function awardScore(){
-  myScore+=5;
-  document.getElementById('myScoreNav').textContent=myScore;
-  if(ME) await sb.from('profiles').update({billiard_score:myScore}).eq('id',ME.id);
-  toast('🎉 +5 ქულა!');
-}
-
-function backToLobby(){
-  if(multiCh){try{sb.removeChannel(multiCh);}catch(e){}}
-  multiCh=null; gameActive=false;
-  showScreen('lobby');
-}
-
-function leaveGame(){
-  if(gameActive&&!confirm('გსურს დანებება?')) return;
-  gameActive=false;
-  if(physLoop){clearInterval(physLoop);physLoop=null;}
-  if(aiThinkTimer) clearTimeout(aiThinkTimer);
-  if(multiCh){try{sb.removeChannel(multiCh);}catch(e){}}
-  multiCh=null;
-  showScreen('lobby');
-}
-
-function scaleCanvas(){
-  const area=document.getElementById('gameArea');
-  const aw=area.clientWidth-24;
-  const scale=Math.min(1,aw/W);
-  canvas.style.width=(W*scale)+'px';
-  canvas.style.height=(H*scale)+'px';
-}
+function shoot(){if(!gameActive||isAnimating||!isMyShot())return;if(!cueBall||cueBall.pocketed)return;const speed=shootPower*22+6;cueBall.vx=Math.cos(aimAngle)*speed;cueBall.vy=Math.sin(aimAngle)*speed;if(gameMode==='multi'&&multiCh){multiCh.send({type:'broadcast',event:'shot',payload:{vx:cueBall.vx,vy:cueBall.vy,ballStates:balls.map(b=>({id:b.id,x:b.x,y:b.y,pocketed:b.pocketed}))}});}startPhysics();}
+function scheduleAI(){if(aiThinkTimer)clearTimeout(aiThinkTimer);aiThinkTimer=setTimeout(aiShoot,900+Math.random()*1000);}
+function aiShoot(){if(!gameActive||currentTurn!==2)return;const targets=balls.filter(b=>{if(b.pocketed||b.id===0||b.eight)return false;if(!typeAssigned)return true;return player2Type==='solid'?b.solid:b.stripe;});const aiType=player2Type;const aiRemaining=typeAssigned&&aiType?balls.filter(b=>!b.pocketed&&(aiType==='solid'?b.solid:b.stripe)).length:1;const targetEight=typeAssigned&&aiRemaining===0;const finalTargets=targetEight?balls.filter(b=>!b.pocketed&&b.eight):targets;const cue=cueBall;if(!cue||cue.pocketed)return;let bestTarget=null,bestPocket=null,bestScore=-1;finalTargets.forEach(t=>{pockets.forEach(p=>{const dx=p.x-t.x,dy=p.y-t.y,dist=Math.sqrt(dx*dx+dy*dy),score=1/dist+Math.random()*0.25;if(score>bestScore){bestScore=score;bestTarget=t;bestPocket=p;}});});if(bestTarget){const tpx=bestPocket.x-bestTarget.x,tpy=bestPocket.y-bestTarget.y,tplen=Math.sqrt(tpx*tpx+tpy*tpy)||1,nx=tpx/tplen,ny=tpy/tplen,aimX=bestTarget.x-nx*BALL_R*2.2,aimY=bestTarget.y-ny*BALL_R*2.2,dirX=aimX-cue.x,dirY=aimY-cue.y,dirLen=Math.sqrt(dirX*dirX+dirY*dirY)||1,aiPow=0.5+Math.random()*0.4,spd=aiPow*20+5,noise=(Math.random()-0.5)*0.12;cue.vx=(dirX/dirLen)*spd+noise;cue.vy=(dirY/dirLen)*spd+noise;}else{const ang=Math.random()*Math.PI*2;cue.vx=Math.cos(ang)*14;cue.vy=Math.sin(ang)*14;}startPhysics();}
+function broadcastTurnChange(){if(gameMode==='multi'&&multiCh){multiCh.send({type:'broadcast',event:'turn_change',payload:{currentTurn,ballStates:balls.map(b=>({id:b.id,x:b.x,y:b.y,pocketed:b.pocketed})),player1Type,player2Type,typeAssigned}});}}
+function setupMultiChannel(opponentId){const rk=[ME.id,opponentId].sort().join('_');if(multiCh){try{sb.removeChannel(multiCh);}catch(e){}}multiCh=sb.channel('billiards_game_'+rk).on('broadcast',{event:'shot'},({payload})=>{if(isMyShot())return;if(payload.ballStates){payload.ballStates.forEach(bs=>{const b=balls.find(b=>b.id===bs.id);if(b){b.x=bs.x;b.y=bs.y;b.pocketed=bs.pocketed;}});}if(cueBall){cueBall.vx=payload.vx||0;cueBall.vy=payload.vy||0;}isSimulatingOpponent=true;startPhysics();}).on('broadcast',{event:'turn_change'},({payload})=>{if(payload.ballStates){payload.ballStates.forEach(bs=>{const b=balls.find(b=>b.id===bs.id);if(b){b.x=bs.x;b.y=bs.y;b.pocketed=bs.pocketed;}});}if(payload.typeAssigned!==undefined){typeAssigned=payload.typeAssigned;player1Type=payload.player1Type;player2Type=payload.player2Type;}currentTurn=payload.currentTurn;updateBallUI();updateTurnUI();if(isMyShot()){updateShootBtn(true);setGameMsg('🎯 შენი ჯერია!');}else{updateShootBtn(false);setGameMsg('⌛ '+opponentNick+'-ს ჯერი...');}}).subscribe();}
+function showScreen(screen){document.getElementById('lobby').classList.toggle('visible',screen==='lobby');document.getElementById('gameWrapper').style.display=screen==='game'?'flex':'none';document.getElementById('winScreen').classList.toggle('visible',screen==='win');}
+function startAIGame(){gameMode='ai';opponentNick='AI';opponentAvatar=null;iAmPlayer1=true;setupGameUI('AI',null);showScreen('game');beginGame();addSysMsg('🤖 AI-სთან ახალი პარტია!');}
+function startMultiGame(opponentId,nick,avatar,isInviter){gameMode='multi';opponentNick=nick;opponentAvatar=avatar;iAmPlayer1=isInviter;setupGameUI(nick,avatar);setupMultiChannel(opponentId);showScreen('game');beginGame();addSysMsg(`👥 ${nick}-სთან პარტია! შენ ${isInviter?'პირველი':'მეორე'} მოთამაშე ხარ`);}
+function setupGameUI(opName,opAvatar){document.getElementById('p1Name').textContent=MYPROF?.username||'შენ';document.getElementById('p2Name').textContent=opName;if(MYPROF?.avatar_url)document.getElementById('p1Av').innerHTML=`<img src="${MYPROF.avatar_url}">`;else document.getElementById('p1Av').textContent=MYPROF?.emotion||'👤';if(opAvatar)document.getElementById('p2Av').innerHTML=`<img src="${opAvatar}">`;else document.getElementById('p2Av').textContent=gameMode==='ai'?'🤖':'👤';}
+function beginGame(){gameActive=true;currentTurn=1;player1Type=null;player2Type=null;typeAssigned=false;foulFlag=false;pocketedThisShot=[];isSimulatingOpponent=false;initBalls();render();updateTurnUI();updateBallUI();document.getElementById('foulNotice').style.display='none';const myFirst=isMyShot();updateShootBtn(myFirst);setGameMsg(myFirst?'🎯 შენი ჯერია! პირველი ჩაგდება ტიპებს განაწილებს':'⌛ '+opponentNick+'-ს ჯერია!');if(gameMode==='ai'&&!myFirst)scheduleAI();}
+function endGame(iWon){if(!gameActive)return;gameActive=false;if(aiThinkTimer){clearTimeout(aiThinkTimer);aiThinkTimer=null;}document.getElementById('winTrophy').textContent=iWon?'🏆':'😢';document.getElementById('winTitle').textContent=iWon?'გაიმარჯვე!':'წააგე!';document.getElementById('winSub').textContent=iWon?`მოგება ${opponentNick}-ზე`:'სცადე ახლიდან!';document.getElementById('winScore').textContent=iWon?'+5 ⭐':'0 ⭐';showScreen('win');if(iWon){myScore+=5;document.getElementById('myScoreNav').textContent=myScore;sb.from('profiles').update({billiard_score:myScore}).eq('id',ME.id);toast('🎉 +5 ქულა!');addSysMsg('🏆 '+(MYPROF?.username||'შენ')+' გაიმარჯვა!');}else{addSysMsg('😢 '+opponentNick+' გაიმარჯვა!');}}
+function backToLobby(){if(multiCh){try{sb.removeChannel(multiCh);}catch(e){}}multiCh=null;gameActive=false;showScreen('lobby');}
+function leaveGame(){if(gameActive&&!confirm('გსურს დანებება?'))return;gameActive=false;if(physLoop){clearInterval(physLoop);physLoop=null;}if(aiThinkTimer)clearTimeout(aiThinkTimer);if(multiCh){try{sb.removeChannel(multiCh);}catch(e){}}multiCh=null;showScreen('lobby');}
+function scaleCanvas(){const area=document.getElementById('gameArea'),aw=area.clientWidth-24,scale=Math.min(1,aw/W);canvas.style.width=(W*scale)+'px';canvas.style.height=(H*scale)+'px';}
+const canvas=document.getElementById('tableCanvas'),ctx=canvas.getContext('2d');
+canvas.addEventListener('mousemove',e=>{if(isAnimating||!isMyShot()||!gameActive)return;const rect=canvas.getBoundingClientRect(),x=(e.clientX-rect.left)*(W/rect.width),y=(e.clientY-rect.top)*(H/rect.height);if(cueBall&&!cueBall.pocketed){aimAngle=Math.atan2(y-cueBall.y,x-cueBall.x);render();}});
+canvas.addEventListener('touchmove',e=>{e.preventDefault();if(isAnimating||!isMyShot()||!gameActive)return;const rect=canvas.getBoundingClientRect(),x=(e.touches[0].clientX-rect.left)*(W/rect.width),y=(e.touches[0].clientY-rect.top)*(H/rect.height);if(cueBall&&!cueBall.pocketed){aimAngle=Math.atan2(y-cueBall.y,x-cueBall.x);render();}},{passive:false});
+canvas.addEventListener('click',()=>{if(!isAnimating&&isMyShot()&&gameActive)shoot();});
+canvas.addEventListener('touchend',e=>{e.preventDefault();if(!isAnimating&&isMyShot()&&gameActive)shoot();},{passive:false});
+document.addEventListener('keydown',e=>{if(!gameActive)return;if(e.key==='ArrowLeft'||e.key==='a')aimLeft();if(e.key==='ArrowRight'||e.key==='d')aimRight();if(e.key==='ArrowUp'||e.key==='w')increasePower();if(e.key==='ArrowDown'||e.key==='s')decreasePower();if((e.key===' '||e.key==='Enter')&&isMyShot()&&!isAnimating){e.preventDefault();shoot();}});
 window.addEventListener('resize',scaleCanvas);
-
-// ====== START ======
 init().then(()=>{scaleCanvas();render();});
 </script>
 </body>
