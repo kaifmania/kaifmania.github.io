@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია · ზარი</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;700&family=Noto+Sans+Georgian:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg1:#0a0614;
+  --bg2:#12083a;
+  --purple:#a855f7;
+  --purple2:#7c3aed;
+  --pink:#ec4899;
+  --text:#f0e6ff;
+  --text2:#b899e0;
+  --text3:#7a5a9a;
+  --green:#22c55e;
+  --red:#ef4444;
+  --glass:rgba(255,255,255,0.06);
+  --glass-border:rgba(255,255,255,0.12);
+}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg1);
+  color:var(--text);
+  height:100dvh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  overflow:hidden;
+  position:relative;
+}
+
+/* ── Animated BG blobs ── */
+.bg-scene{
+  position:fixed;inset:0;
+  pointer-events:none;
+  z-index:0;
+  overflow:hidden;
+}
+.blob{
+  position:absolute;
+  border-radius:50%;
+  filter:blur(80px);
+  opacity:.35;
+  animation:blobDrift ease-in-out infinite alternate;
+}
+.b1{width:480px;height:480px;background:#7c3aed;top:-120px;left:-120px;animation-duration:9s;}
+.b2{width:380px;height:380px;background:#db2777;bottom:-80px;right:-80px;animation-duration:12s;animation-delay:-4s;}
+.b3{width:280px;height:280px;background:#2563eb;bottom:40%;right:20%;animation-duration:15s;animation-delay:-7s;}
+@keyframes blobDrift{0%{transform:translate(0,0) scale(1);}100%{transform:translate(40px,30px) scale(1.15);}}
+
+/* ── Particle dots ── */
+.particles{position:fixed;inset:0;pointer-events:none;z-index:0;}
+.particle{
+  position:absolute;
+  width:3px;height:3px;
+  border-radius:50%;
+  background:rgba(168,85,247,.6);
+  animation:particleFloat linear infinite;
+}
+@keyframes particleFloat{
+  0%{transform:translateY(100vh) scale(0);opacity:0;}
+  10%{opacity:1;}
+  90%{opacity:.5;}
+  100%{transform:translateY(-10vh) scale(1.5);opacity:0;}
+}
+
+/* ── Call Card ── */
+.call-card{
+  position:relative;z-index:10;
+  width:340px;
+  background:var(--glass);
+  backdrop-filter:blur(40px);
+  -webkit-backdrop-filter:blur(40px);
+  border:1px solid var(--glass-border);
+  border-radius:36px;
+  padding:44px 32px 36px;
+  text-align:center;
+  box-shadow:0 40px 80px rgba(0,0,0,.6), inset 0 1px 0 rgba(255,255,255,.15);
+}
+
+/* Avatar ring */
+.avatar-wrap{
+  position:relative;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  margin-bottom:24px;
+}
+.ring{
+  position:absolute;
+  inset:-8px;
+  border-radius:50%;
+  border:2px solid rgba(168,85,247,.4);
+  animation:ringPulse 2s ease-in-out infinite;
+}
+.ring2{
+  position:absolute;
+  inset:-20px;
+  border-radius:50%;
+  border:1.5px solid rgba(168,85,247,.2);
+  animation:ringPulse 2s ease-in-out infinite .5s;
+}
+.ring3{
+  position:absolute;
+  inset:-34px;
+  border-radius:50%;
+  border:1px solid rgba(168,85,247,.1);
+  animation:ringPulse 2s ease-in-out infinite 1s;
+}
+@keyframes ringPulse{
+  0%,100%{transform:scale(1);opacity:.6;}
+  50%{transform:scale(1.04);opacity:1;}
+}
+
+.avatar-circle{
+  width:100px;height:100px;
+  border-radius:50%;
+  background:linear-gradient(135deg,var(--purple2),var(--pink));
+  display:flex;align-items:center;justify-content:center;
+  font-size:46px;
+  border:3px solid rgba(255,255,255,.2);
+  overflow:hidden;
+  position:relative;z-index:1;
+}
+.avatar-circle img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+
+.call-name{
+  font-family:'Unbounded',sans-serif;
+  font-size:22px;
+  font-weight:400;
+  color:var(--text);
+  margin-bottom:8px;
+  letter-spacing:.3px;
+}
+.call-status{
+  font-size:13px;
+  color:var(--text2);
+  letter-spacing:1.5px;
+  font-weight:300;
+  min-height:20px;
+  transition:all .3s;
+}
+.call-status.connecting{
+  animation:statusPulse 1.4s ease-in-out infinite;
+}
+@keyframes statusPulse{
+  0%,100%{opacity:.5;}
+  50%{opacity:1;}
+}
+
+.call-timer{
+  font-family:'Unbounded',sans-serif;
+  font-size:32px;
+  font-weight:300;
+  color:var(--text);
+  letter-spacing:2px;
+  margin:18px 0 0;
+  display:none;
+}
+.call-timer.active{display:block;}
+
+/* ── Controls ── */
+.controls{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:16px;
+  margin-top:36px;
+  flex-wrap:wrap;
+}
+
+.ctrl-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:6px;
+  background:none;
+  border:none;
+  cursor:pointer;
+  transition:transform .2s;
+}
+.ctrl-btn:hover{transform:scale(1.08);}
+.ctrl-btn:active{transform:scale(.96);}
+
+.ctrl-icon{
+  width:52px;height:52px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;
+  transition:all .2s;
+}
+.ctrl-label{
+  font-size:10px;
+  color:var(--text3);
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:.5px;
+  white-space:nowrap;
+}
+
+/* Default glass button */
+.ctrl-icon.glass{
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(255,255,255,.15);
+}
+.ctrl-btn:hover .ctrl-icon.glass{
+  background:rgba(255,255,255,.14);
+}
+/* Muted state */
+.ctrl-icon.active-state{
+  background:rgba(168,85,247,.3);
+  border:1px solid rgba(168,85,247,.5);
+}
+
+/* ── Action buttons row ── */
+.action-row{
+  display:flex;
+  gap:32px;
+  margin-top:32px;
+  justify-content:center;
+}
+
+.action-btn{
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+  background:none;border:none;cursor:pointer;
+  transition:transform .2s;
+}
+.action-btn:hover{transform:scale(1.06);}
+.action-btn:active{transform:scale(.94);}
+
+.action-circle{
+  width:66px;height:66px;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;
+  position:relative;
+  overflow:hidden;
+  transition:all .25s;
+}
+.action-circle::after{
+  content:'';
+  position:absolute;inset:0;
+  border-radius:50%;
+  background:rgba(255,255,255,.0);
+  transition:background .2s;
+}
+.action-btn:hover .action-circle::after{background:rgba(255,255,255,.08);}
+
+.btn-answer{
+  background:linear-gradient(135deg,#16a34a,#22c55e);
+  box-shadow:0 8px 30px rgba(34,197,94,.45);
+  animation:answerPulse 1.8s ease-in-out infinite;
+}
+@keyframes answerPulse{
+  0%,100%{box-shadow:0 8px 30px rgba(34,197,94,.45);}
+  50%{box-shadow:0 8px 50px rgba(34,197,94,.7),0 0 0 8px rgba(34,197,94,.15);}
+}
+
+.btn-decline{
+  background:linear-gradient(135deg,#b91c1c,#ef4444);
+  box-shadow:0 8px 30px rgba(239,68,68,.4);
+}
+.btn-hangup{
+  background:linear-gradient(135deg,#b91c1c,#ef4444);
+  box-shadow:0 8px 30px rgba(239,68,68,.4);
+  display:none;
+}
+
+.action-label{
+  font-size:11px;
+  color:var(--text3);
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:.8px;
+}
+
+/* ── Incoming ring animation ── */
+.phone-shake{
+  animation:phoneShake .5s ease-in-out infinite;
+}
+@keyframes phoneShake{
+  0%,100%{transform:rotate(0deg);}
+  20%{transform:rotate(-12deg);}
+  40%{transform:rotate(12deg);}
+  60%{transform:rotate(-8deg);}
+  80%{transform:rotate(8deg);}
+}
+
+/* ── Video container ── */
+#videoArea{
+  display:none;
+  position:fixed;inset:0;
+  z-index:5;
+  background:#000;
+}
+#remoteVideo{width:100%;height:100%;object-fit:cover;}
+#localVideo{
+  position:absolute;
+  bottom:140px;right:16px;
+  width:100px;height:140px;
+  border-radius:16px;
+  object-fit:cover;
+  border:2px solid rgba(255,255,255,.3);
+  background:#111;
+}
+
+/* ── Wave visualizer (audio) ── */
+.wave-wrap{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:4px;
+  height:36px;
+  margin-top:14px;
+  opacity:0;
+  transition:opacity .5s;
+}
+.wave-wrap.active{opacity:1;}
+.wave-bar{
+  width:4px;
+  border-radius:4px;
+  background:var(--purple);
+  animation:waveDance .6s ease-in-out infinite alternate;
+  transform-origin:bottom;
+}
+.wave-bar:nth-child(1){height:8px;animation-delay:0s;}
+.wave-bar:nth-child(2){height:16px;animation-delay:.08s;}
+.wave-bar:nth-child(3){height:24px;animation-delay:.16s;}
+.wave-bar:nth-child(4){height:30px;animation-delay:.24s;}
+.wave-bar:nth-child(5){height:36px;animation-delay:.32s;}
+.wave-bar:nth-child(6){height:28px;animation-delay:.4s;}
+.wave-bar:nth-child(7){height:18px;animation-delay:.48s;}
+.wave-bar:nth-child(8){height:10px;animation-delay:.56s;}
+@keyframes waveDance{
+  from{transform:scaleY(.3);}
+  to{transform:scaleY(1);}
+}
+
+/* ── Mode label (audio/video) ── */
+.mode-pill{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:4px 12px;
+  border-radius:20px;
+  background:rgba(168,85,247,.15);
+  border:1px solid rgba(168,85,247,.3);
+  font-size:11px;
+  color:var(--purple);
+  font-family:'Unbounded',sans-serif;
+  letter-spacing:.5px;
+  margin-bottom:12px;
+}
+
+/* ── Webrtc status ── */
+.quality-dot{
+  width:8px;height:8px;
+  border-radius:50%;
+  background:var(--green);
+  display:inline-block;
+  animation:qualityBlink 2s ease-in-out infinite;
+}
+@keyframes qualityBlink{
+  0%,100%{opacity:1;}
+  50%{opacity:.4;}
+}
+
+.quality-row{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  margin-top:8px;
+  font-size:11px;
+  color:var(--text3);
+  display:none;
+}
+.quality-row.active{display:flex;}
+</style>
+</head>
+<body>
+
+<div class="bg-scene">
+  <div class="blob b1"></div>
+  <div class="blob b2"></div>
+  <div class="blob b3"></div>
+</div>
+<div class="particles" id="particles"></div>
+
+<!-- Video Area (shown during video calls) -->
+<div id="videoArea">
+  <video id="remoteVideo" autoplay playsinline></video>
+  <video id="localVideo" autoplay playsinline muted></video>
+</div>
+
+<!-- Main Call Card -->
+<div class="call-card" id="callCard">
+
+  <div class="mode-pill" id="modePill">☎️ <span id="modeText">ხმოვანი ზარი</span></div>
+
+  <div class="avatar-wrap">
+    <div class="ring"></div>
+    <div class="ring2"></div>
+    <div class="ring3" id="ring3"></div>
+    <div class="avatar-circle" id="avCircle">
+      <span id="avEmoji">😊</span>
+      <img id="avImg" src="" style="display:none" alt="">
+    </div>
+  </div>
+
+  <div class="call-name" id="peerName">კონტაქტი...</div>
+  <div class="call-status connecting" id="callStatus">&#x25cf;&ensp;&#x25cf;&ensp;&#x25cf;</div>
+
+  <div class="call-timer" id="callTimer">00:00</div>
+
+  <div class="wave-wrap" id="waveWrap">
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+    <div class="wave-bar"></div>
+  </div>
+
+  <div class="quality-row" id="qualityRow">
+    <div class="quality-dot"></div>
+    <span>კავშირი კარგია</span>
+  </div>
+
+  <!-- Controls (mute, speaker, camera, etc.) – shown when call active -->
+  <div class="controls" id="controlsBar" style="display:none">
+    <button class="ctrl-btn" id="muteBtn" onclick="toggleMute()">
+      <div class="ctrl-icon glass" id="muteIcon">🎙️</div>
+      <span class="ctrl-label">მიკ.</span>
+    </button>
+    <button class="ctrl-btn" id="speakerBtn" onclick="toggleSpeaker()">
+      <div class="ctrl-icon glass" id="speakerIcon">🔊</div>
+      <span class="ctrl-label">ხმა</span>
+    </button>
+    <button class="ctrl-btn" id="cameraBtn" onclick="toggleCamera()" style="display:none">
+      <div class="ctrl-icon glass" id="cameraIcon">📷</div>
+      <span class="ctrl-label">კამ.</span>
+    </button>
+    <button class="ctrl-btn" onclick="window.open('','_self').close()">
+      <div class="ctrl-icon glass">↩️</div>
+      <span class="ctrl-label">მინ.</span>
+    </button>
+  </div>
+
+  <!-- Incoming action row (answer / decline) -->
+  <div class="action-row" id="incomingActions">
+    <button class="action-btn" onclick="answerCall()">
+      <div class="action-circle btn-answer">
+        <span style="font-size:28px;display:inline-block" id="answerIcon">📞</span>
+      </div>
+      <span class="action-label">პასუხი</span>
+    </button>
+    <button class="action-btn" onclick="declineCall()">
+      <div class="action-circle btn-decline">
+        <span style="font-size:28px;transform:rotate(135deg);display:inline-block">📞</span>
+      </div>
+      <span class="action-label">უარი</span>
+    </button>
+  </div>
+
+  <!-- Hang up (shown when call active) -->
+  <div class="action-row" id="activeActions" style="display:none">
+    <button class="action-btn" onclick="hangUp()">
+      <div class="action-circle btn-hangup" style="display:flex">
+        <span style="font-size:28px;transform:rotate(135deg);display:inline-block">📞</span>
+      </div>
+      <span class="action-label">გათიშვა</span>
+    </button>
+  </div>
+
+</div>
+
+<!-- Supabase -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+/* ═══════════════════════════════════════════════
+   PARTICLES
+═══════════════════════════════════════════════ */
+(function(){
+  const c=document.getElementById('particles');
+  const colors=['rgba(168,85,247,.7)','rgba(236,72,153,.5)','rgba(99,102,241,.6)'];
+  for(let i=0;i<25;i++){
+    const p=document.createElement('div');
+    p.className='particle';
+    const size=(2+Math.random()*4)+'px';
+    p.style.cssText=`
+      width:${size};height:${size};
+      left:${Math.random()*100}%;
+      animation-duration:${6+Math.random()*12}s;
+      animation-delay:${Math.random()*-15}s;
+      background:${colors[Math.floor(Math.random()*colors.length)]};
+    `;
+    c.appendChild(p);
+  }
+})();
+
+/* ═══════════════════════════════════════════════
+   RINGTONE (Web Audio API — no file needed)
+═══════════════════════════════════════════════ */
+let audioCtx=null;
+let ringSrc=null;
+let ringerActive=false;
+
+function createRingtone(){
+  if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+  const notes=[
+    {freq:880,dur:.12},{freq:880,dur:.12},{freq:880,dur:.12},{freq:659,dur:.36},
+    {freq:784,dur:.12},{freq:784,dur:.12},{freq:784,dur:.12},{freq:587,dur:.36},
+  ];
+  let t=audioCtx.currentTime+.05;
+  notes.forEach(n=>{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='sine';
+    osc.frequency.setValueAtTime(n.freq,t);
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(.18,t+.02);
+    gain.gain.linearRampToValueAtTime(.15,t+n.dur-.03);
+    gain.gain.linearRampToValueAtTime(0,t+n.dur);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start(t);
+    osc.stop(t+n.dur);
+    t+=n.dur;
+  });
+  return t - audioCtx.currentTime;
+}
+
+function startRinging(){
+  ringerActive=true;
+  function loopRing(){
+    if(!ringerActive)return;
+    const totalDur=createRingtone();
+    setTimeout(()=>loopRing(),(totalDur+.8)*1000);
+  }
+  loopRing();
+}
+
+function stopRinging(){
+  ringerActive=false;
+}
+
+/* ═══════════════════════════════════════════════
+   CONNECTED TONE (call answered)
+═══════════════════════════════════════════════ */
+function playConnectedTone(){
+  if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+  const notes=[{freq:1046,dur:.1},{freq:1318,dur:.15}];
+  let t=audioCtx.currentTime+.05;
+  notes.forEach(n=>{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(n.freq,t);
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(.12,t+.02);
+    gain.gain.linearRampToValueAtTime(0,t+n.dur);
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    osc.start(t);osc.stop(t+n.dur);
+    t+=n.dur+.03;
+  });
+}
+
+function playHangupTone(){
+  if(!audioCtx){audioCtx=new(window.AudioContext||window.webkitAudioContext)();}
+  const notes=[{freq:440,dur:.15},{freq:330,dur:.25}];
+  let t=audioCtx.currentTime+.05;
+  notes.forEach(n=>{
+    const osc=audioCtx.createOscillator();
+    const gain=audioCtx.createGain();
+    osc.type='sine';osc.frequency.setValueAtTime(n.freq,t);
+    gain.gain.setValueAtTime(0,t);
+    gain.gain.linearRampToValueAtTime(.1,t+.02);
+    gain.gain.linearRampToValueAtTime(0,t+n.dur);
+    osc.connect(gain);gain.connect(audioCtx.destination);
+    osc.start(t);osc.stop(t+n.dur);
+    t+=n.dur+.04;
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   SUPABASE + URL PARAMS
+═══════════════════════════════════════════════ */
+const {createClient}=supabase;
+const sb=createClient(
+  'https://brggiyhfzfbmlirqfgpo.supabase.co',
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU'
+);
+
+const params=new URLSearchParams(location.search);
+const CALL_ID=params.get('call_id');
+const PEER_ID=params.get('peer_id');   /* the other party's ID */
+const ROLE=params.get('role');         /* 'caller' | 'callee' */
+const MODE=params.get('mode')||'audio';/* 'audio' | 'video' */
+
+let ME=null,PEER_PROF=null;
+let localStream=null,peerConnection=null;
+let callTimerInterval=null,callSeconds=0;
+let isMuted=false,isSpeakerOff=false,isCameraOff=false;
+let callStatus='idle'; /* idle | ringing | active | ended */
+
+/* ─── ICE servers ─── */
+const ICE_SERVERS={
+  iceServers:[
+    {urls:'stun:stun.l.google.com:19302'},
+    {urls:'stun:stun1.l.google.com:19302'},
+  ]
+};
+
+/* ═══════════════════════════════════════════════
+   UI HELPERS
+═══════════════════════════════════════════════ */
+function setStatus(txt,pulse=false){
+  const el=document.getElementById('callStatus');
+  el.textContent=txt;
+  el.className='call-status'+(pulse?' connecting':'');
+}
+
+function setPeerInfo(prof){
+  if(!prof)return;
+  document.getElementById('peerName').textContent=prof.username||'?';
+  if(prof.avatar_url){
+    const img=document.getElementById('avImg');
+    img.src=prof.avatar_url;
+    img.style.display='block';
+    document.getElementById('avEmoji').style.display='none';
+  } else {
+    document.getElementById('avEmoji').textContent=prof.emotion||'😊';
+  }
+}
+
+function showCallActive(){
+  document.getElementById('incomingActions').style.display='none';
+  document.getElementById('activeActions').style.display='flex';
+  document.getElementById('controlsBar').style.display='flex';
+  document.getElementById('ring3').style.display='none';
+  document.getElementById('waveWrap').classList.add('active');
+  document.getElementById('qualityRow').classList.add('active');
+  /* stop rings */
+  document.querySelector('.ring').style.animationDuration='4s';
+  document.querySelector('.ring2').style.animationDuration='4s';
+  if(MODE==='video'){
+    document.getElementById('cameraBtn').style.display='flex';
+    document.getElementById('videoArea').style.display='block';
+  }
+  startCallTimer();
+}
+
+function startCallTimer(){
+  callSeconds=0;
+  callTimerInterval=setInterval(()=>{
+    callSeconds++;
+    const m=String(Math.floor(callSeconds/60)).padStart(2,'0');
+    const s=String(callSeconds%60).padStart(2,'0');
+    const el=document.getElementById('callTimer');
+    el.textContent=`${m}:${s}`;
+    el.classList.add('active');
+  },1000);
+}
+
+/* ═══════════════════════════════════════════════
+   WEBRTC CORE
+═══════════════════════════════════════════════ */
+async function setupPeerConnection(){
+  peerConnection=new RTCPeerConnection(ICE_SERVERS);
+
+  /* send ICE to Supabase signaling */
+  peerConnection.onicecandidate=async(e)=>{
+    if(!e.candidate)return;
+    await sb.from('call_signals').insert({
+      call_id:CALL_ID,
+      from_id:ME.id,
+      type:'ice',
+      payload:JSON.stringify(e.candidate)
+    });
+  };
+
+  peerConnection.ontrack=(e)=>{
+    if(MODE==='video'){
+      const rv=document.getElementById('remoteVideo');
+      rv.srcObject=e.streams[0];
+    }
+    /* audio plays automatically through default speaker */
+  };
+
+  peerConnection.onconnectionstatechange=()=>{
+    const s=peerConnection.connectionState;
+    if(s==='connected'){
+      setStatus('🔗 დაკავშირდა');
+      callStatus='active';
+      playConnectedTone();
+      showCallActive();
+    } else if(s==='failed'||s==='disconnected'){
+      setStatus('❌ კავშირი გაწყდა');
+    }
+  };
+}
+
+async function getMedia(){
+  const constraints={
+    audio:true,
+    video:MODE==='video'?{width:640,height:480,facingMode:'user'}:false
+  };
+  try{
+    localStream=await navigator.mediaDevices.getUserMedia(constraints);
+    if(MODE==='video'){
+      const lv=document.getElementById('localVideo');
+      lv.srcObject=localStream;
+    }
+    localStream.getTracks().forEach(t=>peerConnection.addTrack(t,localStream));
+  }catch(err){
+    setStatus('❌ მედია ვერ: '+err.message);
+  }
+}
+
+/* ─── Signaling listener ─── */
+function listenSignaling(){
+  sb.channel('call_signal_'+CALL_ID)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'call_signals',filter:`call_id=eq.${CALL_ID}`},
+      async(payload)=>{
+        const sig=payload.new;
+        if(sig.from_id===ME.id)return; /* own signal */
+        if(!peerConnection)return;
+        if(sig.type==='offer'){
+          const offer=JSON.parse(sig.payload);
+          await peerConnection.setRemoteDescription(new RTCSessionDescription(offer));
+          const answer=await peerConnection.createAnswer();
+          await peerConnection.setLocalDescription(answer);
+          await sb.from('call_signals').insert({
+            call_id:CALL_ID,from_id:ME.id,type:'answer',
+            payload:JSON.stringify(answer)
+          });
+        } else if(sig.type==='answer'){
+          const ans=JSON.parse(sig.payload);
+          if(peerConnection.signalingState==='have-local-offer')
+            await peerConnection.setRemoteDescription(new RTCSessionDescription(ans));
+        } else if(sig.type==='ice'){
+          const cand=JSON.parse(sig.payload);
+          try{await peerConnection.addIceCandidate(new RTCIceCandidate(cand));}catch(e){}
+        } else if(sig.type==='hangup'){
+          remoteHangup();
+        }
+      })
+    .subscribe();
+}
+
+/* ─── Caller: send offer ─── */
+async function startOffer(){
+  const offer=await peerConnection.createOffer({
+    offerToReceiveAudio:true,
+    offerToReceiveVideo:MODE==='video'
+  });
+  await peerConnection.setLocalDescription(offer);
+  await sb.from('call_signals').insert({
+    call_id:CALL_ID,from_id:ME.id,type:'offer',
+    payload:JSON.stringify(offer)
+  });
+}
+
+/* ═══════════════════════════════════════════════
+   CALL ACTIONS
+═══════════════════════════════════════════════ */
+function answerCall(){
+  stopRinging();
+  callStatus='active';
+  setStatus('🔗 უერთდება...', true);
+  showCallActive();
+  /* WebRTC answer was already set up via signaling */
+}
+
+function declineCall(){
+  stopRinging();
+  playHangupTone();
+  setStatus('📵 უარყოფილია');
+  sb.from('calls').update({status:'declined'}).eq('id',CALL_ID);
+  sb.from('call_signals').insert({
+    call_id:CALL_ID,from_id:ME.id,type:'hangup',payload:'{}'
+  });
+  setTimeout(()=>window.close(),1800);
+}
+
+function hangUp(){
+  stopRinging();
+  clearInterval(callTimerInterval);
+  playHangupTone();
+  setStatus('📵 ზარი დასრულდა');
+  callStatus='ended';
+  if(peerConnection)peerConnection.close();
+  if(localStream)localStream.getTracks().forEach(t=>t.stop());
+  sb.from('calls').update({status:'ended'}).eq('id',CALL_ID);
+  sb.from('call_signals').insert({
+    call_id:CALL_ID,from_id:ME.id,type:'hangup',payload:'{}'
+  });
+  document.getElementById('controlsBar').style.display='none';
+  document.getElementById('activeActions').style.display='none';
+  document.getElementById('waveWrap').classList.remove('active');
+  document.getElementById('qualityRow').classList.remove('active');
+  document.getElementById('callTimer').classList.remove('active');
+  setTimeout(()=>window.close(),2500);
+}
+
+function remoteHangup(){
+  clearInterval(callTimerInterval);
+  playHangupTone();
+  setStatus('📵 გათიშა');
+  if(peerConnection)peerConnection.close();
+  if(localStream)localStream.getTracks().forEach(t=>t.stop());
+  document.getElementById('controlsBar').style.display='none';
+  document.getElementById('activeActions').style.display='none';
+  document.getElementById('waveWrap').classList.remove('active');
+  document.getElementById('qualityRow').classList.remove('active');
+  setTimeout(()=>window.close(),2500);
+}
+
+/* ── Toggle controls ── */
+function toggleMute(){
+  isMuted=!isMuted;
+  if(localStream)localStream.getAudioTracks().forEach(t=>t.enabled=!isMuted);
+  const icon=document.getElementById('muteIcon');
+  icon.textContent=isMuted?'🔇':'🎙️';
+  icon.className='ctrl-icon '+(isMuted?'active-state':'glass');
+}
+
+function toggleSpeaker(){
+  isSpeakerOff=!isSpeakerOff;
+  const icon=document.getElementById('speakerIcon');
+  icon.textContent=isSpeakerOff?'🔈':'🔊';
+  icon.className='ctrl-icon '+(isSpeakerOff?'active-state':'glass');
+}
+
+function toggleCamera(){
+  isCameraOff=!isCameraOff;
+  if(localStream)localStream.getVideoTracks().forEach(t=>t.enabled=!isCameraOff);
+  const icon=document.getElementById('cameraIcon');
+  icon.textContent=isCameraOff?'📷':'📹';
+  icon.className='ctrl-icon '+(isCameraOff?'active-state':'glass');
+}
+
+/* ═══════════════════════════════════════════════
+   LISTEN FOR CALL STATUS CHANGES (callee)
+═══════════════════════════════════════════════ */
+function watchCallStatus(){
+  sb.channel('callrow_'+CALL_ID)
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'calls',filter:`id=eq.${CALL_ID}`},
+      (p)=>{
+        if(p.new.status==='ended'||p.new.status==='declined'){
+          remoteHangup();
+        }
+      })
+    .subscribe();
+}
+
+/* ═══════════════════════════════════════════════
+   INIT
+═══════════════════════════════════════════════ */
+async function init(){
+  /* Mode UI */
+  const modePill=document.getElementById('modePill');
+  const modeText=document.getElementById('modeText');
+  if(MODE==='video'){
+    modePill.textContent='';
+    const ico=document.createElement('span');ico.textContent='📹 ';
+    const txt=document.createElement('span');txt.textContent='ვიდეო ზარი';
+    modePill.appendChild(ico);modePill.appendChild(txt);
+    document.getElementById('answerIcon').textContent='📹';
+  }
+
+  /* Auth */
+  const {data:{user}}=await sb.auth.getUser();
+  if(!user){
+    setStatus('❌ შესვლა საჭიროა');
+    document.getElementById('incomingActions').style.display='none';
+    return;
+  }
+  ME=user;
+
+  /* Load peer profile */
+  if(PEER_ID){
+    const {data}=await sb.from('profiles').select('*').eq('id',PEER_ID).single();
+    PEER_PROF=data;
+    setPeerInfo(data);
+  }
+
+  /* WebRTC setup */
+  await setupPeerConnection();
+  await getMedia();
+  listenSignaling();
+  watchCallStatus();
+
+  if(ROLE==='caller'){
+    /* Caller: we already opened the window; start ringing tone & send offer */
+    setStatus('📞 ეძახის...', true);
+    startRinging();
+    document.getElementById('incomingActions').style.display='none';
+    document.getElementById('activeActions').style.display='flex';
+    /* Show only hangup for caller while waiting */
+    document.getElementById('controlsBar').style.display='none';
+    await startOffer();
+
+    /* Update DB status */
+    await sb.from('calls').update({status:'ringing'}).eq('id',CALL_ID);
+  } else {
+    /* Callee: incoming call */
+    setStatus('📲 შემომავალი ზარი', true);
+    startRinging();
+    /* answer button shakes phone icon */
+    document.getElementById('answerIcon').classList.add('phone-shake');
+  }
+}
+
+init();
+</script>
+</body>
+</html>
