@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>კაიფმანია - შაში</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* [თქვენი ორიგინალი CSS სტილები სრულად აქ] */
+
+/* შაშის თამაშის ახალი სტილები */
+#gameRoomPlaceholder {
+  display: none;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  padding: 20px;
+  overflow-y: auto;
+  gap: 20px;
+}
+.game-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 900px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.checkers-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  padding: 15px;
+  box-shadow: 0 8px 32px rgba(0,0,0,.3);
+}
+.game-status-bar {
+  width: 100%;
+  padding: 8px 12px;
+  background: var(--panel2);
+  border-radius: 10px;
+  margin-bottom: 10px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+}
+.checkers-board {
+  display: grid;
+  grid-template-columns: repeat(8, 55px);
+  grid-template-rows: repeat(8, 55px);
+  border: 4px solid var(--indigo);
+  border-radius: 8px;
+  background: #000;
+  overflow: hidden;
+}
+@media (max-width: 500px) {
+  .checkers-board {
+    grid-template-columns: repeat(8, 40px);
+    grid-template-rows: repeat(8, 40px);
+  }
+}
+.checkers-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  cursor: pointer;
+}
+.cell-light { background: var(--panel2); }
+.cell-dark { background: var(--bg); }
+.cell-selected { box-shadow: inset 0 0 0 3px var(--accent); }
+.cell-highlight::after {
+  content: '';
+  width: 14px;
+  height: 14px;
+  background: var(--online);
+  border-radius: 50%;
+  position: absolute;
+  opacity: 0.7;
+}
+.piece {
+  width: 80%;
+  height: 80%;
+  border-radius: 50%;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.4);
+  position: relative;
+  transition: transform 0.2s;
+}
+.piece:hover { transform: scale(1.05); }
+.piece-white {
+  background: #f3f4f6;
+  border: 3px solid #9ca3af;
+}
+.piece-black {
+  background: #1f2937;
+  border: 3px solid #4b5563;
+}
+.piece-king::before {
+  content: '👑';
+  position: absolute;
+  font-size: 14px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* თამაშის მინი ჩატის სტილები */
+.game-chat-box {
+  width: 320px;
+  height: 490px;
+  background: var(--panel);
+  border: 2px solid var(--border);
+  border-radius: 20px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.game-chat-header {
+  padding: 10px 15px;
+  background: var(--panel2);
+  border-bottom: 1px solid var(--border);
+  font-size: 12px;
+  font-family: 'Unbounded', sans-serif;
+}
+.game-chat-msgs {
+  flex: 1;
+  overflow-y: auto;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.game-chat-input-bar {
+  display: flex;
+  padding: 8px;
+  background: var(--panel2);
+  border-top: 1px solid var(--border);
+  gap: 5px;
+  position: relative;
+}
+.game-chat-input {
+  flex: 1;
+  background: var(--input-bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 6px 12px;
+  color: var(--text);
+  font-size: 12px;
+}
+
+/* გამოწვევის მოდალის სტილი */
+.game-invite-card {
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 15px;
+  text-align: center;
+  margin-bottom: 15px;
+}
+</style>
+</head>
+<body>
+
+<!-- [თქვენი არსებული HTML სტრუქტურა: ნავიგაცია, სავალდებულო მოდალები და ა.შ.] -->
+
+<div id="app">
+  <!-- [თქვენი ძველი საიდბარი და მთავარი მოედანი] -->
+  
+  <div id="main">
+    <!-- [ჩატის ჰედერი] -->
+    
+    <!-- განახლებული თამაშის არეალი -->
+    <div id="gameRoomPlaceholder">
+      <!-- გამოწვევების მართვის პანელი -->
+      <div id="gameInviteArea" style="width:100%; max-width:450px;"></div>
+
+      <div class="game-container">
+        <!-- შაშის დაფა -->
+        <div class="checkers-wrapper">
+          <div class="game-status-bar" id="gameStatusBar">აირჩიე მოთამაშე საიდბარიდან გამოსაწვევად</div>
+          <div class="checkers-board" id="checkersBoard"></div>
+          <div style="margin-top:10px; display:flex; gap:10px;">
+            <button class="act-btn danger" style="padding:5px 15px;" onclick="surrenderGame()">🏳️ დანებება</button>
+          </div>
+        </div>
+
+        <!-- თამაშის შიდა მინი ჩატი -->
+        <div class="game-chat-box">
+          <div class="game-chat-header">🎮 თამაშის ჩატი</div>
+          <div class="game-chat-msgs" id="gameChatMsgs"></div>
+          <div class="game-chat-input-bar">
+            <button class="icon-btn" style="width:32px; height:32px;" onclick="toggleGameEmojiPanel()">😊</button>
+            <input class="game-chat-input" id="gameChatInput" placeholder="მიწერე მეტოქეს..." onkeydown="if(event.key==='Enter')sendGameMessage()">
+            <button class="send-btn" style="width:32px; height:32px;" onclick="sendGameMessage()">✈️</button>
+            
+            <!-- სმაილების პანელის კლონი თამაშისთვის -->
+            <div id="gameEmojiPanel" style="position:absolute; bottom:45px; left:5px; background:var(--panel2); border:1px solid var(--border); border-radius:12px; padding:8px; display:none; width:240px; box-shadow:0 4px 12px rgba(0,0,0,0.3); z-index:100;">
+              <div class="emoji-grid" id="gameEmojiGrid" style="max-height:120px; overflow-y:auto; display:flex; flex-wrap:wrap; gap:4px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ლიდერბორდი -->
+      <div class="game-leaderboard" style="margin-top:20px;">
+        <div class="glb-head">🏆 შაშის რეიტინგი (+5 ქულა მოგებაზე)</div>
+        <div id="checkersLbRows"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// [თქვენი საწყისი სკრიპტები, Supabase ინიციალიზაცია და ცვლადები]
+
+// შაშის გლობალური ცვლადები
+let currentGame = null;
+let checkersCh = null;
+let checkersChatCh = null;
+let selectedCell = null;
+let validMoves = [];
+
+// დაფის საწყისი ინიციალიზაცია (0: ცარიელი, 1: თეთრი, 2: შავი, 3: თეთრი მეფე, 4: შავი მეფე)
+function createInitialBoard() {
+  let board = Array(8).fill(null).map(() => Array(8).fill(0));
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 8; c++) {
+      if ((r + c) % 2 === 1) board[r][c] = 2; // შავები (ზემოთ)
+    }
+  }
+  for (let r = 5; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      if ((r + c) % 2 === 1) board[r][c] = 1; // თეთრები (ქვემოთ)
+    }
+  }
+  return board;
+}
+
+// თამაშის რეჟიმის გახსნა და ჩართვა
+async function openGame() {
+  document.getElementById('messages').style.display = 'none';
+  document.getElementById('chatBar').style.display = 'none';
+  document.getElementById('gameRoomPlaceholder').style.display = 'flex';
+  
+  loadCheckersLeaderboard();
+  listenToCheckersGames();
+  renderCheckersBoard(createInitialBoard());
+  initGameEmojiGrid();
+}
+
+// შაშის რეიტინგების ჩატვირთვა პროფილზე და ლიდერბორდში
+async function loadCheckersLeaderboard() {
+  const { data } = await sb.from('profiles').select('username, checkers_score').order('checkers_score', { ascending: false }).limit(5);
+  const rows = document.getElementById('checkersLbRows');
+  if(!rows) return;
+  rows.innerHTML = '';
+  if(data) {
+    data.forEach((u, i) => {
+      rows.innerHTML += `
+        <div class="glb-row">
+          <div class="glb-rank">${i+1}</div>
+          <div class="glb-name">${esc(u.username)}</div>
+          <div class="glb-score">${u.checkers_score || 0} ქულა</div>
+        </div>`;
+    });
+  }
+  // განვაახლოთ ჩვენი მიმდინარე პროფილის ქულა ვიზუალურად (მაგალითად, ვორდ ქულის ნაცვლად)
+  if(ME && document.getElementById('profWordScore')) {
+    const { data: myP } = await sb.from('profiles').select('checkers_score').eq('id', ME.id).single();
+    document.getElementById('profWordScore').textContent = `🏁 შაში: ${myP?.checkers_score || 0}`;
+  }
+}
+
+// გამოიწვიე მომხმარებელი საიდბარიდან ან პროფილიდან
+async function challengeUser(targetUserId) {
+  if (targetUserId === ME.id) { alert('საკუთარ თავს ვერ ეთამაშები!'); return; }
+  
+  const { data, error } = await sb.from('checkers_games').insert({
+    player_white: ME.id,      // გამომწვევი ავტომატურად თეთრია
+    player_black: targetUserId,
+    challenger: ME.id,
+    status: 'pending',
+    board: createInitialBoard(),
+    turn: 'white'
+  }).select().single();
+
+  if (error) alert('ხარვეზი გამოწვევისას');
+  else alert('მოთამაშე გამოწვეულია! ველოდებით დასტურს...');
+}
+
+// პროფილის გახსნისას დავამატოთ გამოწვევის ღილაკი
+function openProfileCustomExtension(uid) {
+  const btn = document.getElementById('friendBtn'); // გამოიყენეთ არსებული სტრუქტურა ახალი ღილაკისთვის
+  if(uid !== ME.id) {
+    // დინამიურად ვამატებთ გამოწვევის ფუნქციას
+    let gameBtn = document.getElementById('profileChallengeBtn');
+    if(!gameBtn) {
+      gameBtn = document.createElement('button');
+      gameBtn.id = 'profileChallengeBtn';
+      gameBtn.className = 'act-btn success';
+      gameBtn.innerHTML = '🎮 შაშში გამოწვევა';
+      btn.parentNode.appendChild(gameBtn);
+    }
+    gameBtn.onclick = () => { closeModal('profileOverlay'); challengeUser(uid); };
+  }
+}
+
+// თამაშების რეალტაიმ მონიტორინგი (დასტური / უარი / სვლები)
+function listenToCheckersGames() {
+  if (checkersCh) sb.removeChannel(checkersCh);
+
+  checkersCh = sb.channel('public:checkers_games')
+    .on('postgres_changes', { event: '*', filter: `player_white=eq.${ME.id}`, schema: 'public', table: 'checkers_games' }, payload => handleGameUpdate(payload.new))
+    .on('postgres_changes', { event: '*', filter: `player_black=eq.${ME.id}`, schema: 'public', table: 'checkers_games' }, payload => handleGameUpdate(payload.new))
+    .subscribe();
+}
+
+function handleGameUpdate(game) {
+  if (!game) return;
+  
+  const inviteArea = document.getElementById('gameInviteArea');
+  const fromUser = allUsers.find(u => u.id === game.challenger)?.username || 'უცნობი';
+
+  // თუ გამოწვევა მიღებულია ამ იუზერის მიმართ
+  if (game.status === 'pending' && game.player_black === ME.id) {
+    inviteArea.innerHTML = `
+      <div class="game-invite-card">
+        <p><strong>${esc(fromUser)}</strong> გიწვევთ შაშის სათამაშოდ!</p>
+        <div style="margin-top:10px; display:flex; gap:10px; justify-content:center;">
+          <button class="friend-req-accept" onclick="respondToChallenge('${game.id}', 'accepted')">✅ დათანხმება</button>
+          <button class="friend-req-decline" onclick="respondToChallenge('${game.id}', 'declined')">❌ უარი</button>
+        </div>
+      </div>`;
+    return;
+  }
+
+  if (game.status === 'declined') {
+    inviteArea.innerHTML = '';
+    if (game.challenger === ME.id) alert('მეტოქემ უარი თქვა გამოწვევაზე.');
+    return;
+  }
+
+  if (game.status === 'playing' || game.status === 'accepted') {
+    inviteArea.innerHTML = '';
+    currentGame = game;
+    listenToGameChat(game.id);
+    updateGameStatusHTML();
+    renderCheckersBoard(game.board);
+  }
+
+  if (game.status === 'finished') {
+    inviteArea.innerHTML = '';
+    renderCheckersBoard(game.board);
+    const winnerName = allUsers.find(u => u.id === game.winner_id)?.username || 'უცნობი';
+    document.getElementById('gameStatusBar').innerHTML = `🏆 თამაში დასრულდა! მოიგო: <strong>${esc(winnerName)}</strong> (+5 ქულა)`;
+    loadCheckersLeaderboard();
+    if(checkersChatCh) sb.removeChannel(checkersChatCh);
+    currentGame = null;
+  }
+}
+
+// გამოწვევაზე პასუხი
+async function respondToChallenge(gameId, response) {
+  const status = response === 'accepted' ? 'playing' : 'declined';
+  await sb.from('checkers_games').update({ status }).eq('id', gameId);
+  document.getElementById('gameInviteArea').innerHTML = '';
+}
+
+// სტატუსის ტექსტის განახლება
+function updateGameStatusHTML() {
+  if (!currentGame) return;
+  const isWhite = currentGame.player_white === ME.id;
+  const myColor = isWhite ? 'white' : 'black';
+  const turnText = currentGame.turn === myColor ? '🟢 შენი სვლაა!' : '⌛ მეტოქის სვლაა...';
+  document.getElementById('gameStatusBar').innerHTML = `შენ თამაშობ: <strong>${isWhite ? 'თეთრებით' : 'შავებით'}</strong> | ${turnText}`;
+}
+
+// შაშის დაფის რენდერი ვიზუალურად
+function renderCheckersBoard(board) {
+  const container = document.getElementById('checkersBoard');
+  container.innerHTML = '';
+
+  for (let r = 0; r < 8; r++) {
+    for (let c = 0; c < 8; c++) {
+      const cell = document.createElement('div');
+      cell.className = `checkers-cell ${(r + c) % 2 === 1 ? 'cell-dark' : 'cell-light'}`;
+      cell.dataset.row = r;
+      cell.dataset.col = c;
+
+      // მონიშვნები
+      if (selectedCell && selectedCell.row === r && selectedCell.col === c) cell.classList.add('cell-selected');
+      if (validMoves.some(m => m.toRow === r && m.toCol === c)) cell.classList.add('cell-highlight');
+
+      const pieceType = board[r][c];
+      if (pieceType > 0) {
+        const piece = document.createElement('div');
+        piece.className = `piece ${pieceType === 1 || pieceType === 3 ? 'piece-white' : 'piece-black'}`;
+        if (pieceType === 3 || pieceType === 4) piece.classList.add('piece-king');
+        cell.appendChild(piece);
+      }
+
+      cell.onclick = () => handleCellClick(r, c);
+      container.appendChild(cell);
+    }
+  }
+}
+
+// უჯრაზე კლიკის ლოგიკა (მხოლოდ შენი სვლის დროს)
+function handleCellClick(row, col) {
+  if (!currentGame || currentGame.status !== 'playing') return;
+  
+  const isWhite = currentGame.player_white === ME.id;
+  const myColor = isWhite ? 'white' : 'black';
+  if (currentGame.turn !== myColor) return;
+
+  const board = currentGame.board;
+  const piece = board[row][col];
+
+  // თუ კლიკი ხდება სავარაუდო ჰაილაითზე (სვლა)
+  const move = validMoves.find(m => m.toRow === row && m.toCol === col);
+  if (move) {
+    executeMove(move);
+    return;
+  }
+
+  // ფიგურის შერჩევა
+  if ((myColor === 'white' && (piece === 1 || piece === 3)) || (myColor === 'black' && (piece === 2 || piece === 4))) {
+    selectedCell = { row, col };
+    calculateValidMoves(row, col, piece, board);
+    renderCheckersBoard(board);
+  }
+}
+
+// მარტივი ვალიდური სვლების დათვლა (სტანდარტული და ჭამა)
+function calculateValidMoves(row, col, piece, board) {
+  validMoves = [];
+  const directions = [];
+  
+  // მოძრაობის მიმართულებები (თეთრი მიდის ზემოთ [-1], შავი ქვემოთ [+1], მეფე ყველგან)
+  if (piece === 1 || piece === 3 || piece === 4) directions.push({r: -1, c: -1}, {r: -1, c: 1});
+  if (piece === 2 || piece === 3 || piece === 4) directions.push({r: 1, c: -1}, {r: 1, c: 1});
+
+  directions.forEach(d => {
+    // ჩვეულებრივი სვლა
+    let nRow = row + d.r, nCol = col + d.c;
+    if (nRow >= 0 && nRow < 8 && nCol >= 0 && nCol < 8) {
+      if (board[nRow][nCol] === 0) {
+        validMoves.push({ fromRow: row, fromCol: col, toRow: nRow, toCol: nCol, isJump: false });
+      } else {
+        // ჭამის სვლა
+        let targetPiece = board[nRow][nCol];
+        let isEnemy = (piece === 1 || piece === 3) ? (targetPiece === 2 || targetPiece === 4) : (targetPiece === 1 || targetPiece === 3);
+        if (isEnemy) {
+          let jRow = nRow + d.r, jCol = nCol + d.c;
+          if (jRow >= 0 && jRow < 8 && jCol >= 0 && jCol < 8 && board[jRow][jCol] === 0) {
+            validMoves.push({ fromRow: row, fromCol: col, toRow: jRow, toCol: jCol, isJump: true, enemyRow: nRow, enemyCol: nCol });
+          }
+        }
+      }
+    }
+  });
+}
+
+// სვლის შესრულება და მონაცემთა ბაზაში ასახვა
+async function executeMove(move) {
+  let board = [...currentGame.board];
+  let piece = board[move.fromRow][move.fromCol];
+  
+  // გადაადგილება
+  board[move.toRow][move.toCol] = piece;
+  board[move.fromRow][move.fromCol] = 0;
+
+  // თუ იყო ჭამა
+  if (move.isJump) {
+    board[move.enemyRow][move.enemyCol] = 0;
+  }
+
+  // მეფედ გადაქცევა
+  if (piece === 1 && move.toRow === 0) board[move.toRow][move.toCol] = 3;
+  if (piece === 2 && move.toRow === 7) board[move.toRow][move.toCol] = 4;
+
+  // შევამოწმოთ დარჩა თუ არა ფიგურები
+  let whiteCount = 0, blackCount = 0;
+  for(let r=0; r<8; r++) {
+    for(let c=0; c<8; c++) {
+      if(board[r][c] === 1 || board[r][c] === 3) whiteCount++;
+      if(board[r][c] === 2 || board[r][c] === 4) blackCount++;
+    }
+  }
+
+  let status = 'playing';
+  let winnerId = null;
+
+  if (whiteCount === 0) { status = 'finished'; winnerId = currentGame.player_black; }
+  else if (blackCount === 0) { status = 'finished'; winnerId = currentGame.player_white; }
+
+  const nextTurn = currentGame.turn === 'white' ? 'black' : 'white';
+
+  selectedCell = null;
+  validMoves = [];
+
+  // ბაზაში განახლება
+  const { error } = await sb.from('checkers_games').update({
+    board,
+    turn: nextTurn,
+    status,
+    winner_id: winnerId
+  }).eq('id', currentGame.id);
+
+  if(status === 'finished' && winnerId) {
+    // მოგებულს დავუმატოთ 5 ქულა
+    await sb.rpc('increment_checkers_score', { row_id: winnerId, num: 5 });
+  }
+}
+
+// დანებების ფუნქცია
+async function surrenderGame() {
+  if (!currentGame) return;
+  if (!confirm('ნამდვილად გსურთ დანებება?')) return;
+  
+  const winnerId = ME.id === currentGame.player_white ? currentGame.player_black : currentGame.player_white;
+  
+  await sb.from('checkers_games').update({ status: 'finished', winner_id: winnerId }).eq('id', currentGame.id);
+  await sb.rpc('increment_checkers_score', { row_id: winnerId, num: 5 });
+}
+
+/* ===================== თამაშის მინი ჩატი და სმაილები ===================== */
+
+function initGameEmojiGrid() {
+  const grid = document.getElementById('gameEmojiGrid');
+  if(!grid) return;
+  grid.innerHTML = '';
+  // ვიღებთ მთავარი ჩატის სმაილებს (customEmojis მასივიდან ან სტანდარტულებიდან)
+  const defaultEmojis = ['❤️','😂','🔥','👍','😮','💜','😢','✨','🎉','🚀','👑','🎮'];
+  defaultEmojis.forEach(em => {
+    const btn = document.createElement('button');
+    btn.className = 'qr-btn';
+    btn.style.fontSize = '20px';
+    btn.textContent = em;
+    btn.onclick = () => {
+      document.getElementById('gameChatInput').value += em;
+      toggleGameEmojiPanel();
+    };
+    grid.appendChild(btn);
+  });
+}
+
+function toggleGameEmojiPanel() {
+  const panel = document.getElementById('gameEmojiPanel');
+  panel.style.display = panel.style.display === 'block' ? 'none' : 'block';
+}
+
+async function listenToGameChat(gameId) {
+  if (checkersChatCh) sb.removeChannel(checkersChatCh);
+  
+  // ჩავტვირთოთ ბოლო შეტყობინებები
+  const { data } = await sb.from('checkers_messages').select('*').eq('game_id', gameId).order('created_at', { ascending: true });
+  const box = document.getElementById('gameChatMsgs');
+  box.innerHTML = '';
+  if(data) data.forEach(m => appendGameMsg(m));
+
+  checkersChatCh = sb.channel(`public:checkers_messages:game_id=eq.${gameId}`)
+    .on('postgres_changes', { event: 'INSERT', filter: `game_id=eq.${gameId}`, schema: 'public', table: 'checkers_messages' }, payload => {
+      appendGameMsg(payload.new);
+    }).subscribe();
+}
+
+function appendGameMsg(msg) {
+  const box = document.getElementById('gameChatMsgs');
+  const user = allUsers.find(u => u.id === msg.user_id);
+  const nick = user?.username || 'სისტემა';
+  const div = document.createElement('div');
+  div.className = 'msg-row';
+  div.innerHTML = `<div style="font-size:12px;"><strong style="color:var(--indigo2)">${esc(nick)}:</strong> ${esc(msg.message)}</div>`;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+async function sendGameMessage() {
+  const inp = document.getElementById('gameChatInput');
+  const val = inp.value.trim();
+  if (!val || !currentGame) return;
+
+  await sb.from('checkers_messages').insert({
+    game_id: currentGame.id,
+    user_id: ME.id,
+    message: val
+  });
+  inp.value = '';
+}
+</script>
+</body>
+</html>
