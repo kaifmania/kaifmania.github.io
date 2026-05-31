@@ -568,17 +568,19 @@ function executeMove(mv,isAI=false){
       return;
     }
   }
-  currentTurn=currentTurn===1?2:1;
+  const nextTurn = currentTurn===1?2:1;
+  currentTurn = nextTurn;
   renderBoard();
-  if(gameMode==='pvp'&&gameId) savePvpState(mv);
+  // PvP: DB-ში ვინახავთ ახალ მდგომარეობას
+  if(gameMode==='pvp'&&gameId) savePvpState(nextTurn);
   if(!checkWin()){
     if(gameMode==='ai'&&currentTurn===2){
       resetTimer(); setStatus('🤖 AI ფიქრობს...');
       setTimeout(doAIMove,500+aiDifficulty*200);
     } else {
       const isMyTurn = currentTurn === myColor;
-      setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინААRmდეგის ჯერი');
-      resetTimer();
+      setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინAARMდეგის ჯერი');
+      if(isMyTurn) resetTimer();
     }
   }
 }
@@ -672,12 +674,11 @@ function updateTimerUI(){
 }
 
 /* ===== PVP SUPABASE ===== */
-async function savePvpState(mv){
+async function savePvpState(nextTurn){
   if(!gameId) return;
   await sb.from('checkers_games').update({
     board: board,
-    turn: currentTurn===1?'white':'black',
-    last_move: JSON.stringify(mv)
+    turn: nextTurn===1?'white':'black',
   }).eq('id',gameId);
 }
 
@@ -688,17 +689,15 @@ function watchPvpGame(gid){
       const g=p.new;
       if(g.status==='finished') return;
 
-      const newTurn = g.turn==='white'?1:2;
-      // მხოლოდ მაშინ ვაახლებ როდესაც მოწინAARmდეგემ სვლა გააკეთა (ახლა ჩემი ჯერია)
-      if(newTurn === myColor){
-        board = typeof g.board==='string'?JSON.parse(g.board):g.board;
-        currentTurn = newTurn;
-        selectedCell=null; validMoves=[];
-        renderBoard();
-        setStatus('🔴 შენი ჯერია');
-        resetTimer();
-        checkWin();
-      }
+      // ყოველთვის ვაახლებთ დაფას DB-დან
+      board = typeof g.board==='string'?JSON.parse(g.board):g.board;
+      currentTurn = g.turn==='white'?1:2;
+      selectedCell=null; validMoves=[];
+      renderBoard();
+      const isMyTurn = currentTurn === myColor;
+      setStatus(isMyTurn ? '🔴 შენი ჯერია' : '🔵 მოწინAARMდეგის ჯერი');
+      if(isMyTurn) resetTimer();
+      checkWin();
     }).subscribe();
 }
 
