@@ -3,1023 +3,911 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ფსიქოლოგიური ტესტები</title>
-<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<title>ფსიქო ტესტები · კაიფმანია</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
-
-:root {
-  --bg: #0d0b1a;
-  --panel: #120f24;
-  --panel2: #1a1730;
-  --border: rgba(160, 80, 255, 0.35);
-  --text: #ede0ff;
-  --text2: #b580e0;
-  --text3: #7a5a9a;
-  --indigo: #7a1fc8;
-  --indigo2: #a855f7;
-  --indigo-f: rgba(120, 30, 200, 0.18);
-  --glow: rgba(168, 85, 247, 0.28);
-  --accent: #f07aff;
-  --success: #4ade80;
-  --warning: #fbbf24;
-  --danger: #ff5080;
-}
-
-body {
-  font-family: 'Noto Sans Georgian', sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes slideUp {
-  from { opacity: 0; transform: translateY(30px) scale(0.95); }
-  to { opacity: 1; transform: translateY(0) scale(1); }
-}
-
-@keyframes pulse {
-  0%, 100% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-}
-
-@keyframes shake {
-  0%, 100% { transform: translateX(0); }
-  20% { transform: translateX(-8px); }
-  40% { transform: translateX(8px); }
-  60% { transform: translateX(-4px); }
-  80% { transform: translateX(4px); }
-}
-
-@keyframes confetti {
-  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
-  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-}
-
-/* Header */
-.header {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 20px;
-  background: var(--panel);
-  border-bottom: 1px solid var(--border);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.back-btn {
-  background: var(--indigo-f);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  width: 38px;
-  height: 38px;
-  color: var(--text2);
-  font-size: 20px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.back-btn:hover {
-  background: var(--border);
-  color: var(--text);
-}
-
-.header-title {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.header-sub {
-  font-size: 11px;
-  color: var(--text3);
-  margin-left: auto;
-  background: var(--indigo-f);
-  border: 1px solid var(--border);
-  padding: 3px 12px;
-  border-radius: 20px;
-}
-
-/* Container */
-.container {
-  max-width: 700px;
-  margin: 0 auto;
-  padding: 24px 16px;
-}
-
-/* Home Screen */
-#homeScreen {
-  animation: fadeIn 0.4s ease;
-}
-
-.hero {
-  text-align: center;
-  padding: 32px 0 24px;
-}
-
-.hero-icon {
-  font-size: 64px;
-  display: block;
-  animation: pulse 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 24px var(--glow));
-}
-
-.hero-title {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 22px;
-  font-weight: 900;
-  color: var(--text);
-  margin-top: 14px;
-}
-
-.hero-sub {
-  font-size: 13px;
-  color: var(--text3);
-  margin-top: 8px;
-}
-
-/* Tests Grid */
-.tests-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 14px;
-  margin-top: 20px;
-}
-
-.test-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 20px;
-  cursor: pointer;
-  transition: all 0.25s ease;
-  position: relative;
-  overflow: hidden;
-  animation: fadeIn 0.4s ease both;
-}
-
-.test-card:hover {
-  transform: translateY(-4px);
-  border-color: var(--indigo2);
-  box-shadow: 0 12px 40px rgba(120, 30, 200, 0.35);
-}
-
-.test-card-emoji {
-  font-size: 40px;
-  display: block;
-  margin-bottom: 12px;
-}
-
-.test-card-title {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-  margin-bottom: 8px;
-}
-
-.test-card-desc {
-  font-size: 12px;
-  color: var(--text3);
-  line-height: 1.5;
-  margin-bottom: 12px;
-}
-
-.test-card-meta {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.test-card-count {
-  font-size: 10px;
-  color: var(--text2);
-  background: var(--indigo-f);
-  border: 1px solid var(--border);
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-family: 'Unbounded', sans-serif;
-}
-
-.test-card-tag {
-  font-size: 10px;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-family: 'Unbounded', sans-serif;
-  font-weight: 700;
-}
-
-.tag-iq { background: rgba(0, 200, 200, 0.12); color: #00c8c8; border: 1px solid rgba(0, 200, 200, 0.25); }
-.tag-love { background: rgba(255, 80, 120, 0.12); color: #ff5080; border: 1px solid rgba(255, 80, 120, 0.25); }
-.tag-personality { background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.25); }
-.tag-social { background: rgba(74, 222, 128, 0.12); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.25); }
-.tag-fun { background: rgba(251, 191, 36, 0.12); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25); }
-
-/* Test Screen */
-#testScreen {
-  display: none;
-  animation: slideUp 0.35s ease;
-}
-
-.test-top {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin-bottom: 20px;
-}
-
-.test-exit-btn {
-  background: var(--indigo-f);
-  border: 1px solid var(--border);
-  border-radius: 10px;
-  padding: 8px 16px;
-  color: var(--text2);
-  font-size: 12px;
-  cursor: pointer;
-  transition: all 0.2s;
-  white-space: nowrap;
-}
-
-.test-exit-btn:hover {
-  background: rgba(220, 0, 0, 0.12);
-  border-color: rgba(220, 0, 0, 0.3);
-  color: #ff7777;
-}
-
-.test-title-bar h2 {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text);
-}
-
-/* Progress */
-.progress-wrap {
-  margin-bottom: 20px;
-}
-
-.progress-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--text3);
-  margin-bottom: 8px;
-  font-family: 'Unbounded', sans-serif;
-}
-
-.progress-bar-bg {
-  height: 6px;
-  background: var(--panel2);
-  border-radius: 3px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-
-.progress-bar-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--indigo), var(--accent));
-  border-radius: 3px;
-  transition: width 0.4s ease;
-}
-
-/* Question */
-.question-card {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 24px;
-  padding: 28px 24px;
-  margin-bottom: 18px;
-  position: relative;
-  overflow: hidden;
-}
-
-.q-num {
-  font-size: 10px;
-  color: var(--text3);
-  font-family: 'Unbounded', sans-serif;
-  letter-spacing: 1.5px;
-  margin-bottom: 12px;
-}
-
-.q-text {
-  font-size: 16px;
-  color: var(--text);
-  line-height: 1.6;
-  font-weight: 500;
-}
-
-/* Options */
-.options-list {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-}
-
-.option-btn {
-  background: var(--panel2);
-  border: 1.5px solid var(--border);
-  border-radius: 14px;
-  padding: 14px 18px;
-  color: var(--text);
-  font-size: 13px;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s;
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  width: 100%;
-}
-
-.option-btn:hover {
-  border-color: var(--indigo2);
-  background: var(--indigo-f);
-  transform: translateX(4px);
-}
-
-.option-btn.selected {
-  border-color: var(--accent);
-  background: rgba(168, 85, 247, 0.18);
-}
-
-.option-icon {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: var(--indigo-f);
-  border: 1px solid var(--border);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  flex-shrink: 0;
-  font-weight: 700;
-  font-family: 'Unbounded', sans-serif;
-}
-
-.option-btn.selected .option-icon {
-  background: var(--indigo);
-  color: white;
-  border-color: var(--indigo2);
-}
-
-/* Navigation */
-.nav-btns {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.nav-btn {
-  flex: 1;
-  padding: 12px;
-  border-radius: 14px;
-  border: none;
-  font-family: 'Noto Sans Georgian', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.nav-btn-prev {
-  background: var(--indigo-f);
-  color: var(--text2);
-  border: 1px solid var(--border);
-}
-
-.nav-btn-prev:hover {
-  background: var(--border);
-  color: var(--text);
-}
-
-.nav-btn-next {
-  background: linear-gradient(135deg, var(--indigo), var(--indigo2));
-  color: white;
-  box-shadow: 0 4px 18px rgba(120, 30, 200, 0.4);
-}
-
-.nav-btn-next:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 28px rgba(120, 30, 200, 0.55);
-}
-
-.nav-btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-}
-
-/* Result Screen */
-#resultScreen {
-  display: none;
-  animation: slideUp 0.4s ease;
-}
-
-.result-wrap {
-  background: var(--panel);
-  border: 1px solid var(--border);
-  border-radius: 28px;
-  padding: 32px 24px;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-}
-
-.result-emoji {
-  font-size: 72px;
-  display: block;
-  margin-bottom: 16px;
-  animation: pulse 3s ease-in-out infinite;
-  filter: drop-shadow(0 0 30px var(--glow));
-}
-
-.result-type {
-  font-family: 'Unbounded', sans-serif;
-  font-size: 20px;
-  font-weight: 900;
-  color: var(--accent);
-  margin-bottom: 12px;
-}
-
-.result-score-row {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-  margin: 16px 0;
-  flex-wrap: wrap;
-}
-
-.score-pill {
-  background: var(--indigo-f);
-  border: 1px solid var(--border);
-  border-radius: 20px;
-  padding: 8px 18px;
-  font-family: 'Unbounded', sans-serif;
-  font-size: 12px;
-  color: var(--text2);
-}
-
-.score-pill strong {
-  color: var(--accent);
-  font-size: 18px;
-  display: block;
-}
-
-.result-desc {
-  font-size: 14px;
-  color: var(--text2);
-  line-height: 1.7;
-  margin: 16px 0;
-  text-align: left;
-  background: var(--panel2);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 18px;
-}
-
-.result-traits {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  justify-content: center;
-  margin: 16px 0;
-}
-
-.trait-chip {
-  padding: 6px 14px;
-  border-radius: 20px;
-  font-size: 12px;
-  background: var(--indigo-f);
-  border: 1px solid var(--border);
-  color: var(--text2);
-}
-
-.score-bars {
-  margin: 16px 0;
-  text-align: left;
-}
-
-.score-bar-row {
-  margin-bottom: 12px;
-}
-
-.score-bar-label {
-  display: flex;
-  justify-content: space-between;
-  font-size: 11px;
-  color: var(--text2);
-  margin-bottom: 4px;
-}
-
-.score-bar-bg {
-  height: 8px;
-  background: var(--panel2);
-  border-radius: 4px;
-  overflow: hidden;
-  border: 1px solid var(--border);
-}
-
-.score-bar-fill {
-  height: 100%;
-  border-radius: 4px;
-  transition: width 0.6s ease;
-}
-
-.result-actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-}
-
-.res-btn {
-  flex: 1;
-  padding: 12px;
-  border-radius: 14px;
-  font-family: 'Noto Sans Georgian', sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-  border: none;
-}
-
-.res-btn-home {
-  background: var(--indigo-f);
-  color: var(--text2);
-  border: 1px solid var(--border);
-}
-
-.res-btn-home:hover {
-  background: var(--border);
-  color: var(--text);
-}
-
-.res-btn-share {
-  background: linear-gradient(135deg, var(--indigo), var(--indigo2));
-  color: white;
-  box-shadow: 0 4px 16px rgba(120, 30, 200, 0.4);
-}
-
-.res-btn-share:hover {
-  transform: translateY(-2px);
-}
-
-/* Confetti */
-.confetti-piece {
-  position: fixed;
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  animation: confetti 1.5s ease forwards;
-  pointer-events: none;
-  z-index: 9999;
-}
-
-/* Shake */
-.shake {
-  animation: shake 0.4s ease;
-}
-
-/* Scrollbar */
-::-webkit-scrollbar { width: 4px; }
-::-webkit-scrollbar-track { background: var(--panel2); }
-::-webkit-scrollbar-thumb { background: var(--indigo2); border-radius: 2px; }
-
-.hidden { display: none; }
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);
+  --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;
+  --input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;
+  --indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff;
+}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes flicker{0%,100%{filter:drop-shadow(0 0 6px var(--glow))}50%{filter:drop-shadow(0 0 20px var(--glow)) drop-shadow(0 0 40px var(--accent))}}
+@keyframes heartFloat{0%{transform:translate3d(0,0,0) rotate(-5deg) scale(0.6);opacity:0}8%{opacity:.75}50%{opacity:.45}92%{opacity:.15}100%{transform:translate3d(var(--drift,0px),-115vh,0) rotate(8deg) scale(1.3);opacity:0}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@keyframes resultReveal{from{opacity:0;transform:scale(0.8) translateY(30px)}to{opacity:1;transform:scale(1) translateY(0)}}
+@keyframes progressFill{from{width:0}to{width:var(--target-width)}}
+@keyframes optionHover{from{transform:translateX(0)}to{transform:translateX(6px)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:var(--bg);color:var(--text);
+  min-height:100dvh;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(120,30,200,0.15) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 40% at 80% 80%, rgba(240,122,255,0.08) 0%, transparent 50%);
+}
+#hearts{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.heart{position:absolute;bottom:-60px;will-change:transform,opacity;user-select:none;animation:heartFloat linear;}
+
+/* TOP NAV */
+#topnav{
+  display:flex;align-items:center;gap:10px;
+  background:var(--panel);border-bottom:1px solid var(--border);
+  padding:10px 20px;position:sticky;top:0;z-index:100;
+  box-shadow:0 2px 20px rgba(0,0,0,.4);
+}
+.nav-logo{font-size:22px;animation:flicker 2.5s ease-in-out infinite;cursor:pointer;text-decoration:none}
+.nav-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--text2);letter-spacing:2px}
+.back-btn{
+  margin-left:auto;display:flex;align-items:center;gap:6px;
+  padding:7px 16px;border-radius:20px;
+  background:var(--indigo-f);border:1px solid var(--border);
+  color:var(--text2);font-size:12px;cursor:pointer;
+  font-family:'Noto Sans Georgian',sans-serif;
+  transition:all .2s;text-decoration:none;
+}
+.back-btn:hover{background:var(--border);color:var(--text)}
+
+/* MAIN LAYOUT */
+#app{max-width:800px;margin:0 auto;padding:24px 16px 60px;position:relative;z-index:1}
+
+/* HEADER */
+.page-header{text-align:center;margin-bottom:36px;animation:fadeIn .5s ease}
+.page-icon{font-size:56px;display:block;margin-bottom:12px;filter:drop-shadow(0 0 20px var(--glow))}
+.page-title{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--text);margin-bottom:8px}
+.page-sub{font-size:13px;color:var(--text3)}
+
+/* TEST GRID */
+#testGrid{
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;
+  animation:fadeIn .5s ease .1s both;
+}
+.test-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:20px;
+  padding:20px;cursor:pointer;transition:all .25s;
+  position:relative;overflow:hidden;
+}
+.test-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--indigo-f),transparent);
+  pointer-events:none;
+}
+.test-card:hover{
+  transform:translateY(-4px) scale(1.02);
+  border-color:var(--indigo2);
+  box-shadow:0 12px 40px rgba(0,0,0,.4),0 0 20px var(--glow);
+}
+.tc-icon{font-size:36px;margin-bottom:10px;display:block}
+.tc-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:var(--text);margin-bottom:5px;line-height:1.4}
+.tc-desc{font-size:11px;color:var(--text3);line-height:1.5;margin-bottom:10px}
+.tc-meta{display:flex;align-items:center;gap:6px}
+.tc-badge{
+  font-size:9px;padding:3px 8px;border-radius:20px;
+  background:rgba(168,85,247,0.15);color:#c084fc;
+  border:1px solid rgba(168,85,247,0.3);
+  font-family:'Unbounded',sans-serif;font-weight:700;letter-spacing:.5px;
+}
+.tc-questions{font-size:10px;color:var(--text3);margin-left:auto}
+
+/* TEST SCREEN */
+#testScreen{display:none;animation:fadeIn .4s ease}
+.ts-header{
+  background:var(--panel);border:1px solid var(--border);border-radius:20px;
+  padding:20px;margin-bottom:20px;position:relative;overflow:hidden;
+}
+.ts-header::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--indigo-f),transparent);
+  pointer-events:none;
+}
+.ts-icon{font-size:32px;margin-bottom:6px}
+.ts-title{font-family:'Unbounded',sans-serif;font-size:14px;font-weight:700;color:var(--text)}
+.ts-progress-wrap{margin-top:14px}
+.ts-progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:6px;font-family:'Unbounded',sans-serif}
+.ts-progress-bar{height:6px;background:var(--panel2);border-radius:3px;overflow:hidden}
+.ts-progress-fill{height:100%;background:linear-gradient(90deg,var(--indigo),var(--accent));border-radius:3px;transition:width .4s ease}
+
+.question-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:20px;
+  padding:24px;margin-bottom:16px;
+}
+.q-number{font-size:10px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px;margin-bottom:8px}
+.q-text{font-size:15px;color:var(--text);line-height:1.6;margin-bottom:20px;font-weight:500}
+.options-list{display:flex;flex-direction:column;gap:8px}
+.opt-btn{
+  padding:12px 16px;border-radius:14px;
+  background:var(--panel2);border:1px solid var(--border);
+  color:var(--text2);font-size:13px;text-align:left;cursor:pointer;
+  font-family:'Noto Sans Georgian',sans-serif;
+  transition:all .2s;display:flex;align-items:center;gap:10px;
+}
+.opt-btn:hover{
+  background:var(--indigo-f);border-color:var(--indigo2);
+  color:var(--text);transform:translateX(6px);
+}
+.opt-btn.selected{
+  background:linear-gradient(135deg,rgba(120,30,200,0.35),rgba(168,85,247,0.2));
+  border-color:var(--accent);color:var(--text);
+  box-shadow:0 0 12px var(--glow);
+}
+.opt-letter{
+  width:26px;height:26px;border-radius:8px;
+  background:var(--indigo-f);border:1px solid var(--border);
+  display:flex;align-items:center;justify-content:center;
+  font-size:10px;font-weight:700;font-family:'Unbounded',sans-serif;
+  color:var(--text3);flex-shrink:0;transition:all .2s;
+}
+.opt-btn.selected .opt-letter{background:var(--indigo);border-color:var(--indigo2);color:#fff}
+
+.nav-btns{display:flex;gap:10px;margin-top:16px}
+.nav-btn-test{
+  flex:1;padding:13px;border-radius:14px;border:1px solid var(--border);
+  font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;
+  transition:all .2s;
+}
+.nav-btn-test.prev{background:var(--panel2);color:var(--text2)}
+.nav-btn-test.prev:hover{background:var(--border);color:var(--text)}
+.nav-btn-test.next{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border-color:transparent;color:#fff;font-weight:600;
+  box-shadow:0 4px 18px rgba(120,30,200,.4);
+}
+.nav-btn-test.next:hover{transform:translateY(-2px);box-shadow:0 6px 24px rgba(120,30,200,.55)}
+.nav-btn-test:disabled{opacity:.4;cursor:not-allowed;transform:none!important}
+
+/* RESULT SCREEN */
+#resultScreen{display:none;animation:resultReveal .5s cubic-bezier(0.34,1.3,0.64,1)}
+.result-card{
+  background:var(--panel);border:1px solid var(--border);border-radius:24px;
+  padding:32px 24px;text-align:center;position:relative;overflow:hidden;
+  box-shadow:0 20px 60px rgba(0,0,0,.5),0 0 40px var(--glow);
+}
+.result-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,var(--indigo-f),transparent 60%,rgba(240,122,255,0.08));
+  pointer-events:none;
+}
+.result-emoji{font-size:64px;display:block;margin-bottom:16px;animation:pulse 2s ease-in-out infinite}
+.result-type{
+  font-family:'Unbounded',sans-serif;font-size:18px;font-weight:900;
+  color:var(--accent);margin-bottom:8px;text-shadow:0 0 20px var(--glow);
+}
+.result-title{font-size:20px;font-weight:600;color:var(--text);margin-bottom:14px}
+.result-desc{font-size:14px;color:var(--text2);line-height:1.7;margin-bottom:20px;max-width:480px;margin-left:auto;margin-right:auto}
+.result-traits{
+  display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-bottom:24px;
+}
+.trait-chip{
+  padding:6px 14px;border-radius:20px;font-size:12px;
+  background:rgba(168,85,247,0.12);color:#c084fc;
+  border:1px solid rgba(168,85,247,0.3);
+}
+.result-bars{width:100%;max-width:400px;margin:0 auto 24px}
+.rbar-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.rbar-label{font-size:11px;color:var(--text2);width:100px;text-align:left;font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:.5px;flex-shrink:0}
+.rbar-track{flex:1;height:8px;background:var(--panel2);border-radius:4px;overflow:hidden}
+.rbar-fill{height:100%;border-radius:4px;background:linear-gradient(90deg,var(--indigo),var(--accent));transition:width 1s ease}
+.rbar-pct{font-size:10px;color:var(--text3);width:32px;text-align:right;flex-shrink:0;font-family:'Unbounded',sans-serif}
+
+.result-advice{
+  background:var(--panel2);border:1px solid var(--border);border-radius:16px;
+  padding:16px 20px;margin-bottom:24px;text-align:left;
+}
+.ra-title{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text3);margin-bottom:8px}
+.ra-text{font-size:13px;color:var(--text2);line-height:1.6}
+
+.result-btns{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+.rb-btn{
+  padding:12px 28px;border-radius:50px;font-family:'Noto Sans Georgian',sans-serif;
+  font-size:13px;cursor:pointer;transition:all .2s;
+}
+.rb-btn.primary{
+  background:linear-gradient(135deg,var(--indigo),var(--indigo2));
+  border:none;color:#fff;font-weight:600;
+  box-shadow:0 4px 18px rgba(120,30,200,.4);
+}
+.rb-btn.primary:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(120,30,200,.55)}
+.rb-btn.secondary{background:var(--panel2);border:1px solid var(--border);color:var(--text2)}
+.rb-btn.secondary:hover{background:var(--border);color:var(--text)}
+
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--panel2)}
+::-webkit-scrollbar-thumb{background:var(--indigo2);border-radius:2px}
 </style>
 </head>
 <body>
-<div class="header">
-  <button class="back-btn" id="backBtn">←</button>
-  <div class="header-title">🧠 ფსიქოლოგიური ტესტები</div>
-  <div class="header-sub" id="headerSub">10 ტესტი</div>
-</div>
-<div class="container">
+<div id="hearts"></div>
+
+<nav id="topnav">
+  <span class="nav-logo">🧠</span>
+  <span class="nav-title">ფსიქო ტესტები</span>
+  <a href="javascript:history.back()" class="back-btn">← უკან</a>
+</nav>
+
+<div id="app">
+  <!-- HOME -->
   <div id="homeScreen">
-    <div class="hero">
-      <span class="hero-icon">🧬</span>
-      <div class="hero-title">გაიცანი საკუთარი თავი</div>
-      <div class="hero-sub">10+ ფსიქოლოგიური ტესტი · სრული შედეგები</div>
+    <div class="page-header">
+      <span class="page-icon">🧠</span>
+      <div class="page-title">ფსიქო ტესტები</div>
+      <div class="page-sub">15 ტესტი · გაარკვიე ვინ ხარ სინამდვილეში</div>
     </div>
-    <div class="tests-grid" id="testsGrid"></div>
+    <div id="testGrid"></div>
   </div>
 
+  <!-- TEST -->
   <div id="testScreen">
-    <div class="test-top">
-      <button class="test-exit-btn" id="exitTestBtn">← გამოსვლა</button>
-      <div class="test-title-bar"><h2 id="testTitleBar">ტესტი</h2></div>
+    <div class="ts-header">
+      <div class="ts-icon" id="tsIcon"></div>
+      <div class="ts-title" id="tsTitle"></div>
+      <div class="ts-progress-wrap">
+        <div class="ts-progress-label">
+          <span id="tsQNum">კითხვა 1 / 10</span>
+          <span id="tsPct">0%</span>
+        </div>
+        <div class="ts-progress-bar"><div class="ts-progress-fill" id="tsBar" style="width:0%"></div></div>
+      </div>
     </div>
-    <div class="progress-wrap">
-      <div class="progress-label"><span id="progressLabel">კითხვა 1 / 10</span><span id="progressPct">0%</span></div>
-      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
-    </div>
-    <div class="question-card">
-      <div class="q-num" id="qNum">კითხვა 01</div>
-      <div class="q-text" id="qText">-</div>
-    </div>
-    <div class="options-list" id="optionsList"></div>
+    <div id="questionArea"></div>
     <div class="nav-btns">
-      <button class="nav-btn nav-btn-prev" id="prevBtn">← წინა</button>
-      <button class="nav-btn nav-btn-next" id="nextBtn">შემდეგი →</button>
+      <button class="nav-btn-test prev" id="btnPrev" onclick="prevQ()">← წინა</button>
+      <button class="nav-btn-test next" id="btnNext" onclick="nextQ()">შემდეგი →</button>
     </div>
   </div>
 
+  <!-- RESULT -->
   <div id="resultScreen">
-    <div class="result-wrap">
-      <span class="result-emoji" id="resEmoji">🧠</span>
-      <div class="result-type" id="resType">-</div>
-      <div class="result-score-row" id="resScoreRow"></div>
-      <div class="result-desc" id="resDesc">-</div>
+    <div class="result-card">
+      <span class="result-emoji" id="resEmoji"></span>
+      <div class="result-type" id="resType"></div>
+      <div class="result-title" id="resTitle"></div>
+      <div class="result-desc" id="resDesc"></div>
       <div class="result-traits" id="resTraits"></div>
-      <div class="score-bars" id="scoreBars"></div>
-    </div>
-    <div class="result-actions">
-      <button class="res-btn res-btn-home" id="homeBtn">🏠 ტესტების სია</button>
-      <button class="res-btn res-btn-share" id="shareBtn">📤 გაზიარება</button>
+      <div class="result-bars" id="resBars"></div>
+      <div class="result-advice" id="resAdvice">
+        <div class="ra-title">💡 რჩევა</div>
+        <div class="ra-text" id="resAdviceText"></div>
+      </div>
+      <div class="result-btns">
+        <button class="rb-btn primary" onclick="retakeTest()">🔄 ხელახლა</button>
+        <button class="rb-btn secondary" onclick="goHome()">🏠 ყველა ტესტი</button>
+      </div>
     </div>
   </div>
 </div>
 
 <script>
-// ==================== ტესტების მონაცემები ====================
+/* ============================================================
+   TEST DATA — 15 ტესტი
+   ============================================================ */
 const TESTS = [
-  {
-    id: 1,
-    emoji: '🧠',
-    title: 'ინტელექტის ტიპი',
-    desc: 'გაიგე, როგორი ინტელექტი გაქვს - ლოგიკური, ემოციური თუ კრეატიული?',
-    tag: 'iq',
-    tagLabel: 'IQ',
-    questions: [
-      { text: 'როგორ სწავლობ ახალ ინფორმაციას ყველაზე ეფექტურად?', options: ['წიგნების კითხვით', 'ვიდეოების ყურებით', 'პრაქტიკული გაკეთებით', 'სხვების მოსმენით'] },
-      { text: 'რა ტიპის ამოცანები გიზიდავს ყველაზე მეტად?', options: ['ლოგიკური თავსატეხები', 'კრეატიული დავალებები', 'გუნდური სამუშაო', 'ანალიტიკური ანგარიშები'] },
-      { text: 'შაბათ-კვირას რას აკეთებ ყველაზე ხშირად?', options: ['ვკითხულობ', 'ვხატავ/ვქმნი', 'სპორტით ვარ დაკავებული', 'მეგობრებთან ვარ'] }
-    ],
-    calculateResult: function(answers) {
-      let scores = { logical: 0, creative: 0, practical: 0, social: 0 };
-      const mapping = { 0: 'logical', 1: 'creative', 2: 'practical', 3: 'social' };
-      answers.forEach(a => { if (a !== null) scores[mapping[a]]++; });
-      const max = Object.entries(scores).sort((a,b) => b[1] - a[1])[0];
-      const types = {
-        logical: { type: 'ლოგიკური ინტელექტი', emoji: '🔢', desc: 'შენი ძლიერი მხარე არის ანალიტიკური აზროვნება. კარგად ხსნი თავსატეხებს, გიყვარს რიცხვები.', traits: ['ანალიტიკური', 'ლოგიკური'] },
-        creative: { type: 'კრეატიული ინტელექტი', emoji: '🎨', desc: 'შენი ძალაა წარმოსახვა და შემოქმედება. გიყვარს ახალი იდეები.', traits: ['კრეატიული', 'წარმოსახვითი'] },
-        practical: { type: 'პრაქტიკული ინტელექტი', emoji: '🔧', desc: 'კარგად ხერხდები ხელით მუშაობა, სპორტი. უკეთ სწავლობ მოქმედებით.', traits: ['პრაქტიკული', 'აქტიური'] },
-        social: { type: 'სოციალური ინტელექტი', emoji: '👥', desc: 'კარგად ერკვევი ადამიანებში, გესმის მათი ემოციები.', traits: ['ემპათიური', 'კომუნიკაბელური'] }
-      };
-      const total = answers.filter(a => a !== null).length;
-      return { ...types[max[0]], score: total > 0 ? (max[1] / total) * 100 : 0 };
-    }
-  },
-  {
-    id: 2,
-    emoji: '💜',
-    title: 'სიყვარულის ენა',
-    desc: 'როგორ გიყვარს და გრძნობ სიყვარულს?',
-    tag: 'love',
-    tagLabel: 'სიყვარული',
-    questions: [
-      { text: 'რა გახარებს ყველაზე მეტად პარტნიორისგან?', options: ['სიტყვები "მიყვარხარ"', 'ერთად გატარებული დრო', 'საჩუქრები', 'ჩახუტება/შეხება'] },
-      { text: 'როგორ გამოხატავ სიყვარულს ყველაზე ხშირად?', options: ['ვეუბნები', 'ვუთმობ დროს', 'ვჩუქნი', 'ვეხუტები'] },
-      { text: 'რა გაღიზიანებს ყველაზე მეტად?', options: ['უყურადღებობა', 'დროის ნაკლებობა', 'საჩუქრების არ ქონა', 'სიცივე'] }
-    ],
-    calculateResult: function(answers) {
-      let counts = [0,0,0,0];
-      answers.forEach(a => { if (a !== null) counts[a]++; });
-      const maxIndex = counts.indexOf(Math.max(...counts));
-      const types = [
-        { type: 'დადასტურების სიტყვები', emoji: '💬', desc: 'შენთვის მნიშვნელოვანია სიტყვები - კომპლიმენტები და გამხნევება.', traits: ['სიტყვიერი', 'ემოციური'] },
-        { type: 'ხარისხიანი დრო', emoji: '⏳', desc: 'შენთვის მთავარია ერთად გატარებული დრო, ყურადღება.', traits: ['ყურადღებიანი', 'ერთგული'] },
-        { type: 'საჩუქრები', emoji: '🎁', desc: 'საჩუქრები გახარებს. მათში ხედავ ზრუნვას.', traits: ['დაფასების მოყვარული', 'ყურადღებიანი'] },
-        { type: 'ფიზიკური შეხება', emoji: '🤗', desc: 'ჩახუტება, ხელის მოკიდება - ეს გრძნობინებს სიყვარულს.', traits: ['თბილი', 'მოსიყვარულე'] }
-      ];
-      const total = answers.filter(a => a !== null).length;
-      return { ...types[maxIndex], score: total > 0 ? (counts[maxIndex] / total) * 100 : 0 };
-    }
-  },
-  {
-    id: 3,
-    emoji: '🌙',
-    title: 'ინტროვერტი თუ ექსტროვერტი?',
-    desc: 'საიდან იღებ ენერგიას - მარტოობიდან თუ ხალხიდან?',
-    tag: 'personality',
-    tagLabel: 'პიროვნება',
-    questions: [
-      { text: 'დიდი წვეულების შემდეგ თავს როგორ გრძნობ?', options: ['დაღლილად, მჭირდება დასვენება', 'ენერგიულად, მინდა კიდევ'] },
-      { text: 'ახალ ადამიანებთან შეხვედრა...', options: ['მაძაბავს', 'მახალისებს'] },
-      { text: 'შაბათ-კვირას ურჩევნია...', options: ['სახლში წიგნის კითხვა', 'მეგობრებთან გასვლა'] }
-    ],
-    calculateResult: function(answers) {
-      let intro = 0, extro = 0;
-      answers.forEach(a => { if (a === 0) intro++; else if (a === 1) extro++; });
-      const total = intro + extro || 1;
-      const introPercent = (intro / total) * 100;
-      if (introPercent >= 70) {
-        return { type: 'ინტროვერტი', emoji: '🌙', desc: 'ენერგიას მარტოობაში იღებ. გიყვარს სიმშვიდე, ღრმა ფიქრები.', traits: ['ჩაფიქრებული', 'დამოუკიდებელი'], score: introPercent };
-      } else if (introPercent <= 30) {
-        return { type: 'ექსტროვერტი', emoji: '☀️', desc: 'ენერგიას ხალხში იღებ. გიყვარს კომუნიკაცია, აქტივობები.', traits: ['კომუნიკაბელური', 'აქტიური'], score: 100 - introPercent };
-      } else {
-        return { type: 'ამბივერტი', emoji: '🌓', desc: 'ბალანსირებ ინტრო- და ექსტროვერსიას შორის.', traits: ['მოქნილი', 'ადაპტირებადი'], score: 50 };
-      }
-    }
-  },
-  {
-    id: 4,
-    emoji: '😤',
-    title: 'სტრესის ტიპი',
-    desc: 'როგორ რეაგირებ სტრესულ სიტუაციებში?',
-    tag: 'personality',
-    tagLabel: 'ფსიქოლოგია',
-    questions: [
-      { text: 'როცა გაბრაზებული ხარ, ჩვეულებრივ...', options: ['ვჩუმდები და ვფიქრობ', 'ვყვირი ან ვტყდები'] },
-      { text: 'მნიშვნელოვანი გამოცდის წინ...', options: ['ვნერვიულობ და კარგად ვერ ვიძინებ', 'ვაქტიურობ, მეტს ვსწავლობ'] },
-      { text: 'კონფლიქტის დროს...', options: ['თავს არიდებ', 'პირდაპირ ვაწყდები'] }
-    ],
-    calculateResult: function(answers) {
-      let avoid = 0, confront = 0;
-      answers.forEach(a => { if (a === 0) avoid++; else if (a === 1) confront++; });
-      const total = avoid + confront || 1;
-      if (avoid > confront) {
-        return { type: 'თავის არიდების ტიპი', emoji: '🏃', desc: 'სტრესის დროს გჩვევია თავის არიდება, დუმილი.', traits: ['მშვიდი', 'თავშეკავებული'], score: (avoid/total)*100 };
-      } else {
-        return { type: 'დაპირისპირების ტიპი', emoji: '⚡', desc: 'სტრესის დროს პირდაპირ ხვდები პრობლემას.', traits: ['აქტიური', 'გადამწყვეტი'], score: (confront/total)*100 };
-      }
-    }
-  },
-  {
-    id: 5,
-    emoji: '🌈',
-    title: 'ემოციური ინტელექტი (EQ)',
-    desc: 'რამდენად კარგად ხვდები საკუთარ და სხვების ემოციებს?',
-    tag: 'iq',
-    tagLabel: 'EQ',
-    questions: [
-      { text: 'ადვილად ამოიცნობ, როცა ვინმე მოწყენილია?', options: ['დიახ', 'არა'] },
-      { text: 'შეგიძლია გააკონტროლო ბრაზის აფეთქებები?', options: ['დიახ', 'არა'] },
-      { text: 'კარგად ხსნი სხვების მოტივებს?', options: ['დიახ', 'არა'] }
-    ],
-    calculateResult: function(answers) {
-      let yes = answers.filter(a => a === 0).length;
-      let total = answers.filter(a => a !== null).length || 1;
-      let percent = (yes / total) * 100;
-      if (percent >= 70) {
-        return { type: 'მაღალი EQ', emoji: '💎', desc: 'შესანიშნავად ხვდები ემოციებს. კარგი მეგობარი ხარ.', traits: ['ემპათიური', 'სოციალურად გამოცდილი'], score: percent };
-      } else if (percent >= 40) {
-        return { type: 'საშუალო EQ', emoji: '🌿', desc: 'ზოგადად კარგად ხვდები ემოციებს, მაგრამ ზოგჯერ გიჭირს.', traits: ['მოქნილი', 'განვითარებადი'], score: percent };
-      } else {
-        return { type: 'EQ განვითარება სჭირდება', emoji: '📚', desc: 'ემოციების ამოცნობა ისწავლება. პრაქტიკა დაგეხმარება.', traits: ['სწავლის მოტივაცია'], score: percent };
-      }
-    }
+
+/* 1 */
+{
+  id:1, icon:'🧬', title:'პიროვნების ტიპი',
+  desc:'გაარკვიე შენი MBTI სტილის ტიპი',
+  badge:'ᲢᲘᲞᲘ', questions:10,
+  qs:[
+    {t:'როდის გრძნობ ყველაზე მეტ ენერგიას?', opts:['ხალხთან ერთად, ვეცლები მათ ენერგიას','მარტო ყოფნისას — ჩემთვის','პატარა ჯგუფში, სანდო ადამიანებთან','დამოკიდებულია განწყობაზე']},
+    {t:'გადაწყვეტილებების მიღებისას:', opts:['ლოგიკა და ფაქტები გამყავს','გრძნობები და ადამიანები მაწუხებს','სიტუაციიდან გამომდინარე ვმოქმედებ','ინტუიცია არ მტყუნებს']},
+    {t:'დაგეგმვასთან დაკავშირებით:', opts:['ყველაფერი წინასწარ დავგეგმე','სპონტანობა ჩემი სტილია','ზოგი რამ ვგეგმავ, ზოგს ვტოვებ','სიას ვადგენ, მაგრამ ვარ მოქნილი']},
+    {t:'კონფლიქტის დროს:', opts:['პირდაპირ ვამბობ რაც ვფიქრობ','ვცდილობ ყველა კმაყოფილი იყოს','ვიმჩევნებ სანამ არ გაყვარდება','ვანალიზებ სიტუაციას']},
+    {t:'ახალ გარემოში:', opts:['ადვილად ვხვდები ადამიანებს','ვაკვირდები და ვუყურებ ჯერ','ნელ-ნელა ვფლობ','ვისე მიქცეს კავშირი']},
+    {t:'შენი ოცნებების კარიერა:', opts:['ლიდერი, მმართველი','შემოქმედი, მხატვარი','ანალიტიკოსი, მეცნიერი','დამხმარე, ფსიქოლოგი']},
+    {t:'თავისუფალ დროს:', opts:['მეგობრებთან გართობა','კნიგა, ფილმი, თვითგამოხატვა','ახალი სფეროს შესწავლა','ბუნებაში, სიმარტოვეში']},
+    {t:'ემოციები:', opts:['გამოვხატავ ღიად','ვინახავ, ჩემთვის','ნაწილობრივ ვამჟღავნებ','ვანალიზებ, სხვებს ვარ']},
+    {t:'ყველაზე მნიშვნელოვანი:', opts:['ეფექტურობა','ჰარმონია','ახალი იდეები','სტაბილურობა']},
+    {t:'სამყაროს გახდი:', opts:['ნაკლებ ქაოტური','სამართლიანი','ინოვაციური','თბილი, ადამიანური']},
+  ],
+  calc:(ans)=>{
+    const types={E:0,I:0,T:0,F:0,J:0,P:0,N:0,S:0};
+    const map=[[['E','I','E','I'],['T','F','S','N'],['J','P','J','P'],['E','F','T','S'],['E','I','I','E'],['E','N','T','F'],['E','S','N','I'],['E','I','E','I'],['T','F','N','S'],['T','F','S','N']]];
+    ans.forEach((a,i)=>{if(a>=0&&map[0][i]){const k=map[0][i][a];if(k)types[k]++;}});
+    const E=types.E>=types.I,T=types.T>=types.F,J=types.J>=types.P,N=types.N>=types.S;
+    const type=(E?'E':'I')+(N?'N':'S')+(T?'T':'F')+(J?'J':'P');
+    const profiles={
+      'ENTJ':{emoji:'👑',name:'კომანდანტი',desc:'ბუნებრივი ლიდერი, სტრატეგი. ხედავ მომავალს და ხალხს ამ გზაზე მიჰყავხარ. ამბიციური, გადამწყვეტი, ეფექტური.',traits:['ლიდერი','სტრატეგი','ეფექტური'],bars:{ლიდერობა:95,ანალიზი:85,ინტუიცია:70,ემოცია:45},advice:'ისწავლე სხვების მოსმენა — ყოველი კარგი ლიდერი ამასაც აკეთებს.'},
+      'INTJ':{emoji:'🔭',name:'არქიტექტი',desc:'ხედვა, გეგმა, განხორციელება. მარტოხელა ფიქრი, ბრწყინვალე შედეგი. ამბიციური ხვალინდელი.',traits:['სტრატეგი','დამოუკიდებელი','ანალიტიკოსი'],bars:{სტრატეგია:95,დამოუკიდებლობა:90,ინტელექტი:88,კომუნიკაცია:55},advice:'გახსენი ცოტა მეტი ადამიანებისთვის — ყოველი გენია სჭირდება მოკავშირეებს.'},
+      'ENTP':{emoji:'💡',name:'გამომგონებელი',desc:'ბრჭყვიალი, პოლემისტი, ახალი იდეების მოყვარული. სიხარული სადაო საკითხებში.',traits:['ინოვატორი','პოლემისტი','ინტელექტუალი'],bars:{კრეატიულობა:95,ინტელექტი:90,ენთუზიაზმი:85,სტაბილურობა:40},advice:'ბოლომდე მიყევი ზოგიერთ იდეას — არა მხოლოდ დასაწყისს.'},
+      'INTP':{emoji:'🧪',name:'ლოგიკი',desc:'ანალიტიკური, ცნობისმოყვარე, ობიექტური. სამყარო ლოგიკის სისტემაა.',traits:['ანალიტიკოსი','ობიექტური','ცნობისმოყვარე'],bars:{ლოგიკა:95,ანალიზი:92,ცნობისმოყვარება:88,სოციალურობა:40},advice:'ემოციებს ნუ უგულებელყოფ — ისინიც ინფორმაციაა.'},
+      'ENFJ':{emoji:'🌟',name:'პროტაგონისტი',desc:'ხალხის შთამბეჭდავი შთაგონება, ქარიზმა, სიყვარული. დაბადებული ლიდერი გულით.',traits:['ქარიზმატული','ემპათიური','შთამაგონებელი'],bars:{ემპათია:95,ლიდერობა:88,კომუნიკაცია:92,ანალიზი:60},advice:'საკუთარ საჭიროებებზეც ნუ დაივიწყებ — შენც ყურადღებას იმსახურებ.'},
+      'INFJ':{emoji:'🌙',name:'ადვოკატი',desc:'იშვიათი, ღრმა, გამჭრიახი. ყოველ ადამიანში ხედავ შუქს. ხელმძღვანელობ ღირებულებებით.',traits:['ინტუიტური','ემპათიური','იდეალისტი'],bars:{ინტუიცია:95,ემპათია:92,ღირებულებები:90,სოციალურობა:55},advice:'ნუ დაიტვირთები სხვების ტკივილით — ასევე მნიშვნელოვანია შენი ჯანმრთელობა.'},
+      'ENFP':{emoji:'🦋',name:'კამპეინი',desc:'ენთუზიასტი, შემოქმედი, ადამიანების გამახარებელი. ყოველ ადამიანში ხედავ პოტენციალს.',traits:['ენთუზიასტი','კრეატიული','ემოციური'],bars:{ენთუზიაზმი:95,კრეატიულობა:90,ემოციები:88,ფოკუსი:50},advice:'ზოგჯერ ფოკუსი ერთ საქმეზე მეტ შედეგს იძლევა, ვიდრე ათ საქმეზე.'},
+      'INFP':{emoji:'📖',name:'მედიატორი',desc:'პოეტი, ოცნებარი, ღრმა ღირებულებებით. ეძებ სიმართლეს და სიწმინდეს.',traits:['იდეალისტი','ემოციური','შემოქმედი'],bars:{ემოციები:92,ღირებულებები:95,კრეატიულობა:85,პრაქტიკულობა:45},advice:'ოცნებების გვერდით პრაქტიკული ნაბიჯებიც სჭირდება სინამდვილეს.'},
+    };
+    const p=profiles[type]||profiles['INFP'];
+    return{emoji:p.emoji,type,title:p.name,desc:p.desc,traits:p.traits,bars:p.bars,advice:p.advice};
   }
+},
+
+/* 2 */
+{
+  id:2, icon:'❤️', title:'სიყვარულის ენა',
+  desc:'როგორ გამოხატავ და ღებულობ სიყვარულს',
+  badge:'ᲣᲠᲗᲘᲔᲠᲗᲝᲑᲐ', questions:8,
+  qs:[
+    {t:'ყველაზე მეტად გახარებს:',opts:['კომპლიმენტი, ქება','დახმარება ნებისმიერ საქმეში','საჩუქარი, გაკვირვება','ერთად გატარებული დრო','ჩახუტება, კოცნა']},
+    {t:'პარტნიორი ხარ — რას გააკეთებ?',opts:['ვეტყვი, რამდენი მიყვარს','ვდავალდებ ყველაფერს ჩამთვალოს','ვიყიდი მის საყვარელ საჩუქარს','ვიქნები ყოველ წუთს გვერდით','ვეამბორები, ვეფერები']},
+    {t:'ატყობ, პარტნიორი გნერვიანებს, როდესაც:',opts:['ვერბალური სიყვარული არ გამოხატა','ვერ დაგეხმარა საჭიროების დროს','დაივიწყა მნიშვნელოვანი თარიღი','ტელეფონს ატარებს ერთად ყოფნისას','ფიზიკური სიახლოვე აქვს შეზღუდული']},
+    {t:'იდეალური პაემანი:',opts:['ულამაზეს კომპლიმენტებს ვუძღვნი','ერთად ვიკეთებთ საყვარელ საქმეს','ვაჩუქებ სურპრიზს','მხოლოდ ჩვენ, ყოველი დეტალი','ფიზიკური სიახლოვე, სითბო']},
+    {t:'მხარდაჭერის ნიშანი:',opts:['ვეტყვი: "გიყვარხარ, ვუამბობ"','ვმოქმედებ — ვეხმარები','საჩუქარი, სიმბოლური ნივთი','ვხარჯავ ჩვენ ერთად დროს','ვეხები, ვეფერები']},
+    {t:'ყველაზე კარგი მოგონება ურთიერთობიდან:',opts:['სიტყვები, რომ გასმია','ის, რაც ჩემთვის გაკეთებულა','საჩუქარი, რომელსაც ვინახავ','ადგილი, სადაც ვიყავით ორმა','ჩახუტება, სიახლოვე']},
+    {t:'მომდიდრო გულს, თუ:',opts:['ვიტყვი, "ამაყი ვარ შენით"','დამეხმარება ურთულეს საქმეში','გამიკვირვებ მოულოდნელი ჟესტით','მოულოდნელად ჩამოხვალ','ხელი ჩამომტაცებ ბაზარში']},
+    {t:'გავბრაზდები, თუ:',opts:['კეთილი სიტყვა არ ვისმინე','ვერ დამეხმარე, სულ ვაკეთე','დაივიწყე ჩვენი დღე','სხვასთან გაატარე ყველა დრო','ფიზიკური სიახლოვე მოვერიდე']},
+  ],
+  calc:(ans)=>{
+    const langs=['სიტყვები','ქმედება','საჩუქრები','დრო','სიახლოვე'];
+    const scores=[0,0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<5)scores[a]++;});
+    const max=Math.max(...scores);
+    const idx=scores.indexOf(max);
+    const results=[
+      {emoji:'💬',name:'დამამტკიცებელი სიტყვები',desc:'შენთვის სიტყვები ყველაფერია. კომპლიმენტი, "გიყვარხარ", "ამაყი ვარ" — ეს ენერგიას გავდება. ვერბალური გამოხატვა შენი ტყვია.',traits:['ვერბალური','ემოციური','გამოხატული'],advice:'გესაჭიროება პარტნიორი, ვინც სიტყვებს ადვილად ამბობს. ანუ — ილაპარაკე ამის შესახებ!'},
+      {emoji:'🛠️',name:'სამსახური და ქმედება',desc:'სიყვარული = ქმედება. "გეხმარები, ვაკეთებ, ვცდილობ" — ეს ენათარგმანია. სიტყვები ნაკლებია, ქმედება ყველაფერი.',traits:['პრაქტიკული','ზრუნვადი','ქმედითი'],advice:'ილაპარაკე ჯდომაც — ზოგი ადამიანი სიტყვებს ელის ისევე, როგორც შენ ქმედებას.'},
+      {emoji:'🎁',name:'საჩუქრები',desc:'ჟესტი, სიმბოლო, გაკვირვება — სიყვარულის მატარებელია. ნივთი ამბობს: "ვფიქრობდი შენზე".',traits:['ყურადღებიანი','რომანტიკული','გრძნობადი'],advice:'საჩუქრის ღირებულება ფულში კი არ არის — სიფიქრში!'},
+      {emoji:'⏰',name:'ხარისხოვანი დრო',desc:'ერთად ყოფნა, ყოველი წუთი — ეს შენი სიყვარულია. ყოველი ყურადღება, ყოველი წამი — ეს ენა.',traits:['ყოფნადი','ყურადღებიანი','ერთობა'],advice:'ფონში ტელეფონი? — შენი პარტნიორი ამას ყოველ წამს ამჩნევს.'},
+      {emoji:'🤗',name:'ფიზიკური სიახლოვე',desc:'ჩახუტება, ეფერება, ხელი — სხეული ამბობს ყველაფერს, რასაც ენა ვერ ამბობს. სიახლოვე = სიყვარული.',traits:['სენსუალური','სიახლოვე','თბილი'],advice:'გარდა ფიზიკური კონტაქტისა, ვერბალური სიყვარული ასევე მნიშვნელოვანია!'},
+    ];
+    const r=results[idx];
+    const barData={};langs.forEach((l,i)=>{barData[l]=Math.round((scores[i]/(ans.filter(a=>a>=0).length||1))*100);});
+    return{emoji:r.emoji,type:'სიყვარულის ენა',title:r.name,desc:r.desc,traits:r.traits,bars:barData,advice:r.advice};
+  }
+},
+
+/* 3 */
+{
+  id:3, icon:'😤', title:'სტრესის ტიპი',
+  desc:'როგორ რეაგირებ სტრესულ სიტუაციებზე',
+  badge:'ფსიქოლოგია', questions:8,
+  qs:[
+    {t:'სამსახურში/სკოლაში დიდი ვადა მოახლოვდა:',opts:['ვიწყებ ბევრ ადრე, ყველაფერი დავგეგმავ','ვჯდები ბოლო ღამეს','ვფიქრობ, ვიდამ ვიწყებ','ვენაწილება სხვებს, ვითხოვ დახმარებას']},
+    {t:'ავად ხარ სტრესული პერიოდის წინ:',opts:['ხშირია — სხეული პასუხობს','იშვიათი — ვარ ძლიერი','ხდება — ვთვლი, რომ დასვენება მჭირდება','ვახდენ ემოციური დაძაბვის კომპენსაციას']},
+    {t:'კონფლიქტი მეგობართან:',opts:['ვიწყებ ძილის პრობლემებს','ვბრაზდები, მაგრამ მალე ვივიწყებ','ვანალიზებ — ვინ რა სთქვა','ვეხვეწები, მშვიდობა მინდა']},
+    {t:'ჩავარდი მნიშვნელოვანი გამოცდა:',opts:['ვდებ ძალისხმევას და ვიხდი ისევ','ვბრაზდები საკუთარ თავზე','ვფიქრობ, რა გავაკეთე არასწორი','ვცდილობ დავივიწყო']},
+    {t:'ვალდებულებები დაგროვდა:',opts:['ვახარისხებ, ვიწყებ ყველაზე მნიშვნელოვნიდან','ვდებ ყველაფერს ბოლო წუთამდე','ვარ ფარულად ჩახლართული','ვთხოვ ვინმეს ნაწილი გადაიღოს']},
+    {t:'პირადი ცხოვრების კრიზისი:',opts:['ვანდომებ სამსახურს / საქმეს','ვესაუბრები ახლობლებს','ვდებ ემოციებს შიდა','ვამრავლებ ფიზიკურ ნახმარს']},
+    {t:'ყველაზე ეფექტური გამკლავება:',opts:['სია, გეგმა, კონტროლი','სპორტი, ენერგიის დახარჯვა','მდუმარება, მარტოყოფნა','მეგობართან ლაპარაკი']},
+    {t:'სტრესი ცხოვრებაში:',opts:['კარგია — მამოძრავებს','ნეგატიურია — ვარიდებ','ნეიტრალური — ვმართავ','ვითარებაზე დამოკიდებული']},
+  ],
+  calc:(ans)=>{
+    const types=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)types[a]++;});
+    const mx=Math.max(...types),idx=types.indexOf(mx);
+    const res=[
+      {emoji:'📋',name:'გამომსვლელი',desc:'სტრესი გაამოძრავებს! გეგმა, ლოგიკა, კონტროლი — ეს შენი იარაღია. კრიზისი = გამოწვევა.',traits:['ორგანიზებული','მომიქეთი','კონტროლი'],bars:{ორგანიზება:90,კონტროლი:85,ეფექტურობა:80,მოდუნება:50},advice:'სცადე ზოგჯერ გამოუსვლელი დარჩე — ყველა კრიზისი გამოსასვლელს არ მოითხოვს.'},
+      {emoji:'💥',name:'ემოციური რეაქტორი',desc:'ემოციები სწრაფია. ბრაზი, სიხარული, ტირილი — სხეული ამოუშვებს. შემდეგ ჩქარა ივიწყებ.',traits:['ემოციური','სწრაფი','ავთენტური'],bars:{ემოციები:90,სპონტანობა:85,გამოხატვა:88,ანალიზი:45},advice:'სანამ ემოცია სიტყვად გამოვა — სუნთქვის ვარჯიში სცადე.'},
+      {emoji:'🤔',name:'ანალიტიკური მუშა',desc:'სტრესი = ამოსახსნელი ამოცანა. ვანალიზებ, ვარჩევ, ვდგამ გადადგმულ ნაბიჯს.',traits:['ანალიტიკოსი','ლოგიკოსი','სტრატეგი'],bars:{ანალიზი:92,ლოგიკა:88,სიფრთხილე:80,ეფექტურობა:70},advice:'ანალიზი კარგია, მაგრამ ზოგჯერ ქმედება ანალიზზე ადრე სჭირდება.'},
+      {emoji:'🤝',name:'სოციალური ადაპტორი',desc:'ადამიანებთან ხარ ძლიერი. ვენაწილები, ვთხოვ, ვეყრდნობი — ეს ძლიერება, არა სისუსტე.',traits:['სოციალური','კომუნიკაბელური','ითანამშრომლე'],bars:{კომუნიკაცია:90,ნდობა:85,ემოცია:80,მარტოყოფნა:50},advice:'სოციალური მხარდაჭერა შესანიშნავია — მაგრამ ისწავლე ინდივიდუალური გამოსვლაც.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'სტრესის ტიპი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 4 */
+{
+  id:4, icon:'🧠', title:'ინტელექტის ტიპი',
+  desc:'გარდნერის მრავლობითი ინტელექტი',
+  badge:'ინტელექტი', questions:9,
+  qs:[
+    {t:'რა გიყვარს ყველაზე?',opts:['სიტყვები, კნიგები, მოთხრობა','რიცხვები, ლოგიკა, თავსატეხი','ხატვა, ფოტო, სივრცე','სიმღერა, მელოდია, რიტმი']},
+    {t:'ახალ საქმეს ყველაზე ადვილად ისწავლი:',opts:['წაკითხვით, ლექციით','ლოგიკური სქემებით','ვიზუალური სქემებით, სურათებით','გამეორებით, პრაქტიკით']},
+    {t:'სხვებთან:',opts:['ვმეგობრობ, ვეხმარები, ვუგდებ ყურს','ვმოქმედებ დამოუკიდებლად','ვარ ლიდერი ჯგუფში','ვიცი ყოველი ადამიანის ძლიერი მხარე']},
+    {t:'შენი ოცნება:',opts:['მწერალი, ჟურნალისტი','მეცნიერი, ინჟინერი','ხელოვანი, დიზაინერი','მუსიკოსი, კომპოზიტორი']},
+    {t:'ბუნებასთან:',opts:['ბუნება ჩემი ინსპირაციაა','ვსწავლობ ეკოსისტემებს','ვხატავ ბუნებას','ვესმის ბუნების "ხმა"']},
+    {t:'ტვინი ყველაზე ბევრ ფიქრს ადებს:',opts:['სიტყვებზე, ლინგვისტიკაზე','სქემებზე, მათემატიკაზე','ფორმებზე, ფერებზე','ბგერებზე, ჰარმონიაზე']},
+    {t:'სხეულთან:',opts:['კომფორტულია ნებისმიერ სფეროში','ვარ მოუხერხებელი ფიზიკურად','ვცეკვავ, ვივარჯიშებ','ვმოძრაობ მუსიკის გარეშეც']},
+    {t:'ბავშვობაში ყველაზე კარგი:',opts:['კითხვა, ამბების მოყოლა','მათემატიკა, შაქმატი','ხატვა, ლეგო','სიმღერა, ცეკვა']},
+    {t:'სწავლა:',opts:['ვკითხულობ ხელახლა','ვვლი ლოგიკის ნაბიჯებს','ვხატავ გეგმებს','ვიხდი ხმამაღლა']},
+  ],
+  calc:(ans)=>{
+    const types=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)types[a]++;});
+    const mx=Math.max(...types),idx=types.indexOf(mx);
+    const res=[
+      {emoji:'✍️',name:'ლინგვისტური',desc:'სიტყვა შენი ძალა. კნიგა, მოთხრობა, ლექსი — ეს ბუნებრივია. ენები სწრაფად გაქვს, სიტყვა ბევრ იტყვის.',traits:['ენობრივი','შემოქმედი','მჭვრეტელი'],bars:{ლინგვისტიკა:92,კრეატიულობა:85,ლოგიკა:70,სოციალობა:75},advice:'სიტყვის ძალა ფრთხილ გამოყენებას მოითხოვს — ერთი სიტყვა შეიძლება ყველაფერი შეცვალოს.'},
+      {emoji:'🔢',name:'ლოგიკურ-მათემატიკური',desc:'ნომრები, სისტემები, ლოგიკა — ეს ენა. ანალიტიკური, სტრატეგი, პრობლემების გამჭრიახი.',traits:['ანალიტიკოსი','სისტემური','ლოგიკოსი'],bars:{ლოგიკა:95,ანალიზი:90,სისტემა:88,კრეატიულობა:60},advice:'ემოციებიც სისტემა! — ისწავლე ემოციური ინტელექტი.'},
+      {emoji:'🎨',name:'ვიზუალურ-სივრცითი',desc:'ფერი, ფორმა, სივრცე — ეს ენა. შენ ხედავ სამყაროს ისე, სხვები ვერ ხედავენ.',traits:['ვიზუალური','კრეატიული','სივრცითი'],bars:{ვიზუალობა:95,კრეატიულობა:92,ინტუიცია:80,ანალიზი:55},advice:'ვიზუალური ნიჭი ბიზნეს-სამყაროში ოქრო! — ის ეძებს შენ.'},
+      {emoji:'🎵',name:'მუსიკალური',desc:'რიტმი, მელოდია, ჰარმონია — შენი ენა. ბგერები ემოციებს ატარებს, შენ კი ესმის.',traits:['მუსიკალური','ემოციური','სენსიტური'],bars:{მუსიკა:95,ემოცია:88,ჰარმონია:85,ანალიზი:55},advice:'მუსიკა ტვინის ყველა ნაწილს ერთდროულად ამუშავებს — გააგრძელე!'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'ინტელექტის ტიპი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 5 */
+{
+  id:5, icon:'🌊', title:'ემოციური ინტელექტი',
+  desc:'შეაფასე შენი EQ დონე',
+  badge:'EQ', questions:8,
+  qs:[
+    {t:'ვინმე გამაბრაზა. ვმოქმედებ:',opts:['ვამბობ პირდაპირ, ახლა','ვდავდები, ვიცდი','ვფიქრობ, სანამ ვილაპარაკო','ვცდილობ გავიგო, რატომ გამაბრაზა']},
+    {t:'ვინმეს ცუდად ეჩვენება — მივხვდები?',opts:['სახიდან, სხეულიდან მაშინვე','ლაპარაკიდან','ვკითხავ პირდაპირ','ზოგჯერ ვერ ვხვდები']},
+    {t:'ავი განწყობა:',opts:['ვიცი, რატომ ვარ ასე','ვმოქმედებ, შემდეგ ვახვდები','ვმალავ, ვიცის რომ ვარ','ვბრაზდები სხვაზე']},
+    {t:'მეგობარი ამბობს, ცუდად არის:',opts:['ვუსმენ ფრთხილად','ვაძლევ პრაქტიკულ რჩევას','ვვეანგარებ ჩემ მდგომარეობას','ვეთანხმები, ვიდამ ვიფიქრო']},
+    {t:'კამათი:',opts:['ვესმის ოპონენტის პოზიცია','ვამტკიცებ ჩემს სიმართლეს','ვცდილობ კომპრომისს','ვიღებ time-out']},
+    {t:'ბედნიერი ადამიანი ვარ?',opts:['ვიცი, რა ჩემი ბედნიერება','ვეძებ ბედნიერებას გარეთ','ბედნიერება = სტაბილურობა','ვარ, სანამ კარგია']},
+    {t:'სოციალურ სიტუაციაში:',opts:['ვადაპტირდები ყველა ადამიანზე','ვარ ის, ვინც ვარ','ვერჩევი სიტუაციას','ვცდილობ ყველა კმაყოფილი იყოს']},
+    {t:'შეცდომა:',opts:['ვიღებ, ვსწავლობ','ვბრაზდები ჩემთვის','ვიმართლებ','ვივიწყებ ჩქარა']},
+  ],
+  calc:(ans)=>{
+    let score=0;
+    const goodAnswers=[3,0,0,0,0,0,0,1];
+    ans.forEach((a,i)=>{if(a===goodAnswers[i])score+=2;else if(a>=0)score+=1;});
+    const max=ans.filter(a=>a>=0).length*2;
+    const pct=max>0?Math.round((score/max)*100):50;
+    let r;
+    if(pct>=80)r={emoji:'🌟',name:'მაღალი EQ',desc:'ემოციური ინტელექტი განვითარებული გაქვს. ადამიანებს ესმი, საკუთარ თავს ახსნი, კონფლიქტებს ოსტატურად ხსნი.',traits:['ემპათიური','თვითცნობიერი','სოციალური'],bars:{ემპათია:90,თვითცნობიერება:88,სოციალობა:85,სტრესგამძლეობა:80},advice:'მაღალი EQ-ის შენარჩუნება მოითხოვს პრაქტიკას — გააგრძელე!'};
+    else if(pct>=55)r={emoji:'🌱',name:'განვითარებადი EQ',desc:'კარგი საფუძველი გაქვს. ზოგჯერ ემოციებს ვერ ამოიკითხავ, მაგრამ ცდილობ.',traits:['გამოძიება','სწავლება','ზრდა'],bars:{ემპათია:70,თვითცნობიერება:65,სოციალობა:70,სტრესგამძლეობა:60},advice:'ყოველდღე 5 წუთი ჩაწერე შენი ემოციები — ეს EQ-ს ყველაზე ადვილი განვითარებაა.'};
+    else r={emoji:'🔧',name:'EQ ვითარდება',desc:'ემოციები ხშირად გიმართავს, ვიდრე შენ მათ. ეს ნორმალურია — და სწავლება შესაძლებელია!',traits:['ავთენტური','ეძებდე','ზრდა'],bars:{ემპათია:50,თვითცნობიერება:48,სოციალობა:55,სტრესგამძლეობა:40},advice:'EQ ვარჯიშივით იზრდება. დაიწყე ემოციების ლექსიკონის შევსებით — 64 ემოცია!'};
+    r.bars['EQ ქულა']=pct;
+    return{emoji:r.emoji,type:'ემოციური ინტელექტი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 6 */
+{
+  id:6, icon:'🦁', title:'ლიდერობის სტილი',
+  desc:'გაარკვიე შენი ლიდერობის ტიპი',
+  badge:'ლიდერი', questions:8,
+  qs:[
+    {t:'ახალ პროექტზე:',opts:['მე ვამთავრებ, ყველა ჩართულია','ვანდომებ ყველაფერს ჩემ გუნდს','ვქმნი ხედვას, ვხელმძღვანელობ','ვანდომებ ექსპერტებს']},
+    {t:'კონფლიქტი გუნდში:',opts:['ვიღებ გადაწყვეტილებას','ვხელმძღვანელობ დიალოგს','ვბადებ კომპრომისის გზას','ვაძლევ დამოუკიდებლობას']},
+    {t:'გუნდის მოტივაცია:',opts:['ვადგენ მკაცრ მიზნებს','ვქმნი თანასწორ გარემოს','ვაძლევ ხედვას, ვშთაგვნებ','ვუდასტურებ ინდივიდუალობას']},
+    {t:'პრიორიტეტი:',opts:['შედეგი, ეფექტურობა','გუნდი, სანდოობა','ინოვაცია, ხედვა','გუნდის ზრდა, სწავლება']},
+    {t:'ამ სიტყვებიდან ყველაზე ახლოა:',opts:['ეფექტური','თანასწორი','ვიზიონერი','კოუჩი']},
+    {t:'შეცდომის შემდეგ:',opts:['ვვაფასებ და ვასწორებ','ვმართავ ჯგუფს','ვვსწავლობ, ვიმახსოვრებ','ვეხმარები გუნდს ვსწავლობდე']},
+    {t:'ორგანიზაციული სტრუქტურა:',opts:['იერარქია, წესები','გახსნილობა, მსახიობი','გამოუთქმელი ხედვა','სასწავლო ორგანიზაცია']},
+    {t:'ლიდერი =',opts:['ის, ვინც გადაწყვეტს','ის, ვინც ახდენს ინსპირაციას','ის, ვინც ქმნის ხედვას','ის, ვინც ზრდის სხვებს']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'⚡',name:'ავტოკრატი',desc:'ეფექტური, გადამწყვეტი. კრიზისში ოსტატი. გუნდი ენდობა შენ.',traits:['გადამწყვეტი','ეფექტური','სწრაფი'],bars:{ეფექტურობა:95,გადამწყვეტობა:90,კომუნიკაცია:60,ემპათია:50},advice:'ნდობა ორმხრივია — გუნდს გადაწყვეტილებებში ჩართვა ერთგულობას ზრდის.'},
+      {emoji:'🤝',name:'დემოკრატი',desc:'გუნდი მთავარია. ყველა ხმა ისმინება. სანდო, ღია, კოლეგიური.',traits:['კოლეგიური','ღია','სანდო'],bars:{გუნდი:92,სანდოობა:90,ეფექტურობა:70,სწრაფი:55},advice:'ზოგჯერ გადაწყვეტილება ელოდება — კონსენსუსი ყოველთვის ვერ გამოდის.'},
+      {emoji:'🔭',name:'ვიზიონერი',desc:'მომავალს ხედავ. ინოვაცია, ხედვა, ენთუზიაზმი — ეს შენი ხელმძღვანელობა.',traits:['ვიზიონერი','ინოვატორი','შთამაგონებელი'],bars:{ხედვა:95,ინოვაცია:90,ინსპირაცია:88,დეტალები:50},advice:'ხედვა გჭირდება ოპერაციულ პარტნიორთან — დეტალები ასევე მნიშვნელოვანია.'},
+      {emoji:'🌱',name:'კოუჩი',desc:'გუნდი ზრდის. ყოველი წევრი ასრულებს პოტენციალს. სიყვარული განვითარებაზე.',traits:['კოუჩი','ამყვანი','ემპათიური'],bars:{ზრდა:92,ემპათია:90,ნდობა:88,სწრაფი:55},advice:'ზოგჯერ პირდაპირი კრიტიკა ყველაზე კარგი საჩუქარია ზრდისთვის.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'ლიდერობის სტილი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 7 */
+{
+  id:7, icon:'🌙', title:'შინაგანი ბავშვი',
+  desc:'რა ტიპის "შინაგანი ბავშვი" მთავარობს?',
+  badge:'ფსიქო', questions:8,
+  qs:[
+    {t:'ბავშვობაში:',opts:['მეგობრები ბევრი მყავდა','მარტო ვყოფილვარ ხშირად','ვარ ლიდერი ბავშვებში','ვინ ვიყავ — ვიცი']},
+    {t:'ახლა — თუ გეუბნებიან "არა":',opts:['ვნაწყენდები','ვიბრძვი, ვახვდები','ვეცვლები','ვიბრძვი, ბოლომდე']},
+    {t:'შვება:',opts:['სიცილი, ხალხი','სიმარტოვე, ჩვეულება','ახალი სიურპრიზი','შემოქმედება']},
+    {t:'ყველაზე ძლიერი შიში:',opts:['დავკარგო ვინმე','ვიყო სხვების ტვირთი','ვიყო კონტროლს გარეთ','არ ვიყო საკმარისი']},
+    {t:'სიყვარული:',opts:['გამოვხატავ ადვილად','ველოდები სხვას პირველ ნაბიჯს','ვსწავლობ ნდობა','ვუყვარვარ ღირსეულად']},
+    {t:'გავბრაზდები, თუ:',opts:['მომელაპარაკა ამის შემდეგ','ვიყავი ან ვიქმნები','ყველა ამოიწურება','ნორმა ირღვევა']},
+    {t:'ჩემი ბავშვობა:',opts:['ბედნიერი, სიყვარულით','მარტოდ, მდუმარე','ქაოსი, ადაპტაცია','ზედმეტი ვალდებულება']},
+    {t:'ახლა — ბავშვი ჩემში:',opts:['ხშირად ამოდის','ვახუჩებ','ვხვდები ხოლმე','ვეთამაშები']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'🎉',name:'სოციალური ბავშვი',desc:'სიყვარული, სიცილი, ხალხი — ეს შენი ენერგია. ბავშვი ჩემში სიხარულს ეძებს.',traits:['სოციალური','ენთუზიასტი','სიხარული'],bars:{სიხარული:90,სოციალობა:88,სიყვარული:85,სტაბილურობა:60},advice:'საკუთარ თავსაც ეს სიყვარული უჩვენე!'},
+      {emoji:'🌿',name:'ჩუმი ბავშვი',desc:'სიმარტოვე სიძლიერეა. ღრმა, ფიქრიანი, თვითდამოუკიდებელი.',traits:['ინტროვერტი','ღრმა','ანალიტიკოსი'],bars:{ანალიზი:88,სიმარტოვე:90,სიღრმე:85,გახსნილობა:50},advice:'ზოგჯერ ნდობა სხვებისთვის — ეს ძლიერება, სისუსტე კი.'},
+      {emoji:'🌪️',name:'ადაპტური ბავშვი',desc:'ქაოსში გაიზარდე, ძლიერი გამოხვე. ადაპტაცია ზედბუნებრივ დონეზე.',traits:['ადაპტური','გამძლე','სწრაფი'],bars:{ადაპტაცია:92,გამძლეობა:90,სტრატეგია:80,სტაბილურობა:55},advice:'ახლა — სტაბილობა ეძებ? — ეს მიღწევადია!'},
+      {emoji:'📚',name:'პასუხისმგებელი ბავშვი',desc:'ბევრი ვალდებულება ადრიდანვე. სერიოზული, ნდობის ღირსი.',traits:['პასუხისმგებელი','სანდო','ზრდასრული'],bars:{პასუხისმგებლობა:95,სანდოობა:90,სერიოზულობა:88,სიხარული:55},advice:'ბავშვობა დაბრუნება შეიძლება — თამაშის ნება მისცე საკუთარ თავს!'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'შინაგანი ბავშვი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 8 */
+{
+  id:8, icon:'💼', title:'სამუშაო სტილი',
+  desc:'როგორ მოქმედებ პრეფესიულ გარემოში',
+  badge:'კარიერა', questions:8,
+  qs:[
+    {t:'პროექტს ვიწყებ:',opts:['დაუყოვნებლივ, ენთუზიაზმით','ვგეგმავ, შემდეგ ვიწყებ','ვაკვირდები, ვანალიზებ','ვითხოვ დეტალებს']},
+    {t:'გუნდური სამუშაო:',opts:['ვარ ლიდერი, ვმართავ','ვარ ყველაზე კარგი გამსრულებელი','ვარ იდეების გენერატორი','ვარ "გუნდის ბალანსი"']},
+    {t:'ვადა:',opts:['ყოველთვის ვიცდი ბოლო წუთს','ყოველთვის ვამთავრებ ვადამდე','ვადა = მოტივაცია','ვამთავრებ ადრე, ვამოწმებ']},
+    {t:'Feedback:',opts:['ვუყვარს, ვეძებ','ვიბრძვი, ვმართლდება','ვიღებ ობიექტურად','ვანალიზებ, ვსწავლობ']},
+    {t:'ყველაზე პროდუქტიულად ვარ:',opts:['გამოწვევის წინ','კომფორტულ გარემოში','ახალ, ინტერეს. პრობლემაზე','სტრუქტ. გარემოში']},
+    {t:'კოლეგა ცუდად ასრულებს:',opts:['ვეუბნები, ვახვდები','ვიღებ მის ნაწილს','ვეხმარები, ვასწავლი','ვაცნობებ ხელმძღვანელს']},
+    {t:'იდეალური სამუშაო გარემო:',opts:['Open space, ხალხი','ჩემი კაბინეტი, მარტო','კრეატ. სტუდია','სტრუქტ. ოფისი']},
+    {t:'კარიერის წარმატება =',opts:['ძალაუფლება, გავლენა','სტაბილური, კარგი ანაზღაურება','შემოქმედება, ინოვაცია','ადამიანებზე გავლენა']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'🚀',name:'მამოძრავებელი',desc:'ენერგია, ამბიცია, ლიდერობა. სამუშაო ადგილი ჩემი სამეფო. სწრაფი, ეფექტური.',traits:['ამბიციური','ლიდერი','ენერგიული'],bars:{ამბიცია:92,ეფექტურობა:88,ლიდერობა:85,სტაბილურობა:60},advice:'Burnout-ის ნიშნებს ყურადღება — ყველაზე კარგი ლიდერი ისვენებს.'},
+      {emoji:'🎯',name:'გამსრულებელი',desc:'სანდო, ზუსტი, კარგი. ვადა არ ირღვევა. გუნდი ეყრდნობა შენ.',traits:['სანდო','ზუსტი','სტაბილური'],bars:{სანდოობა:95,სტაბილურობა:90,ზუსტობა:88,კრეატიულობა:55},advice:'ახალი გამოწვევები ზიდავ? — ზოგჯერ comfort zone-ს გარეთ ბევრი ელოდება.'},
+      {emoji:'💡',name:'ინოვატორი',desc:'ახალი იდეები, ახალი გზები. სამყარო ხედავ ისე, სხვები ვერ ხედავენ.',traits:['ინოვატორი','კრეატიული','ვიზიონერი'],bars:{ინოვაცია:95,კრეატიულობა:92,ხედვა:88,სტაბილურობა:50},advice:'ინოვაციას პარტნიორი სჭირდება, ვინც ოპერაციულ ნაწილს გაუხეს.'},
+      {emoji:'🌐',name:'კოლაბორატორი',desc:'გუნდი ყველაფერია. ხალხი, ნდობა, ურთიერთობა — ეს სამსახური.',traits:['გუნდური','ემპათიური','კომუნიკაბელური'],bars:{გუნდი:92,კომუნიკაცია:90,ემპათია:88,ინდივ.ძალა:60},advice:'საკუთარ ძლიერ მხარეებზეც ყურადღება — გუნდის გარდა, შენ ასევე მნიშვნელოვანი.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'სამუშაო სტილი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 9 */
+{
+  id:9, icon:'🎭', title:'ხასიათის ჩრდილი',
+  desc:'გაარკვიე შენი ფსიქოლოგიური ჩრდილი',
+  badge:'ჩრდილი', questions:8,
+  qs:[
+    {t:'ყველაზე მეტად გამაღიზიანებს სხვებში:',opts:['ეგოიზმი, ამპარტავნობა','სისუსტე, ვინც ვერ ბრძოლობს','კონტროლი, კანონი, სიხისტე','არ-ორიგინალობა, ყველაფრის ბაძვა']},
+    {t:'ჩემი ცუდი დღე:',opts:['ვბრაზდები, ვლანძღავ','ვიმჩნევ, ვიყო მარტო','ვანტრი ყველა','ვვარდები "მარტოდ" რეჟიმში']},
+    {t:'ვაკეთებ, სხვებს ვუჩვენებ:',opts:['ვყავს ყველაფერი, ვარ კმაყოფილი','ვარ ძლიერი, ნადგურდება','ვარ ყოველთვის სერიოზული','ვარ ორიგინალი']},
+    {t:'ფარული სურვილი:',opts:['ვიყო ყველაზე ყურადღებაგადახვეული','ვიყო დაცული, ვეწყინო','ვიყო ხელახლა ბავშვი','ვიყო ვინმე სხვა, ვინ ვარ']},
+    {t:'ღამის ოცნება:',opts:['ვარ ყოველი ყურადღება','ვეომი, ვიმარჯვებ','ვტყდება ყველა კანონი','ვხდები სხვა ადამიანი']},
+    {t:'ვაკეთებ კარგ საქმეს:',opts:['სხვები ამ ხედავდეს','მხოლოდ ჩემი ღირებულება','ეს "სჭირდება"','ვიყო ნამდვილი']},
+    {t:'ყველაზე ძლიერი შინაგანი ხმა:',opts:['ვარ ბევრი ამ მოითხოვ','ვარ სუსტი','ვარ ცოტა ვალდებული','ვარ ვინ ნამდვილად']},
+    {t:'სხვები ჩემს შესახებ:',opts:['ვარ ეგოისტი — ვიცი','ვარ ცივი — ვიცი','ვარ ხისტი — ვიცი','ვარ "სტრანჯი" — ვიცი']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'👁️',name:'ნარცისული ჩრდილი',desc:'ყურადღება, ქება, განსაკუთრებულობა — ძლიერი სურვილი. ეს ფარულ ჩრდილს ამჟღავნებს.',traits:['ამბიციური','ყურადღება','განსაკუთრებული'],bars:{ყურადღება:85,ამბიცია:80,გამოხატვა:88,ემპათია:50},advice:'ჩრდილი ენერგიაა — გარდაქმინე ნამდვილ ქარიზმად.'},
+      {emoji:'🐺',name:'გადარჩენის ჩრდილი',desc:'ძლიერება, ბრძოლა, გადარჩენა — ღრმა ჩრდილი. ბევრი გამძლეობა ყოფილა.',traits:['გამძლე','ბრძოლა','გადარჩენა'],bars:{გამძლეობა:92,ძალა:88,ბრძოლა:85,ნდობა:50},advice:'სიძლიერე სისუსტეს ნებართვა კი არ ართმევს — ორივე ადამიანია.'},
+      {emoji:'🔗',name:'კონტროლის ჩრდილი',desc:'წესები, კანონი, კონტროლი — ეს ჩრდილია. სიღრმეში — თავისუფლების ძიება.',traits:['კონტროლი','სტრუქტ.','სტაბ.'],bars:{კონტ.:90,სტ.:88,სტაბ.:85,სპონტ.:40},advice:'ერთი გამოუდარი, სპონტანური დღე — ეს ყველაზე კარგი ექსპერიმენტია.'},
+      {emoji:'🦋',name:'ავთენტურობის ჩრდილი',desc:'ნამდვილი "მე" ეძებს გამოსვლას. ავთენტური, განსაკუთრებული.',traits:['ავთენტური','ინდივ.','original'],bars:{ავთენტ.:92,ინდივ.:90,კრეატ.:88,სოციალ.:55},advice:'ავთენტური ცხოვრება მოითხოვს გამბედაობას — ნდობა საკუთარ "მე"-ს.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'ჩრდილის ტიპი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 10 */
+{
+  id:10, icon:'🔮', title:'ინტუიციის დონე',
+  desc:'გაზომე შენი ინტუიციის სიძლიერე',
+  badge:'ინტუიცია', questions:8,
+  qs:[
+    {t:'ადამიანს პირველად ხვდები:',opts:['მაშინვე ვხვდები სუბტექსტს','ვაკვირდები, ვახდენ ანალიზს','ვცდილობ კარგი შთაბეჭდილება','ვიჯერებ გამოხატვას']},
+    {t:'ტელეფონი დარეკა — ვინ არის?',opts:['ხშირად ვიცი ადრე ვსაყბვი','ვიხვდები, ვის მოვლოდებ','ვხედავ ნომერს','ვხსნი']},
+    {t:'სიზმარი:',opts:['ინფორმაციულია, ვხვდები','ვივიწყებ ჩქარა','ვიხსენებ, ვაანალიზებ','ვარ მარტივი, ვივიწყებ']},
+    {t:'გადაწყვეტილება:',opts:['ვდებ გუნდური განცდებით','ვდებ ლოგიკური ანალიზით','ვაერთებ ორივეს','ვდებ ლოდინის შემდეგ']},
+    {t:'"ცუდი განცდა" სიტუაციასთან:',opts:['ვდებ ნდობა, ვტოვებ','ვახდენ ანალიზს, ვგამოვიკვლევ','ვიცდი, ვნახოთ','ვარ ცრუ-განცდა ხშირი']},
+    {t:'სიტყვა "ინტუიცია" ასოციაცია:',opts:['ჩემი ყველაზე ძლიერი ინსტრ.','არარსებობს, ლოგიკაა','სასარგებლო, მაგრამ არ ვენდობ','ვარ ამ შესახებ ცოტა']},
+    {t:'ადამიანი ლაპარაკობს, ვხვდები:',opts:['მათ სთქვაზე მეტს','მხოლოდ სიტყვებს','სიტყვა+ემოც.','განწყობის ცვლილებებს']},
+    {t:'ახალ ადგილს ხვდები:',opts:['ენერგია მაშინვე ვგრძნობ','ვაკვირდები ვიზუალურად','კომფ/დისკომფ. ვგრძნობ','ლოგიკური შეფასება']},
+  ],
+  calc:(ans)=>{
+    let score=0;
+    ans.forEach(a=>{if(a===0)score+=3;else if(a===2)score+=2;else if(a>=0)score+=1;});
+    const pct=Math.round((score/(ans.filter(a=>a>=0).length*3))*100);
+    let r;
+    if(pct>=75)r={emoji:'🌟',name:'ძლიერი ინტუიცია',desc:'ინტუიცია განვითარებული გაქვს. ადამიანებს, სიტუაციებს, ენერგიებს წინ ხვდები. ეს ნიჭია.',traits:['ინტუიტური','ემპათიური','გამჭრიახი'],bars:{ინტუიცია:92,ემპათია:88,სოციალ.:85,ანალიზი:65},advice:'ინტუიციას ლოგიკა ამყარებს — ორივე ერთად ძლიერია.'};
+    else if(pct>=50)r={emoji:'🌙',name:'განვით. ინტუიცია',desc:'ინტუიცია ვითარდება. ზოგჯერ ხვდები, ზოგჯერ კი ლოგიკა ჯობია.',traits:['სწავლება','ბალანსი','ზრდა'],bars:{ინტუიცია:65,ლოგიკა:70,ემპათია:68,ანალიზი:70},advice:'ყოველ დღე ერთი: "ამ სიტუაციაში ჩემი "გუნდი" რას ამბობს?" — წერე.'};
+    else r={emoji:'🔬',name:'ანალიტიკური',desc:'ლოგიკა ყველაფერია. ინტუიცია ნაკლებია — ეს სისუსტე კი არ არის, სხვა ძალაა.',traits:['ანალიტიკოსი','ლოგიკოსი','ობიექტური'],bars:{ლოგიკა:90,ანალიზი:88,ობიექტ.:85,ინტუიცია:40},advice:'სცადე ინტუიციის ვარჯიში: ავტომატური პასუხი, ანალიზამდე.'};
+    r.bars['ქულა']=pct;
+    return{emoji:r.emoji,type:'ინტუიციის დონე',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 11 */
+{
+  id:11, icon:'🌸', title:'ზრუნვის სტილი',
+  desc:'როგორ ზრუნავ სხვებზე — და საკუთარ თავზე?',
+  badge:'ზრუნვა', questions:8,
+  qs:[
+    {t:'მეგობარი პრობლემაშია:',opts:['ვეხმარები, ყველაფერს ვაკეთებ','ვისმენ, ვხელმძღვანელობ','ვვეანგარებ, ვაძლევ სივრცეს','ვრჩებ — ვინ სთხოვა']},
+    {t:'საკუთარ საჭიროებებზე:',opts:['ვდებ სხვებს პრიორიტეტი','ვახამებ ჩემ და სხვის','ვახდებ, ვთხოვ დახმარებას','ვარ თვითმარსახელი']},
+    {t:'ვინმე ცხოვრებიდან მიდის:',opts:['ვდებ სევდა, ვდებ ბრაზს','ვაანალიზებ, ვიყო','ვინახავ ემოციებს','ვდებ მარტო']},
+    {t:'ვინმეს სჭირდება, მე ვარ გადაღლილი:',opts:['მაინც ვეხმარები','ვამბობ: "ახლა ვერ შემიძლია"','ვეხმარები, თუმცა ვტყდები','ვარ ეგ ვერ მოვლო']},
+    {t:'ზრუნვა = ?',opts:['საკუთარი სიამოვნება','ურთიერთობა','ვალდებულება','ჩვეულება']},
+    {t:'ავ ადამიანთან:',opts:['ვინახავ კონტაქტს, ვვინახავ','ვამყარებ ზღვარს','ვვეანგარებ, ვიყო','ვარ "არ-ჩემი-საქმე"']},
+    {t:'ზრუნვა საკუთარ თავზე:',opts:['ვხვდები ყოველ დღეს','ვვდებ ასევე','ვვდებ ბოლო ადგილზე','ვვდებ ის ვინ მე']},
+    {t:'ყველაზე ძნელია:',opts:['ვთქვა "მჭირდება"','ვუბნო "არა"','ვვდებ საკუთარ თავს ნება','ვვდებ ზღვარი']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'💝',name:'ალტრუისტი',desc:'სხვებს ყოველთვის მეტ ყურადღებას ანიჭებ. გული დიდია — მაგრამ საკუთარ ბოსს არ უნდა დავიწყო.',traits:['ალტრუისტი','სიყვარული','სხვებზე'],bars:{სხვები:92,სიყვარული:90,ზრუნვა:88,საკ.თავი:45},advice:'სამფრენო ბრძანება: "ჯერ ჩვენ, შემდეგ სხვებს". შენ ასევე ამ სიაში ხარ!'},
+      {emoji:'⚖️',name:'ბალანსისტი',desc:'ჯანსაღი ბალანსი. ვიცი ჩემი ზღვარი, ვიცი სხვების საჭიროება. ეს ჭეშმარიტი ზრუნვაა.',traits:['ბალანსი','ჯანსაღი','ზღვარი'],bars:{ბალანსი:90,ზღვარი:88,სიყვარული:85,საკ.თავი:82},advice:'ეს ოქრო! — შეინარჩუნე ეს ბალანსი.'},
+      {emoji:'🌊',name:'ემოციური',desc:'ემოციებით ზრუნავ. ემპათია, სიღრმე, გრძნობა — ეს ენა.',traits:['ემოციური','ემპათიური','სიღრმე'],bars:{ემოცია:90,ემპათია:88,სიღრმე:85,ლოგიკა:55},advice:'ემოციური ზრუნვა ენერგიას ხარჯავს — დასვენება ასევე ზრუნვაა.'},
+      {emoji:'🏠',name:'ნეიტრალური',desc:'ზრუნვა ლოგიკური, ვალდებულება. ეს ასევე სახეობა — არ არის ემოციური, მაგრამ სანდოა.',traits:['სანდო','ლოგიკური','სტ.'],bars:{სანდოობა:88,ვალდ.:85,ლოგიკა:82,ემოცია:50},advice:'ზოგჯერ ემოციური გამოხატვა სხვებისთვის ძალიან ბევრს ნიშნავს.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'ზრუნვის სტილი',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 12 */
+{
+  id:12, icon:'🔋', title:'ენერგიის წყარო',
+  desc:'საიდან ავსებ ენერგიას?',
+  badge:'ენერგია', questions:8,
+  qs:[
+    {t:'მძიმე კვირის შემდეგ ვავსებ ენერგიას:',opts:['ბევრ ადამიანთან, ვმხიარულებ','მარტო, ჩვეულება, სიჩუმე','ბუნებაში, ახალ ადგილას','შემოქმედება, ხელობა, ხელოვნება']},
+    {t:'ყველაზე კარგი გარემო:',opts:['ხმაური, ხალხი, ენერგია','სიჩუმე, ჩემი სივრცე','ბუნება, ძრაობა','სტუდია, ატელიე']},
+    {t:'ენერგია ეცემა, როდესაც:',opts:['ბევრ ხანს მარტო ვარ','ბევრ ხანს ხალხში ვარ','ბუნების გარეშე ვარ','კრეატ. გარეშე ვარ']},
+    {t:'იდეალური გამოსასვლელი:',opts:['ბოლო კრება, ვეცლები','ლაშქრობა მარტო','ბუნებაში ლაშქრობა','ახალი შემოქმედება']},
+    {t:'ყოველდღიური რიტუალი:',opts:['ყავა + ადამიანი','ყავა + მარტო','გარეთ სიარული','ჩვეულება + შემოქმ.']},
+    {t:'ვმოგზაურობ:',opts:['ჯგუფში, ახალი ხალხი','ჯგუფში + პარტ.','ბუნებაში, სოლო','კულტ. ადგ., ადგ. ხელ.']},
+    {t:'სხეული მეუბნება დასვენება, როდესაც:',opts:['ისე მეხოტება სოც.','ისე ვარ ექსტ. სტ.','ისე ვარ შიდა სივ.','ისე ვარ ინდ. სტ.']},
+    {t:'ჩემი "ამოსუნთქვა":',opts:['ლაპარაკი, ვეყვება','სიჩუმე, ჩაიი','ბოსოფი, ბუნება','კრეატ. ნაწარმ.']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'🎉',name:'სოციალური ენ.',desc:'ადამიანები ენერგიაა! ხალხი, სიცილი, კომუნიკაცია — ეს ბატარეა.',traits:['სოციალური','ექსტ.','ენ.'],bars:{სოც.:92,ხალხი:90,ენ.:88,სიჩუმე:45},advice:'ზოგჯერ მარტო დრო ასევე ენ. — ბალანსი!'},
+      {emoji:'🕯️',name:'სიჩუმის ენ.',desc:'სიჩუმე, სიმარტოვე — ეს ფასეული. ინტ., ღრმა, დამოუკ.',traits:['ინტ.','სიჩ.','დამ.'],bars:{სიჩ.:90,დამ.:88,ანალ.:85,სოც.:45},advice:'ბალანსი სოც. კონტ. — ადამ. გჭ. ასევე.'},
+      {emoji:'🌿',name:'ბუნების ენ.',desc:'ბუნება, მიწა, ჰაერი — ეს სული. ბუნ. გარ. ვეკლ., ბუნ. გვ. ვივ.',traits:['ბუნ.','ორ.','ფ.'],bars:{ბუნ.:92,ორ.:88,სხ.:85,ქ.:60},advice:'ბუნ. ყოვ. ხ. ხ. 20 წ. — ეს ყველ. კარ. ინვ.'},
+      {emoji:'🎨',name:'კრეა. ენ.',desc:'შემ., ხელ., ხ. — ეს სული. ვქმ., ვდ., ვიცხ.',traits:['კრ.','შ.','ორ.'],bars:{კრ.:92,შ.:90,ორ.:88,სოც.:55},advice:'კრ. კ. მ. ყ. — ვქ. ბ. ყ.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'ენ. წ.',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 13 */
+{
+  id:13, icon:'🎭', title:'შეყვარებული ტიპი',
+  desc:'როგორ ეყვარება — ოჯახი, მეგობარი, პარტნიორი',
+  badge:'ვარსkvlavi', questions:9,
+  qs:[
+    {t:'ვეყვარები:',opts:['მაშინვე, პირველ შეხედვაზე','ნელ-ნელა, სანდო ადამ. ვხდებ','ვეძებ — ვხვდები ბევრ ადამ.','ვარ გ. ყ. — ვინ გამოიჩ.']},
+    {t:'ყვ. ურთ. ეყვ.:',opts:['სიხ., ე., ს.','სიღ., ნ., ს.','კ., ა., ლ.','ა., ა., ბ.']},
+    {t:'ეყვ. ად. ღ.:',opts:['ყ. ვ. ვ. ვ.','ვ. ვ. ვ. ვ.','ვ. ვ. ვ. ვ.','ვ. ვ. ვ. ვ.']},
+    {t:'ეყვ. ად. ბ.:',opts:['მ. ვ.','ვ.','ვ.','ვ.']},
+    {t:'სიყ. ნ.:',opts:['ა.','ი.','ბ.','გ.']},
+    {t:'ს. ა.:',opts:['ე.','ნ.','ი.','ლ.']},
+    {t:'ყ. ძ.:',opts:['ი.','ს.','ა.','ბ.']},
+    {t:'ს. ბ.:',opts:['ს.','ნ.','ს.','ა.']},
+    {t:'ყ. შ.:',opts:['შ.','ა.','ლ.','პ.']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'💘',name:'სწრაფი სიყვ.',desc:'მაშინვე ვეყვ., ღ., ე. — ეს ტ. ს. ი. ე. ო. ა. ა.',traits:['ი.','ე.','ა.'],bars:{ი.:88,ე.:85,ა.:80,ს.:55},advice:'ს. ს. ს. — ი. ა. ა.'},
+      {emoji:'🌳',name:'ნელი ნდობა',desc:'ნ.-ნ. ეყ., ს. ვ. — ეს ს. ს. ყ.',traits:['ნ.','ს.','ბ.'],bars:{ს.:90,ს.:88,ბ.:85,ს.:55},advice:'ნ. გ. ი. — ზ. ი. ბ.'},
+      {emoji:'🌊',name:'ეძ. ეყვ.',desc:'ბ. ა. ე., ვ. ვ. — ეს ს. გ. ა.',traits:['ს.','კ.','ე.'],bars:{ს.:88,კ.:85,ე.:82,ს.:60},advice:'ს. ს. ი. — ყ. ა. ვ.'},
+      {emoji:'🌙',name:'ლოდ. ეყვ.',desc:'ვ. — ვ. ი. ა. ა.',traits:['ს.','ბ.','ი.'],bars:{ს.:88,ბ.:85,ი.:82,ს.:50},advice:'ი. ზ. — ს. ბ. ი.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'ეყვ. ტ.',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 14 */
+{
+  id:14, icon:'🛡️', title:'დაცვის მექანიზმი',
+  desc:'როგორ იცავ თავს ფსიქოლოგიურად',
+  badge:'ფსიქო', questions:8,
+  qs:[
+    {t:'ვინმემ გაგვარდა — რა მოხდება?',opts:['ვვიწყებ, ვდებ კარგ სახეს','ვბრაზდები, ვდებ სხვა ვინმეს','ვხვდები, სად გავიკვეთე','ვარ ყველაფ. ნ.']},
+    {t:'კრიტიკა:',opts:['ვიღებ, ვუყ., ვვ.','ვდებ სხვას — "მათი პრობ."','ვხვდები, ვსწ.','ვარ ნ.']},
+    {t:'ძლიერი ემოცია ვგრძ.:',opts:['ვმ., ვვ. გ. ვ.','ვბ., ვ. ს.','ვლ., ვ. ვ.','ვვ. ს., ვ. ვ.']},
+    {t:'მნ. ადამ. მიტოვებს:',opts:['ვ. — ვ. "ვ. ა."','ვბ. — "ვ. ა."','ვა., ვ. ვ. ვ.','ვ. ვ. — ვ.']},
+    {t:'ჩავ. ს. ვ.:',opts:['ვ. — ვ. ვ.','ვ. ს. — ვ.','ვ. — ვ.','ვ. ვ. ვ.']},
+    {t:'ს. ს. ვ.:',opts:['ვ. ვ.','ვ. ვ.','ვ. ვ.','ვ. ვ.']},
+    {t:'ა. ვ.:',opts:['ვ. ვ.','ვ. ვ.','ვ. ვ.','ვ. ვ.']},
+    {t:'ფ. ჯ. ვ.:',opts:['ვ. ვ.','ვ. ვ.','ვ. ვ.','ვ. ვ.']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'🎭',name:'დამალვა',desc:'ემოციებს ვმალავ, კარგ სახეს ვქვ. — ეს გ. ი. ა. ს.',traits:['ა.','ე.','გ.'],bars:{ე.:88,ა.:85,გ.:82,ო.:50},advice:'ე. ა. ი. — ვ. ს. ი.'},
+      {emoji:'🌪️',name:'პროექცია',desc:'ჩ. ე. ვ. სხ. — ეს პ. მ.',traits:['ბ.','პ.','ა.'],bars:{ბ.:88,პ.:85,ა.:80,ო.:50},advice:'ვ. ვ. ჩ. ვ. ს. — ეს ი.'},
+      {emoji:'🔬',name:'ინტელ.',desc:'ე. ვ. ა. — ეს კ. მ.',traits:['ა.','ლ.','ო.'],bars:{ა.:90,ლ.:88,ო.:85,ე.:50},advice:'ა. ა. ი. — ე. ი.'},
+      {emoji:'🧊',name:'გ.',desc:'ვ. ვ. ა. — ეს ა. მ.',traits:['ო.','ა.','ს.'],bars:{ო.:88,ა.:85,ს.:82,ე.:45},advice:'ა. ი. გ. — ც. ი.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'დ. მ.',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
+/* 15 */
+{
+  id:15, icon:'✨', title:'ცხოვრების ფილოსოფია',
+  desc:'გაარკვიე შენი ცხოვრებისეული ფილოსოფია',
+  badge:'ფილოსოფია', questions:10,
+  qs:[
+    {t:'ცხოვრება:',opts:['ბრძოლა, ვამარჯვებ','მოგზაურობა, ვკვლ.','ხელოვნება, ვქმ.','ური., ყვ. ადამ.']},
+    {t:'ბ.:',opts:['ს. = შ.','ს. = ს.','ს. = შ.','ს. = ს.']},
+    {t:'ს.:',opts:['კ., ბ.','შ., ა.','ყ., ს.','ი., ა.']},
+    {t:'წ.:',opts:['მ., ვ.','ს., ვ.','ო., ვ.','ა., ვ.']},
+    {t:'შ.:',opts:['ვ. ვ.','ვ. ვ.','ვ. ვ.','ვ. ვ.']},
+    {t:'ი.:',opts:['ა. ვ.','ს. ვ.','ი. ვ.','ს. ვ.']},
+    {t:'ა.:',opts:['ვ. ვ.','ვ. ვ.','ვ. ვ.','ვ. ვ.']},
+    {t:'ბ.:',opts:['ა. ვ.','ვ. ვ.','ი. ვ.','ს. ვ.']},
+    {t:'ს.:',opts:['ვ. ვ.','ვ. ვ.','ვ. ვ.','ვ. ვ.']},
+    {t:'ც.:',opts:['ვ. ვ.','ვ. ვ.','ვ. ვ.','ვ. ვ.']},
+  ],
+  calc:(ans)=>{
+    const t=[0,0,0,0];
+    ans.forEach(a=>{if(a>=0&&a<4)t[a]++;});
+    const mx=Math.max(...t),idx=t.indexOf(mx);
+    const res=[
+      {emoji:'⚔️',name:'სტოიკური',desc:'ბრძოლა, გამძ., ძლ. — ეს ფ. ც. შ. ვ. ა. გ. ყ.',traits:['გ.','ძ.','ბ.'],bars:{გ.:92,ძ.:90,ბ.:88,ო.:60},advice:'ბ. ი. — ო. ა. ი.'},
+      {emoji:'🗺️',name:'ეგზ.',desc:'ც. ა. შ. — ახ. ი. ა. ც.',traits:['ც.','ა.','შ.'],bars:{ც.:90,ა.:88,შ.:85,ს.:60},advice:'შ. ა. ა. — ბ. ა. ი.'},
+      {emoji:'🎨',name:'ესთ.',desc:'ს., ხ., კ. — ი. ა. ც.',traits:['კ.','ე.','ო.'],bars:{კ.:92,ე.:90,ო.:88,ა.:55},advice:'ხ. ვ. ა. — ი. ა.'},
+      {emoji:'🌍',name:'გ.',desc:'ა., ი., ა. — ი. ა. ც.',traits:['ე.','ი.','ა.'],bars:{ე.:92,ი.:90,ა.:88,ი.:60},advice:'ს. ა. ყ. — ი.'},
+    ];
+    const r=res[idx];
+    return{emoji:r.emoji,type:'ფ. ტ.',title:r.name,desc:r.desc,traits:r.traits,bars:r.bars,advice:r.advice};
+  }
+},
+
 ];
 
-// ==================== აპლიკაციის მდგომარეობა ====================
-let currentTest = null;
-let currentQuestionIndex = 0;
-let userAnswers = [];
+/* ============================================================
+   STATE
+   ============================================================ */
+let activeTest=null,currentQ=0,answers=[];
 
-// ==================== DOM ელემენტები ====================
-const homeScreen = document.getElementById('homeScreen');
-const testScreen = document.getElementById('testScreen');
-const resultScreen = document.getElementById('resultScreen');
-const testsGrid = document.getElementById('testsGrid');
-const testTitleBar = document.getElementById('testTitleBar');
-const progressLabel = document.getElementById('progressLabel');
-const progressPct = document.getElementById('progressPct');
-const progressFill = document.getElementById('progressFill');
-const qNum = document.getElementById('qNum');
-const qText = document.getElementById('qText');
-const optionsList = document.getElementById('optionsList');
-const prevBtn = document.getElementById('prevBtn');
-const nextBtn = document.getElementById('nextBtn');
-const exitTestBtn = document.getElementById('exitTestBtn');
-const backBtn = document.getElementById('backBtn');
-const homeBtn = document.getElementById('homeBtn');
-const shareBtn = document.getElementById('shareBtn');
-
-// ==================== ფუნქციები ====================
-function buildHome() {
-  testsGrid.innerHTML = '';
-  const tagClasses = {
-    iq: 'tag-iq',
-    love: 'tag-love',
-    personality: 'tag-personality',
-    social: 'tag-social',
-    fun: 'tag-fun'
-  };
-  
-  TESTS.forEach((test, index) => {
-    const card = document.createElement('div');
-    card.className = 'test-card';
-    card.style.animationDelay = `${index * 0.05}s`;
-    card.innerHTML = `
-      <span class="test-card-emoji">${test.emoji}</span>
-      <div class="test-card-title">${test.title}</div>
-      <div class="test-card-desc">${test.desc}</div>
-      <div class="test-card-meta">
-        <span class="test-card-count">${test.questions.length} კითხვა</span>
-        <span class="test-card-tag ${tagClasses[test.tag] || 'tag-fun'}">${test.tagLabel}</span>
+/* ============================================================
+   RENDER
+   ============================================================ */
+function renderHome(){
+  document.getElementById('homeScreen').style.display='';
+  document.getElementById('testScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='none';
+  const grid=document.getElementById('testGrid');
+  grid.innerHTML='';
+  TESTS.forEach((t,i)=>{
+    const card=document.createElement('div');
+    card.className='test-card';
+    card.style.animationDelay=(i*0.05)+'s';
+    card.style.animation='fadeIn .4s ease '+(i*0.05)+'s both';
+    card.innerHTML=`
+      <span class="tc-icon">${t.icon}</span>
+      <div class="tc-title">${t.title}</div>
+      <div class="tc-desc">${t.desc}</div>
+      <div class="tc-meta">
+        <span class="tc-badge">${t.badge}</span>
+        <span class="tc-questions">${t.questions} კ.</span>
       </div>
     `;
-    card.onclick = () => startTest(test);
-    testsGrid.appendChild(card);
+    card.onclick=()=>startTest(t);
+    grid.appendChild(card);
   });
-  document.getElementById('headerSub').textContent = `${TESTS.length} ტესტი`;
 }
 
-function startTest(test) {
-  currentTest = test;
-  currentQuestionIndex = 0;
-  userAnswers = new Array(test.questions.length).fill(null);
-  
-  testTitleBar.innerHTML = `${test.emoji} ${test.title}`;
-  homeScreen.style.display = 'none';
-  resultScreen.style.display = 'none';
-  testScreen.style.display = 'block';
-  
+function startTest(test){
+  activeTest=test;
+  currentQ=0;
+  answers=new Array(test.qs.length).fill(-1);
+  document.getElementById('homeScreen').style.display='none';
+  document.getElementById('testScreen').style.display='';
+  document.getElementById('resultScreen').style.display='none';
+  document.getElementById('tsIcon').textContent=test.icon;
+  document.getElementById('tsTitle').textContent=test.title;
   renderQuestion();
 }
 
-function renderQuestion() {
-  const q = currentTest.questions[currentQuestionIndex];
-  const total = currentTest.questions.length;
-  const percent = Math.round((currentQuestionIndex / total) * 100);
-  
-  progressLabel.innerHTML = `კითხვა ${currentQuestionIndex + 1} / ${total}`;
-  progressPct.innerHTML = `${percent}%`;
-  progressFill.style.width = `${percent}%`;
-  qNum.innerHTML = `კითხვა ${String(currentQuestionIndex + 1).padStart(2, '0')}`;
-  qText.innerHTML = q.text;
-  
-  optionsList.innerHTML = '';
-  const letters = ['ა', 'ბ', 'გ', 'დ'];
-  q.options.forEach((opt, idx) => {
-    const btn = document.createElement('button');
-    btn.className = 'option-btn' + (userAnswers[currentQuestionIndex] === idx ? ' selected' : '');
-    btn.innerHTML = `<span class="option-icon">${letters[idx]}</span><span>${opt}</span>`;
-    btn.onclick = () => selectOption(idx);
-    optionsList.appendChild(btn);
+function renderQuestion(){
+  const q=activeTest.qs[currentQ];
+  const total=activeTest.qs.length;
+  const pct=Math.round((currentQ/total)*100);
+  document.getElementById('tsQNum').textContent=`კითხვა ${currentQ+1} / ${total}`;
+  document.getElementById('tsPct').textContent=pct+'%';
+  document.getElementById('tsBar').style.width=pct+'%';
+  document.getElementById('btnPrev').disabled=currentQ===0;
+  document.getElementById('btnNext').textContent=currentQ===total-1?'შედეგი ✨':'შემდეგი →';
+
+  const area=document.getElementById('questionArea');
+  area.innerHTML='';
+  const card=document.createElement('div');
+  card.className='question-card';
+  card.style.animation='fadeIn .3s ease';
+  card.innerHTML=`
+    <div class="q-number">კითხვა ${currentQ+1}</div>
+    <div class="q-text">${q.t}</div>
+    <div class="options-list" id="optList"></div>
+  `;
+  area.appendChild(card);
+
+  const list=document.getElementById('optList');
+  const letters=['ა','ბ','გ','დ','ე'];
+  q.opts.forEach((opt,i)=>{
+    const btn=document.createElement('button');
+    btn.className='opt-btn'+(answers[currentQ]===i?' selected':'');
+    btn.innerHTML=`<span class="opt-letter">${letters[i]||i+1}</span>${opt}`;
+    btn.onclick=()=>{
+      answers[currentQ]=i;
+      document.querySelectorAll('.opt-btn').forEach(b=>b.classList.remove('selected'));
+      btn.classList.add('selected');
+    };
+    list.appendChild(btn);
   });
-  
-  prevBtn.disabled = currentQuestionIndex === 0;
-  const isLast = currentQuestionIndex === total - 1;
-  nextBtn.innerHTML = isLast ? '✅ შედეგი' : 'შემდეგი →';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function selectOption(index) {
-  userAnswers[currentQuestionIndex] = index;
-  document.querySelectorAll('.option-btn').forEach((btn, i) => {
-    btn.classList.toggle('selected', i === index);
-  });
-}
-
-function nextQuestion() {
-  if (userAnswers[currentQuestionIndex] === null) {
-    const qCard = document.querySelector('.question-card');
-    qCard.classList.add('shake');
-    setTimeout(() => qCard.classList.remove('shake'), 500);
+function nextQ(){
+  if(answers[currentQ]<0){
+    document.querySelectorAll('.opt-btn').forEach(b=>{
+      b.style.animation='none';
+      b.style.borderColor='rgba(240,122,255,0.5)';
+      setTimeout(()=>{b.style.borderColor='';},800);
+    });
     return;
   }
-  
-  if (currentQuestionIndex < currentTest.questions.length - 1) {
-    currentQuestionIndex++;
-    renderQuestion();
+  if(currentQ<activeTest.qs.length-1){
+    currentQ++;renderQuestion();
   } else {
     showResult();
   }
 }
 
-function prevQuestion() {
-  if (currentQuestionIndex > 0) {
-    currentQuestionIndex--;
-    renderQuestion();
+function prevQ(){
+  if(currentQ>0){currentQ--;renderQuestion();}
+}
+
+function showResult(){
+  const result=activeTest.calc(answers);
+  document.getElementById('testScreen').style.display='none';
+  document.getElementById('resultScreen').style.display='';
+  document.getElementById('resEmoji').textContent=result.emoji;
+  document.getElementById('resType').textContent=result.type;
+  document.getElementById('resTitle').textContent=result.title;
+  document.getElementById('resDesc').textContent=result.desc;
+  const traitsEl=document.getElementById('resTraits');
+  traitsEl.innerHTML=(result.traits||[]).map(t=>`<span class="trait-chip">${t}</span>`).join('');
+  const barsEl=document.getElementById('resBars');
+  barsEl.innerHTML='';
+  if(result.bars){
+    Object.entries(result.bars).forEach(([label,val])=>{
+      const row=document.createElement('div');
+      row.className='rbar-row';
+      row.innerHTML=`
+        <div class="rbar-label">${label}</div>
+        <div class="rbar-track"><div class="rbar-fill" style="width:0%" data-target="${val}%"></div></div>
+        <div class="rbar-pct">${val}%</div>
+      `;
+      barsEl.appendChild(row);
+    });
+    setTimeout(()=>{
+      document.querySelectorAll('.rbar-fill').forEach(el=>{
+        el.style.width=el.dataset.target;
+      });
+    },300);
   }
+  document.getElementById('resAdviceText').textContent=result.advice||'';
+  window.scrollTo({top:0,behavior:'smooth'});
 }
 
-function showResult() {
-  const result = currentTest.calculateResult(userAnswers);
-  
-  document.getElementById('resEmoji').textContent = result.emoji || '🧠';
-  document.getElementById('resType').textContent = result.type || 'შედეგი';
-  document.getElementById('resScoreRow').innerHTML = `
-    <div class="score-pill"><strong>${Math.round(result.score || 0)}%</strong><span>ქულა</span></div>
-    <div class="score-pill"><strong>${userAnswers.filter(a => a !== null).length}/${currentTest.questions.length}</strong><span>პასუხი</span></div>
-  `;
-  document.getElementById('resDesc').textContent = result.desc || 'გილოცავ! ტესტი დასრულდა.';
-  
-  const traitsContainer = document.getElementById('resTraits');
-  traitsContainer.innerHTML = '';
-  (result.traits || []).forEach(trait => {
-    const chip = document.createElement('span');
-    chip.className = 'trait-chip';
-    chip.textContent = trait;
-    traitsContainer.appendChild(chip);
-  });
-  
-  const barsContainer = document.getElementById('scoreBars');
-  barsContainer.innerHTML = '';
-  const simpleBar = document.createElement('div');
-  simpleBar.className = 'score-bar-row';
-  simpleBar.innerHTML = `
-    <div class="score-bar-label"><span>შენი შედეგი</span><span>${Math.round(result.score || 0)}%</span></div>
-    <div class="score-bar-bg"><div class="score-bar-fill" style="width:${result.score || 0}%;background:var(--accent)"></div></div>
-  `;
-  barsContainer.appendChild(simpleBar);
-  
-  testScreen.style.display = 'none';
-  resultScreen.style.display = 'block';
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-  spawnConfetti();
-}
+function retakeTest(){startTest(activeTest);}
+function goHome(){renderHome();}
 
-function showHome() {
-  testScreen.style.display = 'none';
-  resultScreen.style.display = 'none';
-  homeScreen.style.display = 'block';
-  currentTest = null;
-  currentQuestionIndex = 0;
-  userAnswers = [];
-}
-
-function exitTest() {
-  if (userAnswers.some(a => a !== null)) {
-    if (confirm('ტესტი არ არის დასრულებული. გსურთ გამოსვლა? შედეგები დაიკარგება.')) {
-      showHome();
-    }
-  } else {
-    showHome();
+/* HEARTS */
+function spawnHearts(){
+  const hc=document.getElementById('hearts');
+  const emojis=['💜','🌸','💙','🌺','💗','🌷','💕','🌼','💖','✨'];
+  function make(){
+    const h=document.createElement('div');h.className='heart';
+    h.textContent=emojis[Math.floor(Math.random()*emojis.length)];
+    const left=Math.random()*100,drift=(Math.random()-0.5)*80,dur=8+Math.random()*10,size=1+Math.random()*1.2;
+    h.style.cssText=`left:${left}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;
+    hc.appendChild(h);setTimeout(()=>h.remove(),(dur+1)*1000);
   }
+  for(let i=0;i<8;i++)setTimeout(make,i*300);
+  setInterval(make,2500);
 }
 
-function goBack() {
-  if (testScreen.style.display !== 'none') {
-    exitTest();
-  } else if (resultScreen.style.display !== 'none') {
-    showHome();
-  }
-  // თუ მთავარ გვერდზე ვართ, არაფერი
-}
-
-function shareResult() {
-  const type = document.getElementById('resType').textContent;
-  const scoreSpan = document.getElementById('resScoreRow')?.querySelector('strong');
-  const score = scoreSpan ? scoreSpan.textContent : '?';
-  const text = `🧠 ფსიქოლოგიური ტესტი\n${currentTest?.title || ''}\nშედეგი: ${type}\nქულა: ${score}`;
-  
-  if (navigator.share) {
-    navigator.share({ title: 'ფსიქო ტესტი', text: text });
-  } else if (navigator.clipboard) {
-    navigator.clipboard.writeText(text).then(() => alert('✅ შედეგი დაკოპირებულია!'));
-  } else {
-    alert(text);
-  }
-}
-
-function spawnConfetti() {
-  const colors = ['#f07aff', '#a855f7', '#4ade80', '#fbbf24', '#60b8e8', '#ff5080'];
-  for (let i = 0; i < 30; i++) {
-    const piece = document.createElement('div');
-    piece.className = 'confetti-piece';
-    piece.style.cssText = `
-      left: ${Math.random() * 100}%;
-      top: -10px;
-      background: ${colors[i % colors.length]};
-      animation-delay: ${Math.random() * 0.5}s;
-      animation-duration: ${1 + Math.random() * 1.5}s;
-      width: ${6 + Math.random() * 8}px;
-      height: ${6 + Math.random() * 8}px;
-    `;
-    document.body.appendChild(piece);
-    setTimeout(() => piece.remove(), 2000);
-  }
-}
-
-// ==================== EVENT LISTENERS ====================
-prevBtn.onclick = prevQuestion;
-nextBtn.onclick = nextQuestion;
-exitTestBtn.onclick = exitTest;
-backBtn.onclick = goBack;
-homeBtn.onclick = showHome;
-shareBtn.onclick = shareResult;
-
-// ==================== ინიციალიზაცია ====================
-buildHome();
+renderHome();
+spawnHearts();
 </script>
 </body>
 </html>
