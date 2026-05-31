@@ -31,11 +31,10 @@ body{
   display:flex;
   flex-direction:column;
   align-items:center;
-  padding:20px 16px 40px;
+  padding:16px 12px 32px;
   overflow-x:hidden;
 }
 
-/* ── BG GLOW ── */
 body::before{
   content:'';
   position:fixed;
@@ -54,13 +53,13 @@ header{
   display:flex;
   align-items:center;
   justify-content:space-between;
-  margin-bottom:24px;
+  margin-bottom:16px;
   position:relative;
   z-index:1;
 }
 .logo{
   font-family:'Unbounded',sans-serif;
-  font-size:20px;
+  font-size:18px;
   font-weight:900;
   color:var(--text);
   letter-spacing:.5px;
@@ -69,18 +68,18 @@ header{
 .score-chip{
   display:flex;
   align-items:center;
-  gap:8px;
+  gap:6px;
   background:var(--panel);
   border:1px solid var(--border);
   border-radius:20px;
-  padding:7px 16px;
+  padding:6px 14px;
   font-family:'Unbounded',sans-serif;
-  font-size:12px;
+  font-size:11px;
   box-shadow:0 0 20px var(--glow);
 }
 .score-val{
   color:var(--gold);
-  font-size:16px;
+  font-size:15px;
   font-weight:900;
 }
 @keyframes scorePop{0%{transform:scale(1)}40%{transform:scale(1.5)}100%{transform:scale(1)}}
@@ -92,8 +91,8 @@ header{
   max-width:640px;
   background:var(--panel);
   border:1px solid var(--border);
-  border-radius:28px;
-  padding:32px 28px;
+  border-radius:24px;
+  padding:20px 16px;
   box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 60px rgba(168,85,247,.08);
   position:relative;
   z-index:1;
@@ -103,7 +102,7 @@ header{
 .gallows-wrap{
   display:flex;
   justify-content:center;
-  margin-bottom:24px;
+  margin-bottom:12px;
 }
 #gallowsSvg{
   filter:drop-shadow(0 0 8px var(--glow));
@@ -113,25 +112,24 @@ header{
 .word-row{
   display:flex;
   justify-content:center;
-  gap:8px;
+  gap:5px;
   flex-wrap:wrap;
-  margin-bottom:28px;
+  margin-bottom:16px;
 }
 .letter-box{
-  width:34px;
-  height:42px;
+  width:30px;
+  height:38px;
   border-bottom:3px solid var(--indigo2);
   display:flex;
   align-items:center;
   justify-content:center;
   font-family:'Unbounded',sans-serif;
-  font-size:18px;
+  font-size:15px;
   font-weight:700;
   color:var(--text);
-  position:relative;
   transition:all .25s;
 }
-.letter-box.space{border-bottom-color:transparent;width:20px;}
+.letter-box.space{border-bottom-color:transparent;width:14px;}
 @keyframes letterReveal{
   0%{transform:scale(0) rotateY(-90deg);opacity:0}
   60%{transform:scale(1.2) rotateY(10deg)}
@@ -146,13 +144,13 @@ header{
 /* ── HINT ── */
 .hint-text{
   text-align:center;
-  font-size:12px;
+  font-size:11px;
   color:var(--text3);
-  margin-bottom:20px;
+  margin-bottom:12px;
   background:rgba(120,30,200,0.12);
   border:1px solid var(--border);
-  border-radius:12px;
-  padding:8px 16px;
+  border-radius:10px;
+  padding:6px 14px;
   font-style:italic;
 }
 
@@ -161,45 +159,44 @@ header{
   display:flex;
   justify-content:center;
   align-items:center;
-  gap:6px;
+  gap:5px;
   flex-wrap:wrap;
-  margin-bottom:24px;
-  min-height:32px;
+  margin-bottom:10px;
+  min-height:26px;
 }
 .wrong-chip{
-  padding:4px 10px;
-  border-radius:10px;
+  padding:3px 8px;
+  border-radius:8px;
   background:rgba(255,85,85,0.15);
   border:1px solid rgba(255,85,85,0.35);
   color:var(--red);
   font-family:'Unbounded',sans-serif;
-  font-size:12px;
+  font-size:11px;
   font-weight:700;
 }
 .lives-text{
-  font-size:11px;
+  font-size:10px;
   color:var(--text3);
   font-family:'Unbounded',sans-serif;
   letter-spacing:.5px;
   text-align:center;
-  margin-bottom:16px;
+  margin-bottom:12px;
 }
-.lives-text span{color:var(--red);font-size:14px;}
+.lives-text span{color:var(--red);font-size:12px;}
 
 /* ── KEYBOARD ── */
 .keyboard{
   display:grid;
   grid-template-columns:repeat(7,1fr);
-  gap:6px;
+  gap:5px;
 }
 .key-btn{
   aspect-ratio:1;
-  border-radius:10px;
+  border-radius:8px;
   background:rgba(120,30,200,0.2);
   border:1px solid var(--border);
   color:var(--text);
   font-family:'Unbounded',sans-serif;
-  font-size:11px;
   font-weight:700;
   cursor:pointer;
   transition:all .15s;
@@ -209,6 +206,8 @@ header{
   user-select:none;
   position:relative;
   overflow:hidden;
+  /* font size handled responsively below */
+  font-size: clamp(8px, 2.2vw, 13px);
 }
 .key-btn::before{
   content:'';
@@ -245,51 +244,52 @@ header{
 .status-overlay{
   position:absolute;
   inset:0;
-  border-radius:28px;
-  background:rgba(13,11,26,0.92);
+  border-radius:24px;
+  background:rgba(13,11,26,0.93);
   backdrop-filter:blur(12px);
   display:none;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:16px;
+  gap:12px;
   z-index:10;
+  padding:20px;
 }
 .status-overlay.show{display:flex;animation:statusIn .4s cubic-bezier(.34,1.3,.64,1);}
-.status-icon{font-size:72px;filter:drop-shadow(0 0 20px var(--glow));}
+.status-icon{font-size:56px;filter:drop-shadow(0 0 20px var(--glow));}
 .status-title{
   font-family:'Unbounded',sans-serif;
-  font-size:24px;
+  font-size:20px;
   font-weight:900;
   color:var(--text);
   text-align:center;
 }
-.status-sub{font-size:14px;color:var(--text2);text-align:center;}
+.status-sub{font-size:13px;color:var(--text2);text-align:center;}
 .status-word{
   font-family:'Unbounded',sans-serif;
-  font-size:18px;
+  font-size:15px;
   color:var(--accent);
   background:rgba(168,85,247,0.12);
   border:1px solid var(--border);
-  border-radius:14px;
-  padding:10px 24px;
+  border-radius:12px;
+  padding:8px 20px;
 }
 .status-score-gain{
   font-family:'Unbounded',sans-serif;
-  font-size:28px;
+  font-size:24px;
   font-weight:900;
   color:var(--gold);
   text-shadow:0 0 20px rgba(255,208,64,.5);
 }
 .next-btn{
-  margin-top:8px;
-  padding:14px 44px;
+  margin-top:4px;
+  padding:12px 36px;
   border-radius:50px;
   background:linear-gradient(135deg,var(--indigo),var(--indigo2));
   border:none;
   color:#fff;
   font-family:'Unbounded',sans-serif;
-  font-size:13px;
+  font-size:12px;
   font-weight:700;
   cursor:pointer;
   letter-spacing:.5px;
@@ -307,23 +307,21 @@ header{
   color:var(--text3);
 }
 @keyframes spin{to{transform:rotate(360deg)}}
-.loader::before{
-  content:'🪢';
-  display:block;
+.loader-emoji{
+  display:inline-block;
   font-size:40px;
   margin-bottom:12px;
   animation:spin 2s linear infinite;
-  display:inline-block;
 }
 
 /* ── LEADERBOARD ── */
 .lb-wrap{
   width:100%;
   max-width:640px;
-  margin-top:20px;
+  margin-top:16px;
   background:var(--panel);
   border:1px solid var(--border);
-  border-radius:20px;
+  border-radius:18px;
   overflow:hidden;
   position:relative;
   z-index:1;
@@ -331,7 +329,7 @@ header{
 .lb-head{
   background:linear-gradient(135deg,rgba(120,30,200,.2),transparent);
   border-bottom:1px solid var(--border);
-  padding:12px 18px;
+  padding:10px 16px;
   font-family:'Unbounded',sans-serif;
   font-size:10px;
   letter-spacing:1.5px;
@@ -344,8 +342,8 @@ header{
 .lb-row{
   display:flex;
   align-items:center;
-  gap:12px;
-  padding:10px 18px;
+  gap:10px;
+  padding:9px 16px;
   border-bottom:1px solid rgba(160,80,255,0.1);
   transition:background .15s;
 }
@@ -353,19 +351,19 @@ header{
 .lb-row:hover{background:rgba(120,30,200,.08);}
 .lb-rank{
   font-family:'Unbounded',sans-serif;
-  font-size:14px;
+  font-size:13px;
   font-weight:700;
-  width:28px;
+  width:26px;
   text-align:center;
   flex-shrink:0;
 }
 .lb-rank.gold{color:#ffd040;}
 .lb-rank.silver{color:#c8c8c8;}
 .lb-rank.bronze{color:#c88040;}
-.lb-name{flex:1;font-size:13px;color:var(--text);}
+.lb-name{flex:1;font-size:12px;color:var(--text);}
 .lb-score{
   font-family:'Unbounded',sans-serif;
-  font-size:14px;
+  font-size:13px;
   font-weight:700;
   color:var(--accent);
 }
@@ -383,6 +381,23 @@ header{
   z-index:99999;
   animation:particleFly .8s ease-out forwards;
 }
+
+/* ── DESKTOP overrides ── */
+@media(min-width:480px){
+  body{padding:20px 16px 40px;}
+  .card{padding:28px 24px;}
+  .logo{font-size:20px;}
+  .letter-box{width:34px;height:42px;font-size:18px;}
+  .hint-text{font-size:12px;margin-bottom:16px;}
+  .lives-text{font-size:11px;margin-bottom:14px;}
+  .keyboard{gap:6px;}
+  .key-btn{border-radius:10px;font-size:clamp(10px,1.6vw,13px);}
+  .status-icon{font-size:72px;}
+  .status-title{font-size:24px;}
+  .status-word{font-size:18px;}
+  .status-score-gain{font-size:28px;}
+  .lb-wrap{margin-top:20px;border-radius:20px;}
+}
 </style>
 </head>
 <body>
@@ -393,45 +408,36 @@ header{
 </header>
 
 <div class="card" id="mainCard">
-  <div class="loader" id="loader">🪢<br>იტვირთება...</div>
+  <div class="loader" id="loader">
+    <span class="loader-emoji">🪢</span><br>იტვირთება...
+  </div>
 
   <div id="gameArea" style="display:none">
     <div class="gallows-wrap">
-      <svg id="gallowsSvg" width="180" height="200" viewBox="0 0 180 200">
-        <!-- Gallows structure -->
+      <svg id="gallowsSvg" width="160" height="180" viewBox="0 0 180 200">
         <line x1="20" y1="190" x2="160" y2="190" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/>
         <line x1="50" y1="190" x2="50" y2="20" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/>
         <line x1="50" y1="20" x2="110" y2="20" stroke="var(--border)" stroke-width="4" stroke-linecap="round"/>
         <line x1="110" y1="20" x2="110" y2="42" stroke="var(--border)" stroke-width="3" stroke-linecap="round"/>
-        <!-- Body parts (hidden by default) -->
-        <!-- Head -->
         <circle id="p-head" cx="110" cy="58" r="16" fill="none" stroke="var(--accent)" stroke-width="3" style="display:none"/>
-        <!-- Body -->
         <line id="p-body" x1="110" y1="74" x2="110" y2="130" stroke="var(--text2)" stroke-width="3" stroke-linecap="round" style="display:none"/>
-        <!-- Left arm -->
         <line id="p-larm" x1="110" y1="90" x2="82" y2="115" stroke="var(--text2)" stroke-width="3" stroke-linecap="round" style="display:none"/>
-        <!-- Right arm -->
         <line id="p-rarm" x1="110" y1="90" x2="138" y2="115" stroke="var(--text2)" stroke-width="3" stroke-linecap="round" style="display:none"/>
-        <!-- Left leg -->
         <line id="p-lleg" x1="110" y1="130" x2="84" y2="162" stroke="var(--text2)" stroke-width="3" stroke-linecap="round" style="display:none"/>
-        <!-- Right leg -->
         <line id="p-rleg" x1="110" y1="130" x2="136" y2="162" stroke="var(--text2)" stroke-width="3" stroke-linecap="round" style="display:none"/>
       </svg>
     </div>
 
     <div class="hint-text" id="hintText">მინიშნება: ...</div>
-
     <div class="word-row" id="wordRow"></div>
-
     <div class="lives-text">შეცდომები: <span id="wrongCount">0</span> / 6</div>
     <div class="wrong-row" id="wrongRow"></div>
-
     <div class="keyboard" id="keyboard"></div>
   </div>
 
   <!-- WIN overlay -->
   <div class="status-overlay" id="winOverlay">
-    <div class="status-icon" id="winIcon">🎉</div>
+    <div class="status-icon">🎉</div>
     <div class="status-title">გამარჯვება!</div>
     <div class="status-word" id="winWord"></div>
     <div class="status-score-gain">+5 ქულა!</div>
@@ -462,7 +468,6 @@ const sb = createClient(
   { auth: { persistSession: true, detectSessionInUrl: true, storage: window.localStorage } }
 );
 
-// ===================== 200 Georgian Words =====================
 const WORD_LIST = [
   {w:"სახლი",h:"ადამიანები ცხოვრობენ"},
   {w:"მთა",h:"ბუნების სიმაღლე"},
@@ -497,7 +502,6 @@ const WORD_LIST = [
   {w:"ბიბლიოთეკა",h:"წიგნების სახლი"},
   {w:"ჰოსპიტალი",h:"მკურნალობის ადგილი"},
   {w:"მაღაზია",h:"ყიდვის ადგილი"},
-  {w:"რეინდოგანი",h:"ჩრდ. ამერიკის ცხოველი"},
   {w:"კატა",h:"სახლის ტყუპი"},
   {w:"ძაღლი",h:"ადამიანის მეგობარი"},
   {w:"ცხენი",h:"ჩხრიალა ცხოველი"},
@@ -543,7 +547,6 @@ const WORD_LIST = [
   {w:"მანგო",h:"ტროპიკული ხილი"},
   {w:"ანანასი",h:"ეკლიანი ხილი"},
   {w:"მარწყვი",h:"ვარდისფერი კენკრა"},
-  {w:"ბლუბერი",h:"ლურჯი კენკრა"},
   {w:"სიმინდი",h:"ყვითელი მარცვალი"},
   {w:"კარტოფილი",h:"მიწის ქვეშ"},
   {w:"პომიდორი",h:"წითელი ბოსტნეული"},
@@ -552,10 +555,7 @@ const WORD_LIST = [
   {w:"ნიორი",h:"სუნიანი ბოსტნეული"},
   {w:"სტაფილო",h:"ნარინჯისფერი ფესვი"},
   {w:"კომბოსტო",h:"მრგვალი ბოსტნეული"},
-  {w:"კოდალა",h:"ხის ბინადარი ჩიტი"},
   {w:"ვარდი",h:"სიყვარულის სიმბოლო"},
-  {w:"ტიტა",h:"სათბობი"},
-  {w:"მთვარიანი",h:"ცაში ნათდება"},
   {w:"ქარიშხალი",h:"ძლიერი ამინდი"},
   {w:"გრიგალი",h:"ბუნების ძალა"},
   {w:"ელვა",h:"ცის ციმციმი"},
@@ -568,7 +568,6 @@ const WORD_LIST = [
   {w:"ქუთაისი",h:"მეორე ქალაქი"},
   {w:"გორი",h:"სტალინის ქალაქი"},
   {w:"ზუგდიდი",h:"სამეგრელოს ცენტრი"},
-  {w:"ბოლნისი",h:"ქვემო ქართლში"},
   {w:"სიგნაღი",h:"სიყვარულის ქალაქი"},
   {w:"ახალციხე",h:"სამხრეთ ქართლი"},
   {w:"ტელევიზია",h:"სახლის ეკრანი"},
@@ -604,8 +603,6 @@ const WORD_LIST = [
   {w:"სასახლე",h:"მეფის სახლი"},
   {w:"კოშკი",h:"სიმაღლე"},
   {w:"ტუნელი",h:"მიწის ქვეშ"},
-  {w:"მეჩეთი",h:"მუსლიმ სალოცავი"},
-  {w:"სინაგოგა",h:"ებრაელ სალოცავი"},
   {w:"პარლამენტი",h:"კანონმდებლობა"},
   {w:"სასამართლო",h:"სამართლის ადგილი"},
   {w:"ბანკი",h:"ფულის სახლი"},
@@ -707,7 +704,6 @@ function buildKeyboard() {
 }
 
 function newGame() {
-  // pick random word
   const idx = Math.floor(Math.random() * WORD_LIST.length);
   currentWord = WORD_LIST[idx].w;
   currentHint = WORD_LIST[idx].h;
@@ -715,14 +711,11 @@ function newGame() {
   wrongLetters = [];
   gameOver = false;
 
-  // hide overlays
   document.getElementById('winOverlay').classList.remove('show');
   document.getElementById('loseOverlay').classList.remove('show');
 
-  // reset gallows
   BODY_PARTS.forEach(id => document.getElementById(id).style.display = 'none');
 
-  // reset keyboard
   GEO_LETTERS.forEach(l => {
     const btn = document.getElementById('key-' + l);
     if (btn) { btn.disabled = false; btn.className = 'key-btn'; }
@@ -744,7 +737,6 @@ function renderWordRow() {
       box.className = 'letter-box space';
     } else {
       box.className = 'letter-box';
-      box.id = 'lb-' + ch + '-' + Array.from(currentWord).filter(x=>x===ch).indexOf(ch);
       if (guessedLetters.has(ch)) {
         box.textContent = ch;
         box.classList.add('revealed');
@@ -762,12 +754,10 @@ function guess(letter) {
   if (btn) btn.disabled = true;
 
   if (currentWord.includes(letter)) {
-    // correct
     if (btn) btn.classList.add('correct');
     revealLetters(letter);
     if (isWordSolved()) winGame();
   } else {
-    // wrong
     if (btn) btn.classList.add('wrong');
     wrongLetters.push(letter);
     const wRow = document.getElementById('wrongRow');
@@ -812,7 +802,6 @@ async function winGame() {
   gameOver = true;
   spawnParticles();
 
-  // +5 to DB
   currentScore += 5;
   const newScore = currentScore;
   document.getElementById('scoreVal').textContent = newScore;
@@ -832,7 +821,6 @@ async function winGame() {
 
 function loseGame() {
   gameOver = true;
-  // reveal all letters in red
   const boxes = document.getElementById('wordRow').querySelectorAll('.letter-box');
   let i = 0;
   for (const ch of currentWord) {
@@ -892,7 +880,6 @@ function escH(s) {
   return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
-// keyboard shortcut support
 document.addEventListener('keydown', e => {
   const l = e.key;
   if (GEO_LETTERS.includes(l)) guess(l);
