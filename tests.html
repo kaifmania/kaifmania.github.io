@@ -1,16 +1,1025 @@
-{
-  id: 11,
-  emoji: '🎲',
-  title: 'შენი ტესტის სათაური',
-  desc: 'მოკლე აღწერა',
-  tag: 'fun',
-  tagLabel: 'თეგი',
-  questions: [
-    { text: 'კითხვა 1?', options: ['პასუხი ა', 'პასუხი ბ', 'პასუხი გ'] },
-    { text: 'კითხვა 2?', options: ['პასუხი ა', 'პასუხი ბ'] }
-  ],
-  calculateResult: function(answers) {
-    // გამოთვლის ლოგიკა
-    return { type: 'შედეგის სახელი', emoji: '🏆', desc: 'აღწერა', traits: ['თვისება1'], score: 75 };
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ფსიქოლოგიური ტესტები</title>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg: #0d0b1a;
+  --panel: #120f24;
+  --panel2: #1a1730;
+  --border: rgba(160, 80, 255, 0.35);
+  --text: #ede0ff;
+  --text2: #b580e0;
+  --text3: #7a5a9a;
+  --indigo: #7a1fc8;
+  --indigo2: #a855f7;
+  --indigo-f: rgba(120, 30, 200, 0.18);
+  --glow: rgba(168, 85, 247, 0.28);
+  --accent: #f07aff;
+  --success: #4ade80;
+  --warning: #fbbf24;
+  --danger: #ff5080;
+}
+
+body {
+  font-family: 'Noto Sans Georgian', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px) scale(0.95); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
+@keyframes confetti {
+  0% { transform: translateY(-10px) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 20px;
+  background: var(--panel);
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.back-btn {
+  background: var(--indigo-f);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  width: 38px;
+  height: 38px;
+  color: var(--text2);
+  font-size: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.back-btn:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.header-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.header-sub {
+  font-size: 11px;
+  color: var(--text3);
+  margin-left: auto;
+  background: var(--indigo-f);
+  border: 1px solid var(--border);
+  padding: 3px 12px;
+  border-radius: 20px;
+}
+
+/* Container */
+.container {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 24px 16px;
+}
+
+/* Home Screen */
+#homeScreen {
+  animation: fadeIn 0.4s ease;
+}
+
+.hero {
+  text-align: center;
+  padding: 32px 0 24px;
+}
+
+.hero-icon {
+  font-size: 64px;
+  display: block;
+  animation: pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 24px var(--glow));
+}
+
+.hero-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 22px;
+  font-weight: 900;
+  color: var(--text);
+  margin-top: 14px;
+}
+
+.hero-sub {
+  font-size: 13px;
+  color: var(--text3);
+  margin-top: 8px;
+}
+
+/* Tests Grid */
+.tests-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 20px;
+}
+
+.test-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.4s ease both;
+}
+
+.test-card:hover {
+  transform: translateY(-4px);
+  border-color: var(--indigo2);
+  box-shadow: 0 12px 40px rgba(120, 30, 200, 0.35);
+}
+
+.test-card-emoji {
+  font-size: 40px;
+  display: block;
+  margin-bottom: 12px;
+}
+
+.test-card-title {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+
+.test-card-desc {
+  font-size: 12px;
+  color: var(--text3);
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+.test-card-meta {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.test-card-count {
+  font-size: 10px;
+  color: var(--text2);
+  background: var(--indigo-f);
+  border: 1px solid var(--border);
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-family: 'Unbounded', sans-serif;
+}
+
+.test-card-tag {
+  font-size: 10px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-family: 'Unbounded', sans-serif;
+  font-weight: 700;
+}
+
+.tag-iq { background: rgba(0, 200, 200, 0.12); color: #00c8c8; border: 1px solid rgba(0, 200, 200, 0.25); }
+.tag-love { background: rgba(255, 80, 120, 0.12); color: #ff5080; border: 1px solid rgba(255, 80, 120, 0.25); }
+.tag-personality { background: rgba(168, 85, 247, 0.12); color: #c084fc; border: 1px solid rgba(168, 85, 247, 0.25); }
+.tag-social { background: rgba(74, 222, 128, 0.12); color: #4ade80; border: 1px solid rgba(74, 222, 128, 0.25); }
+.tag-fun { background: rgba(251, 191, 36, 0.12); color: #fbbf24; border: 1px solid rgba(251, 191, 36, 0.25); }
+
+/* Test Screen */
+#testScreen {
+  display: none;
+  animation: slideUp 0.35s ease;
+}
+
+.test-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.test-exit-btn {
+  background: var(--indigo-f);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 8px 16px;
+  color: var(--text2);
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.test-exit-btn:hover {
+  background: rgba(220, 0, 0, 0.12);
+  border-color: rgba(220, 0, 0, 0.3);
+  color: #ff7777;
+}
+
+.test-title-bar h2 {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+/* Progress */
+.progress-wrap {
+  margin-bottom: 20px;
+}
+
+.progress-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text3);
+  margin-bottom: 8px;
+  font-family: 'Unbounded', sans-serif;
+}
+
+.progress-bar-bg {
+  height: 6px;
+  background: var(--panel2);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--indigo), var(--accent));
+  border-radius: 3px;
+  transition: width 0.4s ease;
+}
+
+/* Question */
+.question-card {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  padding: 28px 24px;
+  margin-bottom: 18px;
+  position: relative;
+  overflow: hidden;
+}
+
+.q-num {
+  font-size: 10px;
+  color: var(--text3);
+  font-family: 'Unbounded', sans-serif;
+  letter-spacing: 1.5px;
+  margin-bottom: 12px;
+}
+
+.q-text {
+  font-size: 16px;
+  color: var(--text);
+  line-height: 1.6;
+  font-weight: 500;
+}
+
+/* Options */
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.option-btn {
+  background: var(--panel2);
+  border: 1.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  color: var(--text);
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+}
+
+.option-btn:hover {
+  border-color: var(--indigo2);
+  background: var(--indigo-f);
+  transform: translateX(4px);
+}
+
+.option-btn.selected {
+  border-color: var(--accent);
+  background: rgba(168, 85, 247, 0.18);
+}
+
+.option-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--indigo-f);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  flex-shrink: 0;
+  font-weight: 700;
+  font-family: 'Unbounded', sans-serif;
+}
+
+.option-btn.selected .option-icon {
+  background: var(--indigo);
+  color: white;
+  border-color: var(--indigo2);
+}
+
+/* Navigation */
+.nav-btns {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.nav-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 14px;
+  border: none;
+  font-family: 'Noto Sans Georgian', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.nav-btn-prev {
+  background: var(--indigo-f);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.nav-btn-prev:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.nav-btn-next {
+  background: linear-gradient(135deg, var(--indigo), var(--indigo2));
+  color: white;
+  box-shadow: 0 4px 18px rgba(120, 30, 200, 0.4);
+}
+
+.nav-btn-next:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(120, 30, 200, 0.55);
+}
+
+.nav-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Result Screen */
+#resultScreen {
+  display: none;
+  animation: slideUp 0.4s ease;
+}
+
+.result-wrap {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 28px;
+  padding: 32px 24px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.result-emoji {
+  font-size: 72px;
+  display: block;
+  margin-bottom: 16px;
+  animation: pulse 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 30px var(--glow));
+}
+
+.result-type {
+  font-family: 'Unbounded', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: var(--accent);
+  margin-bottom: 12px;
+}
+
+.result-score-row {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin: 16px 0;
+  flex-wrap: wrap;
+}
+
+.score-pill {
+  background: var(--indigo-f);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 8px 18px;
+  font-family: 'Unbounded', sans-serif;
+  font-size: 12px;
+  color: var(--text2);
+}
+
+.score-pill strong {
+  color: var(--accent);
+  font-size: 18px;
+  display: block;
+}
+
+.result-desc {
+  font-size: 14px;
+  color: var(--text2);
+  line-height: 1.7;
+  margin: 16px 0;
+  text-align: left;
+  background: var(--panel2);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 18px;
+}
+
+.result-traits {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  margin: 16px 0;
+}
+
+.trait-chip {
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  background: var(--indigo-f);
+  border: 1px solid var(--border);
+  color: var(--text2);
+}
+
+.score-bars {
+  margin: 16px 0;
+  text-align: left;
+}
+
+.score-bar-row {
+  margin-bottom: 12px;
+}
+
+.score-bar-label {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+
+.score-bar-bg {
+  height: 8px;
+  background: var(--panel2);
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.6s ease;
+}
+
+.result-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.res-btn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 14px;
+  font-family: 'Noto Sans Georgian', sans-serif;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+}
+
+.res-btn-home {
+  background: var(--indigo-f);
+  color: var(--text2);
+  border: 1px solid var(--border);
+}
+
+.res-btn-home:hover {
+  background: var(--border);
+  color: var(--text);
+}
+
+.res-btn-share {
+  background: linear-gradient(135deg, var(--indigo), var(--indigo2));
+  color: white;
+  box-shadow: 0 4px 16px rgba(120, 30, 200, 0.4);
+}
+
+.res-btn-share:hover {
+  transform: translateY(-2px);
+}
+
+/* Confetti */
+.confetti-piece {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  animation: confetti 1.5s ease forwards;
+  pointer-events: none;
+  z-index: 9999;
+}
+
+/* Shake */
+.shake {
+  animation: shake 0.4s ease;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--panel2); }
+::-webkit-scrollbar-thumb { background: var(--indigo2); border-radius: 2px; }
+
+.hidden { display: none; }
+</style>
+</head>
+<body>
+<div class="header">
+  <button class="back-btn" id="backBtn">←</button>
+  <div class="header-title">🧠 ფსიქოლოგიური ტესტები</div>
+  <div class="header-sub" id="headerSub">10 ტესტი</div>
+</div>
+<div class="container">
+  <div id="homeScreen">
+    <div class="hero">
+      <span class="hero-icon">🧬</span>
+      <div class="hero-title">გაიცანი საკუთარი თავი</div>
+      <div class="hero-sub">10+ ფსიქოლოგიური ტესტი · სრული შედეგები</div>
+    </div>
+    <div class="tests-grid" id="testsGrid"></div>
+  </div>
+
+  <div id="testScreen">
+    <div class="test-top">
+      <button class="test-exit-btn" id="exitTestBtn">← გამოსვლა</button>
+      <div class="test-title-bar"><h2 id="testTitleBar">ტესტი</h2></div>
+    </div>
+    <div class="progress-wrap">
+      <div class="progress-label"><span id="progressLabel">კითხვა 1 / 10</span><span id="progressPct">0%</span></div>
+      <div class="progress-bar-bg"><div class="progress-bar-fill" id="progressFill" style="width:0%"></div></div>
+    </div>
+    <div class="question-card">
+      <div class="q-num" id="qNum">კითხვა 01</div>
+      <div class="q-text" id="qText">-</div>
+    </div>
+    <div class="options-list" id="optionsList"></div>
+    <div class="nav-btns">
+      <button class="nav-btn nav-btn-prev" id="prevBtn">← წინა</button>
+      <button class="nav-btn nav-btn-next" id="nextBtn">შემდეგი →</button>
+    </div>
+  </div>
+
+  <div id="resultScreen">
+    <div class="result-wrap">
+      <span class="result-emoji" id="resEmoji">🧠</span>
+      <div class="result-type" id="resType">-</div>
+      <div class="result-score-row" id="resScoreRow"></div>
+      <div class="result-desc" id="resDesc">-</div>
+      <div class="result-traits" id="resTraits"></div>
+      <div class="score-bars" id="scoreBars"></div>
+    </div>
+    <div class="result-actions">
+      <button class="res-btn res-btn-home" id="homeBtn">🏠 ტესტების სია</button>
+      <button class="res-btn res-btn-share" id="shareBtn">📤 გაზიარება</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== ტესტების მონაცემები ====================
+const TESTS = [
+  {
+    id: 1,
+    emoji: '🧠',
+    title: 'ინტელექტის ტიპი',
+    desc: 'გაიგე, როგორი ინტელექტი გაქვს - ლოგიკური, ემოციური თუ კრეატიული?',
+    tag: 'iq',
+    tagLabel: 'IQ',
+    questions: [
+      { text: 'როგორ სწავლობ ახალ ინფორმაციას ყველაზე ეფექტურად?', options: ['წიგნების კითხვით', 'ვიდეოების ყურებით', 'პრაქტიკული გაკეთებით', 'სხვების მოსმენით'] },
+      { text: 'რა ტიპის ამოცანები გიზიდავს ყველაზე მეტად?', options: ['ლოგიკური თავსატეხები', 'კრეატიული დავალებები', 'გუნდური სამუშაო', 'ანალიტიკური ანგარიშები'] },
+      { text: 'შაბათ-კვირას რას აკეთებ ყველაზე ხშირად?', options: ['ვკითხულობ', 'ვხატავ/ვქმნი', 'სპორტით ვარ დაკავებული', 'მეგობრებთან ვარ'] }
+    ],
+    calculateResult: function(answers) {
+      let scores = { logical: 0, creative: 0, practical: 0, social: 0 };
+      const mapping = { 0: 'logical', 1: 'creative', 2: 'practical', 3: 'social' };
+      answers.forEach(a => { if (a !== null) scores[mapping[a]]++; });
+      const max = Object.entries(scores).sort((a,b) => b[1] - a[1])[0];
+      const types = {
+        logical: { type: 'ლოგიკური ინტელექტი', emoji: '🔢', desc: 'შენი ძლიერი მხარე არის ანალიტიკური აზროვნება. კარგად ხსნი თავსატეხებს, გიყვარს რიცხვები.', traits: ['ანალიტიკური', 'ლოგიკური'] },
+        creative: { type: 'კრეატიული ინტელექტი', emoji: '🎨', desc: 'შენი ძალაა წარმოსახვა და შემოქმედება. გიყვარს ახალი იდეები.', traits: ['კრეატიული', 'წარმოსახვითი'] },
+        practical: { type: 'პრაქტიკული ინტელექტი', emoji: '🔧', desc: 'კარგად ხერხდები ხელით მუშაობა, სპორტი. უკეთ სწავლობ მოქმედებით.', traits: ['პრაქტიკული', 'აქტიური'] },
+        social: { type: 'სოციალური ინტელექტი', emoji: '👥', desc: 'კარგად ერკვევი ადამიანებში, გესმის მათი ემოციები.', traits: ['ემპათიური', 'კომუნიკაბელური'] }
+      };
+      const total = answers.filter(a => a !== null).length;
+      return { ...types[max[0]], score: total > 0 ? (max[1] / total) * 100 : 0 };
+    }
+  },
+  {
+    id: 2,
+    emoji: '💜',
+    title: 'სიყვარულის ენა',
+    desc: 'როგორ გიყვარს და გრძნობ სიყვარულს?',
+    tag: 'love',
+    tagLabel: 'სიყვარული',
+    questions: [
+      { text: 'რა გახარებს ყველაზე მეტად პარტნიორისგან?', options: ['სიტყვები "მიყვარხარ"', 'ერთად გატარებული დრო', 'საჩუქრები', 'ჩახუტება/შეხება'] },
+      { text: 'როგორ გამოხატავ სიყვარულს ყველაზე ხშირად?', options: ['ვეუბნები', 'ვუთმობ დროს', 'ვჩუქნი', 'ვეხუტები'] },
+      { text: 'რა გაღიზიანებს ყველაზე მეტად?', options: ['უყურადღებობა', 'დროის ნაკლებობა', 'საჩუქრების არ ქონა', 'სიცივე'] }
+    ],
+    calculateResult: function(answers) {
+      let counts = [0,0,0,0];
+      answers.forEach(a => { if (a !== null) counts[a]++; });
+      const maxIndex = counts.indexOf(Math.max(...counts));
+      const types = [
+        { type: 'დადასტურების სიტყვები', emoji: '💬', desc: 'შენთვის მნიშვნელოვანია სიტყვები - კომპლიმენტები და გამხნევება.', traits: ['სიტყვიერი', 'ემოციური'] },
+        { type: 'ხარისხიანი დრო', emoji: '⏳', desc: 'შენთვის მთავარია ერთად გატარებული დრო, ყურადღება.', traits: ['ყურადღებიანი', 'ერთგული'] },
+        { type: 'საჩუქრები', emoji: '🎁', desc: 'საჩუქრები გახარებს. მათში ხედავ ზრუნვას.', traits: ['დაფასების მოყვარული', 'ყურადღებიანი'] },
+        { type: 'ფიზიკური შეხება', emoji: '🤗', desc: 'ჩახუტება, ხელის მოკიდება - ეს გრძნობინებს სიყვარულს.', traits: ['თბილი', 'მოსიყვარულე'] }
+      ];
+      const total = answers.filter(a => a !== null).length;
+      return { ...types[maxIndex], score: total > 0 ? (counts[maxIndex] / total) * 100 : 0 };
+    }
+  },
+  {
+    id: 3,
+    emoji: '🌙',
+    title: 'ინტროვერტი თუ ექსტროვერტი?',
+    desc: 'საიდან იღებ ენერგიას - მარტოობიდან თუ ხალხიდან?',
+    tag: 'personality',
+    tagLabel: 'პიროვნება',
+    questions: [
+      { text: 'დიდი წვეულების შემდეგ თავს როგორ გრძნობ?', options: ['დაღლილად, მჭირდება დასვენება', 'ენერგიულად, მინდა კიდევ'] },
+      { text: 'ახალ ადამიანებთან შეხვედრა...', options: ['მაძაბავს', 'მახალისებს'] },
+      { text: 'შაბათ-კვირას ურჩევნია...', options: ['სახლში წიგნის კითხვა', 'მეგობრებთან გასვლა'] }
+    ],
+    calculateResult: function(answers) {
+      let intro = 0, extro = 0;
+      answers.forEach(a => { if (a === 0) intro++; else if (a === 1) extro++; });
+      const total = intro + extro || 1;
+      const introPercent = (intro / total) * 100;
+      if (introPercent >= 70) {
+        return { type: 'ინტროვერტი', emoji: '🌙', desc: 'ენერგიას მარტოობაში იღებ. გიყვარს სიმშვიდე, ღრმა ფიქრები.', traits: ['ჩაფიქრებული', 'დამოუკიდებელი'], score: introPercent };
+      } else if (introPercent <= 30) {
+        return { type: 'ექსტროვერტი', emoji: '☀️', desc: 'ენერგიას ხალხში იღებ. გიყვარს კომუნიკაცია, აქტივობები.', traits: ['კომუნიკაბელური', 'აქტიური'], score: 100 - introPercent };
+      } else {
+        return { type: 'ამბივერტი', emoji: '🌓', desc: 'ბალანსირებ ინტრო- და ექსტროვერსიას შორის.', traits: ['მოქნილი', 'ადაპტირებადი'], score: 50 };
+      }
+    }
+  },
+  {
+    id: 4,
+    emoji: '😤',
+    title: 'სტრესის ტიპი',
+    desc: 'როგორ რეაგირებ სტრესულ სიტუაციებში?',
+    tag: 'personality',
+    tagLabel: 'ფსიქოლოგია',
+    questions: [
+      { text: 'როცა გაბრაზებული ხარ, ჩვეულებრივ...', options: ['ვჩუმდები და ვფიქრობ', 'ვყვირი ან ვტყდები'] },
+      { text: 'მნიშვნელოვანი გამოცდის წინ...', options: ['ვნერვიულობ და კარგად ვერ ვიძინებ', 'ვაქტიურობ, მეტს ვსწავლობ'] },
+      { text: 'კონფლიქტის დროს...', options: ['თავს არიდებ', 'პირდაპირ ვაწყდები'] }
+    ],
+    calculateResult: function(answers) {
+      let avoid = 0, confront = 0;
+      answers.forEach(a => { if (a === 0) avoid++; else if (a === 1) confront++; });
+      const total = avoid + confront || 1;
+      if (avoid > confront) {
+        return { type: 'თავის არიდების ტიპი', emoji: '🏃', desc: 'სტრესის დროს გჩვევია თავის არიდება, დუმილი.', traits: ['მშვიდი', 'თავშეკავებული'], score: (avoid/total)*100 };
+      } else {
+        return { type: 'დაპირისპირების ტიპი', emoji: '⚡', desc: 'სტრესის დროს პირდაპირ ხვდები პრობლემას.', traits: ['აქტიური', 'გადამწყვეტი'], score: (confront/total)*100 };
+      }
+    }
+  },
+  {
+    id: 5,
+    emoji: '🌈',
+    title: 'ემოციური ინტელექტი (EQ)',
+    desc: 'რამდენად კარგად ხვდები საკუთარ და სხვების ემოციებს?',
+    tag: 'iq',
+    tagLabel: 'EQ',
+    questions: [
+      { text: 'ადვილად ამოიცნობ, როცა ვინმე მოწყენილია?', options: ['დიახ', 'არა'] },
+      { text: 'შეგიძლია გააკონტროლო ბრაზის აფეთქებები?', options: ['დიახ', 'არა'] },
+      { text: 'კარგად ხსნი სხვების მოტივებს?', options: ['დიახ', 'არა'] }
+    ],
+    calculateResult: function(answers) {
+      let yes = answers.filter(a => a === 0).length;
+      let total = answers.filter(a => a !== null).length || 1;
+      let percent = (yes / total) * 100;
+      if (percent >= 70) {
+        return { type: 'მაღალი EQ', emoji: '💎', desc: 'შესანიშნავად ხვდები ემოციებს. კარგი მეგობარი ხარ.', traits: ['ემპათიური', 'სოციალურად გამოცდილი'], score: percent };
+      } else if (percent >= 40) {
+        return { type: 'საშუალო EQ', emoji: '🌿', desc: 'ზოგადად კარგად ხვდები ემოციებს, მაგრამ ზოგჯერ გიჭირს.', traits: ['მოქნილი', 'განვითარებადი'], score: percent };
+      } else {
+        return { type: 'EQ განვითარება სჭირდება', emoji: '📚', desc: 'ემოციების ამოცნობა ისწავლება. პრაქტიკა დაგეხმარება.', traits: ['სწავლის მოტივაცია'], score: percent };
+      }
+    }
+  }
+];
+
+// ==================== აპლიკაციის მდგომარეობა ====================
+let currentTest = null;
+let currentQuestionIndex = 0;
+let userAnswers = [];
+
+// ==================== DOM ელემენტები ====================
+const homeScreen = document.getElementById('homeScreen');
+const testScreen = document.getElementById('testScreen');
+const resultScreen = document.getElementById('resultScreen');
+const testsGrid = document.getElementById('testsGrid');
+const testTitleBar = document.getElementById('testTitleBar');
+const progressLabel = document.getElementById('progressLabel');
+const progressPct = document.getElementById('progressPct');
+const progressFill = document.getElementById('progressFill');
+const qNum = document.getElementById('qNum');
+const qText = document.getElementById('qText');
+const optionsList = document.getElementById('optionsList');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const exitTestBtn = document.getElementById('exitTestBtn');
+const backBtn = document.getElementById('backBtn');
+const homeBtn = document.getElementById('homeBtn');
+const shareBtn = document.getElementById('shareBtn');
+
+// ==================== ფუნქციები ====================
+function buildHome() {
+  testsGrid.innerHTML = '';
+  const tagClasses = {
+    iq: 'tag-iq',
+    love: 'tag-love',
+    personality: 'tag-personality',
+    social: 'tag-social',
+    fun: 'tag-fun'
+  };
+  
+  TESTS.forEach((test, index) => {
+    const card = document.createElement('div');
+    card.className = 'test-card';
+    card.style.animationDelay = `${index * 0.05}s`;
+    card.innerHTML = `
+      <span class="test-card-emoji">${test.emoji}</span>
+      <div class="test-card-title">${test.title}</div>
+      <div class="test-card-desc">${test.desc}</div>
+      <div class="test-card-meta">
+        <span class="test-card-count">${test.questions.length} კითხვა</span>
+        <span class="test-card-tag ${tagClasses[test.tag] || 'tag-fun'}">${test.tagLabel}</span>
+      </div>
+    `;
+    card.onclick = () => startTest(test);
+    testsGrid.appendChild(card);
+  });
+  document.getElementById('headerSub').textContent = `${TESTS.length} ტესტი`;
+}
+
+function startTest(test) {
+  currentTest = test;
+  currentQuestionIndex = 0;
+  userAnswers = new Array(test.questions.length).fill(null);
+  
+  testTitleBar.innerHTML = `${test.emoji} ${test.title}`;
+  homeScreen.style.display = 'none';
+  resultScreen.style.display = 'none';
+  testScreen.style.display = 'block';
+  
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = currentTest.questions[currentQuestionIndex];
+  const total = currentTest.questions.length;
+  const percent = Math.round((currentQuestionIndex / total) * 100);
+  
+  progressLabel.innerHTML = `კითხვა ${currentQuestionIndex + 1} / ${total}`;
+  progressPct.innerHTML = `${percent}%`;
+  progressFill.style.width = `${percent}%`;
+  qNum.innerHTML = `კითხვა ${String(currentQuestionIndex + 1).padStart(2, '0')}`;
+  qText.innerHTML = q.text;
+  
+  optionsList.innerHTML = '';
+  const letters = ['ა', 'ბ', 'გ', 'დ'];
+  q.options.forEach((opt, idx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn' + (userAnswers[currentQuestionIndex] === idx ? ' selected' : '');
+    btn.innerHTML = `<span class="option-icon">${letters[idx]}</span><span>${opt}</span>`;
+    btn.onclick = () => selectOption(idx);
+    optionsList.appendChild(btn);
+  });
+  
+  prevBtn.disabled = currentQuestionIndex === 0;
+  const isLast = currentQuestionIndex === total - 1;
+  nextBtn.innerHTML = isLast ? '✅ შედეგი' : 'შემდეგი →';
+}
+
+function selectOption(index) {
+  userAnswers[currentQuestionIndex] = index;
+  document.querySelectorAll('.option-btn').forEach((btn, i) => {
+    btn.classList.toggle('selected', i === index);
+  });
+}
+
+function nextQuestion() {
+  if (userAnswers[currentQuestionIndex] === null) {
+    const qCard = document.querySelector('.question-card');
+    qCard.classList.add('shake');
+    setTimeout(() => qCard.classList.remove('shake'), 500);
+    return;
+  }
+  
+  if (currentQuestionIndex < currentTest.questions.length - 1) {
+    currentQuestionIndex++;
+    renderQuestion();
+  } else {
+    showResult();
   }
 }
+
+function prevQuestion() {
+  if (currentQuestionIndex > 0) {
+    currentQuestionIndex--;
+    renderQuestion();
+  }
+}
+
+function showResult() {
+  const result = currentTest.calculateResult(userAnswers);
+  
+  document.getElementById('resEmoji').textContent = result.emoji || '🧠';
+  document.getElementById('resType').textContent = result.type || 'შედეგი';
+  document.getElementById('resScoreRow').innerHTML = `
+    <div class="score-pill"><strong>${Math.round(result.score || 0)}%</strong><span>ქულა</span></div>
+    <div class="score-pill"><strong>${userAnswers.filter(a => a !== null).length}/${currentTest.questions.length}</strong><span>პასუხი</span></div>
+  `;
+  document.getElementById('resDesc').textContent = result.desc || 'გილოცავ! ტესტი დასრულდა.';
+  
+  const traitsContainer = document.getElementById('resTraits');
+  traitsContainer.innerHTML = '';
+  (result.traits || []).forEach(trait => {
+    const chip = document.createElement('span');
+    chip.className = 'trait-chip';
+    chip.textContent = trait;
+    traitsContainer.appendChild(chip);
+  });
+  
+  const barsContainer = document.getElementById('scoreBars');
+  barsContainer.innerHTML = '';
+  const simpleBar = document.createElement('div');
+  simpleBar.className = 'score-bar-row';
+  simpleBar.innerHTML = `
+    <div class="score-bar-label"><span>შენი შედეგი</span><span>${Math.round(result.score || 0)}%</span></div>
+    <div class="score-bar-bg"><div class="score-bar-fill" style="width:${result.score || 0}%;background:var(--accent)"></div></div>
+  `;
+  barsContainer.appendChild(simpleBar);
+  
+  testScreen.style.display = 'none';
+  resultScreen.style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  spawnConfetti();
+}
+
+function showHome() {
+  testScreen.style.display = 'none';
+  resultScreen.style.display = 'none';
+  homeScreen.style.display = 'block';
+  currentTest = null;
+  currentQuestionIndex = 0;
+  userAnswers = [];
+}
+
+function exitTest() {
+  if (userAnswers.some(a => a !== null)) {
+    if (confirm('ტესტი არ არის დასრულებული. გსურთ გამოსვლა? შედეგები დაიკარგება.')) {
+      showHome();
+    }
+  } else {
+    showHome();
+  }
+}
+
+function goBack() {
+  if (testScreen.style.display !== 'none') {
+    exitTest();
+  } else if (resultScreen.style.display !== 'none') {
+    showHome();
+  }
+  // თუ მთავარ გვერდზე ვართ, არაფერი
+}
+
+function shareResult() {
+  const type = document.getElementById('resType').textContent;
+  const scoreSpan = document.getElementById('resScoreRow')?.querySelector('strong');
+  const score = scoreSpan ? scoreSpan.textContent : '?';
+  const text = `🧠 ფსიქოლოგიური ტესტი\n${currentTest?.title || ''}\nშედეგი: ${type}\nქულა: ${score}`;
+  
+  if (navigator.share) {
+    navigator.share({ title: 'ფსიქო ტესტი', text: text });
+  } else if (navigator.clipboard) {
+    navigator.clipboard.writeText(text).then(() => alert('✅ შედეგი დაკოპირებულია!'));
+  } else {
+    alert(text);
+  }
+}
+
+function spawnConfetti() {
+  const colors = ['#f07aff', '#a855f7', '#4ade80', '#fbbf24', '#60b8e8', '#ff5080'];
+  for (let i = 0; i < 30; i++) {
+    const piece = document.createElement('div');
+    piece.className = 'confetti-piece';
+    piece.style.cssText = `
+      left: ${Math.random() * 100}%;
+      top: -10px;
+      background: ${colors[i % colors.length]};
+      animation-delay: ${Math.random() * 0.5}s;
+      animation-duration: ${1 + Math.random() * 1.5}s;
+      width: ${6 + Math.random() * 8}px;
+      height: ${6 + Math.random() * 8}px;
+    `;
+    document.body.appendChild(piece);
+    setTimeout(() => piece.remove(), 2000);
+  }
+}
+
+// ==================== EVENT LISTENERS ====================
+prevBtn.onclick = prevQuestion;
+nextBtn.onclick = nextQuestion;
+exitTestBtn.onclick = exitTest;
+backBtn.onclick = goBack;
+homeBtn.onclick = showHome;
+shareBtn.onclick = shareResult;
+
+// ==================== ინიციალიზაცია ====================
+buildHome();
+</script>
+</body>
+</html>
