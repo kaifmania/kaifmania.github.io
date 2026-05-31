@@ -1,0 +1,701 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ტესტები — კაიფმანია</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+body.night{--bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff;}
+body.day{--bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);--text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;--online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);--glow:rgba(106,13,173,0.2);--accent:#c040ff;}
+body.theme-ocean{--bg:#0a1628;--panel:#0d1f3c;--panel2:#112447;--border:rgba(0,180,255,0.3);--text:#e0f4ff;--text2:#60b8e8;--text3:#3a7ca8;--bubble:#0e2040;--input-bg:#0a1a30;--online:#00d4ff;--indigo:#005fa3;--indigo2:#0097cc;--indigo-f:rgba(0,150,200,0.15);--glow:rgba(0,180,255,0.25);--accent:#00e5ff;}
+body.theme-forest{--bg:#0a1a0f;--panel:#0d2215;--panel2:#10291a;--border:rgba(0,200,80,0.3);--text:#d4f5dc;--text2:#50c870;--text3:#2a7840;--bubble:#0d2015;--input-bg:#091510;--online:#00e555;--indigo:#006830;--indigo2:#00a845;--indigo-f:rgba(0,160,60,0.15);--glow:rgba(0,200,80,0.25);--accent:#00ff80;}
+body.theme-sunset{--bg:#1a0a1a;--panel:#250d20;--panel2:#30102a;--border:rgba(255,100,50,0.3);--text:#ffe0d0;--text2:#e87050;--text3:#a84030;--bubble:#250d18;--input-bg:#1a0812;--online:#ff7030;--indigo:#a03010;--indigo2:#e05530;--indigo-f:rgba(200,80,40,0.15);--glow:rgba(255,100,50,0.25);--accent:#ff8c50;}
+body.theme-rose{--bg:#1a0a12;--panel:#250d18;--panel2:#300f20;--border:rgba(255,80,120,0.3);--text:#ffe0ec;--text2:#e8608a;--text3:#a83055;--bubble:#250d18;--input-bg:#1a0810;--online:#ff4080;--indigo:#a01040;--indigo2:#e03060;--indigo-f:rgba(200,40,80,0.15);--glow:rgba(255,80,120,0.25);--accent:#ff5090;}
+body.theme-gold{--bg:#160f00;--panel:#1e1500;--panel2:#251900;--border:rgba(220,160,0,0.3);--text:#fff5cc;--text2:#d4a030;--text3:#a07820;--bubble:#1e1500;--input-bg:#160f00;--online:#ffc020;--indigo:#8c6000;--indigo2:#c89000;--indigo-f:rgba(200,140,0,0.15);--glow:rgba(220,160,0,0.25);--accent:#ffd040;}
+body.theme-cyber{--bg:#000a0a;--panel:#001515;--panel2:#001e1e;--border:rgba(0,255,200,0.3);--text:#ccffee;--text2:#00d8a0;--text3:#008860;--bubble:#001515;--input-bg:#000a0a;--online:#00ffcc;--indigo:#006650;--indigo2:#00aa80;--indigo-f:rgba(0,200,150,0.12);--glow:rgba(0,255,200,0.25);--accent:#00ffe8;}
+body.theme-lavender{--bg:#f0ecff;--panel:#e8e0ff;--panel2:#ddd5ff;--border:rgba(120,80,200,0.2);--text:#2a1060;--text2:#6040a8;--text3:#9080c0;--bubble:#fff;--input-bg:#fff;--online:#8060cc;--indigo:#5030a0;--indigo2:#7050c0;--indigo-f:rgba(100,60,180,0.1);--glow:rgba(120,80,200,0.2);--accent:#9060e0;}
+body.theme-midnight{--bg:#05050f;--panel:#0a0a1e;--panel2:#0e0e28;--border:rgba(100,100,255,0.3);--text:#d0d0ff;--text2:#8080cc;--text3:#505090;--bubble:#0a0a1e;--input-bg:#05050f;--online:#6060ff;--indigo:#2020a0;--indigo2:#4040cc;--indigo-f:rgba(50,50,200,0.15);--glow:rgba(100,100,255,0.25);--accent:#8080ff;}
+body.theme-cherry{--bg:#1a000a;--panel:#250010;--panel2:#300018;--border:rgba(220,0,60,0.3);--text:#ffd0e0;--text2:#cc4060;--text3:#882040;--bubble:#250010;--input-bg:#1a000a;--online:#ff2060;--indigo:#800020;--indigo2:#cc0040;--indigo-f:rgba(200,0,50,0.15);--glow:rgba(220,0,60,0.25);--accent:#ff4080;}
+body.theme-mint{--bg:#001a12;--panel:#002218;--panel2:#002d20;--border:rgba(0,220,140,0.3);--text:#ccfff0;--text2:#40d8a0;--text3:#208860;--bubble:#002218;--input-bg:#001a12;--online:#00ff99;--indigo:#006640;--indigo2:#00aa70;--indigo-f:rgba(0,180,100,0.15);--glow:rgba(0,220,140,0.25);--accent:#00ffbb;}
+body.theme-galaxy{--bg:#080010;--panel:#100020;--panel2:#180030;--border:rgba(180,0,255,0.3);--text:#f0d0ff;--text2:#c060f0;--text3:#803090;--bubble:#100020;--input-bg:#080010;--online:#e040ff;--indigo:#600090;--indigo2:#a000e0;--indigo-f:rgba(150,0,220,0.15);--glow:rgba(180,0,255,0.3);--accent:#e060ff;}
+body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;transition:background .4s,color .4s}
+
+/* NAV */
+#topnav{display:flex;align-items:center;gap:6px;background:var(--panel);border-bottom:1px solid var(--border);padding:8px 16px;position:sticky;top:0;z-index:100;box-shadow:0 2px 20px rgba(0,0,0,.25)}
+.nav-logo{font-size:22px;cursor:pointer;text-decoration:none;margin-right:6px}
+.nav-back{display:flex;align-items:center;gap:6px;padding:6px 14px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;text-decoration:none;transition:all .2s}
+.nav-back:hover{background:var(--border);color:var(--text)}
+.nav-title{font-family:'Unbounded',sans-serif;font-size:12px;font-weight:700;color:var(--text);letter-spacing:1px;margin-left:8px}
+.nav-spacer{flex:1}
+.user-chip{display:flex;align-items:center;gap:7px;padding:5px 12px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);font-size:12px;color:var(--text2)}
+.user-av{width:24px;height:24px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:12px;overflow:hidden;flex-shrink:0}
+.user-av img{width:100%;height:100%;object-fit:cover}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes pop{from{transform:scale(0.8);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes progressFill{from{width:0}to{width:var(--target)}}
+@keyframes confetti{0%{transform:translateY(0) rotate(0);opacity:1}100%{transform:translateY(-200px) rotate(720deg);opacity:0}}
+
+/* MAIN */
+.container{max-width:840px;margin:0 auto;padding:24px 16px}
+
+/* HERO */
+.page-hero{text-align:center;padding:32px 0 20px;animation:fadeUp .5s ease}
+.page-hero h1{font-family:'Unbounded',sans-serif;font-size:26px;font-weight:900;background:linear-gradient(135deg,var(--text),var(--accent));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;margin-bottom:8px}
+.page-hero p{font-size:14px;color:var(--text3);max-width:480px;margin:0 auto}
+
+/* HISTORY SECTION */
+#historySection{margin-bottom:28px;display:none}
+.section-head{font-family:'Unbounded',sans-serif;font-size:10px;letter-spacing:2px;color:var(--text2);text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.section-head::after{content:'';flex:1;height:1px;background:var(--border)}
+.history-scroll{display:flex;gap:10px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.history-scroll::-webkit-scrollbar{display:none}
+.hist-card{flex-shrink:0;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:12px 14px;min-width:180px;cursor:pointer;transition:all .2s}
+.hist-card:hover{border-color:var(--accent);transform:translateY(-2px)}
+.hist-card-icon{font-size:22px;margin-bottom:6px}
+.hist-card-name{font-size:12px;font-weight:600;color:var(--text);margin-bottom:3px}
+.hist-card-result{font-size:11px;color:var(--accent)}
+.hist-card-date{font-size:10px;color:var(--text3);margin-top:4px}
+
+/* TEST GRID */
+.tests-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px;margin-bottom:32px}
+.test-card{background:var(--panel);border:1px solid var(--border);border-radius:20px;padding:20px;cursor:pointer;transition:all .25s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;animation:fadeUp .4s ease both}
+.test-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,var(--indigo-f),transparent);pointer-events:none;opacity:0;transition:opacity .2s}
+.test-card:hover{transform:translateY(-4px);border-color:var(--accent);box-shadow:0 8px 28px rgba(0,0,0,.3)}
+.test-card:hover::before{opacity:1}
+.test-card-icon{font-size:36px;margin-bottom:12px;display:block}
+.test-card-name{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:6px}
+.test-card-desc{font-size:12px;color:var(--text3);line-height:1.5;margin-bottom:14px}
+.test-card-meta{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+.test-meta-pill{font-size:10px;padding:3px 9px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-family:'Unbounded',sans-serif;letter-spacing:.3px}
+.test-start-btn{margin-top:14px;width:100%;padding:9px;border-radius:12px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff;font-family:'Noto Sans Georgian',sans-serif;font-size:13px;font-weight:500;cursor:pointer;transition:all .2s;letter-spacing:.3px}
+.test-start-btn:hover{opacity:.88;transform:scale(1.02)}
+
+/* QUIZ OVERLAY */
+.quiz-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.85);backdrop-filter:blur(10px);z-index:500;align-items:center;justify-content:center;padding:16px}
+.quiz-overlay.open{display:flex;animation:fadeUp .3s ease}
+.quiz-modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;width:100%;max-width:600px;max-height:90vh;overflow-y:auto;position:relative;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow)}
+.quiz-modal::-webkit-scrollbar{width:3px}
+.quiz-modal::-webkit-scrollbar-thumb{background:var(--border)}
+.quiz-header{padding:20px 24px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--panel);z-index:10;border-radius:24px 24px 0 0}
+.quiz-close{position:absolute;top:16px;right:16px;background:var(--indigo-f);border:1px solid var(--border);border-radius:9px;width:30px;height:30px;color:var(--text2);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.quiz-close:hover{background:var(--border);color:var(--text)}
+.quiz-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text);margin-bottom:10px}
+.progress-bar-wrap{background:var(--panel2);border-radius:8px;height:6px;overflow:hidden}
+.progress-bar{height:100%;border-radius:8px;background:linear-gradient(90deg,var(--indigo),var(--accent));transition:width .4s ease}
+.progress-text{font-size:10px;color:var(--text3);margin-top:5px;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
+.quiz-body{padding:24px}
+.question-text{font-size:16px;color:var(--text);line-height:1.6;margin-bottom:20px;font-weight:500}
+.scale-label{font-size:11px;color:var(--text3);margin-bottom:10px}
+.options-list{display:flex;flex-direction:column;gap:9px}
+.option-btn{width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--bubble);color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;text-align:left;transition:all .2s;line-height:1.4}
+.option-btn:hover{border-color:var(--indigo2);background:var(--indigo-f);transform:translateX(4px)}
+.option-btn.selected{border-color:var(--accent);background:rgba(168,85,247,0.15);color:var(--text)}
+.scale-row{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:8px}
+.scale-btn{flex:1;min-width:44px;padding:10px 6px;border-radius:12px;border:1.5px solid var(--border);background:var(--bubble);color:var(--text);font-family:'Unbounded',sans-serif;font-size:13px;cursor:pointer;text-align:center;transition:all .2s}
+.scale-btn:hover{border-color:var(--indigo2);background:var(--indigo-f)}
+.scale-btn.selected{border-color:var(--accent);background:rgba(168,85,247,0.2)}
+.scale-labels{display:flex;justify-content:space-between;font-size:10px;color:var(--text3);margin-bottom:14px}
+.quiz-nav{display:flex;align-items:center;justify-content:space-between;margin-top:24px;padding-top:16px;border-top:1px solid var(--border)}
+.q-prev-btn{padding:9px 18px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text2);font-size:13px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
+.q-prev-btn:hover{background:var(--border);color:var(--text)}
+.q-next-btn{padding:9px 22px;border-radius:12px;border:none;background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;font-size:13px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
+.q-next-btn:hover{opacity:.88;transform:scale(1.04)}
+.q-next-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* RESULT */
+.result-screen{display:none;padding:28px 24px;text-align:center;animation:pop .4s cubic-bezier(.34,1.4,.64,1)}
+.result-big-icon{font-size:70px;display:block;margin-bottom:14px;animation:pulse 2s ease-in-out infinite}
+.result-type{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;color:var(--accent);margin-bottom:8px}
+.result-subtitle{font-size:14px;color:var(--text2);margin-bottom:18px;font-weight:600}
+.result-desc{font-size:13px;color:var(--text);line-height:1.7;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:16px;margin-bottom:18px;text-align:left}
+.result-traits{display:flex;flex-wrap:wrap;gap:7px;justify-content:center;margin-bottom:18px}
+.trait-pill{padding:5px 13px;border-radius:20px;background:var(--indigo-f);border:1px solid var(--border);font-size:11px;color:var(--accent);font-weight:500}
+.result-score-row{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.score-card{background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:12px 20px;text-align:center}
+.score-card-val{font-family:'Unbounded',sans-serif;font-size:22px;font-weight:900;color:var(--accent)}
+.score-card-lbl{font-size:10px;color:var(--text3);margin-top:3px;font-family:'Unbounded',sans-serif;letter-spacing:.5px}
+.result-bar-section{margin-bottom:20px;text-align:left}
+.rbar-row{margin-bottom:10px}
+.rbar-label{display:flex;justify-content:space-between;font-size:12px;color:var(--text2);margin-bottom:4px}
+.rbar-track{background:var(--panel2);border-radius:6px;height:8px;overflow:hidden}
+.rbar-fill{height:100%;border-radius:6px;background:linear-gradient(90deg,var(--indigo),var(--accent));transition:width 1s ease}
+.result-comment-section{margin-top:16px;text-align:left}
+.comment-title{font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1.5px;color:var(--text2);margin-bottom:10px;text-transform:uppercase}
+.comments-list{max-height:200px;overflow-y:auto;margin-bottom:10px}
+.comments-list::-webkit-scrollbar{width:3px}
+.comments-list::-webkit-scrollbar-thumb{background:var(--border)}
+.comment-item{display:flex;gap:8px;padding:10px 12px;border-radius:12px;background:var(--panel2);border:1px solid var(--border);margin-bottom:6px;animation:fadeUp .2s ease}
+.comment-av{width:28px;height:28px;border-radius:50%;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0;overflow:hidden}
+.comment-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.comment-body{flex:1}
+.comment-nick{font-size:11px;font-weight:600;color:var(--indigo2);margin-bottom:2px}
+.comment-text{font-size:12px;color:var(--text);line-height:1.5}
+.comment-time{font-size:10px;color:var(--text3);margin-top:2px}
+.comment-input-row{display:flex;gap:8px;margin-top:8px}
+.comment-input{flex:1;background:var(--input-bg);border:1.5px solid var(--border);border-radius:12px;padding:9px 14px;color:var(--text);font-size:13px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
+.comment-input:focus{border-color:var(--indigo2)}
+.comment-input::placeholder{color:var(--text3)}
+.comment-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:12px;color:#fff;font-size:14px;cursor:pointer;padding:0 16px}
+.result-actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:18px}
+.res-btn{padding:10px 22px;border-radius:14px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text);font-size:13px;cursor:pointer;transition:all .2s;font-family:'Noto Sans Georgian',sans-serif}
+.res-btn:hover{background:var(--border)}
+.res-btn.primary{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;color:#fff}
+.res-btn.primary:hover{opacity:.88}
+
+/* CONFETTI */
+.confetti-piece{position:fixed;pointer-events:none;z-index:9999;border-radius:2px;animation:confetti 1.5s ease-out forwards}
+
+/* TOAST */
+.toast-notif{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 22px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:fadeUp .3s ease;white-space:nowrap}
+</style>
+</head>
+<body>
+
+<nav id="topnav">
+  <a href="index.html" class="nav-logo">🔥</a>
+  <a href="index.html" class="nav-back">← კაიფმანია</a>
+  <span class="nav-title">🧠 ტესტები</span>
+  <div class="nav-spacer"></div>
+  <div class="user-chip">
+    <div class="user-av" id="userAvEl">😊</div>
+    <span id="userNickEl">...</span>
+  </div>
+</nav>
+
+<div class="container">
+  <div class="page-hero">
+    <h1>🧠 ფსიქოლოგიური ტესტები</h1>
+    <p>გაიგე მეტი შენი თავის შესახებ — გაიარე ტესტი და გაუზიარე შედეგი!</p>
+  </div>
+
+  <div id="historySection">
+    <div class="section-head">ბოლო ტესტები</div>
+    <div class="history-scroll" id="historyScroll"></div>
+  </div>
+
+  <div class="section-head" style="margin-bottom:14px">ტესტების კატალოგი</div>
+  <div class="tests-grid" id="testsGrid"></div>
+</div>
+
+<!-- QUIZ MODAL -->
+<div class="quiz-overlay" id="quizOverlay">
+  <div class="quiz-modal" id="quizModal">
+    <div class="quiz-header">
+      <button class="quiz-close" onclick="closeQuiz()">✕</button>
+      <div class="quiz-title" id="quizTitleEl">ტესტი</div>
+      <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+      <div class="progress-text" id="progressText">1 / 10</div>
+    </div>
+    <div class="quiz-body" id="quizBody"></div>
+    <div id="quizResultScreen" class="result-screen"></div>
+  </div>
+</div>
+
+<script>
+const{createClient}=supabase;
+const sb=createClient(
+  "https://brggiyhfzfbmlirqfgpo.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
+);
+
+let ME=null,MYPROF=null;
+let currentTest=null,currentQ=0,answers=[],testResults=[];
+
+/* ===== TESTS DATA ===== */
+const TESTS=[
+{
+  id:'mbti_short',
+  icon:'🧩',
+  name:'პიროვნების ტიპი (MBTI)',
+  desc:'გაიგე შენი 16 პიროვნული ტიპიდან რომელს მიეკუთვნები',
+  questions:20,
+  duration:'~5 წთ',
+  category:'პიროვნება',
+  questions_data:[
+    {q:'წვეულებაზე ახალ ადამიანებთან ურთიერთობა...',opts:[{t:'ენერგიას ამატებს მე',v:'E'},{t:'ენერგიას მიწყვეტს',v:'I'}],dim:'EI'},
+    {q:'გადაწყვეტილებას მიიღებ...',opts:[{t:'ლოგიკასა და ფაქტებზე დაყრდნობით',v:'T'},{t:'გრძნობებსა და ფასეულობებზე დაყრდნობით',v:'F'}],dim:'TF'},
+    {q:'სამუშაო პროცესში გირჩევნია...',opts:[{t:'მკაფიო სტრუქტურა და გეგმა',v:'J'},{t:'მოქნილობა და სპონტანურობა',v:'P'}],dim:'JP'},
+    {q:'ინფორმაციის მიღებისას...',opts:[{t:'ყურადღებას ვაქცევ კონკრეტულ ფაქტებს',v:'S'},{t:'ვხედავ ნიმუშებს და შესაძლებლობებს',v:'N'}],dim:'SN'},
+    {q:'სოციალური ღონისძიების შემდეგ...',opts:[{t:'სიამოვნება მქონდა და კიდევ მინდა',v:'E'},{t:'დავიღალე და მარტოობა მჭირდება',v:'I'}],dim:'EI'},
+    {q:'კონფლიქტის დროს...',opts:[{t:'ვეძებ ლოგიკურ გამოსავალს',v:'T'},{t:'ვფიქრობ ემოციურ გავლენაზე',v:'F'}],dim:'TF'},
+    {q:'საქმეების ორგანიზება...',opts:[{t:'ვამჯობინებ ყველაფრის დაგეგმვას',v:'J'},{t:'ვამჯობინებ ადაპტაციას სიტუაციისამებრ',v:'P'}],dim:'JP'},
+    {q:'ახალი ადგილის გაცნობისას...',opts:[{t:'ყურადღებას ვაქცევ დეტალებს',v:'S'},{t:'ვიღებ ზოგად შთაბეჭდილებას',v:'N'}],dim:'SN'},
+    {q:'მეგობრების წრეში...',opts:[{t:'ხშირად ვარ ყველა ყურადღების ცენტრში',v:'E'},{t:'ვამჯობინებ ჩუმ დაკვირვებას',v:'I'}],dim:'EI'},
+    {q:'სამართლიანობა vs თანაგრძნობა:',opts:[{t:'სამართლიანობა უფრო მნიშვნელოვანია',v:'T'},{t:'თანაგრძნობა უფრო მნიშვნელოვანია',v:'F'}],dim:'TF'},
+    {q:'გამგზავრებამდე ერთი კვირით ადრე...',opts:[{t:'ყველაფერი დაგეგმილი და შეფუთული მაქვს',v:'J'},{t:'კვალად ველი და პაკეტს ბოლოს ვაკეთებ',v:'P'}],dim:'JP'},
+    {q:'სწავლისას ვამჯობინებ...',opts:[{t:'კონკრეტულ ფაქტებს და მაგალითებს',v:'S'},{t:'ზოგად კონცეფციებს და თეორიებს',v:'N'}],dim:'SN'},
+    {q:'ახალ ადამიანს გავეცანი —',opts:[{t:'ვხარობ და კოდთან ვცდილობ ახლოს ვიყო',v:'E'},{t:'ვიხნობ მანძილს სანამ ერთმანეთს ვიცნობთ',v:'I'}],dim:'EI'},
+    {q:'სხვების ქება-დიდება...',opts:[{t:'ვაფასებ კომპეტენციასა და უნარს',v:'T'},{t:'ვაფასებ გულწრფელ სითბოს',v:'F'}],dim:'TF'},
+    {q:'სამუშაო ადგილი...',opts:[{t:'სიწმინდე, სისტემა, ყველაფერი ადგილზე',v:'J'},{t:'ქაოსი? ეს შემოქმედებაა!',v:'P'}],dim:'JP'},
+    {q:'ოცნების შესახებ...',opts:[{t:'ვოცნებ პრაქტიკულ მიზნებზე',v:'S'},{t:'ვოცნებ არარსებულ სამყაროებზე',v:'N'}],dim:'SN'},
+    {q:'ახალ ადამიანებთან საუბარი...',opts:[{t:'ადვილია — ყოველთვის რაღაც სათქმელი მაქვს',v:'E'},{t:'ძნელია — ვფიქრობ სანამ ვიტყვი',v:'I'}],dim:'EI'},
+    {q:'გადაწყვეტილება მიღებულია:',opts:[{t:'ობიექტური ანალიზის საფუძველზე',v:'T'},{t:'პირადი ფასეულობების საფუძველზე',v:'F'}],dim:'TF'},
+    {q:'ვადების დაცვა...',opts:[{t:'ვასრულებ სამუშაოს ვადამდე დიდი ხნით ადრე',v:'J'},{t:'ვასრულებ ბოლო წუთში — ეს ბუნებრივია',v:'P'}],dim:'JP'},
+    {q:'მომავლის გეგმებზე ფიქრი...',opts:[{t:'ფიქრობ რეალობაზე, ახლოს მომავალზე',v:'S'},{t:'ფიქრობ შორეულ შესაძლებლობებზე',v:'N'}],dim:'SN'},
+  ],
+  calcResult(ans){
+    const s={E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+    ans.forEach((a,i)=>{if(a)s[a]=(s[a]||0)+1;});
+    const type=(s.E>=s.I?'E':'I')+(s.S>=s.N?'S':'N')+(s.T>=s.F?'T':'F')+(s.J>=s.P?'J':'P');
+    const types={
+      'INTJ':{name:'ინტჯ — სტრატეგი',icon:'♟️',desc:'ამბიციური, სტრატეგიული გონება. ყოველთვის გეგმით. ნდობს მხოლოდ ცოდნას.',traits:['სტრატეგი','დამოუკიდებელი','ანალიტიკოსი','გადამჭრელი']},
+      'INTP':{name:'ინტპ — ლოგიკოსი',icon:'🔬',desc:'ყველაფრის ჭეშმარიტება სჭირდება. აბსტრაქტული ცოდნის შეყვარებული.',traits:['ლოგიკოსი','განმარტოებული','ინოვატორი','სკეპტიკოსი']},
+      'ENTJ':{name:'ენტჯ — კომანდირი',icon:'👑',desc:'ბუნებრივი ლიდერი. სისტემებს ხედავს სადაც სხვები ვერ ხედავენ.',traits:['ლიდერი','ეფექტური','სტრატეგი','თავდაჯერებული']},
+      'ENTP':{name:'ენტპ — დებატყვარი',icon:'💡',desc:'ინტელექტუალური ჩემპიონი. ყველა ბარიერს ახალ შესაძლებლობად ხედავს.',traits:['ინოვატორი','დებატყვარი','ლოგიკოსი','ადაპტური']},
+      'INFJ':{name:'ინფჯ — ადვოკატი',icon:'🌿',desc:'ყველაზე იშვიათი ტიპი. ღრმა ემპათია + სტრატეგიული ხედვა.',traits:['ემფათიური','ინტუიტური','ალტრუისტი','ამბიციური']},
+      'INFP':{name:'ინფპ — შუამავალი',icon:'🦋',desc:'ოცნებარი, იდეალისტი. ყოველთვის ეძებს ყოფნის ღრმა მნიშვნელობას.',traits:['ემოციური','შემოქმედი','ემპათიური','იდეალისტი']},
+      'ENFJ':{name:'ენფჯ — მასწავლებელი',icon:'🌟',desc:'ქარიზმატული ლიდერი. ნდობს ადამიანებს — მის ნდობას ყველა ამართლებს.',traits:['ემპათიური','ლიდერი','კომუნიკაბელური','ვნებიანი']},
+      'ENFP':{name:'ენფპ — კამპანია',icon:'🎉',desc:'ენთუზიასტი, შემოქმედი. სამყაროს ბედნიერ ადგილად ხედავს.',traits:['ენთუზიასტი','შემოქმედი','სოციალური','ოპტიმისტი']},
+      'ISTJ':{name:'ისტჯ — ლოჯისტი',icon:'📋',desc:'საიმედო, სასარგებლო. ფაქტები, ისტორია, ტრადიცია — ყველაფერი ადგილზე.',traits:['საიმედო','სისტემური','პასუხისმგებელი','სისტემური']},
+      'ISFJ':{name:'ისფჯ — დამცველი',icon:'🛡️',desc:'ყველაზე სანდო. მის ახლობლებს ვერ ავნებ — სანამ ის ცოცხალია.',traits:['გულუხვი','ყურადღებიანი','ერთგული','მყარი']},
+      'ESTJ':{name:'ესტჯ — ხელმძღვანელი',icon:'⚙️',desc:'ტრადიციებისა და წესების გმირი. ყველაფერი ზუსტად, ვადებში, სწორად.',traits:['ორგანიზებული','ლიდერი','ერთგული','ეფექტური']},
+      'ESFJ':{name:'ესფჯ — კონსული',icon:'🤝',desc:'სოციალური. ყველას კარგად ყოფნა — ეს პირველი პრიორიტეტი.',traits:['თბილი','კომუნიკაბელური','ლოიალური','ყურადღებიანი']},
+      'ISTP':{name:'ისტპ — ვირტუოზი',icon:'🔧',desc:'ხელოვნების ოსტატი. სარგებელს ხედავ ყველგან. მექანიკური ინტელექტი.',traits:['პრაქტიკული','ექსპერიმენტატორი','დამოუკიდებელი','ყურადღებიანი']},
+      'ISFP':{name:'ისფპ — ავანტიურისტი',icon:'🎨',desc:'ხელოვანი სულით. ყოველ მომენტში ყოფნა — ეს ბედნიერება.',traits:['მოქნილი','შემოქმედი','ემოციური','ჰარმონიული']},
+      'ESTP':{name:'ესტპ — ანტრეპრენიორი',icon:'⚡',desc:'ენერგია, სწრაფი გადაწყვეტილებები, ადრენალინი. ყოველდღე თავგადასავალი.',traits:['ენერგიული','პრაქტიკული','სოციალური','ადაპტური']},
+      'ESFP':{name:'ესფპ — გამასპინძლებელი',icon:'🌈',desc:'ცხოვრება — ეს თეატრია, ხოლო ყველა სცენაზეა. მხიარული სული.',traits:['მხიარული','სპონტანური','ენთუზიასტი','სოციალური']},
+    };
+    const info=types[type]||{name:type,icon:'🧩',desc:'უნიკალური ტიპი.',traits:[]};
+    const pct={
+      'E/I':Math.round(s.E/(s.E+s.I+0.01)*100),
+      'S/N':Math.round(s.S/(s.S+s.N+0.01)*100),
+      'T/F':Math.round(s.T/(s.T+s.F+0.01)*100),
+      'J/P':Math.round(s.J/(s.J+s.P+0.01)*100),
+    };
+    return{type,label:info.name,icon:info.icon,desc:info.desc,traits:info.traits,bars:[
+      {label:'E (ექსტრავ.)',val:pct['E/I'],label2:'I (ინტრავ.)'},
+      {label:'S (სენს.)',val:pct['S/N'],label2:'N (ინტ.)'},
+      {label:'T (ლოგ.)',val:pct['T/F'],label2:'F (გრძ.)'},
+      {label:'J (განსჯ.)',val:pct['J/P'],label2:'P (აღქ.)'},
+    ]};
+  }
+},
+{
+  id:'stress',
+  icon:'🌊',
+  name:'სტრესის დონე',
+  desc:'შეაფასე შენი სტრესის დონე ბოლო ორი კვირის განმავლობაში',
+  questions:10,
+  duration:'~3 წთ',
+  category:'კეთილდღეობა',
+  questions_data:[
+    {q:'ბოლო 2 კვირაში, რამდენად ხშირად გრძნობდი, რომ რაღაც მოულოდნელი დადგა?',scale:true,min:'არასოდეს',max:'ძალიან ხშირად'},
+    {q:'რამდენად ხშირად ხარ უუნარო, გაკონტროლო შენი ცხოვრების მნიშვნელოვანი რამ?',scale:true,min:'არასოდეს',max:'ძალიან ხშირად'},
+    {q:'რამდენად ხშირად გრძნობდი ნერვიულობას ან სტრესს?',scale:true,min:'არასოდეს',max:'ძალიან ხშირად'},
+    {q:'ბოლო 2 კვირაში, რამდენჯერ გრძნობდი, რომ ვერ გაართვი პრობლემებს?',scale:true,min:'არასოდეს',max:'ძალიან ხშირად'},
+    {q:'რამდენად ხშირად ხარ გაბრაზებული, ისეთ რამეზე, რაც შენს კონტროლს გარეთ იყო?',scale:true,min:'არასოდეს',max:'ძალიან ხშირად'},
+    {q:'რამდენად ხშირად ხარ სიძნელეების გადარჩევა — "ეს ჩემი ძალის ფარგლებშია"?',scale:true,min:'არასოდეს',max:'ყოველთვის',reverse:true},
+    {q:'რამდენად ხშირად გამომდის ბოლო ვადამდე სამუშაოს ბოლომდე მიყვანა?',scale:true,min:'არასოდეს',max:'ყოველთვის',reverse:true},
+    {q:'პრობლემების კონტროლი — შეგიძლია?',scale:true,min:'სრულიად უუნარო',max:'სრულიად ვაკონტროლებ',reverse:true},
+    {q:'გამაღიზიანებელ ყველაფრის მმართველი — ეს შენი სურათია?',scale:true,min:'არ შეესაბამება',max:'სრულიად შეესაბამება',reverse:true},
+    {q:'რამდენად ხშირად გრძნობ, რომ სიტუაცია გაკონტროლებს (და არა შენ მას)?',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+  ],
+  calcResult(ans){
+    const vals=ans.map((a,i)=>{
+      if(a===null||a===undefined)return 0;
+      const q=this.questions_data[i];
+      return q.reverse?(4-parseInt(a)):parseInt(a);
+    });
+    const total=vals.reduce((s,v)=>s+v,0);
+    const pct=Math.round(total/40*100);
+    let label,icon,desc,traits;
+    if(pct<25){label='დაბალი სტრესი';icon='😌';desc='შენი ემოციური მდგომარეობა სტაბილურია. სტრესი მინიმალურია. კარგი ბალანსი სამუშაოსა და დასვენებას შორის.';traits=['ემოციური ბალანსი','ადაპტობა','სიმშვიდე','გამძლეობა'];}
+    else if(pct<50){label='ზომიერი სტრესი';icon:'😐';icon='😐';desc='ზოგიერთ სიტუაციაში სტრესი გრძნობ, მაგრამ ზოგადად კარგად გაართვი. ოდნავ მეტი სიფრთხილე ზიანს არ მოგაყენებს.';traits=['გამძლეობა','ყველაფრის ცდა','ადაპტობა','სიფრთხილე'];}
+    else if(pct<75){label='მაღალი სტრესი';icon:'😰';icon='😰';desc='სტრესის დონე შეშფოთებას იწვევს. გთავაზობ დასვენების ტექნიკებს, ძილის გაუმჯობესებას და ახლობლებთან ღია საუბარს.';traits:['დამღლელობა','გადატვირთვა','დახმარება სჭირდება','ძალა გაქვს'];}
+    else{label='ძალიან მაღალი სტრესი';icon:'😫';icon='😫';desc='სერიოზული სტრესი — მიაქციე ყურადღება. ახლობელთან ან სპეციალისტთან საუბარი ძალიან გამოსადეგი იქნება.';traits:['გადატვირთვა','დახმარება გჭირდება','ამოსუნთქვა','ძლიერი ხარ'];}
+    traits=traits||[];
+    return{type:label,label:label+' ('+pct+'%)',icon,desc,traits,score:total,maxScore:40,pct,bars:[{label:'სტრესის ინდექსი',val:pct,label2:''}]};
+  }
+},
+{
+  id:'love_lang',
+  icon:'💖',
+  name:'სიყვარულის ენა',
+  desc:'გაიგე, სიყვარულის 5 ენიდან შენთვის მნიშვნელოვანი',
+  questions:15,
+  duration:'~4 წთ',
+  category:'ურთიერთობები',
+  questions_data:[
+    {q:'ყველაზე მეტი სიამოვნება მიყვებს...',opts:[{t:'ჩახუტება, შეხება',v:'T'},{t:'კომპლიმენტები, სასიამოვნო სიტყვები',v:'W'}],dim:'x'},
+    {q:'ვგრძნობ, რომ გიყვარვარ, როდესაც...',opts:[{t:'დრო ატარებ ჩემთან ერთად',v:'Q'},{t:'ეხმარები ჩემს პრობლემების გადაჭრაში',v:'A'}],dim:'x'},
+    {q:'საჩუქარი — ეს...',opts:[{t:'ძალიან მნიშვნელოვანია ჩემთვის',v:'G'},{t:'ნაკლებად მნიშვნელოვანია ვიდრე ერთად გატარებული დრო',v:'Q'}],dim:'x'},
+    {q:'კომუნიკაციაში ყველაზე მეტი...',opts:[{t:'გამომხატველი სიტყვები და კომპლიმენტები',v:'W'},{t:'ფიზიკური სიახლოვე',v:'T'}],dim:'x'},
+    {q:'როდესაც ვარ დაღლილი...',opts:[{t:'ყველაზე მეტი ჩახუტება მჭირდება',v:'T'},{t:'ვინმეს პრაქტიკული დახმარება',v:'A'}],dim:'x'},
+    {q:'ვგრძნობ სიყვარულს, როდესაც...',opts:[{t:'ვიღებ გამაოგნებელ საჩუქარს',v:'G'},{t:'ვიღებ გამამხნევებელ სიტყვებს',v:'W'}],dim:'x'},
+    {q:'ჩემთვის ყველაზე ღირებული...',opts:[{t:'ერთად გატარებული ხარისხიანი დრო',v:'Q'},{t:'დახმარება სასწრაფო სიტუაციებში',v:'A'}],dim:'x'},
+    {q:'ახლობელმა ხელი დამჭირა...',opts:[{t:'ეს ბევრს ნიშნავს ჩემთვის',v:'T'},{t:'ეს კარგია, მაგრამ ბევრს არ მიყვება',v:'W'}],dim:'x'},
+    {q:'სასიამოვნო საჩუქარი vs ერთად გასვლა:',opts:[{t:'საჩუქარი!',v:'G'},{t:'ერთად გასვლა!',v:'Q'}],dim:'x'},
+    {q:'ვინ ვარ — ადამიანი, ვისთვისაც...',opts:[{t:'კომპლიმენტი = სამოთხე',v:'W'},{t:'ფიზიკური კონტაქტი = სიახლოვე',v:'T'}],dim:'x'},
+    {q:'ყველაზე დასამახსოვრებელი საჩუქარი — ეს...',opts:[{t:'ნებისმიერი, რომელიც ყურადღებით შეირჩა',v:'G'},{t:'ჩვეულებრივ, ამ ტიპის საჩუქრებზე ნაკლებ ყურადღებას ვაქცევ',v:'A'}],dim:'x'},
+    {q:'მეზობელი ავადაა — ვეხმარები...',opts:[{t:'პრაქტიკული დახმარებით (სამზარეულო, სოციალური)',v:'A'},{t:'ვიყავი ახლოს, ვუსმენ, ვუქმნი კომფორტს',v:'Q'}],dim:'x'},
+    {q:'სიყვარულის გამოხატვისთვის...',opts:[{t:'ვამბობ "გიყვარვარ" ხშირად',v:'W'},{t:'ვაჩუქებ სიმბოლური საჩუქრებს',v:'G'}],dim:'x'},
+    {q:'კარგი დღე — ეს...',opts:[{t:'დღე ახლობელ ადამიანებთან ერთად',v:'Q'},{t:'დღე, სადაც ვიღაცამ ბევრი კომპლიმენტი მიბოძა',v:'W'}],dim:'x'},
+    {q:'ყველაზე მნიშვნელოვანი...',opts:[{t:'ფიზიკური სიახლოვე — ჩახუტება, კონტაქტი',v:'T'},{t:'პრაქტიკული სიყვარული — დახმარება, ქმედება',v:'A'}],dim:'x'},
+  ],
+  calcResult(ans){
+    const s={W:0,Q:0,G:0,T:0,A:0};
+    ans.forEach(a=>{if(a)s[a]=(s[a]||0)+1;});
+    const top=Object.entries(s).sort((a,b)=>b[1]-a[1])[0][0];
+    const names={
+      W:{name:'სიტყვები დადასტურებისა',icon:'💬',desc:'შენთვის ყველაზე მნიშვნელოვანია სიტყვიერი გამოხატვა — კომპლიმენტები, "გიყვარვარ"-ი, გამამხნევებელი ფრაზები. სიტყვები ბევრს ნიშნავს!',traits:['სიტყვები ბევრს ნიშნავს','კომპლიმენტების შეყვარებული','ვერბალური სიახლოვე']},
+      Q:{name:'ხარისხიანი დრო',icon:'⏰',desc:'ყველაფერს ტოვებ, ერთად ყოფნა გგონია ყველაზე ღრმა სიყვარულის გამოხატვა. ახლობელ ადამიანებთან ერთად გატარებული დრო — ეს სამოთხეა.',traits:['ხარისხიანი კომუნიკაცია','ერთად ყოფნა','ყურადღება']},
+      G:{name:'საჩუქრები',icon:'🎁',desc:'ყველა ყვედრის, მაგრამ ამ ლანდის ენის ადამიანები იციან: ყველაზე ყურადღებიანი საჩუქარი — ეს სიყვარულის ხილული ნიშანია.',traits:['სიმბოლური ნიშნები','ყურადღება','განსაკუთრებულობა']},
+      T:{name:'ფიზიკური შეხება',icon:'🤗',desc:'ჩახუტება, ხელის ჭერა, ფიზიკური სიახლოვე — ეს ყველაზე ბუნებრივი გზაა სიყვარულის გამოხატვისა შენთვის.',traits:['ფიზიკური კავშირი','კომფორტი','სიახლოვე']},
+      A:{name:'სამსახური ქმედებაში',icon:'🛠️',desc:'ყვედრობ ქმედებებს სიტყვებზე. სიყვარული გამოიხატება მომსახურებითა და პრაქტიკული დახმარებით.',traits:['ქმედება სიტყვებს ცვლის','პრაქტიკული სიყვარული','სასარგებლობა']},
+    };
+    const info=names[top]||{name:'ბალანსირებული',icon:'💝',desc:'შენ ყველა სიყვარულის ენა გიყვარს!',traits:[]};
+    const total=Object.values(s).reduce((a,b)=>a+b,0)||1;
+    return{type:info.name,label:info.name,icon:info.icon,desc:info.desc,traits:info.traits,bars:Object.entries(s).map(([k,v])=>({label:{W:'სიტყვები',Q:'დრო',G:'საჩუქრები',T:'შეხება',A:'ქმედება'}[k],val:Math.round(v/total*100),label2:''}))};
+  }
+},
+{
+  id:'self_esteem',
+  icon:'🌟',
+  name:'თვითშეფასება (Rosenberg)',
+  desc:'კლასიკური 10-პუნქტიანი Rosenberg-ის თვითშეფასების სკალა',
+  questions:10,
+  duration:'~2 წთ',
+  category:'პიროვნება',
+  questions_data:[
+    {q:'ვფიქრობ, რომ ვარ ღირებული ადამიანი.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები'},
+    {q:'ვფიქრობ, რომ მე ბევრი კარგი თვისება მაქვს.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები'},
+    {q:'ვფიქრობ, რომ ვარ სრული წარუმატებლობა.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები',reverse:true},
+    {q:'ვყვები ისეთ საქმეებს, რომლებსაც სხვები ისევე კარგად ვერ ვაკეთებ.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები'},
+    {q:'ვფიქრობ, ნამდვილად სათაყვანო არ ვარ.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები',reverse:true},
+    {q:'ვიღებ პოზიტიურ დამოკიდებულებას ჩემს მიმართ.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები'},
+    {q:'ზოგადად კმაყოფილი ვარ ჩემი თავით.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები'},
+    {q:'ვისურვებდი, რომ თავი უფრო მეტად პატივს ვცემდე.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები',reverse:true},
+    {q:'ხანდახან ვგრძნობ, რომ სრულიად უვარგისი ვარ.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები',reverse:true},
+    {q:'ვფიქრობ, ჩემი ცხოვრება ისევე ღირებულია, როგორც სხვებისა.',scale:true,min:'სრულ.ვთანხმდები',max:'კატეგ.არ ვთანხმდები'},
+  ],
+  calcResult(ans){
+    const vals=ans.map((a,i)=>{if(a===null||a===undefined)return 1;const q=this.questions_data[i];const v=parseInt(a);return q.reverse?(3-v):v;});
+    const total=vals.reduce((s,v)=>s+v,0);
+    const pct=Math.round(total/30*100);
+    let label,icon,desc,traits;
+    if(pct>=70){label='მაღალი თვითშეფასება';icon='🌟';desc='შენ გაქვს ჯანსაღი, მაღალი თვითშეფასება. თავს პატივს სცემ, იცი შენი ღირებულება. ეს ძირითადი ფსიქოლოგიური კეთილდღეობის ნიშანია.';traits=['თვითდარწმუნებული','საკუთარი ღირებულება','ემოციური მდგრადობა','პოზიტიური'];}
+    else if(pct>=45){label='ზომიერი თვითშეფასება';icon='😊';desc='შენ გაქვს ზოგადად სტაბილური თვითშეფასება, მაგრამ სიტუაციური ეჭვი გვხვდება. ეს ნორმალური ადამიანური გამოცდილებაა.';traits=['ბალანსი','ადამიანური ეჭვი','ზრდის პოტენციალი','სიფრთხილე'];}
+    else{label='დაბალი თვითშეფასება';icon='💙';desc:'თვითშეფასება ჯანსაღ ადამიანზე ზემოქმედებს. ეს შეიცვლება! ახლობლებთან საუბარი ან ფსიქოლოგის კონსულტაცია ძალიან ეფექტური შეიძლება იყოს.';desc='თვითშეფასება შეიძლება გაიზარდოს. ეს შეიცვლება — ახლობლებთან გულახდილი საუბარი ძალიან ეფექტურია.';traits=['ამოსუნთქვა','შენ ღირებული ხარ','ნელ-ნელა წინ','დახმარება ეფექტურია'];}
+    return{type:label,label:label+' ('+total+'/30)',icon,desc,traits,score:total,maxScore:30,pct,bars:[{label:'თვითშეფასება',val:pct,label2:''}]};
+  }
+},
+{
+  id:'emotional_iq',
+  icon:'🧘',
+  name:'ემოციური ინტელექტი',
+  desc:'შეაფასე შენი ემოციური გაგება, კონტროლი და ემპათია',
+  questions:12,
+  duration:'~4 წთ',
+  category:'ემოციები',
+  questions_data:[
+    {q:'ვცნობ ჩემს ემოციებს, სანამ ისინი ჩემს ქმედებებს იმართავს.',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+    {q:'გამაგრძნობინეს ბრაზი — ვახერხებ მოდუნებას 5 წუთში.',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+    {q:'ვიგებ, რას გრძნობს სხვა ადამიანი — სანამ ის ვილაპარაკებს.',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+    {q:'ძნელ ვითარებაში ვიგებ, რაა ყველაზე გონივრული ნაბიჯი.',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+    {q:'ემოციური სიძნელის შემდეგ სწრაფად ვბრუნდები ნორმაში.',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+    {q:'ჩემი ემოციების სახელდება (ბრაზი, სევდა, შიში) ადვილია ჩემთვის.',scale:true,min:'ძალიან ძნელი',max:'ძალიან ადვილი'},
+    {q:'კამათის დროს ვრჩები მშვიდი და ვუსმენ.',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+    {q:'ვაღიარებ ჩემ შეცდომებს ემოციურ სიტუაციებში.',scale:true,min:'ძალიან ძნელია',max:'ადვილია'},
+    {q:'ვეხმარები სხვებს ემოციური სიძნელეების გადალახვაში.',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+    {q:'ნეგატიური გრძნობები ჩემს პროდუქტიულობას არ ამცირებს.',scale:true,min:'ყოველთვის ამცირებს',max:'არასოდეს ამცირებს'},
+    {q:'ვიცი, სხვის ემოცია ჩემს ქცევაზე როგორ მოქმედებს.',scale:true,min:'სრულიად ვერ ვხვდები',max:'ყოველთვის ვიცი'},
+    {q:'ემოციებს ვიყენებ გადაწყვეტილების მიღებაში (ბრძენ გზით).',scale:true,min:'არასოდეს',max:'ყოველთვის'},
+  ],
+  calcResult(ans){
+    const vals=ans.map(a=>a===null||a===undefined?0:parseInt(a));
+    const total=vals.reduce((s,v)=>s+v,0);
+    const pct=Math.round(total/48*100);
+    let label,icon,desc,traits;
+    if(pct>=75){label='მაღალი EQ';icon:'🧘';icon='🧘';desc='შენი ემოციური ინტელექტი შესანიშნავია. ავტოცნობა, ემპათია, კონტროლი — ეს ყველაფერი ბუნებრივია შენთვის.';traits=['ემოციური ავტოცნობა','ემპათია','თვითრეგულირება','სოციალური ინტელექტი'];}
+    else if(pct>=50){label='ზომიერი EQ';icon:'😊';icon='😊';desc='ემოციური ინტელექტი კარგ დონეზე. კიდევ ოდნავ მეტი ანარეკლი და ვარჯიში — და კიდევ გაიზრდება.';traits=['პოტენციალი','ემოციური ცნობიერება','ვარჯიში','ზრდა'];}
+    else{label='EQ ზრდის ფაზაში';icon:'💡';icon='💡';desc='ემოციური ინტელექტი ვარჯიშის ნიჭია. ყოველდღიური ყურადღება საკუთარ გრძნობებზე — ეს ყველაზე ეფექტური სტრატეგიაა.';traits=['ზრდა','ვარჯიში','ყოველდღიურობა','ნიჭი'];}
+    return{type:label,label:label+' ('+pct+'%)',icon,desc,traits,pct,bars:[{label:'EQ ინდექსი',val:pct,label2:''}]};
+  }
+},
+];
+
+/* ===== STATE ===== */
+let quizBody=null,resultScreen=null;
+
+/* ===== INIT ===== */
+async function init(){
+  const savedTheme=localStorage.getItem('kaif_theme')||'night';
+  document.body.classList.add(savedTheme.startsWith('theme-')?savedTheme:savedTheme==='day'?'day':'night');
+
+  const{data:{user}}=await sb.auth.getUser();
+  if(!user){location.href='index.html';return;}
+  ME=user;
+  const{data:prof}=await sb.from('profiles').select('*').eq('id',ME.id).single();
+  MYPROF=prof||{};
+  const chip=document.getElementById('userNickEl');if(chip)chip.textContent=MYPROF.username||'?';
+  const avEl=document.getElementById('userAvEl');
+  if(avEl&&MYPROF.avatar_url){avEl.innerHTML=`<img src="${MYPROF.avatar_url}">`;} else if(avEl){avEl.textContent=MYPROF.emotion||'😊';}
+
+  renderTests();
+  await loadHistory();
+}
+
+/* ===== RENDER TESTS ===== */
+function renderTests(){
+  const grid=document.getElementById('testsGrid');
+  grid.innerHTML='';
+  TESTS.forEach((t,i)=>{
+    const card=document.createElement('div');
+    card.className='test-card';
+    card.style.animationDelay=(i*0.08)+'s';
+    card.innerHTML=`
+      <span class="test-card-icon">${t.icon}</span>
+      <div class="test-card-name">${t.name}</div>
+      <div class="test-card-desc">${t.desc}</div>
+      <div class="test-card-meta">
+        <span class="test-meta-pill">❓ ${t.questions} კითხვა</span>
+        <span class="test-meta-pill">⏱ ${t.duration}</span>
+        <span class="test-meta-pill">📂 ${t.category}</span>
+      </div>
+      <button class="test-start-btn">▶ დაწყება</button>
+    `;
+    card.querySelector('.test-start-btn').onclick=(e)=>{e.stopPropagation();startTest(t);};
+    card.onclick=()=>startTest(t);
+    grid.appendChild(card);
+  });
+}
+
+/* ===== HISTORY ===== */
+async function loadHistory(){
+  try{
+    const{data}=await sb.from('test_results').select('*').eq('user_id',ME.id).order('created_at',{ascending:false}).limit(10);
+    testResults=data||[];
+    if(testResults.length>0){
+      document.getElementById('historySection').style.display='block';
+      renderHistory();
+    }
+  }catch(e){}
+}
+function renderHistory(){
+  const scroll=document.getElementById('historyScroll');
+  scroll.innerHTML='';
+  testResults.forEach(r=>{
+    const test=TESTS.find(t=>t.id===r.test_id);
+    const d=document.createElement('div');
+    d.className='hist-card';
+    const date=new Date(r.created_at).toLocaleDateString('ka-GE');
+    d.innerHTML=`<div class="hist-card-icon">${test?.icon||'🧠'}</div><div class="hist-card-name">${test?.name||r.test_id}</div><div class="hist-card-result">${r.result_label}</div><div class="hist-card-date">${date}</div>`;
+    d.onclick=()=>showStoredResult(r,test);
+    scroll.appendChild(d);
+  });
+}
+function showStoredResult(r,test){
+  if(!test)return;
+  currentTest=test;
+  openQuizModal();
+  showResult(r.result_data);
+}
+
+/* ===== START TEST ===== */
+function startTest(test){
+  currentTest=test;
+  currentQ=0;
+  answers=new Array(test.questions_data.length).fill(null);
+  openQuizModal();
+  renderQuestion();
+}
+function openQuizModal(){
+  document.getElementById('quizOverlay').classList.add('open');
+  document.getElementById('quizTitleEl').textContent=currentTest.icon+' '+currentTest.name;
+  quizBody=document.getElementById('quizBody');
+  resultScreen=document.getElementById('quizResultScreen');
+  quizBody.style.display='block';
+  resultScreen.style.display='none';
+}
+function closeQuiz(){
+  document.getElementById('quizOverlay').classList.remove('open');
+  currentTest=null;answers=[];currentQ=0;
+}
+
+/* ===== RENDER QUESTION ===== */
+function renderQuestion(){
+  const q=currentTest.questions_data[currentQ];
+  const total=currentTest.questions_data.length;
+  const pct=Math.round((currentQ/total)*100);
+  document.getElementById('progressBar').style.width=pct+'%';
+  document.getElementById('progressText').textContent=(currentQ+1)+' / '+total;
+
+  quizBody.innerHTML='';
+  const qDiv=document.createElement('div');
+  qDiv.innerHTML=`<div class="question-text">${q.q}</div>`;
+
+  if(q.scale){
+    const scRow=document.createElement('div');scRow.className='scale-row';
+    const labels=document.createElement('div');labels.className='scale-labels';
+    labels.innerHTML=`<span>${q.min}</span><span>${q.max}</span>`;
+    [0,1,2,3,4].forEach(v=>{
+      const btn=document.createElement('button');
+      btn.className='scale-btn'+(answers[currentQ]==v?' selected':'');
+      btn.textContent=v;
+      btn.onclick=()=>{answers[currentQ]=v;document.querySelectorAll('.scale-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');enableNext();};
+      scRow.appendChild(btn);
+    });
+    qDiv.appendChild(scRow);
+    qDiv.appendChild(labels);
+  } else {
+    const optList=document.createElement('div');optList.className='options-list';
+    q.opts.forEach(opt=>{
+      const btn=document.createElement('button');
+      btn.className='option-btn'+(answers[currentQ]===opt.v?' selected':'');
+      btn.textContent=opt.t;
+      btn.onclick=()=>{answers[currentQ]=opt.v;document.querySelectorAll('.option-btn').forEach(b=>b.classList.remove('selected'));btn.classList.add('selected');enableNext();};
+      optList.appendChild(btn);
+    });
+    qDiv.appendChild(optList);
+  }
+
+  const nav=document.createElement('div');nav.className='quiz-nav';
+  const prevBtn=document.createElement('button');prevBtn.className='q-prev-btn';prevBtn.textContent='← უკან';prevBtn.style.visibility=currentQ>0?'visible':'hidden';prevBtn.onclick=()=>{currentQ--;renderQuestion();};
+  const nextBtn=document.createElement('button');nextBtn.className='q-next-btn';nextBtn.id='nextBtn';
+  const isLast=(currentQ===total-1);
+  nextBtn.textContent=isLast?'✅ დასრულება':'შემდეგი →';
+  nextBtn.disabled=answers[currentQ]===null||answers[currentQ]===undefined;
+  nextBtn.onclick=()=>{
+    if(isLast)finishTest();
+    else{currentQ++;renderQuestion();}
+  };
+  nav.appendChild(prevBtn);nav.appendChild(nextBtn);
+  qDiv.appendChild(nav);
+  quizBody.appendChild(qDiv);
+}
+function enableNext(){const btn=document.getElementById('nextBtn');if(btn)btn.disabled=false;}
+
+/* ===== FINISH ===== */
+async function finishTest(){
+  const result=currentTest.calcResult(answers);
+  await saveResult(result);
+  spawnConfetti();
+  showResult(result);
+}
+async function saveResult(result){
+  try{
+    await sb.from('test_results').upsert({
+      user_id:ME.id,
+      test_id:currentTest.id,
+      result_label:result.label,
+      result_data:result,
+      created_at:new Date().toISOString(),
+    },{onConflict:'user_id,test_id'});
+    await loadHistory();
+  }catch(e){console.error(e);}
+}
+
+/* ===== SHOW RESULT ===== */
+function showResult(result){
+  quizBody.style.display='none';
+  resultScreen.style.display='block';
+  resultScreen.innerHTML='';
+
+  let barsHtml='';
+  if(result.bars&&result.bars.length){
+    barsHtml=`<div class="result-bar-section">`+result.bars.map(b=>`
+      <div class="rbar-row">
+        <div class="rbar-label"><span>${b.label}</span><span>${b.val}%</span></div>
+        <div class="rbar-track"><div class="rbar-fill" style="width:${b.val}%"></div></div>
+      </div>`).join('')+'</div>';
+  }
+
+  const traitsHtml=(result.traits||[]).map(t=>`<div class="trait-pill">${t}</div>`).join('');
+  const scoreHtml=result.score!==undefined?`<div class="result-score-row"><div class="score-card"><div class="score-card-val">${result.score}</div><div class="score-card-lbl">ქულა</div></div><div class="score-card"><div class="score-card-val">${result.pct||0}%</div><div class="score-card-lbl">პროცენტი</div></div></div>`:'';
+
+  resultScreen.innerHTML=`
+    <span class="result-big-icon">${result.icon}</span>
+    <div class="result-type">${result.type}</div>
+    <div class="result-subtitle">${result.label}</div>
+    ${scoreHtml}
+    ${barsHtml}
+    <div class="result-desc">${result.desc}</div>
+    <div class="result-traits">${traitsHtml}</div>
+    <div class="result-comment-section">
+      <div class="comment-title">💬 კომენტარები</div>
+      <div class="comments-list" id="commentsList">
+        <div style="color:var(--text3);font-size:12px;text-align:center;padding:12px">⏳ იტვირთება...</div>
+      </div>
+      <div class="comment-input-row">
+        <input class="comment-input" id="commentInput" placeholder="დაწერე კომენტარი...">
+        <button class="comment-send" onclick="sendResultComment()">✈️</button>
+      </div>
+    </div>
+    <div class="result-actions">
+      <button class="res-btn" onclick="shareResult('${result.type}','${result.icon}')">📤 გაზიარება</button>
+      <button class="res-btn" onclick="retakeTest()">🔄 თავიდან</button>
+      <button class="res-btn primary" onclick="closeQuiz()">✓ დახურვა</button>
+    </div>
+  `;
+
+  loadResultComments(currentTest.id);
+  setTimeout(()=>{document.querySelectorAll('.rbar-fill').forEach(b=>{const w=b.style.width;b.style.width='0';requestAnimationFrame(()=>{b.style.transition='width 1s ease';b.style.width=w;});});},100);
+}
+
+/* ===== COMMENTS ===== */
+async function loadResultComments(testId){
+  const list=document.getElementById('commentsList');
+  if(!list)return;
+  try{
+    const{data}=await sb.from('test_comments').select(`*, profiles!test_comments_user_id_fkey(username,avatar_url,emotion)`).eq('test_id',testId).order('created_at',{ascending:false}).limit(30);
+    list.innerHTML='';
+    if(!data||!data.length){list.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:12px">🌐 პირველი კომენტარი შენ დაწერე!</div>';return;}
+    data.forEach(c=>{
+      const p=c.profiles||{};
+      const avHtml=p.avatar_url?`<img src="${p.avatar_url}">`:(p.emotion||'😊');
+      const t=new Date(c.created_at).toLocaleDateString('ka-GE');
+      const d=document.createElement('div');d.className='comment-item';
+      d.innerHTML=`<div class="comment-av">${avHtml}</div><div class="comment-body"><div class="comment-nick">${esc(p.username||'?')}</div><div class="comment-text">${esc(c.content)}</div><div class="comment-time">${t}</div></div>`;
+      list.appendChild(d);
+    });
+  }catch(e){list.innerHTML='<div style="color:var(--text3);font-size:12px;text-align:center;padding:8px">ვერ ჩაიტვირთა</div>';}
+}
+async function sendResultComment(){
+  const inp=document.getElementById('commentInput');
+  const txt=inp?.value.trim();
+  if(!txt||!currentTest||!ME)return;
+  inp.value='';
+  try{
+    await sb.from('test_comments').insert({test_id:currentTest.id,user_id:ME.id,content:txt});
+    toast('✅ კომენტარი დაემატა!');
+    loadResultComments(currentTest.id);
+  }catch(e){toast('❌ ცხრილი ჯერ შეიქმენი! (test_comments)');}
+}
+
+/* ===== SHARE ===== */
+function shareResult(type,icon){
+  const text=`${icon} ჩემი შედეგი კაიფმანიას ტესტზე: "${type}" — კაიფმანია`;
+  if(navigator.share){navigator.share({text,title:'კაიფმანია ტესტი'}).catch(()=>{});}
+  else{navigator.clipboard.writeText(text).then(()=>toast('📋 დაკოპირდა!'));}
+}
+function retakeTest(){if(currentTest){currentQ=0;answers=new Array(currentTest.questions_data.length).fill(null);quizBody.style.display='block';resultScreen.style.display='none';renderQuestion();}}
+
+/* ===== CONFETTI ===== */
+function spawnConfetti(){
+  const colors=['#f07aff','#7a1fc8','#a855f7','#00d4ff','#00e555','#ffd040'];
+  for(let i=0;i<30;i++){
+    setTimeout(()=>{
+      const el=document.createElement('div');
+      el.className='confetti-piece';
+      el.style.cssText=`left:${10+Math.random()*80}%;top:${40+Math.random()*30}%;width:${6+Math.random()*8}px;height:${6+Math.random()*8}px;background:${colors[Math.floor(Math.random()*colors.length)]};animation-duration:${1+Math.random()}s;animation-delay:${Math.random()*0.5}s`;
+      document.body.appendChild(el);
+      setTimeout(()=>el.remove(),2000);
+    },i*40);
+  }
+}
+
+/* ===== UTILS ===== */
+function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+function toast(msg){const t=document.createElement('div');t.className='toast-notif';t.textContent=msg;document.body.appendChild(t);setTimeout(()=>t.remove(),2500);}
+
+document.getElementById('quizOverlay').addEventListener('click',e=>{if(e.target.id==='quizOverlay')closeQuiz();});
+
+init();
+</script>
+</body>
+</html>
