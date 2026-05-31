@@ -730,8 +730,8 @@ function updateTimerUI(){
 async function savePvpState(mv){
   if(!gameId) return;
   await sb.from('checkers_games').update({
-    board:JSON.stringify(board),
-    turn:String(currentTurn),
+    board:board,
+    turn:currentTurn===1?'white':'black',
     last_move:JSON.stringify(mv)
   }).eq('id',gameId);
 }
@@ -742,9 +742,10 @@ function watchPvpGame(gid){
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'checkers_games',filter:`id=eq.${gid}`},p=>{
       const g=p.new;
       if(g.status==='finished') return;
-      if(parseInt(g.turn)!==currentTurn){
-        board=JSON.parse(g.board);
-        currentTurn=parseInt(g.turn);
+      const gTurn = g.turn==='white'?1:2;
+      if(gTurn!==currentTurn){
+        board=typeof g.board==='string'?JSON.parse(g.board):g.board;
+        currentTurn=g.turn==='white'?1:2;
         selectedCell=null;validMoves=[];
         renderBoard();
         setStatus(currentTurn===1?'🔴 შენი ჯერია':'🔵 მოწინ.');
@@ -804,10 +805,15 @@ async function acceptInvite(){
   document.getElementById('invNotif').classList.remove('show');
   if(!pendingInvId||!pendingInvFrom) return;
   initBoard();
-  const{data:g}=await sb.from('checkers_games').insert({
-    player_white:pendingInvFrom.id,player_black:ME.id,
-    board:JSON.stringify(board),turn:'1',status:'active'
+  const{data:g, error:gErr}=await sb.from('checkers_games').insert({
+    player_white:pendingInvFrom.id,
+    player_black:ME.id,
+    challenger:pendingInvFrom.id,
+    board:board,
+    turn:'white',
+    status:'active'
   }).select().single();
+  if(gErr){console.error('Game insert error:',gErr);toast('❌ '+gErr.message);return;}
   await sb.from('checkers_invites').update({status:'accepted',game_id:g.id}).eq('id',pendingInvId);
   opponentProf=pendingInvFrom;
   startPvpGame(g.id,pendingInvFrom.id,true);
