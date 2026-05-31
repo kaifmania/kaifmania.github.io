@@ -571,9 +571,15 @@ function executeMove(mv,isAI=false){
   const nextTurn = currentTurn===1?2:1;
   currentTurn = nextTurn;
   renderBoard();
-  // PvP: DB-ში ვინახავთ ახალ მდგომარეობას
-  if(gameMode==='pvp'&&gameId) savePvpState(nextTurn);
-  if(!checkWin()){
+  if(gameMode==='pvp'&&gameId){
+    // DB-ში ვინახავთ — მოწინААРМდეგე watchPvpGame-ით მიიღებს
+    savePvpState(nextTurn);
+    if(!checkWin()){
+      // ჩემი სვლა გავაკეთე — ახლა მოწინААРМდეგის ჯერია
+      setStatus('🔵 მოწინAAРМდეგის ჯერი — ელოდე...');
+      stopTimer();
+    }
+  } else if(!checkWin()){
     if(gameMode==='ai'&&currentTurn===2){
       resetTimer(); setStatus('🤖 AI ფიქრობს...');
       setTimeout(doAIMove,500+aiDifficulty*200);
@@ -689,15 +695,19 @@ function watchPvpGame(gid){
       const g=p.new;
       if(g.status==='finished') return;
 
-      // ყოველთვის ვაახლებთ დაფას DB-დან
-      board = typeof g.board==='string'?JSON.parse(g.board):g.board;
-      currentTurn = g.turn==='white'?1:2;
-      selectedCell=null; validMoves=[];
-      renderBoard();
-      const isMyTurn = currentTurn === myColor;
-      setStatus(isMyTurn ? '🔴 შენი ჯერია' : '🔵 მოწინAARMდეგის ჯერი');
-      if(isMyTurn) resetTimer();
-      checkWin();
+      const incomingTurn = g.turn==='white'?1:2;
+
+      // თუ ახლა ჩემი ჯერია — ნიშნავს მოწინააღმდეგემ ახლახანს ისვლა
+      // ვაახლებ დაფას მხოლოდ ამ შემთხვევაში
+      if(incomingTurn === myColor){
+        board = typeof g.board==='string'?JSON.parse(g.board):g.board;
+        currentTurn = incomingTurn;
+        selectedCell=null; validMoves=[];
+        renderBoard();
+        setStatus('🔴 შენი ჯერია');
+        resetTimer();
+        checkWin();
+      }
     }).subscribe();
 }
 
