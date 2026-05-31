@@ -775,7 +775,10 @@ async function openInviteModal(){
 async function sendInvite(uid,uname){
   document.getElementById('inviteOverlay').classList.remove('open');
   toast('📨 მოწვევა გაიგზავნა → '+uname);
-  await sb.from('checkers_invites').upsert({from_id:ME.id,to_id:uid,status:'pending',created_at:new Date().toISOString()},{onConflict:'from_id,to_id'});
+  // Delete old invite first, then insert fresh
+  await sb.from('checkers_invites').delete().eq('from_id', ME.id).eq('to_id', uid);
+  const {error: invErr} = await sb.from('checkers_invites').insert({from_id:ME.id, to_id:uid, status:'pending', created_at:new Date().toISOString()});
+  if(invErr){ console.error('Invite error:', invErr); toast('❌ შეცდომა: ' + invErr.message); return; }
 }
 
 function watchInvites(){
