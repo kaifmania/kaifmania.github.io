@@ -722,12 +722,17 @@ async function openInviteModal(){
 
 async function sendInvite(uid, uname){
   document.getElementById('inviteOverlay').classList.remove('open');
-  toast('📨 მოწვევა გაიგზავნა → '+uname);
-  await sb.from('checkers_invites').delete().eq('from_id',ME.id).eq('to_id',uid).eq('status','pending');
+  // ორივე მიმართულებით ძველი მოწვევები წავშალოთ
+  await sb.from('checkers_invites').delete()
+    .or(`and(from_id.eq.${ME.id},to_id.eq.${uid}),and(from_id.eq.${uid},to_id.eq.${ME.id})`);
   const{error}=await sb.from('checkers_invites').insert({
     from_id:ME.id, to_id:uid, status:'pending', created_at:new Date().toISOString()
   });
-  if(error){toast('❌ შეცდომა: '+error.message);}
+  if(error){
+    toast('❌ შეცდომა: '+error.message);
+  } else {
+    toast('📨 მოწვევა გაიგზავნა → '+uname);
+  }
 }
 
 function watchInvites(){
