@@ -1,3 +1,11 @@
+<div id="visitors-floating-box" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: var(--panel); border: 1px solid var(--border); padding: 15px; border-radius: 16px; width: 260px; box-shadow: 0 8px 32px var(--glow); backdrop-filter: blur(8px);">
+  <h3 style="font-family: 'Unbounded', sans-serif; font-size: 12px; color: var(--indigo2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: 0.5px;">
+    <i class="fas fa-eye" style="color: var(--online); animation: pulse 2s infinite;"></i> პროფილის სტუმრები
+  </h3>
+  <div id="visitors-container" style="display: flex; flex-direction: column; gap: 6px; max-h: 200px; overflow-y: auto;">
+    <p style="font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0; font-family: 'Noto Sans Georgian', sans-serif;">სტუმრები ჯერ არ გყავს</p>
+  </div>
+</div>
 <!DOCTYPE html>
 <html lang="ka">
 <head>
@@ -1665,6 +1673,63 @@ async function init(){
   setTimeout(()=>toast('👋 გამარჯობა, '+(MYPROF?.username||'')+'!'),800);
 }
 init();
+  // ფუნქცია, რომელიც ბაზაში ჩაწერს სტუმრობას
+async function logProfileVisit(targetUserId) {
+ // ფუნქცია, რომელიც წამოიღებს სტუმრებს და ჩაყრის ფანჯარაში
+async function loadMyProfileVisitors() {
+  if (!ME || !ME.id) return;
+  try {
+    const { data, error } = await sb
+      .from('profile_visitors')
+      .select(`
+        id,
+        visited_at,
+        visitor:profiles!visitor_id (id, username, avatar_url)
+      `)
+      .eq('profile_id', ME.id)
+      .order('visited_at', { ascending: false })
+      .limit(5); // გამოვაჩინოთ ბოლო 5 სტუმარი
+
+    if (error) throw error;
+
+    const container = document.getElementById('visitors-container');
+    if (!container) return;
+
+    if (!data || data.length === 0) {
+      container.innerHTML = `<p style="font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0;">სტუმრები ჯერ არ გყავს</p>`;
+      return;
+    }
+
+    container.innerHTML = data.map(v => {
+      const visitorInfo = v.visitor;
+      if (!visitorInfo) return '';
+      const visitDate = new Date(v.visited_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+      const avatar = visitorInfo.avatar_url || 'https://placehold.co/100';
+
+      return `
+        <div style="display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 8px; transition: background 0.2s; cursor: pointer;" 
+             onclick="if(typeof openUserProfile === 'function') openUserProfile('${visitorInfo.id}'); else if(typeof showUserProfile === 'function') showUserProfile('${visitorInfo.id}');">
+          <img src="${avatar}" style="w-7 h-7; width: 30px; height: 30px; rounded-full; border-radius: 50%; object-cover; object-fit: cover; border: 1px solid var(--border);">
+          <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 11px; font-weight: 600; color: var(--text);">${visitorInfo.username}</span>
+            <span style="font-size: 9px; color: var(--text3);">ნახა: ${visitDate}</span>
+          </div>
+        </div>
+      `;
+    }).join('');
+  } catch (err) {
+    console.error("სტუმრების წაკითხვა ვერ მოხერხდა:", err);
+  }
+}
+
+// ავტომატურად ჩავრთოთ საიტის ჩატვირთვისას და განვაახლოთ ყოველ 30 წამში
+setTimeout(() => {
+  loadMyProfileVisitors();
+  setInterval(loadMyProfileVisitors, 30000);
+}, 3000);
+</script>
+</body>
+</html>
 </script>
 </body>
 </html>
