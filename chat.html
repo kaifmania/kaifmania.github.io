@@ -1015,11 +1015,11 @@ const ROOMS=[
   {id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი = 5 ქულა',gameScoreField:'quiz_score'},
   {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},
   {id:5,icon:'🎵',name:'მუსიკ კლაბი'},
-  {id:6,icon:'💜',name:'სოული კორნერ'},
-  {id:7,icon:'🌊',name:'ოშენ ვაიბ'},
-  {id:8,icon:'🦋',name:'ფლაი ზონ'},
-  {id:9,icon:'🧠',name:'ბრეინ ზონ'},
-  {id:10,icon:'🌸',name:'სოფთ ჰარმონი'},
+  {id:6,icon:'💜',name:'ბილიარდი'},
+  {id:7,icon:'🌊',name:'დამკა'},
+  {id:8,icon:'🦋',name:'ადმინისტრაცია'},
+  {id:9,icon:'🧠',name:'ფორუმი'},
+  {id:10,icon:'🌸',name:'ცხელი ხაზი'},
 ];
 function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank');}
 function watchGameScore(){if(!ME)return;sb.channel('game-score-'+ME.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${ME.id}`},payload=>{MYPROF={...MYPROF,...payload.new};updateGameScoreUI();if(document.getElementById('gameRoomPlaceholder').style.display!=='none')refreshGamePlaceholder();}).subscribe();}
