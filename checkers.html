@@ -572,11 +572,10 @@ function executeMove(mv,isAI=false){
   currentTurn = nextTurn;
   renderBoard();
   if(gameMode==='pvp'&&gameId){
-    // DB-ში ვინახავთ — მოწინААРМდეგე watchPvpGame-ით მიიღებს
     savePvpState(nextTurn);
     if(!checkWin()){
-      // ჩემი სვლა გავაკეთე — ახლა მოწინААРМდეგის ჯერია
-      setStatus('🔵 მოწინAAРМდეგის ჯერი — ელოდე...');
+      // სვლა გავაკეთე — ველოდებით მოწინAAРМდეგეს
+      setStatus('⏳ მოწინAAРМდეგეს ელოდე...');
       stopTimer();
     }
   } else if(!checkWin()){
@@ -585,7 +584,7 @@ function executeMove(mv,isAI=false){
       setTimeout(doAIMove,500+aiDifficulty*200);
     } else {
       const isMyTurn = currentTurn === myColor;
-      setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინAARMდეგის ჯერი');
+      setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინAAРМდეგის ჯერი');
       if(isMyTurn) resetTimer();
     }
   }
@@ -697,8 +696,9 @@ function watchPvpGame(gid){
 
       const incomingTurn = g.turn==='white'?1:2;
 
-      // თუ ახლა ჩემი ჯერია — ნიშნავს მოწინააღმდეგემ ახლახანს ისვლა
-      // ვაახლებ დაფას მხოლოდ ამ შემთხვევაში
+      // DB-ს turn = ვისი ჯერია ახლა
+      // განვაახლოთ დაფა ᲛᲮᲝᲚᲝᲓ თუ ეს update მოწინAAРМდეგის სვლიდან მოვიდა
+      // ანუ: DB-ში turn == myColor ნიშნავს "ახლა შენი ჯერია" = მოწინAAРМდეგემ ახლახანს ისვლა
       if(incomingTurn === myColor){
         board = typeof g.board==='string'?JSON.parse(g.board):g.board;
         currentTurn = incomingTurn;
@@ -708,6 +708,7 @@ function watchPvpGame(gid){
         resetTimer();
         checkWin();
       }
+      // თუ incomingTurn !== myColor — ეს ჩვენი საკუთარი savePvpState-ის echo, ვიგნორებთ
     }).subscribe();
 }
 
@@ -825,12 +826,18 @@ async function startPvpGame(gid, opId, myCol){
   setupGameChat('pvp_'+gid);
   loadLeaderboard();
   watchPvpGame(gid);
-  resetTimer();
 
-  const isMyTurn = myColor===1;
-  setStatus(isMyTurn?'🔴 შენი ჯერია! (წითელი)':'🔵 მოწინAARmდეგე იწყებს (შენ ლურჯი ხარ)');
+  // currentTurn=1 ყოველთვის (თამაში white-ით იწყება)
+  // myColor=1 წითელი იწყებს, myColor=2 ლურჯი ელოდება
+  if(myColor===1){
+    setStatus('🔴 შენი ჯერია! (წითელი)');
+    resetTimer();
+  } else {
+    setStatus('⏳ მოწინAAРМდეგეს ელოდე... (შენ ლურჯი ხარ)');
+    stopTimer();
+  }
   appendSysMsg('👥 PvP თამაში დაიწყო!');
-  appendSysMsg(myColor===1?'შენ ხარ 🔴 წითელი — პირველი იწყებ!':'შენ ხარ 🔵 ლურჯი — მოიცადე მოწინAARmდეგის სვლა');
+  appendSysMsg(myColor===1?'შენ ხარ 🔴 წითელი — პირველი იწყებ!':'შენ ხარ 🔵 ლურჯი — ელოდე');
   toast('🎮 PvP! '+(opponentProf?.username||''));
 }
 
