@@ -63,8 +63,10 @@ img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-stat
 .nav-icon-svg{width:18px;height:18px;fill:currentColor;flex-shrink:0}
 .nav-btn.icon-only{width:36px;padding:0}
 @keyframes eyePulse{0%,100%{opacity:1}50%{opacity:.5}}
-.nav-btn.visitors-active .nav-icon-svg{animation:eyePulse 2s infinite;color:var(--online)}
-#visitorsPanel{position:fixed;top:54px;right:120px;width:300px;max-height:420px;background:var(--panel);border:1px solid var(--border);border-radius:18px;z-index:9000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden}
+.nav-btn.visitors-active{background:var(--indigo-f);border-color:var(--border);color:var(--online)}
+.nav-btn.visitors-active span.eye-icon{animation:eyePulse 1.5s ease-in-out infinite}
+/* ===== VISITORS PANEL ===== */
+#visitorsPanel{position:fixed;top:54px;right:90px;width:300px;max-height:420px;background:var(--panel);border:1px solid var(--border);border-radius:18px;z-index:9000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden;animation:modalFloat .25s ease}
 #visitorsPanel.open{display:flex}
 .visitors-head{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:10px;color:var(--text2);letter-spacing:1.5px;display:flex;align-items:center;justify-content:space-between}
 #visitorsList{overflow-y:auto;flex:1;padding:6px}
@@ -73,25 +75,17 @@ img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-stat
 .visitor-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
 .visitor-item:last-child{border-bottom:none}
 .visitor-item:hover{background:var(--indigo-f)}
-.visitor-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.visitor-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;position:relative}
 .visitor-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 .visitor-info{flex:1;min-width:0}
 .visitor-name{font-size:12px;font-weight:600;color:var(--indigo2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .visitor-time{font-size:10px;color:var(--text3);margin-top:2px}
 .visitors-empty{text-align:center;padding:32px 16px;color:var(--text3);font-size:12px}
-@media(max-width:640px){#visitorsPanel{right:8px;left:8px;width:auto}}
+@media(max-width:640px){#visitorsPanel{right:8px;left:8px;width:auto;top:54px}}
 .dm-call-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;padding:0}
 .dm-call-btn:hover{background:rgba(255,255,255,.35);transform:scale(1.08)}
 .dm-call-btn svg{width:16px;height:16px;fill:currentColor}
 .dm-call-btn.video-btn{background:rgba(255,255,255,.25)}
-.dm-call-card{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(0,132,255,.12);border:1px solid rgba(0,132,255,.35);border-radius:16px;margin-top:4px;cursor:pointer;transition:all .2s;max-width:240px}
-.dm-call-card:hover{background:rgba(0,132,255,.22);transform:scale(1.02)}
-.dm-call-card .call-icon-wrap{width:40px;height:40px;border-radius:50%;background:#0084ff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.dm-call-card .call-icon-wrap svg{width:20px;height:20px;fill:#fff}
-.dm-call-card .call-label{font-size:13px;font-weight:600;color:var(--text)}
-.dm-call-card .call-sub{font-size:10px;color:var(--text3);margin-top:2px}
-.dm-call-card .call-join{margin-left:auto;background:#0084ff;border:none;border-radius:20px;color:#fff;font-size:11px;font-weight:600;padding:6px 14px;cursor:pointer;white-space:nowrap}
-/* DM badge — sender name */
 #dmNavBadgeWrap{display:flex;align-items:center;gap:3px;position:absolute;top:2px;right:2px;max-width:90px;overflow:hidden}
 .dm-sender-chip{background:var(--accent);color:#fff;font-size:8px;font-weight:700;border-radius:8px;padding:1px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;display:none;animation:badgePulse .6s ease}
 .dm-sender-chip.show{display:block}
@@ -353,7 +347,6 @@ select.inp{cursor:pointer}
 .pv-nav{display:flex;gap:12px;margin-top:10px}
 .pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pv-nav-btn:hover{background:var(--border)}
-/* DM BOX */
 #dmBox{position:fixed;right:16px;bottom:16px;width:300px;height:460px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:5000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
 #dmBox.open{display:flex;animation:dmSlideUp .35s cubic-bezier(0.2,0.9,0.4,1.1)}
 #dmBox.minimized{height:52px!important;max-height:52px!important}
@@ -401,7 +394,6 @@ select.inp{cursor:pointer}
 .dm-status.read{color:var(--accent)}
 .dm-reactions-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 4px;min-height:0}
 .dm-reactions-row.me{justify-content:flex-end}
-/* DM List */
 #dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center;padding:16px}
 #dmListOverlay.open{display:flex}
 .dm-list-modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:340px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:modalFloat 0.3s cubic-bezier(.22,1,.36,1);max-height:70vh;display:flex;flex-direction:column}
@@ -413,7 +405,6 @@ select.inp{cursor:pointer}
 .dm-unread-badge{background:var(--accent);color:#fff;font-size:9px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent)}
 .dm-list-last{font-size:10px;color:var(--text3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px}
 .dm-list-empty{color:var(--text3);font-size:12px;text-align:center;padding:24px 0}
-/* ინდიკატორი DM box-ში */
 .typing-indicator{display:flex;align-items:center;gap:6px;padding:6px 14px 4px 56px;font-size:12px;color:var(--text3);font-style:italic}
 .typing-dots{display:flex;gap:3px;align-items:center}
 .typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:typingBounce .8s ease infinite}
@@ -421,7 +412,6 @@ select.inp{cursor:pointer}
 .typing-dot:nth-child(3){animation-delay:.3s}
 .dm-typing-row{display:flex;align-items:center;gap:5px;padding:4px 6px;font-size:11px;color:var(--text3);font-style:italic}
 .dm-typing-row .typing-dot{background:var(--accent)}
-/* DM შეტყობინების pop-up */
 .dm-notif{position:fixed;bottom:80px;right:20px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:1px solid var(--border);border-radius:16px;padding:10px 16px;z-index:99990;box-shadow:0 8px 30px rgba(0,0,0,.5);cursor:pointer;max-width:260px;animation:dmNotifSlide .3s ease;display:flex;align-items:center;gap:10px}
 .dm-notif-av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
 .dm-notif-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -448,14 +438,29 @@ select.inp{cursor:pointer}
   <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
   <button class="nav-btn" id="navOnline" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
   <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span>
-    <!-- ახალი badge სტრუქტურა -->
     <span class="badge" id="dmBadge"></span>
   </button>
   <div class="nav-spacer"></div>
   <button class="nav-btn" onclick="openMyProfile()">👤</button>
   <button class="nav-btn" onclick="openThemeModal()" title="თემა">🎨</button>
+  <button class="nav-btn" id="navVisitors" onclick="toggleVisitorsPanel()" title="ვიზიტორები">
+    <span class="eye-icon">👁️</span>
+    <span class="badge" id="visitorsBadge"></span>
+  </button>
   <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
 </nav>
+
+<!-- ===== VISITORS PANEL ===== -->
+<div id="visitorsPanel">
+  <div class="visitors-head">
+    <span>👁️ ჩემი ვიზიტორები</span>
+    <button style="background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;line-height:1;padding:2px 6px;border-radius:6px" onclick="toggleVisitorsPanel()">✕</button>
+  </div>
+  <div id="visitorsList">
+    <div class="visitors-empty">👀 ჯერ არ გიხილავთ</div>
+  </div>
+</div>
+
 <div id="app">
   <div id="sidebar">
     <div id="panelRooms">
@@ -795,15 +800,104 @@ let dmTypingCh=null,dmTypingChReady=false,dmTypingUsers={};
 const roomMsgCache={};
 const sentMsgIds=new Set();
 let dmMinimized=false;
-
-// ===== DM UNREAD — per-sender =====
-// dmUnread[senderId] = { count: N, nick: 'სახელი' }
 const dmUnread={};
-// DM ისტორია — ვისთანაც შეტყობინება გაქვს
-const dmConversations={}; // uid -> { nick, lastMsg, lastTime, avatar, emotion }
-
+const dmConversations={};
 let dmReactTargetId=null;
 let qrMode='chat';
+
+// ===== VISITORS STATE =====
+let visitorsOpen=false;
+
+/* ===================== VISITORS ===================== */
+async function recordVisit(targetUid){
+  if(!ME||!targetUid||targetUid===ME.id)return;
+  try{
+    await sb.from('profile_visits').upsert(
+      {visitor_id:ME.id,target_id:targetUid,visited_at:new Date().toISOString()},
+      {onConflict:'visitor_id,target_id'}
+    );
+  }catch(e){}
+}
+
+async function loadMyVisitors(){
+  if(!ME)return;
+  const{data}=await sb.from('profile_visits')
+    .select('visitor_id,visited_at,profiles!profile_visits_visitor_id_fkey(id,username,avatar_url,emotion,last_seen)')
+    .eq('target_id',ME.id)
+    .order('visited_at',{ascending:false})
+    .limit(50);
+
+  const list=document.getElementById('visitorsList');
+  if(!list)return;
+
+  if(!data||!data.length){
+    list.innerHTML='<div class="visitors-empty">👀 ჯერ არ გიხილავთ</div>';
+    return;
+  }
+
+  list.innerHTML='';
+  const frag=document.createDocumentFragment();
+  data.forEach(v=>{
+    const u=v.profiles;
+    if(!u)return;
+    const on=isOnline(u.last_seen);
+    const avHtml=u.avatar_url
+      ?`<img src="${u.avatar_url}">`
+      :(u.emotion||'😊');
+    const t=new Date(v.visited_at);
+    const now=new Date();
+    const diffMs=now-t;
+    const diffMin=Math.floor(diffMs/60000);
+    const diffH=Math.floor(diffMs/3600000);
+    let timeStr;
+    if(diffMin<1)timeStr='ახლახანს';
+    else if(diffMin<60)timeStr=diffMin+' წუთის წინ';
+    else if(diffH<24)timeStr=diffH+' საათის წინ';
+    else timeStr=t.toLocaleDateString('ka-GE',{month:'short',day:'numeric'})+' · '+t.toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+    const d=document.createElement('div');
+    d.className='visitor-item';
+    d.innerHTML=`
+      <div class="visitor-av" style="position:relative">${avHtml}${on?'<div style="width:8px;height:8px;background:var(--online);border-radius:50%;border:2px solid var(--panel);position:absolute;bottom:0;right:0"></div>':''}</div>
+      <div class="visitor-info">
+        <div class="visitor-name">${esc(u.username||'?')}</div>
+        <div class="visitor-time">🕐 ${timeStr}</div>
+      </div>
+    `;
+    d.onclick=()=>{toggleVisitorsPanel();openProfile(u.id);};
+    frag.appendChild(d);
+  });
+  list.appendChild(frag);
+
+  // badge — ვაჩვენოთ ვიზიტორების რაოდენობა
+  const badge=document.getElementById('visitorsBadge');
+  if(badge){
+    const cnt=data.length;
+    badge.textContent=cnt>99?'99+':cnt;
+    badge.classList.add('show');
+  }
+}
+
+function toggleVisitorsPanel(){
+  visitorsOpen=!visitorsOpen;
+  const panel=document.getElementById('visitorsPanel');
+  const btn=document.getElementById('navVisitors');
+  panel.classList.toggle('open',visitorsOpen);
+  btn.classList.toggle('visitors-active',visitorsOpen);
+  if(visitorsOpen){
+    loadMyVisitors();
+    setTimeout(()=>document.addEventListener('click',_outsideVisitors,{once:true}),80);
+  }
+}
+
+function _outsideVisitors(e){
+  const panel=document.getElementById('visitorsPanel');
+  const btn=document.getElementById('navVisitors');
+  if(panel&&!panel.contains(e.target)&&!btn.contains(e.target)){
+    visitorsOpen=false;
+    panel.classList.remove('open');
+    btn.classList.remove('visitors-active');
+  }
+}
 
 /* ===================== THEME ===================== */
 const THEMES=[
@@ -874,96 +968,25 @@ document.addEventListener('click',e=>{if(e.target.classList.contains('voice-play
 /* ===================== DM FILE ===================== */
 async function sendDMFile(e){const file=e.target.files[0];if(!file||!DM_UID)return;if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}toast('⏳ იგზავნება...');const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const isImg=file.type.startsWith('image/');const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ გაიგზავნა!');};reader.readAsDataURL(file);e.target.value='';}
 
-/* ===================== DM BADGE — per sender ===================== */
-function updateDMBadge(){
-  // ჯამური count
-  const total=Object.values(dmUnread).reduce((s,v)=>s+(v.count||0),0);
-  const badge=document.getElementById('dmBadge');
-  if(total>0){badge.textContent=total;badge.classList.add('show');}
-  else{badge.textContent='';badge.classList.remove('show');}
-}
+/* ===================== DM BADGE ===================== */
+function updateDMBadge(){const total=Object.values(dmUnread).reduce((s,v)=>s+(v.count||0),0);const badge=document.getElementById('dmBadge');if(total>0){badge.textContent=total;badge.classList.add('show');}else{badge.textContent='';badge.classList.remove('show');}}
+function addDMUnread(senderId,nick){if(!dmUnread[senderId])dmUnread[senderId]={count:0,nick};dmUnread[senderId].count++;dmUnread[senderId].nick=nick;updateDMBadge();}
+function clearDMUnread(uid){delete dmUnread[uid];updateDMBadge();}
 
-function addDMUnread(senderId,nick){
-  if(!dmUnread[senderId])dmUnread[senderId]={count:0,nick};
-  dmUnread[senderId].count++;
-  dmUnread[senderId].nick=nick;
-  updateDMBadge();
-}
-
-function clearDMUnread(uid){
-  delete dmUnread[uid];
-  updateDMBadge();
-}
-
-/* DM შეტყობინების pop-up (ქვედა-მარჯვენა) */
 let _dmNotifTimer=null;
-function showDMNotif(sender, text){
-  document.querySelectorAll('.dm-notif').forEach(n=>n.remove());
-  const avHtml=sender.avatar_url
-    ?`<img src="${sender.avatar_url}">`
-    :(sender.emotion||'👤');
-  const el=document.createElement('div');
-  el.className='dm-notif';
-  el.innerHTML=`<div class="dm-notif-av">${avHtml}</div><div class="dm-notif-body"><div class="dm-notif-name">${esc(sender.username||'?')}</div><div class="dm-notif-text">${esc((text||'').substring(0,40))}</div></div>`;
-  el.onclick=()=>{el.remove();openDM(sender.id);};
-  document.body.appendChild(el);
-  if(_dmNotifTimer)clearTimeout(_dmNotifTimer);
-  _dmNotifTimer=setTimeout(()=>el.remove(),5000);
-}
+function showDMNotif(sender,text){document.querySelectorAll('.dm-notif').forEach(n=>n.remove());const avHtml=sender.avatar_url?`<img src="${sender.avatar_url}">`:(sender.emotion||'👤');const el=document.createElement('div');el.className='dm-notif';el.innerHTML=`<div class="dm-notif-av">${avHtml}</div><div class="dm-notif-body"><div class="dm-notif-name">${esc(sender.username||'?')}</div><div class="dm-notif-text">${esc((text||'').substring(0,40))}</div></div>`;el.onclick=()=>{el.remove();openDM(sender.id);};document.body.appendChild(el);if(_dmNotifTimer)clearTimeout(_dmNotifTimer);_dmNotifTimer=setTimeout(()=>el.remove(),5000);}
 
 /* ===================== TYPING — MAIN CHAT ===================== */
 let _typingThrottle=null;
-function onTyping(){
-  if(!ME||!ROOM)return;
-  if(_typingThrottle)return;
-  _typingThrottle=setTimeout(()=>_typingThrottle=null,1500);
-  if(typingCh&&typingChReady){try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}
-}
-
-function setupTypingChannel(roomId){
-  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
-  typingChReady=false;typingUsers={};removeTypingIndicator();
-  typingCh=sb.channel('typing_room_'+roomId)
-    .on('broadcast',{event:'typing'},({payload})=>{
-      if(!payload||!payload.uid||payload.uid===ME?.id)return;
-      const uid=payload.uid;
-      if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);
-      typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};
-      renderTyping();
-    })
-    .subscribe(status=>{
-      if(status==='SUBSCRIBED')typingChReady=true;
-      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},3000);}
-    });
-}
+function onTyping(){if(!ME||!ROOM)return;if(_typingThrottle)return;_typingThrottle=setTimeout(()=>_typingThrottle=null,1500);if(typingCh&&typingChReady){try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
+function setupTypingChannel(roomId){if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}typingChReady=false;typingUsers={};removeTypingIndicator();typingCh=sb.channel('typing_room_'+roomId).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};renderTyping();}).subscribe(status=>{if(status==='SUBSCRIBED')typingChReady=true;else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},3000);}});}
 function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
 function renderTyping(){const users=Object.values(typingUsers).filter(u=>u.nick);removeTypingIndicator();if(!users.length)return;const msgs=document.getElementById('messages');if(!msgs)return;const wasAtBottom=msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<80;const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>esc(u.nick)).join(', ')} წერს...</span>`;msgs.appendChild(el);if(wasAtBottom)msgs.scrollTop=msgs.scrollHeight;}
 
 /* ===================== TYPING — DM ===================== */
 let _dmTypingThrottle=null;
-function onDMTyping(){
-  if(!ME||!DM_UID)return;
-  if(_dmTypingThrottle)return;
-  _dmTypingThrottle=setTimeout(()=>_dmTypingThrottle=null,1500);
-  if(dmTypingCh&&dmTypingChReady){try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}
-}
-
-function setupDMTypingChannel(rk){
-  if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}
-  dmTypingChReady=false;dmTypingUsers={};removeDMTyping();
-  dmTypingCh=sb.channel('dmtyping_'+rk)
-    .on('broadcast',{event:'typing'},({payload})=>{
-      if(!payload||!payload.uid||payload.uid===ME?.id)return;
-      const uid=payload.uid;
-      if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);
-      dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};
-      renderDMTyping();
-    })
-    .subscribe(status=>{
-      if(status==='SUBSCRIBED')dmTypingChReady=true;
-      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},3000);}
-    });
-}
+function onDMTyping(){if(!ME||!DM_UID)return;if(_dmTypingThrottle)return;_dmTypingThrottle=setTimeout(()=>_dmTypingThrottle=null,1500);if(dmTypingCh&&dmTypingChReady){try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
+function setupDMTypingChannel(rk){if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}dmTypingChReady=false;dmTypingUsers={};removeDMTyping();dmTypingCh=sb.channel('dmtyping_'+rk).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};renderDMTyping();}).subscribe(status=>{if(status==='SUBSCRIBED')dmTypingChReady=true;else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},3000);}});}
 function removeDMTyping(){document.getElementById('dmTypingRow')?.remove();const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent='';}
 function renderDMTyping(){const users=Object.values(dmTypingUsers).filter(u=>u.nick);removeDMTyping();if(!users.length)return;const names=users.map(u=>u.nick).join(', ');const box=document.getElementById('dmMsgs');if(box&&document.getElementById('dmBox').classList.contains('open')){const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;box.appendChild(el);box.scrollTop=box.scrollHeight;}const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent=names+' წერს...';}
 
@@ -1099,7 +1122,45 @@ document.addEventListener('click',e=>{const p=document.getElementById('emojiPane
 
 /* ===================== PROFILE ===================== */
 function openMyProfile(){openProfile(ME.id);}
-async function openProfile(uid){VIEW_UID=uid;const p=await loadProf(uid);const isSelf=(uid===ME.id),myRole=MYPROF?.role,viewRole=p?.role;document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';document.getElementById('profName').textContent=p?.username||'?';const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);document.getElementById('profWordScore').textContent='🔐 '+(p?.game_score||0);document.getElementById('profQuizScore').textContent='🏆 '+(p?.quiz_score||0);document.getElementById('profHangScore').textContent='🪢 '+(p?.hangman_score||0);if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';}else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊';}document.getElementById('avEdit').style.display=isSelf?'':'none';document.getElementById('statusInp').value=p?.status||'';document.getElementById('statusInp').disabled=!isSelf;document.getElementById('emoComment').value=p?.emotion_comment||'';document.getElementById('emoComment').disabled=!isSelf;document.getElementById('saveProfileBtn').style.display=isSelf?'':'none';document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';selectedEmotion=p?.emotion||'😊';document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));const showFounder=(myRole==='founder')&&!isSelf;document.getElementById('founderSec').classList.toggle('hidden',!showFounder);if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);document.getElementById('friendBtn').style.display=isSelf?'none':'';document.getElementById('dmBtn').style.display=isSelf?'none':'';const isFr=myFriends.includes(uid);document.getElementById('friendBtn').textContent=isFr?'💔 გაუქმება':'➕ მეგობრად';document.getElementById('galUploadZone').style.display=isSelf?'':'none';switchGalleryTab('info',document.getElementById('gtabInfo'));openModal('profileOverlay');}
+async function openProfile(uid){
+  VIEW_UID=uid;
+  // ✅ ვიზიტის ჩაწერა (მხოლოდ სხვის პროფილი)
+  recordVisit(uid);
+  const p=await loadProf(uid);
+  const isSelf=(uid===ME.id),myRole=MYPROF?.role,viewRole=p?.role;
+  document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
+  document.getElementById('profName').textContent=p?.username||'?';
+  const roleEl=document.getElementById('profRole');
+  roleEl.textContent=rLabel(viewRole);
+  roleEl.className='prof-role '+rClass(viewRole);
+  document.getElementById('profWordScore').textContent='🔐 '+(p?.game_score||0);
+  document.getElementById('profQuizScore').textContent='🏆 '+(p?.quiz_score||0);
+  document.getElementById('profHangScore').textContent='🪢 '+(p?.hangman_score||0);
+  if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';}
+  else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊';}
+  document.getElementById('avEdit').style.display=isSelf?'':'none';
+  document.getElementById('statusInp').value=p?.status||'';
+  document.getElementById('statusInp').disabled=!isSelf;
+  document.getElementById('emoComment').value=p?.emotion_comment||'';
+  document.getElementById('emoComment').disabled=!isSelf;
+  document.getElementById('saveProfileBtn').style.display=isSelf?'':'none';
+  document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';
+  document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';
+  selectedEmotion=p?.emotion||'😊';
+  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
+  const showFounder=(myRole==='founder')&&!isSelf;
+  document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
+  if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';
+  const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');
+  document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
+  document.getElementById('friendBtn').style.display=isSelf?'none':'';
+  document.getElementById('dmBtn').style.display=isSelf?'none':'';
+  const isFr=myFriends.includes(uid);
+  document.getElementById('friendBtn').textContent=isFr?'💔 გაუქმება':'➕ მეგობრად';
+  document.getElementById('galUploadZone').style.display=isSelf?'':'none';
+  switchGalleryTab('info',document.getElementById('gtabInfo'));
+  openModal('profileOverlay');
+}
 function compressImage(file,maxSizePx=256,quality=0.85){return new Promise((resolve,reject)=>{if(file.type==='image/gif'){resolve(file);return;}const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);let{width,height}=img;if(width>maxSizePx||height>maxSizePx){if(width>height){height=Math.round(height*maxSizePx/width);width=maxSizePx;}else{width=Math.round(width*maxSizePx/height);height=maxSizePx;}}const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.getContext('2d').drawImage(img,0,0,width,height);canvas.toBlob(blob=>{if(!blob){reject(new Error('კომპ.'));return;}resolve(new File([blob],file.name,{type:'image/webp',lastModified:Date.now()}));},'image/webp',quality);};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('ვერ'));};img.src=url;});}
 function switchGalleryTab(tab,btn){document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('tabInfo').classList.toggle('hidden',tab!=='info');document.getElementById('tabGallery').classList.toggle('hidden',tab!=='gallery');if(tab==='gallery'){activeAlbumFilter=null;loadAlbumsAndGallery(VIEW_UID);}}
 async function saveProfile(){const updates={status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value};const{error}=await sb.from('profiles').update(updates).eq('id',ME.id);if(error){toast('❌ '+error.message);return;}MYPROF={...MYPROF,...updates};toast('✅ შენახულია!');closeModal('profileOverlay');}
@@ -1164,80 +1225,44 @@ async function acceptFriend(){const rid=document.getElementById('friendReqOverla
 async function declineFriend(){await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);closeModal('friendReqOverlay');toast('❌');}
 
 /* ===================== DM ===================== */
-
-/* ===== DM სია — მხოლოდ ისტორია ===== */
 async function loadDMConversations(){
-  // გამოვიტანოთ ყველა შეტყობინება სადაც ME ჩართულია
   const{data}=await sb.from('direct_messages')
     .select('sender_id,receiver_id,content,created_at,is_read')
     .or(`sender_id.eq.${ME.id},receiver_id.eq.${ME.id}`)
     .order('created_at',{ascending:false});
   if(!data)return;
-  // გავაერთიანოთ per-partner
   const seen=new Set();
   for(const m of data){
     const partnerId=m.sender_id===ME.id?m.receiver_id:m.sender_id;
     if(seen.has(partnerId))continue;
     seen.add(partnerId);
-    // სახელი
     let partner=allUsers.find(u=>u.id===partnerId);
-    if(!partner){
-      const{data:pd}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',partnerId).single();
-      if(pd){partner=pd;allUsers.push(pd);}
-    }
+    if(!partner){const{data:pd}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',partnerId).single();if(pd){partner=pd;allUsers.push(pd);}}
     if(!partner)continue;
-    dmConversations[partnerId]={
-      nick:partner.username||'?',
-      avatar:partner.avatar_url||null,
-      emotion:partner.emotion||'😊',
-      lastMsg:m.content||'',
-      lastTime:m.created_at
-    };
+    dmConversations[partnerId]={nick:partner.username||'?',avatar:partner.avatar_url||null,emotion:partner.emotion||'😊',lastMsg:m.content||'',lastTime:m.created_at};
   }
 }
 
-function openDMList(){
-  document.getElementById('dmListOverlay').classList.add('open');
-  renderDMList();
-}
-
+function openDMList(){document.getElementById('dmListOverlay').classList.add('open');renderDMList();}
 function renderDMList(){
-  const el=document.getElementById('dmUserList');
-  el.innerHTML='';
+  const el=document.getElementById('dmUserList');el.innerHTML='';
   const entries=Object.entries(dmConversations);
-  if(!entries.length){
-    el.innerHTML='<div class="dm-list-empty">✉️ ჯერ პირადი შეტყობინება არ გაქვს</div>';
-    return;
-  }
-  // დალაგება ბოლო შეტყობინების დროით
+  if(!entries.length){el.innerHTML='<div class="dm-list-empty">✉️ ჯერ პირადი შეტყობინება არ გაქვს</div>';return;}
   entries.sort((a,b)=>new Date(b[1].lastTime)-new Date(a[1].lastTime));
   const frag=document.createDocumentFragment();
-  for(const [uid,conv] of entries){
-    const d=document.createElement('div');
-    d.className='dm-list-item';
+  for(const[uid,conv]of entries){
+    const d=document.createElement('div');d.className='dm-list-item';
     const on=isOnline(allUsers.find(u=>u.id===uid)?.last_seen);
-    const avHtml=conv.avatar
-      ?`<img src="${conv.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
-      :(conv.emotion||'😊');
+    const avHtml=conv.avatar?`<img src="${conv.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(conv.emotion||'😊');
     const unreadInfo=dmUnread[uid];
-    const unreadHtml=unreadInfo&&unreadInfo.count>0
-      ?`<div class="dm-unread-badge">${unreadInfo.count}</div>`
-      :'';
-    // მოკლე preview
+    const unreadHtml=unreadInfo&&unreadInfo.count>0?`<div class="dm-unread-badge">${unreadInfo.count}</div>`:'';
     let preview=conv.lastMsg||'';
     if(preview.startsWith('[voice:'))preview='🎙️ ვოისი';
     else if(preview.startsWith('[dmimg]'))preview='📷 ფოტო';
     else if(preview.startsWith('[dmfile:'))preview='📎 ფაილი';
     else if(preview.startsWith('[reply:'))preview=preview.replace(/^\[reply:[^\]]+\][^\]]*\]/,'').substring(0,30);
     else preview=preview.substring(0,30);
-    d.innerHTML=`
-      <div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div>
-      <div class="list-info">
-        <div class="list-name">${esc(conv.nick)}</div>
-        <div class="dm-list-last">${esc(preview)}</div>
-      </div>
-      ${unreadHtml}
-    `;
+    d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(conv.nick)}</div><div class="dm-list-last">${esc(preview)}</div></div>${unreadHtml}`;
     d.onclick=()=>{closeDMList();openDM(uid);};
     frag.appendChild(d);
   }
@@ -1248,10 +1273,7 @@ function closeDMList(){document.getElementById('dmListOverlay').classList.remove
 function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
 function toggleDMMinimize(e){if(e&&e.target.closest('.dm-head-btns'))return;dmMinimized=!dmMinimized;document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);document.getElementById('dmMinBtn').textContent=dmMinimized?'▲':'—';if(!dmMinimized){removeDMTyping();renderDMTyping();}}
 
-async function markDMRead(rk){
-  await sb.from('direct_messages').update({is_read:true}).eq('room_key',rk).eq('receiver_id',ME.id).eq('is_read',false);
-  document.querySelectorAll('.dm-status.sent').forEach(el=>{el.textContent='✓✓';el.classList.remove('sent');el.classList.add('read');});
-}
+async function markDMRead(rk){await sb.from('direct_messages').update({is_read:true}).eq('room_key',rk).eq('receiver_id',ME.id).eq('is_read',false);document.querySelectorAll('.dm-status.sent').forEach(el=>{el.textContent='✓✓';el.classList.remove('sent');el.classList.add('read');});}
 
 async function openDM(uid){
   if(uid)DM_UID=uid;if(!DM_UID)return;
@@ -1262,7 +1284,6 @@ async function openDM(uid){
   document.getElementById('dmBox').classList.add('open');
   document.getElementById('dmBox').classList.remove('minimized');dmMinimized=false;
   document.getElementById('dmMinBtn').textContent='—';
-  // წაუკითხავი გასუფთავება
   clearDMUnread(DM_UID);
   buildEmojiGrid('dmEmojiGrid','dmInput',false);
   const rk=[ME.id,DM_UID].sort().join('_');
@@ -1276,62 +1297,28 @@ async function openDM(uid){
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},async p=>{
       if(p.new.sender_id===ME.id)return;
       appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;
-      if(document.getElementById('dmBox').classList.contains('open')&&!dmMinimized){
-        markDMRead(rk);
-      } else {
-        // badge per sender
-        const sender=allUsers.find(u=>u.id===p.new.sender_id);
-        const nick=sender?.username||'?';
-        addDMUnread(p.new.sender_id,nick);
-        // pop-up notification
-        if(sender)showDMNotif(sender, p.new.content||'');
-      }
-      // conversation list განახლება
+      if(document.getElementById('dmBox').classList.contains('open')&&!dmMinimized){markDMRead(rk);}
+      else{const sender=allUsers.find(u=>u.id===p.new.sender_id);const nick=sender?.username||'?';addDMUnread(p.new.sender_id,nick);if(sender)showDMNotif(sender,p.new.content||'');}
       const sender=allUsers.find(u=>u.id===p.new.sender_id);
-      if(sender){
-        dmConversations[sender.id]={
-          nick:sender.username||'?',
-          avatar:sender.avatar_url||null,
-          emotion:sender.emotion||'😊',
-          lastMsg:p.new.content||'',
-          lastTime:p.new.created_at
-        };
-      }
+      if(sender){dmConversations[sender.id]={nick:sender.username||'?',avatar:sender.avatar_url||null,emotion:sender.emotion||'😊',lastMsg:p.new.content||'',lastTime:p.new.created_at};}
     })
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
-      if(p.new.is_read&&p.new.sender_id===ME.id){
-        const statusEl=document.getElementById('dmstatus_'+p.new.id);
-        if(statusEl){statusEl.textContent='✓✓';statusEl.classList.remove('sent');statusEl.classList.add('read');}
-      }
+      if(p.new.is_read&&p.new.sender_id===ME.id){const statusEl=document.getElementById('dmstatus_'+p.new.id);if(statusEl){statusEl.textContent='✓✓';statusEl.classList.remove('sent');statusEl.classList.add('read');}}
     })
     .subscribe();
   setupDMTypingChannel(rk);
 }
 
-// Global DM listener — ახალი შეტყობინება სხვა conversation-დანაც
 function watchAllDMs(){
   sb.channel('dm-all-'+ME.id)
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`receiver_id=eq.${ME.id}`},async p=>{
       const sid=p.new.sender_id;
       if(sid===DM_UID&&document.getElementById('dmBox').classList.contains('open')&&!dmMinimized)return;
-      // sender info
       let sender=allUsers.find(u=>u.id===sid);
-      if(!sender){
-        const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',sid).single();
-        if(data){sender=data;allUsers.push(data);}
-      }
+      if(!sender){const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',sid).single();if(data){sender=data;allUsers.push(data);}}
       if(!sender)return;
-      // badge
       addDMUnread(sid,sender.username||'?');
-      // conversation update
-      dmConversations[sid]={
-        nick:sender.username||'?',
-        avatar:sender.avatar_url||null,
-        emotion:sender.emotion||'😊',
-        lastMsg:p.new.content||'',
-        lastTime:p.new.created_at
-      };
-      // pop-up
+      dmConversations[sid]={nick:sender.username||'?',avatar:sender.avatar_url||null,emotion:sender.emotion||'😊',lastMsg:p.new.content||'',lastTime:p.new.created_at};
       showDMNotif(sender,p.new.content||'');
     })
     .subscribe();
@@ -1345,10 +1332,7 @@ async function appendDMMsg(m){
   const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
   const box=document.getElementById('dmMsgs');
   let senderUser=isMe?null:allUsers.find(u=>u.id===m.sender_id);
-  if(!isMe&&!senderUser){
-    const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',m.sender_id).single();
-    if(data){senderUser=data;allUsers.push(data);}
-  }
+  if(!isMe&&!senderUser){const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',m.sender_id).single();if(data){senderUser=data;allUsers.push(data);}}
   const senderNick=senderUser?.username||'';
   let replyHtml='',displayContent=m.content;
   if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}}
@@ -1395,17 +1379,8 @@ async function sendDM(){
   if(error){toast('❌ '+error.message);return;}
   if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString(),is_read:false});
   document.getElementById('dmMsgs').scrollTop=9999;
-  // conversation update
   const partner=allUsers.find(u=>u.id===DM_UID);
-  if(partner){
-    dmConversations[DM_UID]={
-      nick:partner.username||'?',
-      avatar:partner.avatar_url||null,
-      emotion:partner.emotion||'😊',
-      lastMsg:txt,
-      lastTime:new Date().toISOString()
-    };
-  }
+  if(partner){dmConversations[DM_UID]={nick:partner.username||'?',avatar:partner.avatar_url||null,emotion:partner.emotion||'😊',lastMsg:txt,lastTime:new Date().toISOString()};}
 }
 
 function closeDM(){document.getElementById('dmBox').classList.remove('open','minimized');document.getElementById('dmEmojiPanel').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;dmMinimized=false;if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}removeDMTyping();cancelDMReply();}
@@ -1438,17 +1413,23 @@ async function init(){
   buildRooms();await loadEmojis();buildEmojis();spawnHearts();
   switchRoom(ROOMS[0],document.querySelector('.room-item'));
   await loadAllUsers();
-  // DM ისტორია — ვისთანაც შეტყობინება გაქვს
   await loadDMConversations();
+  // ✅ ვიზიტორების ჩატვირთვა
+  await loadMyVisitors();
   await pingOnline();
   setInterval(async()=>{await pingOnline();const idx=allUsers.findIndex(u=>u.id===ME.id);if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();updateOnlineBadge();renderUserLists();},20000);
   setInterval(loadAllUsers,30000);
   setInterval(checkFriendReqs,60000);
   checkFriendReqs();watchFriendRequests();watchGameScore();
-  // Global DM watcher
   watchAllDMs();
   sb.channel('profiles-watch').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{const idx=allUsers.findIndex(u=>u.id===payload.new.id);if(idx>=0)allUsers[idx]={...allUsers[idx],...payload.new};else allUsers.push(payload.new);updateOnlineBadge();if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateGameScoreUI();}}).subscribe();
   sb.channel('emoji-watch').on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},async payload=>{if(!emojiCache[payload.new.id]){emojiCache[payload.new.id]=payload.new.url;customEmojis.push(payload.new);}buildEmojis();}).on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async payload=>{customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);delete emojiCache[payload.old.id];buildEmojis();}).subscribe();
+  // ✅ ახალი ვიზიტების real-time მოსმენა
+  sb.channel('visits-watch-'+ME.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'profile_visits',filter:`target_id=eq.${ME.id}`},()=>{
+      loadMyVisitors();
+    })
+    .subscribe();
   setTimeout(()=>toast('👋 გამარჯობა, '+(MYPROF?.username||'')+'!'),800);
 }
 init();
