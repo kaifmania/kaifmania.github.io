@@ -32,7 +32,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 #hearts{position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden}
 .heart{position:absolute;bottom:-60px;will-change:transform,opacity;user-select:none;z-index:999999;animation:heartFloat linear;}
 
-/* TOPBAR */
 .topbar{display:flex;align-items:center;gap:10px;padding:8px 16px;background:var(--panel);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:50}
 .tb-logo{font-size:22px;animation:float 3s ease-in-out infinite;cursor:pointer}
 .tb-title{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--text)}
@@ -43,7 +42,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .tb-av{width:32px;height:32px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;overflow:hidden;flex-shrink:0}
 .tb-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
 
-/* HOME */
 #homeScreen{display:flex;flex-direction:column;align-items:center;gap:18px;padding:24px 14px;max-width:560px;margin:0 auto}
 .home-icon{font-size:70px;animation:float 3s ease-in-out infinite;filter:drop-shadow(0 0 30px var(--glow))}
 .home-title{font-family:'Unbounded',sans-serif;font-size:24px;font-weight:900;color:var(--text);text-align:center}
@@ -66,18 +64,15 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .pl-dot.p1{background:var(--p1);box-shadow:0 0 8px var(--p1glow)}
 .pl-dot.p2{background:var(--p2);box-shadow:0 0 8px var(--p2glow)}
 
-/* START GAME BTN */
 #startAiBtn{display:none;padding:13px 40px;border-radius:50px;border:none;font-family:'Noto Sans Georgian',sans-serif;font-size:14px;font-weight:700;cursor:pointer;background:linear-gradient(135deg,#a855f7,#7a1fc8);color:#fff;box-shadow:0 6px 24px rgba(120,30,200,.5);transition:all .25s;animation:pop .3s cubic-bezier(0.34,1.56,0.64,1)}
 #startAiBtn.visible{display:block}
 #startAiBtn:hover{transform:translateY(-3px);box-shadow:0 10px 36px rgba(120,30,200,.7)}
 
-/* GAME SCREEN */
 #gameScreen{display:none}
 .main-wrap{display:flex;gap:16px;padding:14px;max-width:1100px;margin:0 auto}
 .game-col{display:flex;flex-direction:column;align-items:center;gap:12px;flex:1;min-width:0}
 .side-col{width:310px;flex-shrink:0;display:flex;flex-direction:column;gap:12px}
 
-/* PLAYERS BAR */
 .players-bar{display:flex;align-items:center;gap:8px;width:100%;max-width:500px;background:var(--panel);border:1px solid var(--border);border-radius:18px;padding:8px 12px}
 .player-card{display:flex;align-items:center;gap:8px;flex:1;padding:7px 10px;border-radius:12px;border:2px solid transparent;transition:all .3s}
 .player-card.active-p1{border-color:var(--p1);background:rgba(255,68,102,.1);box-shadow:0 0 18px rgba(255,68,102,.2)}
@@ -91,7 +86,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .pc-dot.p2{background:var(--p2);box-shadow:0 0 7px var(--p2glow)}
 .vs-div{font-family:'Unbounded',sans-serif;font-size:10px;font-weight:700;color:var(--text3);flex-shrink:0}
 
-/* TIMER */
 .timer-bar{display:flex;align-items:center;gap:10px;width:100%;max-width:500px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:9px 14px}
 .timer-lbl{font-size:10px;color:var(--text3);font-family:'Unbounded',sans-serif;letter-spacing:1px;flex-shrink:0}
 .timer-val{font-family:'Unbounded',sans-serif;font-size:19px;font-weight:700;color:var(--accent);min-width:38px;text-align:center;flex-shrink:0}
@@ -100,34 +94,12 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .timer-bar progress::-webkit-progress-bar{background:var(--indigo-f);border-radius:4px}
 .timer-bar progress::-webkit-progress-value{background:linear-gradient(90deg,var(--indigo),var(--accent));border-radius:4px;transition:width .5s}
 
-/* BOARD */
 .board-outer{width:100%;max-width:500px}
 .coord-row{display:flex;padding-left:22px}
 .coord-file{flex:1;text-align:center;font-size:9px;color:var(--text3);font-family:'Unbounded',sans-serif}
 .board-row-wrap{display:flex;align-items:stretch}
-.coord-rank{width:22px;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--text3);font-family:'Unbounded',sans-serif;flex-shrink:0}
-#board{
-  display:grid;
-  grid-template-columns:repeat(8,1fr);
-  flex:1;
-  border:2px solid var(--border);
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 50px rgba(120,30,200,.12);
-  /* FIX: ensure aspect ratio works */
-  width:100%;
-  aspect-ratio:1;
-}
-.cell{
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  position:relative;
-  transition:background .12s;
-  /* FIX: ensure cells are square */
-  aspect-ratio:1;
-}
+#board{display:grid;grid-template-columns:repeat(8,1fr);flex:1;border:2px solid var(--border);border-radius:10px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,.5),0 0 50px rgba(120,30,200,.12);width:100%;aspect-ratio:1;}
+.cell{display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:background .12s;aspect-ratio:1;}
 .cell.dark{background:var(--cell-dark)}
 .cell.light{background:var(--cell-light)}
 .cell.selected{background:rgba(168,85,247,.35)!important;box-shadow:inset 0 0 0 3px var(--accent)}
@@ -141,11 +113,9 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .piece.selectable:hover{transform:scale(1.12)}
 .king-crown{position:absolute;top:-5px;left:50%;transform:translateX(-50%);font-size:10px;line-height:1;animation:crownPop .3s ease}
 
-/* STATUS */
 .status-bar{width:100%;max-width:500px;background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:10px 16px;font-size:12px;color:var(--text2);text-align:center;min-height:40px;display:flex;align-items:center;justify-content:center}
 .status-bar.win{border-color:var(--accent);color:var(--accent);font-weight:600;animation:winGlow 1.5s ease-in-out infinite}
 
-/* SCORE PANEL */
 .score-panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;overflow:hidden}
 .sp-head{padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase}
 .sp-body{padding:8px 10px;display:flex;flex-direction:column;gap:5px}
@@ -155,7 +125,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .sp-name{flex:1;font-size:12px;color:var(--text);font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .sp-val{font-family:'Unbounded',sans-serif;font-size:13px;font-weight:700;color:var(--accent)}
 
-/* CHAT PANEL */
 .chat-panel{background:var(--panel);border:1px solid var(--border);border-radius:18px;display:flex;flex-direction:column;overflow:hidden;flex:1;min-height:320px}
 .chat-head{padding:10px 14px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:9px;letter-spacing:1.5px;color:var(--text2);text-transform:uppercase;display:flex;align-items:center;gap:6px}
 .ch-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 6px var(--accent)}
@@ -175,7 +144,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .td{width:5px;height:5px;border-radius:50%;background:var(--accent);animation:typingBounce .8s ease infinite}
 .td:nth-child(2){animation-delay:.15s}.td:nth-child(3){animation-delay:.3s}
 
-/* EMOJI PANEL */
 .em-panel{position:absolute;bottom:52px;left:8px;background:var(--panel2);border:1px solid var(--border);border-radius:16px;padding:10px;width:260px;z-index:1000;box-shadow:0 8px 30px rgba(0,0,0,.4);display:none;max-height:190px;overflow-y:auto}
 .em-panel.open{display:block}
 .em-panel::-webkit-scrollbar{width:3px}
@@ -185,7 +153,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .em-btn:hover{background:var(--border);transform:scale(1.1)}
 .em-btn img{width:28px;height:28px;object-fit:contain;border-radius:5px}
 
-/* CHAT BAR */
 .chat-bar-wrap{display:flex;gap:6px;padding:8px;border-top:1px solid var(--border);flex-shrink:0;align-items:center;position:relative}
 #chatInput{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:12px;padding:7px 12px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
 #chatInput:focus{border-color:var(--indigo2)}
@@ -194,7 +161,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .ci-btn:hover{background:var(--border)}
 .ci-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:9px;color:#fff;font-size:15px;cursor:pointer;padding:0 11px;height:32px}
 
-/* MODALS */
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(10px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
 .modal{background:var(--panel);border:1px solid var(--border);border-radius:24px;padding:26px;max-width:370px;width:100%;text-align:center;animation:pop .4s cubic-bezier(0.34,1.56,0.64,1);box-shadow:0 20px 60px rgba(0,0,0,.7),0 0 60px var(--glow)}
@@ -208,7 +174,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .mbtn.primary:hover{transform:translateY(-2px)}
 .mbtn.secondary{background:var(--indigo-f);border:1px solid var(--border);color:var(--text2)}
 
-/* INVITE MODAL */
 .inv-list{display:flex;flex-direction:column;gap:6px;max-height:280px;overflow-y:auto;margin-bottom:14px;text-align:left}
 .inv-item{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);cursor:pointer;transition:all .2s}
 .inv-item:hover{background:var(--border)}
@@ -219,7 +184,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .inv-score{font-size:10px;color:var(--text3)}
 .inv-empty{text-align:center;color:var(--text3);font-size:12px;padding:20px}
 
-/* INVITE INCOMING */
 .inv-notif{position:fixed;top:68px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:1px solid var(--border);border-radius:18px;padding:16px 22px;z-index:9990;box-shadow:0 10px 40px rgba(0,0,0,.5);text-align:center;animation:slideIn .3s ease;max-width:320px;width:92%;display:none}
 .inv-notif.show{display:block}
 .inv-notif-title{font-family:'Unbounded',sans-serif;font-size:11px;font-weight:700;color:#fff;margin-bottom:5px}
@@ -230,7 +194,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 .ibtn.decline{background:rgba(255,68,102,.3);color:#fff;border:1px solid rgba(255,68,102,.5)}
 .ibtn:hover{transform:scale(1.05)}
 
-/* TOAST */
 .toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,var(--indigo),var(--indigo2));color:#fff;padding:10px 20px;border-radius:20px;font-size:13px;z-index:99999;box-shadow:0 6px 24px rgba(0,0,0,.4);pointer-events:none;animation:fadeIn .3s ease;white-space:nowrap}
 
 @media(max-width:900px){.side-col{width:100%}.main-wrap{flex-direction:column}#chatMsgs{max-height:180px}}
@@ -240,7 +203,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
 <body>
 <div id="hearts"></div>
 
-<!-- TOP BAR -->
 <div class="topbar">
   <span class="tb-logo">♟️</span>
   <div><div class="tb-title">შაში</div><div class="tb-sub">კაიფმანია</div></div>
@@ -252,7 +214,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   <button class="tb-btn" onclick="goBack()">← მთავარი</button>
 </div>
 
-<!-- INCOMING INVITE NOTIFICATION -->
 <div class="inv-notif" id="invNotif">
   <div class="inv-notif-title">🎮 გამოწვევა!</div>
   <div class="inv-notif-sub" id="invNotifSub">მოიწვიეს!</div>
@@ -262,7 +223,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- WIN/LOSE MODAL -->
 <div class="overlay" id="winOverlay">
   <div class="modal">
     <span class="modal-icon" id="winIcon">🏆</span>
@@ -276,7 +236,6 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- INVITE MODAL -->
 <div class="overlay" id="inviteOverlay" onclick="if(event.target.id==='inviteOverlay')document.getElementById('inviteOverlay').classList.remove('open')">
   <div class="modal" style="max-width:360px">
     <div class="modal-title" style="margin-bottom:14px">🎯 მოწვევა</div>
@@ -285,27 +244,20 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
   </div>
 </div>
 
-<!-- HOME SCREEN -->
 <div id="homeScreen">
   <span class="home-icon">♟️</span>
   <div class="home-title">ქართული შაში</div>
   <div class="home-sub">AI-სთან ან სხვა მოთამაშესთან</div>
-
   <div class="home-btns">
     <button class="hbtn ai" onclick="showDiffPick()">🤖 AI-სთან</button>
     <button class="hbtn pvp" onclick="openInviteModal()">👥 მოწვევა</button>
   </div>
-
-  <!-- DIFFICULTY PICKER -->
   <div class="diff-row" id="diffRow">
     <button class="diff-btn active" onclick="setDiff(1,this)">😊 მარტივი</button>
     <button class="diff-btn" onclick="setDiff(2,this)">😤 საშუალო</button>
     <button class="diff-btn" onclick="setDiff(3,this)">🧠 ძნელი</button>
   </div>
-
-  <!-- START BUTTON (shows after difficulty chosen) -->
   <button id="startAiBtn" onclick="startAIGame()">🎮 თამაშის დაწყება</button>
-
   <div class="rules-box">
     <h3>📋 წესები</h3>
     <div>• ნაბიჯი მხოლოდ დიაგონალურად, ბნელ უჯრედებზე</div>
@@ -313,16 +265,14 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
     <div>• ჯარისკაცი დამბა ხდება ბოლო მწკრივზე</div>
     <div>• მოგება: ★5 ქულა პროფილში</div>
     <div class="pl-legend">
-      <div class="pl-item"><div class="pl-dot p1"></div> წითელი (შენ)</div>
-      <div class="pl-item"><div class="pl-dot p2"></div> ლურჯი (AI / მოწინ.)</div>
+      <div class="pl-item"><div class="pl-dot p1"></div> წითელი (მომწვევი)</div>
+      <div class="pl-item"><div class="pl-dot p2"></div> ლურჯი (მიწვეული)</div>
     </div>
   </div>
 </div>
 
-<!-- GAME SCREEN -->
 <div id="gameScreen">
   <div class="main-wrap">
-    <!-- LEFT: Board -->
     <div class="game-col">
       <div class="players-bar">
         <div class="player-card" id="p1card">
@@ -343,13 +293,11 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
           <div class="pc-dot p2"></div>
         </div>
       </div>
-
       <div class="timer-bar">
         <span class="timer-lbl">⏱</span>
         <span class="timer-val" id="timerVal">30</span>
         <progress id="timerProg" max="30" value="30"></progress>
       </div>
-
       <div class="board-outer">
         <div class="coord-row" id="fileCoords"></div>
         <div class="board-row-wrap">
@@ -357,19 +305,13 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
           <div id="board"></div>
         </div>
       </div>
-
       <div class="status-bar" id="statusBar">🎮 თამაში</div>
     </div>
-
-    <!-- RIGHT: Score + Chat -->
     <div class="side-col">
       <div class="score-panel">
         <div class="sp-head">🏆 ტოპ 5 · შაში</div>
-        <div class="sp-body" id="lbBody">
-          <div style="color:var(--text3);font-size:11px;text-align:center;padding:12px 0">...</div>
-        </div>
+        <div class="sp-body" id="lbBody"><div style="color:var(--text3);font-size:11px;text-align:center;padding:12px 0">...</div></div>
       </div>
-
       <div class="chat-panel">
         <div class="chat-head"><div class="ch-dot"></div>მინი ჩატი</div>
         <div id="chatMsgs"></div>
@@ -377,14 +319,10 @@ body{font-family:'Noto Sans Georgian',sans-serif;background:var(--bg);color:var(
           <div class="td"></div><div class="td"></div><div class="td"></div>
           <span id="typingName" style="margin-left:4px"></span>
         </div>
-        <div class="em-panel" id="chatEmPanel">
-          <div class="eg" id="chatEmGrid"></div>
-        </div>
+        <div class="em-panel" id="chatEmPanel"><div class="eg" id="chatEmGrid"></div></div>
         <div class="chat-bar-wrap">
           <button class="ci-btn" onclick="toggleEmoji()">😊</button>
-          <input id="chatInput" placeholder="შეტყობინება..."
-            onkeydown="if(event.key==='Enter')sendChatMsg()"
-            oninput="onChatTyping()">
+          <input id="chatInput" placeholder="შეტყობინება..." onkeydown="if(event.key==='Enter')sendChatMsg()" oninput="onChatTyping()">
           <button class="ci-send" onclick="sendChatMsg()">✈️</button>
         </div>
       </div>
@@ -402,13 +340,13 @@ const sb = createClient(
 /* ===== STATE ===== */
 let ME = null, MYPROF = null;
 let customEmojis = [], emojiCache = {};
-let gameMode = null; // 'ai' | 'pvp'
+let gameMode = null;
 let aiDifficulty = 1;
 let gameId = null;
 let gameChannel = null, chatChannel = null;
 let pendingInvId = null, pendingInvFrom = null;
 let opponentProf = null;
-let currentTurn = 1;  // 1=red/me, 2=blue/opp
+let currentTurn = 1;
 let board = [];
 let selectedCell = null;
 let validMoves = [];
@@ -418,22 +356,24 @@ let chatTypTimer = null, chatChReady = false;
 let gameOver = false;
 let lastFrom = null, lastTo = null;
 
+// ========== მთავარი ფიქსი ==========
+// myColor: 1 = წითელი (player_white / მომწვევი), 2 = ლურჯი (player_black / მიწვეული)
+let myColor = 1;
+// ====================================
+
 /* ===== BOARD DATA ===== */
 function initBoard() {
   board = Array.from({length:8},()=>Array(8).fill(null));
+  // player 2 (ლურჯი) — ზემოთ (rows 0-2)
   for(let r=0;r<3;r++) for(let c=0;c<8;c++)
     if((r+c)%2===1) board[r][c]={player:2,king:false};
+  // player 1 (წითელი) — ქვემოთ (rows 5-7)
   for(let r=5;r<8;r++) for(let c=0;c<8;c++)
     if((r+c)%2===1) board[r][c]={player:1,king:false};
 }
 
 function cloneBoard(b){return b.map(r=>r.map(c=>c?{...c}:null));}
-
-function countPieces(b,p){
-  let n=0;
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++) if(b[r][c]?.player===p) n++;
-  return n;
-}
+function countPieces(b,p){let n=0;for(let r=0;r<8;r++)for(let c=0;c<8;c++)if(b[r][c]?.player===p)n++;return n;}
 
 /* ===== MOVE ENGINE ===== */
 function getCaptures(b,r,c){
@@ -461,11 +401,11 @@ function getSimple(b,r,c){
 
 function getAllMoves(b,player){
   const caps=[];
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)
     if(b[r][c]?.player===player) caps.push(...getCaptures(b,r,c));
   if(caps.length) return{moves:caps,mc:true};
   const moves=[];
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++)
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++)
     if(b[r][c]?.player===player) moves.push(...getSimple(b,r,c));
   return{moves,mc:false};
 }
@@ -480,10 +420,10 @@ function applyMove(b,mv){
   return nb;
 }
 
-/* ===== AI MINIMAX ===== */
+/* ===== AI ===== */
 function evalBoard(b){
   let s=0;
-  for(let r=0;r<8;r++) for(let c=0;c<8;c++){
+  for(let r=0;r<8;r++)for(let c=0;c<8;c++){
     const p=b[r][c]; if(!p) continue;
     const v=p.king?3:1;
     s+=p.player===2?v:-v;
@@ -532,31 +472,26 @@ function getBestAIMove(){
   return best;
 }
 
-/* ===== RENDER BOARD ===== */
+/* ===== RENDER ===== */
 function renderBoard(){
   const el=document.getElementById('board');
   el.innerHTML='';
 
-  // File coords (A-H)
   const fc=document.getElementById('fileCoords');
   fc.innerHTML='';
   'ABCDEFGH'.split('').forEach(l=>{
-    const d=document.createElement('div');
-    d.className='coord-file';
-    d.textContent=l;
-    fc.appendChild(d);
+    const d=document.createElement('div');d.className='coord-file';d.textContent=l;fc.appendChild(d);
   });
 
-  // Rank coords (8-1)
   const rc=document.getElementById('rankCoords');
   rc.innerHTML='';
   for(let i=8;i>=1;i--){
     const d=document.createElement('div');
     d.style.cssText='font-size:9px;color:var(--text3);font-family:Unbounded,sans-serif;text-align:center;display:flex;align-items:center;justify-content:center;flex:1';
-    d.textContent=i;
-    rc.appendChild(d);
+    d.textContent=i; rc.appendChild(d);
   }
 
+  // მხოლოდ ამჟამინდელი მოთამაშის სვლები ვაჩვენოთ
   const{moves:allM,mc}=getAllMoves(board,currentTurn);
   mustCapture=mc?allM:[];
 
@@ -574,7 +509,10 @@ function renderBoard(){
     if(pc){
       const pd=document.createElement('div');
       pd.className='piece p'+pc.player;
-      const canSel=!gameOver&&pc.player===1&&
+      // მხოლოდ საკუთარი ქვები არის selectable
+      const isMyPiece = pc.player === myColor;
+      const isMyTurn = currentTurn === myColor;
+      const canSel = !gameOver && isMyPiece && isMyTurn &&
         (mustCapture.length?mustCapture.some(m=>m.r===r&&m.c===c):allM.some(m=>m.r===r&&m.c===c));
       if(canSel) pd.classList.add('selectable');
       if(pc.king){const cr=document.createElement('span');cr.className='king-crown';cr.textContent='♛';pd.appendChild(cr);}
@@ -589,18 +527,20 @@ function renderBoard(){
 /* ===== GAME LOGIC ===== */
 function onCellClick(r,c){
   if(gameOver) return;
-  if(gameMode==='pvp'&&currentTurn!==1) return;
-  if(gameMode==='ai'&&currentTurn!==1) return;
+  // მხოლოდ საკუთარი ჯერზე
+  if(currentTurn !== myColor) return;
+
   const pc=board[r][c];
-  const{moves:allM}=getAllMoves(board,1);
+  const{moves:allM}=getAllMoves(board,myColor);
+
   if(selectedCell){
     const mv=validMoves.find(m=>m.tr===r&&m.tc===c);
     if(mv){executeMove(mv);return;}
-    if(pc?.player===1&&(mustCapture.length?mustCapture.some(m=>m.r===r&&m.c===c):allM.some(m=>m.r===r&&m.c===c)))
+    if(pc?.player===myColor&&(mustCapture.length?mustCapture.some(m=>m.r===r&&m.c===c):allM.some(m=>m.r===r&&m.c===c)))
       selectPiece(r,c);
     else{selectedCell=null;validMoves=[];renderBoard();}
   } else {
-    if(pc?.player===1){
+    if(pc?.player===myColor){
       const ok=mustCapture.length?mustCapture.some(m=>m.r===r&&m.c===c):allM.some(m=>m.r===r&&m.c===c);
       if(ok) selectPiece(r,c);
     }
@@ -636,7 +576,8 @@ function executeMove(mv,isAI=false){
       resetTimer(); setStatus('🤖 AI ფიქრობს...');
       setTimeout(doAIMove,500+aiDifficulty*200);
     } else {
-      setStatus(currentTurn===1?'🔴 შენი ჯერია':'🔵 მოწინააღმდეგის ჯერი');
+      const isMyTurn = currentTurn === myColor;
+      setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინААRmდეგის ჯერი');
       resetTimer();
     }
   }
@@ -660,7 +601,8 @@ function checkWin(){
 
 async function endGame(winner){
   gameOver=true; stopTimer();
-  const iWon=winner===1;
+  // iWon: winner ფერი == ჩემი ფერი
+  const iWon = winner === myColor;
   const sb2=document.getElementById('statusBar');
   sb2.className='status-bar win';
   sb2.textContent=iWon?'🏆 გაიმარჯვე!':'😔 წააგე';
@@ -681,7 +623,10 @@ async function endGame(winner){
       loadLeaderboard();
     }
     if(gameMode==='pvp'&&gameId){
-      await sb.from('checkers_games').update({status:'finished',winner_id:iWon?ME.id:(opponentProf?.id||null)}).eq('id',gameId);
+      await sb.from('checkers_games').update({
+        status:'finished',
+        winner_id: winner===1?(opponentProf?.id||null):ME.id
+      }).eq('id',gameId);
     }
   },600);
 }
@@ -711,7 +656,8 @@ function resetTimer(){
         currentTurn=currentTurn===1?2:1;
         selectedCell=null;validMoves=[];
         renderBoard();
-        setStatus(currentTurn===1?'🔴 შენი ჯერია':'🔵 მოწინ.');
+        const isMyTurn=currentTurn===myColor;
+        setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინ.');
         resetTimer();
         if(gameMode==='ai'&&currentTurn===2) setTimeout(doAIMove,500);
       }
@@ -720,8 +666,7 @@ function resetTimer(){
 }
 function stopTimer(){clearInterval(timerInt);}
 function updateTimerUI(){
-  const tv=document.getElementById('timerVal');
-  const tp=document.getElementById('timerProg');
+  const tv=document.getElementById('timerVal'),tp=document.getElementById('timerProg');
   tv.textContent=timerSec; tp.value=timerSec;
   tv.className='timer-val'+(timerSec<=10?' warn':'');
 }
@@ -730,9 +675,9 @@ function updateTimerUI(){
 async function savePvpState(mv){
   if(!gameId) return;
   await sb.from('checkers_games').update({
-    board:board,
-    turn:currentTurn===1?'white':'black',
-    last_move:JSON.stringify(mv)
+    board: board,
+    turn: currentTurn===1?'white':'black',
+    last_move: JSON.stringify(mv)
   }).eq('id',gameId);
 }
 
@@ -742,14 +687,17 @@ function watchPvpGame(gid){
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'checkers_games',filter:`id=eq.${gid}`},p=>{
       const g=p.new;
       if(g.status==='finished') return;
-      const gTurn = g.turn==='white'?1:2;
-      if(gTurn!==currentTurn){
-        board=typeof g.board==='string'?JSON.parse(g.board):g.board;
-        currentTurn=g.turn==='white'?1:2;
-        selectedCell=null;validMoves=[];
+
+      const newTurn = g.turn==='white'?1:2;
+      // მხოლოდ მაშინ ვაახლებ როდესაც მოწინAARmდეგემ სვლა გააკეთა (ახლა ჩემი ჯერია)
+      if(newTurn === myColor){
+        board = typeof g.board==='string'?JSON.parse(g.board):g.board;
+        currentTurn = newTurn;
+        selectedCell=null; validMoves=[];
         renderBoard();
-        setStatus(currentTurn===1?'🔴 შენი ჯერია':'🔵 მოწინ.');
-        resetTimer(); checkWin();
+        setStatus('🔴 შენი ჯერია');
+        resetTimer();
+        checkWin();
       }
     }).subscribe();
 }
@@ -773,28 +721,14 @@ async function openInviteModal(){
   });
 }
 
-async function sendInvite(uid, uname) {
+async function sendInvite(uid, uname){
   document.getElementById('inviteOverlay').classList.remove('open');
-  toast('📨 მოწვევა გაიგზავნა → ' + uname);
-  
-  // წინა pending მოწვევების წაშლა
-  await sb.from('checkers_invites')
-    .delete()
-    .eq('from_id', ME.id)
-    .eq('to_id', uid)
-    .eq('status', 'pending');
-
-  const { error } = await sb.from('checkers_invites').insert({
-    from_id: ME.id,
-    to_id: uid,
-    status: 'pending',
-    created_at: new Date().toISOString()
+  toast('📨 მოწვევა გაიგზავნა → '+uname);
+  await sb.from('checkers_invites').delete().eq('from_id',ME.id).eq('to_id',uid).eq('status','pending');
+  const{error}=await sb.from('checkers_invites').insert({
+    from_id:ME.id, to_id:uid, status:'pending', created_at:new Date().toISOString()
   });
-
-  if (error) {
-    console.error('Invite error:', error);
-    toast('❌ შეცდომა: ' + error.message);
-  }
+  if(error){toast('❌ შეცდომა: '+error.message);}
 }
 
 function watchInvites(){
@@ -808,9 +742,11 @@ function watchInvites(){
       setTimeout(()=>document.getElementById('invNotif').classList.remove('show'),15000);
     })
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'checkers_invites'},p=>{
+      // მომწვევი: status=accepted, game_id მოვიდა
       if(p.new.from_id===ME.id&&p.new.status==='accepted'&&p.new.game_id){
         toast('✅ მოიწვიეს! იწყება...');
-        startPvpGame(p.new.game_id,p.new.to_id,false);
+        // მომწვევი = player_white = myColor 1 (წითელი)
+        startPvpGame(p.new.game_id, p.new.to_id, 1);
       }
     }).subscribe();
 }
@@ -819,18 +755,19 @@ async function acceptInvite(){
   document.getElementById('invNotif').classList.remove('show');
   if(!pendingInvId||!pendingInvFrom) return;
   initBoard();
-  const{data:g, error:gErr}=await sb.from('checkers_games').insert({
-    player_white:pendingInvFrom.id,
-    player_black:ME.id,
-    challenger:pendingInvFrom.id,
-    board:board,
-    turn:'white',
-    status:'active'
+  const{data:g,error:gErr}=await sb.from('checkers_games').insert({
+    player_white: pendingInvFrom.id,  // მომწვევი = წითელი
+    player_black: ME.id,               // მიწვეული = ლურჯი
+    challenger: pendingInvFrom.id,
+    board: board,
+    turn: 'white',
+    status: 'active'
   }).select().single();
-  if(gErr){console.error('Game insert error:',gErr);toast('❌ '+gErr.message);return;}
+  if(gErr){toast('❌ '+gErr.message);return;}
   await sb.from('checkers_invites').update({status:'accepted',game_id:g.id}).eq('id',pendingInvId);
   opponentProf=pendingInvFrom;
-  startPvpGame(g.id,pendingInvFrom.id,true);
+  // მიწვეული = player_black = myColor 2 (ლურჯი)
+  startPvpGame(g.id, pendingInvFrom.id, 2);
 }
 
 async function declineInvite(){
@@ -840,35 +777,46 @@ async function declineInvite(){
   toast('❌ უარი');
 }
 
-async function startPvpGame(gid,opId,iAmP2){
+async function startPvpGame(gid, opId, myCol){
   gameId=gid; gameMode='pvp'; gameOver=false;
-  currentTurn=1; selectedCell=null; validMoves=[];
+  myColor = myCol;        // ← ეს არის ახალი ფიქსი!
+  currentTurn = 1;        // თამაში ყოველთვის white-ით (1) იწყება
+  selectedCell=null; validMoves=[];
   lastFrom=null; lastTo=null;
+
   if(!opponentProf){
     const{data:o}=await sb.from('profiles').select('*').eq('id',opId).single();
     opponentProf=o;
   }
+
   const myAv=MYPROF?.avatar_url?`<img src="${MYPROF.avatar_url}">`:(MYPROF?.emotion||'😊');
   const opAv=opponentProf?.avatar_url?`<img src="${opponentProf.avatar_url}">`:(opponentProf?.emotion||'😊');
-  if(!iAmP2){
+
+  if(myColor===1){
+    // მე ვარ წითელი (p1)
     document.getElementById('p1Av').innerHTML=myAv;
-    document.getElementById('p1Name').textContent=MYPROF?.username||'შენ';
+    document.getElementById('p1Name').textContent=(MYPROF?.username||'შენ')+' 🔴';
     document.getElementById('p2Av').innerHTML=opAv;
-    document.getElementById('p2Name').textContent=opponentProf?.username||'მოწინ.';
+    document.getElementById('p2Name').textContent=(opponentProf?.username||'მოწინ.')+' 🔵';
   } else {
+    // მე ვარ ლურჯი (p2) — მარცხნივ ვაჩვენებ მოწინAARmდეგეს, მარჯვნივ — თავს
     document.getElementById('p1Av').innerHTML=opAv;
-    document.getElementById('p1Name').textContent=opponentProf?.username||'მოწინ.';
+    document.getElementById('p1Name').textContent=(opponentProf?.username||'მოწინ.')+' 🔴';
     document.getElementById('p2Av').innerHTML=myAv;
-    document.getElementById('p2Name').textContent=MYPROF?.username||'შენ';
+    document.getElementById('p2Name').textContent=(MYPROF?.username||'შენ')+' 🔵';
   }
+
   initBoard(); renderBoard();
   showGameScreen();
   setupGameChat('pvp_'+gid);
   loadLeaderboard();
   watchPvpGame(gid);
   resetTimer();
-  setStatus('🔴 პირველი ნაბიჯი');
+
+  const isMyTurn = myColor===1;
+  setStatus(isMyTurn?'🔴 შენი ჯერია! (წითელი)':'🔵 მოწინAARmდეგე იწყებს (შენ ლურჯი ხარ)');
   appendSysMsg('👥 PvP თამაში დაიწყო!');
+  appendSysMsg(myColor===1?'შენ ხარ 🔴 წითელი — პირველი იწყებ!':'შენ ხარ 🔵 ლურჯი — მოიცადე მოწინAARmდეგის სვლა');
   toast('🎮 PvP! '+(opponentProf?.username||''));
 }
 
@@ -1008,7 +956,6 @@ function goHome(){
   document.getElementById('homeScreen').style.display='flex';
   document.getElementById('gameScreen').style.display='none';
   document.getElementById('winOverlay').classList.remove('open');
-  // Reset diff UI
   document.getElementById('diffRow').classList.remove('visible');
   document.getElementById('startAiBtn').classList.remove('visible');
 }
@@ -1021,33 +968,27 @@ function newGame(){
   else goHome();
 }
 
-/* ===== FIX: difficulty & AI start ===== */
 function showDiffPick(){
   const dr=document.getElementById('diffRow');
   const sb2=document.getElementById('startAiBtn');
   dr.classList.toggle('visible');
-  if(dr.classList.contains('visible')){
-    sb2.classList.add('visible');
-  } else {
-    sb2.classList.remove('visible');
-  }
+  if(dr.classList.contains('visible')) sb2.classList.add('visible');
+  else sb2.classList.remove('visible');
 }
 
 function setDiff(d,btn){
   aiDifficulty=d;
   document.querySelectorAll('.diff-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  // Show start button if not already visible
   document.getElementById('diffRow').classList.add('visible');
   document.getElementById('startAiBtn').classList.add('visible');
 }
 
 function startAIGame(){
-  // Hide diff UI
   document.getElementById('diffRow').classList.remove('visible');
   document.getElementById('startAiBtn').classList.remove('visible');
-
   gameMode='ai'; gameOver=false; gameId=null;
+  myColor=1; // AI-სთან ყოველთვის წითელი ხარ
   initBoard(); currentTurn=1; selectedCell=null; validMoves=[];
   lastFrom=null; lastTo=null;
   const myAv=MYPROF?.avatar_url?`<img src="${MYPROF.avatar_url}">`:(MYPROF?.emotion||'😊');
