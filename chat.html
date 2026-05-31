@@ -1674,10 +1674,21 @@ async function init(){
 }
 init();
   // ფუნქცია, რომელიც ბაზაში ჩაწერს სტუმრობას
+// 1. შესწორებული ფუნქცია (logProfileVisit)
 async function logProfileVisit(targetUserId) {
- // ფუნქცია, რომელიც წამოიღებს სტუმრებს და ჩაყრის ფანჯარაში
+  if (!currentUserId || targetUserId === currentUserId) return;
+  try {
+    await sb.from('profile_visitors').insert([
+      { profile_id: targetUserId, visitor_id: currentUserId }
+    ]);
+  } catch (err) {
+    console.error("სტუმრობის ჩაწერა ვერ მოხერხდა:", err);
+  }
+}
+
+// 2. შესწორებული ფუნქცია (loadMyProfileVisitors)
 async function loadMyProfileVisitors() {
-  if (!ME || !ME.id) return;
+  if (!currentUserId) return;
   try {
     const { data, error } = await sb
       .from('profile_visitors')
@@ -1686,9 +1697,9 @@ async function loadMyProfileVisitors() {
         visited_at,
         visitor:profiles!visitor_id (id, username, avatar_url)
       `)
-      .eq('profile_id', ME.id)
+      .eq('profile_id', currentUserId)
       .order('visited_at', { ascending: false })
-      .limit(5); // გამოვაჩინოთ ბოლო 5 სტუმარი
+      .limit(5);
 
     if (error) throw error;
 
@@ -1709,7 +1720,7 @@ async function loadMyProfileVisitors() {
       return `
         <div style="display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 8px; transition: background 0.2s; cursor: pointer;" 
              onclick="if(typeof openUserProfile === 'function') openUserProfile('${visitorInfo.id}'); else if(typeof showUserProfile === 'function') showUserProfile('${visitorInfo.id}');">
-          <img src="${avatar}" style="w-7 h-7; width: 30px; height: 30px; rounded-full; border-radius: 50%; object-cover; object-fit: cover; border: 1px solid var(--border);">
+          <img src="${avatar}" style="width: 30px; height: 30px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border);">
           <div style="display: flex; flex-direction: column;">
             <span style="font-size: 11px; font-weight: 600; color: var(--text);">${visitorInfo.username}</span>
             <span style="font-size: 9px; color: var(--text3);">ნახა: ${visitDate}</span>
@@ -1722,11 +1733,13 @@ async function loadMyProfileVisitors() {
   }
 }
 
-// ავტომატურად ჩავრთოთ საიტის ჩატვირთვისას და განვაახლოთ ყოველ 30 წამში
+// ავტომატურად ჩავრთოთ საიტის ჩატვირთვისას ცოტა მოგვიანებით (5 წამში), რომ სისტემამ მოასწროს შესვლა
 setTimeout(() => {
-  loadMyProfileVisitors();
-  setInterval(loadMyProfileVisitors, 30000);
-}, 3000);
+  if (currentUserId) {
+    loadMyProfileVisitors();
+    setInterval(loadMyProfileVisitors, 30000);
+  }
+}, 5000);
 </script>
 </body>
 </html>
