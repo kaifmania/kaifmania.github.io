@@ -1,11 +1,3 @@
-<div id="visitors-floating-box" style="position: fixed; bottom: 20px; left: 20px; z-index: 9999; background: var(--panel); border: 1px solid var(--border); padding: 15px; border-radius: 16px; width: 260px; box-shadow: 0 8px 32px var(--glow); backdrop-filter: blur(8px);">
-  <h3 style="font-family: 'Unbounded', sans-serif; font-size: 12px; color: var(--indigo2); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: 0.5px;">
-    <i class="fas fa-eye" style="color: var(--online); animation: pulse 2s infinite;"></i> პროფილის სტუმრები
-  </h3>
-  <div id="visitors-container" style="display: flex; flex-direction: column; gap: 6px; max-h: 200px; overflow-y: auto;">
-    <p style="font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0; font-family: 'Noto Sans Georgian', sans-serif;">სტუმრები ჯერ არ გყავს</p>
-  </div>
-</div>
 <!DOCTYPE html>
 <html lang="ka">
 <head>
@@ -16,7 +8,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-body.night{--bg:#0d0b1a;--panel:#120f24;--panel2:#1a1730;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff;}
+body.night{--bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);--text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;--bubble:#2a2745;--input-bg:#221f3a;--online:#c07aff;--indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);--glow:rgba(168,85,247,0.28);--accent:#f07aff;}
 body.day{--bg:#f5eeff;--panel:#ede0ff;--panel2:#e8d5ff;--border:rgba(106,13,173,0.2);--text:#1e0a36;--text2:#6b3a9e;--text3:#a882cc;--bubble:#fff;--input-bg:#fff;--online:#7b2fbe;--indigo:#5a189a;--indigo2:#7b2fbe;--indigo-f:rgba(106,13,173,0.08);--glow:rgba(106,13,173,0.2);--accent:#c040ff;}
 body.theme-ocean{--bg:#0a1628;--panel:#0d1f3c;--panel2:#112447;--border:rgba(0,180,255,0.3);--text:#e0f4ff;--text2:#60b8e8;--text3:#3a7ca8;--bubble:#0e2040;--input-bg:#0a1a30;--online:#00d4ff;--indigo:#005fa3;--indigo2:#0097cc;--indigo-f:rgba(0,150,200,0.15);--glow:rgba(0,180,255,0.25);--accent:#00e5ff;}
 body.theme-forest{--bg:#0a1a0f;--panel:#0d2215;--panel2:#10291a;--border:rgba(0,200,80,0.3);--text:#d4f5dc;--text2:#50c870;--text3:#2a7840;--bubble:#0d2015;--input-bg:#091510;--online:#00e555;--indigo:#006830;--indigo2:#00a845;--indigo-f:rgba(0,160,60,0.15);--glow:rgba(0,200,80,0.25);--accent:#00ff80;}
@@ -49,26 +41,15 @@ body.night,body.day,body[class*="theme-"]{background:var(--bg);color:var(--text)
 @keyframes typingBounce{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 @keyframes badgePulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
 @keyframes dmNotifSlide{from{opacity:0;transform:translateX(120%)}to{opacity:1;transform:translateX(0)}}
-@keyframes bellRing{0%,100%{transform:rotate(0)}20%{transform:rotate(-15deg)}40%{transform:rotate(15deg)}60%{transform:rotate(-10deg)}80%{transform:rotate(10deg)}}
-img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-state:running!important;-webkit-animation-play-state:running!important;image-rendering:auto;}
 #hearts{position:fixed;inset:0;pointer-events:none;z-index:999999;overflow:hidden}
 .heart{position:absolute;bottom:-60px;will-change:transform,opacity;transform:translateZ(0);user-select:none;z-index:999999;animation:heartFloat linear;}
+img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-state:running!important;-webkit-animation-play-state:running!important}
 .msg-bubble img.chat-emoji{width:36px!important;height:36px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:6px}
-.msg-bubble img.chat-emoji-gif{width:44px!important;height:44px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:8px;animation-play-state:running!important}
+.msg-bubble img.chat-emoji-gif{width:44px!important;height:44px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:8px}
 .msg-bubble .chat-emoji-text{font-size:26px;vertical-align:middle;line-height:1}
 .dm-bubble img.chat-emoji{width:30px!important;height:30px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:5px}
-.dm-bubble img.chat-emoji-gif{width:36px!important;height:36px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:6px;animation-play-state:running!important}
+.dm-bubble img.chat-emoji-gif{width:36px!important;height:36px!important;object-fit:contain;vertical-align:middle;margin:0 2px;display:inline-block;border-radius:6px}
 .dm-bubble .chat-emoji-text{font-size:22px;vertical-align:middle;line-height:1}
-.pv-comment-emoji{font-size:26px!important;vertical-align:middle;display:inline-block;line-height:1}
-.pv-comment img.chat-emoji{width:28px!important;height:28px!important;object-fit:contain;vertical-align:middle;border-radius:4px}
-.pv-comment img.chat-emoji-gif{width:34px!important;height:34px!important;object-fit:contain;vertical-align:middle;border-radius:5px;animation-play-state:running!important}
-.gal-comment-text{font-size:13px;color:var(--text);flex:1;word-break:break-word;line-height:1.6}
-.gal-comment-text img.chat-emoji{width:28px!important;height:28px!important;object-fit:contain;vertical-align:middle;border-radius:4px;display:inline-block}
-.gal-comment-text img.chat-emoji-gif{width:34px!important;height:34px!important;object-fit:contain;vertical-align:middle;border-radius:5px;display:inline-block;animation-play-state:running!important}
-.gal-comment-text .chat-emoji-text{font-size:24px;vertical-align:middle;line-height:1}
-#pvCommentsList .gal-comment-text img.chat-emoji{width:28px!important;height:28px!important}
-#pvCommentsList .gal-comment-text img.chat-emoji-gif{width:34px!important;height:34px!important;animation-play-state:running!important}
-#pvCommentsList .gal-comment-text .chat-emoji-text{font-size:24px}
 .em-btn img{animation-play-state:running!important}
 #topnav{display:flex;align-items:center;gap:2px;background:var(--panel);border-bottom:1px solid var(--border);padding:6px 12px;z-index:100;flex-shrink:0;overflow-x:auto;scrollbar-width:none;box-shadow:0 2px 20px rgba(0,0,0,.25)}
 #topnav::-webkit-scrollbar{display:none}
@@ -79,28 +60,41 @@ img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-stat
 .badge{position:absolute;top:2px;right:2px;background:var(--accent);color:#fff;font-size:9px;font-weight:700;min-width:14px;height:14px;border-radius:7px;display:none;align-items:center;justify-content:center;padding:0 3px}
 .badge.show{display:flex;animation:badgePulse .6s ease}
 .nav-spacer{flex:1}
-.bell-btn{position:relative}
-.bell-btn.ringing .bell-icon{animation:bellRing .6s ease}
-#notifPanel{position:fixed;top:54px;right:60px;width:320px;max-height:480px;background:var(--panel);border:1px solid var(--border);border-radius:18px;z-index:9000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden}
-#notifPanel.open{display:flex}
-.notif-head{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:10px;color:var(--text2);letter-spacing:1.5px;display:flex;align-items:center;justify-content:space-between}
-.notif-clear{background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text3);font-size:10px;padding:3px 10px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif}
-.notif-clear:hover{background:var(--border);color:var(--text)}
-#notifList{overflow-y:auto;flex:1}
-#notifList::-webkit-scrollbar{width:3px}
-#notifList::-webkit-scrollbar-thumb{background:var(--border)}
-.notif-item{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-bottom:1px solid var(--border);cursor:pointer;transition:background .15s;position:relative}
-.notif-item:hover{background:var(--indigo-f)}
-.notif-item.unread{background:rgba(168,85,247,0.06)}
-.notif-item.unread::before{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);width:6px;height:6px;border-radius:50%;background:var(--accent)}
-.notif-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
-.notif-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
-.notif-body{flex:1;min-width:0}
-.notif-text{font-size:12px;color:var(--text);line-height:1.4}
-.notif-text strong{color:var(--indigo2)}
-.notif-time{font-size:10px;color:var(--text3);margin-top:3px}
-.notif-emoji{font-size:20px;flex-shrink:0}
-.notif-empty{text-align:center;padding:32px 16px;color:var(--text3);font-size:12px}
+.nav-icon-svg{width:18px;height:18px;fill:currentColor;flex-shrink:0}
+.nav-btn.icon-only{width:36px;padding:0}
+@keyframes eyePulse{0%,100%{opacity:1}50%{opacity:.5}}
+.nav-btn.visitors-active .nav-icon-svg{animation:eyePulse 2s infinite;color:var(--online)}
+#visitorsPanel{position:fixed;top:54px;right:120px;width:300px;max-height:420px;background:var(--panel);border:1px solid var(--border);border-radius:18px;z-index:9000;box-shadow:0 10px 40px rgba(0,0,0,.5);display:none;flex-direction:column;overflow:hidden}
+#visitorsPanel.open{display:flex}
+.visitors-head{padding:12px 16px;border-bottom:1px solid var(--border);font-family:'Unbounded',sans-serif;font-size:10px;color:var(--text2);letter-spacing:1.5px;display:flex;align-items:center;justify-content:space-between}
+#visitorsList{overflow-y:auto;flex:1;padding:6px}
+#visitorsList::-webkit-scrollbar{width:3px}
+#visitorsList::-webkit-scrollbar-thumb{background:var(--border)}
+.visitor-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border)}
+.visitor-item:last-child{border-bottom:none}
+.visitor-item:hover{background:var(--indigo-f)}
+.visitor-av{width:36px;height:36px;border-radius:50%;background:var(--indigo-f);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden}
+.visitor-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
+.visitor-info{flex:1;min-width:0}
+.visitor-name{font-size:12px;font-weight:600;color:var(--indigo2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.visitor-time{font-size:10px;color:var(--text3);margin-top:2px}
+.visitors-empty{text-align:center;padding:32px 16px;color:var(--text3);font-size:12px}
+@media(max-width:640px){#visitorsPanel{right:8px;left:8px;width:auto}}
+.dm-call-btn{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.18);border:none;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0;padding:0}
+.dm-call-btn:hover{background:rgba(255,255,255,.35);transform:scale(1.08)}
+.dm-call-btn svg{width:16px;height:16px;fill:currentColor}
+.dm-call-btn.video-btn{background:rgba(255,255,255,.25)}
+.dm-call-card{display:flex;align-items:center;gap:12px;padding:10px 14px;background:rgba(0,132,255,.12);border:1px solid rgba(0,132,255,.35);border-radius:16px;margin-top:4px;cursor:pointer;transition:all .2s;max-width:240px}
+.dm-call-card:hover{background:rgba(0,132,255,.22);transform:scale(1.02)}
+.dm-call-card .call-icon-wrap{width:40px;height:40px;border-radius:50%;background:#0084ff;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.dm-call-card .call-icon-wrap svg{width:20px;height:20px;fill:#fff}
+.dm-call-card .call-label{font-size:13px;font-weight:600;color:var(--text)}
+.dm-call-card .call-sub{font-size:10px;color:var(--text3);margin-top:2px}
+.dm-call-card .call-join{margin-left:auto;background:#0084ff;border:none;border-radius:20px;color:#fff;font-size:11px;font-weight:600;padding:6px 14px;cursor:pointer;white-space:nowrap}
+/* DM badge — sender name */
+#dmNavBadgeWrap{display:flex;align-items:center;gap:3px;position:absolute;top:2px;right:2px;max-width:90px;overflow:hidden}
+.dm-sender-chip{background:var(--accent);color:#fff;font-size:8px;font-weight:700;border-radius:8px;padding:1px 5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:80px;display:none;animation:badgePulse .6s ease}
+.dm-sender-chip.show{display:block}
 #app{display:flex;flex:1;min-height:0;position:relative;z-index:1}
 #sidebar{width:260px;background:var(--panel);border-right:2px solid var(--border);display:flex;flex-direction:column;flex-shrink:0;position:relative;z-index:2;transition:all 0.3s ease}
 @media(max-width:640px){#sidebar{display:none}#sidebar.mob-open{display:flex;position:fixed;inset:0;top:50px;z-index:200;width:100%}}
@@ -121,10 +115,7 @@ img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-stat
 .room-item.game-room{border:1px solid rgba(74,222,128,0.2)}
 .room-item.game-room:hover{border-color:rgba(74,222,128,0.5);background:rgba(74,222,128,0.08)}
 .room-item.game-room.active{border-left:3px solid #4ade80;background:rgba(74,222,128,0.1)}
-.room-item.test-room{border:1px solid rgba(168,85,247,0.2)}
-.room-item.test-room:hover{border-color:rgba(168,85,247,0.5);background:rgba(168,85,247,0.08)}
 .game-badge{font-size:8px;padding:1px 5px;border-radius:4px;background:rgba(74,222,128,0.15);color:#4ade80;border:1px solid rgba(74,222,128,0.3);font-family:'Unbounded',sans-serif;font-weight:700;letter-spacing:.5px;margin-left:auto;flex-shrink:0}
-.test-badge{font-size:8px;padding:1px 5px;border-radius:4px;background:rgba(168,85,247,0.15);color:#c084fc;border:1px solid rgba(168,85,247,0.3);font-family:'Unbounded',sans-serif;font-weight:700;letter-spacing:.5px;margin-left:auto;flex-shrink:0}
 .room-icon{width:34px;height:34px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 .room-name{font-size:13px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .list-info{flex:1;min-width:0}
@@ -210,7 +201,7 @@ img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-stat
 .fmt-btn{width:30px;height:30px;border-radius:7px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text2);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
 .fmt-btn:hover,.fmt-btn.active{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
 .fmt-sep{width:1px;height:20px;background:var(--border);margin:0 3px;flex-shrink:0}
-.color-btn{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15px;flex-shrink:0}
+.color-btn{width:20px;height:20px;border-radius:50%;border:2px solid transparent;cursor:pointer;transition:transform .15s;flex-shrink:0}
 .color-btn:hover,.color-btn.active{transform:scale(1.25);border-color:white}
 #fontFamilySelect{background:var(--input-bg);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;padding:3px 6px;cursor:pointer;outline:none;height:28px}
 .chat-bar{background:var(--panel);border-top:1px solid var(--border);padding:10px 18px;display:flex;align-items:center;gap:8px;flex-shrink:0;position:relative;z-index:2;box-shadow:0 -4px 20px rgba(0,0,0,.15)}
@@ -230,10 +221,10 @@ img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-stat
 .emoji-grid{display:flex;flex-wrap:wrap;gap:6px;max-height:220px;overflow-y:auto;margin-bottom:10px}
 .emoji-grid::-webkit-scrollbar{width:3px}
 .emoji-grid::-webkit-scrollbar-thumb{background:var(--border)}
-.em-btn{width:52px;height:52px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative;overflow:visible;flex-shrink:0}
+.em-btn{width:56px;height:56px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;position:relative;overflow:visible;flex-shrink:0}
 .em-btn:hover{background:var(--border);transform:scale(1.1)}
-.em-btn img{width:36px!important;height:36px!important;border-radius:6px;object-fit:contain;display:block;pointer-events:none;animation-play-state:running!important}
-.em-btn .em-emoji-text{font-size:26px;line-height:1;pointer-events:none}
+.em-btn img{width:42px!important;height:42px!important;border-radius:8px;object-fit:contain;display:block;pointer-events:none}
+.em-btn .em-emoji-text{font-size:28px;line-height:1;pointer-events:none}
 .em-del{position:absolute;top:-5px;right:-5px;width:16px;height:16px;background:#cc0000;color:#fff;border-radius:50%;font-size:8px;display:none;align-items:center;justify-content:center;cursor:pointer;border:none;z-index:10}
 .em-btn:hover .em-del.vis{display:flex}
 #addEmojiSection{border-top:1px solid var(--border);padding-top:10px;margin-top:6px}
@@ -243,7 +234,7 @@ img.chat-emoji-gif,img.dm-emoji-gif,.em-btn img[src*=".gif"]{animation-play-stat
 .ep-add-btn{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:0 12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;white-space:nowrap;height:38px}
 #quickReactPanel{position:fixed;background:var(--panel2);border:1px solid var(--border);border-radius:30px;padding:6px 10px;display:none;gap:4px;align-items:center;z-index:99999;box-shadow:0 8px 24px rgba(0,0,0,.4)}
 #quickReactPanel.open{display:flex}
-.qr-btn{font-size:24px;cursor:pointer;padding:4px 6px;border-radius:12px;transition:all .15s;border:none;background:none}
+.qr-btn{font-size:20px;cursor:pointer;padding:4px 6px;border-radius:12px;transition:all .15s;border:none;background:none}
 .qr-btn:hover{background:var(--indigo-f);transform:scale(1.3)}
 .overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(8px);z-index:10000;display:none;align-items:center;justify-content:center;padding:16px}
 .overlay.open{display:flex}
@@ -282,21 +273,12 @@ select.inp{cursor:pointer}
 .emo-btn.active,.emo-btn:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
 .act-btn{width:100%;padding:11px;border-radius:12px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;cursor:pointer;transition:all .2s;margin-bottom:6px;text-align:left}
 .act-btn:hover{background:var(--border)}
-.act-btn:disabled{opacity:.5;cursor:not-allowed}
 .act-btn.danger{border-color:rgba(220,0,0,.3);color:#ff7777}
 .act-btn.danger:hover{background:rgba(220,0,0,.12)}
 .act-btn.success{border-color:rgba(80,210,0,.3);color:#88ee44}
 .act-btn.success:hover{background:rgba(80,210,0,.08)}
 .act-btn.warn{border-color:rgba(255,160,0,.3);color:#ffaa33}
 .act-btn.warn:hover{background:rgba(255,160,0,.08)}
-.friend-req-item{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
-.friend-req-item:last-child{border-bottom:none}
-.friend-req-actions{display:flex;gap:6px;flex-shrink:0}
-.friend-req-actions button{padding:6px 14px;border-radius:10px;border:1px solid var(--border);font-size:12px;cursor:pointer;font-family:'Noto Sans Georgian',sans-serif;transition:all .15s;white-space:nowrap}
-.friend-req-accept{background:rgba(80,210,0,.12);border-color:rgba(80,210,0,.3)!important;color:#88ee44}
-.friend-req-accept:hover{background:rgba(80,210,0,.22)}
-.friend-req-decline{background:rgba(220,0,0,.1);border-color:rgba(220,0,0,.25)!important;color:#ff7777}
-.friend-req-decline:hover{background:rgba(220,0,0,.18)}
 .gallery-tabs{display:flex;gap:6px;margin-bottom:16px}
 .gtab{flex:1;padding:9px;border-radius:10px;border:1px solid var(--border);background:var(--indigo-f);color:var(--text2);font-family:'Noto Sans Georgian',sans-serif;font-size:12px;cursor:pointer;text-align:center;transition:all 0.3s}
 .gtab.active,.gtab:hover{background:var(--indigo);color:#fff;border-color:var(--indigo2)}
@@ -333,23 +315,15 @@ select.inp{cursor:pointer}
 .gal-album-select{width:100%;padding:9px 12px;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Noto Sans Georgian',sans-serif;font-size:13px;outline:none;margin-bottom:8px;cursor:pointer}
 .gal-comments-section{margin-top:12px;border-top:1px solid var(--border);padding-top:10px}
 .gal-comment-item{display:flex;gap:8px;margin-bottom:8px;align-items:flex-start}
-.gal-comment-nick{font-size:11px;font-weight:600;color:var(--indigo2);margin-right:4px;flex-shrink:0;cursor:pointer}
-.gal-comment-nick:hover{text-decoration:underline}
-.gal-comment-time{font-size:10px;color:var(--text3);white-space:nowrap;margin-left:4px;flex-shrink:0}
-.gal-comment-reply-btn{background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;padding:2px 6px;border-radius:5px;flex-shrink:0;transition:all .15s}
-.gal-comment-reply-btn:hover{background:var(--indigo-f);color:var(--indigo2)}
-.gal-comment-del-btn{background:none;border:none;color:var(--text3);font-size:10px;cursor:pointer;padding:2px 6px;border-radius:5px;flex-shrink:0;transition:all .15s}
-.gal-comment-del-btn:hover{background:rgba(200,0,0,.1);color:#ff7777}
+.gal-comment-nick{font-size:11px;font-weight:600;color:var(--indigo2);margin-right:4px}
+.gal-comment-text{font-size:12px;color:var(--text);flex:1;word-break:break-word}
+.gal-comment-time{font-size:10px;color:var(--text3);white-space:nowrap;margin-left:4px}
 .gal-comment-bar{display:flex;gap:6px;margin-top:8px}
 .gal-comment-input{flex:1;background:var(--input-bg);border:1px solid var(--border);border-radius:10px;padding:8px 12px;color:var(--text);font-size:12px;font-family:'Noto Sans Georgian',sans-serif;outline:none}
 .gal-comment-input:focus{border-color:var(--indigo2)}
 .gal-comment-send{background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:none;border-radius:10px;color:#fff;font-size:12px;padding:0 14px;cursor:pointer}
-#pvCommentReplyBar{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:5px 10px;margin-bottom:6px;font-size:11px;color:var(--text3);display:none;align-items:center;gap:6px}
-#pvCommentReplyBar.open{display:flex}
-#pvCommentReplyBar strong{color:var(--indigo2)}
-.pv-reply-cancel{background:none;border:none;color:var(--text3);cursor:pointer;font-size:13px;padding:0 4px}
 .gal-react-row{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px}
-.gal-react-btn{font-size:20px;cursor:pointer;padding:3px 8px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);transition:all .15px}
+.gal-react-btn{font-size:18px;cursor:pointer;padding:3px 8px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);transition:all .15s}
 .gal-react-btn:hover{background:var(--indigo);transform:scale(1.15)}
 .gal-react-chip{display:flex;align-items:center;gap:3px;padding:2px 8px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);font-size:13px;cursor:pointer;transition:all .15s}
 .gal-react-chip.mine{background:var(--indigo);border-color:var(--indigo2)}
@@ -379,7 +353,7 @@ select.inp{cursor:pointer}
 .pv-nav{display:flex;gap:12px;margin-top:10px}
 .pv-nav-btn{background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;width:42px;height:42px;color:var(--text);font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
 .pv-nav-btn:hover{background:var(--border)}
-#pvCommentsList .gal-comment-item{text-align:left}
+/* DM BOX */
 #dmBox{position:fixed;right:16px;bottom:16px;width:300px;height:460px;background:var(--panel);border:1px solid var(--border);border-radius:20px;display:none;flex-direction:column;z-index:5000;box-shadow:0 16px 50px rgba(0,0,0,.5),0 0 30px var(--glow);overflow:hidden}
 #dmBox.open{display:flex;animation:dmSlideUp .35s cubic-bezier(0.2,0.9,0.4,1.1)}
 #dmBox.minimized{height:52px!important;max-height:52px!important}
@@ -388,7 +362,6 @@ select.inp{cursor:pointer}
   #dmBox{right:0!important;left:0!important;width:100%!important;bottom:62px;border-radius:20px 20px 0 0;max-height:60vh;}
   #dmBox.open:not(.minimized){height:60vh!important}
   #dmBox.minimized{height:52px!important;max-height:52px!important;bottom:62px;right:0!important;left:0!important;width:100%!important;}
-  #notifPanel{right:4px;left:4px;width:auto}
 }
 .dm-head{background:linear-gradient(135deg,var(--indigo),var(--indigo2));padding:12px 14px;display:flex;align-items:center;gap:9px;flex-shrink:0;cursor:pointer;user-select:none}
 .dm-title{flex:1;font-size:13px;font-weight:600;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -428,6 +401,7 @@ select.inp{cursor:pointer}
 .dm-status.read{color:var(--accent)}
 .dm-reactions-row{display:flex;flex-wrap:wrap;gap:3px;padding:2px 4px;min-height:0}
 .dm-reactions-row.me{justify-content:flex-end}
+/* DM List */
 #dmListOverlay{position:fixed;inset:0;background:rgba(0,0,0,.75);backdrop-filter:blur(6px);z-index:12000;display:none;align-items:center;justify-content:center;padding:16px}
 #dmListOverlay.open{display:flex}
 .dm-list-modal{background:var(--panel);border:1px solid var(--border);border-radius:22px;width:100%;max-width:340px;padding:20px;box-shadow:0 20px 60px rgba(0,0,0,.6),0 0 40px var(--glow);animation:modalFloat 0.3s cubic-bezier(.22,1,.36,1);max-height:70vh;display:flex;flex-direction:column}
@@ -439,6 +413,7 @@ select.inp{cursor:pointer}
 .dm-unread-badge{background:var(--accent);color:#fff;font-size:9px;font-weight:700;min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 4px;margin-left:auto;flex-shrink:0;box-shadow:0 0 6px var(--accent)}
 .dm-list-last{font-size:10px;color:var(--text3);margin-top:1px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:140px}
 .dm-list-empty{color:var(--text3);font-size:12px;text-align:center;padding:24px 0}
+/* ინდიკატორი DM box-ში */
 .typing-indicator{display:flex;align-items:center;gap:6px;padding:6px 14px 4px 56px;font-size:12px;color:var(--text3);font-style:italic}
 .typing-dots{display:flex;gap:3px;align-items:center}
 .typing-dot{width:5px;height:5px;border-radius:50%;background:var(--text3);animation:typingBounce .8s ease infinite}
@@ -446,6 +421,7 @@ select.inp{cursor:pointer}
 .typing-dot:nth-child(3){animation-delay:.3s}
 .dm-typing-row{display:flex;align-items:center;gap:5px;padding:4px 6px;font-size:11px;color:var(--text3);font-style:italic}
 .dm-typing-row .typing-dot{background:var(--accent)}
+/* DM შეტყობინების pop-up */
 .dm-notif{position:fixed;bottom:80px;right:20px;background:linear-gradient(135deg,var(--indigo),var(--indigo2));border:1px solid var(--border);border-radius:16px;padding:10px 16px;z-index:99990;box-shadow:0 8px 30px rgba(0,0,0,.5);cursor:pointer;max-width:260px;animation:dmNotifSlide .3s ease;display:flex;align-items:center;gap:10px}
 .dm-notif-av{width:32px;height:32px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;overflow:hidden}
 .dm-notif-av img{width:100%;height:100%;object-fit:cover;border-radius:50%}
@@ -465,15 +441,6 @@ select.inp{cursor:pointer}
   <button class="qr-btn">❤️</button><button class="qr-btn">😂</button><button class="qr-btn">🔥</button>
   <button class="qr-btn">👍</button><button class="qr-btn">😮</button><button class="qr-btn">💜</button><button class="qr-btn">😢</button>
 </div>
-
-<div id="notifPanel">
-  <div class="notif-head">
-    <span>🔔 შეტყობინებები</span>
-    <button class="notif-clear" onclick="clearAllNotifs()">ყველა წაშლა</button>
-  </div>
-  <div id="notifList"></div>
-</div>
-
 <nav id="topnav">
   <div class="nav-logo" onclick="toggleSidebar()">🔥</div>
   <button class="nav-btn active" id="navRooms" onclick="showPanel('rooms')">💬 <span class="label">ოთახები</span></button>
@@ -481,18 +448,14 @@ select.inp{cursor:pointer}
   <button class="nav-btn" id="navUsers" onclick="showPanel('users')">🌐 <span class="label">მომხმარებლები</span></button>
   <button class="nav-btn" id="navOnline" onclick="showPanel('online')">🟣 <span class="label">ონლაინი</span></button>
   <button class="nav-btn" id="navDM" onclick="openDMList()">✉️ <span class="label">პირადი</span>
+    <!-- ახალი badge სტრუქტურა -->
     <span class="badge" id="dmBadge"></span>
   </button>
   <div class="nav-spacer"></div>
-  <button class="nav-btn bell-btn" id="bellBtn" onclick="toggleNotifPanel()">
-    <span class="bell-icon">🔔</span>
-    <span class="badge" id="bellBadge"></span>
-  </button>
   <button class="nav-btn" onclick="openMyProfile()">👤</button>
   <button class="nav-btn" onclick="openThemeModal()" title="თემა">🎨</button>
   <button class="nav-btn" onclick="logout()" style="color:#ff6666">🚪</button>
 </nav>
-
 <div id="app">
   <div id="sidebar">
     <div id="panelRooms">
@@ -500,10 +463,7 @@ select.inp{cursor:pointer}
       <div class="sb-body" id="roomList"></div>
     </div>
     <div id="panelFriends" class="hidden">
-      <div class="sb-header"><div class="sb-dot"></div>მეგობრები
-        <button id="friendReqBtn" style="margin-left:auto;background:var(--indigo-f);border:1px solid var(--border);border-radius:8px;color:var(--text2);font-size:11px;padding:3px 8px;cursor:pointer;display:none" onclick="openFriendReqs()">📬 <span id="friendReqCount">0</span></button>
-      </div>
-      <div id="friendRequestsList" style="padding:0 8px"></div>
+      <div class="sb-header"><div class="sb-dot"></div>მეგობრები</div>
       <div class="sb-body" id="friendsList"></div>
     </div>
     <div id="panelUsers" class="hidden">
@@ -518,7 +478,6 @@ select.inp{cursor:pointer}
       <div class="sb-body" id="onlineListEl"></div>
     </div>
   </div>
-
   <div id="main">
     <div class="chat-header">
       <div style="font-size:22px" id="roomIcon">💬</div>
@@ -724,10 +683,12 @@ select.inp{cursor:pointer}
 
 <!-- Friend Request Modal -->
 <div class="overlay" id="friendReqOverlay" onclick="bgClose(event,'friendReqOverlay')">
-  <div class="modal" style="max-width:380px">
+  <div class="modal" style="max-width:320px">
     <button class="modal-x" onclick="closeModal('friendReqOverlay')">✕</button>
-    <div class="modal-title">📬 მეგობრის მოთხოვნები</div>
-    <div id="friendReqContainer"></div>
+    <div class="modal-title">📬 მეგობრის მოთხოვნა</div>
+    <p style="font-size:14px;color:var(--text2);margin-bottom:14px" id="friendReqTxt"></p>
+    <button class="act-btn success" onclick="acceptFriend()">✅ დასტური</button>
+    <button class="act-btn danger" onclick="declineFriend()">❌ უარი</button>
   </div>
 </div>
 
@@ -748,10 +709,8 @@ select.inp{cursor:pointer}
       <div class="dm-typing-info" id="dmTypingInfo"></div>
     </div>
     <div class="dm-head-btns">
-      <button class="dm-x" onclick="event.stopPropagation();startCall('audio')" title="ხმოვანი">☎️</button>
-      <button class="dm-x" onclick="event.stopPropagation();startCall('video')" title="ვიდეო">🎥</button>
-      <button class="dm-x" id="dmMinBtn" onclick="event.stopPropagation();toggleDMMinimize(event)" title="ჩაკეცვა">—</button>
-      <button class="dm-x" onclick="event.stopPropagation();closeDM()" title="დახურვა">✕</button>
+      <button class="dm-min" id="dmMinBtn" onclick="event.stopPropagation();toggleDMMinimize()">—</button>
+      <button class="dm-x" onclick="event.stopPropagation();closeDM()">✕</button>
     </div>
   </div>
   <div id="dmMsgs"></div>
@@ -795,12 +754,7 @@ select.inp{cursor:pointer}
     </div>
     <div class="gal-comments-section" style="position:relative">
       <div style="font-size:10px;font-family:'Unbounded',sans-serif;letter-spacing:1px;color:var(--text2);margin-bottom:8px">💬 კომენტარები</div>
-      <div id="pvCommentsList" style="max-height:160px;overflow-y:auto;margin-bottom:8px"></div>
-      <div id="pvCommentReplyBar">
-        <span style="color:var(--accent);font-size:12px">↩️</span>
-        <span style="flex:1;font-size:11px">პასუხი: <strong id="pvCommentReplyNick"></strong></span>
-        <button class="pv-reply-cancel" onclick="cancelPvCommentReply()">✕</button>
-      </div>
+      <div id="pvCommentsList" style="max-height:120px;overflow-y:auto;margin-bottom:8px"></div>
       <div id="pvEmojiPanel" style="display:none;background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:10px;margin-bottom:8px;max-height:160px;overflow-y:auto">
         <div style="display:flex;flex-wrap:wrap;gap:6px" id="pvEmojiGrid"></div>
       </div>
@@ -818,7 +772,7 @@ select.inp{cursor:pointer}
 </div>
 
 <script>
-const{createClient}=supabase;
+const {createClient}=supabase;
 const sb=createClient(
   "https://brggiyhfzfbmlirqfgpo.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJyZ2dpeWhmemZibWxpcnFmZ3BvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5NTE5NzUsImV4cCI6MjA5MjUyNzk3NX0.tCqsgnKDV5I7Us-qZVW14CxVO-ow2BphU0v-b_wsswU"
@@ -827,7 +781,7 @@ const sb=createClient(
 let ME=null,MYPROF=null,ROOM=1,VIEW_UID=null,DM_UID=null;
 let allUsers=[],myFriends=[],customEmojis=[];
 let emojiCache={};
-let selectedEmotion='😊',msgCh=null,dmCh=null,friendCh=null,notifCh=null;
+let selectedEmotion='😊',msgCh=null,dmCh=null,friendCh=null;
 let galSelectedEmo='😊',galFileData=null;
 let currentGallery=[],pvIndex=0,_pvFiltered=[];
 let userAlbums=[],activeAlbumFilter=null,galleryViewUID=null;
@@ -841,340 +795,15 @@ let dmTypingCh=null,dmTypingChReady=false,dmTypingUsers={};
 const roomMsgCache={};
 const sentMsgIds=new Set();
 let dmMinimized=false;
+
+// ===== DM UNREAD — per-sender =====
+// dmUnread[senderId] = { count: N, nick: 'სახელი' }
 const dmUnread={};
-const dmConversations={};
+// DM ისტორია — ვისთანაც შეტყობინება გაქვს
+const dmConversations={}; // uid -> { nick, lastMsg, lastTime, avatar, emotion }
+
 let dmReactTargetId=null;
 let qrMode='chat';
-let notifPanelOpen=false;
-let pvCommentReplyTo=null;
-
-/* ===================== ROOMS ===================== */
-const ROOMS=[
-  {id:1,icon:'🏠',name:'მთავარი მოედანი'},
-  {id:2,icon:'🔐',name:'შიფროგრამა',isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},
-  {id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი = 5 ქულა',gameScoreField:'quiz_score'},
-  {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},
-  {id:5,icon:'🎵',name:'მელომანია'},
-  {id:6,icon:'💜',name:'ბილიარდი',isGame:true,gameFile:'billiards.html',gameName:'ბილიარდი',gameDesc:'კლასიკური 8-ბურთი · მოგება = 5 ქულა',gameScoreField:'billiard_score'},
-  {id:7,icon:'🌸',name:'იუმორი'},
-  {id:8,icon:'🦋',name:'ადმინისტრაცია'},
-  {id:9,icon:'🧠',name:'ფორუმი',isExternal:true,externalUrl:'forum.html'},
-  {id:10,icon:'🌸',name:'ცხელი ხაზი'},
-  {id:11,icon:'🎲',name:'ნარდი',isExternal:true,externalUrl:'nardi.html'},
-  {id:12,icon:'🧠',name:'ფსიქო ტესტები',isTest:true,externalUrl:'tests.html'},
-];
-
-/* ===================== BUILD ROOMS — გასწორებული ===================== */
-function buildRooms(){
-  const el=document.getElementById('roomList');
-  if(!el)return;
-  el.innerHTML='';
-  ROOMS.forEach(r=>{
-    const d=document.createElement('div');
-    let cls='room-item';
-    if(r.isGame)cls+=' game-room';
-    if(r.isTest)cls+=' test-room';
-    d.className=cls;
-
-    let badgeHtml='';
-    if(r.isGame)badgeHtml='<span class="game-badge">GAME</span>';
-    if(r.isTest)badgeHtml='<span class="test-badge">TEST</span>';
-
-    d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${badgeHtml}`;
-
-    d.addEventListener('click',function(){
-      // გარე ლინკები — ახალ ჩანართში
-      if(r.isExternal||r.isTest){
-        window.open(r.externalUrl,'_blank');
-        return;
-      }
-      // ჩვეულებრივი ოთახი
-      ROOM=r.id;
-      document.getElementById('roomTitle').textContent=r.name;
-      document.getElementById('roomIcon').textContent=r.icon;
-      document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));
-      d.classList.add('active');
-      if(r.isGame){
-        setRoomView('game',r);
-      } else {
-        setRoomView('chat',null);
-        loadMessages(r.id);
-      }
-      document.getElementById('sidebar')?.classList.remove('mob-open');
-    });
-
-    el.appendChild(d);
-  });
-
-  // პირველ ოთახზე გაააქტიურე
-  const firstRoom=el.querySelector('.room-item:not(.test-room)');
-  if(firstRoom)firstRoom.classList.add('active');
-}
-
-function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank');}
-
-function setRoomView(mode,roomObj){
-  const messagesEl=document.getElementById('messages');
-  const chatBar=document.getElementById('chatBar');
-  const gamePlaceholder=document.getElementById('gameRoomPlaceholder');
-  const playBtn=document.getElementById('playHeaderBtn');
-  const onlineCnt=document.getElementById('onlineCnt');
-  messagesEl.style.display='';
-  chatBar.style.display='';
-  cancelReply();
-  gamePlaceholder.style.display='none';
-  playBtn.style.display='none';
-  onlineCnt.style.display='';
-  if(mode==='game'&&roomObj){
-    activeGameRoom=roomObj;
-    messagesEl.style.display='none';
-    chatBar.style.display='none';
-    gamePlaceholder.style.display='flex';
-    playBtn.style.display='flex';
-    onlineCnt.style.display='none';
-    document.getElementById('grpIcon').textContent=roomObj.icon;
-    document.getElementById('grpTitle').textContent=roomObj.gameName;
-    document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';
-    document.getElementById('grpMyScore').textContent=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;
-    loadGameLeaderboard();
-  } else {
-    activeGameRoom=null;
-  }
-}
-
-function updateGameScoreUI(){
-  const w=document.getElementById('profWordScore'),q=document.getElementById('profQuizScore'),h=document.getElementById('profHangScore');
-  if(w){w.textContent='🔐 '+(MYPROF?.game_score||0);w.classList.remove('animate');void w.offsetWidth;w.classList.add('animate');}
-  if(q){q.textContent='🏆 '+(MYPROF?.quiz_score||0);q.classList.remove('animate');void q.offsetWidth;q.classList.add('animate');}
-  if(h){h.textContent='🪢 '+(MYPROF?.hangman_score||0);h.classList.remove('animate');void h.offsetWidth;h.classList.add('animate');}
-}
-
-async function loadGameLeaderboard(){
-  if(!activeGameRoom?.gameScoreField)return;
-  const field=activeGameRoom.gameScoreField;
-  const{data}=await sb.from('profiles').select(`id,username,${field}`).order(field,{ascending:false}).limit(5);
-  const lbEl=document.getElementById('lbRows');
-  if(!lbEl)return;
-  lbEl.innerHTML='';
-  (data||[]).forEach((u,i)=>{
-    const rankClass=['gold','silver','bronze'][i]||'';
-    const medal=['🥇','🥈','🥉'][i]||i+1;
-    const d=document.createElement('div');
-    d.className='glb-row';
-    d.innerHTML=`<span class="glb-rank ${rankClass}">${medal}</span><span class="glb-name">${esc(u.username||'?')}</span><span class="glb-score">${u[field]||0}</span>`;
-    lbEl.appendChild(d);
-  });
-  if(data){
-    const myIdx=data.findIndex(u=>u.id===ME?.id);
-    const rankEl=document.getElementById('grpMyRank'),rankCard=document.getElementById('grpRankCard');
-    if(rankEl&&rankCard){rankCard.classList.remove('hidden');rankEl.textContent=myIdx>=0?'#'+(myIdx+1):'—';}
-  }
-}
-
-function watchGameScore(){
-  sb.channel('game-score-watch').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${ME.id}`},payload=>{
-    if(payload.new){
-      MYPROF={...MYPROF,...payload.new};
-      updateGameScoreUI();
-      if(activeGameRoom?.gameScoreField){
-        document.getElementById('grpMyScore').textContent=MYPROF[activeGameRoom.gameScoreField]??0;
-        loadGameLeaderboard();
-      }
-    }
-  }).subscribe();
-}
-
-/* ===================== NOTIFICATIONS ===================== */
-async function loadNotifications(){
-  const{data}=await sb.from('notifications').select('*').eq('user_id',ME.id).order('created_at',{ascending:false}).limit(40);
-  renderNotifList(data||[]);
-  const unread=(data||[]).filter(n=>!n.is_read).length;
-  updateBellBadge(unread);
-}
-async function markAllNotifsRead(){
-  await sb.from('notifications').update({is_read:true}).eq('user_id',ME.id).eq('is_read',false);
-  updateBellBadge(0);
-  document.querySelectorAll('.notif-item.unread').forEach(el=>el.classList.remove('unread'));
-}
-function renderNotifList(notifs){
-  const el=document.getElementById('notifList');
-  if(!notifs.length){el.innerHTML='<div class="notif-empty">🔔 შეტყობინება არ არის</div>';return;}
-  el.innerHTML='';
-  notifs.forEach(n=>{
-    const fromUser=allUsers.find(u=>u.id===n.from_uid);
-    const nick=fromUser?.username||n.data?.nick||'?';
-    const avHtml=fromUser?.avatar_url?`<img src="${fromUser.avatar_url}">`:(fromUser?.emotion||'👤');
-    const t=new Date(n.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
-    let text='',icon='🔔';
-    if(n.type==='friend_request'){text=`<strong>${esc(nick)}</strong> გვინდა დაგამატოს მეგობრად`;icon='👥';}
-    else if(n.type==='friend_accept'){text=`<strong>${esc(nick)}</strong> დაეთანხმა მეგობრობას`;icon='✅';}
-    else if(n.type==='photo_like'){text=`<strong>${esc(nick)}</strong> მოიწონა შენი ფოტო ${n.data?.emoji||'❤️'}`;icon=n.data?.emoji||'❤️';}
-    else if(n.type==='photo_comment'){text=`<strong>${esc(nick)}</strong> კომენტარი: "${esc((n.data?.comment||'').substring(0,30))}"`;icon='💬';}
-    const div=document.createElement('div');
-    div.className='notif-item'+(n.is_read?'':' unread');
-    div.innerHTML=`<div class="notif-av">${avHtml}</div><div class="notif-body"><div class="notif-text">${text}</div><div class="notif-time">${t}</div></div><div class="notif-emoji">${icon}</div>`;
-    div.onclick=async()=>{
-      if(!n.is_read){await sb.from('notifications').update({is_read:true}).eq('id',n.id);div.classList.remove('unread');const remaining=document.querySelectorAll('.notif-item.unread').length;updateBellBadge(remaining);}
-      if(n.type==='friend_request'&&n.from_uid){closeNotifPanel();openFriendReqs();}
-      else if(n.type==='friend_accept'&&n.from_uid){closeNotifPanel();openProfile(n.from_uid);}
-    };
-    el.appendChild(div);
-  });
-}
-function updateBellBadge(count){
-  const badge=document.getElementById('bellBadge'),btn=document.getElementById('bellBtn');
-  if(count>0){badge.textContent=count>9?'9+':count;badge.classList.add('show');btn.classList.add('ringing');setTimeout(()=>btn.classList.remove('ringing'),700);}
-  else{badge.textContent='';badge.classList.remove('show');}
-}
-function closeNotifPanel(){notifPanelOpen=false;document.getElementById('notifPanel').classList.remove('open');}
-async function toggleNotifPanel(){
-  notifPanelOpen=!notifPanelOpen;
-  document.getElementById('notifPanel').classList.toggle('open',notifPanelOpen);
-  if(notifPanelOpen){await loadNotifications();setTimeout(()=>markAllNotifsRead(),1500);}
-}
-async function clearAllNotifs(){
-  await sb.from('notifications').delete().eq('user_id',ME.id);
-  document.getElementById('notifList').innerHTML='<div class="notif-empty">🔔 შეტყობინება არ არის</div>';
-  updateBellBadge(0);
-}
-async function addNotification(toUid,type,data={}){
-  if(toUid===ME.id)return;
-  await sb.from('notifications').insert({user_id:toUid,from_uid:ME.id,type,data,is_read:false});
-}
-
-/* ===================== FRIENDS ===================== */
-async function loadFriendReqsSidebar(){
-  const{data}=await sb.from('friends').select('id,user_id,status,profiles!friends_user_id_fkey(username,avatar_url)').eq('friend_id',ME.id).eq('status','pending');
-  const el=document.getElementById('friendRequestsList');
-  if(!el)return;
-  el.innerHTML='';
-  if(!data||!data.length)return;
-  const header=document.createElement('div');
-  header.style.cssText="font-size:9px;letter-spacing:1.5px;color:var(--text2);font-family:'Unbounded',sans-serif;padding:10px 10px 6px;text-transform:uppercase";
-  header.textContent=`📬 მოთხოვნები (${data.length})`;
-  el.appendChild(header);
-  data.forEach(req=>{
-    const nick=req.profiles?.username||'?';
-    const avUrl=req.profiles?.avatar_url||'';
-    const div=document.createElement('div');
-    div.style.cssText='display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:14px;background:var(--indigo-f);border:1px solid var(--border);margin-bottom:6px';
-    const avHtml=avUrl?`<img src="${avUrl}" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">`:`<div style="width:32px;height:32px;border-radius:50%;background:var(--panel2);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0">👤</div>`;
-    div.innerHTML=`${avHtml}<div style="flex:1;min-width:0"><div style="font-size:12px;font-weight:600;color:var(--indigo2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer" class="sbReqNick">${esc(nick)}</div><div style="font-size:10px;color:var(--text3)">მეგობრობის მოთხოვნა</div></div><div style="display:flex;flex-direction:column;gap:4px;flex-shrink:0"><button style="background:rgba(80,210,0,.12);border:1px solid rgba(80,210,0,.3);border-radius:8px;color:#88ee44;font-size:13px;padding:3px 8px;cursor:pointer" class="sbAcceptBtn">✅</button><button style="background:rgba(220,0,0,.1);border:1px solid rgba(220,0,0,.25);border-radius:8px;color:#ff7777;font-size:13px;padding:3px 8px;cursor:pointer" class="sbDeclineBtn">❌</button></div>`;
-    div.querySelector('.sbReqNick').addEventListener('click',()=>openProfile(req.user_id));
-    div.querySelector('.sbAcceptBtn').addEventListener('click',async function(){this.disabled=true;this.textContent='⏳';await acceptFriendById(req.id,req.user_id);div.remove();});
-    div.querySelector('.sbDeclineBtn').addEventListener('click',async function(){this.disabled=true;this.textContent='⏳';await declineFriendById(req.id);div.remove();});
-    el.appendChild(div);
-  });
-}
-async function loadFriends(){
-  const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');
-  myFriends=(data||[]).map(f=>f.friend_id);
-  renderFriends();
-}
-function renderFriends(){
-  const el=document.getElementById('friendsList');
-  if(!el)return;
-  el.innerHTML='';
-  const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);
-  if(!list.length){
-    const e=document.createElement('div');
-    e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';
-    e.textContent='მეგობრები ჯერ არ გყავს 💜';
-    el.appendChild(e);return;
-  }
-  const frag=document.createDocumentFragment();
-  list.forEach(u=>frag.appendChild(makeUserItem(u)));
-  el.appendChild(frag);
-}
-async function toggleFriend(){
-  if(!VIEW_UID||!ME)return;
-  const btn=document.getElementById('friendBtn');
-  if(myFriends.includes(VIEW_UID)){
-    if(btn){btn.disabled=true;btn.textContent='⏳...';}
-    await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);
-    await sb.from('friends').delete().eq('user_id',VIEW_UID).eq('friend_id',ME.id);
-    myFriends=myFriends.filter(f=>f!==VIEW_UID);
-    if(btn){btn.textContent='➕ მეგობრად დამატება';btn.disabled=false;}
-    toast('💔 გაუქმდა');renderFriends();return;
-  }
-  const{data:existing}=await sb.from('friends').select('id,status').eq('user_id',ME.id).eq('friend_id',VIEW_UID).maybeSingle();
-  if(existing){
-    if(existing.status==='pending'){if(btn){btn.textContent='⏳ გაგზავნილია...';btn.disabled=true;}toast('⚠️ უკვე გაგზავნილია!');return;}
-    if(existing.status==='accepted'){myFriends.push(VIEW_UID);if(btn){btn.textContent='💔 გაუქმება';btn.disabled=false;}toast('✅ უკვე მეგობრები ხართ!');return;}
-    await sb.from('friends').update({status:'pending'}).eq('id',existing.id);
-  } else {
-    const{error}=await sb.from('friends').insert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});
-    if(error){toast('❌ '+error.message);return;}
-  }
-  if(btn){btn.textContent='⏳ გაგზავნილია...';btn.disabled=true;}
-  await addNotification(VIEW_UID,'friend_request',{nick:MYPROF?.username});
-  toast('📨 მოთხოვნა გაიგზავნა!');
-}
-async function checkFriendReqs(){
-  const{data}=await sb.from('friends').select('id').eq('friend_id',ME.id).eq('status','pending');
-  const count=(data||[]).length;
-  const badge=document.getElementById('friendBadge');
-  if(count>0){badge.textContent=count;badge.classList.add('show');}
-  else{badge.textContent='';badge.classList.remove('show');}
-  const reqBtn=document.getElementById('friendReqBtn');
-  const reqCount=document.getElementById('friendReqCount');
-  if(reqBtn){reqBtn.style.display=count>0?'':'none';if(reqCount)reqCount.textContent=count;}
-}
-async function openFriendReqs(){
-  const{data}=await sb.from('friends').select('id,user_id,status,profiles!friends_user_id_fkey(username,avatar_url)').eq('friend_id',ME.id).eq('status','pending');
-  renderFriendReqsModal(data||[]);
-}
-function renderFriendReqsModal(reqs){
-  const container=document.getElementById('friendReqContainer');
-  if(!container)return;
-  container.innerHTML='';
-  if(!reqs.length){container.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:24px 0">📭 მოთხოვნა არ არის</div>';openModal('friendReqOverlay');return;}
-  reqs.forEach(req=>{
-    const nick=req.profiles?.username||'?';
-    const avUrl=req.profiles?.avatar_url||'';
-    const div=document.createElement('div');div.className='friend-req-item';
-    const avHtml=avUrl?`<img src="${avUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:'👤';
-    div.innerHTML=`<div class="avatar" style="width:40px;height:40px;font-size:18px;flex-shrink:0;overflow:hidden">${avHtml}</div><div style="flex:1;font-size:13px;color:var(--text)"><strong style="color:var(--indigo2);cursor:pointer" class="frModalNick">${esc(nick)}</strong><div style="font-size:11px;color:var(--text3);margin-top:2px">გვინდა დაგამატოს მეგობრად</div></div><div class="friend-req-actions"><button class="friend-req-accept frAccept">✅ დასტური</button><button class="friend-req-decline frDecline">❌ უარი</button></div>`;
-    div.querySelector('.frModalNick').addEventListener('click',()=>{closeModal('friendReqOverlay');openProfile(req.user_id);});
-    div.querySelector('.frAccept').addEventListener('click',async function(){this.disabled=true;this.textContent='⏳';await acceptFriendById(req.id,req.user_id);div.remove();const remaining=document.querySelectorAll('#friendReqContainer .friend-req-item');if(!remaining.length){container.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">✅ მოთხოვნები დამუშავდა</div>';}});
-    div.querySelector('.frDecline').addEventListener('click',async function(){this.disabled=true;this.textContent='⏳';await declineFriendById(req.id);div.remove();const remaining=document.querySelectorAll('#friendReqContainer .friend-req-item');if(!remaining.length){container.innerHTML='<div style="color:var(--text3);font-size:13px;text-align:center;padding:16px">✅ მოთხოვნები დამუშავდა</div>';}});
-    container.appendChild(div);
-  });
-  openModal('friendReqOverlay');
-}
-async function acceptFriendById(rid,fromUid){
-  try{
-    const{error:e1}=await sb.from('friends').update({status:'accepted'}).eq('id',rid);
-    if(e1){toast('❌ '+e1.message);return;}
-    await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',fromUid);
-    const{error:e2}=await sb.from('friends').insert({user_id:ME.id,friend_id:fromUid,status:'accepted'});
-    if(e2){toast('❌ '+e2.message);return;}
-    if(!myFriends.includes(fromUid))myFriends.push(fromUid);
-    renderFriends();toast('✅ მეგობარი დაემატა!');
-    await addNotification(fromUid,'friend_accept',{nick:MYPROF?.username});
-    await checkFriendReqs();await loadFriendReqsSidebar();
-  }catch(err){toast('❌ '+err.message);}
-}
-async function declineFriendById(rid){
-  try{await sb.from('friends').delete().eq('id',rid);toast('❌ უარყოფილია');await checkFriendReqs();await loadFriendReqsSidebar();}catch(err){toast('❌ '+err.message);}
-}
-function watchFriendRequests(){
-  if(friendCh){try{sb.removeChannel(friendCh);}catch(e){}friendCh=null;}
-  friendCh=sb.channel('friend-reqs-'+ME.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},async payload=>{
-      if(payload.new.status==='pending'){await checkFriendReqs();await loadFriendReqsSidebar();const sender=allUsers.find(u=>u.id===payload.new.user_id);if(sender)toast(`👥 ${sender.username} გვინდა მეგობრად!`);}
-    })
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'friends'},async payload=>{
-      const n=payload.new;
-      if(n.status==='accepted'){if(n.user_id===ME.id&&!myFriends.includes(n.friend_id))myFriends.push(n.friend_id);if(n.friend_id===ME.id&&!myFriends.includes(n.user_id))myFriends.push(n.user_id);renderFriends();const btn=document.getElementById('friendBtn');if(btn&&(VIEW_UID===n.user_id||VIEW_UID===n.friend_id)){btn.textContent='💔 გაუქმება';btn.disabled=false;}}
-      if(n.friend_id===ME.id){await checkFriendReqs();await loadFriendReqsSidebar();}
-    })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'friends'},async payload=>{
-      const o=payload.old;myFriends=myFriends.filter(f=>f!==o.user_id&&f!==o.friend_id);renderFriends();
-      if(o.friend_id===ME.id||o.user_id===ME.id){await checkFriendReqs();await loadFriendReqsSidebar();}
-    })
-    .subscribe();
-}
 
 /* ===================== THEME ===================== */
 const THEMES=[
@@ -1217,7 +846,7 @@ function applyFont(val){fmtFont=val||null;}
 function clearFmt(){fmtBold=fmtItalic=fmtUnder=false;fmtColor=null;fmtFont=null;document.getElementById('fmtBold').classList.remove('active');document.getElementById('fmtItalic').classList.remove('active');document.getElementById('fmtUnder').classList.remove('active');document.querySelectorAll('.color-btn').forEach(b=>b.classList.remove('active'));document.getElementById('fontFamilySelect').value='';}
 function wrapFormatting(text){if(!fmtBold&&!fmtItalic&&!fmtUnder&&!fmtColor&&!fmtFont)return text;let open='',close='';if(fmtFont){open+=`[ff:${fmtFont}]`;close='[/ff]'+close;}if(fmtColor){open+=`[c:${fmtColor}]`;close='[/c]'+close;}if(fmtBold){open+='[b]';close='[/b]'+close;}if(fmtItalic){open+='[i]';close='[/i]'+close;}if(fmtUnder){open+='[u]';close='[/u]'+close;}return open+text+close;}
 
-/* ===================== RENDER CONTENT ===================== */
+/* ===================== RENDER ===================== */
 function esc(s){return(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function renderContent(s){
   if(!s)return'';
@@ -1227,23 +856,7 @@ function renderContent(s){
   h=h.replace(/\[u\]([\s\S]*?)\[\/u\]/g,'<u>$1</u>');
   h=h.replace(/\[c:#([0-9a-fA-F]{3,6})\]([\s\S]*?)\[\/c\]/g,'<span style="color:#$1">$2</span>');
   h=h.replace(/\[ff:([\w\s,']+)\]([\s\S]*?)\[\/ff\]/g,'<span style="font-family:$1">$2</span>');
-  h=h.replace(/\[e:(\d+)\]/g,(m,id)=>{
-    const url=emojiCache[parseInt(id)];
-    if(!url)return m;
-    if(url.startsWith('http')||url.startsWith('data:')){const isGif=url.toLowerCase().includes('.gif')||url.startsWith('data:image/gif');return`<img src="${url}" class="${isGif?'chat-emoji-gif':'chat-emoji'}" loading="eager">`;}
-    return`<span class="chat-emoji-text">${url}</span>`;
-  });
-  return h;
-}
-function renderCommentContent(s){
-  if(!s)return esc(s||'');
-  let h=esc(s);
-  h=h.replace(/\[e:(\d+)\]/g,(m,id)=>{
-    const url=emojiCache[parseInt(id)];
-    if(!url)return m;
-    if(url.startsWith('http')||url.startsWith('data:')){const isGif=url.toLowerCase().includes('.gif')||url.startsWith('data:image/gif');return`<img src="${url}" class="${isGif?'chat-emoji-gif':'chat-emoji'}" loading="lazy" style="width:28px!important;height:28px!important;">`;}
-    return`<span class="chat-emoji-text" style="font-size:24px">${url}</span>`;
-  });
+  h=h.replace(/\[e:(\d+)\]/g,(m,id)=>{const url=emojiCache[parseInt(id)];if(!url)return m;if(url.startsWith('http')||url.startsWith('data:')){if(url.includes('.gif')||url.startsWith('data:image/gif'))return`<img src="${url}" class="chat-emoji-gif" loading="eager">`;return`<img src="${url}" class="chat-emoji" loading="eager">`;}return`<span style="font-size:28px;vertical-align:middle">${url}</span>`;});
   return h;
 }
 
@@ -1261,24 +874,96 @@ document.addEventListener('click',e=>{if(e.target.classList.contains('voice-play
 /* ===================== DM FILE ===================== */
 async function sendDMFile(e){const file=e.target.files[0];if(!file||!DM_UID)return;if(file.size>5*1024*1024){toast('❌ მაქს 5MB');e.target.value='';return;}toast('⏳ იგზავნება...');const reader=new FileReader();reader.onload=async ev=>{const base64=ev.target.result;const isImg=file.type.startsWith('image/');const content=isImg?`[dmimg]${base64}[/dmimg]`:`[dmfile:${esc(file.name)}]${base64}[/dmfile]`;const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;toast('✅ გაიგზავნა!');};reader.readAsDataURL(file);e.target.value='';}
 
-/* ===================== DM BADGE ===================== */
-function updateDMBadge(){const total=Object.values(dmUnread).reduce((s,v)=>s+(v.count||0),0);const badge=document.getElementById('dmBadge');if(total>0){badge.textContent=total;badge.classList.add('show');}else{badge.textContent='';badge.classList.remove('show');}}
-function addDMUnread(senderId,nick){if(!dmUnread[senderId])dmUnread[senderId]={count:0,nick};dmUnread[senderId].count++;dmUnread[senderId].nick=nick;updateDMBadge();}
-function clearDMUnread(uid){delete dmUnread[uid];updateDMBadge();}
-let _dmNotifTimer=null;
-function showDMNotif(sender,text){document.querySelectorAll('.dm-notif').forEach(n=>n.remove());const avHtml=sender.avatar_url?`<img src="${sender.avatar_url}">`:(sender.emotion||'👤');const el=document.createElement('div');el.className='dm-notif';el.innerHTML=`<div class="dm-notif-av">${avHtml}</div><div class="dm-notif-body"><div class="dm-notif-name">${esc(sender.username||'?')}</div><div class="dm-notif-text">${esc((text||'').substring(0,40))}</div></div>`;el.onclick=()=>{el.remove();openDM(sender.id);};document.body.appendChild(el);if(_dmNotifTimer)clearTimeout(_dmNotifTimer);_dmNotifTimer=setTimeout(()=>el.remove(),5000);}
+/* ===================== DM BADGE — per sender ===================== */
+function updateDMBadge(){
+  // ჯამური count
+  const total=Object.values(dmUnread).reduce((s,v)=>s+(v.count||0),0);
+  const badge=document.getElementById('dmBadge');
+  if(total>0){badge.textContent=total;badge.classList.add('show');}
+  else{badge.textContent='';badge.classList.remove('show');}
+}
 
-/* ===================== TYPING — MAIN ===================== */
+function addDMUnread(senderId,nick){
+  if(!dmUnread[senderId])dmUnread[senderId]={count:0,nick};
+  dmUnread[senderId].count++;
+  dmUnread[senderId].nick=nick;
+  updateDMBadge();
+}
+
+function clearDMUnread(uid){
+  delete dmUnread[uid];
+  updateDMBadge();
+}
+
+/* DM შეტყობინების pop-up (ქვედა-მარჯვენა) */
+let _dmNotifTimer=null;
+function showDMNotif(sender, text){
+  document.querySelectorAll('.dm-notif').forEach(n=>n.remove());
+  const avHtml=sender.avatar_url
+    ?`<img src="${sender.avatar_url}">`
+    :(sender.emotion||'👤');
+  const el=document.createElement('div');
+  el.className='dm-notif';
+  el.innerHTML=`<div class="dm-notif-av">${avHtml}</div><div class="dm-notif-body"><div class="dm-notif-name">${esc(sender.username||'?')}</div><div class="dm-notif-text">${esc((text||'').substring(0,40))}</div></div>`;
+  el.onclick=()=>{el.remove();openDM(sender.id);};
+  document.body.appendChild(el);
+  if(_dmNotifTimer)clearTimeout(_dmNotifTimer);
+  _dmNotifTimer=setTimeout(()=>el.remove(),5000);
+}
+
+/* ===================== TYPING — MAIN CHAT ===================== */
 let _typingThrottle=null;
-function onTyping(){if(!ME||!ROOM)return;if(_typingThrottle)return;_typingThrottle=setTimeout(()=>_typingThrottle=null,1500);if(typingCh&&typingChReady){try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
-function setupTypingChannel(roomId){if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}typingChReady=false;typingUsers={};removeTypingIndicator();typingCh=sb.channel('typing_room_'+roomId).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};renderTyping();}).subscribe(status=>{if(status==='SUBSCRIBED')typingChReady=true;else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},3000);}});}
+function onTyping(){
+  if(!ME||!ROOM)return;
+  if(_typingThrottle)return;
+  _typingThrottle=setTimeout(()=>_typingThrottle=null,1500);
+  if(typingCh&&typingChReady){try{typingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}
+}
+
+function setupTypingChannel(roomId){
+  if(typingCh){try{sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
+  typingChReady=false;typingUsers={};removeTypingIndicator();
+  typingCh=sb.channel('typing_room_'+roomId)
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(!payload||!payload.uid||payload.uid===ME?.id)return;
+      const uid=payload.uid;
+      if(typingUsers[uid]?._timer)clearTimeout(typingUsers[uid]._timer);
+      typingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete typingUsers[uid];renderTyping();},3500)};
+      renderTyping();
+    })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED')typingChReady=true;
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){typingChReady=false;setTimeout(()=>{if(ROOM===roomId)setupTypingChannel(roomId);},3000);}
+    });
+}
 function removeTypingIndicator(){document.getElementById('typingIndicator')?.remove();}
 function renderTyping(){const users=Object.values(typingUsers).filter(u=>u.nick);removeTypingIndicator();if(!users.length)return;const msgs=document.getElementById('messages');if(!msgs)return;const wasAtBottom=msgs.scrollHeight-msgs.scrollTop-msgs.clientHeight<80;const el=document.createElement('div');el.id='typingIndicator';el.className='typing-indicator';el.innerHTML=`<div class="typing-dots"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div><span>${users.slice(0,3).map(u=>esc(u.nick)).join(', ')} წერს...</span>`;msgs.appendChild(el);if(wasAtBottom)msgs.scrollTop=msgs.scrollHeight;}
 
 /* ===================== TYPING — DM ===================== */
 let _dmTypingThrottle=null;
-function onDMTyping(){if(!ME||!DM_UID)return;if(_dmTypingThrottle)return;_dmTypingThrottle=setTimeout(()=>_dmTypingThrottle=null,1500);if(dmTypingCh&&dmTypingChReady){try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}}
-function setupDMTypingChannel(rk){if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}dmTypingChReady=false;dmTypingUsers={};removeDMTyping();dmTypingCh=sb.channel('dmtyping_'+rk).on('broadcast',{event:'typing'},({payload})=>{if(!payload||!payload.uid||payload.uid===ME?.id)return;const uid=payload.uid;if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};renderDMTyping();}).subscribe(status=>{if(status==='SUBSCRIBED')dmTypingChReady=true;else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},3000);}});}
+function onDMTyping(){
+  if(!ME||!DM_UID)return;
+  if(_dmTypingThrottle)return;
+  _dmTypingThrottle=setTimeout(()=>_dmTypingThrottle=null,1500);
+  if(dmTypingCh&&dmTypingChReady){try{dmTypingCh.send({type:'broadcast',event:'typing',payload:{uid:ME.id,nick:MYPROF?.username||'?'}});}catch(e){}}
+}
+
+function setupDMTypingChannel(rk){
+  if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}
+  dmTypingChReady=false;dmTypingUsers={};removeDMTyping();
+  dmTypingCh=sb.channel('dmtyping_'+rk)
+    .on('broadcast',{event:'typing'},({payload})=>{
+      if(!payload||!payload.uid||payload.uid===ME?.id)return;
+      const uid=payload.uid;
+      if(dmTypingUsers[uid]?._timer)clearTimeout(dmTypingUsers[uid]._timer);
+      dmTypingUsers[uid]={nick:payload.nick,_timer:setTimeout(()=>{delete dmTypingUsers[uid];renderDMTyping();},3500)};
+      renderDMTyping();
+    })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED')dmTypingChReady=true;
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){dmTypingChReady=false;setTimeout(()=>{if(DM_UID)setupDMTypingChannel(rk);},3000);}
+    });
+}
 function removeDMTyping(){document.getElementById('dmTypingRow')?.remove();const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent='';}
 function renderDMTyping(){const users=Object.values(dmTypingUsers).filter(u=>u.nick);removeDMTyping();if(!users.length)return;const names=users.map(u=>u.nick).join(', ');const box=document.getElementById('dmMsgs');if(box&&document.getElementById('dmBox').classList.contains('open')){const el=document.createElement('div');el.id='dmTypingRow';el.className='dm-typing-row';el.innerHTML=`<div style="display:flex;gap:3px;align-items:center"><div class="typing-dot"></div><div class="typing-dot" style="animation-delay:.15s"></div><div class="typing-dot" style="animation-delay:.3s"></div></div><span>${esc(names)} წერს...</span>`;box.appendChild(el);box.scrollTop=box.scrollHeight;}const ti=document.getElementById('dmTypingInfo');if(ti)ti.textContent=names+' წერს...';}
 
@@ -1287,10 +972,6 @@ function setReply(msgId,nick,content){replyToMsg={id:msgId,nick,content:content.
 function cancelReply(){replyToMsg=null;document.getElementById('replyBar').classList.remove('open');}
 function setDMReply(nick,content){dmReplyTo={nick,content:content.substring(0,60)};document.getElementById('dmReplyBar').classList.add('open');document.getElementById('dmReplyNick').textContent=nick;document.getElementById('dmInput').focus();}
 function cancelDMReply(){dmReplyTo=null;document.getElementById('dmReplyBar').classList.remove('open');}
-
-/* ===================== PHOTO COMMENT REPLY ===================== */
-function setPvCommentReply(nick,commentId){pvCommentReplyTo={nick,commentId};document.getElementById('pvCommentReplyBar').classList.add('open');document.getElementById('pvCommentReplyNick').textContent=nick;document.getElementById('pvCommentInput').focus();document.getElementById('pvCommentInput').placeholder='↩️ '+nick+'-ს პასუხი...';}
-function cancelPvCommentReply(){pvCommentReplyTo=null;document.getElementById('pvCommentReplyBar').classList.remove('open');document.getElementById('pvCommentInput').placeholder='კომენტარი...';}
 
 /* ===================== QUICK REACT ===================== */
 document.querySelectorAll('.qr-btn').forEach(btn=>{btn.addEventListener('click',()=>{const emoji=btn.textContent.trim();if(qrMode==='dm')quickDMReact(emoji);else quickReact(emoji);closeQRPanel();});});
@@ -1304,8 +985,29 @@ async function refreshReactions(msgId){const{data}=await sb.from('message_reacti
 async function quickDMReact(emoji){if(!dmReactTargetId||!ME){toast('❌ რეაქცია ვერ');return;}const tag=`dmreact:${dmReactTargetId}:${emoji}`;const{data:ex}=await sb.from('comments').select('id').eq('user_id',ME.id).eq('content',tag).maybeSingle();if(ex)await sb.from('comments').delete().eq('id',ex.id);else await sb.from('comments').insert({user_id:ME.id,content:tag});await refreshDMReactions(dmReactTargetId);}
 async function refreshDMReactions(msgId){if(!msgId)return;const tag=`dmreact:${msgId}:`;const{data}=await sb.from('comments').select('user_id,content').like('content',tag+'%');const el=document.getElementById('dmreact_'+msgId);if(!el)return;const grouped={};(data||[]).forEach(r=>{const parts=r.content.split(':');const emoji=parts[2];if(emoji&&!grouped[emoji])grouped[emoji]=[];if(emoji)grouped[emoji].push(r.user_id);});el.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>{dmReactTargetId=msgId;quickDMReact(emoji);});el.appendChild(chip);});}
 
+/* ===================== ROOMS / GAME ===================== */
+const ROOMS=[
+  {id:1,icon:'🏠',name:'მთავარი მოედანი'},
+  {id:2,icon:'🔐',name:'შიფროგრამა',isGame:true,gameFile:'game-wordsort.html',gameName:'შიფროგრამა',gameDesc:'200 ქართული სიტყვა · სწორი = 5 ქულა',gameScoreField:'game_score'},
+  {id:3,icon:'🏆',name:'ვიქტორინა',isGame:true,gameFile:'game-quiz.html',gameName:'ვიქტორინა',gameDesc:'200 კითხვა · სწორი = 5 ქულა',gameScoreField:'quiz_score'},
+  {id:4,icon:'🪢',name:'ჩამოხრჩობა',isGame:true,gameFile:'game-hangman.html',gameName:'ჩამოხრჩობა',gameDesc:'6 არასწორი ასო',gameScoreField:'hangman_score'},
+  {id:5,icon:'🎵',name:'მუსიკ კლაბი'},
+  {id:6,icon:'💜',name:'სოული კორნერ'},
+  {id:7,icon:'🌊',name:'ოშენ ვაიბ'},
+  {id:8,icon:'🦋',name:'ფლაი ზონ'},
+  {id:9,icon:'🧠',name:'ბრეინ ზონ'},
+  {id:10,icon:'🌸',name:'სოფთ ჰარმონი'},
+];
+function openGame(){if(!activeGameRoom)return;window.open(activeGameRoom.gameFile,'_blank');}
+function watchGameScore(){if(!ME)return;sb.channel('game-score-'+ME.id).on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles',filter:`id=eq.${ME.id}`},payload=>{MYPROF={...MYPROF,...payload.new};updateGameScoreUI();if(document.getElementById('gameRoomPlaceholder').style.display!=='none')refreshGamePlaceholder();}).subscribe();}
+function updateGameScoreUI(){const w=document.getElementById('profWordScore'),q=document.getElementById('profQuizScore'),h=document.getElementById('profHangScore');if(w){w.textContent='🔐 '+(MYPROF?.game_score||0);w.classList.remove('animate');void w.offsetWidth;w.classList.add('animate');}if(q){q.textContent='🏆 '+(MYPROF?.quiz_score||0);q.classList.remove('animate');void q.offsetWidth;q.classList.add('animate');}if(h){h.textContent='🪢 '+(MYPROF?.hangman_score||0);h.classList.remove('animate');void h.offsetWidth;h.classList.add('animate');}}
+function refreshGamePlaceholder(){if(!activeGameRoom)return;const sc=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;const el=document.getElementById('grpMyScore');if(el)el.textContent=sc;}
+async function loadGameLeaderboard(){if(!activeGameRoom?.gameScoreField)return;const field=activeGameRoom.gameScoreField;const{data}=await sb.from('profiles').select(`id,username,${field}`).order(field,{ascending:false}).limit(5);const lbEl=document.getElementById('lbRows');if(!lbEl)return;lbEl.innerHTML='';(data||[]).forEach((u,i)=>{const rankClass=['gold','silver','bronze'][i]||'';const medal=['🥇','🥈','🥉'][i]||i+1;const d=document.createElement('div');d.className='glb-row';d.innerHTML=`<span class="glb-rank ${rankClass}">${medal}</span><span class="glb-name">${esc(u.username||'?')}</span><span class="glb-score">${u[field]||0}</span>`;lbEl.appendChild(d);});if(data){const myIdx=data.findIndex(u=>u.id===ME?.id);const rankEl=document.getElementById('grpMyRank'),rankCard=document.getElementById('grpRankCard');if(rankEl&&rankCard){rankCard.classList.remove('hidden');rankEl.textContent=myIdx>=0?'#'+(myIdx+1):'—';}}}
+function setRoomView(mode,roomObj){const messagesEl=document.getElementById('messages'),chatBar=document.getElementById('chatBar'),gamePlaceholder=document.getElementById('gameRoomPlaceholder'),playBtn=document.getElementById('playHeaderBtn'),onlineCnt=document.getElementById('onlineCnt');messagesEl.style.display='';chatBar.style.display='';cancelReply();gamePlaceholder.style.display='none';playBtn.style.display='none';onlineCnt.style.display='';if(mode==='game'&&roomObj){activeGameRoom=roomObj;messagesEl.style.display='none';chatBar.style.display='none';gamePlaceholder.style.display='flex';playBtn.style.display='flex';onlineCnt.style.display='none';document.getElementById('grpIcon').textContent=roomObj.icon;document.getElementById('grpTitle').textContent=roomObj.gameName;document.getElementById('grpDesc').textContent=roomObj.gameDesc||'';document.getElementById('grpMyScore').textContent=activeGameRoom.gameScoreField?(MYPROF?.[activeGameRoom.gameScoreField]??0):0;loadGameLeaderboard();}else{activeGameRoom=null;}}
+
 /* ===================== MESSAGES ===================== */
 function animateSendPlane(btnId){const btn=document.getElementById(btnId);if(!btn)return;btn.classList.add('fly');setTimeout(()=>btn.classList.remove('fly'),500);}
+
 async function loadMessages(roomId){
   if(msgCh){try{await sb.removeChannel(msgCh);}catch(e){}msgCh=null;}
   if(typingCh){try{await sb.removeChannel(typingCh);}catch(e){}typingCh=null;}
@@ -1317,7 +1019,10 @@ async function loadMessages(roomId){
   (data||[]).forEach(m=>{sentMsgIds.add(m.id);appendMsg(m,true);});
   if(data&&data.length){
     const{data:reactions}=await sb.from('message_reactions').select('*').in('message_id',data.map(m=>m.id));
-    if(reactions&&reactions.length){const grouped={};reactions.forEach(r=>{if(!grouped[r.message_id])grouped[r.message_id]=[];grouped[r.message_id].push(r);});Object.entries(grouped).forEach(([msgId,reacts])=>{const row=document.getElementById('msg'+msgId);if(!row)return;let reactEl=row.querySelector(':scope>.msg-reactions');if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}const g2={};reacts.forEach(r=>{if(!g2[r.emoji])g2[r.emoji]=[];g2[r.emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(g2).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});reactEl.appendChild(chip);});});}
+    if(reactions&&reactions.length){
+      const grouped={};reactions.forEach(r=>{if(!grouped[r.message_id])grouped[r.message_id]=[];grouped[r.message_id].push(r);});
+      Object.entries(grouped).forEach(([msgId,reacts])=>{const row=document.getElementById('msg'+msgId);if(!row)return;let reactEl=row.querySelector(':scope>.msg-reactions');if(!reactEl){reactEl=document.createElement('div');reactEl.className='msg-reactions';row.appendChild(reactEl);}const g2={};reacts.forEach(r=>{if(!g2[r.emoji])g2[r.emoji]=[];g2[r.emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(g2).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>{reactTargetMsgId=msgId;quickReact(emoji);});reactEl.appendChild(chip);});});
+    }
   }
   box.scrollTop=box.scrollHeight;
   setupTypingChannel(roomId);
@@ -1336,7 +1041,9 @@ async function loadMessages(roomId){
     .on('postgres_changes',{event:'DELETE',schema:'public',table:'message_reactions'},async payload=>{await refreshReactions(payload.old.message_id);})
     .subscribe();
 }
+
 function renderVoiceContent(raw){const m=raw.match(/\[voice:(\d+)\]([\s\S]+)\[\/voice\]/);if(!m)return renderContent(raw);const dur=parseInt(m[1])||0,base64=m[2];const bars=Array.from({length:20},()=>{const h=4+Math.round(Math.random()*12);return`<div class="voice-bar" style="height:${h}px"></div>`;}).join('');return`<div class="voice-msg"><button class="voice-play" data-src="${encodeURIComponent(base64)}">▶</button><div class="voice-wave">${bars}</div><span class="voice-dur">${dur}s</span></div>`;}
+
 function appendMsg(m,skipScroll){
   const isMe=(m.user_id===ME?.id);
   const myRole=MYPROF?.role,authorRole=m.profiles?.role;
@@ -1375,6 +1082,7 @@ function appendMsg(m,skipScroll){
   row.querySelector('.react-act-btn').addEventListener('click',function(){showQuickReact(m.id,this);});
   document.getElementById('messages').appendChild(row);
 }
+
 async function sendMessage(){const inp=document.getElementById('msgInput');let txt=inp.value.trim();if(!txt)return;inp.value='';txt=wrapFormatting(txt);if(replyToMsg){txt=`[reply:${replyToMsg.nick}|${replyToMsg.content}]${txt}`;cancelReply();}animateSendPlane('mainSendBtn');const{data,error}=await sb.from('messages').insert({room_id:ROOM,user_id:ME.id,content:txt}).select('id').single();if(error){toast('❌ '+error.message);inp.value=txt;return;}if(data){sentMsgIds.add(data.id);appendMsg({id:data.id,user_id:ME.id,room_id:ROOM,content:txt,created_at:new Date().toISOString(),profiles:{username:MYPROF?.username,role:MYPROF?.role,avatar_url:MYPROF?.avatar_url,emotion:MYPROF?.emotion}});document.getElementById('messages').scrollTop=99999;}}
 async function delMsg(id){if(!confirm('წავშალო?'))return;document.getElementById('msg'+id)?.remove();sentMsgIds.delete(id);await sb.from('messages').delete().eq('id',id);}
 
@@ -1383,71 +1091,15 @@ async function handleEmojiImages(e){const files=Array.from(e.target.files);if(!f
 async function addTextEmoji(){if(!['admin','founder'].includes(MYPROF?.role)){toast('❌ მხოლოდ ადმინს!');return;}const v=document.getElementById('newEmojiInput').value.trim();if(!v||v.length>6){toast('❌ მაქს 6');return;}const{data,error}=await sb.from('global_emojis').insert({url:v}).select().single();if(error){toast('❌ '+error.message);return;}document.getElementById('newEmojiInput').value='';if(data){emojiCache[data.id]=v;customEmojis.push(data);}toast('✅');buildEmojis();}
 async function removeEmoji(id){if(!['admin','founder'].includes(MYPROF?.role)){toast('❌');return;}if(!confirm('წაიშალოს?'))return;const emoji=customEmojis.find(e=>e.id===id);await sb.from('global_emojis').delete().eq('id',id);if(emoji?.url&&emoji.url.includes('/storage/v1/object/public/emojis/')){try{const p=emoji.url.split('/emojis/');if(p.length>1)await sb.storage.from('emojis').remove([p[1].split('?')[0]]);}catch(e){}}customEmojis=customEmojis.filter(e=>e.id!==id);delete emojiCache[id];toast('🗑');buildEmojis();}
 function buildEmojis(){buildEmojiGrid('emojiGrid','msgInput',true);buildEmojiGrid('dmEmojiGrid','dmInput',false);buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);}
-function togglePvEmoji(){const p=document.getElementById('pvEmojiPanel');if(!p)return;const isOpen=p.style.display!=='none';p.style.display=isOpen?'none':'block';if(!isOpen){buildEmojiGrid('pvEmojiGrid','pvCommentInput',false);}}
-function buildEmojiGrid(gridId,inputId,withManage){
-  const grid=document.getElementById(gridId);
-  if(!grid)return;
-  grid.innerHTML='';
-  const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);
-  if(withManage){const s=document.getElementById('addEmojiSection');if(s)s.style.display=canManage?'block':'none';}
-  customEmojis.forEach(em=>{
-    const btn=document.createElement('button');btn.className='em-btn';
-    const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));
-    if(isImg){const img=document.createElement('img');img.src=em.url;img.loading='eager';btn.appendChild(img);}
-    else{const span=document.createElement('span');span.className='em-emoji-text';span.textContent=em.url||'?';btn.appendChild(span);}
-    if(canManage){const del=document.createElement('button');del.className='em-del vis';del.textContent='✕';del.addEventListener('click',ev=>{ev.stopPropagation();removeEmoji(em.id);});btn.appendChild(del);}
-    btn.addEventListener('click',ev=>{if(ev.target.classList.contains('em-del'))return;const inp=document.getElementById(inputId);if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});
-    grid.appendChild(btn);
-  });
-}
+function togglePvEmoji(){const p=document.getElementById('pvEmojiPanel');if(!p)return;const isOpen=p.style.display!=='none';p.style.display=isOpen?'none':'block';if(!isOpen){const grid=document.getElementById('pvEmojiGrid');if(!grid)return;grid.innerHTML='';customEmojis.forEach(em=>{const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0';const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));if(isImg){const img=document.createElement('img');img.src=em.url;img.style.cssText='width:34px;height:34px;border-radius:6px;object-fit:contain;pointer-events:none';btn.appendChild(img);}else{const span=document.createElement('span');span.textContent=em.url||'?';span.style.cssText='font-size:24px;pointer-events:none';btn.appendChild(span);}btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});grid.appendChild(btn);});const basics=['😊','😍','😂','🔥','💜','❤️','👍','😮','🥺','✨','🎉','😴','🤩','💫','🌸'];basics.forEach(e=>{const btn=document.createElement('button');btn.style.cssText='width:44px;height:44px;border-radius:10px;background:var(--indigo-f);border:1px solid var(--border);cursor:pointer;font-size:24px;display:flex;align-items:center;justify-content:center;flex-shrink:0';btn.textContent=e;btn.addEventListener('click',()=>{const inp=document.getElementById('pvCommentInput');if(!inp)return;inp.value+=e;inp.focus();});grid.appendChild(btn);});}}
+function buildEmojiGrid(gridId,inputId,withManage){const grid=document.getElementById(gridId);if(!grid)return;grid.innerHTML='';const canManage=withManage&&['admin','founder'].includes(MYPROF?.role);if(withManage){const s=document.getElementById('addEmojiSection');if(s)s.style.display=canManage?'block':'none';}customEmojis.forEach(em=>{const btn=document.createElement('button');btn.className='em-btn';const isImg=em.url&&(em.url.startsWith('http')||em.url.startsWith('data:'));if(isImg){const img=document.createElement('img');img.src=em.url;img.loading='lazy';btn.appendChild(img);}else{const span=document.createElement('span');span.className='em-emoji-text';span.textContent=em.url||'?';btn.appendChild(span);}if(canManage){const del=document.createElement('button');del.className='em-del vis';del.textContent='✕';del.addEventListener('click',ev=>{ev.stopPropagation();removeEmoji(em.id);});btn.appendChild(del);}btn.addEventListener('click',ev=>{if(ev.target.classList.contains('em-del'))return;const inp=document.getElementById(inputId);if(!inp)return;inp.value+=isImg?`[e:${em.id}]`:em.url;inp.focus();});grid.appendChild(btn);});}
 function toggleEmojiPanel(){document.getElementById('emojiPanel').classList.toggle('open');document.getElementById('dmEmojiPanel').classList.remove('open');}
 function toggleDMEmoji(){document.getElementById('dmEmojiPanel').classList.toggle('open');buildEmojiGrid('dmEmojiGrid','dmInput',false);}
 document.addEventListener('click',e=>{const p=document.getElementById('emojiPanel');if(p&&p.classList.contains('open')&&!p.contains(e.target)&&!e.target.closest('.icon-btn'))p.classList.remove('open');const dp=document.getElementById('dmEmojiPanel');if(dp&&dp.classList.contains('open')&&!dp.contains(e.target)&&!e.target.closest('.dm-icon-btn'))dp.classList.remove('open');});
 
 /* ===================== PROFILE ===================== */
 function openMyProfile(){openProfile(ME.id);}
-async function openProfile(uid){
-  VIEW_UID=uid;
-  const p=await loadProf(uid);
-  const isSelf=(uid===ME.id),myRole=MYPROF?.role,viewRole=p?.role;
-  document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';
-  document.getElementById('profName').textContent=p?.username||'?';
-  const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);
-  document.getElementById('profWordScore').textContent='🔐 '+(p?.game_score||0);
-  document.getElementById('profQuizScore').textContent='🏆 '+(p?.quiz_score||0);
-  document.getElementById('profHangScore').textContent='🪢 '+(p?.hangman_score||0);
-  if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';}
-  else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊';}
-  document.getElementById('avEdit').style.display=isSelf?'':'none';
-  document.getElementById('statusInp').value=p?.status||'';document.getElementById('statusInp').disabled=!isSelf;
-  document.getElementById('emoComment').value=p?.emotion_comment||'';document.getElementById('emoComment').disabled=!isSelf;
-  document.getElementById('saveProfileBtn').style.display=isSelf?'':'none';
-  document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';
-  document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';
-  selectedEmotion=p?.emotion||'😊';
-  document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));
-  const showFounder=(myRole==='founder')&&!isSelf;
-  document.getElementById('founderSec').classList.toggle('hidden',!showFounder);
-  if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';
-  const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');
-  document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);
-  const friendBtn=document.getElementById('friendBtn');
-  const dmBtn=document.getElementById('dmBtn');
-  if(isSelf){friendBtn.style.display='none';dmBtn.style.display='none';}
-  else{
-    friendBtn.style.display='';dmBtn.style.display='';
-    const isFr=myFriends.includes(uid);
-    if(isFr){friendBtn.textContent='💔 გაუქმება';friendBtn.disabled=false;}
-    else{
-      const{data:pending}=await sb.from('friends').select('id,status').eq('user_id',ME.id).eq('friend_id',uid).maybeSingle();
-      if(pending?.status==='pending'){friendBtn.textContent='⏳ გაგზავნილია...';friendBtn.disabled=true;}
-      else{friendBtn.textContent='➕ მეგობრად დამატება';friendBtn.disabled=false;}
-    }
-  }
-  document.getElementById('galUploadZone').style.display=isSelf?'':'none';
-  switchGalleryTab('info',document.getElementById('gtabInfo'));
-  openModal('profileOverlay');
-}
+async function openProfile(uid){VIEW_UID=uid;const p=await loadProf(uid);const isSelf=(uid===ME.id),myRole=MYPROF?.role,viewRole=p?.role;document.getElementById('profTitle').textContent=isSelf?'ჩემი პროფილი':'პროფილი';document.getElementById('profName').textContent=p?.username||'?';const roleEl=document.getElementById('profRole');roleEl.textContent=rLabel(viewRole);roleEl.className='prof-role '+rClass(viewRole);document.getElementById('profWordScore').textContent='🔐 '+(p?.game_score||0);document.getElementById('profQuizScore').textContent='🏆 '+(p?.quiz_score||0);document.getElementById('profHangScore').textContent='🪢 '+(p?.hangman_score||0);if(p?.avatar_url){document.getElementById('avImg').src=p.avatar_url;document.getElementById('avImg').style.display='block';document.getElementById('avEmoji').style.display='none';}else{document.getElementById('avImg').style.display='none';document.getElementById('avEmoji').style.display='block';document.getElementById('avEmoji').textContent=p?.emotion||'😊';}document.getElementById('avEdit').style.display=isSelf?'':'none';document.getElementById('statusInp').value=p?.status||'';document.getElementById('statusInp').disabled=!isSelf;document.getElementById('emoComment').value=p?.emotion_comment||'';document.getElementById('emoComment').disabled=!isSelf;document.getElementById('saveProfileBtn').style.display=isSelf?'':'none';document.getElementById('emoRowMain').style.pointerEvents=isSelf?'':'none';document.getElementById('emoRowMain').style.opacity=isSelf?'1':'.5';selectedEmotion=p?.emotion||'😊';document.querySelectorAll('.emo-btn').forEach(b=>b.classList.toggle('active',b.textContent===selectedEmotion));const showFounder=(myRole==='founder')&&!isSelf;document.getElementById('founderSec').classList.toggle('hidden',!showFounder);if(showFounder)document.getElementById('roleSelect').value=viewRole||'member';const showAdmin=(myRole==='admin')&&!isSelf&&(viewRole==='member');document.getElementById('adminSec').classList.toggle('hidden',!showAdmin);document.getElementById('friendBtn').style.display=isSelf?'none':'';document.getElementById('dmBtn').style.display=isSelf?'none':'';const isFr=myFriends.includes(uid);document.getElementById('friendBtn').textContent=isFr?'💔 გაუქმება':'➕ მეგობრად';document.getElementById('galUploadZone').style.display=isSelf?'':'none';switchGalleryTab('info',document.getElementById('gtabInfo'));openModal('profileOverlay');}
 function compressImage(file,maxSizePx=256,quality=0.85){return new Promise((resolve,reject)=>{if(file.type==='image/gif'){resolve(file);return;}const img=new Image();const url=URL.createObjectURL(file);img.onload=()=>{URL.revokeObjectURL(url);let{width,height}=img;if(width>maxSizePx||height>maxSizePx){if(width>height){height=Math.round(height*maxSizePx/width);width=maxSizePx;}else{width=Math.round(width*maxSizePx/height);height=maxSizePx;}}const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;canvas.getContext('2d').drawImage(img,0,0,width,height);canvas.toBlob(blob=>{if(!blob){reject(new Error('კომპ.'));return;}resolve(new File([blob],file.name,{type:'image/webp',lastModified:Date.now()}));},'image/webp',quality);};img.onerror=()=>{URL.revokeObjectURL(url);reject(new Error('ვერ'));};img.src=url;});}
 function switchGalleryTab(tab,btn){document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));btn.classList.add('active');document.getElementById('tabInfo').classList.toggle('hidden',tab!=='info');document.getElementById('tabGallery').classList.toggle('hidden',tab!=='gallery');if(tab==='gallery'){activeAlbumFilter=null;loadAlbumsAndGallery(VIEW_UID);}}
 async function saveProfile(){const updates={status:document.getElementById('statusInp').value,emotion:selectedEmotion,emotion_comment:document.getElementById('emoComment').value};const{error}=await sb.from('profiles').update(updates).eq('id',ME.id);if(error){toast('❌ '+error.message);return;}MYPROF={...MYPROF,...updates};toast('✅ შენახულია!');closeModal('profileOverlay');}
@@ -1465,13 +1117,7 @@ function rClass(r){return r==='founder'?'pr-founder':r==='admin'?'pr-admin':'pr-
 function rbClass(r){return r==='founder'?'rb-founder':r==='admin'?'rb-admin':'';}
 
 /* ===================== GALLERY ===================== */
-async function loadAlbumsAndGallery(uid){
-  galleryViewUID=uid;const isSelf=uid===ME.id;
-  const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});
-  userAlbums=albs||[];
-  if(isSelf){const sel=document.getElementById('galAlbumSelect');if(sel){sel.innerHTML='<option value="">📂 ალბომის გარეშე</option>';userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt);});}}
-  renderAlbumBar(isSelf);await loadGallery(uid);
-}
+async function loadAlbumsAndGallery(uid){galleryViewUID=uid;const isSelf=uid===ME.id;const{data:albs}=await sb.from('albums').select('*').eq('user_id',uid).order('created_at',{ascending:true});userAlbums=albs||[];if(isSelf){const sel=document.getElementById('galAlbumSelect');sel.innerHTML='<option value="">📂 გარეშე</option>';userAlbums.forEach(a=>{const opt=document.createElement('option');opt.value=a.id;opt.textContent=a.name;sel.appendChild(opt);});}renderAlbumBar(isSelf);await loadGallery(uid);}
 function renderAlbumBar(isSelf){const bar=document.getElementById('albumBar');bar.innerHTML='';const allChip=document.createElement('div');allChip.className='album-chip'+(activeAlbumFilter===null?' active':'');allChip.textContent='📷 ყველა';allChip.onclick=()=>{activeAlbumFilter=null;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(allChip);userAlbums.forEach(a=>{const chip=document.createElement('div');chip.className='album-chip'+(activeAlbumFilter===a.id?' active':'');chip.innerHTML=`<span>${a.name}</span>`;if(isSelf){const del=document.createElement('span');del.className='chip-del';del.textContent='✕';del.onclick=ev=>{ev.stopPropagation();deleteAlbum(a.id);};chip.appendChild(del);}chip.onclick=ev=>{if(ev.target.classList.contains('chip-del'))return;activeAlbumFilter=a.id;renderAlbumBar(isSelf);filterGalleryByAlbum();};bar.appendChild(chip);});if(isSelf){const nc=document.createElement('div');nc.className='album-chip new-album';nc.textContent='+ ახალი';nc.onclick=()=>{const f=document.getElementById('albumCreateForm');f.classList.toggle('open');if(f.classList.contains('open'))document.getElementById('albumNameInp').focus();};bar.appendChild(nc);}}
 async function createAlbum(){const name=document.getElementById('albumNameInp').value.trim();if(!name){toast('❌');return;}const{error}=await sb.from('albums').insert({user_id:ME.id,name});if(error){toast('❌ '+error.message);return;}document.getElementById('albumNameInp').value='';document.getElementById('albumCreateForm').classList.remove('open');toast('✅ '+name);await loadAlbumsAndGallery(ME.id);}
 async function deleteAlbum(albumId){if(!confirm('ალბომი წაიშალა?'))return;await sb.from('albums').update({album_id:null}).eq('album_id',albumId).eq('user_id',ME.id);await sb.from('albums').delete().eq('id',albumId).eq('user_id',ME.id);if(activeAlbumFilter===albumId)activeAlbumFilter=null;toast('🗑');await loadAlbumsAndGallery(ME.id);}
@@ -1481,52 +1127,24 @@ function renderGallery(isSelf){const grid=document.getElementById('galGrid'),emp
 function galFileChosen(e){const file=e.target.files[0];if(!file)return;if(file.size>4*1024*1024){toast('❌ 4MB max');e.target.value='';return;}const reader=new FileReader();reader.onload=ev=>{galFileData=ev.target.result;const prev=document.getElementById('galPreviewImg');prev.src=galFileData;prev.classList.add('show');document.getElementById('galForm').classList.add('open');galSelectedEmo='😊';document.querySelectorAll('.gal-emo-btn').forEach((b,i)=>b.classList.toggle('active',i===0));document.getElementById('galTitle').value='';document.getElementById('galComment').value='';};reader.readAsDataURL(file);e.target.value='';}
 function pickGalEmo(btn,em){galSelectedEmo=em;document.querySelectorAll('.gal-emo-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');}
 function cancelGalUpload(){galFileData=null;document.getElementById('galForm').classList.remove('open');const prev=document.getElementById('galPreviewImg');prev.src='';prev.classList.remove('show');}
-async function uploadGalleryPhoto(){if(!galFileData){toast('❌');return;}toast('⏳...');const albumId=document.getElementById('galAlbumSelect')?.value||null;const{error}=await sb.from('gallery').insert({user_id:ME.id,url:galFileData,title:document.getElementById('galTitle').value,emotion:galSelectedEmo,comment:document.getElementById('galComment').value,album_id:albumId||null});if(error){toast('❌ '+error.message);return;}toast('✅ ატვირთულია!');cancelGalUpload();await loadAlbumsAndGallery(ME.id);}
-async function deleteGalPhoto(id){if(!confirm('ფოტო წაიშალა?'))return;await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);await loadGallery(ME.id);}
+async function uploadGalleryPhoto(){if(!galFileData){toast('❌ ფოტო ამოარჩიე!');return;}toast('⏳...');try{const d={user_id:ME.id,url:galFileData,emotion:galSelectedEmo};const t=document.getElementById('galTitle').value.trim(),c=document.getElementById('galComment').value.trim(),albumId=document.getElementById('galAlbumSelect').value;if(t)d.title=t;if(c)d.comment=c;if(albumId)d.album_id=albumId;const{error}=await sb.from('gallery').insert(d);if(error){toast('❌ '+error.message);return;}cancelGalUpload();toast('✅ ფოტო!');await loadAlbumsAndGallery(ME.id);}catch(err){toast('❌ '+err.message);}}
+async function deleteGalPhoto(id){if(!confirm('წავშალო?'))return;await sb.from('gallery').delete().eq('id',id).eq('user_id',ME.id);toast('🗑');loadAlbumsAndGallery(ME.id);}
 
 /* ===================== PHOTO VIEWER ===================== */
-let currentPhotoId=null,currentPhotoOwnerId=null;
+let currentPhotoId=null;
 function openPhotoViewer(idx,filtered){_pvFiltered=filtered||currentGallery;pvIndex=idx;showPVPhoto();document.getElementById('photoViewer').classList.add('open');}
-async function showPVPhoto(){
-  const p=_pvFiltered[pvIndex];if(!p)return;
-  currentPhotoId=p.id;currentPhotoOwnerId=p.user_id;
-  document.getElementById('pvImg').src=p.url;
-  document.getElementById('pvTitle').textContent=p.title||'';
-  document.getElementById('pvEmo').textContent=p.emotion||'';
-  document.getElementById('pvComment').textContent=p.comment||'';
-  const owner=allUsers.find(u=>u.id===p.user_id);
-  document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';
-  document.getElementById('pvCounter').textContent=(pvIndex+1)+' / '+_pvFiltered.length;
-  cancelPvCommentReply();
-  await loadPhotoReactions(p.id);
-  await loadPhotoComments(p.id);
-}
+async function showPVPhoto(){const p=_pvFiltered[pvIndex];if(!p)return;currentPhotoId=p.id;document.getElementById('pvImg').src=p.url;document.getElementById('pvTitle').textContent=p.title||'';document.getElementById('pvEmo').textContent=p.emotion||'';document.getElementById('pvComment').textContent=p.comment||'';const owner=allUsers.find(u=>u.id===p.user_id);document.getElementById('pvAuthor').textContent=owner?'📸 '+owner.username:'';document.getElementById('pvCounter').textContent=(pvIndex+1)+' / '+_pvFiltered.length;await loadPhotoReactions(p.id);await loadPhotoComments(p.id);}
 function pvNav(dir){pvIndex=(pvIndex+dir+_pvFiltered.length)%_pvFiltered.length;showPVPhoto();}
-function closePhotoViewer(){document.getElementById('photoViewer').classList.remove('open');currentPhotoId=null;cancelPvCommentReply();}
+function closePhotoViewer(){document.getElementById('photoViewer').classList.remove('open');currentPhotoId=null;}
 function pvBgClose(e){if(e.target.id==='photoViewer')closePhotoViewer();}
-async function reactToPhoto(emoji){if(!currentPhotoId||!ME)return;const{data:ex}=await sb.from('comments').select('id').eq('gallery_id',currentPhotoId).eq('user_id',ME.id).eq('content','react:'+emoji).maybeSingle();if(ex){await sb.from('comments').delete().eq('id',ex.id);}else{await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:'react:'+emoji});if(currentPhotoOwnerId&&currentPhotoOwnerId!==ME.id){await addNotification(currentPhotoOwnerId,'photo_like',{emoji,nick:MYPROF?.username});}}await loadPhotoReactions(currentPhotoId);}
+async function reactToPhoto(emoji){if(!currentPhotoId||!ME)return;const{data:ex}=await sb.from('comments').select('id').eq('gallery_id',currentPhotoId).eq('user_id',ME.id).eq('content','react:'+emoji).maybeSingle();if(ex)await sb.from('comments').delete().eq('id',ex.id);else await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:'react:'+emoji});await loadPhotoReactions(currentPhotoId);}
 async function loadPhotoReactions(photoId){const{data}=await sb.from('comments').select('user_id,content').eq('gallery_id',photoId).like('content','react:%');const reactEl=document.getElementById('pvReactions');if(!reactEl)return;const grouped={};(data||[]).forEach(r=>{const emoji=r.content.replace('react:','');if(!grouped[emoji])grouped[emoji]=[];grouped[emoji].push(r.user_id);});reactEl.innerHTML='';Object.entries(grouped).forEach(([emoji,uids])=>{const chip=document.createElement('div');chip.className='gal-react-chip'+(uids.includes(ME.id)?' mine':'');chip.innerHTML=`${emoji}<span>${uids.length}</span>`;chip.addEventListener('click',()=>reactToPhoto(emoji));reactEl.appendChild(chip);});}
-async function loadPhotoComments(photoId){
-  const{data}=await sb.from('comments').select('*').eq('gallery_id',photoId).not('content','like','react:%').not('content','like','dmreact:%').order('created_at',{ascending:true});
-  const list=document.getElementById('pvCommentsList');if(!list)return;list.innerHTML='';
-  (data||[]).forEach(c=>{
-    const owner=allUsers.find(u=>u.id===c.user_id);
-    const div=document.createElement('div');div.className='gal-comment-item';
-    const t=new Date(c.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
-    const canDel=(c.user_id===ME.id)||MYPROF?.role==='founder'||MYPROF?.role==='admin';
-    let displayText=c.content,replyPreview='';
-    if(c.content&&c.content.startsWith('[reply:')){const rm=c.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rm){replyPreview=`<div style="border-left:2px solid var(--accent);padding:2px 7px;margin-bottom:3px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rm[1])}</strong>: ${esc(rm[2].substring(0,40))}</div>`;displayText=rm[3];}}
-    div.innerHTML=`<div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span class="gal-comment-nick" data-uid="${c.user_id}">${esc(owner?.username||'?')}</span><span class="gal-comment-time">${t}</span><button class="gal-comment-reply-btn" title="პასუხი">↩️</button>${canDel?`<button class="gal-comment-del-btn" title="წაშლა">🗑</button>`:''}</div>${replyPreview}<span class="gal-comment-text">${renderCommentContent(displayText)}</span></div>`;
-    div.querySelector('.gal-comment-nick').addEventListener('click',()=>openProfile(c.user_id));
-    div.querySelector('.gal-comment-reply-btn').addEventListener('click',()=>{setPvCommentReply(owner?.username||'?',c.id);});
-    if(canDel){div.querySelector('.gal-comment-del-btn')?.addEventListener('click',async()=>{if(!confirm('კომენტარი წაიშალა?'))return;await sb.from('comments').delete().eq('id',c.id);await loadPhotoComments(photoId);});}
-    list.appendChild(div);
-  });
-  list.scrollTop=list.scrollHeight;
-}
-async function sendPhotoComment(){const inp=document.getElementById('pvCommentInput');let txt=inp.value.trim();if(!txt||!currentPhotoId)return;inp.value='';document.getElementById('pvCommentInput').placeholder='კომენტარი...';if(pvCommentReplyTo){txt=`[reply:${pvCommentReplyTo.nick}|]${txt}`;cancelPvCommentReply();}const{error}=await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:txt});if(error){toast('❌ '+error.message);return;}if(currentPhotoOwnerId&&currentPhotoOwnerId!==ME.id){await addNotification(currentPhotoOwnerId,'photo_comment',{comment:txt,nick:MYPROF?.username});}await loadPhotoComments(currentPhotoId);}
+async function loadPhotoComments(photoId){const{data}=await sb.from('comments').select('*').eq('gallery_id',photoId).not('content','like','react:%').order('created_at',{ascending:true});const list=document.getElementById('pvCommentsList');if(!list)return;list.innerHTML='';(data||[]).forEach(c=>{const owner=allUsers.find(u=>u.id===c.user_id);const div=document.createElement('div');div.className='gal-comment-item';const t=new Date(c.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});div.innerHTML=`<span class="gal-comment-nick">${esc(owner?.username||'?')}</span><span class="gal-comment-text">${esc(c.content)}</span><span class="gal-comment-time">${t}</span>`;list.appendChild(div);});list.scrollTop=list.scrollHeight;}
+async function sendPhotoComment(){const inp=document.getElementById('pvCommentInput');const txt=inp.value.trim();if(!txt||!currentPhotoId)return;inp.value='';const{error}=await sb.from('comments').insert({gallery_id:currentPhotoId,user_id:ME.id,content:txt});if(error){toast('❌ '+error.message);return;}await loadPhotoComments(currentPhotoId);}
 
-/* ===================== USERS ===================== */
+/* ===================== USERS / FRIENDS ===================== */
+function buildRooms(){const el=document.getElementById('roomList');if(!el)return;el.innerHTML='';ROOMS.forEach(r=>{const d=document.createElement('div');d.className='room-item'+(r.isGame?' game-room':'');d.innerHTML=`<div class="room-icon">${r.icon}</div><div class="room-name">${r.name}</div>${r.isGame?'<span class="game-badge">GAME</span>':''}`;d.onclick=()=>switchRoom(r,d);el.appendChild(d);});}
+function switchRoom(r,clickedEl){if(!r||!r.id)return;ROOM=r.id;document.getElementById('roomTitle').textContent=r.name;document.getElementById('roomIcon').textContent=r.icon;document.querySelectorAll('.room-item').forEach(el=>el.classList.remove('active'));if(clickedEl)clickedEl.classList.add('active');if(r.isGame)setRoomView('game',r);else{setRoomView('chat',null);loadMessages(r.id);}document.getElementById('sidebar')?.classList.remove('mob-open');}
 async function loadAllUsers(){const{data}=await sb.from('profiles').select('*').order('username');allUsers=data||[];renderUserLists();}
 function updateOnlineBadge(){const onlineNow=allUsers.filter(u=>isOnline(u.last_seen));const cnt=document.getElementById('onlineCnt');if(cnt)cnt.textContent=`● ${onlineNow.length} ონლაინი`;}
 function renderUserLists(){const founders=[],admins=[],members=[];allUsers.forEach(u=>{if(u.role==='founder')founders.push(u);else if(u.role==='admin')admins.push(u);else members.push(u);});updateOnlineBadge();const usEl=document.getElementById('usersListEl');if(usEl){const frag=document.createDocumentFragment();if(founders.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));founders.forEach(u=>frag.appendChild(makeUserItem(u)));}if(admins.length){frag.appendChild(roleHeader('🛡️','ადმინები'));admins.forEach(u=>frag.appendChild(makeUserItem(u)));}if(members.length){frag.appendChild(roleHeader('👤','წევრები'));members.forEach(u=>frag.appendChild(makeUserItem(u)));}usEl.innerHTML='';usEl.appendChild(frag);}const onEl=document.getElementById('onlineListEl');if(onEl){const frag=document.createDocumentFragment();const onF=founders.filter(u=>isOnline(u.last_seen)),onA=admins.filter(u=>isOnline(u.last_seen)),onM=members.filter(u=>isOnline(u.last_seen));if(!onF.length&&!onA.length&&!onM.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='ახლა არავინ';frag.appendChild(e);}else{if(onF.length){frag.appendChild(roleHeader('👑','დამფუძნებლები'));onF.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onA.length){frag.appendChild(roleHeader('🛡️','ადმინები'));onA.forEach(u=>frag.appendChild(makeUserItem(u)));}if(onM.length){frag.appendChild(roleHeader('👤','წევრები'));onM.forEach(u=>frag.appendChild(makeUserItem(u)));}}onEl.innerHTML='';onEl.appendChild(frag);}renderFriends();}
@@ -1536,37 +1154,265 @@ function filterUsers(){const q=document.getElementById('userSearch').value.toLow
 function isOnline(ts){if(!ts)return false;return Date.now()-new Date(ts).getTime()<60000;}
 async function pingOnline(){if(!ME)return;await sb.from('profiles').update({last_seen:new Date().toISOString()}).eq('id',ME.id);}
 
-/* ===================== CALLS ===================== */
-async function startCall(type){if(!DM_UID||!ME){toast('❌ ჯერ გახსენი DM');return;}const peer=allUsers.find(u=>u.id===DM_UID);if(!peer){toast('❌ მომხმარებელი ვერ');return;}const{data:callRow,error}=await sb.from('calls').insert({caller_id:ME.id,callee_id:DM_UID,mode:type,status:'ringing'}).select('id').single();if(error||!callRow){toast('❌ ზარი ვერ');return;}const callId=callRow.id;const callUrl=`call.html?call_id=${callId}&peer_id=${ME.id}&role=callee&mode=${type}`;const emoji=type==='video'?'📹':'☎️';const label=type==='video'?'ვიდეო ზარი':'ხმოვანი ზარი';const content=`[call:${type}:${callId}:${callUrl}]${emoji} ${label}[/call]`;const rk=[ME.id,DM_UID].sort().join('_');const{data:dm}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content,is_read:false}).select('id').single();if(dm)appendDMMsg({id:dm.id,sender_id:ME.id,content,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;const myUrl=`call.html?call_id=${callId}&peer_id=${DM_UID}&role=caller&mode=${type}`;window.open(myUrl,'_blank','width=400,height=680');toast(emoji+' '+label+'...');}
-function joinCall(url){window.open(url,'_blank','width=400,height=680');}
+/* ===================== FRIENDS ===================== */
+async function loadFriends(){const{data}=await sb.from('friends').select('friend_id').eq('user_id',ME.id).eq('status','accepted');myFriends=(data||[]).map(f=>f.friend_id);renderFriends();}
+function renderFriends(){const el=document.getElementById('friendsList');if(!el)return;el.innerHTML='';const list=myFriends.map(fid=>allUsers.find(u=>u.id===fid)).filter(Boolean);if(!list.length){const e=document.createElement('div');e.style.cssText='color:var(--text3);font-size:12px;text-align:center;padding:24px 0';e.textContent='მეგობრები ჯერ არ გყავს 💜';el.appendChild(e);return;}const frag=document.createDocumentFragment();list.forEach(u=>frag.appendChild(makeUserItem(u)));el.appendChild(frag);}
+async function toggleFriend(){const isFr=myFriends.includes(VIEW_UID);if(isFr){await sb.from('friends').delete().eq('user_id',ME.id).eq('friend_id',VIEW_UID);myFriends=myFriends.filter(f=>f!==VIEW_UID);toast('💔 გაუქმდა');}else{await sb.from('friends').upsert({user_id:ME.id,friend_id:VIEW_UID,status:'pending'});toast('📨 გაიგზავნა!');}document.getElementById('friendBtn').textContent=myFriends.includes(VIEW_UID)?'💔 გაუქმება':'➕ მეგობრად';}
+async function checkFriendReqs(){const{data}=await sb.from('friends').select('*, profiles!friends_user_id_fkey(username)').eq('friend_id',ME.id).eq('status','pending');const badge=document.getElementById('friendBadge');if(data&&data.length){badge.textContent=data.length;badge.classList.add('show');const req=data[0];document.getElementById('friendReqTxt').textContent=(req.profiles?.username||'?')+' გვინდა დაგამატოს';document.getElementById('friendReqOverlay').dataset.rid=req.id;document.getElementById('friendReqOverlay').dataset.fid=req.user_id;openModal('friendReqOverlay');}else{badge.classList.remove('show');}}
+function watchFriendRequests(){if(friendCh){try{sb.removeChannel(friendCh);}catch(e){}friendCh=null;}friendCh=sb.channel('friend-reqs-'+ME.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},()=>checkFriendReqs()).on('postgres_changes',{event:'UPDATE',schema:'public',table:'friends',filter:`friend_id=eq.${ME.id}`},payload=>{if(payload.new.status==='accepted'){loadFriends();toast('✅ მეგობრობა!');}}).subscribe();}
+async function acceptFriend(){const rid=document.getElementById('friendReqOverlay').dataset.rid,fid=document.getElementById('friendReqOverlay').dataset.fid;await sb.from('friends').update({status:'accepted'}).eq('id',rid);await sb.from('friends').upsert({user_id:ME.id,friend_id:fid,status:'accepted'});myFriends.push(fid);closeModal('friendReqOverlay');toast('✅ მეგობარი!');renderFriends();}
+async function declineFriend(){await sb.from('friends').delete().eq('id',document.getElementById('friendReqOverlay').dataset.rid);closeModal('friendReqOverlay');toast('❌');}
 
 /* ===================== DM ===================== */
-async function loadDMConversations(){const{data}=await sb.from('direct_messages').select('sender_id,receiver_id,content,created_at,is_read').or(`sender_id.eq.${ME.id},receiver_id.eq.${ME.id}`).order('created_at',{ascending:false});if(!data)return;const seen=new Set();for(const m of data){const partnerId=m.sender_id===ME.id?m.receiver_id:m.sender_id;if(seen.has(partnerId))continue;seen.add(partnerId);let partner=allUsers.find(u=>u.id===partnerId);if(!partner){const{data:pd}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',partnerId).single();if(pd){partner=pd;allUsers.push(pd);}}if(!partner)continue;dmConversations[partnerId]={nick:partner.username||'?',avatar:partner.avatar_url||null,emotion:partner.emotion||'😊',lastMsg:m.content||'',lastTime:m.created_at};}}
-function openDMList(){document.getElementById('dmListOverlay').classList.add('open');renderDMList();}
-function renderDMList(){const el=document.getElementById('dmUserList');el.innerHTML='';const entries=Object.entries(dmConversations);if(!entries.length){el.innerHTML='<div class="dm-list-empty">✉️ ჯერ პირადი შეტყობინება არ გაქვს</div>';return;}entries.sort((a,b)=>new Date(b[1].lastTime)-new Date(a[1].lastTime));const frag=document.createDocumentFragment();for(const [uid,conv] of entries){const d=document.createElement('div');d.className='dm-list-item';const on=isOnline(allUsers.find(u=>u.id===uid)?.last_seen);const avHtml=conv.avatar?`<img src="${conv.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(conv.emotion||'😊');const unreadInfo=dmUnread[uid];const unreadHtml=unreadInfo&&unreadInfo.count>0?`<div class="dm-unread-badge">${unreadInfo.count}</div>`:'';let preview=conv.lastMsg||'';if(preview.startsWith('[voice:'))preview='🎙️ ვოისი';else if(preview.startsWith('[dmimg]'))preview='📷 ფოტო';else if(preview.startsWith('[dmfile:'))preview='📎 ფაილი';else if(preview.startsWith('[reply:'))preview=preview.replace(/^\[reply:[^\]]+\][^\]]*\]/,'').substring(0,30);else preview=preview.substring(0,30);d.innerHTML=`<div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div><div class="list-info"><div class="list-name">${esc(conv.nick)}</div><div class="dm-list-last">${esc(preview)}</div></div>${unreadHtml}`;d.onclick=()=>{closeDMList();openDM(uid);};frag.appendChild(d);}el.appendChild(frag);}
+
+/* ===== DM სია — მხოლოდ ისტორია ===== */
+async function loadDMConversations(){
+  // გამოვიტანოთ ყველა შეტყობინება სადაც ME ჩართულია
+  const{data}=await sb.from('direct_messages')
+    .select('sender_id,receiver_id,content,created_at,is_read')
+    .or(`sender_id.eq.${ME.id},receiver_id.eq.${ME.id}`)
+    .order('created_at',{ascending:false});
+  if(!data)return;
+  // გავაერთიანოთ per-partner
+  const seen=new Set();
+  for(const m of data){
+    const partnerId=m.sender_id===ME.id?m.receiver_id:m.sender_id;
+    if(seen.has(partnerId))continue;
+    seen.add(partnerId);
+    // სახელი
+    let partner=allUsers.find(u=>u.id===partnerId);
+    if(!partner){
+      const{data:pd}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',partnerId).single();
+      if(pd){partner=pd;allUsers.push(pd);}
+    }
+    if(!partner)continue;
+    dmConversations[partnerId]={
+      nick:partner.username||'?',
+      avatar:partner.avatar_url||null,
+      emotion:partner.emotion||'😊',
+      lastMsg:m.content||'',
+      lastTime:m.created_at
+    };
+  }
+}
+
+function openDMList(){
+  document.getElementById('dmListOverlay').classList.add('open');
+  renderDMList();
+}
+
+function renderDMList(){
+  const el=document.getElementById('dmUserList');
+  el.innerHTML='';
+  const entries=Object.entries(dmConversations);
+  if(!entries.length){
+    el.innerHTML='<div class="dm-list-empty">✉️ ჯერ პირადი შეტყობინება არ გაქვს</div>';
+    return;
+  }
+  // დალაგება ბოლო შეტყობინების დროით
+  entries.sort((a,b)=>new Date(b[1].lastTime)-new Date(a[1].lastTime));
+  const frag=document.createDocumentFragment();
+  for(const [uid,conv] of entries){
+    const d=document.createElement('div');
+    d.className='dm-list-item';
+    const on=isOnline(allUsers.find(u=>u.id===uid)?.last_seen);
+    const avHtml=conv.avatar
+      ?`<img src="${conv.avatar}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`
+      :(conv.emotion||'😊');
+    const unreadInfo=dmUnread[uid];
+    const unreadHtml=unreadInfo&&unreadInfo.count>0
+      ?`<div class="dm-unread-badge">${unreadInfo.count}</div>`
+      :'';
+    // მოკლე preview
+    let preview=conv.lastMsg||'';
+    if(preview.startsWith('[voice:'))preview='🎙️ ვოისი';
+    else if(preview.startsWith('[dmimg]'))preview='📷 ფოტო';
+    else if(preview.startsWith('[dmfile:'))preview='📎 ფაილი';
+    else if(preview.startsWith('[reply:'))preview=preview.replace(/^\[reply:[^\]]+\][^\]]*\]/,'').substring(0,30);
+    else preview=preview.substring(0,30);
+    d.innerHTML=`
+      <div class="avatar" style="position:relative">${avHtml}${on?'<div class="online-dot"></div>':''}</div>
+      <div class="list-info">
+        <div class="list-name">${esc(conv.nick)}</div>
+        <div class="dm-list-last">${esc(preview)}</div>
+      </div>
+      ${unreadHtml}
+    `;
+    d.onclick=()=>{closeDMList();openDM(uid);};
+    frag.appendChild(d);
+  }
+  el.appendChild(frag);
+}
+
 function closeDMList(){document.getElementById('dmListOverlay').classList.remove('open');}
 function bgCloseDMList(e){if(e.target.id==='dmListOverlay')closeDMList();}
-function toggleDMMinimize(e){if(e&&e.target.closest('.dm-head-btns')&&e.target.id!=='dmMinBtn')return;dmMinimized=!dmMinimized;document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);const minBtn=document.getElementById('dmMinBtn');if(minBtn)minBtn.textContent=dmMinimized?'▲':'—';if(!dmMinimized){removeDMTyping();renderDMTyping();}}
-async function markDMRead(rk){await sb.from('direct_messages').update({is_read:true}).eq('room_key',rk).eq('receiver_id',ME.id).eq('is_read',false);document.querySelectorAll('.dm-status.sent').forEach(el=>{el.textContent='✓✓';el.classList.remove('sent');el.classList.add('read');});}
-async function openDM(uid){if(uid)DM_UID=uid;if(!DM_UID)return;const u=allUsers.find(u=>u.id===DM_UID);document.getElementById('dmTitle').textContent=u?.username||'პირადი';const avHtml=u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u?.emotion||'👤');document.getElementById('dmAv').innerHTML=avHtml;document.getElementById('dmBox').classList.add('open');document.getElementById('dmBox').classList.remove('minimized');dmMinimized=false;document.getElementById('dmMinBtn').textContent='—';clearDMUnread(DM_UID);buildEmojiGrid('dmEmojiGrid','dmInput',false);const rk=[ME.id,DM_UID].sort().join('_');const{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(80);const box=document.getElementById('dmMsgs');box.innerHTML='';(data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;if(data&&data.length){for(const m of data){if(m.id)await refreshDMReactions(m.id);}}markDMRead(rk);if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}dmCh=sb.channel('dm_'+rk).on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},async p=>{if(p.new.sender_id===ME.id)return;appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;if(document.getElementById('dmBox').classList.contains('open')&&!dmMinimized){markDMRead(rk);}else{const sender=allUsers.find(u=>u.id===p.new.sender_id);const nick=sender?.username||'?';addDMUnread(p.new.sender_id,nick);if(sender)showDMNotif(sender,p.new.content||'');}const sender=allUsers.find(u=>u.id===p.new.sender_id);if(sender){dmConversations[sender.id]={nick:sender.username||'?',avatar:sender.avatar_url||null,emotion:sender.emotion||'😊',lastMsg:p.new.content||'',lastTime:p.new.created_at};}}).on('postgres_changes',{event:'UPDATE',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{if(p.new.is_read&&p.new.sender_id===ME.id){const statusEl=document.getElementById('dmstatus_'+p.new.id);if(statusEl){statusEl.textContent='✓✓';statusEl.classList.remove('sent');statusEl.classList.add('read');}}}).subscribe();setupDMTypingChannel(rk);}
-function watchAllDMs(){sb.channel('dm-all-'+ME.id).on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`receiver_id=eq.${ME.id}`},async p=>{const sid=p.new.sender_id;if(sid===DM_UID&&document.getElementById('dmBox').classList.contains('open')&&!dmMinimized)return;let sender=allUsers.find(u=>u.id===sid);if(!sender){const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',sid).single();if(data){sender=data;allUsers.push(data);}}if(!sender)return;addDMUnread(sid,sender.username||'?');dmConversations[sid]={nick:sender.username||'?',avatar:sender.avatar_url||null,emotion:sender.emotion||'😊',lastMsg:p.new.content||'',lastTime:p.new.created_at};showDMNotif(sender,p.new.content||'');}).subscribe();}
-function renderDMContent(content){if(!content)return'';if(content.startsWith('[call:')){const m=content.match(/^\[call:(\w+):([^:]+):([^\]]+)\]/);if(m){const type=m[1],url=m[3];const emoji=type==='video'?'📹':'☎️';const label=type==='video'?'ვიდეო ზარი':'ხმოვანი ზარი';return`<div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:rgba(120,30,200,0.2);border:1px solid rgba(168,85,247,0.3);border-radius:12px;cursor:pointer" onclick="joinCall('${url}')"><span style="font-size:22px">${emoji}</span><div><div style="font-size:12px;font-weight:600;color:#c084fc">${label}</div><div style="font-size:10px;color:var(--text3)">შეხვედრის ბმული</div></div><div style="margin-left:auto;background:rgba(0,200,80,.8);border-radius:8px;padding:5px 12px;font-size:11px;color:#fff">შეერთება</div></div>`;}}if(content.startsWith('[dmimg]')){const src=content.replace('[dmimg]','').replace('[/dmimg]','');return`<img src="${src}" class="dm-img" onclick="window.open('${src}','_blank')" alt="ფოტო">`;}return renderContent(content);}
-async function appendDMMsg(m){const isMe=(m.sender_id===ME.id);const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});const box=document.getElementById('dmMsgs');let senderUser=isMe?null:allUsers.find(u=>u.id===m.sender_id);if(!isMe&&!senderUser){const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',m.sender_id).single();if(data){senderUser=data;allUsers.push(data);}}const senderNick=senderUser?.username||'';let replyHtml='',displayContent=m.content;if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}}const bubbleContent=renderDMContent(displayContent);const msgId=m.id;const reactId=msgId?('dmreact_'+msgId):('dmreact_tmp_'+Date.now());const statusHtml=isMe&&msgId?`<span class="dm-status ${m.is_read?'read':'sent'}" id="dmstatus_${msgId}">${m.is_read?'✓✓':'✓'}</span>`:'';const wrapper=document.createElement('div');wrapper.className='dm-msg-wrap';if(msgId)wrapper.id='dmmsg_'+msgId;wrapper.innerHTML=`<div class="dm-bubble-row${isMe?' me':''}"><div class="dm-bubble${isMe?' me':''}">${!isMe&&senderNick?`<div style="font-size:10px;font-weight:600;color:var(--indigo2);margin-bottom:3px">${esc(senderNick)}</div>`:''} ${replyHtml}${bubbleContent}<span style="display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:3px"><span class="dm-time">${t}</span>${statusHtml}</span>${msgId?`<span class="dm-react-trigger${isMe?' me-side':''}" title="რეაქცია">😊</span>`:''}</div></div><div class="dm-reactions-row${isMe?' me':''}" id="${reactId}"></div>`;const bubble=wrapper.querySelector('.dm-bubble');if(msgId){let lpt;bubble.addEventListener('touchstart',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;lpt=setTimeout(()=>showDMQuickReact(msgId,bubble,isMe),600);},{passive:true});bubble.addEventListener('touchend',()=>clearTimeout(lpt));bubble.addEventListener('touchmove',()=>clearTimeout(lpt),{passive:true});bubble.addEventListener('contextmenu',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;ev.preventDefault();showDMQuickReact(msgId,bubble,isMe);});const reactTrig=wrapper.querySelector('.dm-react-trigger');if(reactTrig)reactTrig.addEventListener('click',ev=>{ev.stopPropagation();showDMQuickReact(msgId,reactTrig,isMe);});}bubble.addEventListener('dblclick',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;const nick=isMe?(MYPROF?.username||'?'):(senderUser?.username||'?');setDMReply(nick,displayContent);});box.appendChild(wrapper);}
-async function sendDM(){const inp=document.getElementById('dmInput');let txt=inp.value.trim();if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}const rk=[ME.id,DM_UID].sort().join('_');const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt,is_read:false}).select('id').single();if(error){toast('❌ '+error.message);return;}if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString(),is_read:false});document.getElementById('dmMsgs').scrollTop=9999;const partner=allUsers.find(u=>u.id===DM_UID);if(partner){dmConversations[DM_UID]={nick:partner.username||'?',avatar:partner.avatar_url||null,emotion:partner.emotion||'😊',lastMsg:txt,lastTime:new Date().toISOString()};}}
+function toggleDMMinimize(e){if(e&&e.target.closest('.dm-head-btns'))return;dmMinimized=!dmMinimized;document.getElementById('dmBox').classList.toggle('minimized',dmMinimized);document.getElementById('dmMinBtn').textContent=dmMinimized?'▲':'—';if(!dmMinimized){removeDMTyping();renderDMTyping();}}
+
+async function markDMRead(rk){
+  await sb.from('direct_messages').update({is_read:true}).eq('room_key',rk).eq('receiver_id',ME.id).eq('is_read',false);
+  document.querySelectorAll('.dm-status.sent').forEach(el=>{el.textContent='✓✓';el.classList.remove('sent');el.classList.add('read');});
+}
+
+async function openDM(uid){
+  if(uid)DM_UID=uid;if(!DM_UID)return;
+  const u=allUsers.find(u=>u.id===DM_UID);
+  document.getElementById('dmTitle').textContent=u?.username||'პირადი';
+  const avHtml=u?.avatar_url?`<img src="${u.avatar_url}" style="width:100%;height:100%;object-fit:cover;border-radius:50%">`:(u?.emotion||'👤');
+  document.getElementById('dmAv').innerHTML=avHtml;
+  document.getElementById('dmBox').classList.add('open');
+  document.getElementById('dmBox').classList.remove('minimized');dmMinimized=false;
+  document.getElementById('dmMinBtn').textContent='—';
+  // წაუკითხავი გასუფთავება
+  clearDMUnread(DM_UID);
+  buildEmojiGrid('dmEmojiGrid','dmInput',false);
+  const rk=[ME.id,DM_UID].sort().join('_');
+  const{data}=await sb.from('direct_messages').select('*').eq('room_key',rk).order('created_at',{ascending:true}).limit(80);
+  const box=document.getElementById('dmMsgs');box.innerHTML='';
+  (data||[]).forEach(m=>appendDMMsg(m));box.scrollTop=box.scrollHeight;
+  if(data&&data.length){for(const m of data){if(m.id)await refreshDMReactions(m.id);}}
+  markDMRead(rk);
+  if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}
+  dmCh=sb.channel('dm_'+rk)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},async p=>{
+      if(p.new.sender_id===ME.id)return;
+      appendDMMsg(p.new);document.getElementById('dmMsgs').scrollTop=9999;
+      if(document.getElementById('dmBox').classList.contains('open')&&!dmMinimized){
+        markDMRead(rk);
+      } else {
+        // badge per sender
+        const sender=allUsers.find(u=>u.id===p.new.sender_id);
+        const nick=sender?.username||'?';
+        addDMUnread(p.new.sender_id,nick);
+        // pop-up notification
+        if(sender)showDMNotif(sender, p.new.content||'');
+      }
+      // conversation list განახლება
+      const sender=allUsers.find(u=>u.id===p.new.sender_id);
+      if(sender){
+        dmConversations[sender.id]={
+          nick:sender.username||'?',
+          avatar:sender.avatar_url||null,
+          emotion:sender.emotion||'😊',
+          lastMsg:p.new.content||'',
+          lastTime:p.new.created_at
+        };
+      }
+    })
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'direct_messages',filter:`room_key=eq.${rk}`},p=>{
+      if(p.new.is_read&&p.new.sender_id===ME.id){
+        const statusEl=document.getElementById('dmstatus_'+p.new.id);
+        if(statusEl){statusEl.textContent='✓✓';statusEl.classList.remove('sent');statusEl.classList.add('read');}
+      }
+    })
+    .subscribe();
+  setupDMTypingChannel(rk);
+}
+
+// Global DM listener — ახალი შეტყობინება სხვა conversation-დანაც
+function watchAllDMs(){
+  sb.channel('dm-all-'+ME.id)
+    .on('postgres_changes',{event:'INSERT',schema:'public',table:'direct_messages',filter:`receiver_id=eq.${ME.id}`},async p=>{
+      const sid=p.new.sender_id;
+      if(sid===DM_UID&&document.getElementById('dmBox').classList.contains('open')&&!dmMinimized)return;
+      // sender info
+      let sender=allUsers.find(u=>u.id===sid);
+      if(!sender){
+        const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',sid).single();
+        if(data){sender=data;allUsers.push(data);}
+      }
+      if(!sender)return;
+      // badge
+      addDMUnread(sid,sender.username||'?');
+      // conversation update
+      dmConversations[sid]={
+        nick:sender.username||'?',
+        avatar:sender.avatar_url||null,
+        emotion:sender.emotion||'😊',
+        lastMsg:p.new.content||'',
+        lastTime:p.new.created_at
+      };
+      // pop-up
+      showDMNotif(sender,p.new.content||'');
+    })
+    .subscribe();
+}
+
+function renderDMContent(content){if(!content)return'';if(content.startsWith('[dmimg]')){const src=content.replace('[dmimg]','').replace('[/dmimg]','');return`<img src="${src}" class="dm-img" onclick="window.open('${src}','_blank')" alt="ფოტო">`;}const fm=content.match(/^\[dmfile:([^\]]+)\]([\s\S]+)\[\/dmfile\]$/);if(fm){const fname=fm[1],fdata=fm[2];return`<div style="display:flex;align-items:center;gap:8px;padding:6px 10px;background:var(--indigo-f);border:1px solid var(--border);border-radius:10px;margin-top:4px;cursor:pointer" onclick="downloadDMFile('${encodeURIComponent(fdata)}','${fname}')">📎 <span style="font-size:12px;color:var(--text)">${esc(fname)}</span></div>`;}if(content.startsWith('[voice:'))return renderVoiceContent(content);return renderContent(content);}
+function downloadDMFile(encodedData,fname){const a=document.createElement('a');a.href=decodeURIComponent(encodedData);a.download=fname;a.click();}
+
+async function appendDMMsg(m){
+  const isMe=(m.sender_id===ME.id);
+  const t=new Date(m.created_at).toLocaleTimeString('ka-GE',{hour:'2-digit',minute:'2-digit'});
+  const box=document.getElementById('dmMsgs');
+  let senderUser=isMe?null:allUsers.find(u=>u.id===m.sender_id);
+  if(!isMe&&!senderUser){
+    const{data}=await sb.from('profiles').select('id,username,avatar_url,emotion').eq('id',m.sender_id).single();
+    if(data){senderUser=data;allUsers.push(data);}
+  }
+  const senderNick=senderUser?.username||'';
+  let replyHtml='',displayContent=m.content;
+  if(m.content&&m.content.startsWith('[reply:')){const rMatch=m.content.match(/^\[reply:([^\]]+)\|([^\]]*)\]([\s\S]*)$/);if(rMatch){replyHtml=`<div style="border-left:2px solid var(--accent);padding:3px 8px;margin-bottom:4px;font-size:10px;color:var(--text3)"><strong style="color:var(--indigo2)">${esc(rMatch[1])}</strong><br>${esc(rMatch[2].substring(0,40))}</div>`;displayContent=rMatch[3];}}
+  const bubbleContent=renderDMContent(displayContent);
+  const msgId=m.id;
+  const reactId=msgId?('dmreact_'+msgId):('dmreact_tmp_'+Date.now());
+  const statusHtml=isMe&&msgId?`<span class="dm-status ${m.is_read?'read':'sent'}" id="dmstatus_${msgId}">${m.is_read?'✓✓':'✓'}</span>`:'';
+  const wrapper=document.createElement('div');
+  wrapper.className='dm-msg-wrap';
+  if(msgId)wrapper.id='dmmsg_'+msgId;
+  wrapper.innerHTML=`
+    <div class="dm-bubble-row${isMe?' me':''}">
+      <div class="dm-bubble${isMe?' me':''}">
+        ${!isMe&&senderNick?`<div style="font-size:10px;font-weight:600;color:var(--indigo2);margin-bottom:3px">${esc(senderNick)}</div>`:''}
+        ${replyHtml}${bubbleContent}
+        <span style="display:flex;align-items:center;justify-content:flex-end;gap:3px;margin-top:3px">
+          <span class="dm-time">${t}</span>${statusHtml}
+        </span>
+        ${msgId?`<span class="dm-react-trigger${isMe?' me-side':''}" title="რეაქცია">😊</span>`:''}
+      </div>
+    </div>
+    <div class="dm-reactions-row${isMe?' me':''}" id="${reactId}"></div>
+  `;
+  const bubble=wrapper.querySelector('.dm-bubble');
+  if(msgId){
+    let lpt;
+    bubble.addEventListener('touchstart',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;lpt=setTimeout(()=>showDMQuickReact(msgId,bubble,isMe),600);},{passive:true});
+    bubble.addEventListener('touchend',()=>clearTimeout(lpt));
+    bubble.addEventListener('touchmove',()=>clearTimeout(lpt),{passive:true});
+    bubble.addEventListener('contextmenu',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;ev.preventDefault();showDMQuickReact(msgId,bubble,isMe);});
+    const reactTrig=wrapper.querySelector('.dm-react-trigger');
+    if(reactTrig)reactTrig.addEventListener('click',ev=>{ev.stopPropagation();showDMQuickReact(msgId,reactTrig,isMe);});
+  }
+  bubble.addEventListener('dblclick',ev=>{if(ev.target.classList.contains('dm-react-trigger'))return;const nick=isMe?(MYPROF?.username||'?'):(senderUser?.username||'?');setDMReply(nick,displayContent);});
+  box.appendChild(wrapper);
+}
+
+async function sendDM(){
+  const inp=document.getElementById('dmInput');let txt=inp.value.trim();
+  if(!txt||!DM_UID)return;inp.value='';animateSendPlane('dmSendBtn');
+  if(dmReplyTo){txt=`[reply:${dmReplyTo.nick}|${dmReplyTo.content}]${txt}`;cancelDMReply();}
+  const rk=[ME.id,DM_UID].sort().join('_');
+  const{data,error}=await sb.from('direct_messages').insert({room_key:rk,sender_id:ME.id,receiver_id:DM_UID,content:txt,is_read:false}).select('id').single();
+  if(error){toast('❌ '+error.message);return;}
+  if(data)appendDMMsg({id:data.id,sender_id:ME.id,content:txt,created_at:new Date().toISOString(),is_read:false});
+  document.getElementById('dmMsgs').scrollTop=9999;
+  // conversation update
+  const partner=allUsers.find(u=>u.id===DM_UID);
+  if(partner){
+    dmConversations[DM_UID]={
+      nick:partner.username||'?',
+      avatar:partner.avatar_url||null,
+      emotion:partner.emotion||'😊',
+      lastMsg:txt,
+      lastTime:new Date().toISOString()
+    };
+  }
+}
+
 function closeDM(){document.getElementById('dmBox').classList.remove('open','minimized');document.getElementById('dmEmojiPanel').classList.remove('open');document.getElementById('dmBadge').textContent='';document.getElementById('dmBadge').classList.remove('show');DM_UID=null;dmMinimized=false;if(dmCh){try{sb.removeChannel(dmCh);}catch(e){}dmCh=null;}if(dmTypingCh){try{sb.removeChannel(dmTypingCh);}catch(e){}dmTypingCh=null;}removeDMTyping();cancelDMReply();}
 function openDMfromProfile(){closeModal('profileOverlay');openDM(VIEW_UID);}
 
 /* ===================== NAV/UI ===================== */
-function showPanel(name){
-  ['rooms','friends','users','online'].forEach(p=>{
-    document.getElementById('panel'+cap(p))?.classList.toggle('hidden',p!==name);
-    document.getElementById('nav'+cap(p))?.classList.toggle('active',p===name);
-  });
-  document.getElementById('navDM')?.classList.remove('active');
-  if(window.innerWidth<=640)document.getElementById('sidebar').classList.add('mob-open');
-  if(name==='friends'){loadFriends();checkFriendReqs();loadFriendReqsSidebar();}
-  if(name==='users'||name==='online')loadAllUsers();
-}
+function showPanel(name){['rooms','friends','users','online'].forEach(p=>{document.getElementById('panel'+cap(p))?.classList.toggle('hidden',p!==name);document.getElementById('nav'+cap(p))?.classList.toggle('active',p===name);});document.getElementById('navDM')?.classList.remove('active');if(window.innerWidth<=640)document.getElementById('sidebar').classList.add('mob-open');if(name==='friends')loadFriends();if(name==='users'||name==='online')loadAllUsers();}
 function toggleSidebar(){document.getElementById('sidebar').classList.toggle('mob-open');}
 function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
 function spawnHearts(){const hc=document.getElementById('hearts');if(!hc)return;const emojis=['💜','🌸','💙','🌺','💚','🌷','💗','🌼','💕','🌻','💖','🌿'];let active=0;const MAX=35;function make(){if(active>=MAX)return;const h=document.createElement('div');h.className='heart';h.textContent=emojis[Math.floor(Math.random()*emojis.length)];const leftPct=Math.random()*100,drift=(Math.random()-0.5)*80,dur=8+Math.random()*10,size=1.2+Math.random()*1.4;h.style.cssText=`left:${leftPct}%;font-size:${size}rem;animation-duration:${dur}s;--drift:${drift}px`;hc.appendChild(h);active++;setTimeout(()=>{h.remove();active--;},(dur+0.5)*1000);}for(let i=0;i<15;i++)setTimeout(make,i*250);setInterval(()=>{if(active<MAX)make();},1800);}
@@ -1578,29 +1424,6 @@ async function loadProf(uid){const{data}=await sb.from('profiles').select('*').e
 async function loadEmojis(){const{data,error}=await sb.from('global_emojis').select('id,url').order('id',{ascending:true});if(error){customEmojis=[];return;}customEmojis=data||[];emojiCache={};customEmojis.forEach(e=>{emojiCache[e.id]=e.url;});}
 async function logout(){await sb.auth.signOut();location.href='index.html';}
 
-/* ===================== NOTIFICATIONS WATCH ===================== */
-function watchNotifications(){
-  if(notifCh){try{sb.removeChannel(notifCh);}catch(e){}notifCh=null;}
-  notifCh=sb.channel('notifs-'+ME.id)
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications',filter:`user_id=eq.${ME.id}`},async payload=>{
-      const n=payload.new;
-      const fromUser=allUsers.find(u=>u.id===n.from_uid)||{username:'?',emotion:'👤'};
-      const{data:all}=await sb.from('notifications').select('id').eq('user_id',ME.id).eq('is_read',false);
-      updateBellBadge((all||[]).length);
-      let msg='🔔 ახალი შეტყობინება';
-      if(n.type==='friend_request')msg=`👥 ${fromUser.username} გვინდა მეგობრად!`;
-      else if(n.type==='friend_accept')msg=`✅ ${fromUser.username} დაეთანხმა!`;
-      else if(n.type==='photo_like')msg=`${n.data?.emoji||'❤️'} ${fromUser.username} მოიწონა ფოტო!`;
-      else if(n.type==='photo_comment')msg=`💬 ${fromUser.username} კომენტარი: "${(n.data?.comment||'').substring(0,20)}"`;
-      toast(msg);
-      if(notifPanelOpen)loadNotifications();
-    })
-    .subscribe();
-}
-document.addEventListener('click',e=>{
-  if(notifPanelOpen&&!document.getElementById('notifPanel').contains(e.target)&&!document.getElementById('bellBtn').contains(e.target)){closeNotifPanel();}
-});
-
 /* ===================== INIT ===================== */
 async function init(){
   document.body.classList.add('night');
@@ -1609,149 +1432,26 @@ async function init(){
   const{data:{user}}=await sb.auth.getUser();
   if(!user){location.href='index.html';return;}
   ME=user;MYPROF=await loadProf(ME.id);
-  if(!MYPROF){
-    const meta=user.user_metadata||{};
-    const username=meta.username||meta.name||meta.full_name||user.email?.split('@')[0]||'user_'+Math.floor(Math.random()*9999);
-    await sb.from('profiles').insert({id:ME.id,username,role:'member',emotion:'😊'});
-    MYPROF=await loadProf(ME.id);
-  }
+  if(!MYPROF){const meta=user.user_metadata||{};const username=meta.username||meta.name||meta.full_name||user.email?.split('@')[0]||'user_'+Math.floor(Math.random()*9999);await sb.from('profiles').insert({id:ME.id,username,role:'member',emotion:'😊'});MYPROF=await loadProf(ME.id);}
   if(MYPROF?.is_blocked){alert('დაბლოკილია: '+(MYPROF.block_reason||''));await sb.auth.signOut();location.href='index.html';return;}
   if(MYPROF?.theme)loadSavedTheme(MYPROF.theme);else loadSavedTheme(null);
-
-  // ✅ buildRooms — ახლა სწორია!
-  buildRooms();
-
-  await loadEmojis();
-  buildEmojis();
-  spawnHearts();
-
-  // პირველი ოთახის ჩატვირთვა
-  const firstNormal=ROOMS.find(r=>!r.isGame&&!r.isExternal&&!r.isTest);
-  if(firstNormal){
-    ROOM=firstNormal.id;
-    loadMessages(firstNormal.id);
-    document.getElementById('roomTitle').textContent=firstNormal.name;
-    document.getElementById('roomIcon').textContent=firstNormal.icon;
-  }
-
+  buildRooms();await loadEmojis();buildEmojis();spawnHearts();
+  switchRoom(ROOMS[0],document.querySelector('.room-item'));
   await loadAllUsers();
+  // DM ისტორია — ვისთანაც შეტყობინება გაქვს
   await loadDMConversations();
   await pingOnline();
-  await loadNotifications();
-  watchNotifications();
-  setInterval(async()=>{
-    await pingOnline();
-    const idx=allUsers.findIndex(u=>u.id===ME.id);
-    if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();
-    updateOnlineBadge();
-    renderUserLists();
-  },20000);
+  setInterval(async()=>{await pingOnline();const idx=allUsers.findIndex(u=>u.id===ME.id);if(idx>=0)allUsers[idx].last_seen=new Date().toISOString();updateOnlineBadge();renderUserLists();},20000);
   setInterval(loadAllUsers,30000);
   setInterval(checkFriendReqs,60000);
-  checkFriendReqs();
-  watchFriendRequests();
-  watchGameScore();
+  checkFriendReqs();watchFriendRequests();watchGameScore();
+  // Global DM watcher
   watchAllDMs();
-  sb.channel('profiles-watch').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{
-    const idx=allUsers.findIndex(u=>u.id===payload.new.id);
-    if(idx>=0)allUsers[idx]={...allUsers[idx],...payload.new};
-    else allUsers.push(payload.new);
-    updateOnlineBadge();
-    if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateGameScoreUI();}
-  }).subscribe();
-  sb.channel('emoji-watch')
-    .on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},async payload=>{
-      if(!emojiCache[payload.new.id]){emojiCache[payload.new.id]=payload.new.url;customEmojis.push(payload.new);}
-      buildEmojis();
-    })
-    .on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async payload=>{
-      customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);
-      delete emojiCache[payload.old.id];
-      buildEmojis();
-    })
-    .subscribe();
+  sb.channel('profiles-watch').on('postgres_changes',{event:'UPDATE',schema:'public',table:'profiles'},payload=>{const idx=allUsers.findIndex(u=>u.id===payload.new.id);if(idx>=0)allUsers[idx]={...allUsers[idx],...payload.new};else allUsers.push(payload.new);updateOnlineBadge();if(payload.new.id===ME?.id){MYPROF={...MYPROF,...payload.new};updateGameScoreUI();}}).subscribe();
+  sb.channel('emoji-watch').on('postgres_changes',{event:'INSERT',schema:'public',table:'global_emojis'},async payload=>{if(!emojiCache[payload.new.id]){emojiCache[payload.new.id]=payload.new.url;customEmojis.push(payload.new);}buildEmojis();}).on('postgres_changes',{event:'DELETE',schema:'public',table:'global_emojis'},async payload=>{customEmojis=customEmojis.filter(e=>e.id!==payload.old.id);delete emojiCache[payload.old.id];buildEmojis();}).subscribe();
   setTimeout(()=>toast('👋 გამარჯობა, '+(MYPROF?.username||'')+'!'),800);
 }
 init();
-  // ფუნქცია, რომელიც ბაზაში ჩაწერს სტუმრობას
-// 1. შესწორებული ფუნქცია (logProfileVisit)
-// მენიუს გამოჩენა/დამალვა თვალზე დაჭერისას
-function toggleVisitorsMenu() {
-  const dropdown = document.getElementById('visitors-dropdown');
-  if (dropdown) {
-    dropdown.classList.toggle('hidden');
-    if (!dropdown.classList.contains('hidden')) {
-      loadMyProfileVisitors(); // ყოველ გახსნაზე ახლიდან წამოიღოს ბაზიდან
-    }
-  }
-}
-
-// სტუმრობის ჩაწერა (უსაფრთხო ვერსია)
-async function logProfileVisit(targetUserId) {
-  if (typeof ME === 'undefined' || !ME || !ME.id || targetUserId === ME.id) return;
-  try {
-    await sb.from('profile_visitors').insert([
-      { profile_id: targetUserId, visitor_id: ME.id }
-    ]);
-  } catch (err) {
-    console.error("სტუმრობის ჩაწერა ვერ მოხერხდა:", err);
-  }
-}
-
-// სტუმრების წაკითხვა და ჩვენება (უსაფრთხო ვერსია)
-async function loadMyProfileVisitors() {
-  if (typeof ME === 'undefined' || !ME || !ME.id) return;
-  try {
-    const { data, error } = await sb
-      .from('profile_visitors')
-      .select(`
-        id,
-        visited_at,
-        visitor:profiles!visitor_id (id, username, avatar_url)
-      `)
-      .eq('profile_id', ME.id)
-      .order('visited_at', { ascending: false })
-      .limit(6);
-
-    if (error) throw error;
-
-    const container = document.getElementById('visitors-container');
-    if (!container) return;
-
-    if (!data || data.length === 0) {
-      container.innerHTML = `<p style="font-size: 11px; color: var(--text3); text-align: center; padding: 10px 0;">სტუმრები ჯერ არ გყავს</p>`;
-      return;
-    }
-
-    container.innerHTML = data.map(v => {
-      const visitorInfo = v.visitor;
-      if (!visitorInfo) return '';
-      const visitDate = new Date(v.visited_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-      const avatar = visitorInfo.avatar_url || 'https://placehold.co/100';
-
-      return `
-        <div style="display: flex; align-items: center; gap: 8px; padding: 6px; border-radius: 8px; transition: background 0.2s; cursor: pointer;" 
-             onclick="if(typeof openUserProfile === 'function') openUserProfile('${visitorInfo.id}'); else if(typeof showUserProfile === 'function') showUserProfile('${visitorInfo.id}');">
-          <img src="${avatar}" style="width: 28px; height: 28px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border);">
-          <div style="display: flex; flex-direction: column; align-items: flex-start;">
-            <span style="font-size: 11px; font-weight: 600; color: var(--text);">${visitorInfo.username}</span>
-            <span style="font-size: 9px; color: var(--text3);">ნახა: ${visitDate}</span>
-          </div>
-        </div>
-      `;
-    }).join('');
-  } catch (err) {
-    console.error("სტუმრების წაკითხვა ვერ მოხერხდა:", err);
-  }
-}
-
-// ჩავრთოთ მხოლოდ მაშინ, როცა აპლიკაცია სრულად მზადაა (6 წამში)
-setTimeout(() => {
-  loadMyProfileVisitors();
-}, 6000);
-</script>
-</body>
-</html>
 </script>
 </body>
 </html>
