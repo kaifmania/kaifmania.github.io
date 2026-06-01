@@ -1,3 +1,4 @@
+cat > /mnt/user-data/outputs/checkers.html << 'ENDOFFILE'
 <!DOCTYPE html>
 <html lang="ka">
 <head>
@@ -355,19 +356,17 @@ let timerInt = null, timerSec = 30;
 let chatTypTimer = null, chatChReady = false;
 let gameOver = false;
 let lastFrom = null, lastTo = null;
-
-// ========== მთავარი ფიქსი ==========
-// myColor: 1 = წითელი (player_white / მომწვევი), 2 = ლურჯი (player_black / მიწვეული)
 let myColor = 1;
-// ====================================
+
+// ===== FIX: echo-ს გამოვრიცხოთ =====
+// ჩვენ მიერ გაგზავნილი ბოლო DB update-ის timestamp
+let lastSaveTimestamp = null;
 
 /* ===== BOARD DATA ===== */
 function initBoard() {
   board = Array.from({length:8},()=>Array(8).fill(null));
-  // player 2 (ლურჯი) — ზემოთ (rows 0-2)
   for(let r=0;r<3;r++) for(let c=0;c<8;c++)
     if((r+c)%2===1) board[r][c]={player:2,king:false};
-  // player 1 (წითელი) — ქვემოთ (rows 5-7)
   for(let r=5;r<8;r++) for(let c=0;c<8;c++)
     if((r+c)%2===1) board[r][c]={player:1,king:false};
 }
@@ -491,7 +490,6 @@ function renderBoard(){
     d.textContent=i; rc.appendChild(d);
   }
 
-  // მხოლოდ ამჟამინდელი მოთამაშის სვლები ვაჩვენოთ
   const{moves:allM,mc}=getAllMoves(board,currentTurn);
   mustCapture=mc?allM:[];
 
@@ -509,7 +507,6 @@ function renderBoard(){
     if(pc){
       const pd=document.createElement('div');
       pd.className='piece p'+pc.player;
-      // მხოლოდ საკუთარი ქვები არის selectable
       const isMyPiece = pc.player === myColor;
       const isMyTurn = currentTurn === myColor;
       const canSel = !gameOver && isMyPiece && isMyTurn &&
@@ -527,7 +524,6 @@ function renderBoard(){
 /* ===== GAME LOGIC ===== */
 function onCellClick(r,c){
   if(gameOver) return;
-  // მხოლოდ საკუთარი ჯერზე
   if(currentTurn !== myColor) return;
 
   const pc=board[r][c];
@@ -574,8 +570,7 @@ function executeMove(mv,isAI=false){
   if(gameMode==='pvp'&&gameId){
     savePvpState(nextTurn);
     if(!checkWin()){
-      // სვლა გავაკეთე — ველოდებით მოწინAAРМდეგეს
-      setStatus('⏳ მოწინAAРМდეგეს ელოდე...');
+      setStatus('⏳ მოწინაღდეგეს ელოდე...');
       stopTimer();
     }
   } else if(!checkWin()){
@@ -584,7 +579,7 @@ function executeMove(mv,isAI=false){
       setTimeout(doAIMove,500+aiDifficulty*200);
     } else {
       const isMyTurn = currentTurn === myColor;
-      setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინAAРМდეგის ჯერი');
+      setStatus(isMyTurn?'🔴 შენი ჯერია':'🔵 მოწინაღდეგის ჯერი');
       if(isMyTurn) resetTimer();
     }
   }
@@ -608,7 +603,6 @@ function checkWin(){
 
 async function endGame(winner){
   gameOver=true; stopTimer();
-  // iWon: winner ფერი == ჩემი ფერი
   const iWon = winner === myColor;
   const sb2=document.getElementById('statusBar');
   sb2.className='status-bar win';
@@ -632,7 +626,7 @@ async function endGame(winner){
     if(gameMode==='pvp'&&gameId){
       await sb.from('checkers_games').update({
         status:'finished',
-        winner_id: winner===1?(opponentProf?.id||null):ME.id
+        winner_id: winner===myColor ? ME.id : (opponentProf?.id||null)
       }).eq('id',gameId);
     }
   },600);
@@ -678,12 +672,19 @@ function updateTimerUI(){
   tv.className='timer-val'+(timerSec<=10?' warn':'');
 }
 
-/* ===== PVP SUPABASE ===== */
+/* ===== PVP SUPABASE =====
+   FIX: lastSaveTimestamp გამოვიყენეთ echo-ს გამოსარიცხად.
+   savePvpState-ი ინახავს timestamp-ს, watchPvpGame კი
+   ამ timestamp-ს ადარებს incoming-ს — ჩვენივე echo-ს ვიგნორებთ.
+*/
 async function savePvpState(nextTurn){
   if(!gameId) return;
+  const ts = new Date().toISOString();
+  lastSaveTimestamp = ts;
   await sb.from('checkers_games').update({
     board: board,
     turn: nextTurn===1?'white':'black',
+    updated_at: ts
   }).eq('id',gameId);
 }
 
@@ -694,11 +695,14 @@ function watchPvpGame(gid){
       const g=p.new;
       if(g.status==='finished') return;
 
+      // FIX: ჩვენივე echo-ს ვიგნორებთ — updated_at ემთხვევა ჩვენს ბოლო save-ს
+      if(g.updated_at && lastSaveTimestamp && g.updated_at === lastSaveTimestamp){
+        return;
+      }
+
       const incomingTurn = g.turn==='white'?1:2;
 
-      // DB-ს turn = ვისი ჯერია ახლა
-      // განვაახლოთ დაფა ᲛᲮᲝᲚᲝᲓ თუ ეს update მოწინAAРМდეგის სვლიდან მოვიდა
-      // ანუ: DB-ში turn == myColor ნიშნავს "ახლა შენი ჯერია" = მოწინAAРМდეგემ ახლახანს ისვლა
+      // DB turn == myColor ნიშნავს: მოწინაღდეგემ ახლახანს ისვლა, ახლა ჩვენი ჯერია
       if(incomingTurn === myColor){
         board = typeof g.board==='string'?JSON.parse(g.board):g.board;
         currentTurn = incomingTurn;
@@ -708,7 +712,6 @@ function watchPvpGame(gid){
         resetTimer();
         checkWin();
       }
-      // თუ incomingTurn !== myColor — ეს ჩვენი საკუთარი savePvpState-ის echo, ვიგნორებთ
     }).subscribe();
 }
 
@@ -733,7 +736,6 @@ async function openInviteModal(){
 
 async function sendInvite(uid, uname){
   document.getElementById('inviteOverlay').classList.remove('open');
-  // ორივე მიმართულებით ძველი მოწვევები წავშალოთ
   await sb.from('checkers_invites').delete()
     .or(`and(from_id.eq.${ME.id},to_id.eq.${uid}),and(from_id.eq.${uid},to_id.eq.${ME.id})`);
   const{error}=await sb.from('checkers_invites').insert({
@@ -757,10 +759,8 @@ function watchInvites(){
       setTimeout(()=>document.getElementById('invNotif').classList.remove('show'),15000);
     })
     .on('postgres_changes',{event:'UPDATE',schema:'public',table:'checkers_invites'},p=>{
-      // მომწვევი: status=accepted, game_id მოვიდა
       if(p.new.from_id===ME.id&&p.new.status==='accepted'&&p.new.game_id){
-        toast('✅ მოიწვიეს! იწყება...');
-        // მომწვევი = player_white = myColor 1 (წითელი)
+        toast('✅ მიიღეს! იწყება...');
         startPvpGame(p.new.game_id, p.new.to_id, 1);
       }
     }).subscribe();
@@ -771,17 +771,17 @@ async function acceptInvite(){
   if(!pendingInvId||!pendingInvFrom) return;
   initBoard();
   const{data:g,error:gErr}=await sb.from('checkers_games').insert({
-    player_white: pendingInvFrom.id,  // მომწვევი = წითელი
-    player_black: ME.id,               // მიწვეული = ლურჯი
+    player_white: pendingInvFrom.id,
+    player_black: ME.id,
     challenger: pendingInvFrom.id,
     board: board,
     turn: 'white',
-    status: 'active'
+    status: 'active',
+    updated_at: new Date().toISOString()
   }).select().single();
   if(gErr){toast('❌ '+gErr.message);return;}
   await sb.from('checkers_invites').update({status:'accepted',game_id:g.id}).eq('id',pendingInvId);
   opponentProf=pendingInvFrom;
-  // მიწვეული = player_black = myColor 2 (ლურჯი)
   startPvpGame(g.id, pendingInvFrom.id, 2);
 }
 
@@ -794,10 +794,11 @@ async function declineInvite(){
 
 async function startPvpGame(gid, opId, myCol){
   gameId=gid; gameMode='pvp'; gameOver=false;
-  myColor = myCol;        // ← ეს არის ახალი ფიქსი!
-  currentTurn = 1;        // თამაში ყოველთვის white-ით (1) იწყება
+  myColor = myCol;
+  currentTurn = 1;
   selectedCell=null; validMoves=[];
   lastFrom=null; lastTo=null;
+  lastSaveTimestamp=null; // FIX: reset echo tracker
 
   if(!opponentProf){
     const{data:o}=await sb.from('profiles').select('*').eq('id',opId).single();
@@ -808,13 +809,11 @@ async function startPvpGame(gid, opId, myCol){
   const opAv=opponentProf?.avatar_url?`<img src="${opponentProf.avatar_url}">`:(opponentProf?.emotion||'😊');
 
   if(myColor===1){
-    // მე ვარ წითელი (p1)
     document.getElementById('p1Av').innerHTML=myAv;
     document.getElementById('p1Name').textContent=(MYPROF?.username||'შენ')+' 🔴';
     document.getElementById('p2Av').innerHTML=opAv;
     document.getElementById('p2Name').textContent=(opponentProf?.username||'მოწინ.')+' 🔵';
   } else {
-    // მე ვარ ლურჯი (p2) — მარცხნივ ვაჩვენებ მოწინAARmდეგეს, მარჯვნივ — თავს
     document.getElementById('p1Av').innerHTML=opAv;
     document.getElementById('p1Name').textContent=(opponentProf?.username||'მოწინ.')+' 🔴';
     document.getElementById('p2Av').innerHTML=myAv;
@@ -827,13 +826,11 @@ async function startPvpGame(gid, opId, myCol){
   loadLeaderboard();
   watchPvpGame(gid);
 
-  // currentTurn=1 ყოველთვის (თამაში white-ით იწყება)
-  // myColor=1 წითელი იწყებს, myColor=2 ლურჯი ელოდება
   if(myColor===1){
     setStatus('🔴 შენი ჯერია! (წითელი)');
     resetTimer();
   } else {
-    setStatus('⏳ მოწინAAРМდეგეს ელოდე... (შენ ლურჯი ხარ)');
+    setStatus('⏳ მოწინაღდეგეს ელოდე... (შენ ლურჯი ხარ)');
     stopTimer();
   }
   appendSysMsg('👥 PvP თამაში დაიწყო!');
@@ -1009,7 +1006,7 @@ function startAIGame(){
   document.getElementById('diffRow').classList.remove('visible');
   document.getElementById('startAiBtn').classList.remove('visible');
   gameMode='ai'; gameOver=false; gameId=null;
-  myColor=1; // AI-სთან ყოველთვის წითელი ხარ
+  myColor=1;
   initBoard(); currentTurn=1; selectedCell=null; validMoves=[];
   lastFrom=null; lastTo=null;
   const myAv=MYPROF?.avatar_url?`<img src="${MYPROF.avatar_url}">`:(MYPROF?.emotion||'😊');
@@ -1092,3 +1089,5 @@ init();
 </script>
 </body>
 </html>
+ENDOFFILE
+echo "Done: $?"
