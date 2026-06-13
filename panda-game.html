@@ -3,17 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panda Cyber-Warrior - კაიფმანია</title>
+    <title>Panda Jungle Adventure - კაიფმანია</title>
     <style>
-        /* ფერები და ცვლადები აღებულია კაიფმანიას ჩატის დიზაინიდან */
         :root {
-            --bg-color: #0f111a;
-            --panel-bg: rgba(23, 28, 41, 0.85);
-            --neon-accent: #ff0055;
-            --neon-blue: #00f0ff;
+            --bg-color: #0b0e14;
+            --panel-bg: rgba(20, 26, 42, 0.9);
             --neon-green: #39ff14;
+            --neon-blue: #00f0ff;
+            --neon-gold: #ffcc00;
+            --neon-red: #ff3333;
             --text-color: #ffffff;
-            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
@@ -21,7 +20,7 @@
             padding: 0;
             background-color: var(--bg-color);
             color: var(--text-color);
-            font-family: var(--font-family);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -33,105 +32,108 @@
         .game-container {
             position: relative;
             background: var(--panel-bg);
-            border: 2px solid var(--neon-blue);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            border-radius: 12px;
-            padding: 10px;
-            backdrop-filter: blur(10px);
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.25);
+            border-radius: 16px;
+            padding: 15px;
         }
 
         .game-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 10px;
-            padding: 0 5px;
+            margin-bottom: 12px;
         }
 
         h1 {
             margin: 0;
-            font-size: 20px;
+            font-size: 22px;
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            color: var(--neon-accent);
-            text-shadow: 0 0 8px var(--neon-accent);
+            letter-spacing: 1px;
         }
 
-        .stats {
+        .stats-bar {
             display: flex;
             gap: 20px;
             font-weight: bold;
-            font-size: 16px;
+            font-size: 15px;
         }
 
-        #score { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); }
-        #health { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); }
+        .stat-box {
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        #level { color: var(--neon-blue); }
+        #score { color: var(--neon-gold); }
+        #health { color: var(--neon-green); }
 
         canvas {
-            background: #05070f;
-            border-radius: 8px;
+            background: linear-gradient(to bottom, #091a10, #040a06);
+            border-radius: 10px;
             display: block;
-            border: 1px solid rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(57, 255, 20, 0.2);
         }
 
         .controls-hint {
             margin-top: 15px;
             text-align: center;
-            font-size: 14px;
-            color: #8a9fc4;
-            text-shadow: 0 0 2px rgba(0,0,0,0.5);
+            font-size: 13px;
+            color: #a0aec0;
         }
 
         .key {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--neon-blue);
-            padding: 2px 8px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid var(--neon-green);
+            padding: 2px 6px;
             border-radius: 4px;
-            color: var(--neon-blue);
+            color: var(--neon-green);
             font-weight: bold;
         }
 
-        /* Game Over ეკრანი */
-        .game-overlay {
+        .overlay {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 17, 26, 0.85);
+            background: rgba(11, 14, 20, 0.92);
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            border-radius: 12px;
-            backdrop-filter: blur(5px);
+            border-radius: 16px;
+            text-align: center;
         }
 
-        .game-overlay h2 {
-            font-size: 40px;
-            color: var(--neon-accent);
-            text-shadow: 0 0 15px var(--neon-accent);
-            margin-bottom: 20px;
+        .overlay h2 {
+            font-size: 38px;
+            margin-bottom: 10px;
+            text-shadow: 0 0 15px currentColor;
         }
 
-        .btn-restart {
+        .btn {
             background: transparent;
-            border: 2px solid var(--neon-blue);
-            color: var(--neon-blue);
-            padding: 10px 25px;
-            font-size: 18px;
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px 28px;
+            font-size: 16px;
             font-weight: bold;
-            border-radius: 5px;
+            border-radius: 6px;
             cursor: pointer;
-            transition: all 0.3s ease;
             text-transform: uppercase;
-            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+            transition: all 0.3s;
+            margin-top: 15px;
         }
 
-        .btn-restart:hover {
-            background: var(--neon-blue);
+        .btn:hover {
+            background: var(--neon-green);
             color: #000;
-            box-shadow: 0 0 20px var(--neon-blue);
+            box-shadow: 0 0 15px var(--neon-green);
         }
     </style>
 </head>
@@ -139,325 +141,448 @@
 
     <div class="game-container">
         <div class="game-header">
-            <h1>Panda Warrior 🐼⚔️</h1>
-            <div class="stats">
-                <div>Score: <span id="score">0</span></div>
-                <div>HP: <span id="health">100%</span></div>
+            <h1>Panda Warrior: 10 Stages 🐼🎋</h1>
+            <div class="stats-bar">
+                <div class="stat-box">Stage: <span id="level">1/10</span></div>
+                <div class="stat-box">HP: <span id="health">100%</span></div>
+                <div class="stat-box">Score: <span id="score">0</span></div>
             </div>
         </div>
 
-        <canvas id="gameCanvas" width="800" height="400"></canvas>
+        <canvas id="adventureCanvas" width="900" height="450"></canvas>
 
-        <div class="game-overlay" id="gameOverScreen">
-            <h2>GAME OVER</h2>
-            <p style="font-size: 18px; margin-bottom: 20px;">თქვენი ქულა: <span id="finalScore" style="color: var(--neon-blue);">0</span></p>
-            <button class="btn-restart" onclick="resetGame()">თავიდან დაწყება</button>
+        <div class="overlay" id="screenOverlay">
+            <h2 id="overlayTitle" style="color: var(--neon-red);">GAME OVER</h2>
+            <p id="overlayText" style="font-size: 18px; color: #cbd5e0;"></p>
+            <button class="btn" id="overlayBtn" onclick="handleOverlayClick()">გაგრძელება</button>
         </div>
     </div>
 
     <div class="controls-hint">
-        მართვა: <span class="key">Space</span> / <span class="key">W</span> - გახტომა | 
-        <span class="key">F</span> / <span class="key">Left Click</span> - ხმლის დარტყმა (შეტევა)
+        მოქმედება: <span class="key">Space</span> / <span class="key">W</span> - ახტომა | 
+        <span class="key">F</span> / <span class="key">მაუსის კლიკი</span> - ბამბუკის ჯოხის დარტყმა 🎋
     </div>
 
     <script>
-        const canvas = document.getElementById('gameCanvas');
+        const canvas = document.getElementById('adventureCanvas');
         const ctx = canvas.getContext('2d');
-        const scoreEl = document.getElementById('score');
+        
+        // UI ელემენტები
+        const levelEl = document.getElementById('level');
         const healthEl = document.getElementById('health');
-        const gameOverScreen = document.getElementById('gameOverScreen');
-        const finalScoreEl = document.getElementById('finalScore');
+        const scoreEl = document.getElementById('score');
+        const overlay = document.getElementById('screenOverlay');
+        const overlayTitle = document.getElementById('overlayTitle');
+        const overlayText = document.getElementById('overlayText');
+        const overlayBtn = document.getElementById('overlayBtn');
 
-        // თამაშის ძირითადი მდგომარეობა
-        let gameActive = true;
+        // თამაშის პროგრესის სისტემა
+        let currentStage = 1;
+        const maxStages = 10;
         let score = 0;
-        let gameSpeed = 4;
+        let gameActive = true;
+        let overlayMode = ""; // "GAME_OVER", "STAGE_CLEAR", "VICTORY"
 
-        // პანდას (მოთამაშის) ობიექტი
+        // მტრების ტიპები ტურების მიხედვით
+        const enemyTypes = [
+            { name: "გველი", color: "#48bb78", width: 30, height: 25, damage: 15, hp: 1, speedBonus: 0 },
+            { name: "ველური ტახი", color: "#a0aec0", width: 45, height: 40, damage: 25, hp: 2, speedBonus: 1 },
+            { name: "შავი ავაზა", color: "#2d3748", width: 50, height: 35, damage: 35, hp: 2, speedBonus: 2.5 }
+        ];
+
+        // პანდას ობიექტი (რეალური პროპორციებითა და ფერებით)
         const panda = {
-            x: 80,
-            y: 300,
-            width: 45,
-            height: 55,
+            x: 100,
+            y: 330,
+            width: 55,
+            height: 65,
             velocityY: 0,
-            gravity: 0.6,
-            jumpForce: -13,
+            gravity: 0.65,
+            jumpForce: -13.5,
             isJumping: false,
             health: 100,
             isAttacking: false,
             attackTimer: 0,
-            color: '#ffffff'
+            swingAngle: 0
         };
 
-        // მასივები მტრებისა და ეფექტებისთვის
         let enemies = [];
+        let collectibles = []; // ბამბუკი და მონეტები
         let particles = [];
-        let enemySpawnTimer = 0;
+        let spawnTimer = 0;
+        let stageProgress = 0; // რამდენი მეტრი გაიარა მიმდინარე ტურში
+        const stageLength = 2000; // ყოველი ტურის სიგრძე ფრეიმებში
 
-        // კლავიატურის ივენთები
-        const keys = {};
+        // ივენთები
         window.addEventListener('keydown', e => {
-            keys[e.code] = true;
-            if ((e.code === 'Space' || e.code === 'KeyW') && !panda.isJumping && gameActive) {
+            if (!gameActive) return;
+            if ((e.code === 'Space' || e.code === 'KeyW') && !panda.isJumping) {
                 panda.velocityY = panda.jumpForce;
                 panda.isJumping = true;
-                createParticles(panda.x + panda.width/2, panda.y + panda.height, '#00f0ff', 8);
+                createParticles(panda.x + panda.width/2, panda.y + panda.height, '#4a5568', 8);
             }
-            if (e.code === 'KeyF' && !panda.isAttacking && gameActive) {
-                triggerAttack();
+            if (e.code === 'KeyF' && !panda.isAttacking) {
+                useBambooStick();
             }
         });
-        window.addEventListener('keyup', e => keys[e.code] = false);
-        canvas.addEventListener('mousedown', () => { if(gameActive) triggerAttack(); });
+        canvas.addEventListener('mousedown', () => { if(gameActive && !panda.isAttacking) useBambooStick(); });
 
-        function triggerAttack() {
+        function useBambooStick() {
             panda.isAttacking = true;
-            panda.attackTimer = 15; // დარტყმის ხანგრძლივობა (ფრეიმებში)
-            
-            // დარტყმის ტალღის ნაწილაკები
-            createParticles(panda.x + panda.width + 20, panda.y + panda.height/2, '#ff0055', 5);
+            panda.attackTimer = 14;
+            panda.swingAngle = -Math.PI / 3; // ჯოხის მოქნევის კუთხე
         }
 
-        // ნაწილაკების (Particles) სისტემა აფეთქებებისთვის
         function createParticles(x, y, color, count) {
             for (let i = 0; i < count; i++) {
                 particles.push({
-                    x: x,
-                    y: y,
+                    x: x, y: y,
                     size: Math.random() * 4 + 2,
-                    speedX: (Math.random() - 0.5) * 8,
-                    speedY: (Math.random() - 0.5) * 8,
-                    color: color,
-                    alpha: 1
+                    speedX: (Math.random() - 0.5) * 6,
+                    speedY: (Math.random() - 0.5) * 6,
+                    color: color, alpha: 1
                 });
             }
         }
 
-        // მტრების გენერაცია (ბოროტი კიბერ-სამურაები/რობოტები)
-        function spawnEnemy() {
-            enemySpawnTimer++;
-            if (enemySpawnTimer > Math.max(40, 100 - score * 0.5)) { // ქულების მატებასთან ერთად მტრები უფრო ხშირად ჩნდებიან
-                enemySpawnTimer = 0;
+        // ობიექტების (მტრები, ბამბუკები, მონეტები) გენერაცია
+        function generateObjects() {
+            spawnTimer++;
+            
+            // მტრების გაჩენის სიხშირე მატულობს ტურებთან ერთად
+            let spawnInterval = Math.max(35, 90 - currentStage * 5);
+            if (spawnTimer % spawnInterval === 0 && stageProgress < stageLength - 200) {
+                // ვირჩევთ მტერს მიმდინარე ტურის სირთულიდან გამომდინარე
+                let typeIndex = 0;
+                if (currentStage >= 4) typeIndex = Math.floor(Math.random() * 2);
+                if (currentStage >= 7) typeIndex = Math.floor(Math.random() * 3);
+                
+                let t = enemyTypes[typeIndex];
                 enemies.push({
                     x: canvas.width,
-                    y: 310,
-                    width: 35,
-                    height: 45,
-                    color: '#ff0055',
-                    speed: gameSpeed + Math.random() * 2
+                    y: 395 - t.height,
+                    ...t,
+                    speed: (4 + currentStage * 0.4) + t.speedBonus,
+                    currentHp: t.hp
+                });
+            }
+
+            // ბონუსების გაჩენა (მონეტა ან საჭმელი ბამბუკი)
+            if (spawnTimer % 140 === 0 && stageProgress < stageLength - 200) {
+                let isBamboo = Math.random() > 0.65; // 35% შანსი ბამბუკის (ჰილის), 65% მონეტის
+                collectibles.push({
+                    x: canvas.width,
+                    y: isBamboo ? 320 : 220 + Math.random() * 80,
+                    width: 25,
+                    height: 25,
+                    type: isBamboo ? "bamboo" : "coin",
+                    color: isBamboo ? "#39ff14" : "#ffcc00"
                 });
             }
         }
 
-        // მთავარი განახლების ფუნქცია (Logic)
+        // ლოგიკური განახლება
         function update() {
             if (!gameActive) return;
 
-            // გრავიტაცია და პანდას მოძრაობა
+            stageProgress += 2;
+
+            // ტურის დასრულების შემოწმება
+            if (stageProgress >= stageLength) {
+                if (currentStage < maxStages) {
+                    triggerOverlay("STAGE_CLEAR");
+                } else {
+                    triggerOverlay("VICTORY");
+                }
+                return;
+            }
+
+            // ფიზიკა
             panda.velocityY += panda.gravity;
             panda.y += panda.velocityY;
 
-            // მიწასთან შეჯახება
-            if (panda.y > 300) {
-                panda.y = 300;
+            if (panda.y > 330) {
+                panda.y = 330;
                 panda.velocityY = 0;
                 panda.isJumping = false;
             }
 
-            // შეტევის ტაიმერი
+            // ჯოხის ქნევის ანიმაცია
             if (panda.isAttacking) {
+                panda.swingAngle += 0.15;
                 panda.attackTimer--;
                 if (panda.attackTimer <= 0) panda.isAttacking = false;
             }
 
-            // მტრების ლოგიკა
+            // მტრების მართვა
             for (let i = enemies.length - 1; i >= 0; i--) {
                 let e = enemies[i];
                 e.x -= e.speed;
 
-                // შეჯახება პანდას შეტევის ზონასთან (ხმლით კვლა)
+                // ბამბუკის ჯოხის დარტყმის ზონა (შეტევა)
                 if (panda.isAttacking && 
-                    e.x < panda.x + panda.width + 40 && 
-                    e.x + e.width > panda.x && 
-                    e.y < panda.y + panda.height && 
-                    e.y + e.height > panda.y) {
+                    e.x < panda.x + panda.width + 55 && 
+                    e.x + e.width > panda.x + panda.width) {
                     
-                    createParticles(e.x + e.width/2, e.y + e.height/2, '#ff0055', 12);
-                    enemies.splice(i, 1);
-                    score += 10;
-                    scoreEl.innerText = score;
-                    if (score % 50 === 0) gameSpeed += 0.5; // სირთულის მომატება
+                    createParticles(e.x + e.width/2, e.y + e.height/2, e.color, 8);
+                    e.currentHp--;
+                    
+                    if (e.currentHp <= 0) {
+                        enemies.splice(i, 1);
+                        score += e.damage; // ქულები მტრის სიძლიერის მიხედვით
+                        scoreEl.innerText = score;
+                    } else {
+                        e.x += 40; // უკუგდება დარტყმისას (Knockback)
+                    }
+                    panda.isAttacking = false; // ერთი დარტყმით ერთი ზიანი
                     continue;
                 }
 
-                // შეჯახება უშუალოდ პანდასთან (ზიანის მიყენება)
-                if (e.x < panda.x + panda.width && 
-                    e.x + e.width > panda.x && 
+                // პანდასთან შეჯახება (ზიანი)
+                if (e.x < panda.x + panda.width - 5 && 
+                    e.x + e.width > panda.x + 5 && 
                     e.y < panda.y + panda.height && 
                     e.y + e.height > panda.y) {
                     
-                    panda.health -= 20;
-                    createParticles(panda.x + panda.width/2, panda.y + panda.height/2, '#39ff14', 10);
+                    panda.health -= e.damage;
+                    createParticles(panda.x + panda.width/2, panda.y + panda.height/2, '#ff3333', 12);
                     healthEl.innerText = panda.health + '%';
                     enemies.splice(i, 1);
 
                     if (panda.health <= 0) {
-                        endGame();
+                        panda.health = 0;
+                        healthEl.innerText = '0%';
+                        triggerOverlay("GAME_OVER");
                     }
                     continue;
                 }
 
-                // თუ მტერმა გაცდა ეკრანს
-                if (e.x + e.width < 0) {
-                    enemies.splice(i, 1);
-                    score += 1; // გადარჩენისთვის 1 ქულა
-                    scoreEl.innerText = score;
-                }
+                if (e.x + e.width < 0) enemies.splice(i, 1);
             }
 
-            // ნაწილაკების განახლება
+            // ბონუსების მართვა
+            for (let i = collectibles.length - 1; i >= 0; i--) {
+                let c = collectibles[i];
+                c.x -= 4; // გარემოს მოძრაობის სიჩქარე
+
+                if (c.x < panda.x + panda.width && 
+                    c.x + c.width > panda.x && 
+                    c.y < panda.y + panda.height && 
+                    c.y + c.height > panda.y) {
+                    
+                    if (c.type === "bamboo") {
+                        panda.health = Math.min(100, panda.health + 20); // სიცოცხლის მომატება
+                        healthEl.innerText = panda.health + '%';
+                        createParticles(c.x, c.y, '#39ff14', 10);
+                    } else {
+                        score += 50; // ოქროს მონეტის ქულა
+                        scoreEl.innerText = score;
+                        createParticles(c.x, c.y, '#ffcc00', 10);
+                    }
+                    collectibles.splice(i, 1);
+                    continue;
+                }
+
+                if (c.x + c.width < 0) collectibles.splice(i, 1);
+            }
+
+            // ეფექტები
             for (let i = particles.length - 1; i >= 0; i--) {
                 let p = particles[i];
-                p.x += p.speedX;
-                p.y += p.speedY;
-                p.alpha -= 0.02;
+                p.x += p.speedX; p.y += p.speedY;
+                p.alpha -= 0.025;
                 if (p.alpha <= 0) particles.splice(i, 1);
             }
 
-            spawnEnemy();
+            generateObjects();
         }
 
-        // ვიზუალური დახატვის ფუნქცია (Render)
+        // ეკრანზე დახატვა (ვიზუალი)
         function draw() {
-            // ეკრანის გასუფთავება კიბერპანკ ფონით
-            ctx.fillStyle = '#05070f';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            // ნეონის ჰორიზონტალური ხაზები (უკანა ფონი)
-            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
-            ctx.lineWidth = 2;
-            for(let i=0; i<canvas.height; i+=40) {
-                ctx.beginPath();
-                ctx.moveTo(0, i);
-                ctx.lineTo(canvas.width, i);
-                ctx.stroke();
+            // 1. ჯუნგლების უკანა ფონის ხეები და ატმოსფერო
+            ctx.fillStyle = "rgba(16, 44, 26, 0.4)";
+            for (let i = 0; i < canvas.width; i += 120) {
+                let treeX = i - (stageProgress * 0.5 % 120);
+                ctx.fillRect(treeX, 150, 35, 250);
             }
 
-            // მიწის (Ground) დახატვა ნეონის ხაზით
-            ctx.fillStyle = '#0f1322';
-            ctx.fillRect(0, 355, canvas.width, 45);
-            ctx.strokeStyle = varColor('--neon-blue');
+            // მიწა (Ground) ჯუნგლების სტილში
+            ctx.fillStyle = '#0a1f12';
+            ctx.fillRect(0, 395, canvas.width, 55);
+            ctx.strokeStyle = '#39ff14';
             ctx.lineWidth = 3;
-            ctx.shadowBlur = 10;
-            ctx.shadowColor = varColor('--neon-blue');
-            ctx.beginPath();
-            ctx.moveTo(0, 355);
-            ctx.lineTo(canvas.width, 355);
-            ctx.stroke();
-            ctx.shadowBlur = 0; // ჩრდილის მოხსნა სხვა ელემენტებისთვის
+            ctx.beginPath(); ctx.moveTo(0, 395); ctx.lineTo(canvas.width, 395); ctx.stroke();
 
-            // 1. პანდა მეომრის დახატვა (სტილიზებული)
+            // 2. რეალური პანდას ხატვა
             ctx.save();
             ctx.translate(panda.x, panda.y);
-            
-            // პანდას სხეული (თეთრი/შავი კიბერ-ჯავშანი)
-            ctx.fillStyle = '#ffffff';
+
+            // თათები (შავი)
+            ctx.fillStyle = "#1a202c";
+            ctx.fillRect(8, 50, 12, 16);
+            ctx.fillRect(panda.width - 20, 50, 12, 16);
+
+            // სხეული (თეთრი შუაში, შავი მხრებით)
             ctx.beginPath();
-            ctx.arc(panda.width/2, panda.height/2, 22, 0, Math.PI*2);
+            ctx.arc(panda.width/2, 35, 20, 0, Math.PI*2);
+            ctx.fill();
+            ctx.fillStyle = "#ffffff";
+            ctx.beginPath();
+            ctx.arc(panda.width/2, 35, 15, 0, Math.PI*2);
             ctx.fill();
 
-            // შავი ყურები და თვალები
-            ctx.fillStyle = '#11131c';
+            // თავი (დიდი თეთრი პანდას თავი)
+            ctx.fillStyle = "#ffffff";
             ctx.beginPath();
-            ctx.arc(10, 10, 8, 0, Math.PI*2); // მარცხენა ყური
-            ctx.arc(panda.width - 10, 10, 8, 0, Math.PI*2); // მარჯვენა ყური
+            ctx.arc(panda.width/2, 16, 16, 0, Math.PI*2);
             ctx.fill();
+
+            // შავი ყურები
+            ctx.fillStyle = "#1a202c";
+            ctx.beginPath(); ctx.arc(panda.width/2 - 12, 3, 6, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.arc(panda.width/2 + 12, 3, 6, 0, Math.PI*2); ctx.fill();
+
+            // დამახასიათებელი შავი თვალის გარშემო პატჩები
+            ctx.beginPath(); ctx.ellipse(panda.width/2 - 6, 14, 4, 6, Math.PI/6, 0, Math.PI*2); ctx.fill();
+            ctx.beginPath(); ctx.ellipse(panda.width/2 + 6, 14, 4, 6, -Math.PI/6, 0, Math.PI*2); ctx.fill();
             
-            // თვალის პატჩები
-            ctx.fillRect(12, 20, 8, 10);
-            ctx.fillRect(panda.width - 20, 20, 8, 10);
-            // მწვანე მანათობელი კიბერ-თვალები
-            ctx.fillStyle = varColor('--neon-green');
-            ctx.shadowBlur = 8;
-            ctx.shadowColor = varColor('--neon-green');
-            ctx.fillRect(14, 23, 4, 4);
-            ctx.fillRect(panda.width - 18, 23, 4, 4);
+            // პატარა მანათობელი თვალები
+            ctx.fillStyle = "#39ff14";
+            ctx.fillRect(panda.width/2 - 7, 12, 2, 2);
+            ctx.fillRect(panda.width/2 + 5, 12, 2, 2);
+
+            // 🎋 ნამდვილი მწვანე ბამბუკის ჯოხი ხელში
             ctx.restore();
-            ctx.shadowBlur = 0;
-
-            // პანდას ხმალი (Attack Visual)
+            ctx.save();
+            ctx.translate(panda.x + panda.width - 15, panda.y + 32);
             if (panda.isAttacking) {
-                ctx.save();
-                ctx.strokeStyle = varColor('--neon-accent');
-                ctx.lineWidth = 4;
-                ctx.shadowBlur = 15;
-                ctx.shadowColor = varColor('--neon-accent');
-                ctx.beginPath();
-                ctx.moveTo(panda.x + panda.width, panda.y + 10);
-                ctx.lineTo(panda.x + panda.width + 35, panda.y + panda.height/2 + 5);
-                ctx.stroke();
-                ctx.restore();
-                ctx.shadowBlur = 0;
+                ctx.rotate(panda.swingAngle);
             }
+            ctx.strokeStyle = "#2f855a"; // მუქი მწვანე
+            ctx.lineWidth = 5;
+            ctx.beginPath(); ctx.moveTo(0, 10); ctx.lineTo(0, -35); ctx.stroke();
+            // ბამბუკის მუხლები და ფოთლები
+            ctx.strokeStyle = "#48bb78";
+            ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.moveTo(0, -10); ctx.lineTo(6, -14); ctx.moveTo(0, -25); ctx.lineTo(-6, -29); ctx.stroke();
+            ctx.restore();
 
-            // 2. მტრების დახატვა
+            // 3. მტრების დახატვა
             enemies.forEach(e => {
                 ctx.fillStyle = e.color;
-                ctx.shadowBlur = 8;
-                ctx.shadowColor = e.color;
-                // კიბერ რობოტის ფორმა
                 ctx.fillRect(e.x, e.y, e.width, e.height);
-                // მტრის მანათობელი ზოლი
-                ctx.fillStyle = '#00f0ff';
-                ctx.fillRect(e.x + 5, e.y + 10, e.width - 10, 4);
-                ctx.shadowBlur = 0;
+                
+                // მტრების სახიფათო თვალები
+                ctx.fillStyle = "#ff3333";
+                ctx.fillRect(e.x + 6, e.y + 10, 4, 4);
+                
+                // სიცოცხლის ბარი ძლიერ მტრებს
+                if (e.hp > 1) {
+                    ctx.fillStyle = "rgba(0,0,0,0.5)";
+                    ctx.fillRect(e.x, e.y - 10, e.width, 4);
+                    ctx.fillStyle = "#ff3333";
+                    ctx.fillRect(e.x, e.y - 10, e.width * (e.currentHp / e.hp), 4);
+                }
             });
 
-            // 3. ნაწილაკების დახატვა
+            // 4. ბონუსების დახატვა (ოქრო / ბამბუკის საკვები)
+            collectibles.forEach(c => {
+                if (c.type === "bamboo") {
+                    // საკვები ბამბუკის ყლორტი
+                    ctx.fillStyle = "#39ff14";
+                    ctx.fillRect(c.x + 8, c.y, 8, c.height);
+                    ctx.fillStyle = "#2f855a";
+                    ctx.fillRect(c.x + 2, c.y + 6, 14, 4);
+                } else {
+                    // მანათობელი ოქროს მონეტა
+                    ctx.fillStyle = "#ffcc00";
+                    ctx.shadowBlur = 10; ctx.shadowColor = "#ffcc00";
+                    ctx.beginPath(); ctx.arc(c.x + 12, c.y + 12, 10, 0, Math.PI*2); ctx.fill();
+                    ctx.shadowBlur = 0;
+                }
+            });
+
+            // 5. ეფექტების დახატვა
             particles.forEach(p => {
-                ctx.save();
-                ctx.globalAlpha = p.alpha;
+                ctx.save(); ctx.globalAlpha = p.alpha;
                 ctx.fillStyle = p.color;
                 ctx.fillRect(p.x, p.y, p.size, p.size);
                 ctx.restore();
             });
+
+            // ტურის პროგრესის ხაზი (ეკრანის ზედა ნაწილში)
+            ctx.fillStyle = "rgba(255,255,255,0.1)";
+            ctx.fillRect(20, 15, canvas.width - 40, 4);
+            ctx.fillStyle = "#00f0ff";
+            ctx.fillRect(20, 15, (canvas.width - 40) * (stageProgress / stageLength), 4);
         }
 
-        // დამხმარე ფუნქცია CSS ცვლადის მნიშვნელობის წასაკითხად
-        function varColor(name) {
-            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
-        }
-
-        // თამაშის მთავარი ციკლი (Loop)
+        // თამაშის ძირითადი ციკლი
         function gameLoop() {
             update();
             draw();
             requestAnimationFrame(gameLoop);
         }
 
-        function endGame() {
+        // მენიუების მართვა
+        function triggerOverlay(mode) {
             gameActive = false;
-            finalScoreEl.innerText = score;
-            gameOverScreen.style.display = 'flex';
+            overlayMode = mode;
+            overlay.style.display = "flex";
+
+            if (mode === "GAME_OVER") {
+                overlayTitle.innerText = "GAME OVER";
+                overlayTitle.style.color = "var(--neon-red)";
+                overlayText.innerText = `თქვენ დამარცხდით მე-${currentStage} ტურში. დაგროვილი ქულები: ${score}`;
+                overlayBtn.innerText = "თავიდან დაწყება";
+            } else if (mode === "STAGE_CLEAR") {
+                overlayTitle.innerText = `STAGE ${currentStage} CLEAR!`;
+                overlayTitle.style.color = "var(--neon-blue)";
+                overlayText.innerText = `ჯუნგლების ეს ნაწილი უსაფრთხოა. მოემზადე შემდეგი სირთულისთვის!`;
+                overlayBtn.innerText = `ტური ${currentStage + 1}-ის დაწყება`;
+            } else if (mode === "VICTORY") {
+                overlayTitle.innerText = "🎉 სრული გამარჯვება! 🎉";
+                overlayTitle.style.color = "var(--neon-gold)";
+                overlayText.innerText = `თქვენ გაიარეთ 10-ვე ტური და გადაარჩინეთ ჯუნგლები!\nსაბოლოო ქულა: ${score}`;
+                overlayBtn.innerText = "მთავარ გვერდზე დაბრუნება";
+            }
         }
 
-        function resetGame() {
+        function handleOverlayClick() {
+            if (overlayMode === "GAME_OVER") {
+                currentStage = 1;
+                score = 0;
+                resetStage();
+            } else if (overlayMode === "STAGE_CLEAR") {
+                currentStage++;
+                resetStage();
+            } else if (overlayMode === "VICTORY") {
+                window.location.reload(); // ან ჩატში დაბრუნება
+            }
+        }
+
+        function resetStage() {
             gameActive = true;
-            score = 0;
-            gameSpeed = 4;
+            stageProgress = 0;
             panda.health = 100;
-            panda.y = 300;
+            panda.y = 330;
             panda.velocityY = 0;
             panda.isJumping = false;
             panda.isAttacking = false;
             enemies = [];
+            collectibles = [];
             particles = [];
-            scoreEl.innerText = '0';
-            healthEl.innerText = '100%';
-            gameOverScreen.style.display = 'none';
+            spawnTimer = 0;
+            
+            levelEl.innerText = `${currentStage}/10`;
+            healthEl.innerText = "100%";
+            scoreEl.innerText = score;
+            overlay.style.display = "none";
         }
 
-        // თამაშის გაშვება
+        // გაშვება
         gameLoop();
     </script>
 </body>
