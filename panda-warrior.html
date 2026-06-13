@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Panda Warrior</title>
+
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+    background:#000;
+}
+
+#game-ui{
+    position:fixed;
+    top:20px;
+    left:20px;
+    color:white;
+    font-family:Arial;
+    z-index:100;
+}
+
+.bar{
+    width:250px;
+    height:25px;
+    background:#333;
+    border-radius:20px;
+    overflow:hidden;
+    margin-bottom:10px;
+}
+
+.fill{
+    height:100%;
+}
+
+#healthFill{
+    width:100%;
+    background:red;
+}
+
+#score{
+    font-size:22px;
+}
+</style>
+</head>
+
+<body>
+
+<div id="game-ui">
+
+<h2>🐼 Panda Warrior</h2>
+
+<div class="bar">
+<div id="healthFill" class="fill"></div>
+</div>
+
+<div id="score">
+⭐ ქულა: 0
+</div>
+
+</div>
+
+<script type="module">
+
+import * as THREE from "https://unpkg.com/three@0.165.0/build/three.module.js";
+
+const scene = new THREE.Scene();
+
+scene.background = new THREE.Color(0x87ceeb);
+
+const camera = new THREE.PerspectiveCamera(
+75,
+window.innerWidth/window.innerHeight,
+0.1,
+1000
+);
+
+const renderer = new THREE.WebGLRenderer();
+
+renderer.setSize(
+window.innerWidth,
+window.innerHeight
+);
+
+document.body.appendChild(
+renderer.domElement
+);
+
+const light = new THREE.DirectionalLight(
+0xffffff,
+2
+);
+
+light.position.set(10,20,10);
+
+scene.add(light);
+
+const ground = new THREE.Mesh(
+new THREE.PlaneGeometry(100,100),
+new THREE.MeshStandardMaterial({
+color:0x228b22
+})
+);
+
+ground.rotation.x = -Math.PI/2;
+
+scene.add(ground);
+
+const panda = new THREE.Mesh(
+new THREE.BoxGeometry(2,2,2),
+new THREE.MeshStandardMaterial({
+color:0xffffff
+})
+);
+
+panda.position.y = 1;
+
+scene.add(panda);
+
+camera.position.set(0,5,10);
+
+function animate(){
+
+requestAnimationFrame(animate);
+
+renderer.render(scene,camera);
+
+}
+
+animate();
+
+</script>
+
+</body>
+</html>
