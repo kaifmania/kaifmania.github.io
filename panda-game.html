@@ -1,0 +1,885 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>🐼 პანდა მეომარი</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700;900&family=Noto+Sans+Georgian:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1c1a30;--panel:#252240;--panel2:#2e2a50;--border:rgba(160,80,255,0.35);
+  --text:#ede0ff;--text2:#b580e0;--text3:#7a5a9a;
+  --indigo:#7a1fc8;--indigo2:#a855f7;--indigo-f:rgba(120,30,200,0.18);
+  --glow:rgba(168,85,247,0.28);--accent:#f07aff;
+}
+html,body{height:100%}
+body{
+  font-family:'Noto Sans Georgian',sans-serif;
+  background:radial-gradient(ellipse at top,#2a2350 0%,var(--bg) 60%);
+  color:var(--text);min-height:100vh;display:flex;flex-direction:column;
+  align-items:center;justify-content:center;overflow-x:hidden;padding:10px;
+}
+.title-font{font-family:'Unbounded',sans-serif}
+#wrap{width:100%;max-width:840px;display:flex;flex-direction:column;align-items:center;gap:10px}
+
+/* ===== HEADER ===== */
+#gameHeader{width:100%;display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+#gameHeader h1{font-size:18px;font-weight:900;letter-spacing:1px;flex:1;background:linear-gradient(135deg,var(--accent),var(--indigo2));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+.icon-btn{width:38px;height:38px;border-radius:12px;background:var(--indigo-f);border:1px solid var(--border);color:var(--text);font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:.2s;flex-shrink:0}
+.icon-btn:hover{background:var(--border);transform:scale(1.06)}
+
+/* ===== CANVAS AREA ===== */
+#canvasWrap{position:relative;width:100%;border-radius:20px;overflow:hidden;border:1px solid var(--border);box-shadow:0 10px 50px rgba(0,0,0,.5),0 0 60px var(--glow);background:#0c0a18}
+canvas{display:block;width:100%;height:auto;image-rendering:-webkit-optimize-contrast}
+
+/* ===== HUD ===== */
+#hud{position:absolute;top:0;left:0;width:100%;display:flex;justify-content:space-between;align-items:flex-start;padding:10px 12px;pointer-events:none;font-family:'Unbounded',sans-serif}
+.hud-pill{background:rgba(10,8,25,.55);border:1px solid var(--border);border-radius:14px;padding:6px 12px;font-size:12px;display:flex;align-items:center;gap:6px;backdrop-filter:blur(4px);box-shadow:0 4px 14px rgba(0,0,0,.3)}
+#hudLives{font-size:15px;letter-spacing:2px}
+#hudScore{color:var(--accent)}
+#hudLevel{color:var(--text2)}
+#progressWrap{position:absolute;top:48px;left:50%;transform:translateX(-50%);width:60%;max-width:340px;height:6px;background:rgba(10,8,25,.5);border:1px solid var(--border);border-radius:6px;overflow:hidden}
+#progressBar{height:100%;background:linear-gradient(90deg,var(--indigo2),var(--accent));width:0%;transition:width .15s}
+
+/* ===== OVERLAYS ===== */
+.gscreen{position:absolute;inset:0;background:rgba(10,8,22,.86);backdrop-filter:blur(6px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:22px;gap:12px;z-index:50;animation:fadeIn .3s ease}
+.gscreen.hidden{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+.big-emoji{font-size:64px;filter:drop-shadow(0 0 24px var(--glow));animation:floatY 2.4s ease-in-out infinite}
+.gscreen h2{font-family:'Unbounded',sans-serif;font-size:20px;font-weight:900;letter-spacing:1px}
+.gscreen p{font-size:13px;color:var(--text2);line-height:1.7;max-width:480px}
+.story-box{background:var(--panel2);border:1px solid var(--border);border-radius:14px;padding:12px 16px;font-size:12.5px;color:var(--text);max-width:480px;line-height:1.8}
+.gbtn{font-family:'Unbounded',sans-serif;font-weight:700;font-size:13px;letter-spacing:.5px;padding:13px 30px;border-radius:50px;border:none;cursor:pointer;color:#052e16;
+  background:linear-gradient(135deg,rgba(74,222,128,.95),rgba(52,211,153,.95));box-shadow:0 8px 26px rgba(74,222,128,.4);transition:.2s}
+.gbtn:hover{transform:translateY(-3px) scale(1.03);box-shadow:0 14px 36px rgba(74,222,128,.55)}
+.gbtn.alt{color:#fff;background:linear-gradient(135deg,var(--indigo),var(--indigo2));box-shadow:0 8px 26px rgba(120,30,200,.4)}
+.gbtn.alt:hover{box-shadow:0 14px 36px rgba(120,30,200,.55)}
+.controls-info{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;font-size:11px;color:var(--text3)}
+.controls-info b{color:var(--text2)}
+#levelIntro .lvl-icon{font-size:46px}
+#bestScoreTxt{font-size:12px;color:var(--text2)}
+
+/* ===== TOUCH CONTROLS ===== */
+#touchControls{width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;user-select:none}
+.tc-group{display:flex;gap:10px}
+.tc-btn{width:58px;height:58px;border-radius:18px;background:var(--panel);border:1px solid var(--border);color:var(--text);font-size:24px;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.3);transition:.1s;touch-action:none}
+.tc-btn:active,.tc-btn.pressed{background:var(--indigo);transform:scale(.92);border-color:var(--indigo2)}
+.tc-btn.punch{background:linear-gradient(135deg,#cc4060,#ff5090);border-color:rgba(255,80,120,.5)}
+.tc-btn.jump{background:linear-gradient(135deg,var(--indigo),var(--indigo2))}
+
+/* hit flash */
+.flash{position:absolute;inset:0;background:rgba(255,40,40,.35);pointer-events:none;opacity:0;z-index:40}
+.flash.show{animation:flashAnim .35s ease}
+@keyframes flashAnim{0%{opacity:.8}100%{opacity:0}}
+</style>
+</head>
+<body>
+<div id="wrap">
+  <div id="gameHeader">
+    <h1 class="title-font">🐼 პანდა მეომარი</h1>
+    <button class="icon-btn" id="muteBtn" title="ხმა">🔊</button>
+    <button class="icon-btn" id="pauseBtn" title="პაუზა">⏸️</button>
+  </div>
+
+  <div id="canvasWrap">
+    <canvas id="cv" width="800" height="400"></canvas>
+    <div class="flash" id="flash"></div>
+
+    <div id="hud">
+      <div class="hud-pill" id="hudLives">❤️❤️❤️</div>
+      <div class="hud-pill"><span id="hudLevel">ტური 1/10</span></div>
+      <div class="hud-pill">🎍 <span id="hudBamboo">0</span> &nbsp; ⭐ <span id="hudScore" class="title-font">0</span></div>
+    </div>
+    <div id="progressWrap"><div id="progressBar"></div></div>
+
+    <!-- START -->
+    <div class="gscreen" id="startScreen">
+      <div class="big-emoji">🐼</div>
+      <h2>პანდა მეომარი — ჯუნგლის თავგადასავალი</h2>
+      <div class="story-box">
+        🌿 ძველი ლეგენდის თანახმად, ჯუნგლების სიღრმეში მარგალიტი იძინებს, რომელსაც მხოლოდ მამაცი პანდა-მეომარი შეძლებს მოპოვებას.
+        წინ გელით <b style="color:var(--accent)">10 განსხვავებული ტური</b> — ბამბუკის რაკეთებიდან დრაკონის სამყოფლამდე.
+        გადახტი ხაფანგებზე, აარიდე გვერდი ფუტკრებსა და გველებს, შეაგროვე ბამბუკი და გულები, და დააკავშირე თავდასაცავი დარტყმა საფრთხის წინააღმდეგ! 💪
+      </div>
+      <div id="bestScoreTxt"></div>
+      <button class="gbtn" id="startBtn">▶ თავგადასავლის დაწყება</button>
+      <div class="controls-info">
+        <span><b>←/→</b> სვლა</span>
+        <span><b>↑ / Space</b> ხტომა</span>
+        <span><b>↓</b> ჯდომა</span>
+        <span><b>X</b> დარტყმა</span>
+      </div>
+    </div>
+
+    <!-- LEVEL INTRO -->
+    <div class="gscreen hidden" id="levelIntro">
+      <div class="lvl-icon" id="liIcon">🎍</div>
+      <h2 id="liTitle">ტური 1: ბამბუკის რაკეთები</h2>
+      <div class="story-box" id="liStory"></div>
+      <button class="gbtn" id="liBtn">▶ დაწყება</button>
+    </div>
+
+    <!-- LEVEL COMPLETE -->
+    <div class="gscreen hidden" id="levelCompleteScreen">
+      <div class="big-emoji">🎉</div>
+      <h2>ტური დასრულდა!</h2>
+      <p id="lcText"></p>
+      <button class="gbtn" id="lcBtn">▶ შემდეგი ტური</button>
+    </div>
+
+    <!-- GAME OVER -->
+    <div class="gscreen hidden" id="gameOverScreen">
+      <div class="big-emoji">💔</div>
+      <h2>თამაში დასრულდა</h2>
+      <p id="goText"></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <button class="gbtn" id="retryBtn">🔄 ისევ ცადე</button>
+        <button class="gbtn alt" id="menuBtn">🏠 მთავარი</button>
+      </div>
+    </div>
+
+    <!-- VICTORY -->
+    <div class="gscreen hidden" id="victoryScreen">
+      <div class="big-emoji">🏆</div>
+      <h2>გილოცავთ, მეომარო!</h2>
+      <p id="vText"></p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center">
+        <button class="gbtn" id="playAgainBtn">🔄 თავიდან</button>
+        <button class="gbtn alt" id="menuBtn2">🏠 მთავარი</button>
+      </div>
+    </div>
+
+    <!-- PAUSE -->
+    <div class="gscreen hidden" id="pauseScreen">
+      <div class="big-emoji">⏸️</div>
+      <h2>პაუზა</h2>
+      <button class="gbtn" id="resumeBtn">▶ გაგრძელება</button>
+      <button class="gbtn alt" id="quitBtn">🏠 მთავარი</button>
+    </div>
+  </div>
+
+  <!-- TOUCH CONTROLS -->
+  <div id="touchControls">
+    <div class="tc-group">
+      <div class="tc-btn" id="btnLeft">⬅️</div>
+      <div class="tc-btn" id="btnDown">⬇️</div>
+      <div class="tc-btn" id="btnRight">➡️</div>
+    </div>
+    <div class="tc-group">
+      <div class="tc-btn punch" id="btnPunch">👊</div>
+      <div class="tc-btn jump" id="btnJump">⬆️</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================= SUPABASE ================= */
+const {createClient}=supabase;
+const sb=createClient(
+  "https://dncrxdjuwgztdygndght.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuY3J4ZGp1d2d6dGR5Z25kZ2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTMwMzgsImV4cCI6MjA5NjkyOTAzOH0.BjfVBPm-xqXR4fruAjh7FGYg_FDNDqR8VK3QSdnCv5U"
+);
+let ME=null, BEST=0;
+
+/* ================= CONSTANTS ================= */
+const CW=800, CH=400, GROUND_Y=330;
+const GRAV=0.62, JUMPV=-12.6, MOVESPD=4.3, MAXVY=16, FRICTION=0.78;
+const STAND_H=50, CROUCH_H=30, PLAYER_W=36;
+const TOTAL_LEVELS=10;
+
+/* ================= AUDIO ================= */
+let actx=null, muted=false;
+function ensureAudio(){ if(!actx){ try{ actx=new (window.AudioContext||window.webkitAudioContext)(); }catch(e){} } }
+function tone(freq,dur,type='sine',vol=0.18,delay=0,glideTo=null){
+  if(!actx||muted) return;
+  const t0=actx.currentTime+delay;
+  const o=actx.createOscillator(), g=actx.createGain();
+  o.type=type; o.frequency.setValueAtTime(freq,t0);
+  if(glideTo) o.frequency.exponentialRampToValueAtTime(Math.max(1,glideTo), t0+dur);
+  g.gain.setValueAtTime(vol,t0);
+  g.gain.exponentialRampToValueAtTime(0.0001,t0+dur);
+  o.connect(g); g.connect(actx.destination);
+  o.start(t0); o.stop(t0+dur+0.02);
+}
+const S={
+  jump:()=>tone(330,0.18,'square',0.16,0,660),
+  land:()=>tone(180,0.08,'sine',0.12,0,90),
+  hit:()=>{tone(220,0.25,'sawtooth',0.22,0,60); tone(120,0.3,'square',0.15,0.03,40);},
+  bamboo:()=>{tone(880,0.07,'triangle',0.14); tone(1180,0.08,'triangle',0.12,0.06);},
+  gem:()=>{tone(1046,0.1,'sine',0.16); tone(1568,0.14,'sine',0.14,0.08);},
+  heart:()=>{tone(660,0.12,'triangle',0.16); tone(880,0.14,'triangle',0.14,0.08); tone(1046,0.18,'triangle',0.12,0.16);},
+  punch:()=>{tone(150,0.08,'square',0.2,0,60); tone(500,0.05,'square',0.1,0.04);},
+  levelup:()=>{[523,659,784,1046].forEach((f,i)=>tone(f,0.18,'triangle',0.16,i*0.1));},
+  gameover:()=>{[392,330,262,196].forEach((f,i)=>tone(f,0.3,'sawtooth',0.16,i*0.18,f*0.6));},
+  victory:()=>{[523,659,784,1046,1318].forEach((f,i)=>tone(f,0.22,'triangle',0.17,i*0.12));},
+  chirp:()=>tone(1600+Math.random()*900,0.06,'sine',0.05),
+  step:()=>tone(90+Math.random()*30,0.04,'square',0.04),
+};
+let ambientTimer=null;
+function startAmbient(theme){
+  stopAmbient();
+  if(theme.lava){
+    ambientTimer=setInterval(()=>{ if(!muted) tone(60+Math.random()*30,0.4,'sawtooth',0.05); },1800);
+  } else {
+    ambientTimer=setInterval(()=>{ if(Math.random()<0.5) S.chirp(); },2200);
+  }
+}
+function stopAmbient(){ if(ambientTimer){clearInterval(ambientTimer); ambientTimer=null;} }
+
+/* ================= THEMES ================= */
+const THEMES=[
+  {name:'ბამბუკის რაკეთები', icon:'🎍', sky:['#16321f','#2c5a3a'], ground:'#3d5a3a', ground2:'#2c4228', decor:'🎍', hazards:['spike','rock'],
+   story:'პანდა დათუნია იწყებს თავგადასავალს ბამბუკის რაკეთებში. ფეხქვეშ ფრთხილად — ბილიკზე ეკლები და ლოდები გელოდება! 🎍'},
+  {name:'მდინარის გადასასვლელი', icon:'🌊', sky:['#0c2f3d','#1d6a87'], ground:'#2a4a5a', ground2:'#1f3340', decor:'🌴', hazards:['spike','rock'], water:true,
+   story:'მდინარის ნაპირზე ბილიკი წყვეტილია. ფანჩატურები და ლოდები გადააფრინე, წყალში არ ჩავარდე! 🌊'},
+  {name:'ვაზების ჯუნგლი', icon:'🌿', sky:['#0f2a1a','#234f30'], ground:'#2d4a30', ground2:'#203524', decor:'🌳', hazards:['fruit','bee'],
+   story:'ხშირ ჯუნგლში ხეებიდან ქოქოსი ცვივა, ხოლო ფუტკრები ბილიკზე დაცურავენ. ფრთხილად იარე! 🥥'},
+  {name:'ფუტკრების სკა', icon:'🐝', sky:['#3a2a0d','#7a571a'], ground:'#5a4a2a', ground2:'#3f351c', decor:'🌻', hazards:['bee','spike'],
+   story:'ფუტკრების სკის მახლობლად ყველაფერი ბზუის! გადახტი ან დაიხარე — და გაუმკლავდე საფრთხეებს! 🐝'},
+  {name:'კლდოვანი ხეობა', icon:'🪨', sky:['#2a2a33','#4f4f5c'], ground:'#5a5048', ground2:'#3f3a32', decor:'🌵', hazards:['rock','spike'],
+   story:'კლდოვან ხეობაში ლოდები გორავენ ბილიკის გასწვრივ. დაარტყი ან გადახტი! 🪨'},
+  {name:'გველების ხეობა', icon:'🐍', sky:['#26331a','#48592c'], ground:'#4a4a30', ground2:'#34341f', decor:'🌾', hazards:['snake','spike'],
+   story:'გველების ხეობაში ფეხის ხმაც სახიფათოა — გველები ბურუსებიდან ამოხტებიან! 🐍'},
+  {name:'ჩანჩქერის კლდეები', icon:'💧', sky:['#0a2c3d','#1c6080'], ground:'#3a5a6a', ground2:'#28404c', decor:'🌊', hazards:['fruit','rock'], water:true,
+   story:'ჩანჩქერის წვეთები ზევიდან ცვივა, ხოლო სველ ქვებზე ლოდები გორავენ. ნაბიჯი — ზუსტად! 💧'},
+  {name:'ძველი ნანგრევები', icon:'🏛️', sky:['#3a2a10','#6a5526'], ground:'#7a6a40', ground2:'#594d2e', decor:'🗿', hazards:['spike','snake'],
+   story:'ძველ ნანგრევებში ხანდახან ქვები ცვივა, ხანდახან — გველები იძვრიან ჩრდილებში. 🏛️'},
+  {name:'ვულკანის პირი', icon:'🌋', sky:['#3a0a0a','#7a2a10'], ground:'#5a2a1a', ground2:'#3a1a10', decor:'🔥', hazards:['rock','fireball'], lava:true,
+   story:'ვულკანის პირზე ყველგან ლავაა! ფანჩატურებზე ნაბიჯი ზუსტად დადგი, ცეცხლის ბურთებს გადააფრინე! 🌋'},
+  {name:'დრაკონის სამყოფელი', icon:'🐉', sky:['#1a0a2a','#3d1258'], ground:'#3a1a3a', ground2:'#260f26', decor:'💀', hazards:['fireball','snake','rock'], lava:true,
+   story:'ბოლო გამოცდა! დრაკონის სამყოფელში ცეცხლის ბურთები, გველები და ლოდები გელოდება. მარგალიტი ახლოსაა — გამარჯვება შენია! 🐉'},
+];
+
+/* ================= LEVEL GENERATION ================= */
+function mulberry32(seed){
+  return function(){
+    seed|=0; seed=seed+0x6D2B79F5|0;
+    let t=Math.imul(seed^seed>>>15,1|seed);
+    t=t+Math.imul(t^t>>>7,61|t)^t;
+    return ((t^t>>>14)>>>0)/4294967296;
+  };
+}
+function makeHazard(type,x,rng,levelLength){
+  switch(type){
+    case 'spike': return {type,x,y:GROUND_Y-22,w:30,h:22};
+    case 'rock': {
+      const dir=rng()<0.5?-1:1;
+      return {type,x,y:GROUND_Y-30,baseY:GROUND_Y-30,w:32,h:32,vx:dir*(1.4+rng()*1.4),minX:Math.max(40,x-110),maxX:Math.min(levelLength-40,x+110),defeated:false};
+    }
+    case 'snake': return {type,x,baseY:GROUND_Y-8,y:GROUND_Y-8,amp:32,period:70+rng()*50,t:rng()*100,w:30,h:26,defeated:false};
+    case 'bee': {
+      const baseY=GROUND_Y-95-rng()*45;
+      return {type,x,baseX:x,y:baseY,baseY,amp:26,t:rng()*100,range:70+rng()*40,w:26,h:24,defeated:false};
+    }
+    case 'fruit': return {type,x,startY:-20,y:-20,vy:0,active:false,timer:rng()*120,interval:130+rng()*70,w:24,h:24};
+    case 'fireball': return {type,x,baseY:GROUND_Y-150-rng()*40,y:GROUND_Y-150,curX:x,active:false,timer:rng()*90,interval:120+rng()*70,w:36,h:26};
+    default: return {type,x,y:GROUND_Y-22,w:30,h:22};
+  }
+}
+function genLevel(idx){
+  const theme=THEMES[idx];
+  const rng=mulberry32(7000+idx*991);
+  const length=2200+idx*180;
+  const minSeg=210, maxSeg=Math.max(220,420-idx*9);
+  const pitChance=0.22+idx*0.022;
+
+  // ground segments + pits
+  const segs=[]; let x=0;
+  while(x<length-260){
+    const segLen=minSeg+rng()*(maxSeg-minSeg);
+    segs.push({x,w:segLen});
+    x+=segLen;
+    if(x<length-340 && rng()<pitChance){
+      const pitW=70+rng()*38+idx*3.5;
+      x+=pitW;
+    }
+  }
+  segs.push({x,w:length+120-x});
+
+  // pits (for lava render)
+  const pits=[];
+  for(let i=0;i<segs.length-1;i++){
+    const gapStart=segs[i].x+segs[i].w, gapEnd=segs[i+1].x;
+    if(gapEnd>gapStart+2) pits.push({x:gapStart,w:gapEnd-gapStart});
+  }
+
+  // platforms
+  const platforms=[];
+  const platCount=4+Math.floor(idx*1.1);
+  for(let i=0;i<platCount;i++){
+    const px=260+rng()*(length-520);
+    const py=GROUND_Y-(58+rng()*118);
+    const pw=70+rng()*85;
+    platforms.push({x:px,y:py,w:pw,h:16});
+  }
+
+  // hazards
+  const hazards=[];
+  const groundHazardTypes=theme.hazards.filter(h=>h!=='fireball');
+  const hazCount=4+idx*2;
+  for(let i=0;i<hazCount;i++){
+    const type=groundHazardTypes[Math.floor(rng()*groundHazardTypes.length)];
+    const hx=240+rng()*(length-520);
+    hazards.push(makeHazard(type,hx,rng,length));
+  }
+  if(theme.hazards.includes('fireball')){
+    hazards.push(makeHazard('fireball', length-60, rng, length));
+    if(idx>=9) hazards.push(makeHazard('fireball', length*0.55, rng, length));
+  }
+
+  // collectibles
+  const collectibles=[];
+  for(let cx=160;cx<length-160;cx+=190+rng()*90){
+    collectibles.push({type:'bamboo',x:cx,y:GROUND_Y-40-rng()*70,collected:false,id:'b'+cx});
+  }
+  collectibles.push({type:'heart',x:length*0.45+rng()*200-100,y:GROUND_Y-110,collected:false,id:'h'});
+  collectibles.push({type:'gem',x:length-200,y:GROUND_Y-70,collected:false,id:'g'});
+
+  // bg decor (parallax trees)
+  const bgDecor=[];
+  for(let i=0;i<Math.ceil(length/140);i++){
+    bgDecor.push({x:i*140+rng()*60, y:GROUND_Y-26-rng()*30, s:0.7+rng()*0.9});
+  }
+
+  return {idx,theme,length,segs,platforms,hazards,collectibles,pits,bgDecor,goalX:length-50};
+}
+
+/* ================= STATE ================= */
+let canvas, ctx;
+let level=null, cameraX=0, shakeT=0;
+let player={x:40,y:GROUND_Y-STAND_H,w:PLAYER_W,h:STAND_H,vx:0,vy:0,onGround:false,facing:1,crouching:false};
+let keys={left:false,right:false,down:false};
+let lives=3, score=0, bambooCount=0, levelIdx=0, running=false, paused=false;
+let invincible=0, punchCD=0, punchAnim=0, checkpoints=[];
+let particles=[];
+
+/* ================= INPUT ================= */
+function bindHold(el,onDown,onUp){
+  el.addEventListener('pointerdown',e=>{e.preventDefault();onDown();el.classList.add('pressed');});
+  el.addEventListener('pointerup',e=>{e.preventDefault();onUp();el.classList.remove('pressed');});
+  el.addEventListener('pointerleave',e=>{onUp();el.classList.remove('pressed');});
+  el.addEventListener('pointercancel',e=>{onUp();el.classList.remove('pressed');});
+}
+window.addEventListener('keydown',e=>{
+  if(['ArrowLeft','ArrowRight','ArrowUp','ArrowDown',' ','Space'].includes(e.key)||e.code==='Space') e.preventDefault();
+  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A') keys.left=true;
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D') keys.right=true;
+  if(e.key==='ArrowDown'||e.key==='s'||e.key==='S') keys.down=true;
+  if(e.key==='ArrowUp'||e.key==='w'||e.key==='W'||e.code==='Space') doJump();
+  if(e.key==='x'||e.key==='X') doPunch();
+  if(e.key==='Escape') togglePause();
+});
+window.addEventListener('keyup',e=>{
+  if(e.key==='ArrowLeft'||e.key==='a'||e.key==='A') keys.left=false;
+  if(e.key==='ArrowRight'||e.key==='d'||e.key==='D') keys.right=false;
+  if(e.key==='ArrowDown'||e.key==='s'||e.key==='S') keys.down=false;
+});
+bindHold(document.getElementById('btnLeft'),()=>keys.left=true,()=>keys.left=false);
+bindHold(document.getElementById('btnRight'),()=>keys.right=true,()=>keys.right=false);
+bindHold(document.getElementById('btnDown'),()=>keys.down=true,()=>keys.down=false);
+document.getElementById('btnJump').addEventListener('pointerdown',e=>{e.preventDefault();doJump();document.getElementById('btnJump').classList.add('pressed');});
+document.getElementById('btnJump').addEventListener('pointerup',e=>document.getElementById('btnJump').classList.remove('pressed'));
+document.getElementById('btnPunch').addEventListener('pointerdown',e=>{e.preventDefault();doPunch();document.getElementById('btnPunch').classList.add('pressed');});
+document.getElementById('btnPunch').addEventListener('pointerup',e=>document.getElementById('btnPunch').classList.remove('pressed'));
+
+function doJump(){
+  if(!running||paused) return;
+  if(player.onGround){
+    player.vy=JUMPV; player.onGround=false; S.jump();
+  }
+}
+function doPunch(){
+  if(!running||paused||punchCD>0) return;
+  punchCD=22; punchAnim=10; S.punch();
+  const px=player.x+player.w/2 + player.facing*36;
+  const range=46;
+  level.hazards.forEach(hz=>{
+    if(hz.defeated) return;
+    if(!['bee','snake','rock'].includes(hz.type)) return;
+    const hx=(hz.type==='rock')?hz.x:hz.x;
+    if(Math.abs((hx+ (hz.w||30)/2) - px) < range && Math.abs((hz.y+(hz.h||30)/2)-(player.y+player.h/2)) < 60){
+      hz.defeated=true; addScore(5); spawnParticle(hz.x,hz.y,'+5','#f07aff');
+    }
+  });
+}
+
+/* ================= UI BUTTONS ================= */
+document.getElementById('startBtn').addEventListener('click',()=>{ ensureAudio(); startGame(); });
+document.getElementById('liBtn').addEventListener('click',()=>{ ensureAudio(); beginLevelPlay(); });
+document.getElementById('lcBtn').addEventListener('click',()=>{ hide('levelCompleteScreen'); nextLevel(); });
+document.getElementById('retryBtn').addEventListener('click',()=>{ hide('gameOverScreen'); startGame(); });
+document.getElementById('menuBtn').addEventListener('click',()=>{ hide('gameOverScreen'); showStart(); });
+document.getElementById('playAgainBtn').addEventListener('click',()=>{ hide('victoryScreen'); startGame(); });
+document.getElementById('menuBtn2').addEventListener('click',()=>{ hide('victoryScreen'); showStart(); });
+document.getElementById('resumeBtn').addEventListener('click',togglePause);
+document.getElementById('quitBtn').addEventListener('click',()=>{ paused=false; running=false; hide('pauseScreen'); stopAmbient(); showStart(); });
+document.getElementById('pauseBtn').addEventListener('click',togglePause);
+document.getElementById('muteBtn').addEventListener('click',()=>{
+  muted=!muted; document.getElementById('muteBtn').textContent=muted?'🔇':'🔊';
+});
+function togglePause(){
+  if(!running) return;
+  paused=!paused;
+  if(paused){ show('pauseScreen'); stopAmbient(); }
+  else { hide('pauseScreen'); startAmbient(level.theme); requestAnimationFrame(loop); }
+}
+function show(id){ document.getElementById(id).classList.remove('hidden'); }
+function hide(id){ document.getElementById(id).classList.add('hidden'); }
+
+/* ================= GAME FLOW ================= */
+function showStart(){
+  hide('levelIntro');hide('levelCompleteScreen');hide('gameOverScreen');hide('victoryScreen');hide('pauseScreen');
+  show('startScreen');
+  document.getElementById('bestScoreTxt').textContent = BEST>0 ? `🏆 საუკეთესო ქულა: ${BEST}` : '';
+}
+function startGame(){
+  hide('startScreen');
+  lives=3; score=0; bambooCount=0; levelIdx=0;
+  updateHUD();
+  loadLevel(levelIdx,true);
+}
+function loadLevel(idx,showIntro){
+  level=genLevel(idx);
+  cameraX=0;
+  resetPlayerToStart();
+  buildCheckpoints();
+  document.getElementById('hudLevel').textContent=`ტური ${idx+1}/10 — ${level.theme.name}`;
+  if(showIntro){
+    document.getElementById('liIcon').textContent=level.theme.icon;
+    document.getElementById('liTitle').textContent=`ტური ${idx+1}: ${level.theme.name}`;
+    document.getElementById('liStory').textContent=level.theme.story;
+    show('levelIntro');
+    running=false;
+  } else {
+    beginLevelPlay();
+  }
+}
+function beginLevelPlay(){
+  hide('levelIntro');
+  running=true; paused=false;
+  startAmbient(level.theme);
+  requestAnimationFrame(loop);
+}
+function resetPlayerToStart(){
+  player.x=40; player.y=GROUND_Y-STAND_H; player.w=PLAYER_W; player.h=STAND_H;
+  player.vx=0; player.vy=0; player.onGround=false; player.facing=1; player.crouching=false;
+  invincible=60;
+}
+function buildCheckpoints(){
+  const N=4;
+  checkpoints=[{x:40}];
+  for(let i=1;i<N;i++){
+    const tx=level.length*(i/N);
+    let best=40;
+    for(const s of level.segs){ if(s.x<=tx && s.x>best) best=s.x+10; }
+    checkpoints.push({x:best});
+  }
+}
+function nextLevel(){
+  levelIdx++;
+  if(levelIdx>=TOTAL_LEVELS){ doVictory(); return; }
+  updateHUD();
+  loadLevel(levelIdx,true);
+}
+function loseLife(){
+  lives--; updateHUD(); S.hit(); flashScreen(); shakeT=14;
+  if(lives<=0){ doGameOver(); return; }
+  // respawn at last passed checkpoint
+  let cp=checkpoints[0];
+  for(const c of checkpoints){ if(c.x<=player.x+5) cp=c; }
+  player.x=cp.x; player.y=GROUND_Y-STAND_H; player.vx=0; player.vy=0; player.crouching=false; player.h=STAND_H;
+  invincible=80;
+}
+function flashScreen(){
+  const f=document.getElementById('flash');
+  f.classList.remove('show'); void f.offsetWidth; f.classList.add('show');
+}
+function addScore(n){ score+=n; updateHUD(); }
+function updateHUD(){
+  document.getElementById('hudLives').textContent='❤️'.repeat(Math.max(0,lives)) + '🖤'.repeat(Math.max(0,3-lives>0?0:0));
+  // show up to 5 hearts if extra lives collected
+  let hearts=''; for(let i=0;i<lives;i++) hearts+='❤️'; if(lives<=0) hearts='💔';
+  document.getElementById('hudLives').textContent=hearts;
+  document.getElementById('hudScore').textContent=score;
+  document.getElementById('hudBamboo').textContent=bambooCount;
+}
+function doGameOver(){
+  running=false; stopAmbient(); S.gameover();
+  document.getElementById('goText').textContent=`მიაღწიე ${levelIdx+1}/10 ტურს, ქულა: ${score} ⭐. სცადე ისევ, მეომარო!`;
+  saveScore();
+  show('gameOverScreen');
+}
+function doVictory(){
+  running=false; stopAmbient(); S.victory();
+  const bonus=200; score+=bonus; updateHUD();
+  document.getElementById('vText').textContent=`შეაგროვე მარგალიტი და გაიარე ყველა ჯუნგლის ტური! საბოლოო ქულა: ${score} ⭐ (+${bonus} გამარჯვებისთვის)`;
+  saveScore();
+  // celebratory confetti particles
+  for(let i=0;i<20;i++) spawnParticle(CW/2+Math.random()*200-100, 60+Math.random()*100, ['🎉','✨','🎊','💜'][Math.floor(Math.random()*4)], '#f07aff',120);
+  show('victoryScreen');
+}
+async function saveScore(){
+  try{
+    if(!ME) return;
+    if(score>BEST){
+      BEST=score;
+      await sb.from('profiles').update({panda_score:score}).eq('id',ME.id);
+    }
+  }catch(e){}
+}
+function doLevelComplete(){
+  running=false; stopAmbient(); S.levelup();
+  const bonus=50*(levelIdx+1);
+  score+=bonus; updateHUD();
+  document.getElementById('lcText').textContent=`ტური ${levelIdx+1}/10 — ${level.theme.name} გავლილია! +${bonus} ბონუსი ⭐ (სულ: ${score})`;
+  saveScore();
+  show('levelCompleteScreen');
+}
+
+/* ================= PARTICLES ================= */
+function spawnParticle(x,y,text,color,life){
+  particles.push({x,y,text,color:color||'#fff',life:life||40,vy:-1.1});
+}
+
+/* ================= COLLISION HELPERS ================= */
+function rectsOverlap(a,b){
+  return a.x < b.x+b.w && a.x+a.w > b.x && a.y < b.y+b.h && a.y+a.h > b.y;
+}
+
+/* ================= UPDATE ================= */
+function update(){
+  if(!running||paused) return;
+
+  // horizontal movement
+  if(keys.left){ player.vx=-MOVESPD; player.facing=-1; }
+  else if(keys.right){ player.vx=MOVESPD; player.facing=1; }
+  else player.vx*=FRICTION;
+  if(Math.abs(player.vx)<0.05) player.vx=0;
+
+  // crouch toggle (only meaningful collision-wise when on ground)
+  const wantCrouch = keys.down && player.onGround;
+  if(wantCrouch && !player.crouching){
+    player.y += (player.h - CROUCH_H);
+    player.h = CROUCH_H;
+    player.crouching = true;
+    if(Math.abs(player.vx)>0.1) player.vx*=0.5;
+  } else if(!wantCrouch && player.crouching){
+    player.y -= (STAND_H - player.h);
+    player.h = STAND_H;
+    player.crouching = false;
+  }
+  if(player.crouching) player.vx*=0.55;
+
+  // gravity
+  player.vy += GRAV;
+  if(player.vy>MAXVY) player.vy=MAXVY;
+
+  const prevBottom = player.y + player.h;
+  player.x += player.vx;
+  player.y += player.vy;
+
+  if(player.x<10) player.x=10;
+  if(player.x>level.length+30) player.x=level.length+30;
+
+  // collision with ground segments + platforms (land on top only)
+  const rects=[];
+  for(const s of level.segs) rects.push({x:s.x,y:GROUND_Y,w:s.w,h:200});
+  for(const p of level.platforms) rects.push(p);
+  let onGround=false;
+  if(player.vy>=0){
+    for(const r of rects){
+      const newBottom=player.y+player.h;
+      if(prevBottom<=r.y+0.5 && newBottom>=r.y && player.x+player.w>r.x && player.x<r.x+r.w){
+        player.y=r.y-player.h; player.vy=0; onGround=true;
+      }
+    }
+  }
+  if(onGround && !player.onGround) S.land();
+  player.onGround=onGround;
+
+  // fell into pit
+  if(player.y > CH+40){ loseLife(); return; }
+
+  // step sound occasionally while running
+  if(player.onGround && Math.abs(player.vx)>1 && Math.random()<0.06) S.step();
+
+  // hazards update + collision
+  if(invincible>0) invincible--;
+  for(const hz of level.hazards){
+    updateHazard(hz);
+    if(hz.defeated) continue;
+    if(invincible>0) continue;
+    const hb=hazardBox(hz);
+    if(!hb) continue;
+    const pbox={x:player.x,y:player.y,w:player.w,h:player.h};
+    if(rectsOverlap(pbox,hb)){
+      loseLife();
+      break;
+    }
+  }
+  if(!running) return; // game over may have triggered
+
+  // lava pits visual death
+  if(level.theme.lava && player.y+player.h>=CH-6){
+    // already handled by pit fall above
+  }
+
+  // collectibles
+  for(const c of level.collectibles){
+    if(c.collected) continue;
+    const cb={x:c.x-14,y:c.y-14,w:28,h:28};
+    const pbox={x:player.x,y:player.y,w:player.w,h:player.h};
+    if(rectsOverlap(pbox,cb)){
+      c.collected=true;
+      if(c.type==='bamboo'){ bambooCount++; addScore(5); S.bamboo(); spawnParticle(c.x,c.y,'+5','#4ade80'); }
+      else if(c.type==='gem'){ addScore(25); S.gem(); spawnParticle(c.x,c.y,'+25','#a855f7'); }
+      else if(c.type==='heart'){ lives=Math.min(5,lives+1); updateHUD(); S.heart(); spawnParticle(c.x,c.y,'+❤️','#ff5090'); }
+    }
+  }
+
+  // goal
+  if(player.x+player.w>=level.goalX){
+    doLevelComplete();
+    return;
+  }
+
+  // punch cooldown / anim
+  if(punchCD>0) punchCD--;
+  if(punchAnim>0) punchAnim--;
+  if(shakeT>0) shakeT--;
+
+  // camera
+  cameraX = Math.max(0, Math.min(player.x - CW/2, level.length - CW + 60));
+
+  // particles
+  for(const p of particles){ p.y+=p.vy; p.life--; }
+  particles=particles.filter(p=>p.life>0);
+
+  // progress bar
+  document.getElementById('progressBar').style.width = Math.min(100,(player.x/level.goalX)*100)+'%';
+}
+
+function hazardBox(hz){
+  switch(hz.type){
+    case 'spike': return {x:hz.x,y:hz.y,w:hz.w,h:hz.h};
+    case 'rock': return {x:hz.x,y:hz.y,w:hz.w,h:hz.h};
+    case 'snake': return (hz.y < hz.baseY-4) ? {x:hz.x,y:hz.y,w:hz.w,h:hz.baseY+10-hz.y} : null;
+    case 'bee': return {x:hz.x-hz.w/2,y:hz.y-hz.h/2,w:hz.w,h:hz.h};
+    case 'fruit': return hz.active ? {x:hz.x-hz.w/2,y:hz.y-hz.h/2,w:hz.w,h:hz.h} : null;
+    case 'fireball': return hz.active ? {x:hz.curX-hz.w/2,y:hz.y-hz.h/2,w:hz.w,h:hz.h} : null;
+    default: return null;
+  }
+}
+function updateHazard(hz){
+  switch(hz.type){
+    case 'rock':
+      if(hz.defeated) return;
+      hz.x += hz.vx;
+      if(hz.x<hz.minX||hz.x>hz.maxX) hz.vx=-hz.vx;
+      break;
+    case 'snake':
+      if(hz.defeated) return;
+      hz.t+=1;
+      hz.y = hz.baseY - Math.max(0, Math.sin(hz.t/hz.period*Math.PI*2))*22;
+      break;
+    case 'bee':
+      if(hz.defeated) return;
+      hz.t+=1;
+      hz.y = hz.baseY + Math.sin(hz.t*0.05)*hz.amp;
+      hz.x = hz.baseX + Math.sin(hz.t*0.018)*hz.range;
+      break;
+    case 'fruit':
+      if(!hz.active){
+        hz.timer++;
+        if(hz.timer>=hz.interval){ hz.active=true; hz.y=hz.startY; hz.vy=0; hz.timer=0; }
+      } else {
+        hz.vy+=0.35; hz.y+=hz.vy;
+        if(hz.y>GROUND_Y+10){ hz.active=false; }
+      }
+      break;
+    case 'fireball':
+      if(!hz.active){
+        hz.timer++;
+        if(hz.timer>=hz.interval){ hz.active=true; hz.curX=hz.x; hz.y=hz.baseY; hz.timer=0; }
+      } else {
+        hz.curX -= 6.5; hz.y = hz.baseY + Math.sin(hz.curX*0.05)*8;
+        if(hz.curX < -60){ hz.active=false; }
+      }
+      break;
+  }
+}
+
+/* ================= RENDER ================= */
+function drawEmoji(emoji,x,y,size,flip){
+  ctx.save();
+  ctx.translate(x,y);
+  if(flip) ctx.scale(-1,1);
+  ctx.font=`${size}px sans-serif`;
+  ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillText(emoji,0,0);
+  ctx.restore();
+}
+function render(){
+  const theme=level.theme;
+  let shakeX=0,shakeY=0;
+  if(shakeT>0){ shakeX=(Math.random()-0.5)*shakeT*0.8; shakeY=(Math.random()-0.5)*shakeT*0.8; }
+  ctx.save();
+  ctx.translate(shakeX,shakeY);
+
+  // sky
+  const grad=ctx.createLinearGradient(0,0,0,CH);
+  grad.addColorStop(0,theme.sky[0]); grad.addColorStop(1,theme.sky[1]);
+  ctx.fillStyle=grad; ctx.fillRect(0,0,CW,CH);
+
+  // sun/moon
+  drawEmoji(theme.lava?'🌑':'☀️', CW-70, 50, 46, false);
+
+  // background decor (parallax)
+  for(const d of level.bgDecor){
+    const sx = d.x - cameraX*0.5;
+    if(sx>-60 && sx<CW+60) drawEmoji(theme.decor, sx, d.y, 38*d.s, false);
+  }
+
+  // ground segments
+  for(const s of level.segs){
+    const sx=s.x-cameraX;
+    if(sx+s.w<0||sx>CW) continue;
+    ctx.fillStyle=theme.ground;
+    ctx.fillRect(sx,GROUND_Y,s.w,CH-GROUND_Y);
+    ctx.fillStyle=theme.ground2;
+    ctx.fillRect(sx,GROUND_Y+10,s.w,CH-GROUND_Y-10);
+    // grass tufts
+    ctx.fillStyle='rgba(255,255,255,0.06)';
+    ctx.fillRect(sx,GROUND_Y,s.w,4);
+  }
+
+  // pits — lava or abyss
+  for(const p of level.pits){
+    const sx=p.x-cameraX;
+    if(sx+p.w<0||sx>CW) continue;
+    if(theme.lava){
+      const lg=ctx.createLinearGradient(sx,GROUND_Y,sx,CH);
+      lg.addColorStop(0,'#ff5a1a'); lg.addColorStop(1,'#7a1a00');
+      ctx.fillStyle=lg; ctx.fillRect(sx,GROUND_Y+4,p.w,CH-GROUND_Y-4);
+      for(let i=0;i<3;i++) drawEmoji('🔥', sx+ p.w*(i+0.5)/3, GROUND_Y-4+Math.sin(Date.now()/200+i)*3, 22, false);
+    } else if(theme.water){
+      const lg=ctx.createLinearGradient(sx,GROUND_Y,sx,CH);
+      lg.addColorStop(0,'#2a8ab0'); lg.addColorStop(1,'#0a3a55');
+      ctx.fillStyle=lg; ctx.fillRect(sx,GROUND_Y+4,p.w,CH-GROUND_Y-4);
+    } else {
+      ctx.fillStyle='#0c0a18'; ctx.fillRect(sx,GROUND_Y+4,p.w,CH-GROUND_Y-4);
+    }
+  }
+
+  // platforms
+  for(const pf of level.platforms){
+    const sx=pf.x-cameraX;
+    if(sx+pf.w<0||sx>CW) continue;
+    ctx.fillStyle='#6b5a3a';
+    ctx.fillRect(sx,pf.y,pf.w,pf.h);
+    ctx.fillStyle='#4ade80';
+    ctx.fillRect(sx,pf.y-3,pf.w,4);
+  }
+
+  // collectibles
+  for(const c of level.collectibles){
+    if(c.collected) continue;
+    const sx=c.x-cameraX;
+    if(sx<-30||sx>CW+30) continue;
+    const bob=Math.sin(Date.now()/300 + c.x)*4;
+    const emo = c.type==='bamboo'?'🎍':c.type==='gem'?'💎':'❤️';
+    drawEmoji(emo, sx, c.y+bob, 24, false);
+  }
+
+  // hazards
+  for(const hz of level.hazards){
+    if(hz.defeated) continue;
+    const sx=hz.x-cameraX;
+    if(sx<-60||sx>CW+60) continue;
+    switch(hz.type){
+      case 'spike': drawEmoji('🔺', sx+15, hz.y+11, 28, false); break;
+      case 'rock': drawEmoji('🪨', sx+16, hz.y+16, 32, false); break;
+      case 'snake': drawEmoji('🐍', sx+15, hz.y+10, 30, hz.x<player.x); break;
+      case 'bee': drawEmoji('🐝', sx, hz.y, 26, Math.sin(hz.t*0.018)<0); break;
+      case 'fruit': if(hz.active) drawEmoji(theme.water?'💧':'🥥', sx, hz.y, 24, false); break;
+      case 'fireball': if(hz.active) drawEmoji('🔥', hz.curX-cameraX, hz.y, 32, false); break;
+    }
+  }
+
+  // goal flag
+  {
+    const sx=level.goalX-cameraX;
+    if(sx>-40&&sx<CW+40){
+      ctx.fillStyle='rgba(255,255,255,.15)';
+      ctx.fillRect(sx+14,GROUND_Y-90,4,90);
+      drawEmoji('🚩', sx+16, GROUND_Y-90, 36, false);
+      drawEmoji('💎', sx+16, GROUND_Y-115, 22, false);
+    }
+  }
+
+  // player
+  {
+    const sx=player.x+player.w/2-cameraX;
+    const sy=player.y+player.h/2;
+    let size = player.crouching ? 38 : 46;
+    if(invincible>0 && Math.floor(invincible/4)%2===0){ ctx.globalAlpha=0.35; }
+    let squashY=1, squashX=1;
+    if(!player.onGround){ squashY = player.vy<0?1.1:0.9; squashX = player.vy<0?0.9:1.1; }
+    if(punchAnim>0){ size*=1.15; }
+    ctx.save();
+    ctx.translate(sx,sy);
+    ctx.scale(player.facing<0?-squashX:squashX, squashY);
+    ctx.font=`${size}px sans-serif`;
+    ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(player.crouching?'🐼':(punchAnim>0?'🐼':'🐼'),0,0);
+    if(punchAnim>0){
+      ctx.font='26px sans-serif';
+      ctx.fillText('👊', 28, -4);
+    }
+    ctx.restore();
+    ctx.globalAlpha=1;
+  }
+
+  // particles
+  for(const p of particles){
+    const sx=p.x-cameraX, sy=p.y;
+    ctx.globalAlpha=Math.max(0,p.life/40);
+    ctx.font='16px Unbounded, sans-serif'; ctx.fillStyle=p.color; ctx.textAlign='center';
+    ctx.fillText(p.text, sx, sy);
+    ctx.globalAlpha=1;
+  }
+
+  ctx.restore();
+}
+
+/* ================= LOOP ================= */
+function loop(){
+  if(!running||paused) return;
+  update();
+  if(running) render();
+  if(running&&!paused) requestAnimationFrame(loop);
+}
+
+/* ================= INIT ================= */
+async function init(){
+  canvas=document.getElementById('cv'); ctx=canvas.getContext('2d');
+  try{
+    const{data:{user}}=await sb.auth.getUser();
+    if(user){
+      ME=user;
+      const{data}=await sb.from('profiles').select('panda_score').eq('id',user.id).single();
+      BEST=data?.panda_score||0;
+    }
+  }catch(e){}
+  showStart();
+  // idle render of first level background behind start screen
+  level=genLevel(0); cameraX=0;
+  render();
+}
+init();
+</script>
+</body>
+</html>
