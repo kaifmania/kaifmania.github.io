@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>🐼 მეომარი პანდა</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--bg, #1c1a30);
+            font-family: 'Noto Sans Georgian', system-ui, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        /* თამაშის კონტეინერი - იღებს ჩატის ფერებს */
+        .game-container {
+            max-width: 550px;
+            width: 100%;
+            background: var(--panel, #252240);
+            border-radius: 32px;
+            border: 1px solid var(--border, rgba(160,80,255,0.35));
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            overflow: hidden;
+        }
+
+        /* სტატუს პანელი */
+        .stats {
+            background: var(--panel2, #2e2a50);
+            padding: 16px 20px;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 2px solid var(--accent, #c07aff);
+        }
+
+        .stat {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: var(--bg, #1c1a30);
+            padding: 6px 16px;
+            border-radius: 40px;
+        }
+
+        .stat span:first-child { font-size: 22px; }
+        .stat span:last-child {
+            font-size: 24px;
+            font-weight: bold;
+            color: var(--accent, #c07aff);
+            min-width: 45px;
+        }
+
+        /* ტურის ინდიკატორი */
+        .tour-info {
+            background: var(--indigo-f, rgba(120,30,200,0.15));
+            margin: 15px 20px 0;
+            padding: 8px 16px;
+            border-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            color: var(--text2, #b580e0);
+            font-weight: bold;
+        }
+
+        .tour-badge {
+            background: var(--accent, #c07aff);
+            color: var(--bg, #1c1a30);
+            padding: 2px 12px;
+            border-radius: 30px;
+            font-size: 13px;
+        }
+
+        /* მთავარი არეალი */
+        .game-area {
+            padding: 25px 20px 30px;
+            text-align: center;
+        }
+
+        /* პანდა */
+        .panda {
+            font-size: 100px;
+            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4));
+            margin-bottom: 5px;
+        }
+
+        .weapon-icon {
+            font-size: 35px;
+            margin-top: -25px;
+            margin-bottom: 15px;
+        }
+
+        /* ამბის ტექსტი */
+        .story {
+            background: var(--indigo-f, rgba(120,30,200,0.12));
+            border-left: 4px solid var(--accent, #c07aff);
+            border-right: 4px solid var(--accent, #c07aff);
+            padding: 16px;
+            border-radius: 24px;
+            margin: 15px 0;
+            font-size: 1rem;
+            line-height: 1.4;
+            color: var(--text, #ede0ff);
+            font-weight: 500;
+        }
+
+        /* მოქმედების ღილაკი - ახლა მხოლოდ ერთია თითო ტურზე! */
+        .action-btn {
+            width: 100%;
+            background: linear-gradient(135deg, var(--indigo, #7a1fc8), var(--indigo2, #a855f7));
+            border: none;
+            padding: 14px;
+            border-radius: 60px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: white;
+            cursor: pointer;
+            margin: 8px 0;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .action-btn:active {
+            transform: scale(0.97);
+        }
+
+        .action-btn:disabled {
+            opacity: 0.6;
+            transform: none;
+            cursor: not-allowed;
+        }
+
+        /* გადატვირთვა */
+        .reset-btn {
+            background: transparent;
+            border: 1px solid var(--border, rgba(160,80,255,0.35));
+            color: var(--text2, #b580e0);
+            padding: 8px 20px;
+            border-radius: 40px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 13px;
+        }
+
+        .reset-btn:hover {
+            background: var(--indigo-f, rgba(120,30,200,0.2));
+        }
+
+        /* შედეგის ანიმაცია */
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+        }
+        .result-flash {
+            animation: pulse 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+
+<div class="game-container">
+    <div class="stats">
+        <div class="stat"><span>❤️</span><span id="health">5</span></div>
+        <div class="stat"><span>⚔️</span><span id="weapon">3</span></div>
+        <div class="stat"><span>🏆</span><span id="score">0</span></div>
+    </div>
+
+    <div class="tour-info">
+        <span>🎋 ჯუნგლების გზა</span>
+        <span class="tour-badge" id="tour">ტური 1 / 8</span>
+    </div>
+
+    <div class="game-area">
+        <div class="panda" id="panda">🐼</div>
+        <div class="weapon-icon" id="weaponIcon">🎋</div>
+
+        <div class="story" id="story">
+            🌿 ჯუნგლებში საფრთხე იზრდება... მზად ხარ?
+        </div>
+
+        <button class="action-btn" id="actionBtn">🎮 გააგრძელე</button>
+        <button class="reset-btn" id="resetBtn">🔄 თავიდან</button>
+    </div>
+</div>
+
+<script>
+    const supabaseUrl = "https://dncrxdjuwgztdygndght.supabase.co";
+    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuY3J4ZGp1d2d6dGR5Z25kZ2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTMwMzgsImV4cCI6MjA5NjkyOTAzOH0.BjfVBPm-xqXR4fruAjh7FGYg_FDNDqR8VK3QSdnCv5U";
+    const sb = createClient(supabaseUrl, supabaseKey);
+
+    let currentUser = null;
+
+    // თამაშის მდგომარეობა
+    let game = {
+        health: 5,
+        weapon: 3,
+        score: 0,
+        tour: 1,
+        finished: false,
+        waiting: false
+    };
+
+    // ========== 8 ტურის მოვლენები ==========
+    const events = [
+        {   // ტური 1
+            text: "🌿 გზაზე მშიერი ვეფხვი შეგხვდა!",
+            action: (g) => {
+                let dmg = 2 + Math.floor(g.weapon / 2);
+                g.health -= 1;
+                g.score += dmg * 4;
+                return { msg: `⚔️ შეუტევე ბამბუკით! -1 სიცოცხლე, +${dmg*4} ქულა`, healthChange: -1, scoreChange: dmg*4 };
+            }
+        },
+        {   // ტური 2
+            text: "🍌 მაიმუნების ხროვა ბანანს გძარცვავს!",
+            action: (g) => {
+                g.score += 15;
+                g.weapon = Math.min(10, g.weapon + 1);
+                return { msg: `🐒 მოატყუე ისინი! +15 ქულა, იარაღი +1`, healthChange: 0, scoreChange: 15 };
+            }
+        },
+        {   // ტური 3
+            text: "🌊 მდინარეს გადაკვეთა გჭირდება...",
+            action: (g) => {
+                g.health = Math.min(10, g.health + 2);
+                g.score += 12;
+                return { msg: `🏊 ძლივს გადაცურე! +2 სიცოცხლე, +12 ქულა`, healthChange: 2, scoreChange: 12 };
+            }
+        },
+        {   // ტური 4 - ბოსი
+            text: "🐅 საშინელი ვეფხვი (ბოსი) გელოდება!",
+            action: (g) => {
+                let power = 8 + Math.floor(g.weapon / 2);
+                g.health -= 2;
+                g.score += power * 5 + 40;
+                return { msg: `💥 ეპიკური ბრძოლა! -2 სიცოცხლე, +${power*5+40} ქულა`, healthChange: -2, scoreChange: power*5+40 };
+            }
+        },
+        {   // ტური 5
+            text: "🍄 მომწამლელი სოკოების ველი...",
+            action: (g) => {
+                g.health = Math.max(1, g.health - 1);
+                g.score += 20;
+                return { msg: `😰 ოღონდ შხამი ჩაისუნთქე! -1 სიცოცხლე, +20 ქულა`, healthChange: -1, scoreChange: 20 };
+            }
+        },
+        {   // ტური 6
+            text: "🦎 გიგანტური ხვლიკი გესხმის თავს!",
+            action: (g) => {
+                let dmg = 6 + g.weapon;
+                g.score += dmg * 2;
+                g.weapon = Math.min(10, g.weapon + 1);
+                return { msg: `🎋 სწრაფი შეტევა! +${dmg*2} ქულა, იარაღი +1`, healthChange: 0, scoreChange: dmg*2 };
+            }
+        },
+        {   // ტური 7
+            text: "💎 ბროლის გამოქვაბულში საოცარი ქვა ბრწყინავს",
+            action: (g) => {
+                g.score += 30;
+                g.health = Math.min(10, g.health + 2);
+                return { msg: `✨ ქვამ დაგლოცა! +2 სიცოცხლე, +30 ქულა`, healthChange: 2, scoreChange: 30 };
+            }
+        },
+        {   // ტური 8 - ფინალი
+            text: "🐉 უძველესი ჯუნგლების დრაკონი! საბოლოო ბრძოლა!",
+            action: (g) => {
+                let finalPower = 15 + g.weapon;
+                g.health -= 2;
+                g.score += finalPower * 6 + 100;
+                return { msg: `🏆 გმირული გამარჯვება! -2 სიცოცხლე, +${finalPower*6+100} ქულა`, healthChange: -2, scoreChange: finalPower*6+100 };
+            }
+        }
+    ];
+
+    // DOM ელემენტები
+    const healthEl = document.getElementById('health');
+    const weaponEl = document.getElementById('weapon');
+    const scoreEl = document.getElementById('score');
+    const tourEl = document.getElementById('tour');
+    const storyEl = document.getElementById('story');
+    const pandaEl = document.getElementById('panda');
+    const weaponIconEl = document.getElementById('weaponIcon');
+    const actionBtn = document.getElementById('actionBtn');
+    const resetBtn = document.getElementById('resetBtn');
+
+    function updateUI() {
+        healthEl.textContent = game.health;
+        weaponEl.textContent = game.weapon;
+        scoreEl.textContent = game.score;
+        tourEl.textContent = `ტური ${game.tour} / 8`;
+
+        // ვიზუალი სიცოცხლის მიხედვით
+        if (game.health <= 2) pandaEl.textContent = "😖🐼";
+        else if (game.health <= 4) pandaEl.textContent = "😐🐼";
+        else pandaEl.textContent = "😎🐼";
+
+        // იარაღის იკონა
+        if (game.weapon >= 7) weaponIconEl.textContent = "🌟🎋";
+        else if (game.weapon >= 4) weaponIconEl.textContent = "⚡🎋";
+        else weaponIconEl.textContent = "🎋";
+    }
+
+    async function saveScoreToDatabase() {
+        if (!currentUser) return;
+        try {
+            await sb.from('profiles').update({ panda_score: game.score }).eq('id', currentUser.id);
+            console.log("ქულა შენახულია");
+        } catch(e) { console.log(e); }
+    }
+
+    function showResultAndNext(resultMsg, healthChange, scoreChange) {
+        storyEl.innerHTML = `🎋 ${resultMsg}`;
+        
+        // ანიმაცია
+        storyEl.classList.add('result-flash');
+        setTimeout(() => storyEl.classList.remove('result-flash'), 300);
+        
+        // ღილაკის დაბლოკვა დროებით
+        game.waiting = true;
+        actionBtn.disabled = true;
+        
+        setTimeout(() => {
+            // შევამოწმოთ სიცოცხლე
+            if (game.health <= 0) {
+                game.finished = true;
+                storyEl.innerHTML = `💀 პანდა დაეცა... ქულა: ${game.score}. დააჭირე "თავიდან".`;
+                actionBtn.disabled = true;
+                actionBtn.style.opacity = "0.5";
+                saveScoreToDatabase();
+                game.waiting = false;
+                return;
+            }
+            
+            // გადასვლა შემდეგ ტურზე
+            if (game.tour < 8) {
+                game.tour++;
+                updateUI();
+                loadCurrentTour();
+                game.waiting = false;
+                actionBtn.disabled = false;
+            } else {
+                // თამაში დასრულდა მოგებით
+                game.finished = true;
+                storyEl.innerHTML = `🎉 გილოცავ! შენ დაიცავი ჯუნგლები! საბოლოო ქულა: ${game.score} 🎉`;
+                actionBtn.disabled = true;
+                actionBtn.style.opacity = "0.5";
+                saveScoreToDatabase();
+                game.waiting = false;
+            }
+        }, 1500);
+    }
+
+    function loadCurrentTour() {
+        if (game.finished) return;
+        
+        const event = events[game.tour - 1];
+        storyEl.innerHTML = event.text;
+        actionBtn.textContent = "⚔️ იბრძოლე / გააგრძელე";
+        actionBtn.disabled = false;
+        actionBtn.style.opacity = "1";
+        
+        // შენახული მოქმედება
+        actionBtn.onclick = () => {
+            if (game.waiting || game.finished) return;
+            
+            const result = event.action(game);
+            
+            // ლიმიტები
+            game.health = Math.max(0, Math.min(10, game.health));
+            game.weapon = Math.max(1, Math.min(10, game.weapon));
+            updateUI();
+            
+            showResultAndNext(result.msg, result.healthChange || 0, result.scoreChange || 0);
+        };
+    }
+
+    function resetGame() {
+        game = {
+            health: 5,
+            weapon: 3,
+            score: 0,
+            tour: 1,
+            finished: false,
+            waiting: false
+        };
+        updateUI();
+        loadCurrentTour();
+    }
+
+    async function init() {
+        const { data: { user } } = await sb.auth.getUser();
+        if (!user) {
+            storyEl.innerHTML = "❌ გთხოვთ, შედით მთავარი ჩატიდან პირველ რიგში.";
+            actionBtn.disabled = true;
+            return;
+        }
+        currentUser = user;
+        resetGame();
+    }
+
+    resetBtn.onclick = () => resetGame();
+    init();
+</script>
+</body>
+</html>
