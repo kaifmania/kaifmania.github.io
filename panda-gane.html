@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panda Jungle Adventure v2</title>
+    <style>
+        :root {
+            --bg-color: #0b0e14;
+            --panel-bg: rgba(20, 26, 42, 0.9);
+            --neon-green: #39ff14;
+            --neon-blue: #00f0ff;
+            --neon-gold: #ffcc00;
+            --text-color: #ffffff;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+
+        .game-container {
+            position: relative;
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-green);
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.25);
+            border-radius: 16px;
+            padding: 15px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        canvas {
+            background: #000;
+            border-radius: 10px;
+            display: block;
+        }
+
+        .overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(11, 14, 20, 0.95);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 16px;
+        }
+
+        .btn {
+            background: transparent;
+            border: 2px solid var(--neon-green);
+            color: var(--neon-green);
+            padding: 10px 28px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="game-container">
+        <div class="game-header">
+            <h1 style="margin:0; font-size:22px; color:var(--neon-green);">Panda Adventure v2 🐼</h1>
+            <div style="display:flex; gap:15px;">
+                <div>Stage: <span id="level" style="color:var(--neon-blue);">1/10</span></div>
+                <div>HP: <span id="health" style="color:var(--neon-green);">100%</span></div>
+                <div>Score: <span id="score" style="color:var(--neon-gold);">0</span></div>
+            </div>
+        </div>
+
+        <canvas id="gameCanvas" width="900" height="450"></canvas>
+
+        <div class="overlay" id="startOverlay">
+            <h2 style="color: var(--neon-green); font-size: 32px; margin-bottom: 20px;">PANDA JUNGLE WARRIOR</h2>
+            <button class="btn" onclick="startGame()">თამაშის დაწყება</button>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // სურათების ჩატვირთვა (აქ უნდა ჩასვა რეალური სურათების ლინკები)
+        const bgImg = new Image();
+        bgImg.src = 'https://img.freepik.com/free-vector/jungle-game-background_52683-46744.jpg'; // ჯუნგლების ფონი
+
+        const pandaImg = new Image();
+        pandaImg.src = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExbmsxamRnd215ZXo3bHphc3A4bXFpa3RnbW92ZGZidGg3Y3Z5dG90OCZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/X836A085XWv12xWz2N/giphy.gif'; // პანდას ანიმაცია (GIF/PNG)
+
+        const snakeImg = new Image();
+        snakeImg.src = 'https://media.giphy.com/media/v1.Y2lkPTc5MGI3NjExM3ZpcHRidHpkbW9wM20waHpxM2p5Z3Z1OHR5bXR5M3Y4bHphc3A4bSZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/l0HlU7eS8zEzk9wD6/giphy.gif'; // გველის/მტრის სურათი
+
+        let gameActive = false;
+        let stage = 1;
+        let score = 0;
+        let stageProgress = 0;
+
+        const panda = {
+            x: 100, y: 300, width: 70, height: 80,
+            velocityY: 0, gravity: 0.6, jumpForce: -13,
+            isJumping: false, health: 100
+        };
+
+        let enemies = [];
+
+        window.addEventListener('keydown', e => {
+            if ((e.code === 'Space' || e.code === 'KeyW') && !panda.isJumping && gameActive) {
+                panda.velocityY = panda.jumpForce;
+                panda.isJumping = true;
+            }
+        });
+
+        function startGame() {
+            document.getElementById('startOverlay').style.display = 'none';
+            gameActive = true;
+            gameLoop();
+        }
+
+        function update() {
+            if (!gameActive) return;
+
+            stageProgress += 2;
+
+            // გრავიტაცია
+            panda.velocityY += panda.gravity;
+            panda.y += panda.velocityY;
+
+            if (panda.y > 310) {
+                panda.y = 310;
+                panda.velocityY = 0;
+                panda.isJumping = false;
+            }
+
+            // მტრების გაჩენა
+            if (Math.random() < 0.015) {
+                enemies.push({
+                    x: canvas.width, y: 340, width: 50, height: 50, speed: 5
+                });
+            }
+
+            // მტრების მოძრაობა და შეჯახება
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                enemies[i].x -= enemies[i].speed;
+
+                // მარტივი შეჯახების ლოგიკა
+                if (enemies[i].x < panda.x + panda.width && enemies[i].x + enemies[i].width > panda.x &&
+                    enemies[i].y < panda.y + panda.height && enemies[i].y + enemies[i].height > panda.y) {
+                    panda.health -= 10;
+                    document.getElementById('health').innerText = panda.health + '%';
+                    enemies.splice(i, 1);
+                    if (panda.health <= 0) {
+                        alert("თამაში დასრულდა!");
+                        window.location.reload();
+                    }
+                    continue;
+                }
+
+                if (enemies[i].x + enemies[i].width < 0) {
+                    enemies.splice(i, 1);
+                    score += 10;
+                    document.getElementById('score').innerText = score;
+                }
+            }
+        }
+
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 1. ჯუნგლების რეალური ფონის სურათის დახატვა
+            ctx.drawImage(bgImg, 0, 0, canvas.width, canvas.height);
+
+            // 2. რეალური პანდას სურათის დახატვა
+            ctx.drawImage(pandaImg, panda.x, panda.y, panda.width, panda.height);
+
+            // 3. მტრების (გველის) სურათის დახატვა
+            enemies.forEach(e => {
+                ctx.drawImage(snakeImg, e.x, e.y, e.width, e.height);
+            });
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            if (gameActive) requestAnimationFrame(gameLoop);
+        }
+    </script>
+</body>
+</html>
