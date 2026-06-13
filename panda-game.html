@@ -2,412 +2,463 @@
 <html lang="ka">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>🐼 მეომარი პანდა</title>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panda Cyber-Warrior - კაიფმანია</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
+        /* ფერები და ცვლადები აღებულია კაიფმანიას ჩატის დიზაინიდან */
+        :root {
+            --bg-color: #0f111a;
+            --panel-bg: rgba(23, 28, 41, 0.85);
+            --neon-accent: #ff0055;
+            --neon-blue: #00f0ff;
+            --neon-green: #39ff14;
+            --text-color: #ffffff;
+            --font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            min-height: 100vh;
-            background: var(--bg, #1c1a30);
-            font-family: 'Noto Sans Georgian', system-ui, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            font-family: var(--font-family);
             display: flex;
-            justify-content: center;
+            flex-direction: column;
             align-items: center;
-            padding: 20px;
-        }
-
-        /* თამაშის კონტეინერი - იღებს ჩატის ფერებს */
-        .game-container {
-            max-width: 550px;
-            width: 100%;
-            background: var(--panel, #252240);
-            border-radius: 32px;
-            border: 1px solid var(--border, rgba(160,80,255,0.35));
-            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+            justify-content: center;
+            min-height: 100vh;
             overflow: hidden;
         }
 
-        /* სტატუს პანელი */
-        .stats {
-            background: var(--panel2, #2e2a50);
-            padding: 16px 20px;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 2px solid var(--accent, #c07aff);
+        .game-container {
+            position: relative;
+            background: var(--panel-bg);
+            border: 2px solid var(--neon-blue);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+            border-radius: 12px;
+            padding: 10px;
+            backdrop-filter: blur(10px);
         }
 
-        .stat {
+        .game-header {
             display: flex;
+            justify-content: space-between;
             align-items: center;
-            gap: 8px;
-            background: var(--bg, #1c1a30);
-            padding: 6px 16px;
-            border-radius: 40px;
+            margin-bottom: 10px;
+            padding: 0 5px;
         }
 
-        .stat span:first-child { font-size: 22px; }
-        .stat span:last-child {
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--accent, #c07aff);
-            min-width: 45px;
+        h1 {
+            margin: 0;
+            font-size: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--neon-accent);
+            text-shadow: 0 0 8px var(--neon-accent);
         }
 
-        /* ტურის ინდიკატორი */
-        .tour-info {
-            background: var(--indigo-f, rgba(120,30,200,0.15));
-            margin: 15px 20px 0;
-            padding: 8px 16px;
-            border-radius: 30px;
+        .stats {
             display: flex;
-            justify-content: space-between;
-            color: var(--text2, #b580e0);
+            gap: 20px;
             font-weight: bold;
+            font-size: 16px;
         }
 
-        .tour-badge {
-            background: var(--accent, #c07aff);
-            color: var(--bg, #1c1a30);
-            padding: 2px 12px;
-            border-radius: 30px;
-            font-size: 13px;
+        #score { color: var(--neon-blue); text-shadow: 0 0 5px var(--neon-blue); }
+        #health { color: var(--neon-green); text-shadow: 0 0 5px var(--neon-green); }
+
+        canvas {
+            background: #05070f;
+            border-radius: 8px;
+            display: block;
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        /* მთავარი არეალი */
-        .game-area {
-            padding: 25px 20px 30px;
-            text-align: center;
-        }
-
-        /* პანდა */
-        .panda {
-            font-size: 100px;
-            filter: drop-shadow(0 8px 15px rgba(0,0,0,0.4));
-            margin-bottom: 5px;
-        }
-
-        .weapon-icon {
-            font-size: 35px;
-            margin-top: -25px;
-            margin-bottom: 15px;
-        }
-
-        /* ამბის ტექსტი */
-        .story {
-            background: var(--indigo-f, rgba(120,30,200,0.12));
-            border-left: 4px solid var(--accent, #c07aff);
-            border-right: 4px solid var(--accent, #c07aff);
-            padding: 16px;
-            border-radius: 24px;
-            margin: 15px 0;
-            font-size: 1rem;
-            line-height: 1.4;
-            color: var(--text, #ede0ff);
-            font-weight: 500;
-        }
-
-        /* მოქმედების ღილაკი - ახლა მხოლოდ ერთია თითო ტურზე! */
-        .action-btn {
-            width: 100%;
-            background: linear-gradient(135deg, var(--indigo, #7a1fc8), var(--indigo2, #a855f7));
-            border: none;
-            padding: 14px;
-            border-radius: 60px;
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: white;
-            cursor: pointer;
-            margin: 8px 0;
-            transition: transform 0.1s, opacity 0.2s;
-        }
-
-        .action-btn:active {
-            transform: scale(0.97);
-        }
-
-        .action-btn:disabled {
-            opacity: 0.6;
-            transform: none;
-            cursor: not-allowed;
-        }
-
-        /* გადატვირთვა */
-        .reset-btn {
-            background: transparent;
-            border: 1px solid var(--border, rgba(160,80,255,0.35));
-            color: var(--text2, #b580e0);
-            padding: 8px 20px;
-            border-radius: 40px;
-            cursor: pointer;
+        .controls-hint {
             margin-top: 15px;
-            font-size: 13px;
+            text-align: center;
+            font-size: 14px;
+            color: #8a9fc4;
+            text-shadow: 0 0 2px rgba(0,0,0,0.5);
         }
 
-        .reset-btn:hover {
-            background: var(--indigo-f, rgba(120,30,200,0.2));
+        .key {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--neon-blue);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: var(--neon-blue);
+            font-weight: bold;
         }
 
-        /* შედეგის ანიმაცია */
-        @keyframes pulse {
-            0% { transform: scale(1); opacity: 1; }
-            50% { transform: scale(1.05); opacity: 0.8; }
+        /* Game Over ეკრანი */
+        .game-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(15, 17, 26, 0.85);
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            backdrop-filter: blur(5px);
         }
-        .result-flash {
-            animation: pulse 0.3s ease;
+
+        .game-overlay h2 {
+            font-size: 40px;
+            color: var(--neon-accent);
+            text-shadow: 0 0 15px var(--neon-accent);
+            margin-bottom: 20px;
+        }
+
+        .btn-restart {
+            background: transparent;
+            border: 2px solid var(--neon-blue);
+            color: var(--neon-blue);
+            padding: 10px 25px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 0 10px rgba(0, 240, 255, 0.2);
+        }
+
+        .btn-restart:hover {
+            background: var(--neon-blue);
+            color: #000;
+            box-shadow: 0 0 20px var(--neon-blue);
         }
     </style>
 </head>
 <body>
 
-<div class="game-container">
-    <div class="stats">
-        <div class="stat"><span>❤️</span><span id="health">5</span></div>
-        <div class="stat"><span>⚔️</span><span id="weapon">3</span></div>
-        <div class="stat"><span>🏆</span><span id="score">0</span></div>
-    </div>
-
-    <div class="tour-info">
-        <span>🎋 ჯუნგლების გზა</span>
-        <span class="tour-badge" id="tour">ტური 1 / 8</span>
-    </div>
-
-    <div class="game-area">
-        <div class="panda" id="panda">🐼</div>
-        <div class="weapon-icon" id="weaponIcon">🎋</div>
-
-        <div class="story" id="story">
-            🌿 ჯუნგლებში საფრთხე იზრდება... მზად ხარ?
+    <div class="game-container">
+        <div class="game-header">
+            <h1>Panda Warrior 🐼⚔️</h1>
+            <div class="stats">
+                <div>Score: <span id="score">0</span></div>
+                <div>HP: <span id="health">100%</span></div>
+            </div>
         </div>
 
-        <button class="action-btn" id="actionBtn">🎮 გააგრძელე</button>
-        <button class="reset-btn" id="resetBtn">🔄 თავიდან</button>
+        <canvas id="gameCanvas" width="800" height="400"></canvas>
+
+        <div class="game-overlay" id="gameOverScreen">
+            <h2>GAME OVER</h2>
+            <p style="font-size: 18px; margin-bottom: 20px;">თქვენი ქულა: <span id="finalScore" style="color: var(--neon-blue);">0</span></p>
+            <button class="btn-restart" onclick="resetGame()">თავიდან დაწყება</button>
+        </div>
     </div>
-</div>
 
-<script>
-    const supabaseUrl = "https://dncrxdjuwgztdygndght.supabase.co";
-    const supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRuY3J4ZGp1d2d6dGR5Z25kZ2h0Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODEzNTMwMzgsImV4cCI6MjA5NjkyOTAzOH0.BjfVBPm-xqXR4fruAjh7FGYg_FDNDqR8VK3QSdnCv5U";
-    const sb = createClient(supabaseUrl, supabaseKey);
+    <div class="controls-hint">
+        მართვა: <span class="key">Space</span> / <span class="key">W</span> - გახტომა | 
+        <span class="key">F</span> / <span class="key">Left Click</span> - ხმლის დარტყმა (შეტევა)
+    </div>
 
-    let currentUser = null;
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const scoreEl = document.getElementById('score');
+        const healthEl = document.getElementById('health');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const finalScoreEl = document.getElementById('finalScore');
 
-    // თამაშის მდგომარეობა
-    let game = {
-        health: 5,
-        weapon: 3,
-        score: 0,
-        tour: 1,
-        finished: false,
-        waiting: false
-    };
+        // თამაშის ძირითადი მდგომარეობა
+        let gameActive = true;
+        let score = 0;
+        let gameSpeed = 4;
 
-    // ========== 8 ტურის მოვლენები ==========
-    const events = [
-        {   // ტური 1
-            text: "🌿 გზაზე მშიერი ვეფხვი შეგხვდა!",
-            action: (g) => {
-                let dmg = 2 + Math.floor(g.weapon / 2);
-                g.health -= 1;
-                g.score += dmg * 4;
-                return { msg: `⚔️ შეუტევე ბამბუკით! -1 სიცოცხლე, +${dmg*4} ქულა`, healthChange: -1, scoreChange: dmg*4 };
+        // პანდას (მოთამაშის) ობიექტი
+        const panda = {
+            x: 80,
+            y: 300,
+            width: 45,
+            height: 55,
+            velocityY: 0,
+            gravity: 0.6,
+            jumpForce: -13,
+            isJumping: false,
+            health: 100,
+            isAttacking: false,
+            attackTimer: 0,
+            color: '#ffffff'
+        };
+
+        // მასივები მტრებისა და ეფექტებისთვის
+        let enemies = [];
+        let particles = [];
+        let enemySpawnTimer = 0;
+
+        // კლავიატურის ივენთები
+        const keys = {};
+        window.addEventListener('keydown', e => {
+            keys[e.code] = true;
+            if ((e.code === 'Space' || e.code === 'KeyW') && !panda.isJumping && gameActive) {
+                panda.velocityY = panda.jumpForce;
+                panda.isJumping = true;
+                createParticles(panda.x + panda.width/2, panda.y + panda.height, '#00f0ff', 8);
             }
-        },
-        {   // ტური 2
-            text: "🍌 მაიმუნების ხროვა ბანანს გძარცვავს!",
-            action: (g) => {
-                g.score += 15;
-                g.weapon = Math.min(10, g.weapon + 1);
-                return { msg: `🐒 მოატყუე ისინი! +15 ქულა, იარაღი +1`, healthChange: 0, scoreChange: 15 };
+            if (e.code === 'KeyF' && !panda.isAttacking && gameActive) {
+                triggerAttack();
             }
-        },
-        {   // ტური 3
-            text: "🌊 მდინარეს გადაკვეთა გჭირდება...",
-            action: (g) => {
-                g.health = Math.min(10, g.health + 2);
-                g.score += 12;
-                return { msg: `🏊 ძლივს გადაცურე! +2 სიცოცხლე, +12 ქულა`, healthChange: 2, scoreChange: 12 };
-            }
-        },
-        {   // ტური 4 - ბოსი
-            text: "🐅 საშინელი ვეფხვი (ბოსი) გელოდება!",
-            action: (g) => {
-                let power = 8 + Math.floor(g.weapon / 2);
-                g.health -= 2;
-                g.score += power * 5 + 40;
-                return { msg: `💥 ეპიკური ბრძოლა! -2 სიცოცხლე, +${power*5+40} ქულა`, healthChange: -2, scoreChange: power*5+40 };
-            }
-        },
-        {   // ტური 5
-            text: "🍄 მომწამლელი სოკოების ველი...",
-            action: (g) => {
-                g.health = Math.max(1, g.health - 1);
-                g.score += 20;
-                return { msg: `😰 ოღონდ შხამი ჩაისუნთქე! -1 სიცოცხლე, +20 ქულა`, healthChange: -1, scoreChange: 20 };
-            }
-        },
-        {   // ტური 6
-            text: "🦎 გიგანტური ხვლიკი გესხმის თავს!",
-            action: (g) => {
-                let dmg = 6 + g.weapon;
-                g.score += dmg * 2;
-                g.weapon = Math.min(10, g.weapon + 1);
-                return { msg: `🎋 სწრაფი შეტევა! +${dmg*2} ქულა, იარაღი +1`, healthChange: 0, scoreChange: dmg*2 };
-            }
-        },
-        {   // ტური 7
-            text: "💎 ბროლის გამოქვაბულში საოცარი ქვა ბრწყინავს",
-            action: (g) => {
-                g.score += 30;
-                g.health = Math.min(10, g.health + 2);
-                return { msg: `✨ ქვამ დაგლოცა! +2 სიცოცხლე, +30 ქულა`, healthChange: 2, scoreChange: 30 };
-            }
-        },
-        {   // ტური 8 - ფინალი
-            text: "🐉 უძველესი ჯუნგლების დრაკონი! საბოლოო ბრძოლა!",
-            action: (g) => {
-                let finalPower = 15 + g.weapon;
-                g.health -= 2;
-                g.score += finalPower * 6 + 100;
-                return { msg: `🏆 გმირული გამარჯვება! -2 სიცოცხლე, +${finalPower*6+100} ქულა`, healthChange: -2, scoreChange: finalPower*6+100 };
+        });
+        window.addEventListener('keyup', e => keys[e.code] = false);
+        canvas.addEventListener('mousedown', () => { if(gameActive) triggerAttack(); });
+
+        function triggerAttack() {
+            panda.isAttacking = true;
+            panda.attackTimer = 15; // დარტყმის ხანგრძლივობა (ფრეიმებში)
+            
+            // დარტყმის ტალღის ნაწილაკები
+            createParticles(panda.x + panda.width + 20, panda.y + panda.height/2, '#ff0055', 5);
+        }
+
+        // ნაწილაკების (Particles) სისტემა აფეთქებებისთვის
+        function createParticles(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                particles.push({
+                    x: x,
+                    y: y,
+                    size: Math.random() * 4 + 2,
+                    speedX: (Math.random() - 0.5) * 8,
+                    speedY: (Math.random() - 0.5) * 8,
+                    color: color,
+                    alpha: 1
+                });
             }
         }
-    ];
 
-    // DOM ელემენტები
-    const healthEl = document.getElementById('health');
-    const weaponEl = document.getElementById('weapon');
-    const scoreEl = document.getElementById('score');
-    const tourEl = document.getElementById('tour');
-    const storyEl = document.getElementById('story');
-    const pandaEl = document.getElementById('panda');
-    const weaponIconEl = document.getElementById('weaponIcon');
-    const actionBtn = document.getElementById('actionBtn');
-    const resetBtn = document.getElementById('resetBtn');
-
-    function updateUI() {
-        healthEl.textContent = game.health;
-        weaponEl.textContent = game.weapon;
-        scoreEl.textContent = game.score;
-        tourEl.textContent = `ტური ${game.tour} / 8`;
-
-        // ვიზუალი სიცოცხლის მიხედვით
-        if (game.health <= 2) pandaEl.textContent = "😖🐼";
-        else if (game.health <= 4) pandaEl.textContent = "😐🐼";
-        else pandaEl.textContent = "😎🐼";
-
-        // იარაღის იკონა
-        if (game.weapon >= 7) weaponIconEl.textContent = "🌟🎋";
-        else if (game.weapon >= 4) weaponIconEl.textContent = "⚡🎋";
-        else weaponIconEl.textContent = "🎋";
-    }
-
-    async function saveScoreToDatabase() {
-        if (!currentUser) return;
-        try {
-            await sb.from('profiles').update({ panda_score: game.score }).eq('id', currentUser.id);
-            console.log("ქულა შენახულია");
-        } catch(e) { console.log(e); }
-    }
-
-    function showResultAndNext(resultMsg, healthChange, scoreChange) {
-        storyEl.innerHTML = `🎋 ${resultMsg}`;
-        
-        // ანიმაცია
-        storyEl.classList.add('result-flash');
-        setTimeout(() => storyEl.classList.remove('result-flash'), 300);
-        
-        // ღილაკის დაბლოკვა დროებით
-        game.waiting = true;
-        actionBtn.disabled = true;
-        
-        setTimeout(() => {
-            // შევამოწმოთ სიცოცხლე
-            if (game.health <= 0) {
-                game.finished = true;
-                storyEl.innerHTML = `💀 პანდა დაეცა... ქულა: ${game.score}. დააჭირე "თავიდან".`;
-                actionBtn.disabled = true;
-                actionBtn.style.opacity = "0.5";
-                saveScoreToDatabase();
-                game.waiting = false;
-                return;
+        // მტრების გენერაცია (ბოროტი კიბერ-სამურაები/რობოტები)
+        function spawnEnemy() {
+            enemySpawnTimer++;
+            if (enemySpawnTimer > Math.max(40, 100 - score * 0.5)) { // ქულების მატებასთან ერთად მტრები უფრო ხშირად ჩნდებიან
+                enemySpawnTimer = 0;
+                enemies.push({
+                    x: canvas.width,
+                    y: 310,
+                    width: 35,
+                    height: 45,
+                    color: '#ff0055',
+                    speed: gameSpeed + Math.random() * 2
+                });
             }
-            
-            // გადასვლა შემდეგ ტურზე
-            if (game.tour < 8) {
-                game.tour++;
-                updateUI();
-                loadCurrentTour();
-                game.waiting = false;
-                actionBtn.disabled = false;
-            } else {
-                // თამაში დასრულდა მოგებით
-                game.finished = true;
-                storyEl.innerHTML = `🎉 გილოცავ! შენ დაიცავი ჯუნგლები! საბოლოო ქულა: ${game.score} 🎉`;
-                actionBtn.disabled = true;
-                actionBtn.style.opacity = "0.5";
-                saveScoreToDatabase();
-                game.waiting = false;
-            }
-        }, 1500);
-    }
-
-    function loadCurrentTour() {
-        if (game.finished) return;
-        
-        const event = events[game.tour - 1];
-        storyEl.innerHTML = event.text;
-        actionBtn.textContent = "⚔️ იბრძოლე / გააგრძელე";
-        actionBtn.disabled = false;
-        actionBtn.style.opacity = "1";
-        
-        // შენახული მოქმედება
-        actionBtn.onclick = () => {
-            if (game.waiting || game.finished) return;
-            
-            const result = event.action(game);
-            
-            // ლიმიტები
-            game.health = Math.max(0, Math.min(10, game.health));
-            game.weapon = Math.max(1, Math.min(10, game.weapon));
-            updateUI();
-            
-            showResultAndNext(result.msg, result.healthChange || 0, result.scoreChange || 0);
-        };
-    }
-
-    function resetGame() {
-        game = {
-            health: 5,
-            weapon: 3,
-            score: 0,
-            tour: 1,
-            finished: false,
-            waiting: false
-        };
-        updateUI();
-        loadCurrentTour();
-    }
-
-    async function init() {
-        const { data: { user } } = await sb.auth.getUser();
-        if (!user) {
-            storyEl.innerHTML = "❌ გთხოვთ, შედით მთავარი ჩატიდან პირველ რიგში.";
-            actionBtn.disabled = true;
-            return;
         }
-        currentUser = user;
-        resetGame();
-    }
 
-    resetBtn.onclick = () => resetGame();
-    init();
-</script>
+        // მთავარი განახლების ფუნქცია (Logic)
+        function update() {
+            if (!gameActive) return;
+
+            // გრავიტაცია და პანდას მოძრაობა
+            panda.velocityY += panda.gravity;
+            panda.y += panda.velocityY;
+
+            // მიწასთან შეჯახება
+            if (panda.y > 300) {
+                panda.y = 300;
+                panda.velocityY = 0;
+                panda.isJumping = false;
+            }
+
+            // შეტევის ტაიმერი
+            if (panda.isAttacking) {
+                panda.attackTimer--;
+                if (panda.attackTimer <= 0) panda.isAttacking = false;
+            }
+
+            // მტრების ლოგიკა
+            for (let i = enemies.length - 1; i >= 0; i--) {
+                let e = enemies[i];
+                e.x -= e.speed;
+
+                // შეჯახება პანდას შეტევის ზონასთან (ხმლით კვლა)
+                if (panda.isAttacking && 
+                    e.x < panda.x + panda.width + 40 && 
+                    e.x + e.width > panda.x && 
+                    e.y < panda.y + panda.height && 
+                    e.y + e.height > panda.y) {
+                    
+                    createParticles(e.x + e.width/2, e.y + e.height/2, '#ff0055', 12);
+                    enemies.splice(i, 1);
+                    score += 10;
+                    scoreEl.innerText = score;
+                    if (score % 50 === 0) gameSpeed += 0.5; // სირთულის მომატება
+                    continue;
+                }
+
+                // შეჯახება უშუალოდ პანდასთან (ზიანის მიყენება)
+                if (e.x < panda.x + panda.width && 
+                    e.x + e.width > panda.x && 
+                    e.y < panda.y + panda.height && 
+                    e.y + e.height > panda.y) {
+                    
+                    panda.health -= 20;
+                    createParticles(panda.x + panda.width/2, panda.y + panda.height/2, '#39ff14', 10);
+                    healthEl.innerText = panda.health + '%';
+                    enemies.splice(i, 1);
+
+                    if (panda.health <= 0) {
+                        endGame();
+                    }
+                    continue;
+                }
+
+                // თუ მტერმა გაცდა ეკრანს
+                if (e.x + e.width < 0) {
+                    enemies.splice(i, 1);
+                    score += 1; // გადარჩენისთვის 1 ქულა
+                    scoreEl.innerText = score;
+                }
+            }
+
+            // ნაწილაკების განახლება
+            for (let i = particles.length - 1; i >= 0; i--) {
+                let p = particles[i];
+                p.x += p.speedX;
+                p.y += p.speedY;
+                p.alpha -= 0.02;
+                if (p.alpha <= 0) particles.splice(i, 1);
+            }
+
+            spawnEnemy();
+        }
+
+        // ვიზუალური დახატვის ფუნქცია (Render)
+        function draw() {
+            // ეკრანის გასუფთავება კიბერპანკ ფონით
+            ctx.fillStyle = '#05070f';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // ნეონის ჰორიზონტალური ხაზები (უკანა ფონი)
+            ctx.strokeStyle = 'rgba(0, 240, 255, 0.05)';
+            ctx.lineWidth = 2;
+            for(let i=0; i<canvas.height; i+=40) {
+                ctx.beginPath();
+                ctx.moveTo(0, i);
+                ctx.lineTo(canvas.width, i);
+                ctx.stroke();
+            }
+
+            // მიწის (Ground) დახატვა ნეონის ხაზით
+            ctx.fillStyle = '#0f1322';
+            ctx.fillRect(0, 355, canvas.width, 45);
+            ctx.strokeStyle = varColor('--neon-blue');
+            ctx.lineWidth = 3;
+            ctx.shadowBlur = 10;
+            ctx.shadowColor = varColor('--neon-blue');
+            ctx.beginPath();
+            ctx.moveTo(0, 355);
+            ctx.lineTo(canvas.width, 355);
+            ctx.stroke();
+            ctx.shadowBlur = 0; // ჩრდილის მოხსნა სხვა ელემენტებისთვის
+
+            // 1. პანდა მეომრის დახატვა (სტილიზებული)
+            ctx.save();
+            ctx.translate(panda.x, panda.y);
+            
+            // პანდას სხეული (თეთრი/შავი კიბერ-ჯავშანი)
+            ctx.fillStyle = '#ffffff';
+            ctx.beginPath();
+            ctx.arc(panda.width/2, panda.height/2, 22, 0, Math.PI*2);
+            ctx.fill();
+
+            // შავი ყურები და თვალები
+            ctx.fillStyle = '#11131c';
+            ctx.beginPath();
+            ctx.arc(10, 10, 8, 0, Math.PI*2); // მარცხენა ყური
+            ctx.arc(panda.width - 10, 10, 8, 0, Math.PI*2); // მარჯვენა ყური
+            ctx.fill();
+            
+            // თვალის პატჩები
+            ctx.fillRect(12, 20, 8, 10);
+            ctx.fillRect(panda.width - 20, 20, 8, 10);
+            // მწვანე მანათობელი კიბერ-თვალები
+            ctx.fillStyle = varColor('--neon-green');
+            ctx.shadowBlur = 8;
+            ctx.shadowColor = varColor('--neon-green');
+            ctx.fillRect(14, 23, 4, 4);
+            ctx.fillRect(panda.width - 18, 23, 4, 4);
+            ctx.restore();
+            ctx.shadowBlur = 0;
+
+            // პანდას ხმალი (Attack Visual)
+            if (panda.isAttacking) {
+                ctx.save();
+                ctx.strokeStyle = varColor('--neon-accent');
+                ctx.lineWidth = 4;
+                ctx.shadowBlur = 15;
+                ctx.shadowColor = varColor('--neon-accent');
+                ctx.beginPath();
+                ctx.moveTo(panda.x + panda.width, panda.y + 10);
+                ctx.lineTo(panda.x + panda.width + 35, panda.y + panda.height/2 + 5);
+                ctx.stroke();
+                ctx.restore();
+                ctx.shadowBlur = 0;
+            }
+
+            // 2. მტრების დახატვა
+            enemies.forEach(e => {
+                ctx.fillStyle = e.color;
+                ctx.shadowBlur = 8;
+                ctx.shadowColor = e.color;
+                // კიბერ რობოტის ფორმა
+                ctx.fillRect(e.x, e.y, e.width, e.height);
+                // მტრის მანათობელი ზოლი
+                ctx.fillStyle = '#00f0ff';
+                ctx.fillRect(e.x + 5, e.y + 10, e.width - 10, 4);
+                ctx.shadowBlur = 0;
+            });
+
+            // 3. ნაწილაკების დახატვა
+            particles.forEach(p => {
+                ctx.save();
+                ctx.globalAlpha = p.alpha;
+                ctx.fillStyle = p.color;
+                ctx.fillRect(p.x, p.y, p.size, p.size);
+                ctx.restore();
+            });
+        }
+
+        // დამხმარე ფუნქცია CSS ცვლადის მნიშვნელობის წასაკითხად
+        function varColor(name) {
+            return getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+        }
+
+        // თამაშის მთავარი ციკლი (Loop)
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        function endGame() {
+            gameActive = false;
+            finalScoreEl.innerText = score;
+            gameOverScreen.style.display = 'flex';
+        }
+
+        function resetGame() {
+            gameActive = true;
+            score = 0;
+            gameSpeed = 4;
+            panda.health = 100;
+            panda.y = 300;
+            panda.velocityY = 0;
+            panda.isJumping = false;
+            panda.isAttacking = false;
+            enemies = [];
+            particles = [];
+            scoreEl.innerText = '0';
+            healthEl.innerText = '100%';
+            gameOverScreen.style.display = 'none';
+        }
+
+        // თამაშის გაშვება
+        gameLoop();
+    </script>
 </body>
 </html>
