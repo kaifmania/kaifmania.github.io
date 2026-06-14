@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+    <meta charset="UTF-8">
+    <title>Panda Adventure</title>
+    <style>
+        body {
+            margin: 0; padding: 0;
+            background-color: #1c1a30;
+            display: flex; flex-direction: column;
+            justify-content: center; align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif; color: #ede0ff;
+        }
+        canvas {
+            background: linear-gradient(to bottom, #87CEEB, #E0F6FF);
+            border: 4px solid rgba(160,80,255,0.35);
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(168,85,247,0.3);
+        }
+        h1 { font-size: 2rem; margin-bottom: 10px; color: #f07aff; font-family: sans-serif; }
+        .controls { margin-top: 15px; color: #b580e0; font-size: 0.9rem; }
+        kbd { background: #252240; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(160,80,255,0.35); }
+    </style>
+</head>
+<body>
+
+    <h1>🐼 PANDA ADVENTURE</h1>
+    <canvas id="gameCanvas" width="800" height="400"></canvas>
+    <div class="controls">
+        კონტროლი: <kbd>A</kbd> <kbd>D</kbd> ან ისრები - მოძრაობა | <kbd>Space</kbd> ან <kbd>W</kbd> - ხტომა
+    </div>
+
+<script>
+    const canvas = document.getElementById("gameCanvas");
+    const ctx = canvas.getContext("2d");
+    const gravity = 0.6;
+
+    // 🚀 პირდაპირ ინტერნეტიდან შემოგაქვს ორიგინალი თამაშის პანდას ანიმაციის ფაილი (Sprite Sheet)
+    const pandaImage = new Image();
+    pandaImage.src = "https://images.squarespace-cdn.com/content/v1/52e2e960e4b0cde23114971c/1393630248450-4E8XF70P71B8O7BFEIDW/panda_walk.png"; 
+
+    const panda = {
+        x: 100, y: 200, 
+        width: 65, height: 60, // ზომები ზუსტად მოვარგე, რომ არ გაიწელოს
+        velocityX: 0, velocityY: 0, 
+        speed: 5, jumpForce: 13, 
+        grounded: false,
+        
+        // ანიმაციის პარამეტრები (ორიგინალ სურათს აქვს 4 კადრი)
+        currentFrame: 0,
+        frameCount: 4, 
+        frameTimer: 0,
+        frameSpeed: 6, // სირბილის სიჩქარე
+        direction: "right"
+    };
+
+    const platforms = [
+        { x: 0, y: 350, width: 800, height: 50, color: "#57606f" }, 
+        { x: 200, y: 240, width: 160, height: 20, color: "#d2dae2" },
+        { x: 480, y: 170, width: 180, height: 20, color: "#d2dae2" }
+    ];
+
+    const keys = { Right: false, Left: false, Up: false };
+
+    window.addEventListener("keydown", (e) => {
+        if (e.code === "ArrowRight" || e.code === "KeyD") { keys.Right = true; panda.direction = "right"; }
+        if (e.code === "ArrowLeft" || e.code === "KeyA") { keys.Left = true; panda.direction = "left"; }
+        if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") keys.Up = true;
+    });
+
+    window.addEventListener("keyup", (e) => {
+        if (e.code === "ArrowRight" || e.code === "KeyD") keys.Right = false;
+        if (e.code === "ArrowLeft" || e.code === "KeyA") keys.Left = false;
+        if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") keys.Up = false;
+    });
+
+    function checkCollision(player, obj) {
+        return player.x < obj.x + obj.width &&
+               player.x + player.width > obj.x &&
+               player.y < obj.y + obj.height &&
+               player.y + player.height > obj.y;
+    }
+
+    function updateAnimation() {
+        // თუ პანდა არ მოძრაობს, გაჩერდეს საწყის კადრზე
+        if (!keys.Right && !keys.Left) {
+            panda.currentFrame = 0;
+            return;
+        }
+
+        panda.frameTimer++;
+        if (panda.frameTimer >= panda.frameSpeed) {
+            panda.currentFrame = (panda.currentFrame + 1) % panda.frameCount;
+            panda.frameTimer = 0;
+        }
+    }
+
+    function gameLoop() {
+        if (keys.Right) panda.velocityX = panda.speed;
+        else if (keys.Left) panda.velocityX = -panda.speed;
+        else panda.velocityX = 0;
+
+        panda.velocityY += gravity;
+        if (keys.Up && panda.grounded) {
+            panda.velocityY = -panda.jumpForce;
+            panda.grounded = false;
+        }
+
+        panda.x += panda.velocityX;
+        panda.y += panda.velocityY;
+
+        if (panda.x < 0) panda.x = 0;
+        if (panda.x + panda.width > canvas.width) panda.x = canvas.width - panda.width;
+
+        panda.grounded = false;
+        for (let plat of platforms) {
+            if (checkCollision(panda, plat)) {
+                if (panda.velocityY > 0 && (panda.y + panda.height - panda.velocityY) <= plat.y) {
+                    panda.y = plat.y - panda.height;
+                    panda.velocityY = 0;
+                    panda.grounded = true;
+                }
+            }
+        }
+
+        updateAnimation();
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // მიწა და პლატფორმები
+        for (let plat of platforms) {
+            ctx.fillStyle = plat.color;
+            ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
+        }
+
+        // 🚀 ვხატავთ ნამდვილ პანდას, რომელიც ფეხებს ამოძრავებს გაქცევისას!
+        ctx.save();
+        
+        // ორიგინალი სურათის ზომების გამოთვლა კადრების მიხედვით
+        let spriteWidth = pandaImage.width / panda.frameCount;
+        let spriteHeight = pandaImage.height;
+
+        if (panda.direction === "left") {
+            ctx.scale(-1, 1);
+            ctx.drawImage(
+                pandaImage,
+                panda.currentFrame * spriteWidth, 0, spriteWidth, spriteHeight,
+                -panda.x - panda.width, panda.y, panda.width, panda.height
+            );
+        } else {
+            ctx.drawImage(
+                pandaImage,
+                panda.currentFrame * spriteWidth, 0, spriteWidth, spriteHeight,
+                panda.x, panda.y, panda.width, panda.height
+            );
+        }
+        ctx.restore();
+
+        requestAnimationFrame(gameLoop);
+    }
+
+    pandaImage.onload = function() {
+        gameLoop();
+    };
+</script>
+</body>
+</html>
