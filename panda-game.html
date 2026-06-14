@@ -18,7 +18,7 @@
             border-radius: 12px;
             box-shadow: 0 10px 30px rgba(168,85,247,0.3);
         }
-        h1 { font-size: 2rem; margin-bottom: 10px; color: #f07aff; font-family: sans-serif; }
+        h1 { font-size: 2rem; margin-bottom: 10px; color: #f07aff; }
         .controls { margin-top: 15px; color: #b580e0; font-size: 0.9rem; }
         kbd { background: #252240; padding: 3px 8px; border-radius: 4px; border: 1px solid rgba(160,80,255,0.35); }
     </style>
@@ -36,23 +36,17 @@
     const ctx = canvas.getContext("2d");
     const gravity = 0.6;
 
-    // 🚀 პირდაპირ ინტერნეტიდან შემოგაქვს ორიგინალი თამაშის პანდას ანიმაციის ფაილი (Sprite Sheet)
-    const pandaImage = new Image();
-    pandaImage.src = "https://images.squarespace-cdn.com/content/v1/52e2e960e4b0cde23114971c/1393630248450-4E8XF70P71B8O7BFEIDW/panda_walk.png"; 
-
     const panda = {
         x: 100, y: 200, 
-        width: 65, height: 60, // ზომები ზუსტად მოვარგე, რომ არ გაიწელოს
+        width: 50, height: 50, 
         velocityX: 0, velocityY: 0, 
         speed: 5, jumpForce: 13, 
         grounded: false,
         
-        // ანიმაციის პარამეტრები (ორიგინალ სურათს აქვს 4 კადრი)
-        currentFrame: 0,
-        frameCount: 4, 
-        frameTimer: 0,
-        frameSpeed: 6, // სირბილის სიჩქარე
-        direction: "right"
+        // ანიმაციისთვის
+        direction: "right",
+        isMoving: false,
+        animTimer: 0
     };
 
     const platforms = [
@@ -64,14 +58,15 @@
     const keys = { Right: false, Left: false, Up: false };
 
     window.addEventListener("keydown", (e) => {
-        if (e.code === "ArrowRight" || e.code === "KeyD") { keys.Right = true; panda.direction = "right"; }
-        if (e.code === "ArrowLeft" || e.code === "KeyA") { keys.Left = true; panda.direction = "left"; }
+        if (e.code === "ArrowRight" || e.code === "KeyD") { keys.Right = true; panda.direction = "right"; panda.isMoving = true; }
+        if (e.code === "ArrowLeft" || e.code === "KeyA") { keys.Left = true; panda.direction = "left"; panda.isMoving = true; }
         if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") keys.Up = true;
     });
 
     window.addEventListener("keyup", (e) => {
         if (e.code === "ArrowRight" || e.code === "KeyD") keys.Right = false;
         if (e.code === "ArrowLeft" || e.code === "KeyA") keys.Left = false;
+        if (!keys.Right && !keys.Left) panda.isMoving = false;
         if (e.code === "ArrowUp" || e.code === "Space" || e.code === "KeyW") keys.Up = false;
     });
 
@@ -82,18 +77,51 @@
                player.y + player.height > obj.y;
     }
 
-    function updateAnimation() {
-        // თუ პანდა არ მოძრაობს, გაჩერდეს საწყის კადრზე
-        if (!keys.Right && !keys.Left) {
-            panda.currentFrame = 0;
-            return;
+    // 🚀 ფუნქცია, რომელიც კოდით ხატავს საყვარელ პანდას
+    function drawPanda(x, y, width, height, direction, isMoving, animTimer) {
+        ctx.save();
+        
+        // თუ მარცხნივ მიდის, მთლიან ნახატს ვატრიალებთ კოდით
+        if (direction === "left") {
+            ctx.translate(x + width/2, y + height/2);
+            ctx.scale(-1, 1);
+            ctx.translate(-(x + width/2), -(y + height/2));
         }
 
-        panda.frameTimer++;
-        if (panda.frameTimer >= panda.frameSpeed) {
-            panda.currentFrame = (panda.currentFrame + 1) % panda.frameCount;
-            panda.frameTimer = 0;
+        let bounce = 0;
+        if (isMoving) {
+            bounce = Math.sin(animTimer * 0.3) * 3; // სირბილისას დახტუნაობის ეფექტი
         }
+
+        // 1. ყურები (შავი)
+        ctx.fillStyle = "#000000";
+        ctx.beginPath(); ctx.arc(x + 12, y + 12 + bounce, 8, 0, Math.PI * 2); ctx.fill(); // მარცხენა
+        ctx.beginPath(); ctx.arc(x + 38, y + 12 + bounce, 8, 0, Math.PI * 2); ctx.fill(); // მარჯვენა
+
+        // 2. ტანი/თავი (თეთრი დიდი წრე)
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath(); ctx.arc(x + 25, y + 28 + bounce, 20, 0, Math.PI * 2); ctx.fill();
+
+        // 3. შავი თვალის გარშემო ლაქები
+        ctx.fillStyle = "#000000";
+        ctx.beginPath(); ctx.arc(x + 17, y + 26 + bounce, 6, 0, Math.PI * 2); ctx.fill(); // მარცხენა ლაქა
+        ctx.beginPath(); ctx.arc(x + 33, y + 26 + bounce, 6, 0, Math.PI * 2); ctx.fill(); // მარჯვენა ლაქა
+
+        // 4. თეთრი თვალის გუგები
+        ctx.fillStyle = "#FFFFFF";
+        ctx.beginPath(); ctx.arc(x + 18, y + 25 + bounce, 2, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + 34, y + 25 + bounce, 2, 0, Math.PI * 2); ctx.fill();
+
+        // 5. ცხვირი
+        ctx.fillStyle = "#000000";
+        ctx.beginPath(); ctx.arc(x + 25, y + 32 + bounce, 3, 0, Math.PI * 2); ctx.fill();
+
+        // 6. ლოყები (წითელი საყვარელი პატარა წრეები)
+        ctx.fillStyle = "#ff85a2";
+        ctx.beginPath(); ctx.arc(x + 10, y + 33 + bounce, 3, 0, Math.PI * 2); ctx.fill();
+        ctx.beginPath(); ctx.arc(x + 40, y + 33 + bounce, 3, 0, Math.PI * 2); ctx.fill();
+
+        ctx.restore();
     }
 
     function gameLoop() {
@@ -124,45 +152,25 @@
             }
         }
 
-        updateAnimation();
+        if (panda.isMoving) {
+            panda.animTimer++;
+        }
 
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        // მიწა და პლატფორმები
+        // პლატფორმები
         for (let plat of platforms) {
             ctx.fillStyle = plat.color;
             ctx.fillRect(plat.x, plat.y, plat.width, plat.height);
         }
 
-        // 🚀 ვხატავთ ნამდვილ პანდას, რომელიც ფეხებს ამოძრავებს გაქცევისას!
-        ctx.save();
-        
-        // ორიგინალი სურათის ზომების გამოთვლა კადრების მიხედვით
-        let spriteWidth = pandaImage.width / panda.frameCount;
-        let spriteHeight = pandaImage.height;
-
-        if (panda.direction === "left") {
-            ctx.scale(-1, 1);
-            ctx.drawImage(
-                pandaImage,
-                panda.currentFrame * spriteWidth, 0, spriteWidth, spriteHeight,
-                -panda.x - panda.width, panda.y, panda.width, panda.height
-            );
-        } else {
-            ctx.drawImage(
-                pandaImage,
-                panda.currentFrame * spriteWidth, 0, spriteWidth, spriteHeight,
-                panda.x, panda.y, panda.width, panda.height
-            );
-        }
-        ctx.restore();
+        // 🚀 ვხატავთ პანდას კოდით
+        drawPanda(panda.x, panda.y, panda.width, panda.height, panda.direction, panda.isMoving, panda.animTimer);
 
         requestAnimationFrame(gameLoop);
     }
 
-    pandaImage.onload = function() {
-        gameLoop();
-    };
+    gameLoop();
 </script>
 </body>
 </html>
